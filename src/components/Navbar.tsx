@@ -21,11 +21,11 @@ interface NavbarProps {
   balance?: number;
   onOpenDrawer?: () => void;
   onOpenAuth?: () => void;
-  user?: { name: string; email: string } | null;
+  user?: { name: string; email: string; id?: string; balance?: number } | null;
 }
 
 export default function Navbar({
-  balance = 120.5,
+  balance = 0.0,
   onOpenDrawer,
   onOpenAuth,
   user: externalUser,
@@ -38,15 +38,18 @@ export default function Navbar({
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('autocash_is_logged_in');
-    const savedName = localStorage.getItem('autocash_username');
     const savedEmail = localStorage.getItem('autocash_email');
-    if (isLoggedIn === 'false') {
-      setInternalUser(null);
+    if (isLoggedIn === 'true' && savedEmail) {
+      fetch(`/api/auth/me?email=${encodeURIComponent(savedEmail)}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.success && data.user) {
+            setInternalUser(data.user);
+          }
+        })
+        .catch(() => {});
     } else {
-      setInternalUser({
-        name: savedName || 'Killer 0996',
-        email: savedEmail || 'dronemax0996@gmail.com',
-      });
+      setInternalUser(null);
     }
   }, []);
 
@@ -263,7 +266,9 @@ export default function Navbar({
                     {activeUser.name}
                   </span>
                   <span className="text-[10px] text-cyan-300 font-mono font-bold" dir="ltr">
-                    ID 1170
+                    {typeof (activeUser as any)?.id === 'string' && (activeUser as any).id.startsWith('USR-')
+                      ? (activeUser as any).id.replace('USR-', 'ID ')
+                      : String((activeUser as any)?.id || 'ID')}
                   </span>
                 </div>
               </button>

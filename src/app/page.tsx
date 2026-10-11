@@ -13,7 +13,7 @@ import AuthModal from '@/components/AuthModal';
 import SideDrawer from '@/components/SideDrawer';
 import { useLanguage } from '@/context/LanguageContext';
 import { CATEGORIES_9, SERVICES_DATA, ServiceItem } from '@/lib/data';
-import { Order } from '@/lib/orders';
+import type { Order } from '@/lib/orders';
 import {
   Search,
   Zap,
@@ -44,28 +44,33 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeModalService, setActiveModalService] = useState<ServiceItem | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [userBalance, setUserBalance] = useState<number>(120.5);
+  const [userBalance, setUserBalance] = useState<number>(0.0);
 
   // Show splash ONLY on full page reload / initial load, NOT on client-side router navigation
   const [showSplash, setShowSplash] = useState(!hasShownSplashInCurrentSession);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ id?: string; name: string; email: string; balance?: number } | null>(null);
 
   useEffect(() => {
     hasShownSplashInCurrentSession = true;
     fetchOrders();
 
     const isLoggedIn = localStorage.getItem('autocash_is_logged_in');
-    const savedName = localStorage.getItem('autocash_username');
     const savedEmail = localStorage.getItem('autocash_email');
-    if (isLoggedIn === 'false') {
-      setCurrentUser(null);
+    if (isLoggedIn === 'true' && savedEmail) {
+      fetch(`/api/auth/me?email=${encodeURIComponent(savedEmail)}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.success && data.user) {
+            setCurrentUser(data.user);
+            setUserBalance(data.user.balance || 0.0);
+          }
+        })
+        .catch((e) => console.error(e));
     } else {
-      setCurrentUser({
-        name: savedName || 'Killer 0996',
-        email: savedEmail || 'dronemax0996@gmail.com',
-      });
+      setCurrentUser(null);
+      setUserBalance(0.0);
     }
   }, []);
 
@@ -78,14 +83,18 @@ export default function HomePage() {
     localStorage.setItem('autocash_is_logged_in', 'false');
     localStorage.removeItem('autocash_username');
     localStorage.removeItem('autocash_email');
+    localStorage.removeItem('autocash_userId');
     setCurrentUser(null);
+    setUserBalance(0.0);
   };
 
-  const handleAuthSuccess = (usr: { name: string; email: string }) => {
+  const handleAuthSuccess = (usr: { id?: string; name: string; email: string; balance?: number }) => {
     localStorage.setItem('autocash_is_logged_in', 'true');
     localStorage.setItem('autocash_username', usr.name);
     localStorage.setItem('autocash_email', usr.email);
+    if (usr.id) localStorage.setItem('autocash_userId', usr.id);
     setCurrentUser(usr);
+    setUserBalance(usr.balance ?? 0.0);
   };
 
   const fetchOrders = async () => {
@@ -100,9 +109,14 @@ export default function HomePage() {
     }
   };
 
-  const handleOrderSuccess = (newOrder: Order) => {
+  const handleOrderSuccess = (newOrder: Order, newBalance?: number) => {
     setOrders((prev) => [newOrder, ...prev]);
-    setUserBalance((prev) => Math.max(0, prev - newOrder.amount));
+    if (newBalance !== undefined) {
+      setUserBalance(newBalance);
+    } else {
+      const orderAmount = Number(newOrder.amount ?? (newOrder as any).price ?? 0);
+      setUserBalance((prev) => Math.max(0, Math.round((prev - orderAmount) * 100) / 100));
+    }
   };
 
   // Only open products when a category is explicitly clicked, or searching
@@ -391,6 +405,9 @@ export default function HomePage() {
                       src={cat.image}
                       alt={getCategoryName(cat.id, cat.name)}
                       className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300 brightness-95 contrast-105"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = '/logo.png';
+                      }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#030a14]/90 via-[#030a14]/40 to-transparent" />
                   </div>
@@ -421,19 +438,7 @@ export default function HomePage() {
           <section className="pt-2 animate-in fade-in duration-300 space-y-4">
             {/* Header with Back to Categories Button */}
             <div className="flex items-center justify-between gap-2 p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-[#07192d] to-slate-900 border border-amber-500/40 shadow-xl">
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-2.5 h-6 rounded-full bg-amber-400 shadow-md shadow-amber-400/60 flex-shrink-0" />
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="font-ukij text-sm sm:text-lg font-bold text-white whitespace-nowrap">
-                    {activeCategoryObj ? getCategoryName(activeCategoryObj.id, activeCategoryObj.name) : t('searchPlaceholder')}
-                  </h3>
-                  <span className="font-alkatip text-xs sm:text-sm font-semibold text-amber-300 bg-amber-950/80 border border-amber-500/40 px-2.5 py-0.5 rounded-full whitespace-nowrap">
-                    ({filteredServices.length})
-                  </span>
-                </div>
-              </div>
-
-              {/* Back to Categories Button */}
+              {/* Back to Categories Button (On Right in RTL) */}
               <button
                 onClick={() => {
                   setSelectedCat(null);
@@ -441,9 +446,22 @@ export default function HomePage() {
                 }}
                 className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-950 font-black gold-shimmer-btn px-3 sm:px-4 py-2 rounded-xl transition font-alkatip cursor-pointer shadow-lg hover:scale-105 active:scale-95 flex-shrink-0 whitespace-nowrap"
               >
+                {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
                 <span>{t('backToCategories')}</span>
-                {isRTL ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
               </button>
+
+              {/* Category Name & Count */}
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-alkatip text-xs sm:text-sm font-semibold text-amber-300 bg-amber-950/80 border border-amber-500/40 px-2.5 py-0.5 rounded-full whitespace-nowrap">
+                    ({filteredServices.length})
+                  </span>
+                  <h3 className="font-ukij text-sm sm:text-lg font-bold text-white whitespace-nowrap">
+                    {activeCategoryObj ? getCategoryName(activeCategoryObj.id, activeCategoryObj.name) : t('searchPlaceholder')}
+                  </h3>
+                </div>
+                <div className="w-2.5 h-6 rounded-full bg-amber-400 shadow-md shadow-amber-400/60 flex-shrink-0" />
+              </div>
             </div>
 
             {/* Compact Product Cards Grid */}
@@ -466,6 +484,9 @@ export default function HomePage() {
                         alt={service.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = '/logo.png';
+                        }}
                       />
                       {service.badge && (
                         <span className={`absolute top-1 ${isRTL ? 'right-1' : 'left-1'} text-[7px] sm:text-[8px] font-black bg-amber-500 text-slate-950 px-1 py-0.2 rounded shadow font-alkatip`}>
@@ -557,6 +578,7 @@ export default function HomePage() {
       {activeModalService && (
         <CheckoutModal
           service={activeModalService}
+          user={currentUser}
           onClose={() => setActiveModalService(null)}
           onSuccess={handleOrderSuccess}
         />

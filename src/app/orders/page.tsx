@@ -16,7 +16,7 @@ import {
   Check, 
   RefreshCw
 } from 'lucide-react';
-import { Order } from '@/lib/orders';
+import type { Order } from '@/lib/orders';
 
 export default function OrdersPage() {
   const { lang, t, isRTL } = useLanguage();
@@ -91,7 +91,15 @@ export default function OrdersPage() {
       <main className="max-w-2xl mx-auto px-4 py-5 w-full flex-1 space-y-4">
         {/* Top Header */}
         <div className="flex items-center justify-between pb-2">
-          <div>
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 border border-amber-500/35 hover:border-amber-400 text-amber-300 hover:text-white text-xs font-bold transition shadow cursor-pointer font-alkatip"
+          >
+            {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            <span>{t('store')}</span>
+          </Link>
+
+          <div className={isRTL ? 'text-left' : 'text-right'}>
             <h1 className="font-ukij text-2xl sm:text-3xl font-black text-white gold-text-glow leading-snug">
               {t('ordersTitle')}
             </h1>
@@ -99,14 +107,6 @@ export default function OrdersPage() {
               {t('ordersSubtitle')}
             </p>
           </div>
-
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 border border-amber-500/35 hover:border-amber-400 text-amber-300 hover:text-white text-xs font-bold transition shadow cursor-pointer font-alkatip"
-          >
-            <span>{t('store')}</span>
-            {isRTL ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-          </Link>
         </div>
 
         {/* Filter Card container */}
@@ -300,7 +300,7 @@ export default function OrdersPage() {
 
                     <div className="text-left font-mono" dir="ltr">
                       <span className="font-extrabold text-amber-400 text-sm">
-                        ${order.amount.toFixed(2)}
+                        ${Number(order.amount ?? (order as any).price ?? 0).toFixed(2)}
                       </span>
                       <span className="block text-[10px] text-slate-500">
                         {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

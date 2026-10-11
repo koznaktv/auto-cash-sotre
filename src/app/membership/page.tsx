@@ -142,19 +142,19 @@ export default function MembershipVipPage() {
       <main className="max-w-3xl mx-auto px-4 py-5 w-full flex-1 space-y-5">
         {/* Top Header */}
         <div className="flex items-center justify-between pb-1">
-          <div>
-            <h1 className="font-ukij text-2xl sm:text-3xl font-black text-white gold-text-glow leading-snug">
-              {t('membershipTitle')}
-            </h1>
-          </div>
-
           <Link
             href="/"
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-400 text-slate-200 hover:text-white text-xs font-bold transition shadow cursor-pointer font-alkatip"
           >
+            {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             <span>{t('store')}</span>
-            {isRTL ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           </Link>
+
+          <div className={isRTL ? 'text-left' : 'text-right'}>
+            <h1 className="font-ukij text-2xl sm:text-3xl font-black text-white gold-text-glow leading-snug">
+              {t('membershipTitle')}
+            </h1>
+          </div>
         </div>
 
         {/* Big VIP Card */}

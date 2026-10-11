@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Order } from '@/lib/orders';
+import type { Order } from '@/lib/orders';
 import { useLanguage } from '@/context/LanguageContext';
 import { CheckCircle2, Clock, AlertTriangle, Copy, CreditCard } from 'lucide-react';
 
@@ -80,7 +80,7 @@ export default function OrdersList({ orders }: OrdersListProps) {
               </div>
 
               <div className="text-left font-bold text-lg text-cyan-400 font-mono" dir="ltr">
-                ${order.amount.toFixed(2)}
+                ${Number(order.amount ?? (order as any).price ?? 0).toFixed(2)}
               </div>
             </div>
 

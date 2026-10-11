@@ -2,8 +2,30 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'AUTO CASH - ئەپلەرگە، ئويۇنلارغا پۇل قاچىلاش ۋە سۈنئىي ئەقىل ئابۇنىتلىقى',
-  description: 'AUTO CASH رەقەملىك ماللار، ئويۇنلار، كارتىلار، مەۋھۇم نومۇرلار ۋە سۈنئىي ئەقىل مۇلازىمەت مەركىزى',
+  metadataBase: new URL('https://autocash.pro'),
+  title: 'AUTO CASH - ئەپلەرگە، ئويۇنلارغا پۇل قاچىلاش ۋە رەقەملىك كارتىلار سۇپىسى',
+  description: 'AUTO CASH رەقەملىك ماللار، ئويۇنلار، كارتىلار، مەۋھۇم نومۇرلار ۋە سۈنئىي ئەقىل مۇلازىمەت مەركىزى. ئىشەنچلىك، ئەرزان ۋە دەرھال يەتكۈزۈش.',
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
+  },
+  openGraph: {
+    title: 'AUTO CASH - ئەپلەرگە، ئويۇنلارغا پۇل قاچىلاش سۇپىسى',
+    description: 'رەقەملىك ماللار، سۈنئىي ئەقىل، ئويۇن كارتىلىرى ۋە ھېساباتلارنى بىخەتەر قاچىلاش سۇپىسى',
+    url: 'https://autocash.pro',
+    siteName: 'AUTO CASH',
+    images: [
+      {
+        url: '/logo.png',
+        width: 800,
+        height: 800,
+        alt: 'AUTO CASH Logo',
+      },
+    ],
+    locale: 'ug_CN',
+    type: 'website',
+  },
 };
 
 import TelegramFloat from '@/components/TelegramFloat';

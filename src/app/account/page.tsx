@@ -29,40 +29,62 @@ export default function AccountPage() {
   const [totalPurchases, setTotalPurchases] = useState<number>(0.00);
   const [totalOrders, setTotalOrders] = useState<number>(0);
 
-  // User Profile State
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
-  const [userId] = useState<string>('ID 1170');
-  const [name, setName] = useState<string>('Killer 0996');
-  const [email, setEmail] = useState<string>('dronemax0996@gmail.com');
+  const [userId, setUserId] = useState<string>('');
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
   const [currentPassword, setCurrentPassword] = useState<string>('');
   const [newPassword, setNewPassword] = useState<string>('');
+  const [vipTier, setVipTier] = useState<string>('VIP 1');
   
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
   const [passwordSuccess, setPasswordSuccess] = useState<boolean>(false);
+  const [passwordError, setPasswordError] = useState<string>('');
 
   useEffect(() => {
-    const loggedInVal = localStorage.getItem('autocash_is_logged_in');
-    const savedName = localStorage.getItem('autocash_username');
-    const savedEmail = localStorage.getItem('autocash_email');
-    const savedPhone = localStorage.getItem('autocash_phone');
+    loadUserData();
+  }, []);
 
-    if (loggedInVal === 'false') {
-      setIsLoggedIn(false);
-    } else {
+  const loadUserData = async () => {
+    const loggedInVal = localStorage.getItem('autocash_is_logged_in');
+    const savedEmail = localStorage.getItem('autocash_email');
+
+    if (loggedInVal === 'true' && savedEmail) {
       setIsLoggedIn(true);
-      if (savedName) setName(savedName);
-      if (savedEmail) setEmail(savedEmail);
-      if (savedPhone) setPhone(savedPhone);
+      try {
+        const res = await fetch(`/api/auth/me?email=${encodeURIComponent(savedEmail)}`);
+        const data = await res.json();
+        if (data.success && data.user) {
+          const u = data.user;
+          setName(u.name);
+          setEmail(u.email);
+          setPhone(u.phone || '');
+          setUserId(u.id);
+          setBalance(u.balance || 0.0);
+          setTotalDeposited(u.balance + (u.totalSpent || 0));
+          setTotalPurchases(u.totalSpent || 0);
+          setVipTier(u.vipTier ? u.vipTier.toUpperCase() : 'VIP 1');
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      setIsLoggedIn(false);
+      setBalance(0.0);
+      setTotalDeposited(0.0);
+      setTotalPurchases(0.0);
     }
 
     fetchOrdersCount();
-  }, []);
+  };
 
   const fetchOrdersCount = async () => {
     try {
-      const res = await fetch('/api/orders');
+      const savedEmail = localStorage.getItem('autocash_email');
+      const url = savedEmail ? `/api/orders?userEmail=${encodeURIComponent(savedEmail)}` : '/api/orders';
+      const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.orders) {
@@ -78,38 +100,84 @@ export default function AccountPage() {
     }
   };
 
-  const handleSaveInfo = (e: React.FormEvent) => {
+  const handleSaveInfo = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem('autocash_username', name);
-    localStorage.setItem('autocash_email', email);
-    localStorage.setItem('autocash_phone', phone);
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 2500);
+    try {
+      const res = await fetch('/api/auth/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          userEmail: email,
+          name,
+          phone,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        localStorage.setItem('autocash_username', name);
+        localStorage.setItem('autocash_email', email);
+        if (phone) localStorage.setItem('autocash_phone', phone);
+        setSavedSuccess(true);
+        setTimeout(() => setSavedSuccess(false), 2500);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleSavePassword = (e: React.FormEvent) => {
+  const handleSavePassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    setPasswordError('');
     if (!currentPassword || !newPassword) return;
-    setPasswordSuccess(true);
-    setCurrentPassword('');
-    setNewPassword('');
-    setTimeout(() => setPasswordSuccess(false), 2500);
+
+    try {
+      const res = await fetch('/api/auth/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          userEmail: email,
+          currentPassword,
+          newPassword,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPasswordSuccess(true);
+        setCurrentPassword('');
+        setNewPassword('');
+        setTimeout(() => setPasswordSuccess(false), 2500);
+      } else {
+        setPasswordError(data.message || 'پارول يېڭىلانمىدى');
+      }
+    } catch (err: any) {
+      setPasswordError(err?.message || 'خاتالىق كۆرۈلدى');
+    }
   };
 
   const handleLogout = () => {
     localStorage.setItem('autocash_is_logged_in', 'false');
     localStorage.removeItem('autocash_username');
     localStorage.removeItem('autocash_email');
+    localStorage.removeItem('autocash_userId');
     setIsLoggedIn(false);
+    setBalance(0.0);
+    setTotalPurchases(0.0);
+    setTotalOrders(0);
   };
 
-  const handleAuthSuccess = (usr: { name: string; email: string }) => {
+  const handleAuthSuccess = (usr: any) => {
     localStorage.setItem('autocash_is_logged_in', 'true');
     localStorage.setItem('autocash_username', usr.name);
     localStorage.setItem('autocash_email', usr.email);
+    if (usr.id) localStorage.setItem('autocash_userId', usr.id);
     setName(usr.name);
     setEmail(usr.email);
+    setUserId(usr.id);
+    setBalance(usr.balance || 0.0);
     setIsLoggedIn(true);
+    fetchOrdersCount();
   };
 
   return (
@@ -130,7 +198,15 @@ export default function AccountPage() {
       <main className="max-w-2xl mx-auto px-4 py-5 w-full flex-1 space-y-4">
         {/* Top Header */}
         <div className="flex items-center justify-between pb-1">
-          <div>
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-400 text-slate-200 hover:text-white text-xs font-bold transition shadow cursor-pointer font-alkatip"
+          >
+            {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            <span>{t('store')}</span>
+          </Link>
+
+          <div className={isRTL ? 'text-left' : 'text-right'}>
             <h1 className="font-ukij text-2xl sm:text-3xl font-black text-white gold-text-glow leading-snug">
               {t('accountTitle')}
             </h1>
@@ -138,14 +214,6 @@ export default function AccountPage() {
               {t('accountSubtitle')}
             </p>
           </div>
-
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-400 text-slate-200 hover:text-white text-xs font-bold transition shadow cursor-pointer font-alkatip"
-          >
-            <span>{t('store')}</span>
-            {isRTL ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-          </Link>
         </div>
 
         {/* User ID & Profile Banner */}
@@ -258,10 +326,10 @@ export default function AccountPage() {
 
         {/* 2x2 Grid of 4 Metric Cards */}
         <div className="grid grid-cols-2 gap-3 sm:gap-4">
-          <div className={`p-4 sm:p-5 rounded-2xl bg-[#07192d] border border-slate-800 hover:border-cyan-500/30 transition shadow-md flex flex-col justify-between ${isRTL ? 'text-right' : 'text-left'}`}>
+          <div className={`p-4 sm:p-5 rounded-2xl bg-[#07192d] border border-slate-800 hover:border-cyan-500/40 transition shadow-md flex flex-col justify-between ${isRTL ? 'text-right' : 'text-left'}`}>
             <div className={`flex ${isRTL ? 'justify-end' : 'justify-start'} mb-3`}>
-              <div className="w-10 h-10 rounded-xl bg-cyan-950/40 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-                <Wallet className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-cyan-950/40 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-md shadow-cyan-950/40">
+                <Wallet className="w-5 h-5 animate-floating-icon" style={{ animationDelay: '0s' }} />
               </div>
             </div>
             <div>
@@ -273,10 +341,10 @@ export default function AccountPage() {
             </div>
           </div>
 
-          <div className={`p-4 sm:p-5 rounded-2xl bg-[#07192d] border border-slate-800 hover:border-cyan-500/30 transition shadow-md flex flex-col justify-between ${isRTL ? 'text-right' : 'text-left'}`}>
+          <div className={`p-4 sm:p-5 rounded-2xl bg-[#07192d] border border-slate-800 hover:border-cyan-500/40 transition shadow-md flex flex-col justify-between ${isRTL ? 'text-right' : 'text-left'}`}>
             <div className={`flex ${isRTL ? 'justify-end' : 'justify-start'} mb-3`}>
-              <div className="w-10 h-10 rounded-xl bg-cyan-950/40 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-                <ArrowUpDown className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-cyan-950/40 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-md shadow-cyan-950/40">
+                <ArrowUpDown className="w-5 h-5 animate-floating-icon" style={{ animationDelay: '0.7s' }} />
               </div>
             </div>
             <div>
@@ -290,10 +358,10 @@ export default function AccountPage() {
             </div>
           </div>
 
-          <div className={`p-4 sm:p-5 rounded-2xl bg-[#07192d] border border-slate-800 hover:border-cyan-500/30 transition shadow-md flex flex-col justify-between ${isRTL ? 'text-right' : 'text-left'}`}>
+          <div className={`p-4 sm:p-5 rounded-2xl bg-[#07192d] border border-slate-800 hover:border-cyan-500/40 transition shadow-md flex flex-col justify-between ${isRTL ? 'text-right' : 'text-left'}`}>
             <div className={`flex ${isRTL ? 'justify-end' : 'justify-start'} mb-3`}>
-              <div className="w-10 h-10 rounded-xl bg-cyan-950/40 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-                <ShoppingCart className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-cyan-950/40 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-md shadow-cyan-950/40">
+                <ShoppingCart className="w-5 h-5 animate-floating-icon" style={{ animationDelay: '1.4s' }} />
               </div>
             </div>
             <div>
@@ -305,10 +373,10 @@ export default function AccountPage() {
             </div>
           </div>
 
-          <div className={`p-4 sm:p-5 rounded-2xl bg-[#07192d] border border-slate-800 hover:border-cyan-500/30 transition shadow-md flex flex-col justify-between ${isRTL ? 'text-right' : 'text-left'}`}>
+          <div className={`p-4 sm:p-5 rounded-2xl bg-[#07192d] border border-slate-800 hover:border-cyan-500/40 transition shadow-md flex flex-col justify-between ${isRTL ? 'text-right' : 'text-left'}`}>
             <div className={`flex ${isRTL ? 'justify-end' : 'justify-start'} mb-3`}>
-              <div className="w-10 h-10 rounded-xl bg-cyan-950/40 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-                <FileText className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-cyan-950/40 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-md shadow-cyan-950/40">
+                <FileText className="w-5 h-5 animate-floating-icon" style={{ animationDelay: '2.1s' }} />
               </div>
             </div>
             <div>
@@ -440,6 +508,12 @@ export default function AccountPage() {
                 />
               </div>
             </div>
+
+            {passwordError && (
+              <div className="p-2.5 rounded-xl bg-rose-950/40 border border-rose-900/60 text-xs text-rose-300">
+                {passwordError}
+              </div>
+            )}
 
             <div className="pt-2 flex items-center justify-between">
               {passwordSuccess ? (

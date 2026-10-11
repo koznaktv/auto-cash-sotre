@@ -8,11 +8,17 @@ import { X, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
 interface CheckoutModalProps {
   service: ServiceItem | null;
+  user?: { id?: string; email?: string; name?: string; balance?: number } | null;
   onClose: () => void;
-  onSuccess: (order: any) => void;
+  onSuccess: (order: any, newBalance?: number) => void;
 }
 
-export default function CheckoutModal({ service, onClose, onSuccess }: CheckoutModalProps) {
+export default function CheckoutModal({
+  service,
+  user,
+  onClose,
+  onSuccess,
+}: CheckoutModalProps) {
   const {
     t,
     isRTL,
@@ -49,18 +55,20 @@ export default function CheckoutModal({ service, onClose, onSuccess }: CheckoutM
           serviceId: service.id,
           packageId: selectedPkgId,
           targetAccount: accountInput.trim(),
+          userId: user?.id,
+          userEmail: user?.email,
         }),
       });
 
       const data = await res.json();
       if (!data.success) {
-        throw new Error(data.message || 'Error placing order');
+        throw new Error(data.message || 'زاكاز قوبۇل قىلىنمىدى');
       }
 
-      onSuccess(data.order);
+      onSuccess(data.order, data.newBalance);
       onClose();
     } catch (err: any) {
-      setErrorMsg(err.message || 'Error occurred');
+      setErrorMsg(err.message || 'خاتالىق كۆرۈلدى');
     } finally {
       setLoading(false);
     }
@@ -161,7 +169,7 @@ export default function CheckoutModal({ service, onClose, onSuccess }: CheckoutM
           )}
 
           {errorMsg && (
-            <div className="flex items-center gap-2 text-rose-400 text-xs bg-rose-950/30 border border-rose-900/50 p-2.5 rounded-lg">
+            <div className="flex items-center gap-2 text-rose-400 text-xs bg-rose-950/40 border border-rose-900/60 p-3 rounded-xl leading-relaxed">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{errorMsg}</span>
             </div>

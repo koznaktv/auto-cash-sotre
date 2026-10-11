@@ -29,7 +29,7 @@ import {
 interface SideDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  user: { name: string; email: string } | null;
+  user: { name: string; email: string; id?: string; balance?: number } | null;
   onOpenAuth: () => void;
   onLogout: () => void;
 }
@@ -170,7 +170,9 @@ export default function SideDrawer({
                         {user.name}
                       </h4>
                       <div className="px-2 py-0.5 rounded-lg bg-cyan-950/80 border border-cyan-500/50 text-cyan-300 font-mono font-black text-[11px] tracking-wider shrink-0 shadow-inner">
-                        ID 1170
+                        {typeof user.id === 'string' && user.id.startsWith('USR-')
+                          ? user.id.replace('USR-', 'ID ')
+                          : String(user.id || 'ID')}
                       </div>
                     </div>
                     <p className="text-[11px] text-amber-200/70 font-mono truncate mt-0.5" dir="ltr">

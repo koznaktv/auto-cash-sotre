@@ -1,0 +1,175 @@
+{
+  "settings": {
+    "adminPin": "9960996",
+    "shamcashAddress": "efe8a2b200d66411c7c7e296369cbba8",
+    "whatsappNumber": "+963 984 373 459",
+    "telegramUsername": "autocash_UYGHUR",
+    "siteName": "AUTO CASH"
+  },
+  "users": [
+    {
+      "id": "USR-1170",
+      "name": "Killer 0996",
+      "email": "dronemax0996@gmail.com",
+      "phone": "+963 984 373 459",
+      "passwordHash": "546f466d4d7f758342769a1a9c33b261741856208a94ab9a4ee38f31df1d7ea7bf533f4849578aa5f477082f998eb28dabd45bd6acde0428ed8435e4b552f2c9",
+      "salt": "bea28beefea99d1d09165aeed8cb61f5",
+      "balance": 120.5,
+      "totalSpent": 45,
+      "vipTier": "vip2",
+      "role": "admin",
+      "createdAt": "2026-10-01T10:00:00.000Z"
+    },
+    {
+      "id": "USR-1171",
+      "name": "خېرىدار",
+      "email": "client@autocash.shop",
+      "phone": "+963 999 123 456",
+      "passwordHash": "4a57075bef71fe6430f628c8a4a9fdebaf78d506fed8c54d7f85ba5deadf73b0d0408c6778c732e6d107186265771685b92454a08de0f96c5dc47287f548fc35",
+      "salt": "32c7e5d6d4190c5ceacbd3e44a2408de",
+      "balance": 25,
+      "totalSpent": 12.5,
+      "vipTier": "vip1",
+      "role": "user",
+      "createdAt": "2026-10-02T12:30:00.000Z"
+    },
+    {
+      "id": "USR-3126",
+      "name": "ئابدۇللا ئەخمەت",
+      "email": "testuser_1791663218150@autocash.pro",
+      "phone": "05551234567",
+      "passwordHash": "62cb1df2d71fbcf90d0c6dc5e083c042c83213dc78f6e1b8fef4df3752abdf8aa81a2be507506266ecbd09b04a52fd128832891c956c533a0017ef08803dd774",
+      "salt": "11ed8a8610cb18c8a5ab024b14c6f14d",
+      "balance": 0,
+      "totalSpent": 0,
+      "vipTier": "vip1",
+      "role": "user",
+      "createdAt": "2026-10-10T20:13:38.151Z"
+    },
+    {
+      "id": "USR-2195",
+      "name": "ئابدۇللا ئەخمەت",
+      "email": "testuser_1791663244262@autocash.pro",
+      "phone": "05551234567",
+      "passwordHash": "361ea8425741b74ea6a4a98146904449acef087933e098125c4aacbec201402f0d8536f1b1fee137de2b086c14f4eeaf3dda656afb12ac4ba52168e2206c9515",
+      "salt": "cbd6cf1df49058d33dee4bbf96680549",
+      "balance": 31.5,
+      "totalSpent": 18.5,
+      "vipTier": "vip1",
+      "role": "user",
+      "createdAt": "2026-10-10T20:14:04.263Z"
+    }
+  ],
+  "orders": [
+    {
+      "id": "ORD-39141",
+      "userId": "USR-2195",
+      "userName": "ئابدۇللا ئەخمەت",
+      "userEmail": "testuser_1791663244262@autocash.pro",
+      "serviceId": "pubg-mobile",
+      "serviceName": "PUBG Mobile 660 UC",
+      "category": "games",
+      "targetAccount": "5544332211",
+      "packageTitle": "660 UC",
+      "amount": 18.5,
+      "notes": "تېز قاچىلاپ بېرىڭ",
+      "status": "completed",
+      "createdAt": "2026-10-10T20:14:04.269Z"
+    },
+    {
+      "id": "ORD-98421",
+      "userId": "USR-1171",
+      "userEmail": "client@autocash.shop",
+      "serviceId": "chatgpt-plus",
+      "serviceName": "ChatGPT Plus / Pro",
+      "packageTitle": "1 ئايلىق مۇستەقىل ھېسابات (Private)",
+      "amount": 21.99,
+      "targetAccount": "client@autocash.shop",
+      "status": "completed",
+      "createdAt": "2026-10-10T18:13:38.141Z",
+      "details": {
+        "accountCredentials": "ھېسابات قوزغىتىلدى: client@autocash.shop (OpenAI Plus ئاكتىپ)"
+      }
+    },
+    {
+      "id": "ORD-98422",
+      "userId": "USR-1170",
+      "userEmail": "dronemax0996@gmail.com",
+      "serviceId": "pubg-mobile",
+      "serviceName": "PUBG Mobile UC",
+      "packageTitle": "660 UC (Royale Pass)",
+      "amount": 9.5,
+      "targetAccount": "581294819",
+      "status": "completed",
+      "createdAt": "2026-10-10T15:13:38.142Z"
+    },
+    {
+      "id": "ORD-98423",
+      "userId": "USR-1171",
+      "userEmail": "client@autocash.shop",
+      "serviceId": "telegram-sms",
+      "serviceName": "تېلېگرام مەۋھۇم نومۇر",
+      "packageTitle": "ئامېرىكا (+1) مەۋھۇم نومۇر",
+      "amount": 1.2,
+      "targetAccount": "United States (+1)",
+      "status": "processing",
+      "createdAt": "2026-10-10T20:11:38.142Z",
+      "details": {
+        "virtualNumber": "+1 (202) 555-0194",
+        "smsCode": "كود كۈتۈلمەكتە..."
+      }
+    }
+  ],
+  "deposits": [
+    {
+      "id": "DEP-3170",
+      "userId": "USR-2195",
+      "userName": "ئابدۇللا ئەخمەت",
+      "userEmail": "testuser_1791663244262@autocash.pro",
+      "userPhone": "05551234567",
+      "method": "shamcash",
+      "accountNumber": "SHAM-778899",
+      "amount": 50,
+      "transactionNo": "TXN1791663244267",
+      "status": "completed",
+      "date": "2026-10-10 20:14",
+      "reviewedAt": "2026-10-10 20:14"
+    },
+    {
+      "id": "DEP-8841",
+      "userId": "USR-1170",
+      "userName": "Killer 0996",
+      "userEmail": "dronemax0996@gmail.com",
+      "method": "شامكەش (Sham Cash)",
+      "amount": 50,
+      "status": "completed",
+      "date": "2026-10-08 18:24",
+      "txId": "SC-99238411",
+      "reviewedAt": "2026-10-08 18:25"
+    },
+    {
+      "id": "DEP-8812",
+      "userId": "USR-1171",
+      "userName": "خېرىدار",
+      "userEmail": "client@autocash.shop",
+      "method": "شامكەش (Sham Cash)",
+      "amount": 25,
+      "status": "completed",
+      "date": "2026-10-06 14:10",
+      "txId": "SC-77123990",
+      "reviewedAt": "2026-10-06 14:15"
+    },
+    {
+      "id": "DEP-8790",
+      "userId": "USR-1170",
+      "userName": "ئىشلەتكۈچى",
+      "userEmail": "vip@autocash.shop",
+      "method": "شامكەش (Sham Cash)",
+      "amount": 45.5,
+      "status": "completed",
+      "date": "2026-10-03 21:05",
+      "txId": "SC-55192834",
+      "reviewedAt": "2026-10-03 21:10"
+    }
+  ]
+}

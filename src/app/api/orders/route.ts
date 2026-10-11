@@ -1,15 +1,44 @@
 import { NextResponse } from 'next/server';
-import { ordersStore, Order } from '@/lib/orders';
+import {
+  getAllOrders,
+  createOrder,
+  updateOrderStatus,
+  getUserByEmail,
+  getUserById,
+  adjustUserBalance,
+  OrderRecord,
+} from '@/lib/db';
 import { SERVICES_DATA } from '@/lib/data';
+import { verifyAdminToken } from '@/lib/adminAuth';
 
-export async function GET() {
-  return NextResponse.json({ success: true, orders: ordersStore });
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get('userId');
+    const userEmail = searchParams.get('userEmail');
+
+    let orders = getAllOrders();
+    if (userId) {
+      orders = orders.filter((o) => o.userId === userId);
+    } else if (userEmail) {
+      orders = orders.filter(
+        (o) => o.userEmail?.toLowerCase() === userEmail.toLowerCase()
+      );
+    }
+
+    return NextResponse.json({ success: true, orders });
+  } catch (err: any) {
+    return NextResponse.json(
+      { success: false, message: err?.message || 'زاكازلارنى ئېلىشتا خاتالىق كۆرۈلدى' },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { serviceId, packageId, targetAccount } = body;
+    const { serviceId, packageId, targetAccount, userEmail, userId } = body;
 
     const service = SERVICES_DATA.find((s) => s.id === serviceId);
     if (!service) {
@@ -21,11 +50,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: 'تاللانغان تۈر تېپىلمىدى' }, { status: 404 });
     }
 
-    const newOrderId = `ORD-${Math.floor(10000 + Math.random() * 90000)}`;
+    // Check user and balance if user is logged in
+    let resolvedUser = null;
+    if (userId) {
+      resolvedUser = getUserById(userId);
+    } else if (userEmail) {
+      resolvedUser = getUserByEmail(userEmail);
+    }
 
-    let generatedDetails: Order['details'] = {};
+    // If user exists, deduct balance
+    if (resolvedUser) {
+      if (resolvedUser.balance < pkg.price) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: `ھەميان قالدۇقى يەتمىدى! ھازىرقى قالدۇقىڭىز $${resolvedUser.balance.toFixed(2)}، تەلەپ قىلىنغىنى $${pkg.price.toFixed(2)}. ئالدى بىلەن پۇل كىرگۈزۈڭ.`,
+          },
+          { status: 400 }
+        );
+      }
+      // Deduct balance
+      adjustUserBalance(resolvedUser.id, -pkg.price);
+    }
 
-    // Automatic mock behavior based on category
+    let generatedDetails: OrderRecord['details'] = {};
+
     if (service.category === 'numbers') {
       const randomUS = `+1 (${Math.floor(200 + Math.random() * 700)}) ${Math.floor(100 + Math.random() * 900)}-${Math.floor(1000 + Math.random() * 9000)}`;
       generatedDetails = {
@@ -47,22 +96,53 @@ export async function POST(req: Request) {
       };
     }
 
-    const newOrder: Order = {
-      id: newOrderId,
+    const newOrder = createOrder({
+      userId: resolvedUser?.id,
+      userEmail: resolvedUser?.email || userEmail,
       serviceId: service.id,
       serviceName: service.name,
       packageTitle: pkg.title,
       amount: pkg.price,
       targetAccount: targetAccount || 'تەلەپ قىلىنمىغان',
       status: service.category === 'numbers' ? 'processing' : 'completed',
-      createdAt: new Date().toISOString(),
       details: generatedDetails,
-    };
+    });
 
-    ordersStore.unshift(newOrder);
+    return NextResponse.json({
+      success: true,
+      order: newOrder,
+      newBalance: resolvedUser ? resolvedUser.balance - pkg.price : undefined,
+    });
+  } catch (err: any) {
+    return NextResponse.json(
+      { success: false, message: err?.message || 'زاكاز مەغلۇپ بولدى' },
+      { status: 500 }
+    );
+  }
+}
 
-    return NextResponse.json({ success: true, order: newOrder });
-  } catch {
-    return NextResponse.json({ success: false, message: 'زاكاز مەغلۇپ بولدى' }, { status: 500 });
+export async function PATCH(req: Request) {
+  try {
+    if (!verifyAdminToken(req)) {
+      return NextResponse.json(
+        { success: false, message: 'باشقۇرغۇچى سالاھىيىتى دەلىللەنمىدى (Unauthorized)' },
+        { status: 401 }
+      );
+    }
+
+    const body = await req.json();
+    const { orderId, status } = body;
+
+    const updated = updateOrderStatus(orderId, status);
+    if (!updated) {
+      return NextResponse.json({ success: false, message: 'زاكاز تېپىلمىدى' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, order: updated });
+  } catch (err: any) {
+    return NextResponse.json(
+      { success: false, message: err?.message || 'ھالەتنى يېڭىلاش مەغلۇپ بولدى' },
+      { status: 500 }
+    );
   }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import BottomNav from '@/components/BottomNav';
@@ -34,11 +34,12 @@ interface DepositRecord {
 
 export default function DepositPage() {
   const { lang, t, isRTL } = useLanguage();
-  const [balance, setBalance] = useState<number>(120.5);
+  const [balance, setBalance] = useState<number>(0.0);
   const [showDepositModal, setShowDepositModal] = useState<boolean>(false);
   const [amount, setAmount] = useState<number>(25);
   const [copied, setCopied] = useState<boolean>(false);
   const [txNote, setTxNote] = useState<string>('');
+  const [formError, setFormError] = useState<string>('');
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
   // Sham Cash payment method details
@@ -46,36 +47,51 @@ export default function DepositPage() {
     id: 'shamcash',
     name: 'شامكەش (Sham Cash)',
     nameEn: 'Sham Cash',
-    address: '963984373459',
+    address: 'efe8a2b200d66411c7c7e296369cbba8',
     rate: '1 USD = شامكەش نىسبىتى',
   };
 
-  const [depositHistory, setDepositHistory] = useState<DepositRecord[]>([
-    {
-      id: 'DEP-8841',
-      method: 'شامكەش (Sham Cash)',
-      amount: 50.0,
-      status: 'completed',
-      date: '2026-10-08 18:24',
-      txId: 'SC-99238411',
-    },
-    {
-      id: 'DEP-8812',
-      method: 'شامكەش (Sham Cash)',
-      amount: 25.0,
-      status: 'completed',
-      date: '2026-10-06 14:10',
-      txId: 'SC-77123990',
-    },
-    {
-      id: 'DEP-8790',
-      method: 'شامكەش (Sham Cash)',
-      amount: 45.5,
-      status: 'completed',
-      date: '2026-10-03 21:05',
-      txId: 'SC-55192834',
-    },
-  ]);
+  const [depositHistory, setDepositHistory] = useState<DepositRecord[]>([]);
+
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submittedDeposit, setSubmittedDeposit] = useState<DepositRecord | null>(null);
+
+  useEffect(() => {
+    fetchDeposits();
+    loadUserBalance();
+  }, []);
+
+  const loadUserBalance = async () => {
+    try {
+      const email = localStorage.getItem('autocash_email');
+      const isLoggedIn = localStorage.getItem('autocash_is_logged_in');
+      if (isLoggedIn === 'true' && email) {
+        const res = await fetch(`/api/auth/me?email=${encodeURIComponent(email)}`);
+        const data = await res.json();
+        if (data.success && data.user) {
+          setBalance(data.user.balance || 0.0);
+        }
+      } else {
+        setBalance(0.0);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const fetchDeposits = async () => {
+    try {
+      const email = localStorage.getItem('autocash_email');
+      const url = email ? `/api/deposits?userEmail=${encodeURIComponent(email)}` : '/api/deposits';
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.success && data.deposits) {
+        setDepositHistory(data.deposits);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const totalSuccessfulAmount = depositHistory
     .filter((d) => d.status === 'completed')
@@ -89,26 +105,55 @@ export default function DepositPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleDepositSubmit = () => {
-    if (amount <= 0) return;
+  const handleDepositSubmit = async () => {
+    if (amount <= 0 || isSubmitting) return;
 
-    const newRecord: DepositRecord = {
-      id: `DEP-${Math.floor(1000 + Math.random() * 9000)}`,
-      method: currentMethod.name,
-      amount: amount,
-      status: 'completed',
-      date: new Date().toISOString().replace('T', ' ').substring(0, 16),
-      txId: txNote || `SC-${Math.floor(10000000 + Math.random() * 90000000)}`,
-    };
+    if (!txNote.trim()) {
+      setFormError(t('proofRequiredError'));
+      return;
+    }
 
-    setIsSuccess(true);
-    setTimeout(() => {
-      setDepositHistory([newRecord, ...depositHistory]);
-      setBalance((prev) => prev + amount);
-      setIsSuccess(false);
-      setShowDepositModal(false);
-      setTxNote('');
-    }, 1200);
+    setFormError('');
+    setIsSubmitting(true);
+    try {
+      const savedName = localStorage.getItem('autocash_username') || 'خېرىدار';
+      const savedEmail = localStorage.getItem('autocash_email') || 'client@autocash.shop';
+
+      const res = await fetch('/api/deposits', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: amount,
+          method: currentMethod.name,
+          txId: txNote.trim(),
+          userName: savedName,
+          userEmail: savedEmail,
+          userId: localStorage.getItem('autocash_userId') || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        const newRecord = data.deposit;
+        setDepositHistory((prev) => [newRecord, ...prev]);
+        setSubmittedDeposit(newRecord);
+        setIsSuccess(true);
+      } else {
+        setFormError(data.message || 'خاتالىق كۆرۈلدى');
+      }
+    } catch (err) {
+      console.error(err);
+      setFormError('ئۇلىنىش خاتالىقى كۆرۈلدى');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowDepositModal(false);
+    setIsSuccess(false);
+    setTxNote('');
+    setFormError('');
   };
 
   return (
@@ -123,7 +168,15 @@ export default function DepositPage() {
       <main className="max-w-2xl mx-auto px-4 py-5 w-full flex-1 space-y-4">
         {/* Top Header */}
         <div className="flex items-center justify-between pb-1">
-          <div>
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-400 text-slate-200 hover:text-white text-xs font-bold transition shadow cursor-pointer font-alkatip"
+          >
+            {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            <span>{t('store')}</span>
+          </Link>
+
+          <div className={isRTL ? 'text-left' : 'text-right'}>
             <h1 className="font-ukij text-2xl sm:text-3xl font-black text-white gold-text-glow leading-snug">
               {t('navDeposit')}
             </h1>
@@ -135,33 +188,14 @@ export default function DepositPage() {
                 : 'Check your wallet balance and make new deposits.'}
             </p>
           </div>
-
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-400 text-slate-200 hover:text-white text-xs font-bold transition shadow cursor-pointer font-alkatip"
-          >
-            <span>{t('store')}</span>
-            {isRTL ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-          </Link>
         </div>
 
         {/* Big Balance Card */}
         <div className="p-5 rounded-2xl bg-gradient-to-tr from-[#051427] via-[#07192d] to-[#0a233f] border border-cyan-500/30 shadow-2xl space-y-4">
-          <div className="flex items-start justify-between">
-            {/* New Deposit Button */}
-            <button
-              onClick={() => setShowDepositModal(true)}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#0088cc] hover:bg-[#0099e6] text-white text-xs font-black transition shadow-lg shadow-cyan-600/30 cursor-pointer active:scale-95 font-alkatip"
-            >
-              <span className="animate-plus-wiggle shrink-0">
-                <Plus className="w-4 h-4 text-white stroke-[2.5]" />
-              </span>
-              <span>{t('newDepositBtn')}</span>
-            </button>
-
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             {/* Available Balance */}
             <div className={isRTL ? 'text-right' : 'text-left'}>
-              <span className="text-xs text-slate-400 block mb-1">
+              <span className="text-xs sm:text-sm text-slate-400 block mb-1 font-alkatip">
                 {t('availableBalanceLabel')}
               </span>
               <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono tracking-tight flex items-center gap-1.5" dir="ltr">
@@ -169,6 +203,17 @@ export default function DepositPage() {
                 <span>{balance.toFixed(2)}</span>
               </div>
             </div>
+
+            {/* New Deposit Button */}
+            <button
+              onClick={() => setShowDepositModal(true)}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl bg-[#0088cc] hover:bg-[#0099e6] text-white text-xs sm:text-sm font-black transition shadow-lg shadow-cyan-600/30 cursor-pointer active:scale-95 font-alkatip shrink-0 w-full sm:w-auto"
+            >
+              <span className="animate-plus-wiggle shrink-0">
+                <Plus className="w-4 h-4 text-white stroke-[2.5]" />
+              </span>
+              <span>{t('newDepositBtn')}</span>
+            </button>
           </div>
 
           {/* Sub summary metrics row */}
@@ -245,7 +290,7 @@ export default function DepositPage() {
         {showDepositModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div
-              onClick={() => setShowDepositModal(false)}
+              onClick={handleCloseModal}
               className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm animate-in fade-in"
             />
 
@@ -257,7 +302,7 @@ export default function DepositPage() {
             >
               <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
                 <button
-                  onClick={() => setShowDepositModal(false)}
+                  onClick={handleCloseModal}
                   className="text-slate-400 hover:text-white p-1 text-xs cursor-pointer"
                 >
                   ✕ {t('close')}
@@ -380,40 +425,113 @@ export default function DepositPage() {
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <button
-                onClick={handleDepositSubmit}
-                className="w-full py-2.5 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer"
-              >
-                {t('completePaymentBtn')}
-              </button>
-
-              <div className="pt-2 flex flex-wrap items-center justify-center gap-3 text-center">
-                <a
-                  href="https://t.me/autocash_UYGHUR"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 text-[11px] text-cyan-400 hover:text-cyan-300 font-bold font-alkatip hover:underline"
-                >
-                  <Send className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>{t('telegramSupport')}</span>
-                </a>
-                <span className="text-slate-600 hidden sm:inline">•</span>
-                <a
-                  href="https://wa.me/963984373459"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 text-[11px] text-emerald-400 hover:text-emerald-300 font-bold font-alkatip hover:underline"
-                >
-                  <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>WhatsApp: <span dir="ltr" className="font-mono">+963 984 373 459</span></span>
-                </a>
+              {/* Payment Proof Number Input (پۇل ئاتقان ئىسپات نۇمۇرى) */}
+              <div className="space-y-1.5 mb-4">
+                <label className="text-xs text-amber-300 font-bold flex items-center justify-between">
+                  <span>{t('enterTxId')}</span>
+                  <span className="text-[10px] text-slate-400 font-normal">
+                    {lang === 'ug' ? '(تالون نومۇرى ياكى پۇل يۆتكەش ئىسپات نومۇرى)' : lang === 'ar' ? '(رقم العملية / الإشعار)' : '(Proof / TxID)'}
+                  </span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={txNote}
+                    onChange={(e) => {
+                      setTxNote(e.target.value);
+                      if (formError) setFormError('');
+                    }}
+                    placeholder={t('enterTxIdPlaceholder')}
+                    className={`w-full bg-[#051120] border ${
+                      formError ? 'border-rose-500 ring-1 ring-rose-500/40' : 'border-slate-700/80 focus:border-amber-400'
+                    } rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none transition font-alkatip ${
+                      isRTL ? 'text-right' : 'text-left'
+                    }`}
+                    dir={isRTL ? 'rtl' : 'ltr'}
+                  />
+                </div>
+                {formError && (
+                  <p className="text-[11px] text-rose-400 font-bold flex items-center gap-1 pt-0.5">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{formError}</span>
+                  </p>
+                )}
               </div>
 
-              {isSuccess && (
-                <div className="mt-3 p-2.5 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>{t('depositSubmittedSuccess')}</span>
+              {/* Submit Button or Success Confirmation */}
+              {!isSuccess ? (
+                <>
+                  <button
+                    disabled={isSubmitting}
+                    onClick={handleDepositSubmit}
+                    className="w-full py-2.5 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-[0.98]"
+                  >
+                    {isSubmitting ? (
+                      <span>دەلىللەنمەكتە...</span>
+                    ) : (
+                      <span className="flex items-center gap-1.5">
+                        <Zap className="w-4 h-4 fill-current text-slate-950" />
+                        <span>{t('completePaymentBtn')}</span>
+                      </span>
+                    )}
+                  </button>
+
+                  <div className="pt-2 flex flex-wrap items-center justify-center gap-3 text-center">
+                    <a
+                      href="https://t.me/autocash_UYGHUR"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 text-[11px] text-cyan-400 hover:text-cyan-300 font-bold font-alkatip hover:underline"
+                    >
+                      <Send className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>{t('telegramSupport')}</span>
+                    </a>
+                    <span className="text-slate-600 hidden sm:inline">•</span>
+                    <a
+                      href="https://wa.me/963984373459"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 text-[11px] text-emerald-400 hover:text-emerald-300 font-bold font-alkatip hover:underline"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>WhatsApp: <span dir="ltr" className="font-mono">+963 984 373 459</span></span>
+                    </a>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-3.5 mt-2 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-xs space-y-2">
+                    <div className="flex items-center gap-2 text-amber-300 font-bold text-sm">
+                      <Clock className="w-4 h-4 text-amber-400 shrink-0 animate-pulse" />
+                      <span>تالونىڭىز قوبۇل قىلىندى (تەكشۈرۈلمەكتە)</span>
+                    </div>
+                    <p className="text-[11px] text-slate-300 leading-relaxed font-alkatip">
+                      تالون نومۇرىڭىز: <span className="font-mono font-bold text-cyan-300">{submittedDeposit?.id}</span>
+                      <br />
+                      ئىسپات نومۇرى: <span className="font-mono font-bold text-amber-300">{submittedDeposit?.txId}</span>
+                      <br />
+                      باشقۇرغۇچى شامكەشتىكى كىرىمنى تەكشۈرۈپ تەستىقلىغاندىن كېيىن (5-15 مىنۇتتا) قالدۇقىڭىزغا ئاپتوماتىك قوشۇلىدۇ.
+                    </p>
+                  </div>
+
+                  <a
+                    href={`https://wa.me/963984373459?text=${encodeURIComponent(
+                      `ئەسسالامۇ ئەلەيكۇم، مەن AUTO CASH سۇپىسىدا پۇل كىرگۈزدۈم.\nتالون ID: ${submittedDeposit?.id}\nئىسپات نومۇرى: ${submittedDeposit?.txId}\nسوممىسى: $${submittedDeposit?.amount} USD\nتالون سۈرىتىمنى تەستىقلاپ بەرسىڭىز.`
+                    )}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/40 cursor-pointer"
+                  >
+                    <MessageCircle className="w-4 h-4 text-white" />
+                    <span>تالوننى WhatsApp ئارقىلىق تېز تەستىقلىتىش</span>
+                  </a>
+
+                  <button
+                    onClick={handleCloseModal}
+                    className="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition cursor-pointer"
+                  >
+                    جەزملەش ۋە تاقاش
+                  </button>
                 </div>
               )}
             </div>

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;800;900&family=Cairo:wght@600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -20,21 +22,31 @@
   --foreground: #fefce8;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: 'AlkatipBasmaTom', 'ALKATIP Basma Tom', 'ALKATIP Basma', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'AlkatipBasmaTom', 'ALKATIP Basma Tom', 'UKIJ Esline', 'Noto Sans Arabic', 'Cairo', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
 }
 
 /* Titles and Headers with UKIJ Esline style font */
 .font-ukij {
-  font-family: 'UKIJEsline', 'ukijesn', 'UKIJ Esline', 'AlkatipBasmaTom', system-ui, sans-serif;
+  font-family: 'UKIJEsline', 'ukijesn', 'UKIJ Esline', 'AlkatipBasmaTom', 'Noto Sans Arabic', 'Cairo', system-ui, sans-serif;
 }
 
 /* Item names, buttons, categories with ALKATIP Basma Tom style font */
 .font-alkatip {
-  font-family: 'AlkatipBasmaTom', 'ALKATIP Basma Tom', 'ALKATIP Basma', system-ui, sans-serif;
+  font-family: 'AlkatipBasmaTom', 'ALKATIP Basma Tom', 'UKIJ Esline', 'Noto Sans Arabic', 'Cairo', system-ui, sans-serif;
 }
 
 /* --- Multilingual Typography overrides --- */
@@ -83,15 +95,29 @@ body.lang-en .font-alkatip {
   border-radius: 3px;
 }
 
-/* --- Dynamic Golden Shimmer & Glowing Animations --- */
+/* --- High-Performance GPU-Accelerated Animations (Ultra-Smooth 60/120 FPS Mobile Optimized) --- */
+
+/* Base hardware acceleration utility */
+.gpu-layer {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-perspective: 1000px;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* 1. Golden Ambient Shimmer & Glow */
 @keyframes goldPulseGlow {
   0%, 100% {
-    box-shadow: 0 0 14px rgba(234, 179, 8, 0.45), 0 0 28px rgba(217, 119, 6, 0.25), inset 0 0 8px rgba(254, 240, 138, 0.3);
-    border-color: rgba(250, 204, 21, 0.85);
+    box-shadow: 0 0 10px rgba(234, 179, 8, 0.3), inset 0 0 6px rgba(254, 240, 138, 0.2);
+    border-color: rgba(250, 204, 21, 0.7);
   }
   50% {
-    box-shadow: 0 0 25px rgba(250, 204, 21, 0.75), 0 0 50px rgba(234, 179, 8, 0.45), inset 0 0 15px rgba(254, 240, 138, 0.6);
-    border-color: rgba(253, 224, 71, 1);
+    box-shadow: 0 0 18px rgba(250, 204, 21, 0.5), inset 0 0 10px rgba(254, 240, 138, 0.35);
+    border-color: rgba(253, 224, 71, 0.95);
   }
 }
 
@@ -106,184 +132,76 @@ body.lang-en .font-alkatip {
 
 @keyframes floatingGold {
   0%, 100% {
-    transform: translateY(0px);
+    transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translateY(-3px);
+    transform: translate3d(0, -2.5px, 0);
   }
 }
 
 .gold-card-normal {
   background: #081c30;
   border: 1px solid rgba(234, 179, 8, 0.35);
-  box-shadow: 0 0 10px rgba(234, 179, 8, 0.12), inset 0 0 8px rgba(234, 179, 8, 0.05);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .gold-card-normal:hover {
   border-color: rgba(250, 204, 21, 0.8);
-  box-shadow: 0 0 20px rgba(250, 204, 21, 0.35), 0 0 35px rgba(234, 179, 8, 0.2), inset 0 0 12px rgba(254, 240, 138, 0.15);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 18px rgba(250, 204, 21, 0.25);
+  transform: translate3d(0, -2px, 0);
 }
 
 .gold-active-card {
-  animation: goldPulseGlow 2.5s infinite ease-in-out, floatingGold 3.5s infinite ease-in-out;
+  animation: goldPulseGlow 3.5s infinite ease-in-out, floatingGold 4s infinite ease-in-out;
   background: linear-gradient(135deg, rgba(234, 179, 8, 0.25), rgba(8, 28, 48, 0.95)) !important;
   border-color: #facc15 !important;
-  box-shadow: 0 0 25px rgba(250, 204, 21, 0.6), inset 0 0 15px rgba(254, 240, 138, 0.4) !important;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform, box-shadow;
 }
 
 .gold-shimmer-btn {
   background: linear-gradient(90deg, #ca8a04 0%, #facc15 25%, #fef08a 50%, #facc15 75%, #ca8a04 100%);
   background-size: 200% auto;
-  animation: goldShimmerSweep 3s linear infinite;
+  animation: goldShimmerSweep 4.5s linear infinite;
   color: #0f172a !important;
   font-weight: 800;
-  box-shadow: 0 0 20px rgba(234, 179, 8, 0.45);
+  box-shadow: 0 2px 10px rgba(234, 179, 8, 0.35);
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .gold-shimmer-btn:hover {
-  box-shadow: 0 0 30px rgba(250, 204, 21, 0.75);
+  box-shadow: 0 4px 18px rgba(250, 204, 21, 0.55);
 }
 
 .gold-badge {
   background: linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(161, 98, 7, 0.3));
   border: 1px solid rgba(250, 204, 21, 0.6);
   color: #fef08a;
-  box-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
+  box-shadow: 0 1px 6px rgba(234, 179, 8, 0.25);
 }
 
-@keyframes iconFloatWiggle {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg) scale(1.05);
-  }
-  25% {
-    transform: translateY(-5px) rotate(-6deg) scale(1.1);
-  }
-  50% {
-    transform: translateY(-2px) rotate(4deg) scale(1.08);
-  }
-  75% {
-    transform: translateY(-6px) rotate(-3deg) scale(1.12);
-  }
-}
-
-@keyframes badgeFlyPulse {
-  0%, 100% {
-    transform: translateY(0px) scale(1);
-    box-shadow: 0 0 8px rgba(250, 204, 21, 0.6);
-  }
-  50% {
-    transform: translateY(-4px) scale(1.08);
-    box-shadow: 0 0 16px rgba(250, 204, 21, 0.9);
-  }
-}
-
-.animate-icon-float {
-  animation: iconFloatWiggle 2s infinite ease-in-out;
-}
-
-.animate-badge-fly {
-  animation: badgeFlyPulse 1.8s infinite ease-in-out;
-}
-
-@keyframes crownWiggleFloat {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg) scale(1);
-    filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.6));
-  }
-  20% {
-    transform: translateY(-4px) rotate(-10deg) scale(1.15);
-    filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.9));
-  }
-  40% {
-    transform: translateY(-2px) rotate(8deg) scale(1.1);
-    filter: drop-shadow(0 0 8px rgba(234, 179, 8, 0.8));
-  }
-  60% {
-    transform: translateY(-5px) rotate(-6deg) scale(1.18);
-    filter: drop-shadow(0 0 12px rgba(253, 224, 71, 1));
-  }
-  80% {
-    transform: translateY(-1px) rotate(4deg) scale(1.08);
-    filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.7));
-  }
-}
-
-.animate-crown-wiggle {
-  display: inline-block;
-  animation: crownWiggleFloat 2.2s infinite ease-in-out;
-  transform-origin: center bottom;
-}
-
-/* Gentle floating animation for drawer menu icons */
-@keyframes softFloat {
-  0%, 100% {
-    transform: translateY(0px) scale(1);
-  }
-  50% {
-    transform: translateY(-3px) scale(1.08);
-  }
-}
-
-.animate-soft-float {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  animation: softFloat 2.4s infinite ease-in-out;
-}
-
-/* Category cards icon float and gentle wiggle */
-@keyframes catIconFloat {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg) scale(1);
-    box-shadow: 0 0 8px rgba(250, 204, 21, 0.4);
-  }
-  30% {
-    transform: translateY(-3px) rotate(-5deg) scale(1.08);
-    box-shadow: 0 0 14px rgba(250, 204, 21, 0.7);
-  }
-  65% {
-    transform: translateY(-1px) rotate(4deg) scale(1.05);
-    box-shadow: 0 0 10px rgba(234, 179, 8, 0.6);
-  }
-}
-
-.animate-cat-icon {
-  animation: catIconFloat 2.8s infinite ease-in-out;
-}
-
-/* Subtle float for open button inside category cards */
-@keyframes arrowPillFloat {
-  0%, 100% {
-    transform: translateX(0px);
-  }
-  50% {
-    transform: translateX(-3px);
-  }
-}
-
-.animate-arrow-pill {
-  animation: arrowPillFloat 2s infinite ease-in-out;
-}
-
-/* Continuous gentle floating and wiggling for icons (بەلگىلەر يەڭگىل مىدىرلاپ ئۇچۇپ تۇرۇش) */
+/* 2. Floating & Wiggling Icons (Ultra-Smooth Hardware-Accelerated) */
 @keyframes continuousFloatingWiggle {
   0%, 100% {
-    transform: translateY(0px) rotate(0deg) scale(1);
-    filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.4));
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
   }
   25% {
-    transform: translateY(-4px) rotate(-4deg) scale(1.05);
-    filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.7));
+    transform: translate3d(0, -2.5px, 0) rotate(-2deg) scale(1.03);
   }
   50% {
-    transform: translateY(-1.5px) rotate(3deg) scale(1.02);
-    filter: drop-shadow(0 0 7px rgba(56, 189, 248, 0.5));
+    transform: translate3d(0, -1px, 0) rotate(1.5deg) scale(1.01);
   }
   75% {
-    transform: translateY(-5px) rotate(-2deg) scale(1.06);
-    filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.8));
+    transform: translate3d(0, -3px, 0) rotate(-1deg) scale(1.04);
   }
 }
 
@@ -291,64 +209,197 @@ body.lang-en .font-alkatip {
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  animation: continuousFloatingWiggle 2.8s infinite ease-in-out;
-  will-change: transform, filter;
+  animation: continuousFloatingWiggle 3.6s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+  filter: drop-shadow(0 2px 6px rgba(56, 189, 248, 0.4));
 }
 
-/* Dollar symbol gentle floating and glowing (دوللار بەلگىسى يەڭگىل لەيلەپ چاقناش) */
-@keyframes dollarFloatPulse {
+@keyframes iconFloatWiggle {
   0%, 100% {
-    transform: translateY(0px) scale(1);
-    filter: drop-shadow(0 0 3px rgba(56, 189, 248, 0.5));
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  30% {
+    transform: translate3d(0, -3px, 0) rotate(-2.5deg) scale(1.04);
+  }
+  70% {
+    transform: translate3d(0, -1.5px, 0) rotate(2deg) scale(1.02);
+  }
+}
+
+.animate-icon-float {
+  animation: iconFloatWiggle 3.2s infinite ease-in-out;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+@keyframes badgeFlyPulse {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translateY(-3.5px) scale(1.15);
-    filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.95));
+    transform: translate3d(0, -2.5px, 0) scale(1.04);
+  }
+}
+
+.animate-badge-fly {
+  animation: badgeFlyPulse 2.8s infinite ease-in-out;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* 3. Crown & Badges */
+@keyframes crownWiggleFloat {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translate3d(0, -2px, 0) rotate(-3.5deg) scale(1.05);
+  }
+  50% {
+    transform: translate3d(0, -0.5px, 0) rotate(2.5deg) scale(1.02);
+  }
+  75% {
+    transform: translate3d(0, -2.5px, 0) rotate(-2deg) scale(1.06);
+  }
+}
+
+.animate-crown-wiggle {
+  display: inline-block;
+  animation: crownWiggleFloat 3.4s infinite ease-in-out;
+  transform-origin: center bottom;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+  filter: drop-shadow(0 2px 5px rgba(250, 204, 21, 0.45));
+}
+
+@keyframes softFloat {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -2px, 0) scale(1.04);
+  }
+}
+
+.animate-soft-float {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  animation: softFloat 3.2s infinite ease-in-out;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+@keyframes catIconFloat {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  30% {
+    transform: translate3d(0, -2.5px, 0) rotate(-2.5deg) scale(1.04);
+  }
+  65% {
+    transform: translate3d(0, -1px, 0) rotate(2deg) scale(1.02);
+  }
+}
+
+.animate-cat-icon {
+  animation: catIconFloat 3.6s infinite ease-in-out;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+@keyframes arrowPillFloat {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-2px, 0, 0);
+  }
+}
+
+.animate-arrow-pill {
+  animation: arrowPillFloat 2.6s infinite ease-in-out;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* 4. Dollar & Lightning (Zap) Smooth Gentle Motion */
+@keyframes dollarFloatPulse {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.92;
+  }
+  50% {
+    transform: translate3d(0, -2.5px, 0) scale(1.08);
+    opacity: 1;
   }
 }
 
 .animate-dollar-float {
   display: inline-block !important;
-  animation: dollarFloatPulse 2.2s infinite ease-in-out;
-  will-change: transform, filter;
+  animation: dollarFloatPulse 3.2s infinite ease-in-out;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 1px 4px rgba(56, 189, 248, 0.45));
 }
 
-/* Buy Button Continuous Glow & Motion (سېتىۋېلىش كۇنۇپكىسى يۇرۇپ مىدىرلاپ تۇرۇش) */
 @keyframes buyButtonGlowPulse {
   0%, 100% {
-    box-shadow: 0 0 6px rgba(245, 158, 11, 0.4), inset 0 0 4px rgba(254, 240, 138, 0.25);
-    transform: translateY(0px) scale(1);
-    filter: brightness(1);
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+    transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    box-shadow: 0 0 14px rgba(245, 158, 11, 0.8), 0 0 20px rgba(234, 179, 8, 0.45), inset 0 0 8px rgba(254, 240, 138, 0.45);
-    transform: translateY(-1.5px) scale(1.02);
-    filter: brightness(1.08);
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.55), 0 0 20px rgba(234, 179, 8, 0.2);
+    transform: translate3d(0, -1px, 0) scale(1.015);
   }
 }
 
 .animate-buy-btn-glow {
-  animation: buyButtonGlowPulse 2.2s infinite ease-in-out;
-  will-change: transform, box-shadow, filter;
+  animation: buyButtonGlowPulse 3s infinite ease-in-out;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform, box-shadow;
 }
 
-/* Lightning Bolt Continuous Wiggle & Neon Glow (چاقماق سىمۋولى يۇرۇپ چايقىلىپ تۇرۇش) */
 @keyframes zapWiggleGlow {
   0%, 100% {
-    transform: translateY(0px) rotate(0deg) scale(1);
-    filter: drop-shadow(0 0 2px rgba(234, 179, 8, 0.7));
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
   }
   25% {
-    transform: translateY(-2px) rotate(-14deg) scale(1.18);
-    filter: drop-shadow(0 0 8px rgba(254, 240, 138, 1));
+    transform: translate3d(0, -1.5px, 0) rotate(-4deg) scale(1.06);
   }
   50% {
-    transform: translateY(0.5px) rotate(8deg) scale(1.08);
-    filter: drop-shadow(0 0 5px rgba(250, 204, 21, 0.8));
+    transform: translate3d(0, 0.5px, 0) rotate(3deg) scale(1.02);
   }
   75% {
-    transform: translateY(-2.5px) rotate(-8deg) scale(1.22);
-    filter: drop-shadow(0 0 9px rgba(253, 224, 71, 1));
+    transform: translate3d(0, -2px, 0) rotate(-2deg) scale(1.08);
   }
 }
 
@@ -356,24 +407,61 @@ body.lang-en .font-alkatip {
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  animation: zapWiggleGlow 1.6s infinite ease-in-out;
-  will-change: transform, filter;
+  animation: zapWiggleGlow 2.8s infinite ease-in-out;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+  filter: drop-shadow(0 1px 3px rgba(250, 204, 21, 0.6));
 }
 
-/* Uyghur Ticker Marquee Animation (ئۇيغۇرچە مېڭىپ تۇرىدىغان تەبرىك/نەق مەيدان ئۇچۇر سېپى) */
+/* 5. Plus Symbol Gentle Wiggle */
+@keyframes plusWiggleBounce {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translate3d(0, -1.5px, 0) rotate(-5deg) scale(1.06);
+  }
+  50% {
+    transform: translate3d(0, 0.5px, 0) rotate(3deg) scale(1.02);
+  }
+  75% {
+    transform: translate3d(0, -1.5px, 0) rotate(-2deg) scale(1.05);
+  }
+}
+
+.animate-plus-wiggle {
+  display: inline-flex !important;
+  animation: plusWiggleBounce 3.2s infinite ease-in-out;
+  transform-origin: center center;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+  filter: drop-shadow(0 1px 3px rgba(255, 255, 255, 0.4));
+}
+
+/* 6. Marquee Hardware Accelerated */
 @keyframes marqueeUyghur {
   0% {
-    transform: translateX(0%);
+    transform: translate3d(0%, 0, 0);
   }
   100% {
-    transform: translateX(50%);
+    transform: translate3d(50%, 0, 0);
   }
 }
 
 .animate-marquee-uyghur {
   display: flex;
   width: max-content;
-  animation: marqueeUyghur 35s linear infinite;
+  animation: marqueeUyghur 40s linear infinite;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   will-change: transform;
 }
 
@@ -381,136 +469,94 @@ body.lang-en .font-alkatip {
   animation-play-state: paused;
 }
 
-/* Star Pure Sparkle / Twinkle Without Moving (مىدىرلىماي پەقەت نورمال چاقناپ تۇرۇش) */
+/* 7. Star Pure Twinkle (Smooth Opacity) */
 @keyframes starPureTwinkle {
   0%, 100% {
-    opacity: 0.55;
-    filter: drop-shadow(0 0 2px rgba(250, 204, 21, 0.5)) brightness(0.95);
+    opacity: 0.65;
   }
   50% {
     opacity: 1;
-    filter: drop-shadow(0 0 8px rgba(254, 240, 138, 1)) drop-shadow(0 0 14px rgba(250, 204, 21, 0.9)) brightness(1.35);
   }
 }
 
 .animate-star-twinkle {
   display: inline-flex !important;
-  animation: starPureTwinkle 2s infinite ease-in-out;
-  transform: none !important;
-  will-change: opacity, filter;
+  animation: starPureTwinkle 3s infinite ease-in-out;
+  will-change: opacity;
+  filter: drop-shadow(0 1px 4px rgba(250, 204, 21, 0.5));
 }
 
-/* VIP Tier Badges Smooth Gentle Sparkle & Glow Pulse (VIP دەرىجە بەلگىلىرىنىڭ سىلىق، يۇمشاق، ئاستا جۇلالىشى) */
+/* 8. VIP Tier Badges Smooth Gentle Shimmer */
 @keyframes badgeSmoothGlowGold {
   0%, 100% {
-    box-shadow: 0 0 12px rgba(234, 179, 8, 0.35), inset 0 0 6px rgba(255, 255, 255, 0.35);
-    filter: brightness(0.98);
+    box-shadow: 0 0 10px rgba(234, 179, 8, 0.3), inset 0 0 5px rgba(255, 255, 255, 0.25);
   }
   50% {
-    box-shadow: 0 0 28px rgba(250, 204, 21, 0.75), 0 0 38px rgba(234, 179, 8, 0.35), inset 0 0 12px rgba(255, 255, 255, 0.75);
-    filter: brightness(1.15);
+    box-shadow: 0 0 20px rgba(250, 204, 21, 0.55), inset 0 0 8px rgba(255, 255, 255, 0.45);
   }
 }
 
 @keyframes badgeSmoothGlowBronze {
   0%, 100% {
-    box-shadow: 0 0 10px rgba(180, 100, 40, 0.3), inset 0 0 5px rgba(255, 255, 255, 0.25);
-    filter: brightness(0.98);
+    box-shadow: 0 0 8px rgba(180, 100, 40, 0.25), inset 0 0 4px rgba(255, 255, 255, 0.2);
   }
   50% {
-    box-shadow: 0 0 24px rgba(245, 158, 11, 0.65), 0 0 32px rgba(180, 100, 40, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.65);
-    filter: brightness(1.12);
+    box-shadow: 0 0 18px rgba(245, 158, 11, 0.5), inset 0 0 7px rgba(255, 255, 255, 0.4);
   }
 }
 
 @keyframes badgeSmoothGlowSteel {
   0%, 100% {
-    box-shadow: 0 0 10px rgba(148, 163, 184, 0.25), inset 0 0 5px rgba(255, 255, 255, 0.3);
-    filter: brightness(0.98);
+    box-shadow: 0 0 8px rgba(148, 163, 184, 0.2), inset 0 0 4px rgba(255, 255, 255, 0.2);
   }
   50% {
-    box-shadow: 0 0 24px rgba(226, 232, 240, 0.65), 0 0 34px rgba(148, 163, 184, 0.35), inset 0 0 10px rgba(255, 255, 255, 0.7);
-    filter: brightness(1.15);
+    box-shadow: 0 0 18px rgba(226, 232, 240, 0.5), inset 0 0 7px rgba(255, 255, 255, 0.4);
   }
 }
 
 @keyframes badgeSmoothGlowCyan {
   0%, 100% {
-    box-shadow: 0 0 14px rgba(56, 189, 248, 0.35), inset 0 0 6px rgba(255, 255, 255, 0.35);
-    filter: brightness(0.98);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.3), inset 0 0 5px rgba(255, 255, 255, 0.25);
   }
   50% {
-    box-shadow: 0 0 30px rgba(56, 189, 248, 0.8), 0 0 40px rgba(14, 165, 233, 0.35), inset 0 0 12px rgba(255, 255, 255, 0.75);
-    filter: brightness(1.18);
-  }
-}
-
-@keyframes smoothTwinkle {
-  0%, 100% {
-    opacity: 0.35;
-    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
-  }
-  50% {
-    opacity: 0.95;
-    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9));
+    box-shadow: 0 0 22px rgba(56, 189, 248, 0.6), inset 0 0 8px rgba(255, 255, 255, 0.45);
   }
 }
 
 .animate-badge-glow-gold {
-  animation: badgeSmoothGlowGold 4.8s infinite ease-in-out;
-  will-change: box-shadow, filter;
+  animation: badgeSmoothGlowGold 4.5s infinite ease-in-out;
+  will-change: box-shadow;
 }
 
 .animate-badge-glow-bronze {
-  animation: badgeSmoothGlowBronze 4.8s infinite ease-in-out;
-  will-change: box-shadow, filter;
+  animation: badgeSmoothGlowBronze 4.5s infinite ease-in-out;
+  will-change: box-shadow;
 }
 
 .animate-badge-glow-steel {
-  animation: badgeSmoothGlowSteel 4.8s infinite ease-in-out;
-  will-change: box-shadow, filter;
+  animation: badgeSmoothGlowSteel 4.5s infinite ease-in-out;
+  will-change: box-shadow;
 }
 
 .animate-badge-glow-cyan {
-  animation: badgeSmoothGlowCyan 4.8s infinite ease-in-out;
-  will-change: box-shadow, filter;
+  animation: badgeSmoothGlowCyan 4.5s infinite ease-in-out;
+  will-change: box-shadow;
+}
+
+@keyframes smoothTwinkle {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .animate-smooth-twinkle {
   display: inline-flex !important;
-  animation: smoothTwinkle 4.2s infinite ease-in-out;
-  will-change: opacity, filter;
-}
-
-/* Plus symbol lively wiggle and bounce (پىلۇس بەلگىسىنىڭ مىدىرلاپ تۇرۇشى) */
-@keyframes plusWiggleBounce {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg) scale(1);
-    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.6));
-  }
-  20% {
-    transform: translateY(-3px) rotate(-16deg) scale(1.22);
-    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.95));
-  }
-  40% {
-    transform: translateY(0px) rotate(12deg) scale(1.1);
-    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8));
-  }
-  60% {
-    transform: translateY(-2.5px) rotate(-10deg) scale(1.2);
-    filter: drop-shadow(0 0 7px rgba(255, 255, 255, 0.95));
-  }
-  80% {
-    transform: translateY(0.5px) rotate(6deg) scale(1.05);
-    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.7));
-  }
-}
-
-.animate-plus-wiggle {
-  display: inline-flex !important;
-  animation: plusWiggleBounce 2.2s infinite ease-in-out;
-  transform-origin: center center;
-  will-change: transform, filter;
+  animation: smoothTwinkle 4s infinite ease-in-out;
+  will-change: opacity;
+  filter: drop-shadow(0 1px 3px rgba(255, 255, 255, 0.6));
 }
 
 
