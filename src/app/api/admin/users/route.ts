@@ -1,5 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getAllUsers, updateUser, deleteUser, adjustUserBalance } from '@/lib/db';
+import {
+  getAllUsersAsync,
+  updateUserAsync,
+  deleteUserAsync,
+  adjustUserBalanceAsync,
+  getUserByIdAsync,
+} from '@/lib/db';
 import { verifyAdminToken } from '@/lib/adminAuth';
 
 export async function GET(req: Request) {
@@ -8,7 +14,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ success: false, message: 'رۇخسەت يوق (Unauthorized)' }, { status: 401 });
     }
 
-    const users = getAllUsers().map(({ passwordHash, salt, ...rest }) => rest);
+    const allUsers = await getAllUsersAsync();
+    const users = allUsers.map(({ passwordHash, salt, ...rest }) => rest);
     return NextResponse.json({ success: true, users });
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err?.message || 'ئىشلەتكۈچىلەرنى ئېلىش مەغلۇپ بولدى' }, { status: 500 });
@@ -29,14 +36,14 @@ export async function PATCH(req: Request) {
     }
 
     if (typeof balanceDelta === 'number' && balanceDelta !== 0) {
-      adjustUserBalance(userId, balanceDelta);
+      await adjustUserBalanceAsync(userId, balanceDelta);
     }
 
     if (updates && typeof updates === 'object') {
-      updateUser(userId, updates);
+      await updateUserAsync(userId, updates);
     }
 
-    const updatedUser = getAllUsers().find((u) => u.id === userId);
+    const updatedUser = await getUserByIdAsync(userId);
     if (!updatedUser) {
       return NextResponse.json({ success: false, message: 'ئىشلەتكۈچى تېپىلمىدى' }, { status: 404 });
     }
@@ -61,7 +68,7 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ success: false, message: 'ئىشلەتكۈچى ID كەمچىل' }, { status: 400 });
     }
 
-    const success = deleteUser(userId);
+    const success = await deleteUserAsync(userId);
     return NextResponse.json({ success });
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err?.message || 'ئىشلەتكۈچىنى ئۆچۈرۈش مەغلۇپ بولدى' }, { status: 500 });

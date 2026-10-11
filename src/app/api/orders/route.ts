@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import {
-  getAllOrders,
-  createOrder,
-  updateOrderStatus,
-  getUserByEmail,
-  getUserById,
-  adjustUserBalance,
+  getAllOrdersAsync,
+  createOrderAsync,
+  updateOrderStatusAsync,
+  getUserByEmailAsync,
+  getUserByIdAsync,
+  adjustUserBalanceAsync,
   OrderRecord,
 } from '@/lib/db';
 import { SERVICES_DATA } from '@/lib/data';
@@ -17,7 +17,7 @@ export async function GET(req: Request) {
     const userId = searchParams.get('userId');
     const userEmail = searchParams.get('userEmail');
 
-    let orders = getAllOrders();
+    let orders = await getAllOrdersAsync();
     if (userId) {
       orders = orders.filter((o) => o.userId === userId);
     } else if (userEmail) {
@@ -53,9 +53,9 @@ export async function POST(req: Request) {
     // Check user and balance if user is logged in
     let resolvedUser = null;
     if (userId) {
-      resolvedUser = getUserById(userId);
+      resolvedUser = await getUserByIdAsync(userId);
     } else if (userEmail) {
-      resolvedUser = getUserByEmail(userEmail);
+      resolvedUser = await getUserByEmailAsync(userEmail);
     }
 
     // If user exists, deduct balance
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
         );
       }
       // Deduct balance
-      adjustUserBalance(resolvedUser.id, -pkg.price);
+      await adjustUserBalanceAsync(resolvedUser.id, -pkg.price);
     }
 
     let generatedDetails: OrderRecord['details'] = {};
@@ -96,7 +96,7 @@ export async function POST(req: Request) {
       };
     }
 
-    const newOrder = createOrder({
+    const newOrder = await createOrderAsync({
       userId: resolvedUser?.id,
       userEmail: resolvedUser?.email || userEmail,
       serviceId: service.id,
@@ -133,7 +133,7 @@ export async function PATCH(req: Request) {
     const body = await req.json();
     const { orderId, status } = body;
 
-    const updated = updateOrderStatus(orderId, status);
+    const updated = await updateOrderStatusAsync(orderId, status);
     if (!updated) {
       return NextResponse.json({ success: false, message: 'زاكاز تېپىلمىدى' }, { status: 404 });
     }

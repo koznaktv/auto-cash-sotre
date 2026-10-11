@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import {
-  getUserByEmail,
-  getUserById,
-  updateUser,
+  getUserByEmailAsync,
+  getUserByIdAsync,
+  updateUserAsync,
   updateUserPassword,
   verifyPassword,
 } from '@/lib/db';
@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { userId, userEmail, name, phone, currentPassword, newPassword } = body;
 
-    const user = userId ? getUserById(userId) : userEmail ? getUserByEmail(userEmail) : null;
+    const user = userId ? await getUserByIdAsync(userId) : userEmail ? await getUserByEmailAsync(userEmail) : null;
     if (!user) {
       return NextResponse.json(
         { success: false, message: 'ئىشلەتكۈچى تېپىلمىدى' },
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     if (name && name.trim()) updatePayload.name = name.trim();
     if (phone !== undefined) updatePayload.phone = phone.trim();
 
-    const updatedUser = updateUser(user.id, updatePayload) || user;
+    const updatedUser = (await updateUserAsync(user.id, updatePayload)) || user;
 
     const safeUser = {
       id: updatedUser.id,

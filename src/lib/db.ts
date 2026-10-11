@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { isSupabaseConfigured, getSupabase } from './supabase';
 
 export interface UserRecord {
   id: string;
@@ -475,4 +476,395 @@ export function updateSystemSettings(updates: Partial<SystemSettings>): SystemSe
   db.settings = { ...db.settings, ...updates };
   saveDb(db);
   return db.settings;
+}
+
+// ================= SUPABASE INTEGRATION & ASYNC OPERATIONS =================
+
+function mapSupabaseUser(row: any): UserRecord {
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    phone: row.phone || undefined,
+    passwordHash: row.password_hash,
+    salt: row.salt,
+    balance: Number(row.balance || 0),
+    totalSpent: Number(row.total_spent || 0),
+    vipTier: (row.vip_tier as any) || 'vip1',
+    role: (row.role as any) || 'user',
+    isBanned: Boolean(row.is_banned),
+    createdAt: row.created_at,
+  };
+}
+
+function mapSupabaseOrder(row: any): OrderRecord {
+  return {
+    id: row.id,
+    userId: row.user_id || undefined,
+    userEmail: row.user_email || undefined,
+    serviceId: row.service_id,
+    serviceName: row.service_name,
+    packageTitle: row.package_title,
+    amount: Number(row.amount || 0),
+    targetAccount: row.target_account,
+    status: (row.status as any) || 'processing',
+    createdAt: row.created_at,
+    details: row.details || undefined,
+  };
+}
+
+function mapSupabaseDeposit(row: any): DepositRecord {
+  return {
+    id: row.id,
+    userId: row.user_id || undefined,
+    userName: row.user_name,
+    userEmail: row.user_email,
+    method: row.method,
+    amount: Number(row.amount || 0),
+    status: (row.status as any) || 'pending',
+    date: row.date,
+    txId: row.tx_id || undefined,
+    reviewedAt: row.reviewed_at || undefined,
+  };
+}
+
+function mapSupabaseSettings(row: any): SystemSettings {
+  return {
+    adminPin: row.admin_pin || '9960996',
+    shamcashAddress: row.shamcash_address || 'efe8a2b200d66411c7c7e296369cbba8',
+    whatsappNumber: row.whatsapp_number || '+963 984 373 459',
+    telegramUsername: row.telegram_username || 'autocash_UYGHUR',
+    siteName: row.site_name || 'AUTO CASH',
+  };
+}
+
+export async function getAllUsersAsync(): Promise<UserRecord[]> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { data, error } = await sb.from('users').select('*').order('created_at', { ascending: false });
+      if (!error && data) {
+        return data.map(mapSupabaseUser);
+      }
+    } catch (e) {
+      console.error('Supabase getAllUsers error:', e);
+    }
+  }
+  return getAllUsers();
+}
+
+export async function getUserByEmailAsync(email: string): Promise<UserRecord | null> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { data, error } = await sb.from('users').select('*').ilike('email', email.trim()).maybeSingle();
+      if (!error && data) {
+        return mapSupabaseUser(data);
+      }
+    } catch (e) {
+      console.error('Supabase getUserByEmail error:', e);
+    }
+  }
+  return getUserByEmail(email);
+}
+
+export async function getUserByIdAsync(id: string): Promise<UserRecord | null> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { data, error } = await sb.from('users').select('*').eq('id', id).maybeSingle();
+      if (!error && data) {
+        return mapSupabaseUser(data);
+      }
+    } catch (e) {
+      console.error('Supabase getUserById error:', e);
+    }
+  }
+  return getUserById(id);
+}
+
+export async function createUserAsync(userData: {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+  role?: 'user' | 'admin';
+}): Promise<UserRecord> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { passwordHash, salt } = hashPassword(userData.password);
+      const id = `USR-${Date.now().toString().slice(-4)}`;
+      const now = new Date().toISOString();
+      const insertPayload = {
+        id,
+        name: userData.name,
+        email: userData.email.toLowerCase(),
+        phone: userData.phone || null,
+        password_hash: passwordHash,
+        salt,
+        balance: 0,
+        total_spent: 0,
+        vip_tier: 'vip1',
+        role: userData.role || 'user',
+        is_banned: false,
+        created_at: now,
+      };
+      const { data, error } = await sb.from('users').insert(insertPayload).select().single();
+      if (!error && data) {
+        return mapSupabaseUser(data);
+      }
+    } catch (e) {
+      console.error('Supabase createUser error:', e);
+    }
+  }
+  return createUser(userData);
+}
+
+export async function updateUserAsync(
+  id: string,
+  updates: Partial<Omit<UserRecord, 'id' | 'passwordHash' | 'salt'>>
+): Promise<UserRecord | null> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const dbUpdates: any = {};
+      if (updates.name !== undefined) dbUpdates.name = updates.name;
+      if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
+      if (updates.balance !== undefined) dbUpdates.balance = updates.balance;
+      if (updates.totalSpent !== undefined) dbUpdates.total_spent = updates.totalSpent;
+      if (updates.vipTier !== undefined) dbUpdates.vip_tier = updates.vipTier;
+      if (updates.role !== undefined) dbUpdates.role = updates.role;
+      if (updates.isBanned !== undefined) dbUpdates.is_banned = updates.isBanned;
+
+      const { data, error } = await sb.from('users').update(dbUpdates).eq('id', id).select().maybeSingle();
+      if (!error && data) {
+        return mapSupabaseUser(data);
+      }
+    } catch (e) {
+      console.error('Supabase updateUser error:', e);
+    }
+  }
+  return updateUser(id, updates);
+}
+
+export async function adjustUserBalanceAsync(id: string, deltaAmount: number): Promise<UserRecord | null> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const user = await getUserByIdAsync(id);
+      if (user) {
+        const newBalance = Math.max(0, Math.round((user.balance + deltaAmount) * 100) / 100);
+        return updateUserAsync(id, { balance: newBalance });
+      }
+    } catch (e) {
+      console.error('Supabase adjustUserBalance error:', e);
+    }
+  }
+  return adjustUserBalance(id, deltaAmount);
+}
+
+export async function deleteUserAsync(id: string): Promise<boolean> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { error } = await sb.from('users').delete().eq('id', id);
+      if (!error) return true;
+    } catch (e) {
+      console.error('Supabase deleteUser error:', e);
+    }
+  }
+  return deleteUser(id);
+}
+
+export async function getAllOrdersAsync(): Promise<OrderRecord[]> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { data, error } = await sb.from('orders').select('*').order('created_at', { ascending: false });
+      if (!error && data) {
+        return data.map(mapSupabaseOrder);
+      }
+    } catch (e) {
+      console.error('Supabase getAllOrders error:', e);
+    }
+  }
+  return getAllOrders();
+}
+
+export async function createOrderAsync(orderData: Omit<OrderRecord, 'id' | 'createdAt'>): Promise<OrderRecord> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const id = `ORD-${Date.now().toString().slice(-6)}`;
+      const now = new Date().toISOString();
+      const insertPayload = {
+        id,
+        user_id: orderData.userId || null,
+        user_email: orderData.userEmail || null,
+        service_id: orderData.serviceId,
+        service_name: orderData.serviceName,
+        package_title: orderData.packageTitle,
+        amount: orderData.amount,
+        target_account: orderData.targetAccount,
+        status: orderData.status,
+        details: orderData.details || {},
+        created_at: now,
+      };
+      const { data, error } = await sb.from('orders').insert(insertPayload).select().single();
+      if (!error && data) {
+        if (orderData.userId) {
+          await adjustUserBalanceAsync(orderData.userId, -orderData.amount);
+        }
+        return mapSupabaseOrder(data);
+      }
+    } catch (e) {
+      console.error('Supabase createOrder error:', e);
+    }
+  }
+  return createOrder(orderData);
+}
+
+export async function updateOrderStatusAsync(
+  orderId: string,
+  newStatus: OrderRecord['status']
+): Promise<OrderRecord | null> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { data, error } = await sb.from('orders').update({ status: newStatus }).eq('id', orderId).select().maybeSingle();
+      if (!error && data) {
+        return mapSupabaseOrder(data);
+      }
+    } catch (e) {
+      console.error('Supabase updateOrderStatus error:', e);
+    }
+  }
+  return updateOrderStatus(orderId, newStatus);
+}
+
+export async function getAllDepositsAsync(): Promise<DepositRecord[]> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { data, error } = await sb.from('deposits').select('*').order('created_at', { ascending: false });
+      if (!error && data) {
+        return data.map(mapSupabaseDeposit);
+      }
+    } catch (e) {
+      console.error('Supabase getAllDeposits error:', e);
+    }
+  }
+  return getAllDeposits();
+}
+
+export async function createDepositAsync(
+  depositData: Omit<DepositRecord, 'id' | 'date'> & { date?: string; status?: DepositRecord['status'] }
+): Promise<DepositRecord> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const id = `DEP-${Date.now().toString().slice(-5)}`;
+      const nowFormatted = new Date().toISOString().replace('T', ' ').substring(0, 16);
+      const insertPayload = {
+        id,
+        user_id: depositData.userId || null,
+        user_name: depositData.userName,
+        user_email: depositData.userEmail,
+        method: depositData.method || 'شامكەش (Sham Cash)',
+        amount: depositData.amount,
+        status: 'pending',
+        date: depositData.date || nowFormatted,
+        tx_id: depositData.txId || null,
+        created_at: new Date().toISOString(),
+      };
+      const { data, error } = await sb.from('deposits').insert(insertPayload).select().single();
+      if (!error && data) {
+        return mapSupabaseDeposit(data);
+      }
+    } catch (e) {
+      console.error('Supabase createDeposit error:', e);
+    }
+  }
+  return createDeposit(depositData);
+}
+
+export async function updateDepositStatusAsync(
+  depositId: string,
+  newStatus: 'completed' | 'rejected'
+): Promise<DepositRecord | null> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const nowFormatted = new Date().toISOString().replace('T', ' ').substring(0, 16);
+      const { data: existing } = await sb.from('deposits').select('*').eq('id', depositId).maybeSingle();
+      const previousStatus = existing?.status;
+
+      const { data, error } = await sb
+        .from('deposits')
+        .update({ status: newStatus, reviewed_at: nowFormatted })
+        .eq('id', depositId)
+        .select()
+        .maybeSingle();
+
+      if (!error && data) {
+        if (newStatus === 'completed' && previousStatus === 'pending') {
+          if (data.user_id) {
+            await adjustUserBalanceAsync(data.user_id, Number(data.amount));
+          } else if (data.user_email) {
+            const user = await getUserByEmailAsync(data.user_email);
+            if (user) {
+              await adjustUserBalanceAsync(user.id, Number(data.amount));
+            }
+          }
+        }
+        return mapSupabaseDeposit(data);
+      }
+    } catch (e) {
+      console.error('Supabase updateDepositStatus error:', e);
+    }
+  }
+  return updateDepositStatus(depositId, newStatus);
+}
+
+export async function getSystemSettingsAsync(): Promise<SystemSettings> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { data, error } = await sb.from('system_settings').select('*').eq('id', 'global').maybeSingle();
+      if (!error && data) {
+        return mapSupabaseSettings(data);
+      }
+    } catch (e) {
+      console.error('Supabase getSystemSettings error:', e);
+    }
+  }
+  return getSystemSettings();
+}
+
+export async function updateSystemSettingsAsync(updates: Partial<SystemSettings>): Promise<SystemSettings> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const dbUpdates: any = { updated_at: new Date().toISOString() };
+      if (updates.adminPin) dbUpdates.admin_pin = updates.adminPin;
+      if (updates.shamcashAddress) dbUpdates.shamcash_address = updates.shamcashAddress;
+      if (updates.whatsappNumber) dbUpdates.whatsapp_number = updates.whatsappNumber;
+      if (updates.telegramUsername) dbUpdates.telegram_username = updates.telegramUsername;
+      if (updates.siteName) dbUpdates.site_name = updates.siteName;
+
+      const { data, error } = await sb
+        .from('system_settings')
+        .upsert({ id: 'global', ...dbUpdates })
+        .select()
+        .maybeSingle();
+
+      if (!error && data) {
+        return mapSupabaseSettings(data);
+      }
+    } catch (e) {
+      console.error('Supabase updateSystemSettings error:', e);
+    }
+  }
+  return updateSystemSettings(updates);
 }

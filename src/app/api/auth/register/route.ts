@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createUser, getUserByEmail } from '@/lib/db';
+import { createUserAsync, getUserByEmailAsync } from '@/lib/db';
 
 export async function POST(req: Request) {
   try {
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const existing = getUserByEmail(email);
+    const existing = await getUserByEmailAsync(email);
     if (existing) {
       return NextResponse.json(
         { success: false, message: 'بۇ ئېلخەت ئادرېسى بىلەن ئاللىقاچان ھېسابات ئېچىلغان' },
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const newUser = createUser({
+    const newUser = await createUserAsync({
       name: name || email.split('@')[0],
       email,
       password,

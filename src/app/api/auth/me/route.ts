@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getUserByEmail, getUserById } from '@/lib/db';
+import { getUserByEmailAsync, getUserByIdAsync } from '@/lib/db';
 
 export async function GET(req: Request) {
   try {
@@ -14,7 +14,7 @@ export async function GET(req: Request) {
       );
     }
 
-    const user = id ? getUserById(id) : getUserByEmail(email!);
+    const user = id ? await getUserByIdAsync(id) : await getUserByEmailAsync(email!);
     if (!user) {
       return NextResponse.json(
         { success: false, message: 'ئىشلەتكۈچى تېپىلمىدى' },

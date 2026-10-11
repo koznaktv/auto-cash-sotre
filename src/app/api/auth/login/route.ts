@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getUserByEmail, verifyPassword } from '@/lib/db';
+import { getUserByEmailAsync, verifyPassword } from '@/lib/db';
 
 export async function POST(req: Request) {
   try {
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const user = getUserByEmail(email);
+    const user = await getUserByEmailAsync(email);
     if (!user) {
       return NextResponse.json(
         { success: false, message: 'ئېلخەت ئادرېسى ياكى پارول خاتا' },

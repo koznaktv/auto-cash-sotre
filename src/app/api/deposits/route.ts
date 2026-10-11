@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import {
-  getAllDeposits,
-  createDeposit,
-  updateDepositStatus,
-  getUserByEmail,
-  getUserById,
+  getAllDepositsAsync,
+  createDepositAsync,
+  updateDepositStatusAsync,
+  getUserByEmailAsync,
+  getUserByIdAsync,
 } from '@/lib/db';
 import { verifyAdminToken } from '@/lib/adminAuth';
 
@@ -14,7 +14,7 @@ export async function GET(req: Request) {
     const userId = searchParams.get('userId');
     const userEmail = searchParams.get('userEmail');
 
-    let deposits = getAllDeposits();
+    let deposits = await getAllDepositsAsync();
     if (userId) {
       deposits = deposits.filter((d) => d.userId === userId);
     } else if (userEmail) {
@@ -50,20 +50,20 @@ export async function POST(req: Request) {
     let resolvedUserEmail = userEmail || 'client@autocash.shop';
 
     if (resolvedUserId) {
-      const u = getUserById(resolvedUserId);
+      const u = await getUserByIdAsync(resolvedUserId);
       if (u) {
         resolvedUserName = u.name;
         resolvedUserEmail = u.email;
       }
     } else if (resolvedUserEmail) {
-      const u = getUserByEmail(resolvedUserEmail);
+      const u = await getUserByEmailAsync(resolvedUserEmail);
       if (u) {
         resolvedUserId = u.id;
         resolvedUserName = u.name;
       }
     }
 
-    const newDeposit = createDeposit({
+    const newDeposit = await createDepositAsync({
       userId: resolvedUserId,
       userName: resolvedUserName,
       userEmail: resolvedUserEmail,
@@ -101,7 +101,7 @@ export async function PATCH(req: Request) {
       );
     }
 
-    const updated = updateDepositStatus(depositId, status);
+    const updated = await updateDepositStatusAsync(depositId, status);
     if (!updated) {
       return NextResponse.json(
         { success: false, message: 'پۇل كىرگۈزۈش خاتىرىسى تېپىلمىدى' },
