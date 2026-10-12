@@ -334,14 +334,16 @@ export default function HomePage() {
             <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
               <Link
                 href="/deposit"
-                className="flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-2xl gold-shimmer-btn text-xs font-black transition font-alkatip text-center shadow-lg"
+                className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 rounded-full gold-shimmer-btn animate-deposit-btn text-xs sm:text-sm font-black transition-all font-alkatip text-center shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
               >
-                <Wallet className="w-4 h-4 text-slate-950 flex-shrink-0" />
+                <span className="animate-wallet-wiggle shrink-0">
+                  <Wallet className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-slate-950 flex-shrink-0" />
+                </span>
                 <span>{t('addFunds')}</span>
               </Link>
               <Link
                 href="/membership"
-                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-amber-500/30 text-amber-200 font-bold text-xs transition font-alkatip text-center"
+                className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-full bg-slate-900/90 hover:bg-slate-800 border border-amber-500/30 text-amber-200 font-bold text-xs sm:text-sm transition-all font-alkatip text-center hover:scale-105 active:scale-95"
               >
                 <Crown className="w-4 h-4 text-amber-400 flex-shrink-0 animate-crown-wiggle" />
                 <span>{t('vipMembership')}</span>
