@@ -27,14 +27,16 @@ export default function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all ${
+              className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-gradient-to-tr from-cyan-500/20 to-indigo-500/20 text-cyan-400 font-bold'
+                  ? 'bg-gradient-to-tr from-cyan-500/25 to-indigo-500/25 text-cyan-400 font-bold border border-cyan-500/30 shadow-md shadow-cyan-500/20 animate-normal-float'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Icon className="w-5 h-5 mb-0.5" />
-              <span className="text-[10px] leading-tight">{item.label}</span>
+              <span className={`inline-flex items-center justify-center mb-0.5 ${isActive ? 'animate-normal-icon' : ''}`}>
+                <Icon className="w-5 h-5" />
+              </span>
+              <span className="text-[10px] leading-tight font-medium">{item.label}</span>
             </Link>
           );
         })}

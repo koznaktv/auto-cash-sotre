@@ -61,7 +61,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     connect: 'ئۇلىنىش',
 
     // Bottom Navigation
-    navHome: 'ئاساسلىق',
+    navHome: 'باشبەت',
     navOrders: 'مېنىڭ تەلەپلىرىم',
     navDeposit: 'مېنىڭ ھەميانىم',
     navAccount: 'مېنىڭ ھېسابىم',
