@@ -334,7 +334,12 @@ export default function AccountPage() {
             </div>
             <div>
               <span className="text-xs text-slate-400 block mb-1">{t('availableBalanceLabel')}</span>
-              <div className="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight flex items-center gap-1.5" dir="ltr">
+              <div
+                className={`text-2xl sm:text-3xl font-black text-white font-mono tracking-tight flex items-center gap-1.5 ${
+                  isRTL ? 'justify-end' : 'justify-start'
+                }`}
+                dir="ltr"
+              >
                 <span className="animate-dollar-float text-cyan-400">$</span>
                 <span>{balance.toFixed(2)}</span>
               </div>
@@ -351,7 +356,12 @@ export default function AccountPage() {
               <span className="text-xs text-slate-400 block mb-1">
                 {lang === 'ug' ? 'ئومۇمىي كىرگۈزۈلگەن پۇل' : lang === 'ar' ? 'إجمالي المبالغ المودعة' : 'Total Deposited'}
               </span>
-              <div className="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight flex items-center gap-1.5" dir="ltr">
+              <div
+                className={`text-2xl sm:text-3xl font-black text-white font-mono tracking-tight flex items-center gap-1.5 ${
+                  isRTL ? 'justify-end' : 'justify-start'
+                }`}
+                dir="ltr"
+              >
                 <span className="animate-dollar-float text-cyan-400">$</span>
                 <span>{totalDeposited.toFixed(2)}</span>
               </div>
@@ -366,7 +376,12 @@ export default function AccountPage() {
             </div>
             <div>
               <span className="text-xs text-slate-400 block mb-1">{t('totalPurchases')}</span>
-              <div className="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight flex items-center gap-1.5" dir="ltr">
+              <div
+                className={`text-2xl sm:text-3xl font-black text-white font-mono tracking-tight flex items-center gap-1.5 ${
+                  isRTL ? 'justify-end' : 'justify-start'
+                }`}
+                dir="ltr"
+              >
                 <span className="animate-dollar-float text-cyan-400">$</span>
                 <span>{totalPurchases.toFixed(2)}</span>
               </div>

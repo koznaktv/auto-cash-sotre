@@ -198,7 +198,12 @@ export default function DepositPage() {
               <span className="text-xs sm:text-sm text-slate-400 block mb-1 font-alkatip">
                 {t('availableBalanceLabel')}
               </span>
-              <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono tracking-tight flex items-center gap-1.5" dir="ltr">
+              <div
+                className={`text-3xl sm:text-4xl font-extrabold text-white font-mono tracking-tight flex items-center gap-1.5 ${
+                  isRTL ? 'justify-end' : 'justify-start'
+                }`}
+                dir="ltr"
+              >
                 <span className="text-cyan-400 animate-dollar-float">$</span>
                 <span>{balance.toFixed(2)}</span>
               </div>
@@ -222,7 +227,12 @@ export default function DepositPage() {
               <span className="text-[11px] text-slate-400 block mb-1">
                 {lang === 'ug' ? 'ئومۇمىي كىرگۈزۈلگەن سومما' : lang === 'ar' ? 'إجمالي المبالغ المودعة' : 'Total Deposited'}
               </span>
-              <span className="font-mono text-base font-extrabold text-cyan-400 flex items-center gap-0.5" dir="ltr">
+              <span
+                className={`font-mono text-base font-extrabold text-cyan-400 flex items-center gap-0.5 ${
+                  isRTL ? 'justify-end' : 'justify-start'
+                }`}
+                dir="ltr"
+              >
                 <span className="animate-dollar-float text-cyan-400">$</span>
                 <span>{totalSuccessfulAmount.toFixed(2)}</span>
               </span>
