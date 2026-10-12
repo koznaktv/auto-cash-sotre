@@ -725,5 +725,108 @@ body.lang-en .font-alkatip {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* --- Rocket Launch Motion & Speed Lines (After Effects Style) --- */
+@keyframes verticalSpeedLine {
+  0% {
+    transform: translateY(-120px) scaleY(0.4);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.85;
+  }
+  75% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(110vh) scaleY(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes rocketHover {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-4px) rotate(-0.5deg);
+  }
+  75% {
+    transform: translateY(3px) rotate(0.5deg);
+  }
+}
+
+@keyframes flamePulse {
+  0%, 100% {
+    transform: scaleY(1) scaleX(1);
+    opacity: 0.95;
+    filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.9));
+  }
+  50% {
+    transform: scaleY(1.35) scaleX(0.92);
+    opacity: 1;
+    filter: drop-shadow(0 0 24px rgba(251, 191, 36, 1));
+  }
+}
+
+@keyframes flameSparks {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(50px) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes rocketBlastOff {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  20% {
+    transform: translateY(24px) scale(0.96);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-140vh) scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes energyShockwave {
+  0% {
+    transform: scale(0.3);
+    opacity: 0.9;
+    border-width: 4px;
+  }
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+
+.animate-rocket-hover {
+  animation: rocketHover 2.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-flame-pulse {
+  transform-origin: top center;
+  animation: flamePulse 0.4s ease-in-out infinite;
+  will-change: transform, filter;
+}
+
+.animate-rocket-launch {
+  animation: rocketBlastOff 0.85s cubic-bezier(0.5, 0, 0.2, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.animate-shockwave {
+  animation: energyShockwave 1s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+  will-change: transform, opacity;
+}
+
 
 
