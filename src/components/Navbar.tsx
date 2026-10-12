@@ -21,7 +21,7 @@ interface NavbarProps {
   balance?: number;
   onOpenDrawer?: () => void;
   onOpenAuth?: () => void;
-  user?: { name: string; email: string; id?: string; balance?: number } | null;
+  user?: { name: string; email: string; id?: string; balance?: number; avatarUrl?: string } | null;
 }
 
 export default function Navbar({
@@ -33,19 +33,33 @@ export default function Navbar({
   const { lang, setLang, t, isRTL } = useLanguage();
   const [internalDrawerOpen, setInternalDrawerOpen] = useState(false);
   const [internalAuthOpen, setInternalAuthOpen] = useState(false);
-  const [internalUser, setInternalUser] = useState<{ name: string; email: string } | null>(null);
+  const [internalUser, setInternalUser] = useState<{ name: string; email: string; id?: string; avatarUrl?: string } | null>(null);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
 
   useEffect(() => {
     const refreshUser = () => {
       const isLoggedIn = localStorage.getItem('autocash_is_logged_in');
       const savedEmail = localStorage.getItem('autocash_email');
+      const savedName = localStorage.getItem('autocash_username') || '';
+      const savedAvatar = localStorage.getItem('autocash_avatar') || '';
+      const savedId = localStorage.getItem('autocash_userId') || '';
+
       if (isLoggedIn === 'true' && savedEmail) {
+        setInternalUser((prev) => prev || {
+          id: savedId,
+          name: savedName || savedEmail.split('@')[0],
+          email: savedEmail,
+          avatarUrl: savedAvatar,
+        });
+
         fetch(`/api/auth/me?email=${encodeURIComponent(savedEmail)}`)
           .then((r) => r.json())
           .then((data) => {
             if (data.success && data.user) {
               setInternalUser(data.user);
+              if (data.user.avatarUrl) {
+                localStorage.setItem('autocash_avatar', data.user.avatarUrl);
+              }
             }
           })
           .catch(() => {});
@@ -59,7 +73,7 @@ export default function Navbar({
     return () => window.removeEventListener('autocash-auth-changed', refreshUser);
   }, []);
 
-  const activeUser = externalUser !== undefined ? externalUser : internalUser;
+  const activeUser = externalUser ? externalUser : internalUser;
 
   const handleOpenDrawer = () => {
     if (onOpenDrawer) {
@@ -261,8 +275,11 @@ export default function Navbar({
               >
                 <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/30 ring-1 ring-amber-400/60 shrink-0 group-hover:scale-105 transition-transform duration-200">
                   <img
-                    src="/avatar.png"
+                    src={(activeUser as any)?.avatarUrl || (activeUser as any)?.avatar || "/avatar.png"}
                     alt={activeUser.name}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/avatar.png';
+                    }}
                     className="w-full h-full rounded-full object-cover bg-slate-900 brightness-110 contrast-105"
                   />
                   <span

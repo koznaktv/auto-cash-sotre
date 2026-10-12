@@ -8,6 +8,7 @@ export interface UserRecord {
   name: string;
   email: string;
   phone?: string;
+  avatarUrl?: string;
   passwordHash: string;
   salt: string;
   balance: number;
@@ -277,6 +278,7 @@ export function createUser(userData: {
   email: string;
   password: string;
   phone?: string;
+  avatarUrl?: string;
 }): UserRecord {
   const db = ensureDbFile();
   const existing = getUserByEmail(userData.email);
@@ -290,6 +292,7 @@ export function createUser(userData: {
     name: userData.name.trim() || userData.email.split('@')[0],
     email: userData.email.trim().toLowerCase(),
     phone: userData.phone?.trim() || '',
+    avatarUrl: userData.avatarUrl || undefined,
     passwordHash,
     salt,
     balance: 0.0,
@@ -486,6 +489,7 @@ function mapSupabaseUser(row: any): UserRecord {
     name: row.name,
     email: row.email,
     phone: row.phone || undefined,
+    avatarUrl: row.avatar_url || row.avatar || undefined,
     passwordHash: row.password_hash,
     salt: row.salt,
     balance: Number(row.balance || 0),
@@ -588,6 +592,7 @@ export async function createUserAsync(userData: {
   email: string;
   password: string;
   phone?: string;
+  avatarUrl?: string;
   role?: 'user' | 'admin';
 }): Promise<UserRecord> {
   const sb = getSupabase();
@@ -596,7 +601,7 @@ export async function createUserAsync(userData: {
       const { passwordHash, salt } = hashPassword(userData.password);
       const id = `USR-${Date.now().toString().slice(-4)}`;
       const now = new Date().toISOString();
-      const insertPayload = {
+      const insertPayload: any = {
         id,
         name: userData.name,
         email: userData.email.toLowerCase(),
@@ -610,9 +615,15 @@ export async function createUserAsync(userData: {
         is_banned: false,
         created_at: now,
       };
+      if (userData.avatarUrl) {
+        insertPayload.avatar_url = userData.avatarUrl;
+      }
       const { data, error } = await sb.from('users').insert(insertPayload).select().single();
       if (!error && data) {
         return mapSupabaseUser(data);
+      }
+      if (error) {
+        console.warn('Supabase insert user error (fallback to local):', error.message);
       }
     } catch (e) {
       console.error('Supabase createUser error:', e);
@@ -631,6 +642,7 @@ export async function updateUserAsync(
       const dbUpdates: any = {};
       if (updates.name !== undefined) dbUpdates.name = updates.name;
       if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
+      if (updates.avatarUrl !== undefined) dbUpdates.avatar_url = updates.avatarUrl;
       if (updates.balance !== undefined) dbUpdates.balance = updates.balance;
       if (updates.totalSpent !== undefined) dbUpdates.total_spent = updates.totalSpent;
       if (updates.vipTier !== undefined) dbUpdates.vip_tier = updates.vipTier;

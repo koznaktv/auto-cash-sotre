@@ -27,6 +27,7 @@ export async function GET(req: Request) {
       name: user.name,
       email: user.email,
       phone: user.phone,
+      avatarUrl: user.avatarUrl || undefined,
       balance: user.balance,
       totalSpent: user.totalSpent,
       vipTier: user.vipTier,

@@ -51,7 +51,7 @@ export default function HomePage() {
   const [showSplash, setShowSplash] = useState(!hasShownSplashInCurrentSession);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState<{ id?: string; name: string; email: string; balance?: number } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ id?: string; name: string; email: string; balance?: number; avatarUrl?: string } | null>(null);
 
   useEffect(() => {
     hasShownSplashInCurrentSession = true;
@@ -60,19 +60,66 @@ export default function HomePage() {
     const refreshUser = () => {
       const isLoggedIn = localStorage.getItem('autocash_is_logged_in');
       const savedEmail = localStorage.getItem('autocash_email');
+      const savedName = localStorage.getItem('autocash_username');
+      const savedAvatar = localStorage.getItem('autocash_avatar');
+      const savedId = localStorage.getItem('autocash_userId');
+
       if (isLoggedIn === 'true' && savedEmail) {
+        // Immediately restore user from local storage cache so there is zero flicker
+        setCurrentUser((prev) => prev || {
+          id: savedId || undefined,
+          name: savedName || savedEmail.split('@')[0],
+          email: savedEmail,
+          avatarUrl: savedAvatar || undefined,
+          balance: 0.0,
+        });
+
         fetch(`/api/auth/me?email=${encodeURIComponent(savedEmail)}`)
           .then((r) => r.json())
           .then((data) => {
             if (data.success && data.user) {
               setCurrentUser(data.user);
               setUserBalance(data.user.balance || 0.0);
+              if (data.user.avatarUrl) {
+                localStorage.setItem('autocash_avatar', data.user.avatarUrl);
+              }
             }
           })
           .catch((e) => console.error(e));
       } else {
-        setCurrentUser(null);
-        setUserBalance(0.0);
+        // Check if Supabase browser session is active
+        import('@/lib/supabaseBrowser').then(({ getBrowserSupabase }) => {
+          const sb = getBrowserSupabase();
+          if (sb) {
+            sb.auth.getSession().then(({ data: { session } }) => {
+              if (session?.user?.email) {
+                const email = session.user.email;
+                const name = session.user.user_metadata?.full_name || session.user.user_metadata?.name || email.split('@')[0];
+                const avatarUrl = session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || '';
+                localStorage.setItem('autocash_is_logged_in', 'true');
+                localStorage.setItem('autocash_username', name);
+                localStorage.setItem('autocash_email', email);
+                if (avatarUrl) localStorage.setItem('autocash_avatar', avatarUrl);
+                setCurrentUser({
+                  name,
+                  email,
+                  avatarUrl,
+                  balance: 0.0,
+                });
+                window.dispatchEvent(new Event('autocash-auth-changed'));
+              } else {
+                setCurrentUser(null);
+                setUserBalance(0.0);
+              }
+            }).catch(() => {
+              setCurrentUser(null);
+              setUserBalance(0.0);
+            });
+          } else {
+            setCurrentUser(null);
+            setUserBalance(0.0);
+          }
+        });
       }
     };
 
@@ -91,15 +138,21 @@ export default function HomePage() {
     localStorage.removeItem('autocash_username');
     localStorage.removeItem('autocash_email');
     localStorage.removeItem('autocash_userId');
+    localStorage.removeItem('autocash_avatar');
+    import('@/lib/supabaseBrowser').then(({ getBrowserSupabase }) => {
+      const sb = getBrowserSupabase();
+      if (sb) sb.auth.signOut().catch(() => {});
+    });
     setCurrentUser(null);
     setUserBalance(0.0);
   };
 
-  const handleAuthSuccess = (usr: { id?: string; name: string; email: string; balance?: number }) => {
+  const handleAuthSuccess = (usr: { id?: string; name: string; email: string; balance?: number; avatarUrl?: string }) => {
     localStorage.setItem('autocash_is_logged_in', 'true');
     localStorage.setItem('autocash_username', usr.name);
     localStorage.setItem('autocash_email', usr.email);
     if (usr.id) localStorage.setItem('autocash_userId', usr.id);
+    if (usr.avatarUrl) localStorage.setItem('autocash_avatar', usr.avatarUrl);
     setCurrentUser(usr);
     setUserBalance(usr.balance ?? 0.0);
   };

@@ -75,7 +75,7 @@ function CallbackHandler() {
 
       const email = user.email;
       const name = user.user_metadata?.full_name || user.user_metadata?.name || email?.split('@')[0] || 'ئىشلەتكۈچى';
-      const avatarUrl = user.user_metadata?.avatar_url || '';
+      const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
 
       const res = await fetch('/api/auth/oauth-sync', {
         method: 'POST',
@@ -94,6 +94,9 @@ function CallbackHandler() {
       localStorage.setItem('autocash_email', data.user.email);
       if (data.user.id) {
         localStorage.setItem('autocash_userId', data.user.id);
+      }
+      if (data.user.avatarUrl || avatarUrl) {
+        localStorage.setItem('autocash_avatar', data.user.avatarUrl || avatarUrl);
       }
 
       // Trigger global event for navbar/drawer listeners

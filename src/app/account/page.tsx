@@ -38,6 +38,7 @@ export default function AccountPage() {
   const [currentPassword, setCurrentPassword] = useState<string>('');
   const [newPassword, setNewPassword] = useState<string>('');
   const [vipTier, setVipTier] = useState<string>('VIP 1');
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
   
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
   const [passwordSuccess, setPasswordSuccess] = useState<boolean>(false);
@@ -52,9 +53,17 @@ export default function AccountPage() {
   const loadUserData = async () => {
     const loggedInVal = localStorage.getItem('autocash_is_logged_in');
     const savedEmail = localStorage.getItem('autocash_email');
+    const savedName = localStorage.getItem('autocash_username');
+    const savedAvatar = localStorage.getItem('autocash_avatar');
+    const savedId = localStorage.getItem('autocash_userId');
 
     if (loggedInVal === 'true' && savedEmail) {
       setIsLoggedIn(true);
+      if (savedName) setName(savedName);
+      if (savedEmail) setEmail(savedEmail);
+      if (savedId) setUserId(savedId);
+      if (savedAvatar) setAvatarUrl(savedAvatar);
+
       try {
         const res = await fetch(`/api/auth/me?email=${encodeURIComponent(savedEmail)}`);
         const data = await res.json();
@@ -64,6 +73,10 @@ export default function AccountPage() {
           setEmail(u.email);
           setPhone(u.phone || '');
           setUserId(u.id);
+          if (u.avatarUrl) {
+            setAvatarUrl(u.avatarUrl);
+            localStorage.setItem('autocash_avatar', u.avatarUrl);
+          }
           setBalance(u.balance || 0.0);
           setTotalDeposited(u.balance + (u.totalSpent || 0));
           setTotalPurchases(u.totalSpent || 0);
@@ -77,6 +90,7 @@ export default function AccountPage() {
       setBalance(0.0);
       setTotalDeposited(0.0);
       setTotalPurchases(0.0);
+      setAvatarUrl('');
     }
 
     fetchOrdersCount();
@@ -163,7 +177,9 @@ export default function AccountPage() {
     localStorage.removeItem('autocash_username');
     localStorage.removeItem('autocash_email');
     localStorage.removeItem('autocash_userId');
+    localStorage.removeItem('autocash_avatar');
     setIsLoggedIn(false);
+    setAvatarUrl('');
     setBalance(0.0);
     setTotalPurchases(0.0);
     setTotalOrders(0);
@@ -174,6 +190,10 @@ export default function AccountPage() {
     localStorage.setItem('autocash_username', usr.name);
     localStorage.setItem('autocash_email', usr.email);
     if (usr.id) localStorage.setItem('autocash_userId', usr.id);
+    if (usr.avatarUrl) {
+      localStorage.setItem('autocash_avatar', usr.avatarUrl);
+      setAvatarUrl(usr.avatarUrl);
+    }
     setName(usr.name);
     setEmail(usr.email);
     setUserId(usr.id);
@@ -226,8 +246,11 @@ export default function AccountPage() {
                 <div className="relative shrink-0">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full p-0.5 bg-gradient-to-tr from-cyan-400 via-amber-300 to-cyan-500 shadow-lg shadow-cyan-500/25">
                     <img
-                      src="/avatar.png"
+                      src={avatarUrl || "/avatar.png"}
                       alt={name}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/avatar.png';
+                      }}
                       className="w-full h-full rounded-full object-cover bg-slate-900 border border-slate-950"
                     />
                   </div>

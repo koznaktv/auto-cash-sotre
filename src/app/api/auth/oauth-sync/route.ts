@@ -27,9 +27,15 @@ export async function POST(req: Request) {
         name: defaultName,
         email: cleanEmail,
         password: randomPassword,
+        avatarUrl: avatarUrl || undefined,
         role: 'user',
       });
       isNew = true;
+    } else if (avatarUrl && !user.avatarUrl) {
+      // Update avatar for existing user
+      const { updateUserAsync } = await import('@/lib/db');
+      await updateUserAsync(user.id, { avatarUrl });
+      user.avatarUrl = avatarUrl;
     }
 
     const safeUser = {
@@ -41,7 +47,7 @@ export async function POST(req: Request) {
       totalSpent: user.totalSpent || 0.0,
       vipTier: user.vipTier || 'vip1',
       role: user.role || 'user',
-      avatarUrl: avatarUrl || undefined,
+      avatarUrl: avatarUrl || user.avatarUrl || undefined,
       createdAt: user.createdAt,
     };
 

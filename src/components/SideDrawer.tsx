@@ -29,7 +29,7 @@ import {
 interface SideDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  user: { name: string; email: string; id?: string; balance?: number } | null;
+  user: { name: string; email: string; id?: string; balance?: number; avatarUrl?: string } | null;
   onOpenAuth: () => void;
   onLogout: () => void;
 }
@@ -152,8 +152,11 @@ export default function SideDrawer({
                   <div className="relative shrink-0">
                     <div className="w-13 h-13 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 shadow-md shadow-amber-500/30">
                       <img
-                        src="/avatar.png"
+                        src={(user as any)?.avatarUrl || (user as any)?.avatar || "/avatar.png"}
                         alt={user.name}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/avatar.png';
+                        }}
                         className="w-12 h-12 rounded-full object-cover bg-slate-900 border border-slate-950"
                       />
                     </div>
