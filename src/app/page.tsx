@@ -331,22 +331,25 @@ export default function HomePage() {
             </div>
 
             {/* Quick action buttons */}
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3 w-full md:w-auto">
               <Link
                 href="/deposit"
-                className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 rounded-full gold-shimmer-btn animate-deposit-btn text-xs sm:text-sm font-black transition-all font-alkatip text-center shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
+                className="flex items-center justify-center gap-2 h-11 sm:h-12 px-4 sm:px-5 rounded-full gold-shimmer-btn animate-normal-float text-xs sm:text-sm font-bold transition-all font-alkatip text-center shadow-md hover:scale-105 active:scale-95 cursor-pointer leading-none"
               >
-                <span className="animate-wallet-wiggle shrink-0">
-                  <Wallet className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-slate-950 flex-shrink-0" />
+                <span className="animate-normal-icon shrink-0">
+                  <Wallet className="w-4 h-4 text-slate-950 flex-shrink-0" />
                 </span>
-                <span>{t('addFunds')}</span>
+                <span className="leading-none">{t('addFunds')}</span>
               </Link>
               <Link
                 href="/membership"
-                className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-full bg-slate-900/90 hover:bg-slate-800 border border-amber-500/30 text-amber-200 font-bold text-xs sm:text-sm transition-all font-alkatip text-center hover:scale-105 active:scale-95"
+                className="flex items-center justify-center gap-2 h-11 sm:h-12 px-4 sm:px-5 rounded-full bg-[#061527] hover:bg-[#091f3a] border-2 border-amber-400/50 hover:border-amber-300 text-amber-300 font-bold text-xs sm:text-sm transition-all font-alkatip text-center shadow-md hover:scale-105 active:scale-95 animate-normal-float cursor-pointer leading-none"
+                style={{ animationDelay: '0.2s' }}
               >
-                <Crown className="w-4 h-4 text-amber-400 flex-shrink-0 animate-crown-wiggle" />
-                <span>{t('vipMembership')}</span>
+                <span className="animate-normal-icon shrink-0">
+                  <Crown className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                </span>
+                <span className="leading-none">{t('vipMembership')}</span>
               </Link>
             </div>
           </div>

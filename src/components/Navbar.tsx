@@ -217,9 +217,9 @@ export default function Navbar({
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
             <Link
               href="/deposit"
-              className="hidden md:inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black gold-shimmer-btn animate-deposit-btn transition-all font-alkatip shrink-0 hover:scale-105 active:scale-95"
+              className="hidden md:inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold gold-shimmer-btn animate-normal-float transition-all font-alkatip shrink-0 hover:scale-105 active:scale-95"
             >
-              <span className="animate-wallet-wiggle shrink-0">
+              <span className="animate-normal-icon shrink-0">
                 <Wallet className="w-3.5 h-3.5 text-slate-950" />
               </span>
               <span>{t('addFunds')}</span>
