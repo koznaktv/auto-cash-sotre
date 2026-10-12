@@ -41,6 +41,7 @@ export default function HomePage() {
   } = useLanguage();
 
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
+  const [transitioningCatId, setTransitioningCatId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeModalService, setActiveModalService] = useState<ServiceItem | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -117,6 +118,23 @@ export default function HomePage() {
       const orderAmount = Number(newOrder.amount ?? (newOrder as any).price ?? 0);
       setUserBalance((prev) => Math.max(0, Math.round((prev - orderAmount) * 100) / 100));
     }
+  };
+
+  const handleSelectCategory = (catId: string) => {
+    if (transitioningCatId) return;
+    setTransitioningCatId(catId);
+    setTimeout(() => {
+      setSelectedCat(catId);
+      setTransitioningCatId(null);
+      setTimeout(() => {
+        const catSection = document.getElementById('category-products-view');
+        if (catSection) {
+          catSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.scrollTo({ top: 380, behavior: 'smooth' });
+        }
+      }, 50);
+    }, 450);
   };
 
   // Only open products when a category is explicitly clicked, or searching
@@ -357,7 +375,7 @@ export default function HomePage() {
 
         {/* Rotational Promo Banner */}
         <section>
-          <PromoCarousel onSelectCategory={(catId) => setSelectedCat(catId)} />
+          <PromoCarousel onSelectCategory={handleSelectCategory} />
         </section>
 
         {/* Global Search Bar */}
@@ -396,51 +414,73 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3.5">
-              {CATEGORIES_9.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCat(cat.id)}
-                  className={`relative overflow-hidden p-3 rounded-2xl ${
-                    isRTL ? 'text-right' : 'text-left'
-                  } transition-all flex flex-col justify-between cursor-pointer group h-28 sm:h-32 gold-card-normal hover:scale-[1.03]`}
-                >
-                  {/* Category Background Image */}
-                  <div className="absolute inset-0 z-0">
-                    <img
-                      src={cat.image}
-                      alt={getCategoryName(cat.id, cat.name)}
-                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300 brightness-95 contrast-105"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).src = '/logo.png';
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#030a14]/90 via-[#030a14]/40 to-transparent" />
-                  </div>
+              {CATEGORIES_9.map((cat) => {
+                const isTransitioning = transitioningCatId === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => handleSelectCategory(cat.id)}
+                    className={`relative overflow-hidden p-3 rounded-2xl ${
+                      isRTL ? 'text-right' : 'text-left'
+                    } transition-all duration-200 flex flex-col justify-between cursor-pointer group h-28 sm:h-32 gold-card-normal ${
+                      isTransitioning
+                        ? 'card-selecting-glow'
+                        : 'hover:scale-[1.03]'
+                    }`}
+                  >
+                    {/* Rotating Glowing Border Beam on Selection */}
+                    {isTransitioning && <div className="border-beam-tracer" />}
 
-                  <div className="relative z-10 flex items-center justify-between w-full">
-                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all bg-slate-950/85 backdrop-blur-md border border-amber-400/50 text-amber-300 group-hover:scale-110 group-hover:bg-amber-400 group-hover:text-slate-950 shadow-md animate-cat-icon">
-                      <DynamicIcon name={cat.icon} className="w-4 h-4 sm:w-5 sm:h-5" />
+                    {/* Category Background Image */}
+                    <div className="absolute inset-0 z-0">
+                      <img
+                        src={cat.image}
+                        alt={getCategoryName(cat.id, cat.name)}
+                        className={`w-full h-full object-cover transition-all duration-300 brightness-95 contrast-105 ${
+                          isTransitioning ? 'opacity-100 scale-105' : 'opacity-80 group-hover:opacity-100 group-hover:scale-105'
+                        }`}
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = '/logo.png';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#030a14]/90 via-[#030a14]/40 to-transparent" />
                     </div>
-                    <span className="text-[9px] sm:text-[10px] bg-slate-950/85 backdrop-blur-md border border-amber-400/50 text-amber-300 font-bold px-2 py-0.5 rounded-full shadow font-alkatip group-hover:bg-amber-400 group-hover:text-slate-950 transition animate-arrow-pill">
-                      {isRTL ? 'ئېچىش ←' : 'Open →'}
-                    </span>
-                  </div>
 
-                  <div className="relative z-10 mt-1.5">
-                    <h3 className="font-alkatip font-extrabold text-xs sm:text-sm text-white group-hover:text-amber-300 transition drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
-                      {getCategoryName(cat.id, cat.name)}
-                    </h3>
-                    <span className="font-alkatip text-[9px] sm:text-[10px] text-amber-200 font-semibold block mt-0.5 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
-                      {getCategoryCount(cat.id, cat.count)}
-                    </span>
-                  </div>
-                </button>
-              ))}
+                    <div className="relative z-10 flex items-center justify-between w-full">
+                      <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all border shadow-md animate-cat-icon ${
+                        isTransitioning
+                          ? 'bg-amber-400 text-slate-950 border-amber-300 scale-110 shadow-amber-400/50'
+                          : 'bg-slate-950/85 backdrop-blur-md border-amber-400/50 text-amber-300 group-hover:scale-110 group-hover:bg-amber-400 group-hover:text-slate-950'
+                      }`}>
+                        <DynamicIcon name={cat.icon} className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </div>
+                      <span className={`text-[9px] sm:text-[10px] backdrop-blur-md border font-bold px-2 py-0.5 rounded-full shadow font-alkatip transition animate-arrow-pill ${
+                        isTransitioning
+                          ? 'bg-amber-400 text-slate-950 border-amber-300 scale-105'
+                          : 'bg-slate-950/85 border-amber-400/50 text-amber-300 group-hover:bg-amber-400 group-hover:text-slate-950'
+                      }`}>
+                        {isRTL ? 'ئېچىش ←' : 'Open →'}
+                      </span>
+                    </div>
+
+                    <div className="relative z-10 mt-1.5">
+                      <h3 className={`font-alkatip font-extrabold text-xs sm:text-sm transition drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] ${
+                        isTransitioning ? 'text-amber-300' : 'text-white group-hover:text-amber-300'
+                      }`}>
+                        {getCategoryName(cat.id, cat.name)}
+                      </h3>
+                      <span className="font-alkatip text-[9px] sm:text-[10px] text-amber-200 font-semibold block mt-0.5 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
+                        {getCategoryCount(cat.id, cat.count)}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         ) : (
           /* View 2: Inside Category Products */
-          <section className="pt-2 animate-in fade-in duration-300 space-y-4">
+          <section className="pt-2 animate-in fade-in duration-300 space-y-4" id="category-products-view">
             {/* Header with Back to Categories Button */}
             <div className="flex items-center justify-between gap-2 p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-[#07192d] to-slate-900 border border-amber-500/40 shadow-xl">
               {/* Back to Categories Button (On Right in RTL) */}

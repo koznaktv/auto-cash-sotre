@@ -637,5 +637,57 @@ body.lang-en .font-alkatip {
   filter: drop-shadow(0 1px 3px rgba(255, 255, 255, 0.6));
 }
 
+/* --- Rotating Glowing Border Beam for Category & Option Selection --- */
+@keyframes spinBorderBeam {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.border-beam-tracer {
+  position: absolute;
+  inset: 0;
+  border-radius: 1rem;
+  padding: 2.5px;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 30;
+}
+
+.border-beam-tracer::before {
+  content: '';
+  position: absolute;
+  top: -150%;
+  left: -150%;
+  width: 400%;
+  height: 400%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0% 60%,
+    rgba(245, 158, 11, 0.4) 75%,
+    #facc15 88%,
+    #ffffff 98%,
+    transparent 100%
+  );
+  animation: spinBorderBeam 0.75s linear infinite;
+  will-change: transform;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.card-selecting-glow {
+  box-shadow: 0 0 25px rgba(250, 204, 21, 0.6), inset 0 0 15px rgba(250, 204, 21, 0.25) !important;
+  border-color: rgba(250, 204, 21, 0.95) !important;
+  transform: scale(1.035) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 
 
