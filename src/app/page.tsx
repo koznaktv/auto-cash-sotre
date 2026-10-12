@@ -325,7 +325,7 @@ export default function HomePage() {
                   ? 'مركز شحن الألعاب والتطبيقات والبطاقات'
                   : 'Games, Apps & Gift Cards Hub'}
               </h1>
-              <p className="font-alkatip text-xs sm:text-sm text-slate-300 mt-2 max-w-xl leading-relaxed">
+              <p className="font-alkatip text-sm sm:text-base text-slate-200/90 mt-2.5 max-w-2xl leading-relaxed font-normal">
                 {t('welcomeSubtitle')}
               </p>
             </div>

@@ -64,8 +64,7 @@ export default function WelcomeSplash({ onEnter }: { onEnter: () => void }) {
         </h1>
 
         {/* Subtitle */}
-        <div className="h-0.5 w-32 bg-gradient-to-r from-transparent via-amber-400 to-transparent mb-4" />
-        <p className="font-alkatip text-slate-300 text-xs sm:text-sm max-w-xs sm:max-w-md leading-relaxed mb-8">
+        <p className="font-alkatip text-slate-200 text-sm sm:text-base max-w-sm sm:max-w-md leading-relaxed mb-8 text-center px-4 font-normal">
           {t('welcomeSubtitle')}
         </p>
 
