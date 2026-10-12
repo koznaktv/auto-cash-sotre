@@ -4,16 +4,49 @@
 @tailwind components;
 @tailwind utilities;
 
-/* --- Custom Uyghur Typography Fonts --- */
+/* --- Custom Uyghur Typography Fonts (Local + Web Fallback) --- */
 @font-face {
-  font-family: 'UKIJEsline';
-  src: local('UKIJ Esline'), local('ukijesn'), local('UKIJEsline');
+  font-family: 'ALKATIP Basma Tom';
+  src: local('ALKATIP Basma Tom'), local('ALKATIP BASMA TOM'), local('AlkatipBasmaTom'),
+       url('/fonts/ALKATIPBasmaTom.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'AlkatipBasmaTom';
-  src: local('ALKATIP Basma Tom'), local('ALKATIP BASMA TOM'), local('ALKATIP Basma');
+  font-family: 'ALKATIP Basma Tom';
+  src: local('ALKATIP Basma Tom Bold'), local('ALKATIP BASMA TOM BOLD'),
+       url('/fonts/ALKATIPBasmaTom-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UKIJ Esline';
+  src: local('UKIJ Esline'), local('ukijesn'), local('UKIJEsline'),
+       url('/fonts/UKIJEsline.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UKIJ Esline';
+  src: local('UKIJ Esline Bold'), local('ukijesbold'), local('UKIJEsline-Bold'),
+       url('/fonts/UKIJEsline-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UKIJ Tuz';
+  src: local('UKIJ Tuz'), local('ukijtuz'),
+       url('/fonts/UKIJTuz.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
   font-display: swap;
 }
 
@@ -41,7 +74,7 @@ html {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: 'Noto Sans Arabic', 'AlkatipBasmaTom', 'ALKATIP Basma Tom', 'UKIJ Esline', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'ALKATIP Basma Tom', 'ALKATIP Basma', 'UKIJ Esline', 'UKIJ Tuz', 'Microsoft Uighur', 'Noto Sans Arabic', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -49,14 +82,14 @@ body {
   overflow-x: hidden;
 }
 
-/* Titles and Headers with ultra-crisp modern digital Uyghur typography */
+/* Titles and Headers with ultra-crisp authentic Uyghur calligraphy typography */
 .font-ukij {
-  font-family: 'Noto Sans Arabic', 'UKIJEsline', 'ukijesn', 'UKIJ Esline', 'AlkatipBasmaTom', system-ui, sans-serif;
+  font-family: 'UKIJ Esline', 'UKIJEsline', 'ukijesn', 'ALKATIP Basma Tom', 'ALKATIP Basma', 'Microsoft Uighur', 'Noto Sans Arabic', system-ui, sans-serif;
 }
 
-/* Item names, buttons, categories with smooth modern Uyghur text style */
+/* Item names, buttons, categories, ticker with smooth authentic Uyghur text style */
 .font-alkatip {
-  font-family: 'Noto Sans Arabic', 'AlkatipBasmaTom', 'ALKATIP Basma Tom', 'UKIJ Esline', system-ui, sans-serif;
+  font-family: 'ALKATIP Basma Tom', 'ALKATIP Basma', 'UKIJ Esline', 'UKIJ Tuz', 'Microsoft Uighur', 'Noto Sans Arabic', system-ui, sans-serif;
 }
 
 /* --- Multilingual Typography overrides --- */

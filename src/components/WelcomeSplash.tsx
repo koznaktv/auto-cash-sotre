@@ -200,7 +200,7 @@ export default function WelcomeSplash({ onEnter }: { onEnter: () => void }) {
         </div>
 
         {/* Welcome Kicker (Unchanged) */}
-        <span className="font-alkatip text-amber-300 text-sm sm:text-base font-bold tracking-widest mb-2 flex items-center gap-2">
+        <span className="font-alkatip text-amber-300 text-sm sm:text-base font-bold tracking-normal mb-2 flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-amber-400 animate-star-twinkle" />
           <span>{t('welcomeTitle')}</span>
           <Sparkles className="w-4 h-4 text-amber-400 animate-star-twinkle" />
@@ -214,7 +214,7 @@ export default function WelcomeSplash({ onEnter }: { onEnter: () => void }) {
         </h1>
 
         {/* Subtitle (Unchanged) */}
-        <p className="font-alkatip text-slate-300 text-sm sm:text-base max-w-sm sm:max-w-md leading-relaxed mb-8 text-center px-4 font-normal">
+        <p className="font-alkatip text-slate-200 text-sm sm:text-base max-w-sm sm:max-w-md leading-relaxed mb-8 text-center px-4 font-normal">
           {t('welcomeSubtitle')}
         </p>
 

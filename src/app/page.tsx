@@ -262,10 +262,10 @@ export default function HomePage() {
       />
 
       {/* 5. Live Golden Ticker - Refined Rounded Card */}
-      <div className="max-w-7xl mx-3.5 sm:mx-auto my-2.5 rounded-2xl bg-[#051322] border border-amber-500/25 py-2 px-3 sm:px-4 text-[11px] sm:text-xs overflow-hidden select-none shadow-md">
+      <div className="max-w-7xl mx-3.5 sm:mx-auto my-2.5 rounded-2xl bg-[#051322] border border-amber-500/25 py-2 px-3 sm:px-4 text-xs sm:text-sm overflow-hidden select-none shadow-md">
         <div className="flex items-center gap-3 w-full">
           {/* Fixed Badge */}
-          <div className="flex items-center gap-1.5 text-amber-300 font-black shrink-0 gold-badge px-3 py-1 rounded-full font-alkatip text-[10px] sm:text-xs z-10 shadow-md">
+          <div className="flex items-center gap-1.5 text-amber-300 font-bold shrink-0 gold-badge px-3 py-1 rounded-full font-alkatip text-xs sm:text-sm z-10 shadow-md">
             <Zap className="w-3.5 h-3.5 fill-amber-300 text-amber-400 animate-zap-wiggle" />
             <span>
               {lang === 'ug'
@@ -278,7 +278,7 @@ export default function HomePage() {
 
           {/* Continuous Marquee */}
           <div className="overflow-hidden whitespace-nowrap flex-1 relative">
-            <div className="animate-marquee-uyghur flex items-center gap-12 font-alkatip text-[11px] sm:text-xs text-amber-100/90 tracking-wide">
+            <div className="animate-marquee-uyghur flex items-center gap-12 font-alkatip text-xs sm:text-sm text-amber-100 font-medium tracking-normal">
               {lang === 'ug' ? (
                 <>
                   <div className="flex items-center gap-8 shrink-0">
