@@ -47,14 +47,28 @@ export default function HomePage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [userBalance, setUserBalance] = useState<number>(0.0);
 
-  // Show splash ONLY on full page reload / initial load, NOT on client-side router navigation
-  const [showSplash, setShowSplash] = useState(!hasShownSplashInCurrentSession);
+  // Show splash ONLY ONCE per browser tab session via sessionStorage
+  const [showSplash, setShowSplash] = useState<boolean>(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ id?: string; name: string; email: string; balance?: number; avatarUrl?: string } | null>(null);
 
   useEffect(() => {
-    hasShownSplashInCurrentSession = true;
+    // Check if splash was already shown in this browser session
+    try {
+      const splashShown = sessionStorage.getItem('autocash_splash_shown');
+      if (!splashShown) {
+        setShowSplash(true);
+        sessionStorage.setItem('autocash_splash_shown', 'true');
+      }
+    } catch {
+      // Fallback
+      if (!hasShownSplashInCurrentSession) {
+        setShowSplash(true);
+        hasShownSplashInCurrentSession = true;
+      }
+    }
+
     fetchOrders();
 
     const refreshUser = () => {
@@ -129,6 +143,9 @@ export default function HomePage() {
   }, []);
 
   const handleDismissSplash = () => {
+    try {
+      sessionStorage.setItem('autocash_splash_shown', 'true');
+    } catch {}
     hasShownSplashInCurrentSession = true;
     setShowSplash(false);
   };
