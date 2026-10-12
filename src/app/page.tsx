@@ -54,12 +54,20 @@ export default function HomePage() {
   const [currentUser, setCurrentUser] = useState<{ id?: string; name: string; email: string; balance?: number; avatarUrl?: string } | null>(null);
 
   useEffect(() => {
-    // Check if splash was already shown in this browser session
+    // Check if splash should be shown:
+    // 1. Initial page load (first time opening site)
+    // 2. OR page reload / refresh (F5, pull-to-refresh, reload this page)
+    // Client-side router navigation between pages does NOT trigger the splash.
     try {
+      const navEntries = typeof window !== 'undefined' ? window.performance?.getEntriesByType?.('navigation') : [];
+      const navEntry = navEntries && navEntries.length > 0 ? (navEntries[0] as PerformanceNavigationTiming) : null;
+      const isReload = navEntry?.type === 'reload' || (typeof window !== 'undefined' && (window.performance as any)?.navigation?.type === 1);
       const splashShown = sessionStorage.getItem('autocash_splash_shown');
-      if (!splashShown) {
+
+      if (!hasShownSplashInCurrentSession && (isReload || !splashShown)) {
         setShowSplash(true);
         sessionStorage.setItem('autocash_splash_shown', 'true');
+        hasShownSplashInCurrentSession = true;
       }
     } catch {
       // Fallback
@@ -68,6 +76,15 @@ export default function HomePage() {
         hasShownSplashInCurrentSession = true;
       }
     }
+
+    const handleBeforeUnload = () => {
+      try {
+        sessionStorage.removeItem('autocash_splash_shown');
+      } catch {
+        // ignore
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     fetchOrders();
 
@@ -139,7 +156,10 @@ export default function HomePage() {
 
     refreshUser();
     window.addEventListener('autocash-auth-changed', refreshUser);
-    return () => window.removeEventListener('autocash-auth-changed', refreshUser);
+    return () => {
+      window.removeEventListener('autocash-auth-changed', refreshUser);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
   const handleDismissSplash = () => {
