@@ -14,8 +14,8 @@
       "phone": "+963 984 373 459",
       "passwordHash": "546f466d4d7f758342769a1a9c33b261741856208a94ab9a4ee38f31df1d7ea7bf533f4849578aa5f477082f998eb28dabd45bd6acde0428ed8435e4b552f2c9",
       "salt": "bea28beefea99d1d09165aeed8cb61f5",
-      "balance": 120.5,
-      "totalSpent": 45,
+      "balance": 0,
+      "totalSpent": 0,
       "vipTier": "vip2",
       "role": "admin",
       "createdAt": "2026-10-01T10:00:00.000Z"
@@ -27,8 +27,8 @@
       "phone": "+963 999 123 456",
       "passwordHash": "4a57075bef71fe6430f628c8a4a9fdebaf78d506fed8c54d7f85ba5deadf73b0d0408c6778c732e6d107186265771685b92454a08de0f96c5dc47287f548fc35",
       "salt": "32c7e5d6d4190c5ceacbd3e44a2408de",
-      "balance": 25,
-      "totalSpent": 12.5,
+      "balance": 0,
+      "totalSpent": 0,
       "vipTier": "vip1",
       "role": "user",
       "createdAt": "2026-10-02T12:30:00.000Z"

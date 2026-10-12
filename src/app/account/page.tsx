@@ -25,8 +25,8 @@ import {
 
 export default function AccountPage() {
   const { lang, t, isRTL } = useLanguage();
-  const [balance, setBalance] = useState<number>(120.5);
-  const [totalDeposited, setTotalDeposited] = useState<number>(120.5);
+  const [balance, setBalance] = useState<number>(0.0);
+  const [totalDeposited, setTotalDeposited] = useState<number>(0.0);
   const [totalPurchases, setTotalPurchases] = useState<number>(0.00);
   const [totalOrders, setTotalOrders] = useState<number>(0);
 
@@ -78,8 +78,9 @@ export default function AccountPage() {
             setAvatarUrl(u.avatarUrl);
             localStorage.setItem('autocash_avatar', u.avatarUrl);
           }
-          setBalance(u.balance || 0.0);
-          setTotalDeposited(u.balance + (u.totalSpent || 0));
+          const rawBal = typeof u.balance === 'number' ? u.balance : parseFloat(u.balance || '0') || 0.0;
+          setBalance(rawBal);
+          setTotalDeposited(rawBal + (u.totalSpent || 0));
           setTotalPurchases(u.totalSpent || 0);
           setVipTier(u.vipTier ? u.vipTier.toUpperCase() : 'VIP 1');
         }
