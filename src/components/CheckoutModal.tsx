@@ -6,6 +6,8 @@ import DynamicIcon from './DynamicIcon';
 import { useLanguage } from '@/context/LanguageContext';
 import { X, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
+import { validateGameAccount } from '@/lib/validation/gameAccountValidator';
+
 interface CheckoutModalProps {
   service: ServiceItem | null;
   user?: { id?: string; email?: string; name?: string; balance?: number } | null;
@@ -42,6 +44,8 @@ export default function CheckoutModal({
     e.preventDefault();
     setErrorMsg('');
 
+    if (loading) return; // Prevent double submit
+
     if (!user || !user.email) {
       setErrorMsg(t('loginToPurchasePrompt'));
       if (onOpenAuth) {
@@ -52,16 +56,31 @@ export default function CheckoutModal({
     }
 
     if (service.inputLabel && !accountInput.trim()) {
-      setErrorMsg(`${translateInputLabel(service.inputLabel) || 'ID'}`);
+      setErrorMsg(`${translateInputLabel(service.inputLabel) || 'ID'} نى كىرگۈزۈڭ`);
       return;
+    }
+
+    // Client-side instant format validation
+    if (service.category === 'games' || service.inputLabel) {
+      const val = validateGameAccount(service.id, accountInput.trim());
+      if (!val.isValid) {
+        setErrorMsg(val.message || 'كىملىك فورماتى خاتا!');
+        return;
+      }
     }
 
     setLoading(true);
 
+    // Unique Idempotency Key per submit attempt
+    const idempotencyKey = `IDEM-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
     try {
       const res = await fetch('/api/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-idempotency-key': idempotencyKey,
+        },
         body: JSON.stringify({
           serviceId: service.id,
           packageId: selectedPkgId,
@@ -198,6 +217,24 @@ export default function CheckoutModal({
                   isRTL ? 'text-right' : 'text-left'
                 }`}
               />
+
+              {/* Game Specific Helpful Format Hints */}
+              {service.id.toLowerCase().includes('mobile-legend') && (
+                <p className="mt-1.5 text-[11px] text-amber-300/80">
+                  💡 ئەسكەرتىش: كىملىك ۋە رايون كودىنى بىللە كىرگۈزۈڭ، مەسىلەن:{' '}
+                  <span dir="ltr" className="font-mono font-bold text-amber-300">
+                    12345678 (1234)
+                  </span>
+                </p>
+              )}
+              {service.id.toLowerCase().includes('pubg') && (
+                <p className="mt-1.5 text-[11px] text-amber-300/80">
+                  💡 ئەسكەرتىش: پەقەت 8 دىن 12 خانىغىچە رەقەملىك UID كىرگۈزۈڭ، مەسىلەن:{' '}
+                  <span dir="ltr" className="font-mono font-bold text-amber-300">
+                    5123456789
+                  </span>
+                </p>
+              )}
             </div>
           )}
 
