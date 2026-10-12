@@ -352,22 +352,26 @@ export default function HomePage() {
             <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3 w-full md:w-auto">
               <Link
                 href="/deposit"
-                className="flex items-center justify-center gap-2 h-11 sm:h-12 px-4 sm:px-5 rounded-full gold-shimmer-btn animate-normal-float text-xs sm:text-sm font-bold transition-all font-alkatip text-center shadow-md hover:scale-105 active:scale-95 cursor-pointer leading-none"
+                className="relative overflow-hidden flex items-center justify-center gap-2 h-11 sm:h-12 px-4 sm:px-5 rounded-full gold-shimmer-btn animate-normal-float text-xs sm:text-sm font-bold transition-all font-alkatip text-center shadow-md hover:scale-105 active:scale-95 cursor-pointer leading-none"
               >
-                <span className="animate-normal-icon shrink-0">
+                {/* 360-degree rotating gold border beam */}
+                <div className="border-beam-pill" />
+                <span className="relative z-10 animate-normal-icon shrink-0">
                   <Wallet className="w-4 h-4 text-slate-950 flex-shrink-0" />
                 </span>
-                <span className="leading-none">{t('addFunds')}</span>
+                <span className="relative z-10 leading-none">{t('addFunds')}</span>
               </Link>
               <Link
                 href="/membership"
-                className="flex items-center justify-center gap-2 h-11 sm:h-12 px-4 sm:px-5 rounded-full bg-[#061527] hover:bg-[#091f3a] border-2 border-amber-400/50 hover:border-amber-300 text-amber-300 font-bold text-xs sm:text-sm transition-all font-alkatip text-center shadow-md hover:scale-105 active:scale-95 animate-normal-float cursor-pointer leading-none"
+                className="relative overflow-hidden flex items-center justify-center gap-2 h-11 sm:h-12 px-4 sm:px-5 rounded-full bg-[#061527] hover:bg-[#091f3a] border border-amber-400/40 hover:border-amber-300 text-amber-300 font-bold text-xs sm:text-sm transition-all font-alkatip text-center shadow-md hover:scale-105 active:scale-95 animate-normal-float cursor-pointer leading-none"
                 style={{ animationDelay: '0.2s' }}
               >
-                <span className="animate-normal-icon shrink-0">
+                {/* 360-degree rotating gold border beam (offset) */}
+                <div className="border-beam-pill border-beam-pill-delayed" />
+                <span className="relative z-10 animate-normal-icon shrink-0">
                   <Crown className="w-4 h-4 text-amber-400 flex-shrink-0" />
                 </span>
-                <span className="leading-none">{t('vipMembership')}</span>
+                <span className="relative z-10 leading-none">{t('vipMembership')}</span>
               </Link>
             </div>
           </div>
