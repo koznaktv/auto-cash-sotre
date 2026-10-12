@@ -93,7 +93,7 @@ export default function AdminPage() {
 
   // Navigation tab
   const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'orders' | 'services' | 'deposits' | 'users' | 'finance' | 'settings'
+    'dashboard' | 'orders' | 'provider' | 'services' | 'deposits' | 'users' | 'finance' | 'settings'
   >('dashboard');
 
   // Main Data States
@@ -103,6 +103,8 @@ export default function AdminPage() {
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [providerStatus, setProviderStatus] = useState<ProviderStatus | null>(null);
   const [checkingProvider, setCheckingProvider] = useState<boolean>(false);
+  const [providerProducts, setProviderProducts] = useState<any[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState<boolean>(false);
   const [settings, setSettings] = useState<SystemSettingsState>({
     adminPin: '9960996',
     shamcashAddress: 'efe8a2b200d66411c7c7e296369cbba8',
@@ -219,6 +221,26 @@ export default function AdminPage() {
       console.error('Provider live check failed:', err);
     } finally {
       setCheckingProvider(false);
+    }
+  };
+
+  const fetchProviderProducts = async () => {
+    setLoadingProducts(true);
+    try {
+      const token = sessionStorage.getItem('autocash_admin_token');
+      const res = await fetch('/api/admin/provider?action=products', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data && data.success && Array.isArray(data.products)) {
+        setProviderProducts(data.products);
+      } else {
+        alert(data?.errorMessage || 'مەھسۇلاتلارنى ئېلىش مەغلۇپ بولدى');
+      }
+    } catch (err: any) {
+      alert(err.message || 'تور كاشىلىسى');
+    } finally {
+      setLoadingProducts(false);
     }
   };
 
@@ -748,6 +770,7 @@ export default function AdminPage() {
             {[
               { id: 'dashboard', label: 'باش تاختا (Dashboard)', icon: LayoutDashboard },
               { id: 'orders', label: 'زاكازلارنى باشقۇرۇش', icon: ShoppingBag, badge: metrics.processingCount },
+              { id: 'provider', label: 'تاشقى API (syria4game)', icon: Zap, badgeColor: 'bg-cyan-500 text-slate-950' },
               { id: 'services', label: 'مەھسۇلات / مۇلازىمەتلەر', icon: Package, badge: services.length },
               { id: 'deposits', label: 'ھەميان كىرىملىرى (شامكەش)', icon: Wallet, badge: metrics.pendingDepCount, badgeColor: 'bg-amber-500 text-slate-950' },
               { id: 'users', label: 'ئىشلەتكۈچىلەر (ئەزالار)', icon: Users, badge: metrics.userCount },
@@ -1769,6 +1792,178 @@ export default function AdminPage() {
                   </button>
                 </form>
               </div>
+            </div>
+          )}
+
+          {/* ================= TAB: SYRIA4GAME EXTERNAL API ================= */}
+          {activeTab === 'provider' && (
+            <div className="space-y-6 animate-in fade-in duration-300">
+              {/* Header Card */}
+              <div className={`p-5 sm:p-6 rounded-2xl ${themeClasses.card} flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-cyan-500/30 bg-gradient-to-r from-[#07192d] to-[#04101e]`}>
+                <div>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">
+                      <Zap className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-base sm:text-lg font-bold text-white">
+                        تاشقى تەمىنلىگۈچى (syria4game.com) API مەركىزى
+                      </h2>
+                      <p className={`text-xs ${themeClasses.subtext}`}>
+                        رەسمىي ئويۇن پۇل قاچىلاش API سى، توپ سېتىۋېلىش قالدۇق پۇلى ۋە مەھسۇلات تىزىملىكى
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                  <button
+                    onClick={checkProviderLive}
+                    disabled={checkingProvider}
+                    className="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:opacity-95 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 cursor-pointer disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${checkingProvider ? 'animate-spin' : ''}`} />
+                    <span>{checkingProvider ? 'تەكشۈرۈۋاتىدۇ...' : 'API نى قايتا تەكشۈرۈش'}</span>
+                  </button>
+
+                  <button
+                    onClick={fetchProviderProducts}
+                    disabled={loadingProducts}
+                    className="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs transition flex items-center justify-center gap-2 border border-slate-700 cursor-pointer disabled:opacity-50"
+                  >
+                    <Package className="w-3.5 h-3.5" />
+                    <span>{loadingProducts ? 'يۈكلىنىۋاتىدۇ...' : 'مەھسۇلاتلارنى ئوقۇش'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Status Overview 3 Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* 1. Wholesale Balance */}
+                <div className={`p-5 rounded-2xl ${themeClasses.card} border border-cyan-500/30`}>
+                  <span className={`text-xs ${themeClasses.subtext} block mb-1`}>تەمىنلىگۈچى قالدۇق پۇلى (Wholesale Balance)</span>
+                  <div className="text-3xl font-black font-mono text-cyan-400 mt-2" dir="ltr">
+                    ${providerStatus?.balance !== undefined ? providerStatus.balance.toFixed(2) : '---'}
+                  </div>
+                  <span className="text-[11px] text-slate-400 font-mono mt-1 block">
+                    پۇل بىرلىكى: {providerStatus?.currency || 'USD'}
+                  </span>
+                </div>
+
+                {/* 2. Connection Status */}
+                <div className={`p-5 rounded-2xl ${themeClasses.card} border ${
+                  providerStatus?.isConfigured ? 'border-emerald-500/30' : 'border-amber-500/30'
+                }`}>
+                  <span className={`text-xs ${themeClasses.subtext} block mb-1`}>API ئۇلىنىش ھالىتى</span>
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className={`w-3 h-3 rounded-full ${providerStatus?.isConfigured ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                    <span className="text-lg font-bold text-white">
+                      {providerStatus?.isConfigured ? 'نەق ئۇلاندى (Live Active)' : 'سىناق ھالىتى (Sandbox Mode)'}
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-slate-400 mt-1 block">
+                    {providerStatus?.isConfigured ? 'ھەقىقىي زاكازلار تاشقى سۇپىغا ئەۋەتىلىدۇ' : 'Vercel غا SYRIA4GAME_API_TOKEN قويۇلمىغان'}
+                  </span>
+                </div>
+
+                {/* 3. Account Identity */}
+                <div className={`p-5 rounded-2xl ${themeClasses.card}`}>
+                  <span className={`text-xs ${themeClasses.subtext} block mb-1`}>ھېسابات ئۇچۇرى</span>
+                  <div className="text-base font-bold text-white mt-2">
+                    {providerStatus?.userName || 'تەمىنلىگۈچى ھېساباتى'}
+                  </div>
+                  <span className="text-[11px] text-slate-400 mt-1 block font-mono">
+                    Base URL: https://syria4game.com
+                  </span>
+                </div>
+              </div>
+
+              {/* API Endpoints Status Table */}
+              <div className={`p-5 rounded-2xl ${themeClasses.card} space-y-4`}>
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-cyan-400" />
+                  <span>تەمىنلىگۈچى API ئېغىزلىرى سەپلىمىسى</span>
+                </h3>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-right">
+                    <thead>
+                      <tr className={`border-b ${themeClasses.tableHead}`}>
+                        <th className="p-3">ئېغىز نامى</th>
+                        <th className="p-3">ئادرېس (Endpoint)</th>
+                        <th className="p-3">دەلىللەش (Auth)</th>
+                        <th className="p-3">مەقسىتى</th>
+                        <th className="p-3">ھالىتى</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800">
+                      <tr>
+                        <td className="p-3 font-bold text-white">Profile & Balance</td>
+                        <td className="p-3 font-mono text-cyan-300" dir="ltr">GET /client/api/profile</td>
+                        <td className="p-3 font-mono text-slate-400" dir="ltr">api-token</td>
+                        <td className="p-3 text-slate-300">قالدۇق پۇل تەكشۈرۈش</td>
+                        <td className="p-3 text-emerald-400 font-bold">تەييار (Active)</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 font-bold text-white">Products Catalog</td>
+                        <td className="p-3 font-mono text-cyan-300" dir="ltr">GET /client/api/products</td>
+                        <td className="p-3 font-mono text-slate-400" dir="ltr">api-token</td>
+                        <td className="p-3 text-slate-300">مەھسۇلات تىزىملىكى</td>
+                        <td className="p-3 text-emerald-400 font-bold">تەييار (Active)</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 font-bold text-white">New Top-up Order</td>
+                        <td className="p-3 font-mono text-cyan-300" dir="ltr">GET /client/api/newOrder/{'{id}'}/{'{params}'}</td>
+                        <td className="p-3 font-mono text-slate-400" dir="ltr">order_uuid (v4)</td>
+                        <td className="p-3 text-slate-300">ئويۇنچىغا پۇل قاچىلاش</td>
+                        <td className="p-3 text-emerald-400 font-bold">تەييار (Active)</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 font-bold text-white">Check Order Status</td>
+                        <td className="p-3 font-mono text-cyan-300" dir="ltr">GET /client/api/check?orders=[ID]</td>
+                        <td className="p-3 font-mono text-slate-400" dir="ltr">api-token</td>
+                        <td className="p-3 text-slate-300">زاكاز ھالىتىنى تەكشۈرۈش</td>
+                        <td className="p-3 text-emerald-400 font-bold">تەييار (Active)</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Syria4game Live Products List (if fetched) */}
+              {providerProducts.length > 0 && (
+                <div className={`p-5 rounded-2xl ${themeClasses.card} space-y-4`}>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      <Package className="w-4 h-4 text-cyan-400" />
+                      <span>syria4game مەھسۇلات تىزىملىكى ({providerProducts.length} تال)</span>
+                    </h3>
+                  </div>
+
+                  <div className="max-h-96 overflow-y-auto">
+                    <table className="w-full text-xs text-right">
+                      <thead>
+                        <tr className={`border-b ${themeClasses.tableHead}`}>
+                          <th className="p-3">Product ID</th>
+                          <th className="p-3">مەھسۇلات نامى</th>
+                          <th className="p-3">باھاسى</th>
+                          <th className="p-3">سەھىپە</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800">
+                        {providerProducts.map((p, idx) => (
+                          <tr key={idx} className="hover:bg-slate-800/40">
+                            <td className="p-3 font-mono text-amber-400 font-bold" dir="ltr">{p.id}</td>
+                            <td className="p-3 font-bold text-white">{p.name}</td>
+                            <td className="p-3 font-mono text-cyan-400" dir="ltr">${p.price?.toFixed(2) || '0.00'}</td>
+                            <td className="p-3 text-slate-400">{p.category || 'ئويۇن'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </main>
