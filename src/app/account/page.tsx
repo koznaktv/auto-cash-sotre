@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import BottomNav from '@/components/BottomNav';
@@ -19,7 +19,8 @@ import {
   Save,
   KeyRound,
   LogOut,
-  Crown
+  Crown,
+  Camera,
 } from 'lucide-react';
 
 export default function AccountPage() {
@@ -94,6 +95,55 @@ export default function AccountPage() {
     }
 
     fetchOrdersCount();
+  };
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxDim = 256;
+        let width = img.width;
+        let height = img.height;
+        if (width > height) {
+          if (width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          }
+        } else {
+          if (height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+        setAvatarUrl(resizedDataUrl);
+        localStorage.setItem('autocash_avatar', resizedDataUrl);
+        window.dispatchEvent(new Event('autocash-auth-changed'));
+
+        const savedEmail = email || localStorage.getItem('autocash_email');
+        if (savedEmail) {
+          fetch('/api/auth/profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userEmail: savedEmail, avatarUrl: resizedDataUrl }),
+          }).catch(() => {});
+        }
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   };
 
   const fetchOrdersCount = async () => {
@@ -243,7 +293,7 @@ export default function AccountPage() {
           <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-[#06182c] to-[#04101e] border border-cyan-500/30 shadow-xl space-y-4">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3.5 w-full sm:w-auto">
-                <div className="relative shrink-0">
+                <div className="relative shrink-0 group/avatar">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full p-0.5 bg-gradient-to-tr from-cyan-400 via-amber-300 to-cyan-500 shadow-lg shadow-cyan-500/25">
                     <img
                       src={avatarUrl || "/avatar.png"}
@@ -251,12 +301,29 @@ export default function AccountPage() {
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = '/avatar.png';
                       }}
-                      className="w-full h-full rounded-full object-cover bg-slate-900 border border-slate-950"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full h-full rounded-full object-cover bg-slate-900 border border-slate-950 cursor-pointer hover:opacity-90 transition"
+                      title="رەسىم ئالماشتۇرۇش"
                     />
                   </div>
                   <span
                     className="absolute bottom-0 right-0 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-emerald-500 border-2 border-[#06182c] rounded-full shadow-sm"
                     title={t('online')}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute -bottom-1 -left-1 w-6 h-6 rounded-full bg-cyan-400 hover:bg-cyan-300 text-slate-950 flex items-center justify-center shadow-md border-2 border-[#06182c] transition cursor-pointer hover:scale-110 active:scale-95"
+                    title="رەسىم ئالماشتۇرۇش"
+                  >
+                    <Camera className="w-3.5 h-3.5" />
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarUpload}
                   />
                 </div>
 

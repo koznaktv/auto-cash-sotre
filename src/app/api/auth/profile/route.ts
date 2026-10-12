@@ -48,9 +48,11 @@ export async function POST(req: Request) {
     }
 
     // 2. Profile Info change
-    const updatePayload: { name?: string; phone?: string } = {};
+    const { avatarUrl } = body;
+    const updatePayload: { name?: string; phone?: string; avatarUrl?: string } = {};
     if (name && name.trim()) updatePayload.name = name.trim();
     if (phone !== undefined) updatePayload.phone = phone.trim();
+    if (avatarUrl !== undefined) updatePayload.avatarUrl = avatarUrl;
 
     const updatedUser = (await updateUserAsync(user.id, updatePayload)) || user;
 
@@ -59,6 +61,7 @@ export async function POST(req: Request) {
       name: updatedUser.name,
       email: updatedUser.email,
       phone: updatedUser.phone,
+      avatarUrl: updatedUser.avatarUrl || undefined,
       balance: updatedUser.balance,
       totalSpent: updatedUser.totalSpent,
       vipTier: updatedUser.vipTier,
