@@ -159,9 +159,17 @@ export default function HomePage() {
         onSuccess={handleAuthSuccess}
       />
 
-      {/* Live Golden Ticker */}
-      <div className="bg-[#051322] border-b border-amber-500/25 py-2 px-3 sm:px-4 text-[11px] sm:text-xs overflow-hidden select-none">
-        <div className="flex items-center gap-3 max-w-7xl mx-auto w-full">
+      {/* 4. Navbar with Menu, Logo & Drawer Hook (Safe area at top) */}
+      <Navbar
+        balance={userBalance}
+        onOpenDrawer={() => setIsDrawerOpen(true)}
+        onOpenAuth={() => setIsAuthOpen(true)}
+        user={currentUser}
+      />
+
+      {/* 5. Live Golden Ticker - Refined Rounded Card */}
+      <div className="max-w-7xl mx-3.5 sm:mx-auto my-2.5 rounded-2xl bg-[#051322]/90 border border-amber-500/25 py-2 px-3 sm:px-4 text-[11px] sm:text-xs overflow-hidden select-none shadow-md backdrop-blur-md">
+        <div className="flex items-center gap-3 w-full">
           {/* Fixed Badge */}
           <div className="flex items-center gap-1.5 text-amber-300 font-black shrink-0 gold-badge px-3 py-1 rounded-full font-alkatip text-[10px] sm:text-xs z-10 shadow-md">
             <Zap className="w-3.5 h-3.5 fill-amber-300 text-amber-400 animate-zap-wiggle" />
@@ -287,14 +295,6 @@ export default function HomePage() {
           </div>
         </div>
       </div>
-
-      {/* Navbar with Menu & Drawer Hook */}
-      <Navbar
-        balance={userBalance}
-        onOpenDrawer={() => setIsDrawerOpen(true)}
-        onOpenAuth={() => setIsAuthOpen(true)}
-        user={currentUser}
-      />
 
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-6 w-full flex-1 space-y-6 sm:space-y-7">

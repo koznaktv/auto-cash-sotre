@@ -18,8 +18,8 @@ export default function BottomNav() {
   ];
 
   return (
-    <div className="md:hidden fixed bottom-3 left-3 right-3 z-50">
-      <nav className="backdrop-blur-xl bg-slate-900/90 border border-slate-700/60 rounded-2xl p-1.5 shadow-2xl flex items-center justify-around font-alkatip">
+    <div className="md:hidden fixed bottom-[max(env(safe-area-inset-bottom,0px),10px)] left-3.5 right-3.5 z-50">
+      <nav className="backdrop-blur-xl bg-[#061426]/95 border border-amber-500/25 rounded-2xl p-1.5 shadow-2xl shadow-black/80 flex items-center justify-around font-alkatip">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;

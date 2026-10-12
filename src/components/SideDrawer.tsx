@@ -57,7 +57,7 @@ export default function SideDrawer({
       <aside
         className={`relative z-10 w-full max-w-xs sm:max-w-sm h-full bg-[#051120] ${
           isRTL ? 'border-l' : 'border-r'
-        } border-amber-500/30 shadow-2xl flex flex-col justify-between overflow-y-auto p-5 ${
+        } border-amber-500/30 shadow-2xl flex flex-col justify-between overflow-y-auto px-5 pb-5 pt-[max(env(safe-area-inset-top,0px),20px)] ${
           isRTL ? 'text-right' : 'text-left'
         } font-alkatip`}
         dir={isRTL ? 'rtl' : 'ltr'}

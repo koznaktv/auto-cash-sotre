@@ -564,7 +564,7 @@ export default function AdminPage() {
   if (!isAuthenticated) {
     return (
       <div
-        className="min-h-screen bg-[#030914] flex items-center justify-center p-4 selection:bg-amber-400 selection:text-slate-950 font-alkatip text-right"
+        className="min-h-screen bg-[#030914] flex items-center justify-center p-4 pt-[max(env(safe-area-inset-top,0px),16px)] pb-[max(env(safe-area-inset-bottom,0px),16px)] selection:bg-amber-400 selection:text-slate-950 font-alkatip text-right"
         dir="rtl"
       >
         <div className="w-full max-w-md bg-gradient-to-b from-[#09182d] to-[#040e1d] border border-amber-500/30 rounded-3xl p-7 sm:p-8 shadow-2xl relative overflow-hidden">
@@ -791,7 +791,7 @@ export default function AdminPage() {
         <header
           className={`sticky top-0 z-30 ${
             themeClasses.sidebar
-          } border-b px-4 sm:px-6 py-3 flex items-center justify-between backdrop-blur-md`}
+          } border-b px-4 sm:px-6 pt-[max(env(safe-area-inset-top,0px),10px)] pb-3 flex items-center justify-between backdrop-blur-md`}
         >
           <div className="flex items-center gap-3">
             <button
