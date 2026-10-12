@@ -68,6 +68,15 @@ interface SystemSettingsState {
   siteName: string;
 }
 
+interface ProviderStatus {
+  success: boolean;
+  isConfigured: boolean;
+  balance: number;
+  currency: string;
+  userName?: string;
+  errorMessage?: string;
+}
+
 export default function AdminPage() {
   // Auth state
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -92,6 +101,8 @@ export default function AdminPage() {
   const [deposits, setDeposits] = useState<DepositRecord[]>([]);
   const [users, setUsers] = useState<SafeUser[]>([]);
   const [services, setServices] = useState<ServiceItem[]>([]);
+  const [providerStatus, setProviderStatus] = useState<ProviderStatus | null>(null);
+  const [checkingProvider, setCheckingProvider] = useState<boolean>(false);
   const [settings, setSettings] = useState<SystemSettingsState>({
     adminPin: '9960996',
     shamcashAddress: 'efe8a2b200d66411c7c7e296369cbba8',
@@ -183,10 +194,31 @@ export default function AdminPage() {
       if (resUsers.success) setUsers(resUsers.users || []);
       if (resServices.success) setServices(resServices.services || []);
       if (resSettings.success && resSettings.settings) setSettings(resSettings.settings);
+
+      // Check external gaming provider (syria4game.com) status
+      checkProviderLive();
     } catch (e) {
       console.error('Error fetching admin data:', e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkProviderLive = async () => {
+    setCheckingProvider(true);
+    try {
+      const token = sessionStorage.getItem('autocash_admin_token');
+      const res = await fetch('/api/admin/provider?action=balance', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data) {
+        setProviderStatus(data);
+      }
+    } catch (err) {
+      console.error('Provider live check failed:', err);
+    } finally {
+      setCheckingProvider(false);
     }
   };
 
@@ -912,6 +944,56 @@ export default function AdminPage() {
                   <div className="flex items-center gap-1 mt-2 text-[11px] text-amber-400 font-bold">
                     <span>{metrics.pendingDepCount} تال كىرىم تەكشۈرۈلمەكتە</span>
                   </div>
+                </div>
+              </div>
+
+              {/* 5. External Provider (syria4game.com) Live Status & Wholesale Balance */}
+              <div className={`p-4 sm:p-5 rounded-2xl ${themeClasses.card} border ${
+                providerStatus?.isConfigured ? 'border-cyan-500/40 bg-cyan-950/20' : 'border-amber-500/40 bg-amber-950/20'
+              } flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition shadow-lg`}>
+                <div className="flex items-center gap-3.5">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-inner ${
+                    providerStatus?.isConfigured ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                  }`}>
+                    <Zap className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-sm font-bold text-white">تاشقى تەمىنلىگۈچى (syria4game.com) API ئۇلىنىشى</h3>
+                      <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold ${
+                        providerStatus?.isConfigured
+                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                          : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                      }`}>
+                        {providerStatus?.isConfigured ? '● نەق ئۇلاندى (Live Active)' : '○ سىناق ھالىتى (Sandbox Mode)'}
+                      </span>
+                    </div>
+                    <p className={`text-xs mt-1 ${themeClasses.subtext}`}>
+                      {providerStatus?.userName ? `ھېسابات: ${providerStatus.userName} | ` : ''}
+                      {providerStatus?.errorMessage ? `ئەسكەرتىش: ${providerStatus.errorMessage}` : 'ئويۇن زاكازلىرى دەقىقىدە تەمىنلىگۈچى ئارقىلىق ئويۇنچى ھېساباتىغا ئاپتوماتىك قاچىلىنىدۇ.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+                  <div className="text-left" dir="ltr">
+                    <span className="text-[11px] text-slate-400 block text-right font-medium">تەمىنلىگۈچى قالدۇق پۇلى:</span>
+                    <span className="text-xl sm:text-2xl font-black font-mono text-cyan-400">
+                      ${providerStatus?.balance !== undefined ? providerStatus.balance.toFixed(2) : '---'}
+                    </span>
+                    <span className="text-[11px] text-slate-400 ml-1 font-mono">
+                      {providerStatus?.currency || 'USD'}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={checkProviderLive}
+                    disabled={checkingProvider}
+                    className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-bold transition flex items-center gap-2 border border-slate-700/80 cursor-pointer disabled:opacity-50 shadow-sm"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${checkingProvider ? 'animate-spin' : ''}`} />
+                    <span>{checkingProvider ? 'تەكشۈرۈۋاتىدۇ...' : 'API نى تەكشۈرۈش'}</span>
+                  </button>
                 </div>
               </div>
 
