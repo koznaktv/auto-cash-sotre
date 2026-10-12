@@ -984,11 +984,17 @@ export default function AdminPage() {
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="text-sm font-bold text-white">تاشقى تەمىنلىگۈچى (syria4game.com) API ئۇلىنىشى</h3>
                       <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold ${
-                        providerStatus?.isConfigured
+                        providerStatus?.success
                           ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                          : providerStatus?.errorMessage
+                          ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
                           : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                       }`}>
-                        {providerStatus?.isConfigured ? '● نەق ئۇلاندى (Live Active)' : '○ سىناق ھالىتى (Sandbox Mode)'}
+                        {providerStatus?.success
+                          ? '● نەق ئۇلاندى (Live Active)'
+                          : providerStatus?.errorMessage
+                          ? `✕ ئۇلانمىدى (${providerStatus.errorMessage})`
+                          : '○ كۈتۈلمەكتە'}
                       </span>
                     </div>
                     <p className={`text-xs mt-1 ${themeClasses.subtext}`}>
@@ -1852,17 +1858,19 @@ export default function AdminPage() {
 
                 {/* 2. Connection Status */}
                 <div className={`p-5 rounded-2xl ${themeClasses.card} border ${
-                  providerStatus?.isConfigured ? 'border-emerald-500/30' : 'border-amber-500/30'
+                  providerStatus?.success ? 'border-emerald-500/40' : 'border-rose-500/40'
                 }`}>
                   <span className={`text-xs ${themeClasses.subtext} block mb-1`}>API ئۇلىنىش ھالىتى</span>
                   <div className="mt-2 flex items-center gap-2">
-                    <span className={`w-3 h-3 rounded-full ${providerStatus?.isConfigured ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                    <span className={`w-3 h-3 rounded-full ${providerStatus?.success ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}`} />
                     <span className="text-lg font-bold text-white">
-                      {providerStatus?.isConfigured ? 'نەق ئۇلاندى (Live Active)' : 'سىناق ھالىتى (Sandbox Mode)'}
+                      {providerStatus?.success ? 'نەق ئۇلاندى (Live Active)' : 'ئۇلانمىدى (Unauthorized / Error)'}
                     </span>
                   </div>
                   <span className="text-[11px] text-slate-400 mt-1 block">
-                    {providerStatus?.isConfigured ? 'ھەقىقىي زاكازلار تاشقى سۇپىغا ئەۋەتىلىدۇ' : 'Vercel غا SYRIA4GAME_API_TOKEN قويۇلمىغان'}
+                    {providerStatus?.success
+                      ? 'ھەقىقىي زاكازلار تاشقى سۇپىغا ئەۋەتىلىدۇ'
+                      : providerStatus?.errorMessage || 'Token نى قايتا تەكشۈرۈڭ'}
                   </span>
                 </div>
 

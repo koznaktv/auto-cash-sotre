@@ -5,7 +5,7 @@
  *
  * Specifications:
  * - Base URL: https://syria4game.com
- * - Auth Header: api-token: process.env.SYRIA4GAME_API_TOKEN
+ * - Auth: api-token (supports Header & Query param for multi-framework compatibility)
  * - Profile/Balance: GET /client/api/profile
  * - Products Catalog: GET /client/api/products
  * - Create Order: GET /client/api/newOrder/{product_id}/{params}?order_uuid={UUIDv4}
@@ -71,7 +71,9 @@ export class Syria4GameProvider {
   constructor() {
     const rawUrl = process.env.SYRIA4GAME_BASE_URL || 'https://syria4game.com';
     this.baseUrl = rawUrl.replace(/\/+$/, '');
-    this.apiToken = (process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '').trim();
+    // Clean token: strip surrounding whitespace, quotes, or trailing slashes
+    const rawToken = (process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '').trim();
+    this.apiToken = rawToken.replace(/^["']|["']$/g, '').trim();
     this.isConfigured = Boolean(this.apiToken && this.apiToken.length > 5);
   }
 
@@ -83,19 +85,45 @@ export class Syria4GameProvider {
   }
 
   /**
-   * Standard headers required by syria4game.com API
+   * Build headers with multiple standard variants to prevent Nginx/Cloudflare header stripping
    */
   private getHeaders(): Record<string, string> {
     const headers: Record<string, string> = {
       'Accept': 'application/json',
+      'Content-Type': 'application/json',
       'User-Agent': 'AUTO-CASH-Financial-Core/2.0',
     };
 
     if (this.apiToken) {
       headers['api-token'] = this.apiToken;
+      headers['api_token'] = this.apiToken;
+      headers['Api-Token'] = this.apiToken;
+      headers['Authorization'] = `Bearer ${this.apiToken}`;
     }
 
     return headers;
+  }
+
+  /**
+   * Build target URL supporting both path and query parameters
+   */
+  private buildUrl(path: string, queryParams: Record<string, string | number | undefined> = {}): string {
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    const url = new URL(`${this.baseUrl}${cleanPath}`);
+
+    Object.entries(queryParams).forEach(([key, val]) => {
+      if (val !== undefined && val !== null) {
+        url.searchParams.set(key, String(val));
+      }
+    });
+
+    // Provide query token as fallback in case web server strips custom headers
+    if (this.apiToken) {
+      url.searchParams.set('api-token', this.apiToken);
+      url.searchParams.set('api_token', this.apiToken);
+    }
+
+    return url.toString();
   }
 
   /**
@@ -104,20 +132,20 @@ export class Syria4GameProvider {
    */
   async checkProfileBalance(): Promise<Syria4GameProfile> {
     if (!this.isConfigured) {
-      // Sandbox fallback mode when token is not yet set in .env.local
       return {
-        success: true,
-        balance: 9999.0,
-        currency: 'USD (Sandbox Test Mode)',
-        userName: 'Sandbox Tester',
+        success: false,
+        balance: 0,
+        currency: 'USD',
+        errorMessage: 'SYRIA4GAME_API_TOKEN مۇھىت ئۆزگەرگۈچىسى تەڭشەلمىگەن',
       };
     }
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      const res = await fetch(`${this.baseUrl}/client/api/profile`, {
+      const targetUrl = this.buildUrl('/client/api/profile');
+      const res = await fetch(targetUrl, {
         method: 'GET',
         headers: this.getHeaders(),
         signal: controller.signal,
@@ -126,18 +154,25 @@ export class Syria4GameProvider {
       clearTimeout(timeoutId);
 
       if (!res.ok) {
+        let errDetail = '';
+        try {
+          const errData = await res.json();
+          errDetail = errData?.message || errData?.error || JSON.stringify(errData);
+        } catch {
+          errDetail = await res.text().catch(() => '');
+        }
+
         return {
           success: false,
           balance: 0,
           currency: 'USD',
-          errorMessage: `HTTP ${res.status}: تەمىنلىگۈچى پروفىل ئۇچۇرىنى تەكشۈرەلمىدى`,
+          errorMessage: `HTTP ${res.status}${errDetail ? `: ${errDetail}` : ''}`,
+          raw: { status: res.status, detail: errDetail },
         };
       }
 
       const data = await res.json();
       
-      // syria4game profile balance structure can be:
-      // data.balance, data.data.balance, data.credit, data.wallet, etc.
       const parsedBalance =
         typeof data.balance === 'number'
           ? data.balance
@@ -150,7 +185,7 @@ export class Syria4GameProvider {
           : parseFloat(data.balance || data.data?.balance || data.credit || '0') || 0;
 
       const currency = data.currency || data.data?.currency || 'USD';
-      const userName = data.name || data.username || data.data?.name || data.data?.username;
+      const userName = data.name || data.username || data.data?.name || data.data?.username || data.user?.name || data.user?.username;
 
       return {
         success: true,
@@ -164,7 +199,7 @@ export class Syria4GameProvider {
         success: false,
         balance: 0,
         currency: 'USD',
-        errorMessage: err.name === 'AbortError' ? 'تاشقى تەمىنلىگۈچى ئىنكاس قايتۇرمىدى (Timeout)' : err.message,
+        errorMessage: err.name === 'AbortError' ? 'تەمىنلىگۈچى ئىنكاس قايتۇرمىدى (Timeout)' : err.message,
       };
     }
   }
@@ -176,16 +211,18 @@ export class Syria4GameProvider {
   async getProducts(): Promise<{ success: boolean; products: Syria4GameProduct[]; errorMessage?: string }> {
     if (!this.isConfigured) {
       return {
-        success: true,
+        success: false,
         products: [],
+        errorMessage: 'SYRIA4GAME_API_TOKEN مۇھىت ئۆزگەرگۈچىسى تەڭشەلمىگەن',
       };
     }
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
 
-      const res = await fetch(`${this.baseUrl}/client/api/products`, {
+      const targetUrl = this.buildUrl('/client/api/products');
+      const res = await fetch(targetUrl, {
         method: 'GET',
         headers: this.getHeaders(),
         signal: controller.signal,
@@ -194,10 +231,18 @@ export class Syria4GameProvider {
       clearTimeout(timeoutId);
 
       if (!res.ok) {
+        let errDetail = '';
+        try {
+          const errData = await res.json();
+          errDetail = errData?.message || errData?.error || JSON.stringify(errData);
+        } catch {
+          errDetail = await res.text().catch(() => '');
+        }
+
         return {
           success: false,
           products: [],
-          errorMessage: `HTTP ${res.status}: مەھسۇلات تىزىملىكىنى ئېلىش مەغلۇپ بولدى`,
+          errorMessage: `HTTP ${res.status}${errDetail ? `: ${errDetail}` : ''}`,
         };
       }
 
@@ -241,24 +286,18 @@ export class Syria4GameProvider {
     const orderUuid = params.customUuid || generateUUIDv4();
 
     if (!this.isConfigured) {
-      // Sandbox automatic simulation mode for testing
       return {
-        success: true,
-        orderId: `S4G-SIM-${Math.floor(100000 + Math.random() * 900000)}`,
+        success: false,
         orderUuid,
-        status: 'COMPLETED',
-        message: 'Sandbox: زاكاز تاشقى سۇپىغا سىناق تەرىقىسىدە مۇۋەپپەقىيەتلىك بېرىلدى',
+        status: 'FAILED',
+        errorMessage: 'SYRIA4GAME_API_TOKEN مۇھىت ئۆزگەرگۈچىسى تەڭشەلمىگەن',
       };
     }
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-      // Format parameters:
-      // Endpoint format: GET /client/api/newOrder/{product_id}/{params}
-      // If zoneId exists (e.g. MLBB): playerId/zoneId
-      // Query string attaches order_uuid for anti-double-submission
       const cleanPlayerId = encodeURIComponent((params.playerId || '').trim());
       const cleanZoneId = params.zoneId ? encodeURIComponent(params.zoneId.trim()) : null;
 
@@ -267,20 +306,16 @@ export class Syria4GameProvider {
         paramPath = `${cleanPlayerId}/${cleanZoneId}`;
       }
 
-      const queryParams = new URLSearchParams({
+      const queryParams: Record<string, string | number | undefined> = {
         order_uuid: orderUuid,
         client_ref: params.clientOrderId,
         player_id: params.playerId,
-      });
+      };
 
-      if (params.zoneId) {
-        queryParams.set('zone_id', params.zoneId);
-      }
-      if (params.server) {
-        queryParams.set('server', params.server);
-      }
+      if (params.zoneId) queryParams['zone_id'] = params.zoneId;
+      if (params.server) queryParams['server'] = params.server;
 
-      const targetUrl = `${this.baseUrl}/client/api/newOrder/${params.productId}/${paramPath}?${queryParams.toString()}`;
+      const targetUrl = this.buildUrl(`/client/api/newOrder/${params.productId}/${paramPath}`, queryParams);
 
       const res = await fetch(targetUrl, {
         method: 'GET',
@@ -303,8 +338,6 @@ export class Syria4GameProvider {
         };
       }
 
-      // Check syria4game response indicators:
-      // Usually { status: "success" | 1 | "done", order_id: 12345, ... }
       const isSuccess =
         data.status === 'success' ||
         data.status === 1 ||
@@ -360,10 +393,10 @@ export class Syria4GameProvider {
   async checkOrderStatus(orderId: string | number): Promise<Syria4GameStatusResult> {
     if (!this.isConfigured) {
       return {
-        success: true,
+        success: false,
         orderId,
-        status: 'COMPLETED',
-        message: 'Sandbox completed status',
+        status: 'UNKNOWN',
+        errorMessage: 'SYRIA4GAME_API_TOKEN تەڭشەلمىگەن',
       };
     }
 
@@ -371,10 +404,10 @@ export class Syria4GameProvider {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-      // Support formatted orders parameter: e.g. orders=[12345] or orders=12345
       const cleanId = String(orderId).trim();
       const formattedParam = cleanId.startsWith('[') ? cleanId : `[${cleanId}]`;
-      const url = `${this.baseUrl}/client/api/check?orders=${encodeURIComponent(formattedParam)}`;
+
+      const url = this.buildUrl('/client/api/check', { orders: formattedParam });
 
       const res = await fetch(url, {
         method: 'GET',
@@ -395,8 +428,6 @@ export class Syria4GameProvider {
 
       const data = await res.json();
       
-      // syria4game returns object or array of orders:
-      // { "12345": { "status": "completed" } } or [{ "id": 12345, "status": "completed" }]
       let orderData: any = null;
       if (Array.isArray(data)) {
         orderData = data.find((o: any) => String(o.id || o.order_id) === cleanId) || data[0];
