@@ -186,7 +186,7 @@ export default function HomePage() {
       />
 
       {/* 5. Live Golden Ticker - Refined Rounded Card */}
-      <div className="max-w-7xl mx-3.5 sm:mx-auto my-2.5 rounded-2xl bg-[#051322]/90 border border-amber-500/25 py-2 px-3 sm:px-4 text-[11px] sm:text-xs overflow-hidden select-none shadow-md backdrop-blur-md">
+      <div className="max-w-7xl mx-3.5 sm:mx-auto my-2.5 rounded-2xl bg-[#051322] border border-amber-500/25 py-2 px-3 sm:px-4 text-[11px] sm:text-xs overflow-hidden select-none shadow-md">
         <div className="flex items-center gap-3 w-full">
           {/* Fixed Badge */}
           <div className="flex items-center gap-1.5 text-amber-300 font-black shrink-0 gold-badge px-3 py-1 rounded-full font-alkatip text-[10px] sm:text-xs z-10 shadow-md">
@@ -352,7 +352,7 @@ export default function HomePage() {
             <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3 w-full md:w-auto">
               <Link
                 href="/deposit"
-                className="relative overflow-hidden flex items-center justify-center gap-2 h-11 sm:h-12 px-4 sm:px-5 rounded-full gold-shimmer-btn animate-normal-float text-xs sm:text-sm font-bold transition-all font-alkatip text-center shadow-md hover:scale-105 active:scale-95 cursor-pointer leading-none"
+                className="relative overflow-hidden flex items-center justify-center gap-2 h-11 sm:h-12 px-4 sm:px-5 rounded-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:brightness-105 animate-normal-float text-xs sm:text-sm font-bold text-slate-950 transition-all font-alkatip text-center shadow-md hover:scale-105 active:scale-95 cursor-pointer leading-none"
               >
                 {/* 360-degree rotating gold border beam */}
                 <div className="border-beam-pill" />
@@ -366,8 +366,8 @@ export default function HomePage() {
                 className="relative overflow-hidden flex items-center justify-center gap-2 h-11 sm:h-12 px-4 sm:px-5 rounded-full bg-[#061527] hover:bg-[#091f3a] border border-amber-400/40 hover:border-amber-300 text-amber-300 font-bold text-xs sm:text-sm transition-all font-alkatip text-center shadow-md hover:scale-105 active:scale-95 animate-normal-float cursor-pointer leading-none"
                 style={{ animationDelay: '0.2s' }}
               >
-                {/* 360-degree rotating gold border beam (offset) */}
-                <div className="border-beam-pill border-beam-pill-delayed" />
+                {/* 360-degree rotating gold border beam */}
+                <div className="border-beam-pill" />
                 <span className="relative z-10 animate-normal-icon shrink-0">
                   <Crown className="w-4 h-4 text-amber-400 flex-shrink-0" />
                 </span>
@@ -451,17 +451,17 @@ export default function HomePage() {
                     </div>
 
                     <div className="relative z-10 flex items-center justify-between w-full">
-                      <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all border shadow-md animate-cat-icon ${
+                      <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all border shadow-md ${
                         isTransitioning
                           ? 'bg-amber-400 text-slate-950 border-amber-300 scale-110 shadow-amber-400/50'
-                          : 'bg-slate-950/85 backdrop-blur-md border-amber-400/50 text-amber-300 group-hover:scale-110 group-hover:bg-amber-400 group-hover:text-slate-950'
+                          : 'bg-slate-950/85 border-amber-400/50 text-amber-300 group-hover:scale-110 group-hover:bg-amber-400 group-hover:text-slate-950'
                       }`}>
                         <DynamicIcon name={cat.icon} className="w-4 h-4 sm:w-5 sm:h-5" />
                       </div>
-                      <span className={`text-[9px] sm:text-[10px] backdrop-blur-md border font-bold px-2 py-0.5 rounded-full shadow font-alkatip transition animate-arrow-pill ${
+                      <span className={`text-[9px] sm:text-[10px] border font-bold px-2 py-0.5 rounded-full shadow font-alkatip transition ${
                         isTransitioning
                           ? 'bg-amber-400 text-slate-950 border-amber-300 scale-105'
-                          : 'bg-slate-950/85 border-amber-400/50 text-amber-300 group-hover:bg-amber-400 group-hover:text-slate-950'
+                          : 'bg-slate-950/85 border-amber-400/50 text-amber-300 group-hover:bg-amber-400 group-hover:text-slate-950 group-hover:translate-x-[-2px]'
                       }`}>
                         {isRTL ? 'ئېچىش ←' : 'Open →'}
                       </span>
@@ -563,15 +563,13 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  {/* Compact Buy Button with Glow & Wiggle Animation */}
+                  {/* Compact Buy Button */}
                   <button
                     onClick={() => setActiveModalService(service)}
-                    className="w-full py-1 sm:py-1.5 rounded-lg bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500 hover:opacity-95 text-slate-950 font-black text-[9px] sm:text-[11px] transition cursor-pointer font-alkatip active:scale-95 animate-buy-btn-glow flex items-center justify-center gap-1"
+                    className="w-full py-1 sm:py-1.5 rounded-lg bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500 hover:opacity-95 text-slate-950 font-black text-[9px] sm:text-[11px] transition cursor-pointer font-alkatip active:scale-95 flex items-center justify-center gap-1 shadow-sm hover:shadow-amber-500/20"
                   >
                     <span>{isRTL ? 'سېتىۋېلىش' : 'Buy Now'}</span>
-                    <span className="animate-zap-wiggle">
-                      <Zap className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-slate-950 fill-slate-950 stroke-[2.5]" />
-                    </span>
+                    <Zap className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-slate-950 fill-slate-950 stroke-[2.5]" />
                   </button>
                 </div>
               ))}

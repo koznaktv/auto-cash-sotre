@@ -73,7 +73,7 @@ export default function Navbar({
 
   return (
     <>
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#040d1a]/95 border-b border-amber-500/25 shadow-lg shadow-black/30 pt-[max(env(safe-area-inset-top,0px),10px)] sm:pt-0 transition-all">
+      <header className="sticky top-0 z-50 bg-[#040d1a] border-b border-amber-500/25 shadow-lg shadow-black/30 pt-[max(env(safe-area-inset-top,0px),10px)] sm:pt-0 transition-all">
         <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 min-h-[58px] sm:h-16 py-1.5 sm:py-0 flex items-center justify-between gap-2 sm:gap-4">
           {/* Start Group: Logo -> Menu -> Language Button -> AUTO CASH Name (-> Desktop Nav) */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">

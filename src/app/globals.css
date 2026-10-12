@@ -682,12 +682,12 @@ body.lang-en .font-alkatip {
   transform: translateZ(0);
 }
 
-/* Continuous 360-degree Rotating Gold Border Beam for Pill Action Buttons */
+/* Continuous 360-degree Rotating Gold Border Beam for Pill Action Buttons - Ultra-Lightweight & Butter-Smooth */
 .border-beam-pill {
   position: absolute;
   inset: -1px;
   border-radius: 9999px;
-  padding: 2.5px;
+  padding: 2px;
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -700,34 +700,29 @@ body.lang-en .font-alkatip {
 .border-beam-pill::before {
   content: '';
   position: absolute;
-  top: -150%;
-  left: -150%;
-  width: 400%;
-  height: 400%;
+  top: -60%;
+  left: -60%;
+  width: 220%;
+  height: 220%;
   background: conic-gradient(
     from 0deg,
-    transparent 0% 60%,
-    rgba(245, 158, 11, 0.45) 75%,
-    #facc15 88%,
+    transparent 0% 70%,
+    rgba(245, 158, 11, 0.4) 82%,
+    #facc15 92%,
     #ffffff 98%,
     transparent 100%
   );
-  animation: spinBorderBeam 1.6s linear infinite;
+  animation: spinBorderBeam 3.2s linear infinite;
   will-change: transform;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
-  filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.8));
-}
-
-.border-beam-pill-delayed::before {
-  animation-delay: -0.8s;
 }
 
 .card-selecting-glow {
-  box-shadow: 0 0 25px rgba(250, 204, 21, 0.6), inset 0 0 15px rgba(250, 204, 21, 0.25) !important;
+  box-shadow: 0 0 20px rgba(250, 204, 21, 0.5), inset 0 0 10px rgba(250, 204, 21, 0.2) !important;
   border-color: rgba(250, 204, 21, 0.95) !important;
-  transform: scale(1.035) !important;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(1.025) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 
