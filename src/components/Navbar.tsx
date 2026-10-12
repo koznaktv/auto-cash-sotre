@@ -37,20 +37,26 @@ export default function Navbar({
   const [langMenuOpen, setLangMenuOpen] = useState(false);
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('autocash_is_logged_in');
-    const savedEmail = localStorage.getItem('autocash_email');
-    if (isLoggedIn === 'true' && savedEmail) {
-      fetch(`/api/auth/me?email=${encodeURIComponent(savedEmail)}`)
-        .then((r) => r.json())
-        .then((data) => {
-          if (data.success && data.user) {
-            setInternalUser(data.user);
-          }
-        })
-        .catch(() => {});
-    } else {
-      setInternalUser(null);
-    }
+    const refreshUser = () => {
+      const isLoggedIn = localStorage.getItem('autocash_is_logged_in');
+      const savedEmail = localStorage.getItem('autocash_email');
+      if (isLoggedIn === 'true' && savedEmail) {
+        fetch(`/api/auth/me?email=${encodeURIComponent(savedEmail)}`)
+          .then((r) => r.json())
+          .then((data) => {
+            if (data.success && data.user) {
+              setInternalUser(data.user);
+            }
+          })
+          .catch(() => {});
+      } else {
+        setInternalUser(null);
+      }
+    };
+
+    refreshUser();
+    window.addEventListener('autocash-auth-changed', refreshUser);
+    return () => window.removeEventListener('autocash-auth-changed', refreshUser);
   }, []);
 
   const activeUser = externalUser !== undefined ? externalUser : internalUser;

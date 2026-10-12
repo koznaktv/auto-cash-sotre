@@ -57,22 +57,28 @@ export default function HomePage() {
     hasShownSplashInCurrentSession = true;
     fetchOrders();
 
-    const isLoggedIn = localStorage.getItem('autocash_is_logged_in');
-    const savedEmail = localStorage.getItem('autocash_email');
-    if (isLoggedIn === 'true' && savedEmail) {
-      fetch(`/api/auth/me?email=${encodeURIComponent(savedEmail)}`)
-        .then((r) => r.json())
-        .then((data) => {
-          if (data.success && data.user) {
-            setCurrentUser(data.user);
-            setUserBalance(data.user.balance || 0.0);
-          }
-        })
-        .catch((e) => console.error(e));
-    } else {
-      setCurrentUser(null);
-      setUserBalance(0.0);
-    }
+    const refreshUser = () => {
+      const isLoggedIn = localStorage.getItem('autocash_is_logged_in');
+      const savedEmail = localStorage.getItem('autocash_email');
+      if (isLoggedIn === 'true' && savedEmail) {
+        fetch(`/api/auth/me?email=${encodeURIComponent(savedEmail)}`)
+          .then((r) => r.json())
+          .then((data) => {
+            if (data.success && data.user) {
+              setCurrentUser(data.user);
+              setUserBalance(data.user.balance || 0.0);
+            }
+          })
+          .catch((e) => console.error(e));
+      } else {
+        setCurrentUser(null);
+        setUserBalance(0.0);
+      }
+    };
+
+    refreshUser();
+    window.addEventListener('autocash-auth-changed', refreshUser);
+    return () => window.removeEventListener('autocash-auth-changed', refreshUser);
   }, []);
 
   const handleDismissSplash = () => {

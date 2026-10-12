@@ -45,6 +45,8 @@ export default function AccountPage() {
 
   useEffect(() => {
     loadUserData();
+    window.addEventListener('autocash-auth-changed', loadUserData);
+    return () => window.removeEventListener('autocash-auth-changed', loadUserData);
   }, []);
 
   const loadUserData = async () => {
