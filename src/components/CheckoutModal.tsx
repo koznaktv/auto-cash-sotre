@@ -11,6 +11,7 @@ interface CheckoutModalProps {
   user?: { id?: string; email?: string; name?: string; balance?: number } | null;
   onClose: () => void;
   onSuccess: (order: any, newBalance?: number) => void;
+  onOpenAuth?: () => void;
 }
 
 export default function CheckoutModal({
@@ -18,6 +19,7 @@ export default function CheckoutModal({
   user,
   onClose,
   onSuccess,
+  onOpenAuth,
 }: CheckoutModalProps) {
   const {
     t,
@@ -39,6 +41,15 @@ export default function CheckoutModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
+
+    if (!user || !user.email) {
+      setErrorMsg(t('loginToPurchasePrompt'));
+      if (onOpenAuth) {
+        onClose();
+        onOpenAuth();
+      }
+      return;
+    }
 
     if (service.inputLabel && !accountInput.trim()) {
       setErrorMsg(`${translateInputLabel(service.inputLabel) || 'ID'}`);
@@ -102,6 +113,28 @@ export default function CheckoutModal({
             <p className="text-xs text-slate-400">{service.description}</p>
           </div>
         </div>
+
+        {/* Unauthenticated / Guest Warning Banner */}
+        {(!user || !user.email) && (
+          <div className="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 text-xs text-amber-300">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
+              <span>{t('loginToPurchasePrompt')}</span>
+            </div>
+            {onOpenAuth && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenAuth();
+                }}
+                className="shrink-0 px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-[11px] transition cursor-pointer shadow-sm"
+              >
+                {t('loginRequiredBtn')}
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -184,14 +217,27 @@ export default function CheckoutModal({
               </span>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 hover:opacity-95 text-white font-semibold px-6 py-2.5 rounded-xl shadow-lg shadow-cyan-500/20 text-sm transition disabled:opacity-50 cursor-pointer"
-            >
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              <span>{t('confirmAndPay')}</span>
-            </button>
+            {(!user || !user.email) ? (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  if (onOpenAuth) onOpenAuth();
+                }}
+                className="flex items-center gap-2 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500 hover:opacity-95 text-slate-950 font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-amber-500/20 text-xs sm:text-sm transition cursor-pointer"
+              >
+                <span>{t('loginRequiredBtn')}</span>
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 hover:opacity-95 text-white font-semibold px-6 py-2.5 rounded-xl shadow-lg shadow-cyan-500/20 text-sm transition disabled:opacity-50 cursor-pointer"
+              >
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                <span>{t('confirmAndPay')}</span>
+              </button>
+            )}
           </div>
         </form>
       </div>

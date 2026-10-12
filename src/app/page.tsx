@@ -641,7 +641,13 @@ export default function HomePage() {
 
                   {/* Compact Buy Button */}
                   <button
-                    onClick={() => setActiveModalService(service)}
+                    onClick={() => {
+                      if (!currentUser || !currentUser.email) {
+                        setIsAuthOpen(true);
+                      } else {
+                        setActiveModalService(service);
+                      }
+                    }}
                     className="w-full py-1 sm:py-1.5 rounded-lg bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500 hover:opacity-95 text-slate-950 font-black text-[9px] sm:text-[11px] transition cursor-pointer font-alkatip active:scale-95 flex items-center justify-center gap-1 shadow-sm hover:shadow-amber-500/20"
                   >
                     <span>{isRTL ? 'سېتىۋېلىش' : 'Buy Now'}</span>
@@ -704,6 +710,7 @@ export default function HomePage() {
           user={currentUser}
           onClose={() => setActiveModalService(null)}
           onSuccess={handleOrderSuccess}
+          onOpenAuth={() => setIsAuthOpen(true)}
         />
       )}
     </div>

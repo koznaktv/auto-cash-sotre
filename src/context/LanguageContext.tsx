@@ -86,6 +86,8 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     confirmAndPay: 'تۆلەش ۋە زاكاز بېرىش',
     processing: 'بىر تەرەپ قىلىنىۋاتىدۇ...',
     orderSuccess: 'زاكاز مۇۋەپپەقىيەتلىك تاپشۇرۇلدى!',
+    loginToPurchasePrompt: 'سېتىۋېلىش ئۈچۈن ئالدى بىلەن ھېساباتىڭىزغا كىرىشىڭىز كېرەك.',
+    loginRequiredBtn: 'ھېساباتقا كىرىش / تىزىملىتىش (Gmail)',
     close: 'ياپقۇچ',
 
     // Orders Page
@@ -224,6 +226,8 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     confirmAndPay: 'تأكيد ودفع الطلب',
     processing: 'جاري المعالجة...',
     orderSuccess: 'تم تقديم الطلب بنجاح!',
+    loginToPurchasePrompt: 'يرجى تسجيل الدخول أولاً لإتمام الشراء.',
+    loginRequiredBtn: 'تسجيل الدخول / إنشاء حساب (Gmail)',
     close: 'إغلاق',
 
     // Orders Page
@@ -362,6 +366,8 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     confirmAndPay: 'Confirm & Place Order',
     processing: 'Processing...',
     orderSuccess: 'Order submitted successfully!',
+    loginToPurchasePrompt: 'Please sign in to your account before making a purchase.',
+    loginRequiredBtn: 'Sign In / Register (Gmail)',
     close: 'Close',
 
     // Orders Page

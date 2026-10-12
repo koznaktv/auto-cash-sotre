@@ -50,7 +50,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: 'تاللانغان تۈر تېپىلمىدى' }, { status: 404 });
     }
 
-    // Check user and balance if user is logged in
+    // Check user and balance (Authentication is strictly required)
     let resolvedUser = null;
     if (userId) {
       resolvedUser = await getUserByIdAsync(userId);
@@ -58,20 +58,28 @@ export async function POST(req: Request) {
       resolvedUser = await getUserByEmailAsync(userEmail);
     }
 
-    // If user exists, deduct balance
-    if (resolvedUser) {
-      if (resolvedUser.balance < pkg.price) {
-        return NextResponse.json(
-          {
-            success: false,
-            message: `ھەميان قالدۇقى يەتمىدى! ھازىرقى قالدۇقىڭىز $${resolvedUser.balance.toFixed(2)}، تەلەپ قىلىنغىنى $${pkg.price.toFixed(2)}. ئالدى بىلەن پۇل كىرگۈزۈڭ.`,
-          },
-          { status: 400 }
-        );
-      }
-      // Deduct balance
-      await adjustUserBalanceAsync(resolvedUser.id, -pkg.price);
+    if (!resolvedUser) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'سېتىۋېلىش ئۈچۈن ئالدى بىلەن ھېساباتىڭىزغا كىرىشىڭىز كېرەك. (Gmail ئارقىلىق كىرىڭ)',
+        },
+        { status: 401 }
+      );
     }
+
+    if (resolvedUser.balance < pkg.price) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `ھەميان قالدۇقى يەتمىدى! ھازىرقى قالدۇقىڭىز $${resolvedUser.balance.toFixed(2)}، تەلەپ قىلىنغىنى $${pkg.price.toFixed(2)}. ئالدى بىلەن پۇل كىرگۈزۈڭ.`,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Deduct balance
+    await adjustUserBalanceAsync(resolvedUser.id, -pkg.price);
 
     let generatedDetails: OrderRecord['details'] = {};
 
