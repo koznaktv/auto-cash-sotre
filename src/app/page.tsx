@@ -494,7 +494,7 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3.5">
-              {CATEGORIES_9.map((cat) => {
+              {CATEGORIES_9.map((cat, idx) => {
                 const isTransitioning = transitioningCatId === cat.id;
                 return (
                   <button
@@ -527,18 +527,27 @@ export default function HomePage() {
                     </div>
 
                     <div className="relative z-10 flex items-center justify-between w-full">
-                      <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all border shadow-md ${
-                        isTransitioning
-                          ? 'bg-amber-400 text-slate-950 border-amber-300 scale-110 shadow-amber-400/50'
-                          : 'bg-slate-950/85 border-amber-400/50 text-amber-300 group-hover:scale-110 group-hover:bg-amber-400 group-hover:text-slate-950'
-                      }`}>
+                      {/* Icon with staggered lightweight float animation */}
+                      <div
+                        style={{ animationDelay: `${(idx % 4) * 0.35}s` }}
+                        className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all border shadow-md animate-cat-icon ${
+                          isTransitioning
+                            ? 'bg-amber-400 text-slate-950 border-amber-300 scale-110 shadow-amber-400/50'
+                            : 'bg-slate-950/85 border-amber-400/50 text-amber-300 group-hover:scale-110 group-hover:bg-amber-400 group-hover:text-slate-950'
+                        }`}
+                      >
                         <DynamicIcon name={cat.icon} className="w-4 h-4 sm:w-5 sm:h-5" />
                       </div>
-                      <span className={`text-[9px] sm:text-[10px] border font-bold px-2 py-0.5 rounded-full shadow font-alkatip transition ${
-                        isTransitioning
-                          ? 'bg-amber-400 text-slate-950 border-amber-300 scale-105'
-                          : 'bg-slate-950/85 border-amber-400/50 text-amber-300 group-hover:bg-amber-400 group-hover:text-slate-950 group-hover:translate-x-[-2px]'
-                      }`}>
+
+                      {/* Pill button with subtle lightweight nudge animation */}
+                      <span
+                        style={{ animationDelay: `${(idx % 4) * 0.35 + 0.18}s` }}
+                        className={`text-[9px] sm:text-[10px] border font-bold px-2 py-0.5 rounded-full shadow font-alkatip transition animate-arrow-pill ${
+                          isTransitioning
+                            ? 'bg-amber-400 text-slate-950 border-amber-300 scale-105'
+                            : 'bg-slate-950/85 border-amber-400/50 text-amber-300 group-hover:bg-amber-400 group-hover:text-slate-950 group-hover:translate-x-[-2px]'
+                        }`}
+                      >
                         {isRTL ? 'ئېچىش ←' : 'Open →'}
                       </span>
                     </div>
