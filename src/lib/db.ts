@@ -28,17 +28,20 @@ export interface OrderRecord {
   packageTitle: string;
   amount: number;
   targetAccount: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'refunded' | 'pending_provider';
   createdAt: string;
   details?: {
     smsCode?: string;
     virtualNumber?: string;
     accountCredentials?: string;
+    refundReason?: string;
+    providerOrderId?: string;
     cardDetails?: {
       number: string;
       exp: string;
       cvv: string;
     };
+    [key: string]: any;
   };
 }
 
@@ -753,6 +756,157 @@ export async function updateOrderStatusAsync(
     }
   }
   return updateOrderStatus(orderId, newStatus);
+}
+
+export interface AtomicOrderResult {
+  success: boolean;
+  order?: OrderRecord;
+  newBalance?: number;
+  message?: string;
+  isCached?: boolean;
+}
+
+export async function deductBalanceAndCreateOrderAtomicAsync(params: {
+  idempotencyKey?: string;
+  userId: string;
+  userEmail?: string;
+  serviceId: string;
+  serviceName: string;
+  packageTitle: string;
+  amount: number;
+  targetAccount: string;
+  orderId: string;
+  details?: any;
+}): Promise<AtomicOrderResult> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { data, error } = await sb.rpc('deduct_balance_and_create_order', {
+        p_idempotency_key: params.idempotencyKey || null,
+        p_user_id: params.userId,
+        p_user_email: params.userEmail || null,
+        p_service_id: params.serviceId,
+        p_service_name: params.serviceName,
+        p_package_title: params.packageTitle,
+        p_amount: params.amount,
+        p_target_account: params.targetAccount,
+        p_order_id: params.orderId,
+        p_details: params.details || {},
+      });
+
+      if (!error && data) {
+        if (data.success) {
+          const rawOrder = data.order || (data.data?.orderId ? { id: data.data.orderId } : null);
+          return {
+            success: true,
+            order: rawOrder ? mapSupabaseOrder(rawOrder) : undefined,
+            newBalance: Number(data.newBalance ?? data.data?.newBalance ?? 0),
+            isCached: Boolean(data.is_cached),
+          };
+        }
+        return { success: false, message: data.message || 'ترانزاكسىيە رەت قىلىندى' };
+      }
+      if (error) {
+        console.error('Supabase RPC deduct_balance_and_create_order error:', error);
+        return { success: false, message: error.message };
+      }
+    } catch (e: any) {
+      console.error('Supabase RPC execution exception:', e);
+      return { success: false, message: e?.message || 'ساندان ترانزاكسىيە كاشىلىسى' };
+    }
+  }
+
+  // Fallback to local DB with atomic check
+  const db = ensureDbFile();
+  const user = db.users.find(
+    (u) => u.id === params.userId || (params.userEmail && u.email.toLowerCase() === params.userEmail.toLowerCase())
+  );
+  if (!user) {
+    return { success: false, message: 'ئابونت تېپىلمىدى' };
+  }
+  if (user.balance < params.amount) {
+    return {
+      success: false,
+      message: `قالدۇق پۇل يەتمىدى! مەۋجۇت قالدۇق: $${user.balance.toFixed(2)}، تەلەپ: $${params.amount.toFixed(2)}`,
+    };
+  }
+
+  user.balance = Math.max(0, Math.round((user.balance - params.amount) * 100) / 100);
+  user.totalSpent = Math.round(((user.totalSpent || 0) + params.amount) * 100) / 100;
+
+  const newOrder: OrderRecord = {
+    id: params.orderId,
+    userId: user.id,
+    userEmail: user.email,
+    serviceId: params.serviceId,
+    serviceName: params.serviceName,
+    packageTitle: params.packageTitle,
+    amount: params.amount,
+    targetAccount: params.targetAccount,
+    status: 'processing',
+    details: params.details || {},
+    createdAt: new Date().toISOString(),
+  };
+
+  db.orders.unshift(newOrder);
+  saveDb(db);
+
+  return {
+    success: true,
+    order: newOrder,
+    newBalance: user.balance,
+  };
+}
+
+export async function refundOrderBalanceAtomicAsync(
+  orderId: string,
+  reason: string = 'Provider Error'
+): Promise<{ success: boolean; newBalance?: number; message?: string }> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { data, error } = await sb.rpc('refund_order_balance', {
+        p_order_id: orderId,
+        p_reason: reason,
+      });
+
+      if (!error && data && data.success) {
+        return {
+          success: true,
+          newBalance: Number(data.newBalance ?? 0),
+        };
+      }
+      if (error) {
+        console.error('Supabase refund_order_balance RPC error:', error);
+      }
+    } catch (e: any) {
+      console.error('Supabase refund RPC exception:', e);
+    }
+  }
+
+  // Fallback to local DB
+  const db = ensureDbFile();
+  const order = db.orders.find((o) => o.id === orderId);
+  if (!order) return { success: false, message: 'زاكاز تېپىلمىدى' };
+  if (order.status === 'refunded' || order.status === 'cancelled') {
+    return { success: false, message: 'زاكاز ئاللىقاچان پۇلى قايتۇرۇلغان' };
+  }
+
+  const user = db.users.find(
+    (u) => u.id === order.userId || (order.userEmail && u.email.toLowerCase() === order.userEmail.toLowerCase())
+  );
+  let newBalance = 0;
+  if (user) {
+    user.balance = Math.round((user.balance + order.amount) * 100) / 100;
+    user.totalSpent = Math.max(0, Math.round(((user.totalSpent || 0) - order.amount) * 100) / 100);
+    newBalance = user.balance;
+  }
+
+  order.status = 'refunded';
+  order.details = { ...(order.details || {}), refundReason: reason };
+  saveDb(db);
+
+  return { success: true, newBalance };
 }
 
 export async function getAllDepositsAsync(): Promise<DepositRecord[]> {
