@@ -45,28 +45,27 @@ export async function POST(req: Request) {
       );
     }
 
-    let resolvedUserId = userId;
-    let resolvedUserName = userName || 'خېرىدار';
-    let resolvedUserEmail = userEmail || 'client@autocash.shop';
+    let resolvedUser = null;
+    if (userId) {
+      resolvedUser = await getUserByIdAsync(userId);
+    } else if (userEmail) {
+      resolvedUser = await getUserByEmailAsync(userEmail);
+    }
 
-    if (resolvedUserId) {
-      const u = await getUserByIdAsync(resolvedUserId);
-      if (u) {
-        resolvedUserName = u.name;
-        resolvedUserEmail = u.email;
-      }
-    } else if (resolvedUserEmail) {
-      const u = await getUserByEmailAsync(resolvedUserEmail);
-      if (u) {
-        resolvedUserId = u.id;
-        resolvedUserName = u.name;
-      }
+    if (!resolvedUser) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'ھەميانغا پۇل كىرگۈزۈش ئۈچۈن ئالدى بىلەن ھېساباتىڭىزغا كىرىشىڭىز كېرەك. (Gmail ئارقىلىق كىرىڭ)',
+        },
+        { status: 401 }
+      );
     }
 
     const newDeposit = await createDepositAsync({
-      userId: resolvedUserId,
-      userName: resolvedUserName,
-      userEmail: resolvedUserEmail,
+      userId: resolvedUser.id,
+      userName: resolvedUser.name,
+      userEmail: resolvedUser.email,
       method: method || 'شامكەش (Sham Cash)',
       amount: parsedAmount,
       status: 'pending', // Pending admin verification!

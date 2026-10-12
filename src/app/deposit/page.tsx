@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import BottomNav from '@/components/BottomNav';
+import AuthModal from '@/components/AuthModal';
 import { useLanguage } from '@/context/LanguageContext';
 import { 
   Plus, 
@@ -36,6 +37,8 @@ export default function DepositPage() {
   const { lang, t, isRTL } = useLanguage();
   const [balance, setBalance] = useState<number>(0.0);
   const [showDepositModal, setShowDepositModal] = useState<boolean>(false);
+  const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<{ id?: string; name: string; email: string; balance?: number } | null>(null);
   const [amount, setAmount] = useState<number>(25);
   const [copied, setCopied] = useState<boolean>(false);
   const [txNote, setTxNote] = useState<string>('');
@@ -65,18 +68,35 @@ export default function DepositPage() {
     try {
       const email = localStorage.getItem('autocash_email');
       const isLoggedIn = localStorage.getItem('autocash_is_logged_in');
+      const userId = localStorage.getItem('autocash_userId');
+      const username = localStorage.getItem('autocash_username');
       if (isLoggedIn === 'true' && email) {
+        setCurrentUser({
+          id: userId || undefined,
+          name: username || email.split('@')[0],
+          email,
+        });
         const res = await fetch(`/api/auth/me?email=${encodeURIComponent(email)}`);
         const data = await res.json();
         if (data.success && data.user) {
+          setCurrentUser(data.user);
           setBalance(data.user.balance || 0.0);
         }
       } else {
+        setCurrentUser(null);
         setBalance(0.0);
       }
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const handleOpenDepositModal = () => {
+    if (!currentUser || !currentUser.email) {
+      setIsAuthOpen(true);
+      return;
+    }
+    setShowDepositModal(true);
   };
 
   const fetchDeposits = async () => {
@@ -108,6 +128,12 @@ export default function DepositPage() {
   const handleDepositSubmit = async () => {
     if (amount <= 0 || isSubmitting) return;
 
+    if (!currentUser || !currentUser.email) {
+      setFormError('ھەميانغا پۇل كىرگۈزۈش ئۈچۈن ئالدى بىلەن ھېساباتىڭىزغا كىرىشىڭىز كېرەك!');
+      setIsAuthOpen(true);
+      return;
+    }
+
     if (!txNote.trim()) {
       setFormError(t('proofRequiredError'));
       return;
@@ -116,9 +142,6 @@ export default function DepositPage() {
     setFormError('');
     setIsSubmitting(true);
     try {
-      const savedName = localStorage.getItem('autocash_username') || 'خېرىدار';
-      const savedEmail = localStorage.getItem('autocash_email') || 'client@autocash.shop';
-
       const res = await fetch('/api/deposits', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -126,9 +149,9 @@ export default function DepositPage() {
           amount: amount,
           method: currentMethod.name,
           txId: txNote.trim(),
-          userName: savedName,
-          userEmail: savedEmail,
-          userId: localStorage.getItem('autocash_userId') || undefined,
+          userName: currentUser.name,
+          userEmail: currentUser.email,
+          userId: currentUser.id,
         }),
       });
 
@@ -190,6 +213,33 @@ export default function DepositPage() {
           </div>
         </div>
 
+        {/* Unauthenticated Login Prompt Banner */}
+        {(!currentUser || !currentUser.email) && (
+          <div className="mb-4 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm text-amber-300 shadow-lg">
+            <div className="flex items-center gap-2.5">
+              <AlertCircle className="w-5 h-5 shrink-0 text-amber-400" />
+              <span>
+                {lang === 'ug'
+                  ? 'ھەميانغا پۇل كىرگۈزۈش ئۈچۈن ئالدى بىلەن ھېساباتىڭىزغا كىرىشىڭىز كېرەك.'
+                  : lang === 'ar'
+                  ? 'يرجى تسجيل الدخول أولاً لشحن المحفظة برصيد جديد.'
+                  : 'Please sign in to your account first to top up your wallet balance.'}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsAuthOpen(true)}
+              className="shrink-0 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:opacity-95 text-slate-950 font-bold text-xs shadow-md transition cursor-pointer w-full sm:w-auto"
+            >
+              {lang === 'ug'
+                ? 'ھېساباتقا كىرىش / تىزىملىتىش (Gmail)'
+                : lang === 'ar'
+                ? 'تسجيل الدخول / إنشاء حساب (Gmail)'
+                : 'Sign In / Register (Gmail)'}
+            </button>
+          </div>
+        )}
+
         {/* Big Balance Card */}
         <div className="p-5 rounded-2xl bg-gradient-to-tr from-[#051427] via-[#07192d] to-[#0a233f] border border-cyan-500/30 shadow-2xl space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -211,7 +261,7 @@ export default function DepositPage() {
 
             {/* New Deposit Button */}
             <button
-              onClick={() => setShowDepositModal(true)}
+              onClick={handleOpenDepositModal}
               className="flex items-center justify-center gap-2 px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl bg-[#0088cc] hover:bg-[#0099e6] text-white text-xs sm:text-sm font-black transition shadow-lg shadow-cyan-600/30 cursor-pointer active:scale-95 font-alkatip shrink-0 w-full sm:w-auto"
             >
               <span className="animate-plus-wiggle shrink-0">
@@ -548,6 +598,17 @@ export default function DepositPage() {
           </div>
         )}
       </main>
+
+      {/* Auth Modal for Unauthenticated Users */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        onSuccess={() => {
+          setIsAuthOpen(false);
+          loadUserBalance();
+          fetchDeposits();
+        }}
+      />
 
       <BottomNav />
     </div>
