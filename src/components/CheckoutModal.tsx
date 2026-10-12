@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { ServiceItem } from '@/lib/data';
 import DynamicIcon from './DynamicIcon';
 import { useLanguage } from '@/context/LanguageContext';
@@ -37,6 +37,7 @@ export default function CheckoutModal({
   const [accountInput, setAccountInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const isSubmittingRef = useRef(false);
 
   const selectedPkg = service.packages.find((p) => p.id === selectedPkgId) || service.packages[0];
 
@@ -44,7 +45,8 @@ export default function CheckoutModal({
     e.preventDefault();
     setErrorMsg('');
 
-    if (loading) return; // Prevent double submit
+    // Synchronous and state-based guard against double clicks
+    if (loading || isSubmittingRef.current) return;
 
     if (!user || !user.email) {
       setErrorMsg(t('loginToPurchasePrompt'));
@@ -69,6 +71,7 @@ export default function CheckoutModal({
       }
     }
 
+    isSubmittingRef.current = true;
     setLoading(true);
 
     // Unique Idempotency Key per submit attempt
@@ -100,6 +103,7 @@ export default function CheckoutModal({
     } catch (err: any) {
       setErrorMsg(err.message || 'خاتالىق كۆرۈلدى');
     } finally {
+      isSubmittingRef.current = false;
       setLoading(false);
     }
   };
@@ -268,11 +272,11 @@ export default function CheckoutModal({
             ) : (
               <button
                 type="submit"
-                disabled={loading}
-                className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 hover:opacity-95 text-white font-semibold px-6 py-2.5 rounded-xl shadow-lg shadow-cyan-500/20 text-sm transition disabled:opacity-50 cursor-pointer"
+                disabled={loading || isSubmittingRef.current}
+                className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 hover:opacity-95 text-white font-semibold px-6 py-2.5 rounded-xl shadow-lg shadow-cyan-500/20 text-sm transition disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed select-none"
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                <span>{t('confirmAndPay')}</span>
+                <span>{loading ? 'بىر تەرەپ قىلىنماقتا...' : t('confirmAndPay')}</span>
               </button>
             )}
           </div>

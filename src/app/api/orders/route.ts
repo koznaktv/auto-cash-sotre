@@ -140,10 +140,11 @@ export async function POST(req: Request) {
     if (service.category === 'games') {
       const providerRes = await syria4GameProvider.submitTopupOrder({
         clientOrderId: orderId,
-        gameCode: service.id,
-        packageCode: pkg.id,
+        productId: (pkg as any).providerProductId || pkg.id,
         playerId: parsedGameAccount.userId,
         zoneId: parsedGameAccount.zoneId,
+        server: parsedGameAccount.server,
+        customUuid: idempotencyKey || undefined,
       });
 
       // If provider failed -> Automatic Instant Refund Rollback
@@ -164,7 +165,7 @@ export async function POST(req: Request) {
         );
       }
 
-      // Mark order completed with provider order ID
+      // Mark order completed with provider order ID and UUID
       await updateOrderStatusAsync(orderId, 'completed');
     }
 
