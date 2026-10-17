@@ -14,7 +14,9 @@ import {
   ChevronRight,
   Copy, 
   Check, 
-  RefreshCw
+  RefreshCw,
+  Calendar,
+  X
 } from 'lucide-react';
 import { isOrderInProgress, type Order } from '@/lib/orders';
 import { getCachedBalance, getCachedUser, storeLocalAuth, ClientUser } from '@/lib/clientAuth';
@@ -173,31 +175,77 @@ export default function OrdersPage() {
           {/* Date Picker Row */}
           <div className="grid grid-cols-2 gap-2.5 text-[11px]">
             <div>
-              <span className="block text-slate-400 text-[10px] mb-1">
+              <span className="block text-slate-400 text-[10px] mb-1 font-alkatip">
                 {isRTL ? 'تارىختىن:' : 'From:'}
               </span>
-              <div className="relative">
+              <div className="relative flex items-center justify-between bg-[#051120] border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs hover:border-cyan-500/50 transition">
+                <span className={`select-none ${startDate ? 'text-cyan-300 font-mono font-bold' : 'text-slate-400 font-alkatip'}`}>
+                  {startDate ? startDate : (isRTL ? 'يىل / ئاي / كۈن' : 'YYYY / MM / DD')}
+                </span>
+                <div className="flex items-center gap-1 text-slate-400">
+                  {startDate && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setStartDate('');
+                      }}
+                      className="relative z-20 text-slate-400 hover:text-rose-400 p-0.5 rounded cursor-pointer transition"
+                      title={isRTL ? 'تازىلاش' : 'Clear'}
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  <Calendar className="w-3.5 h-3.5 pointer-events-none text-slate-400" />
+                </div>
                 <input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full bg-[#051120] border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 font-mono"
-                  dir="ltr"
+                  onClick={(e) => {
+                    try {
+                      (e.target as HTMLInputElement).showPicker?.();
+                    } catch (_) {}
+                  }}
+                  className="absolute inset-0 opacity-0 w-full h-full cursor-pointer z-10"
                 />
               </div>
             </div>
 
             <div>
-              <span className="block text-slate-400 text-[10px] mb-1">
+              <span className="block text-slate-400 text-[10px] mb-1 font-alkatip">
                 {isRTL ? 'بۈگۈنگە قەدەر:' : 'To:'}
               </span>
-              <div className="relative">
+              <div className="relative flex items-center justify-between bg-[#051120] border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs hover:border-cyan-500/50 transition">
+                <span className={`select-none ${endDate ? 'text-cyan-300 font-mono font-bold' : 'text-slate-400 font-alkatip'}`}>
+                  {endDate ? endDate : (isRTL ? 'يىل / ئاي / كۈن' : 'YYYY / MM / DD')}
+                </span>
+                <div className="flex items-center gap-1 text-slate-400">
+                  {endDate && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEndDate('');
+                      }}
+                      className="relative z-20 text-slate-400 hover:text-rose-400 p-0.5 rounded cursor-pointer transition"
+                      title={isRTL ? 'تازىلاش' : 'Clear'}
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  <Calendar className="w-3.5 h-3.5 pointer-events-none text-slate-400" />
+                </div>
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full bg-[#051120] border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 font-mono"
-                  dir="ltr"
+                  onClick={(e) => {
+                    try {
+                      (e.target as HTMLInputElement).showPicker?.();
+                    } catch (_) {}
+                  }}
+                  className="absolute inset-0 opacity-0 w-full h-full cursor-pointer z-10"
                 />
               </div>
             </div>
