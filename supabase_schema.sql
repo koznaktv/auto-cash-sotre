@@ -88,11 +88,20 @@ ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS tx_id TEXT;
 ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS reviewed_at TEXT;
 ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 
--- Ensure id and user_id column types are TEXT (handles cases where tables were created with UUID)
+-- Drop all existing policies and foreign keys so column types can be altered freely
 DO $$
 DECLARE
+    pol RECORD;
     r RECORD;
 BEGIN
+    FOR pol IN (
+        SELECT policyname, tablename
+        FROM pg_policies
+        WHERE schemaname = 'public' AND tablename IN ('deposits', 'orders', 'users')
+    ) LOOP
+        EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', pol.policyname, pol.tablename);
+    END LOOP;
+
     FOR r IN (
         SELECT constraint_name, table_name
         FROM information_schema.table_constraints
