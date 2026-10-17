@@ -1,20 +1,26 @@
-import crypto from 'crypto';
-import { getSystemSettings } from './db';
+import { getSystemSettingsAsync } from './db';
+import { readCookie, resolveSecret, safeEqual, signToken, verifyToken } from './signedToken';
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET || 'autocash-secure-master-key-2026-x996';
+// The PIN shipped in the public source / schema seed: never accepted in production
+export const PUBLIC_DEFAULT_PIN = '9960996';
+
+const MAX_FAILED_ATTEMPTS = 5;
+// X-Forwarded-For can be spoofed, so also cap failures across all clients
+const MAX_GLOBAL_FAILED_ATTEMPTS = 50;
+const MAX_TRACKED_IPS = 10_000;
+const LOCKOUT_WINDOW_MS = 15 * 60 * 1000;
+const failedAttempts = new Map<string, { count: number; firstAt: number }>();
+let globalFailures = { count: 0, firstAt: 0 };
 
 export function createAdminToken(): string {
-  const payload = {
-    role: 'admin',
-    issuedAt: Date.now(),
-    expiresAt: Date.now() + 24 * 3600 * 1000, // 24 hours
-  };
-  const payloadBase64 = Buffer.from(JSON.stringify(payload)).toString('base64url');
-  const signature = crypto
-    .createHmac('sha256', ADMIN_SECRET)
-    .update(payloadBase64)
-    .digest('base64url');
-  return `${payloadBase64}.${signature}`;
+  return signToken(
+    {
+      role: 'admin',
+      issuedAt: Date.now(),
+      expiresAt: Date.now() + 24 * 3600 * 1000, // 24 hours
+    },
+    resolveSecret('ADMIN_SECRET')
+  );
 }
 
 export function verifyAdminToken(tokenOrReq: string | Request): boolean {
@@ -24,49 +30,82 @@ export function verifyAdminToken(tokenOrReq: string | Request): boolean {
     token = tokenOrReq;
   } else {
     // Extract from Authorization header or cookie
-    const authHeader = tokenOrReq.headers.get('Authorization') || tokenOrReq.headers.get('authorization');
+    const authHeader = tokenOrReq.headers.get('authorization');
     if (authHeader && authHeader.startsWith('Bearer ')) {
       token = authHeader.substring(7).trim();
     } else {
-      const cookieHeader = tokenOrReq.headers.get('cookie') || '';
-      const match = cookieHeader.match(/autocash_admin_token=([^;]+)/);
-      if (match) token = match[1];
+      token = readCookie(tokenOrReq, 'autocash_admin_token');
     }
   }
 
-  if (!token || !token.includes('.')) return false;
+  const payload = verifyToken<{ role: string; expiresAt: number }>(token, resolveSecret('ADMIN_SECRET'));
+  return payload?.role === 'admin';
+}
 
-  const [payloadBase64, signature] = token.split('.');
-  if (!payloadBase64 || !signature) return false;
+/**
+ * Admin check that only accepts an explicit Authorization header (not the cookie), for
+ * endpoints shared with regular users, so an admin's cookie doesn't change what user pages see.
+ */
+export function hasAdminBearer(req: Request): boolean {
+  const authHeader = req.headers.get('authorization') || '';
+  return authHeader.startsWith('Bearer ') && verifyAdminToken(authHeader.substring(7).trim());
+}
 
-  const expectedSignature = crypto
-    .createHmac('sha256', ADMIN_SECRET)
-    .update(payloadBase64)
-    .digest('base64url');
+export function getClientIp(req: Request): string {
+  return (req.headers.get('x-forwarded-for') || '').split(',')[0].trim() || req.headers.get('x-real-ip') || 'local';
+}
 
-  if (signature !== expectedSignature) return false;
-
-  try {
-    const payload = JSON.parse(Buffer.from(payloadBase64, 'base64url').toString('utf-8'));
-    if (!payload.expiresAt || Date.now() > payload.expiresAt) {
-      return false;
-    }
-    return payload.role === 'admin';
-  } catch {
+export function isAdminLoginLocked(ip: string): boolean {
+  if (Date.now() - globalFailures.firstAt > LOCKOUT_WINDOW_MS) {
+    globalFailures = { count: 0, firstAt: 0 };
+  } else if (globalFailures.count >= MAX_GLOBAL_FAILED_ATTEMPTS) {
+    return true;
+  }
+  const entry = failedAttempts.get(ip);
+  if (!entry) return false;
+  if (Date.now() - entry.firstAt > LOCKOUT_WINDOW_MS) {
+    failedAttempts.delete(ip);
     return false;
   }
+  return entry.count >= MAX_FAILED_ATTEMPTS;
 }
 
-export function verifyAdminPin(inputPin: string): boolean {
+export function recordAdminLoginFailure(ip: string): void {
+  if (!globalFailures.firstAt || Date.now() - globalFailures.firstAt > LOCKOUT_WINDOW_MS) {
+    globalFailures = { count: 1, firstAt: Date.now() };
+  } else {
+    globalFailures.count += 1;
+  }
+  if (failedAttempts.size >= MAX_TRACKED_IPS) {
+    // Drop expired entries; if still full, start over rather than grow without bound
+    failedAttempts.forEach((value, key) => {
+      if (Date.now() - value.firstAt > LOCKOUT_WINDOW_MS) failedAttempts.delete(key);
+    });
+    if (failedAttempts.size >= MAX_TRACKED_IPS) failedAttempts.clear();
+  }
+  const entry = failedAttempts.get(ip);
+  if (!entry || Date.now() - entry.firstAt > LOCKOUT_WINDOW_MS) {
+    failedAttempts.set(ip, { count: 1, firstAt: Date.now() });
+  } else {
+    entry.count += 1;
+  }
+}
+
+export function clearAdminLoginFailures(ip: string): void {
+  failedAttempts.delete(ip);
+}
+
+export async function verifyAdminPin(inputPin: string): Promise<boolean> {
   if (!inputPin) return false;
-  const settings = getSystemSettings();
-  const validPin = (process.env.ADMIN_PIN || settings.adminPin || '9960996').trim();
-  const trimmed = inputPin.trim();
-  return trimmed === validPin || trimmed === '9960996' || trimmed === 'admin2026';
-}
-
-export function resetAdminPin(): string {
-  const settings = getSystemSettings();
-  settings.adminPin = '9960996';
-  return '9960996';
+  const settings = await getSystemSettingsAsync();
+  // A PIN changed in the admin panel wins; ADMIN_PIN covers the case where it was never changed
+  const settingsPin = (settings.adminPin || '').trim();
+  const envPin = (process.env.ADMIN_PIN || '').trim();
+  const validPin = settingsPin && settingsPin !== PUBLIC_DEFAULT_PIN ? settingsPin : envPin || settingsPin;
+  if (!validPin) return false;
+  if (process.env.NODE_ENV === 'production' && validPin === PUBLIC_DEFAULT_PIN) {
+    console.error('Admin login refused: the admin PIN is still the public default. Set ADMIN_PIN.');
+    return false;
+  }
+  return safeEqual(inputPin.trim(), validPin);
 }

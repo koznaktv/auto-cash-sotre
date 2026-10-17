@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import type { Order } from '@/lib/orders';
+import { isOrderInProgress, type Order } from '@/lib/orders';
 import { useLanguage } from '@/context/LanguageContext';
 import { CheckCircle2, Clock, AlertTriangle, Copy, CreditCard } from 'lucide-react';
 
@@ -28,7 +28,7 @@ export default function OrdersList({ orders }: OrdersListProps) {
     <div className="space-y-3 font-alkatip">
       {orders.map((order) => {
         const isCompleted = order.status === 'completed';
-        const isProcessing = order.status === 'processing';
+        const isProcessing = isOrderInProgress(order.status);
 
         return (
           <div
@@ -84,9 +84,27 @@ export default function OrdersList({ orders }: OrdersListProps) {
               </div>
             </div>
 
-            {/* Extra details (SMS verification, Card, Credentials) */}
-            {order.details && (
+            {/* Extra details (delivered codes, SMS verification, Card, Credentials) */}
+            {order.details &&
+              (order.details.delivery?.codes?.length ||
+                order.details.accountCredentials ||
+                order.details.cardDetails ||
+                order.details.virtualNumber ||
+                order.details.smsCode) && (
               <div className="mt-3 pt-3 border-t border-slate-800/80 bg-slate-950/50 p-3 rounded-xl flex flex-col gap-2">
+                {order.details.delivery?.codes?.map((code, idx) => (
+                  <div key={idx} className="flex items-center justify-between gap-2 text-xs">
+                    <span className="text-slate-400 shrink-0">{isRTL ? 'كود:' : 'Code:'}</span>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-mono text-emerald-300 font-bold break-all" dir="ltr">
+                        {code}
+                      </span>
+                      <button onClick={() => copyToClipboard(code)} className="text-slate-400 hover:text-white shrink-0">
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
                 {order.details.virtualNumber && (
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-slate-400">{isRTL ? 'مەۋھۇم تېلېفون نومۇرى:' : 'Virtual Number:'}</span>

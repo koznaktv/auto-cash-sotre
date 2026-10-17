@@ -1,41 +1,12 @@
 import { NextResponse } from 'next/server';
-import { getUserByEmailAsync, getUserByIdAsync } from '@/lib/db';
+import { getSessionUser, toSafeUser, unauthorizedResponse } from '@/lib/session';
 
+// Returns the logged-in user from the session cookie (query parameters are ignored).
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const email = searchParams.get('email');
-    const id = searchParams.get('id');
-
-    if (!email && !id) {
-      return NextResponse.json(
-        { success: false, message: 'ئىشلەتكۈچى كىملىكى ياكى ئېلخىتى يوق' },
-        { status: 400 }
-      );
-    }
-
-    const user = id ? await getUserByIdAsync(id) : await getUserByEmailAsync(email!);
-    if (!user) {
-      return NextResponse.json(
-        { success: false, message: 'ئىشلەتكۈچى تېپىلمىدى' },
-        { status: 404 }
-      );
-    }
-
-    const safeUser = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      avatarUrl: user.avatarUrl || undefined,
-      balance: user.balance,
-      totalSpent: user.totalSpent,
-      vipTier: user.vipTier,
-      role: user.role,
-      createdAt: user.createdAt,
-    };
-
-    return NextResponse.json({ success: true, user: safeUser });
+    const user = await getSessionUser(req);
+    if (!user) return unauthorizedResponse();
+    return NextResponse.json({ success: true, user: toSafeUser(user) });
   } catch (err: any) {
     return NextResponse.json(
       { success: false, message: err?.message || 'ئىشلەتكۈچى ئۇچۇرىنى ئېلىش مەغلۇپ بولدى' },

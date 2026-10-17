@@ -1,5 +1,6 @@
 'use client';
 
+import { clearLocalAuth, logout, syncSupabaseSession } from '@/lib/clientAuth';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
@@ -105,9 +106,16 @@ export default function HomePage() {
           balance: 0.0,
         });
 
-        fetch(`/api/auth/me?email=${encodeURIComponent(savedEmail)}`)
-          .then((r) => r.json())
-          .then((data) => {
+        fetch('/api/auth/me')
+          .then(async (r) => {
+            if (r.status === 401) {
+              // Server session expired or missing: drop the stale local profile
+              clearLocalAuth();
+              setCurrentUser(null);
+              setUserBalance(0.0);
+              return;
+            }
+            const data = await r.json();
             if (data.success && data.user) {
               setCurrentUser(data.user);
               setUserBalance(data.user.balance || 0.0);
@@ -122,21 +130,11 @@ export default function HomePage() {
         import('@/lib/supabaseBrowser').then(({ getBrowserSupabase }) => {
           const sb = getBrowserSupabase();
           if (sb) {
-            sb.auth.getSession().then(({ data: { session } }) => {
-              if (session?.user?.email) {
-                const email = session.user.email;
-                const name = session.user.user_metadata?.full_name || session.user.user_metadata?.name || email.split('@')[0];
-                const avatarUrl = session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || '';
-                localStorage.setItem('autocash_is_logged_in', 'true');
-                localStorage.setItem('autocash_username', name);
-                localStorage.setItem('autocash_email', email);
-                if (avatarUrl) localStorage.setItem('autocash_avatar', avatarUrl);
-                setCurrentUser({
-                  name,
-                  email,
-                  avatarUrl,
-                  balance: 0.0,
-                });
+            sb.auth.getSession().then(async ({ data: { session } }) => {
+              if (session?.access_token) {
+                const syncedUser = await syncSupabaseSession(session.access_token);
+                setCurrentUser(syncedUser);
+                setUserBalance(syncedUser.balance ?? 0.0);
                 window.dispatchEvent(new Event('autocash-auth-changed'));
               } else {
                 setCurrentUser(null);
@@ -171,15 +169,7 @@ export default function HomePage() {
   };
 
   const handleLogout = () => {
-    localStorage.setItem('autocash_is_logged_in', 'false');
-    localStorage.removeItem('autocash_username');
-    localStorage.removeItem('autocash_email');
-    localStorage.removeItem('autocash_userId');
-    localStorage.removeItem('autocash_avatar');
-    import('@/lib/supabaseBrowser').then(({ getBrowserSupabase }) => {
-      const sb = getBrowserSupabase();
-      if (sb) sb.auth.signOut().catch(() => {});
-    });
+    logout();
     setCurrentUser(null);
     setUserBalance(0.0);
   };
@@ -233,10 +223,37 @@ export default function HomePage() {
     }, 450);
   };
 
+  // Storefront catalog: the legacy list or the synced syria4game catalog (same source the order API uses)
+  const [services, setServices] = useState<ServiceItem[]>([]);
+  const [catalogSource, setCatalogSource] = useState<'legacy' | 'provider'>('legacy');
+  const [catalogLoading, setCatalogLoading] = useState(true);
+  useEffect(() => {
+    fetch('/api/catalog')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success && Array.isArray(d.services)) {
+          setServices(d.services);
+          setCatalogSource(d.source === 'provider' ? 'provider' : 'legacy');
+        } else {
+          setServices(SERVICES_DATA);
+        }
+      })
+      .catch(() => setServices(SERVICES_DATA))
+      .finally(() => setCatalogLoading(false));
+  }, []);
+
+  const serviceCountByCategory = services.reduce<Record<string, number>>((acc, s) => {
+    acc[s.category] = (acc[s.category] || 0) + 1;
+    return acc;
+  }, {});
+  // With the provider catalog, show real counts and hide categories that have nothing to sell
+  const visibleCategories =
+    catalogSource === 'provider' ? CATEGORIES_9.filter((c) => serviceCountByCategory[c.id]) : CATEGORIES_9;
+
   // Only open products when a category is explicitly clicked, or searching
   const isProductsOpen = selectedCat !== null || searchQuery.trim() !== '';
 
-  const filteredServices = SERVICES_DATA.filter((service) => {
+  const filteredServices = services.filter((service) => {
     const matchCat = selectedCat === null || service.category === selectedCat;
     const matchSearch =
       searchQuery.trim() === '' ||
@@ -508,13 +525,13 @@ export default function HomePage() {
               <h2 className="font-ukij text-base sm:text-lg font-bold text-white flex items-center gap-2">
                 <span className="w-2.5 h-5 rounded-full bg-amber-400 shadow-md shadow-amber-400/50" />
                 <span>
-                  {t('categoriesTitle')} ({CATEGORIES_9.length})
+                  {t('categoriesTitle')} ({visibleCategories.length})
                 </span>
               </h2>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3.5">
-              {CATEGORIES_9.map((cat, idx) => {
+              {visibleCategories.map((cat, idx) => {
                 const isTransitioning = transitioningCatId === cat.id;
                 return (
                   <button
@@ -579,7 +596,9 @@ export default function HomePage() {
                         {getCategoryName(cat.id, cat.name)}
                       </h3>
                       <span className="font-alkatip text-[9px] sm:text-[10px] text-amber-200 font-semibold block mt-0.5 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
-                        {getCategoryCount(cat.id, cat.count)}
+                        {catalogSource === 'provider'
+                          ? `${serviceCountByCategory[cat.id] || 0} ${isRTL ? 'مۇلازىمەت' : 'services'}`
+                          : getCategoryCount(cat.id, cat.count)}
                       </span>
                     </div>
                   </button>
@@ -686,7 +705,11 @@ export default function HomePage() {
               ))}
             </div>
 
-            {filteredServices.length === 0 && (
+            {catalogLoading && filteredServices.length === 0 && (
+              <div className="text-center py-16 font-alkatip text-slate-400 text-sm">يۈكلىنىۋاتىدۇ...</div>
+            )}
+
+            {!catalogLoading && filteredServices.length === 0 && (
               <div className="text-center py-16 border border-dashed border-slate-800 rounded-2xl bg-slate-950/40">
                 <p className="font-alkatip text-slate-400 text-sm mb-3">
                   {t('noServicesFound')}

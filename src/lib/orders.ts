@@ -7,9 +7,24 @@ export interface Order {
   packageTitle: string;
   amount: number;
   targetAccount: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'refunded' | 'pending_provider';
   createdAt: string;
   details?: {
+    // Provider fulfilment
+    fields?: Record<string, string>;
+    qty?: number;
+    delivery?: { codes: string[]; text?: string };
+    refundReason?: string;
+    // Admin-only (stripped from buyer responses by toBuyerOrder)
+    providerOrderId?: string;
+    providerOrderUuid?: string;
+    providerStatus?: string;
+    providerError?: string;
+    needsReview?: boolean;
+    reviewReason?: string;
+    costTotal?: number;
+    sellPrice?: number;
+    // Legacy orders
     smsCode?: string;
     virtualNumber?: string;
     accountCredentials?: string;
@@ -19,6 +34,32 @@ export interface Order {
       cvv: string;
     };
   };
+}
+
+/** Orders that still need fulfilment or verification (incl. ambiguous provider outcomes). */
+export function isOrderInProgress(status: string): boolean {
+  return status === 'processing' || status === 'pending' || status === 'pending_provider';
+}
+
+const BUYER_DETAIL_KEYS = [
+  'fields',
+  'qty',
+  'delivery',
+  'refundReason',
+  'smsCode',
+  'virtualNumber',
+  'accountCredentials',
+  'cardDetails',
+] as const;
+
+/** What a buyer may see of their order: no cost, provider ids, raw errors or review notes. */
+export function toBuyerOrder<T extends { details?: Record<string, any> }>(order: T): T {
+  const details: Record<string, any> = {};
+  for (const key of BUYER_DETAIL_KEYS) {
+    if (order.details?.[key] !== undefined) details[key] = order.details[key];
+  }
+  const { userId, userEmail, ...rest } = order as any;
+  return { ...rest, details } as T;
 }
 
 export interface DepositRecord {

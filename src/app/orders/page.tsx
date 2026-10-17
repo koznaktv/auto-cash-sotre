@@ -16,7 +16,7 @@ import {
   Check, 
   RefreshCw
 } from 'lucide-react';
-import type { Order } from '@/lib/orders';
+import { isOrderInProgress, type Order } from '@/lib/orders';
 
 export default function OrdersPage() {
   const { lang, t, isRTL } = useLanguage();
@@ -27,6 +27,13 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'failed' | 'processing'>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // While a provider order is still in progress, refresh so delivered codes show up on their own
+  useEffect(() => {
+    if (!orders.some((o) => isOrderInProgress(o.status))) return;
+    const timer = setInterval(fetchOrders, 15000);
+    return () => clearInterval(timer);
+  }, [orders]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     fetchOrders();
@@ -54,7 +61,10 @@ export default function OrdersPage() {
   };
 
   const filteredOrders = orders.filter((order) => {
-    if (statusFilter !== 'all' && order.status !== statusFilter) {
+    const matchesFilter =
+      statusFilter === 'all' ||
+      (statusFilter === 'processing' ? isOrderInProgress(order.status) : order.status === statusFilter);
+    if (!matchesFilter) {
       return false;
     }
 
@@ -236,7 +246,7 @@ export default function OrdersPage() {
           <div className="space-y-3 pt-1">
             {filteredOrders.map((order) => {
               const isCompleted = order.status === 'completed';
-              const isProcessing = order.status === 'processing';
+              const isProcessing = isOrderInProgress(order.status);
               const isFailed = order.status === 'failed';
 
               return (
@@ -309,8 +319,36 @@ export default function OrdersPage() {
                   </div>
 
                   {/* Delivery payload details if available */}
-                  {order.details && (
+                  {order.details &&
+                    (order.details.delivery?.codes?.length ||
+                      order.details.refundReason ||
+                      order.details.accountCredentials ||
+                      order.details.cardDetails ||
+                      order.details.virtualNumber ||
+                      order.details.smsCode) && (
                     <div className="mt-2 pt-2 border-t border-slate-800/80 bg-slate-950/60 p-2.5 rounded-xl text-xs space-y-1.5 font-alkatip">
+                      {order.details.delivery?.codes?.map((code, idx) => (
+                        <div key={idx} className="flex items-center justify-between gap-2">
+                          <span className="text-slate-400 text-[11px] shrink-0">{isRTL ? 'كود:' : 'Code:'}</span>
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="text-emerald-300 font-bold font-mono break-all" dir="ltr">
+                              {code}
+                            </span>
+                            <button
+                              onClick={() => copyText(code, `code-${order.id}-${idx}`)}
+                              className="text-slate-400 hover:text-white shrink-0"
+                            >
+                              {copiedId === `code-${order.id}-${idx}` ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      {order.details.refundReason && (
+                        <div className="text-[11px] text-rose-300">
+                          {isRTL ? 'پۇل قايتۇرۇلدى: ' : 'Refunded: '}
+                          {order.details.refundReason}
+                        </div>
+                      )}
                       {order.details.accountCredentials && (
                         <div className="flex items-center justify-between">
                           <span className="text-slate-400 text-[11px]">

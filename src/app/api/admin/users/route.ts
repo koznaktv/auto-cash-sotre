@@ -35,12 +35,19 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ success: false, message: 'ئىشلەتكۈچى ID كەمچىل' }, { status: 400 });
     }
 
-    if (typeof balanceDelta === 'number' && balanceDelta !== 0) {
-      await adjustUserBalanceAsync(userId, balanceDelta);
+    if (typeof balanceDelta === 'number' && Number.isFinite(balanceDelta) && balanceDelta !== 0) {
+      await adjustUserBalanceAsync(userId, Math.round(balanceDelta * 100) / 100);
     }
 
     if (updates && typeof updates === 'object') {
-      await updateUserAsync(userId, updates);
+      // Balance changes go only through balanceDelta (atomic); whitelist the other editable fields
+      const safeUpdates: Record<string, unknown> = {};
+      if (typeof updates.name === 'string') safeUpdates.name = updates.name.trim().slice(0, 80);
+      if (typeof updates.phone === 'string') safeUpdates.phone = updates.phone.trim().slice(0, 32);
+      if (typeof updates.isBanned === 'boolean') safeUpdates.isBanned = updates.isBanned;
+      if (['user', 'admin'].includes(updates.role)) safeUpdates.role = updates.role;
+      if (['vip1', 'vip2', 'vip3', 'vip4', 'vip5'].includes(updates.vipTier)) safeUpdates.vipTier = updates.vipTier;
+      await updateUserAsync(userId, safeUpdates);
     }
 
     const updatedUser = await getUserByIdAsync(userId);

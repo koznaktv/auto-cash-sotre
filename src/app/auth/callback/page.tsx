@@ -3,6 +3,7 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getBrowserSupabase } from '@/lib/supabaseBrowser';
+import { safeRedirectPath, syncSupabaseSession } from '@/lib/clientAuth';
 import { Loader2, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
@@ -44,9 +45,15 @@ function CallbackHandler() {
         if (!session?.user) {
           // Listen for brief delay in case auth event is propagating
           const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-            if (newSession?.user && isMounted) {
+            if (newSession?.access_token && isMounted) {
               authListener.subscription.unsubscribe();
-              await syncUserAndRedirect(newSession.user);
+              try {
+                await syncUserAndRedirect(newSession.access_token);
+              } catch (err: any) {
+                if (!isMounted) return;
+                setStatus('error');
+                setMessage(err?.message || 'Google ئارقىلىق كىرىش مەغلۇپ بولدى');
+              }
             }
           });
 
@@ -60,7 +67,7 @@ function CallbackHandler() {
           return;
         }
 
-        await syncUserAndRedirect(session.user);
+        await syncUserAndRedirect(session.access_token);
       } catch (err: any) {
         if (!isMounted) return;
         console.error('OAuth Callback error:', err);
@@ -69,35 +76,12 @@ function CallbackHandler() {
       }
     }
 
-    async function syncUserAndRedirect(user: any) {
+    async function syncUserAndRedirect(accessToken: string) {
       if (!isMounted) return;
       setMessage('سىستېما ئۇچۇرى ماس قەدەملىنىۋاتىدۇ...');
 
-      const email = user.email;
-      const name = user.user_metadata?.full_name || user.user_metadata?.name || email?.split('@')[0] || 'ئىشلەتكۈچى';
-      const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
-
-      const res = await fetch('/api/auth/oauth-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name, avatarUrl, provider: 'google' }),
-      });
-
-      const data = await res.json();
-      if (!data.success || !data.user) {
-        throw new Error(data.message || 'ئىشلەتكۈچى ئۇچۇرىنى تىزىملاش مەغلۇپ بولدى');
-      }
-
-      // Save to localStorage
-      localStorage.setItem('autocash_is_logged_in', 'true');
-      localStorage.setItem('autocash_username', data.user.name);
-      localStorage.setItem('autocash_email', data.user.email);
-      if (data.user.id) {
-        localStorage.setItem('autocash_userId', data.user.id);
-      }
-      if (data.user.avatarUrl || avatarUrl) {
-        localStorage.setItem('autocash_avatar', data.user.avatarUrl || avatarUrl);
-      }
+      // The server verifies the token and sets the session cookie
+      await syncSupabaseSession(accessToken);
 
       // Trigger global event for navbar/drawer listeners
       window.dispatchEvent(new Event('autocash-auth-changed'));
@@ -105,7 +89,7 @@ function CallbackHandler() {
       setStatus('success');
       setMessage('مۇۋەپپەقىيەتلىك كىردىڭىز! بەتكە يۆتكىلىۋاتىدۇ...');
 
-      const nextUrl = searchParams.get('next') || '/account';
+      const nextUrl = safeRedirectPath(searchParams.get('next'));
       setTimeout(() => {
         router.replace(nextUrl);
       }, 1000);

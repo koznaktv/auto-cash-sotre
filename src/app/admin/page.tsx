@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import type { Order, DepositRecord } from '@/lib/orders';
+import { isOrderInProgress, type Order, type DepositRecord } from '@/lib/orders';
 import { CATEGORIES_9, ServiceItem } from '@/lib/data';
+import ProviderCatalogPanel from '@/components/admin/ProviderCatalogPanel';
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -184,8 +185,8 @@ export default function AdminPage() {
 
     try {
       const [resOrders, resDeposits, resUsers, resServices, resSettings] = await Promise.all([
-        fetch('/api/orders').then((r) => r.json()),
-        fetch('/api/deposits').then((r) => r.json()),
+        fetch('/api/orders', { headers }).then((r) => r.json()),
+        fetch('/api/deposits', { headers }).then((r) => r.json()),
         fetch('/api/admin/users', { headers }).then((r) => r.json()),
         fetch('/api/admin/services').then((r) => r.json()),
         fetch('/api/admin/settings', { headers }).then((r) => r.json()),
@@ -276,8 +277,64 @@ export default function AdminPage() {
 
   const handleLogout = () => {
     sessionStorage.removeItem('autocash_admin_token');
+    fetch('/api/admin/auth', { method: 'DELETE' }).catch(() => {});
     setIsAuthenticated(false);
     setPinInput('');
+  };
+
+  // Refund to the buyer's wallet (replaces plain "cancel", which used to keep the money)
+  const handleRefundOrder = async (order: Order) => {
+    if (!window.confirm(`${order.id}: $${order.amount.toFixed(2)} خېرىدارنىڭ ھەميانىغا قايتۇرۇلسۇنمۇ؟`)) return;
+    setActionLoading(order.id);
+    const token = sessionStorage.getItem('autocash_admin_token');
+    const call = (force: boolean) =>
+      fetch('/api/admin/orders/refund', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ orderId: order.id, force }),
+      }).then((r) => r.json());
+    try {
+      let data = await call(false);
+      if (
+        !data.success &&
+        data.needsForce &&
+        window.confirm('بۇ زاكاز تاماملانغان. مال يەتكۈزۈلمىگەنلىكى جەزم بولسا، پۇلنى يەنىلا قايتۇرامسىز؟')
+      ) {
+        data = await call(true);
+      }
+      if (data.success) {
+        setOrders((prev) => prev.map((o) => (o.id === order.id ? { ...o, ...(data.order || {}), status: 'refunded' } : o)));
+      } else {
+        alert(data.message || 'پۇل قايتۇرۇلمىدى');
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Ask syria4game for the order's status now
+  const handleRecheckOrder = async (order: Order) => {
+    setActionLoading(order.id);
+    try {
+      const token = sessionStorage.getItem('autocash_admin_token');
+      const res = await fetch('/api/admin/orders/recheck', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ orderId: order.id }),
+      });
+      const data = await res.json();
+      if (data.success && data.order) {
+        setOrders((prev) => prev.map((o) => (o.id === order.id ? data.order : o)));
+      } else if (!data.success) {
+        alert(data.message || 'تەكشۈرۈش مەغلۇپ بولدى');
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   // Order Status Handler
@@ -552,7 +609,7 @@ export default function AdminPage() {
       .filter((d) => d.status === 'completed')
       .reduce((sum, d) => sum + d.amount, 0);
     const totalOrderCount = orders.length;
-    const processingCount = orders.filter((o) => o.status === 'processing' || o.status === 'pending').length;
+    const processingCount = orders.filter((o) => isOrderInProgress(o.status)).length;
     const completedCount = orders.filter((o) => o.status === 'completed').length;
     const userCount = users.length;
     const pendingDepCount = deposits.filter((d) => d.status === 'pending').length;
@@ -590,7 +647,15 @@ export default function AdminPage() {
         (o.serviceName && o.serviceName.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (o.targetAccount && o.targetAccount.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (o.userEmail && o.userEmail.toLowerCase().includes(searchQuery.toLowerCase()));
-      const matchStatus = statusFilter === 'all' || o.status === statusFilter;
+      const matchStatus =
+        statusFilter === 'all' ||
+        (statusFilter === 'processing'
+          ? isOrderInProgress(o.status)
+          : statusFilter === 'review'
+          ? Boolean(o.details?.needsReview)
+          : statusFilter === 'cancelled'
+          ? o.status === 'cancelled' || o.status === 'refunded'
+          : o.status === statusFilter);
       return matchSearch && matchStatus;
     });
   }, [orders, searchQuery, statusFilter]);
@@ -1170,15 +1235,19 @@ export default function AdminPage() {
                               className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                                 order.status === 'completed'
                                   ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/30'
-                                  : order.status === 'processing'
+                                  : isOrderInProgress(order.status)
                                   ? 'bg-amber-950 text-amber-300 border border-amber-500/30'
                                   : 'bg-rose-950 text-rose-300 border border-rose-500/30'
                               }`}
                             >
                               {order.status === 'completed'
                                 ? 'تاماملاندى'
-                                : order.status === 'processing'
+                                : order.status === 'pending_provider'
+                                ? 'تەمىنلىگۈچىدە تەكشۈرۈلۈۋاتىدۇ'
+                                : isOrderInProgress(order.status)
                                 ? 'بىر تەرەپ قىلىنىۋاتىدۇ'
+                                : order.status === 'refunded'
+                                ? 'پۇلى قايتۇرۇلدى'
                                 : 'بىكار قىلىندى'}
                             </span>
                           </td>
@@ -1192,12 +1261,12 @@ export default function AdminPage() {
                                   تاماملاش
                                 </button>
                               )}
-                              {order.status !== 'cancelled' && (
+                              {order.status !== 'cancelled' && order.status !== 'refunded' && (
                                 <button
-                                  onClick={() => handleUpdateOrderStatus(order.id, 'cancelled')}
+                                  onClick={() => handleRefundOrder(order)}
                                   className="px-2 py-1 rounded-md bg-slate-800 hover:bg-rose-700 text-slate-300 text-[10px] font-bold transition cursor-pointer"
                                 >
-                                  بىكار قىلىش
+                                  پۇل قايتۇرۇش
                                 </button>
                               )}
                             </div>
@@ -1228,7 +1297,7 @@ export default function AdminPage() {
                 </div>
 
                 <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-                  {['all', 'processing', 'completed', 'cancelled'].map((st) => (
+                  {['all', 'processing', 'review', 'completed', 'cancelled'].map((st) => (
                     <button
                       key={st}
                       onClick={() => setStatusFilter(st)}
@@ -1239,10 +1308,12 @@ export default function AdminPage() {
                       {st === 'all'
                         ? `ھەممىسى (${orders.length})`
                         : st === 'processing'
-                        ? `بىر تەرەپ قىلىنىۋاتقان (${orders.filter((o) => o.status === 'processing').length})`
+                        ? `بىر تەرەپ قىلىنىۋاتقان (${orders.filter((o) => isOrderInProgress(o.status)).length})`
                         : st === 'completed'
                         ? `تاماملاندى (${orders.filter((o) => o.status === 'completed').length})`
-                        : `بىكار قىلىندى (${orders.filter((o) => o.status === 'cancelled').length})`}
+                        : st === 'review'
+                        ? `تەكشۈرۈش كېرەك (${orders.filter((o) => o.details?.needsReview).length})`
+                        : `بىكار قىلىندى (${orders.filter((o) => o.status === 'cancelled' || o.status === 'refunded').length})`}
                     </button>
                   ))}
                 </div>
@@ -1285,6 +1356,27 @@ export default function AdminPage() {
                             </td>
                             <td className="py-3 px-3 font-mono text-amber-300 select-all font-bold">
                               {order.targetAccount}
+                              {order.details?.providerOrderId && (
+                                <span className="block text-[10px] text-cyan-400 font-normal" dir="ltr">
+                                  syria4game #{order.details.providerOrderId}
+                                  {order.details.providerStatus ? ` · ${order.details.providerStatus}` : ''}
+                                </span>
+                              )}
+                              {order.details?.delivery?.codes?.length ? (
+                                <span className="block text-[10px] text-emerald-400 font-normal" dir="ltr">
+                                  {order.details.delivery.codes.join(' | ')}
+                                </span>
+                              ) : null}
+                              {order.details?.needsReview && (
+                                <span className="block text-[10px] text-rose-300 font-normal font-alkatip">
+                                  ⚠ {order.details.reviewReason || 'تەكشۈرۈش كېرەك'}
+                                </span>
+                              )}
+                              {typeof order.details?.costTotal === 'number' && (
+                                <span className="block text-[10px] text-slate-500 font-normal" dir="ltr">
+                                  cost ${order.details.costTotal.toFixed(4)} · profit ${(order.amount - order.details.costTotal).toFixed(2)}
+                                </span>
+                              )}
                             </td>
                             <td className="py-3 px-3 font-mono text-slate-300 text-[11px]">
                               {order.userEmail || 'ئېنىقسىز'}
@@ -1297,15 +1389,19 @@ export default function AdminPage() {
                                 className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                                   order.status === 'completed'
                                     ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40'
-                                    : order.status === 'processing'
+                                    : isOrderInProgress(order.status)
                                     ? 'bg-amber-950 text-amber-300 border border-amber-500/40'
                                     : 'bg-rose-950 text-rose-300 border border-rose-500/40'
                                 }`}
                               >
                                 {order.status === 'completed'
                                   ? 'تاماملاندى'
-                                  : order.status === 'processing'
+                                  : order.status === 'pending_provider'
+                                  ? 'تەمىنلىگۈچىدە تەكشۈرۈلۈۋاتىدۇ'
+                                  : isOrderInProgress(order.status)
                                   ? 'بىر تەرەپ قىلىنىۋاتىدۇ'
+                                  : order.status === 'refunded'
+                                  ? 'پۇلى قايتۇرۇلدى'
                                   : 'بىكار قىلىندى'}
                               </span>
                             </td>
@@ -1325,13 +1421,24 @@ export default function AdminPage() {
                                 >
                                   بىر تەرەپ
                                 </button>
-                                <button
-                                  disabled={actionLoading === order.id}
-                                  onClick={() => handleUpdateOrderStatus(order.id, 'cancelled')}
-                                  className="px-2.5 py-1 rounded-lg bg-rose-700 hover:bg-rose-600 text-white font-bold text-[10px] transition cursor-pointer"
-                                >
-                                  بىكار
-                                </button>
+                                {(order.details as any)?.providerProductId && isOrderInProgress(order.status) && (
+                                  <button
+                                    disabled={actionLoading === order.id}
+                                    onClick={() => handleRecheckOrder(order)}
+                                    className="px-2.5 py-1 rounded-lg bg-cyan-700 hover:bg-cyan-600 text-white font-bold text-[10px] transition cursor-pointer"
+                                  >
+                                    قايتا تەكشۈر
+                                  </button>
+                                )}
+                                {order.status !== 'cancelled' && order.status !== 'refunded' && (
+                                  <button
+                                    disabled={actionLoading === order.id}
+                                    onClick={() => handleRefundOrder(order)}
+                                    className="px-2.5 py-1 rounded-lg bg-rose-700 hover:bg-rose-600 text-white font-bold text-[10px] transition cursor-pointer"
+                                  >
+                                    پۇل قايتۇر
+                                  </button>
+                                )}
                               </div>
                             </td>
                           </tr>
@@ -1886,6 +1993,8 @@ export default function AdminPage() {
                 </div>
               </div>
 
+              <ProviderCatalogPanel themeClasses={themeClasses} />
+
               {/* API Endpoints Status Table */}
               <div className={`p-5 rounded-2xl ${themeClasses.card} space-y-4`}>
                 <h3 className="text-sm font-bold text-white flex items-center gap-2">
@@ -1921,7 +2030,7 @@ export default function AdminPage() {
                       </tr>
                       <tr>
                         <td className="p-3 font-bold text-white">New Top-up Order</td>
-                        <td className="p-3 font-mono text-cyan-300" dir="ltr">GET /client/api/newOrder/{'{id}'}/{'{params}'}</td>
+                        <td className="p-3 font-mono text-cyan-300" dir="ltr">GET /client/api/newOrder/{'{id}'}/params?qty=&amp;order_uuid=&amp;…</td>
                         <td className="p-3 font-mono text-slate-400" dir="ltr">order_uuid (v4)</td>
                         <td className="p-3 text-slate-300">ئويۇنچىغا پۇل قاچىلاش</td>
                         <td className="p-3 text-emerald-400 font-bold">تەييار (Active)</td>
@@ -1963,8 +2072,8 @@ export default function AdminPage() {
                           <tr key={idx} className="hover:bg-slate-800/40">
                             <td className="p-3 font-mono text-amber-400 font-bold" dir="ltr">{p.id}</td>
                             <td className="p-3 font-bold text-white">{p.name}</td>
-                            <td className="p-3 font-mono text-cyan-400" dir="ltr">${p.price?.toFixed(2) || '0.00'}</td>
-                            <td className="p-3 text-slate-400">{p.category || 'ئويۇن'}</td>
+                            <td className="p-3 font-mono text-cyan-400" dir="ltr">${Number(p.costPrice ?? p.price ?? 0)}</td>
+                            <td className="p-3 text-slate-400">{p.categoryName || p.category || '—'}</td>
                           </tr>
                         ))}
                       </tbody>

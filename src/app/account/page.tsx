@@ -1,5 +1,6 @@
 'use client';
 
+import { clearLocalAuth, logout } from '@/lib/clientAuth';
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
@@ -66,7 +67,13 @@ export default function AccountPage() {
       if (savedAvatar) setAvatarUrl(savedAvatar);
 
       try {
-        const res = await fetch(`/api/auth/me?email=${encodeURIComponent(savedEmail)}`);
+        const res = await fetch('/api/auth/me');
+        if (res.status === 401) {
+          clearLocalAuth();
+          setIsLoggedIn(false);
+          setBalance(0.0);
+          return;
+        }
         const data = await res.json();
         if (data.success && data.user) {
           const u = data.user;
@@ -224,11 +231,7 @@ export default function AccountPage() {
   };
 
   const handleLogout = () => {
-    localStorage.setItem('autocash_is_logged_in', 'false');
-    localStorage.removeItem('autocash_username');
-    localStorage.removeItem('autocash_email');
-    localStorage.removeItem('autocash_userId');
-    localStorage.removeItem('autocash_avatar');
+    logout();
     setIsLoggedIn(false);
     setAvatarUrl('');
     setBalance(0.0);

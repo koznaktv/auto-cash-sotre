@@ -1,35 +1,45 @@
 import { NextResponse } from 'next/server';
 import {
   getAllOrdersAsync,
-  createOrderAsync,
+  getOrdersByUserIdAsync,
   updateOrderStatusAsync,
-  getUserByEmailAsync,
-  getUserByIdAsync,
   deductBalanceAndCreateOrderAtomicAsync,
-  refundOrderBalanceAtomicAsync,
+  randomId,
   OrderRecord,
+  ORDER_STATUSES,
 } from '@/lib/db';
-import { SERVICES_DATA } from '@/lib/data';
-import { verifyAdminToken } from '@/lib/adminAuth';
+import { getServicesList } from '@/lib/servicesDb';
+import { verifyAdminToken, hasAdminBearer } from '@/lib/adminAuth';
+import { getSessionUser, unauthorizedResponse } from '@/lib/session';
 import { validateGameAccount } from '@/lib/validation/gameAccountValidator';
-import { syria4GameProvider } from '@/lib/providers/syria4game';
+import { isOrderInProgress, toBuyerOrder } from '@/lib/orders';
+import { getProviderSettings } from '@/lib/catalog/store';
+import { SERVICE_PREFIX } from '@/lib/catalog/storefront';
+import { placeProviderOrder } from '@/lib/provider/purchase';
+import { pollProviderOrders } from '@/lib/provider/orderPoller';
+
+// Provider calls (live price check + newOrder) can take a while
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('userId');
-    const userEmail = searchParams.get('userEmail');
-
-    let orders = await getAllOrdersAsync();
-    if (userId) {
-      orders = orders.filter((o) => o.userId === userId);
-    } else if (userEmail) {
-      orders = orders.filter(
-        (o) => o.userEmail?.toLowerCase() === userEmail.toLowerCase()
-      );
+    if (hasAdminBearer(req)) {
+      return NextResponse.json({ success: true, orders: await getAllOrdersAsync() });
     }
 
-    return NextResponse.json({ success: true, orders });
+    const user = await getSessionUser(req);
+    if (!user) return unauthorizedResponse();
+
+    let orders = await getOrdersByUserIdAsync(user.id, user.email);
+
+    // Opportunistic status refresh for this buyer's in-flight provider orders (cron may be infrequent)
+    if (orders.some((o) => isOrderInProgress(o.status) && o.details?.providerProductId)) {
+      const summary = await pollProviderOrders({ deadlineMs: Date.now() + 4000, limit: 5, onlyUserId: user.id }).catch(() => null);
+      if (summary && summary.checked > 0) orders = await getOrdersByUserIdAsync(user.id, user.email);
+    }
+
+    return NextResponse.json({ success: true, orders: orders.map(toBuyerOrder) });
   } catch (err: any) {
     return NextResponse.json(
       { success: false, message: err?.message || 'زاكازلارنى ئېلىشتا خاتالىق كۆرۈلدى' },
@@ -40,29 +50,9 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const idempotencyKey = req.headers.get('x-idempotency-key') || '';
-    const body = await req.json();
-    const { serviceId, packageId, targetAccount, userEmail, userId } = body;
-
-    const service = SERVICES_DATA.find((s) => s.id === serviceId);
-    if (!service) {
-      return NextResponse.json({ success: false, message: 'مۇلازىمەت تېپىلمىدى' }, { status: 404 });
-    }
-
-    const pkg = service.packages.find((p) => p.id === packageId);
-    if (!pkg) {
-      return NextResponse.json({ success: false, message: 'تاللانغان تۈر تېپىلمىدى' }, { status: 404 });
-    }
-
-    // 1. Strict Authentication Check
-    let resolvedUser = null;
-    if (userId) {
-      resolvedUser = await getUserByIdAsync(userId);
-    } else if (userEmail) {
-      resolvedUser = await getUserByEmailAsync(userEmail);
-    }
-
-    if (!resolvedUser) {
+    // The buyer is the session owner, never the request body
+    const user = await getSessionUser(req);
+    if (!user) {
       return NextResponse.json(
         {
           success: false,
@@ -72,61 +62,71 @@ export async function POST(req: Request) {
       );
     }
 
-    // 2. Game Account UID & Zone ID Validation
-    let parsedGameAccount: { userId: string; zoneId?: string; server?: string } = { userId: (targetAccount || '').trim() };
+    const rawIdempotencyKey = req.headers.get('x-idempotency-key') || '';
+    const idempotencyKey = /^[A-Za-z0-9_-]{8,100}$/.test(rawIdempotencyKey) ? rawIdempotencyKey : '';
+    const body = await req.json();
+    const { serviceId, packageId, targetAccount, fields, qty, expectedTotal } = body;
+
+    if (typeof serviceId !== 'string' || typeof packageId !== 'string') {
+      return NextResponse.json({ success: false, message: 'مۇلازىمەت تېپىلمىدى' }, { status: 404 });
+    }
+
+    // syria4game catalog products
+    if (serviceId.startsWith(SERVICE_PREFIX)) {
+      const result = await placeProviderOrder(user, {
+        serviceId,
+        packageId,
+        fields: fields && typeof fields === 'object' ? fields : undefined,
+        targetAccount: typeof targetAccount === 'string' ? targetAccount : undefined,
+        qty,
+        expectedTotal,
+        idempotencyKey,
+      });
+      return NextResponse.json(result.body, { status: result.status });
+    }
+
+    // Legacy catalog: manual fulfilment by an admin
+    if ((await getProviderSettings()).catalogSource === 'provider') {
+      return NextResponse.json(
+        { success: false, message: 'مەھسۇلات تىزىملىكى يېڭىلاندى، بەتنى يېڭىلاپ قايتا تاللاڭ' },
+        { status: 410 }
+      );
+    }
+
+    const service = getServicesList().find((s) => s.id === serviceId);
+    if (!service) {
+      return NextResponse.json({ success: false, message: 'مۇلازىمەت تېپىلمىدى' }, { status: 404 });
+    }
+    const pkg = service.packages.find((p) => p.id === packageId);
+    if (!pkg) {
+      return NextResponse.json({ success: false, message: 'تاللانغان تۈر تېپىلمىدى' }, { status: 404 });
+    }
+    const price = Number(pkg.price);
+    if (!Number.isFinite(price) || price <= 0) {
+      return NextResponse.json({ success: false, message: 'مەھسۇلات باھاسى خاتا' }, { status: 400 });
+    }
+
+    const rawTarget = typeof targetAccount === 'string' ? targetAccount.trim().slice(0, 200) : '';
+    let parsedGameAccount: { userId: string; zoneId?: string } = { userId: rawTarget };
     if (service.category === 'games' || service.inputLabel) {
-      const validation = validateGameAccount(service.id, targetAccount || '');
+      const validation = validateGameAccount(service.id, rawTarget);
       if (!validation.isValid) {
         return NextResponse.json({ success: false, message: validation.message }, { status: 400 });
       }
       parsedGameAccount = validation.parsed;
     }
 
-    // 3. Generate Unique Order ID
-    const orderId = `ORD-${Date.now().toString().slice(-6)}${Math.floor(10 + Math.random() * 90)}`;
-
-    // Prepare simulated digital credentials if applicable
-    let generatedDetails: OrderRecord['details'] = {
-      gamePlayerId: parsedGameAccount.userId,
-      gameZoneId: parsedGameAccount.zoneId,
-    };
-
-    if (service.category === 'numbers') {
-      const randomUS = `+1 (${Math.floor(200 + Math.random() * 700)}) ${Math.floor(100 + Math.random() * 900)}-${Math.floor(1000 + Math.random() * 9000)}`;
-      generatedDetails = {
-        ...generatedDetails,
-        virtualNumber: randomUS,
-        smsCode: 'كود كۈتۈلمەكتە (تەخمىنەن 10-30 سېكۇنت)...',
-      };
-    } else if (service.category === 'cards') {
-      const cardNum = `4242 84${Math.floor(10 + Math.random() * 89)} ${Math.floor(1000 + Math.random() * 9000)} ${Math.floor(1000 + Math.random() * 9000)}`;
-      generatedDetails = {
-        ...generatedDetails,
-        cardDetails: {
-          number: cardNum,
-          exp: '12/28',
-          cvv: `${Math.floor(100 + Math.random() * 900)}`,
-        },
-      };
-    } else if (service.category === 'ai') {
-      generatedDetails = {
-        ...generatedDetails,
-        accountCredentials: `${targetAccount} ھېساباتىغا تولۇقلاش تەستىق باسقۇچىغا ئۆتتى.`,
-      };
-    }
-
-    // 4. ACID Transaction: Balance Verification, Exclusive Row Lock, Balance Deduction & Order Creation
     const atomicRes = await deductBalanceAndCreateOrderAtomicAsync({
       idempotencyKey,
-      userId: resolvedUser.id,
-      userEmail: resolvedUser.email,
+      userId: user.id,
+      userEmail: user.email,
       serviceId: service.id,
       serviceName: service.name,
       packageTitle: pkg.title,
-      amount: pkg.price,
-      targetAccount: targetAccount || 'تەلەپ قىلىنمىغان',
-      orderId,
-      details: generatedDetails,
+      amount: price,
+      targetAccount: rawTarget || 'تەلەپ قىلىنمىغان',
+      orderId: randomId('ORD'),
+      details: { gamePlayerId: parsedGameAccount.userId, gameZoneId: parsedGameAccount.zoneId },
     });
 
     if (!atomicRes.success) {
@@ -136,44 +136,8 @@ export async function POST(req: Request) {
       );
     }
 
-    // 5. External Provider Execution for Games (syria4game.com)
-    if (service.category === 'games') {
-      const providerRes = await syria4GameProvider.submitTopupOrder({
-        clientOrderId: orderId,
-        productId: (pkg as any).providerProductId || pkg.id,
-        playerId: parsedGameAccount.userId,
-        zoneId: parsedGameAccount.zoneId,
-        server: parsedGameAccount.server,
-        customUuid: idempotencyKey || undefined,
-      });
-
-      // If provider failed -> Automatic Instant Refund Rollback
-      if (!providerRes.success) {
-        const refundRes = await refundOrderBalanceAtomicAsync(
-          orderId,
-          providerRes.errorMessage || 'تاشقى تەمىنلىگۈچىدە كاشىلا كۆرۈلدى'
-        );
-
-        return NextResponse.json(
-          {
-            success: false,
-            message: `تاشقى تەمىنلىگۈچىدە كاشىلا كۆرۈلدى: ${providerRes.errorMessage || 'رەت قىلىندى'}. پۇلىڭىز ھېساباتىڭىزغا قايتۇرۇلدى!`,
-            refunded: true,
-            newBalance: refundRes.newBalance,
-          },
-          { status: 502 }
-        );
-      }
-
-      // Mark order completed with provider order ID and UUID
-      await updateOrderStatusAsync(orderId, 'completed');
-    }
-
-    return NextResponse.json({
-      success: true,
-      order: atomicRes.order || { id: orderId, amount: pkg.price, status: 'completed' },
-      newBalance: atomicRes.newBalance,
-    });
+    const order = atomicRes.order || ({ id: 'pending', amount: price, status: 'processing' } as OrderRecord);
+    return NextResponse.json({ success: true, order: toBuyerOrder(order), newBalance: atomicRes.newBalance });
   } catch (err: any) {
     return NextResponse.json(
       { success: false, message: err?.message || 'زاكاز مەغلۇپ بولدى' },
@@ -193,6 +157,10 @@ export async function PATCH(req: Request) {
 
     const body = await req.json();
     const { orderId, status } = body;
+
+    if (typeof orderId !== 'string' || !ORDER_STATUSES.includes(status)) {
+      return NextResponse.json({ success: false, message: 'ھالەت تۈرى خاتا' }, { status: 400 });
+    }
 
     const updated = await updateOrderStatusAsync(orderId, status);
     if (!updated) {

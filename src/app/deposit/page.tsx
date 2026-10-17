@@ -1,5 +1,6 @@
 'use client';
 
+import { clearLocalAuth } from '@/lib/clientAuth';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
@@ -76,7 +77,13 @@ export default function DepositPage() {
           name: username || email.split('@')[0],
           email,
         });
-        const res = await fetch(`/api/auth/me?email=${encodeURIComponent(email)}`);
+        const res = await fetch('/api/auth/me');
+        if (res.status === 401) {
+          clearLocalAuth();
+          setCurrentUser(null);
+          setBalance(0.0);
+          return;
+        }
         const data = await res.json();
         if (data.success && data.user) {
           setCurrentUser(data.user);

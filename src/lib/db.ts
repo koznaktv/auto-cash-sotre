@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import { isSupabaseConfigured, getSupabase } from './supabase';
+import { getSupabase } from './supabase';
 
 export interface UserRecord {
   id: string;
@@ -45,6 +45,16 @@ export interface OrderRecord {
   };
 }
 
+export const ORDER_STATUSES: OrderRecord['status'][] = [
+  'pending',
+  'processing',
+  'completed',
+  'failed',
+  'cancelled',
+  'refunded',
+  'pending_provider',
+];
+
 export interface DepositRecord {
   id: string;
   userId?: string;
@@ -76,6 +86,14 @@ interface DatabaseSchema {
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'autocash_db.json');
 
+export function randomId(prefix: string): string {
+  return `${prefix}-${crypto.randomBytes(5).toString('hex').toUpperCase()}`;
+}
+
+function nowFormatted(): string {
+  return new Date().toISOString().replace('T', ' ').substring(0, 16);
+}
+
 // Password hashing utilities
 export function hashPassword(password: string, salt?: string): { passwordHash: string; salt: string } {
   const generatedSalt = salt || crypto.randomBytes(16).toString('hex');
@@ -84,11 +102,13 @@ export function hashPassword(password: string, salt?: string): { passwordHash: s
 }
 
 export function verifyPassword(password: string, hash: string, salt: string): boolean {
-  const result = hashPassword(password, salt);
-  return result.passwordHash === hash;
+  if (!hash || !salt) return false;
+  const result = Buffer.from(hashPassword(password, salt).passwordHash, 'hex');
+  const expected = Buffer.from(hash, 'hex');
+  return result.length === expected.length && crypto.timingSafeEqual(result, expected);
 }
 
-// Initial seed data
+// Initial seed data (no pre-built accounts: they would ship with publicly known passwords)
 const initialDefaultData: DatabaseSchema = {
   settings: {
     adminPin: '9960996',
@@ -97,115 +117,9 @@ const initialDefaultData: DatabaseSchema = {
     telegramUsername: 'autocash_UYGHUR',
     siteName: 'AUTO CASH',
   },
-  users: [
-    {
-      id: 'USR-1170',
-      name: 'Killer 0996',
-      email: 'dronemax0996@gmail.com',
-      phone: '+963 984 373 459',
-      ...hashPassword('admin2026'),
-      balance: 0.0,
-      totalSpent: 0.0,
-      vipTier: 'vip2',
-      role: 'admin',
-      createdAt: '2026-10-01T10:00:00.000Z',
-    },
-    {
-      id: 'USR-1171',
-      name: 'خېرىدار',
-      email: 'client@autocash.shop',
-      phone: '+963 999 123 456',
-      ...hashPassword('client123'),
-      balance: 0.0,
-      totalSpent: 0.0,
-      vipTier: 'vip1',
-      role: 'user',
-      createdAt: '2026-10-02T12:30:00.000Z',
-    },
-  ],
-  orders: [
-    {
-      id: 'ORD-98421',
-      userId: 'USR-1171',
-      userEmail: 'client@autocash.shop',
-      serviceId: 'chatgpt-plus',
-      serviceName: 'ChatGPT Plus / Pro',
-      packageTitle: '1 ئايلىق مۇستەقىل ھېسابات (Private)',
-      amount: 21.99,
-      targetAccount: 'client@autocash.shop',
-      status: 'completed',
-      createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-      details: {
-        accountCredentials: 'ھېسابات قوزغىتىلدى: client@autocash.shop (OpenAI Plus ئاكتىپ)',
-      },
-    },
-    {
-      id: 'ORD-98422',
-      userId: 'USR-1170',
-      userEmail: 'dronemax0996@gmail.com',
-      serviceId: 'pubg-mobile',
-      serviceName: 'PUBG Mobile UC',
-      packageTitle: '660 UC (Royale Pass)',
-      amount: 9.50,
-      targetAccount: '581294819',
-      status: 'completed',
-      createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
-    },
-    {
-      id: 'ORD-98423',
-      userId: 'USR-1171',
-      userEmail: 'client@autocash.shop',
-      serviceId: 'telegram-sms',
-      serviceName: 'تېلېگرام مەۋھۇم نومۇر',
-      packageTitle: 'ئامېرىكا (+1) مەۋھۇم نومۇر',
-      amount: 1.20,
-      targetAccount: 'United States (+1)',
-      status: 'processing',
-      createdAt: new Date(Date.now() - 120000).toISOString(),
-      details: {
-        virtualNumber: '+1 (202) 555-0194',
-        smsCode: 'كود كۈتۈلمەكتە...',
-      },
-    },
-  ],
-  deposits: [
-    {
-      id: 'DEP-8841',
-      userId: 'USR-1170',
-      userName: 'Killer 0996',
-      userEmail: 'dronemax0996@gmail.com',
-      method: 'شامكەش (Sham Cash)',
-      amount: 50.0,
-      status: 'completed',
-      date: '2026-10-08 18:24',
-      txId: 'SC-99238411',
-      reviewedAt: '2026-10-08 18:25',
-    },
-    {
-      id: 'DEP-8812',
-      userId: 'USR-1171',
-      userName: 'خېرىدار',
-      userEmail: 'client@autocash.shop',
-      method: 'شامكەش (Sham Cash)',
-      amount: 25.0,
-      status: 'completed',
-      date: '2026-10-06 14:10',
-      txId: 'SC-77123990',
-      reviewedAt: '2026-10-06 14:15',
-    },
-    {
-      id: 'DEP-8790',
-      userId: 'USR-1170',
-      userName: 'ئىشلەتكۈچى',
-      userEmail: 'vip@autocash.shop',
-      method: 'شامكەش (Sham Cash)',
-      amount: 45.5,
-      status: 'completed',
-      date: '2026-10-03 21:05',
-      txId: 'SC-55192834',
-      reviewedAt: '2026-10-03 21:10',
-    },
-  ],
+  users: [],
+  orders: [],
+  deposits: [],
 };
 
 // Memory cache to accelerate reads while syncing with disk
@@ -227,11 +141,11 @@ function ensureDbFile(): DatabaseSchema {
 
     const raw = fs.readFileSync(DB_FILE, 'utf-8');
     const parsed = JSON.parse(raw) as DatabaseSchema;
-    
+
     // Ensure all required fields exist
-    if (!parsed.users) parsed.users = initialDefaultData.users;
-    if (!parsed.orders) parsed.orders = initialDefaultData.orders;
-    if (!parsed.deposits) parsed.deposits = initialDefaultData.deposits;
+    if (!parsed.users) parsed.users = [];
+    if (!parsed.orders) parsed.orders = [];
+    if (!parsed.deposits) parsed.deposits = [];
     if (!parsed.settings) parsed.settings = initialDefaultData.settings;
 
     cachedDb = parsed;
@@ -260,231 +174,28 @@ function saveDb(data: DatabaseSchema): void {
   }
 }
 
-// ================= USER OPERATIONS =================
-export function getAllUsers(): UserRecord[] {
-  const db = ensureDbFile();
-  return db.users;
+function supabaseFailure(op: string, error: { message?: string } | null | undefined): never {
+  console.error(`Supabase ${op} error:`, error);
+  throw new Error(`ساندان مەشغۇلاتى مەغلۇپ بولدى (${op})`);
 }
 
-export function getUserById(id: string): UserRecord | null {
-  const db = ensureDbFile();
-  return db.users.find((u) => u.id === id) || null;
+// ================= LOCAL (JSON FILE) OPERATIONS =================
+// Used only when Supabase is not configured.
+
+function findLocalUserByEmail(db: DatabaseSchema, email: string): UserRecord | null {
+  const normalized = email.trim().toLowerCase();
+  return db.users.find((u) => u.email.toLowerCase() === normalized) || null;
 }
 
-export function getUserByEmail(email: string): UserRecord | null {
-  const db = ensureDbFile();
-  return db.users.find((u) => u.email.toLowerCase() === email.trim().toLowerCase()) || null;
+function updateVipTier(user: UserRecord): void {
+  if (user.totalSpent >= 5000) user.vipTier = 'vip5';
+  else if (user.totalSpent >= 2000) user.vipTier = 'vip4';
+  else if (user.totalSpent >= 500) user.vipTier = 'vip3';
+  else if (user.totalSpent >= 100) user.vipTier = 'vip2';
+  else user.vipTier = 'vip1';
 }
 
-export function createUser(userData: {
-  name: string;
-  email: string;
-  password: string;
-  phone?: string;
-  avatarUrl?: string;
-}): UserRecord {
-  const db = ensureDbFile();
-  const existing = getUserByEmail(userData.email);
-  if (existing) {
-    throw new Error('بۇ ئېلخەت ئادرېسى ئاللىقاچان تىزىملاتقان');
-  }
-
-  const { passwordHash, salt } = hashPassword(userData.password);
-  const newUser: UserRecord = {
-    id: `USR-${Math.floor(1000 + Math.random() * 9000)}`,
-    name: userData.name.trim() || userData.email.split('@')[0],
-    email: userData.email.trim().toLowerCase(),
-    phone: userData.phone?.trim() || '',
-    avatarUrl: userData.avatarUrl || undefined,
-    passwordHash,
-    salt,
-    balance: 0.0,
-    totalSpent: 0.0,
-    vipTier: 'vip1',
-    role: 'user',
-    createdAt: new Date().toISOString(),
-  };
-
-  db.users.push(newUser);
-  saveDb(db);
-  return newUser;
-}
-
-export function updateUser(
-  id: string,
-  updates: Partial<Omit<UserRecord, 'id' | 'passwordHash' | 'salt'>>
-): UserRecord | null {
-  const db = ensureDbFile();
-  const index = db.users.findIndex((u) => u.id === id);
-  if (index === -1) return null;
-
-  db.users[index] = { ...db.users[index], ...updates };
-  saveDb(db);
-  return db.users[index];
-}
-
-export function deleteUser(id: string): boolean {
-  const db = ensureDbFile();
-  const index = db.users.findIndex((u) => u.id === id);
-  if (index === -1) return false;
-  db.users.splice(index, 1);
-  saveDb(db);
-  return true;
-}
-
-export function updateUserPassword(id: string, newPassword: string): boolean {
-  const db = ensureDbFile();
-  const index = db.users.findIndex((u) => u.id === id);
-  if (index === -1) return false;
-
-  const { passwordHash, salt } = hashPassword(newPassword);
-  db.users[index].passwordHash = passwordHash;
-  db.users[index].salt = salt;
-  saveDb(db);
-  return true;
-}
-
-export function adjustUserBalance(userId: string, amountDelta: number): UserRecord | null {
-  const db = ensureDbFile();
-  const index = db.users.findIndex((u) => u.id === userId);
-  if (index === -1) return null;
-
-  const user = db.users[index];
-  const newBalance = Math.round((user.balance + amountDelta) * 100) / 100;
-  if (newBalance < 0) {
-    throw new Error('ھەميان قالدۇقى يەتمىدى');
-  }
-
-  user.balance = newBalance;
-  if (amountDelta < 0) {
-    user.totalSpent = Math.round((user.totalSpent + Math.abs(amountDelta)) * 100) / 100;
-    // Auto upgrade VIP tier based on total spending
-    if (user.totalSpent >= 5000) user.vipTier = 'vip5';
-    else if (user.totalSpent >= 2000) user.vipTier = 'vip4';
-    else if (user.totalSpent >= 500) user.vipTier = 'vip3';
-    else if (user.totalSpent >= 100) user.vipTier = 'vip2';
-    else user.vipTier = 'vip1';
-  }
-
-  db.users[index] = user;
-  saveDb(db);
-  return user;
-}
-
-// ================= ORDER OPERATIONS =================
-export function getAllOrders(): OrderRecord[] {
-  const db = ensureDbFile();
-  return db.orders;
-}
-
-export function getOrderById(id: string): OrderRecord | null {
-  const db = ensureDbFile();
-  return db.orders.find((o) => o.id === id) || null;
-}
-
-export function getOrdersByUserId(userId: string): OrderRecord[] {
-  const db = ensureDbFile();
-  return db.orders.filter((o) => o.userId === userId);
-}
-
-export function createOrder(orderData: any): OrderRecord {
-  const db = ensureDbFile();
-  const amount = Number(orderData.amount ?? orderData.price ?? 0);
-  const packageTitle = orderData.packageTitle || orderData.unitName || 'ئۆلچەملىك';
-  const targetAccount = orderData.targetAccount || orderData.accountInput || '';
-
-  const newOrder: OrderRecord = {
-    id: `ORD-${Math.floor(10000 + Math.random() * 90000)}`,
-    ...orderData,
-    amount,
-    packageTitle,
-    targetAccount,
-    createdAt: new Date().toISOString(),
-  };
-
-  db.orders.unshift(newOrder);
-  saveDb(db);
-  return newOrder;
-}
-
-export function updateOrderStatus(orderId: string, status: OrderRecord['status']): OrderRecord | null {
-  const db = ensureDbFile();
-  const index = db.orders.findIndex((o) => o.id === orderId);
-  if (index === -1) return null;
-
-  db.orders[index].status = status;
-  saveDb(db);
-  return db.orders[index];
-}
-
-// ================= DEPOSIT OPERATIONS =================
-export function getAllDeposits(): DepositRecord[] {
-  const db = ensureDbFile();
-  return db.deposits;
-}
-
-export function getDepositById(id: string): DepositRecord | null {
-  const db = ensureDbFile();
-  return db.deposits.find((d) => d.id === id) || null;
-}
-
-export function createDeposit(depositData: Omit<DepositRecord, 'id' | 'date'>): DepositRecord {
-  const db = ensureDbFile();
-  const newDeposit: DepositRecord = {
-    id: `DEP-${Math.floor(1000 + Math.random() * 9000)}`,
-    ...depositData,
-    date: new Date().toISOString().replace('T', ' ').substring(0, 16),
-  };
-
-  db.deposits.unshift(newDeposit);
-  saveDb(db);
-  return newDeposit;
-}
-
-export function updateDepositStatus(depositId: string, newStatus: 'completed' | 'rejected'): DepositRecord | null {
-  const db = ensureDbFile();
-  const index = db.deposits.findIndex((d) => d.id === depositId);
-  if (index === -1) return null;
-
-  const deposit = db.deposits[index];
-  const previousStatus = deposit.status;
-  deposit.status = newStatus;
-  deposit.reviewedAt = new Date().toISOString().replace('T', ' ').substring(0, 16);
-
-  // If approved and was previously pending, automatically credit the user's wallet!
-  if (newStatus === 'completed' && previousStatus === 'pending') {
-    let targetUser: UserRecord | null = null;
-    if (deposit.userId) {
-      targetUser = db.users.find((u) => u.id === deposit.userId) || null;
-    }
-    if (!targetUser && deposit.userEmail) {
-      targetUser = db.users.find((u) => u.email.toLowerCase() === deposit.userEmail.toLowerCase()) || null;
-    }
-
-    if (targetUser) {
-      targetUser.balance = Math.round((targetUser.balance + deposit.amount) * 100) / 100;
-    }
-  }
-
-  db.deposits[index] = deposit;
-  saveDb(db);
-  return deposit;
-}
-
-// ================= SETTINGS OPERATIONS =================
-export function getSystemSettings(): SystemSettings {
-  const db = ensureDbFile();
-  return db.settings;
-}
-
-export function updateSystemSettings(updates: Partial<SystemSettings>): SystemSettings {
-  const db = ensureDbFile();
-  db.settings = { ...db.settings, ...updates };
-  saveDb(db);
-  return db.settings;
-}
-
-// ================= SUPABASE INTEGRATION & ASYNC OPERATIONS =================
+// ================= SUPABASE ROW MAPPERS =================
 
 function mapSupabaseUser(row: any): UserRecord {
   return {
@@ -537,7 +248,7 @@ function mapSupabaseDeposit(row: any): DepositRecord {
 
 function mapSupabaseSettings(row: any): SystemSettings {
   return {
-    adminPin: row.admin_pin || '9960996',
+    adminPin: row.admin_pin || '',
     shamcashAddress: row.shamcash_address || 'efe8a2b200d66411c7c7e296369cbba8',
     whatsappNumber: row.whatsapp_number || '+963 984 373 459',
     telegramUsername: row.telegram_username || 'autocash_UYGHUR',
@@ -545,49 +256,38 @@ function mapSupabaseSettings(row: any): SystemSettings {
   };
 }
 
+// ================= USER OPERATIONS =================
+
 export async function getAllUsersAsync(): Promise<UserRecord[]> {
   const sb = getSupabase();
   if (sb) {
-    try {
-      const { data, error } = await sb.from('users').select('*').order('created_at', { ascending: false });
-      if (!error && data) {
-        return data.map(mapSupabaseUser);
-      }
-    } catch (e) {
-      console.error('Supabase getAllUsers error:', e);
-    }
+    const { data, error } = await sb.from('users').select('*').order('created_at', { ascending: false });
+    if (error) supabaseFailure('getAllUsers', error);
+    return (data || []).map(mapSupabaseUser);
   }
-  return getAllUsers();
+  return ensureDbFile().users;
 }
 
 export async function getUserByEmailAsync(email: string): Promise<UserRecord | null> {
+  const normalized = email.trim().toLowerCase();
   const sb = getSupabase();
   if (sb) {
-    try {
-      const { data, error } = await sb.from('users').select('*').ilike('email', email.trim()).maybeSingle();
-      if (!error && data) {
-        return mapSupabaseUser(data);
-      }
-    } catch (e) {
-      console.error('Supabase getUserByEmail error:', e);
-    }
+    // Exact match: emails are stored lowercased; ilike would treat '_' and '%' as wildcards
+    const { data, error } = await sb.from('users').select('*').eq('email', normalized).maybeSingle();
+    if (error) supabaseFailure('getUserByEmail', error);
+    return data ? mapSupabaseUser(data) : null;
   }
-  return getUserByEmail(email);
+  return findLocalUserByEmail(ensureDbFile(), normalized);
 }
 
 export async function getUserByIdAsync(id: string): Promise<UserRecord | null> {
   const sb = getSupabase();
   if (sb) {
-    try {
-      const { data, error } = await sb.from('users').select('*').eq('id', id).maybeSingle();
-      if (!error && data) {
-        return mapSupabaseUser(data);
-      }
-    } catch (e) {
-      console.error('Supabase getUserById error:', e);
-    }
+    const { data, error } = await sb.from('users').select('*').eq('id', id).maybeSingle();
+    if (error) supabaseFailure('getUserById', error);
+    return data ? mapSupabaseUser(data) : null;
   }
-  return getUserById(id);
+  return ensureDbFile().users.find((u) => u.id === id) || null;
 }
 
 export async function createUserAsync(userData: {
@@ -598,41 +298,60 @@ export async function createUserAsync(userData: {
   avatarUrl?: string;
   role?: 'user' | 'admin';
 }): Promise<UserRecord> {
+  const { passwordHash, salt } = hashPassword(userData.password);
+  const id = randomId('USR');
+  const email = userData.email.trim().toLowerCase();
+  const name = userData.name.trim() || email.split('@')[0];
+  const now = new Date().toISOString();
+
   const sb = getSupabase();
   if (sb) {
-    try {
-      const { passwordHash, salt } = hashPassword(userData.password);
-      const id = `USR-${Date.now().toString().slice(-4)}`;
-      const now = new Date().toISOString();
-      const insertPayload: any = {
-        id,
-        name: userData.name,
-        email: userData.email.toLowerCase(),
-        phone: userData.phone || null,
-        password_hash: passwordHash,
-        salt,
-        balance: 0,
-        total_spent: 0,
-        vip_tier: 'vip1',
-        role: userData.role || 'user',
-        is_banned: false,
-        created_at: now,
-      };
-      if (userData.avatarUrl) {
-        insertPayload.avatar_url = userData.avatarUrl;
-      }
-      const { data, error } = await sb.from('users').insert(insertPayload).select().single();
-      if (!error && data) {
-        return mapSupabaseUser(data);
-      }
-      if (error) {
-        console.warn('Supabase insert user error (fallback to local):', error.message);
-      }
-    } catch (e) {
-      console.error('Supabase createUser error:', e);
+    const insertPayload: any = {
+      id,
+      name,
+      email,
+      phone: userData.phone?.trim() || null,
+      password_hash: passwordHash,
+      salt,
+      balance: 0,
+      total_spent: 0,
+      vip_tier: 'vip1',
+      role: userData.role || 'user',
+      is_banned: false,
+      created_at: now,
+    };
+    if (userData.avatarUrl) {
+      insertPayload.avatar_url = userData.avatarUrl;
     }
+    const { data, error } = await sb.from('users').insert(insertPayload).select().single();
+    if (error) {
+      if (error.code === '23505') throw new Error('بۇ ئېلخەت ئادرېسى ئاللىقاچان تىزىملاتقان');
+      supabaseFailure('createUser', error);
+    }
+    return mapSupabaseUser(data);
   }
-  return createUser(userData);
+
+  const db = ensureDbFile();
+  if (findLocalUserByEmail(db, email)) {
+    throw new Error('بۇ ئېلخەت ئادرېسى ئاللىقاچان تىزىملاتقان');
+  }
+  const newUser: UserRecord = {
+    id,
+    name,
+    email,
+    phone: userData.phone?.trim() || '',
+    avatarUrl: userData.avatarUrl || undefined,
+    passwordHash,
+    salt,
+    balance: 0.0,
+    totalSpent: 0.0,
+    vipTier: 'vip1',
+    role: userData.role || 'user',
+    createdAt: now,
+  };
+  db.users.push(newUser);
+  saveDb(db);
+  return newUser;
 }
 
 export async function updateUserAsync(
@@ -641,121 +360,232 @@ export async function updateUserAsync(
 ): Promise<UserRecord | null> {
   const sb = getSupabase();
   if (sb) {
-    try {
-      const dbUpdates: any = {};
-      if (updates.name !== undefined) dbUpdates.name = updates.name;
-      if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
-      if (updates.avatarUrl !== undefined) dbUpdates.avatar_url = updates.avatarUrl;
-      if (updates.balance !== undefined) dbUpdates.balance = updates.balance;
-      if (updates.totalSpent !== undefined) dbUpdates.total_spent = updates.totalSpent;
-      if (updates.vipTier !== undefined) dbUpdates.vip_tier = updates.vipTier;
-      if (updates.role !== undefined) dbUpdates.role = updates.role;
-      if (updates.isBanned !== undefined) dbUpdates.is_banned = updates.isBanned;
+    const dbUpdates: any = {};
+    if (updates.name !== undefined) dbUpdates.name = updates.name;
+    if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
+    if (updates.avatarUrl !== undefined) dbUpdates.avatar_url = updates.avatarUrl;
+    if (updates.vipTier !== undefined) dbUpdates.vip_tier = updates.vipTier;
+    if (updates.role !== undefined) dbUpdates.role = updates.role;
+    if (updates.isBanned !== undefined) dbUpdates.is_banned = updates.isBanned;
+    if (Object.keys(dbUpdates).length === 0) return getUserByIdAsync(id);
 
-      const { data, error } = await sb.from('users').update(dbUpdates).eq('id', id).select().maybeSingle();
-      if (!error && data) {
-        return mapSupabaseUser(data);
-      }
-    } catch (e) {
-      console.error('Supabase updateUser error:', e);
-    }
+    const { data, error } = await sb.from('users').update(dbUpdates).eq('id', id).select().maybeSingle();
+    if (error) supabaseFailure('updateUser', error);
+    return data ? mapSupabaseUser(data) : null;
   }
-  return updateUser(id, updates);
+
+  const db = ensureDbFile();
+  const index = db.users.findIndex((u) => u.id === id);
+  if (index === -1) return null;
+  const { balance, totalSpent, ...safeUpdates } = updates;
+  db.users[index] = { ...db.users[index], ...safeUpdates };
+  saveDb(db);
+  return db.users[index];
 }
 
-export async function adjustUserBalanceAsync(id: string, deltaAmount: number): Promise<UserRecord | null> {
+export async function updateUserPasswordAsync(id: string, newPassword: string): Promise<boolean> {
+  const { passwordHash, salt } = hashPassword(newPassword);
   const sb = getSupabase();
   if (sb) {
-    try {
-      const user = await getUserByIdAsync(id);
-      if (user) {
-        const newBalance = Math.max(0, Math.round((user.balance + deltaAmount) * 100) / 100);
-        return updateUserAsync(id, { balance: newBalance });
-      }
-    } catch (e) {
-      console.error('Supabase adjustUserBalance error:', e);
-    }
+    const { data, error } = await sb
+      .from('users')
+      .update({ password_hash: passwordHash, salt })
+      .eq('id', id)
+      .select('id')
+      .maybeSingle();
+    if (error) supabaseFailure('updateUserPassword', error);
+    return Boolean(data);
   }
-  return adjustUserBalance(id, deltaAmount);
+
+  const db = ensureDbFile();
+  const user = db.users.find((u) => u.id === id);
+  if (!user) return false;
+  user.passwordHash = passwordHash;
+  user.salt = salt;
+  saveDb(db);
+  return true;
+}
+
+/** Atomically add (or subtract) an amount from a user's balance; rejects if it would go negative. */
+export async function adjustUserBalanceAsync(id: string, deltaAmount: number): Promise<UserRecord | null> {
+  if (!Number.isFinite(deltaAmount)) throw new Error('سومما خاتا');
+  const sb = getSupabase();
+  if (sb) {
+    const { data, error } = await sb.rpc('adjust_user_balance', { p_user_id: id, p_delta: deltaAmount });
+    if (error) {
+      if (error.message?.includes('check_balance_non_negative')) throw new Error('ھەميان قالدۇقى يەتمىدى');
+      if (error.message?.includes('USER_NOT_FOUND')) return null;
+      supabaseFailure('adjust_user_balance (supabase_schema.sql نى قايتا ئىجرا قىلىڭ)', error);
+    }
+    if (!data?.success) return null;
+    return getUserByIdAsync(id);
+  }
+
+  const db = ensureDbFile();
+  const user = db.users.find((u) => u.id === id);
+  if (!user) return null;
+
+  const newBalance = Math.round((user.balance + deltaAmount) * 100) / 100;
+  if (newBalance < 0) {
+    throw new Error('ھەميان قالدۇقى يەتمىدى');
+  }
+  user.balance = newBalance;
+  saveDb(db);
+  return user;
 }
 
 export async function deleteUserAsync(id: string): Promise<boolean> {
   const sb = getSupabase();
   if (sb) {
-    try {
-      const { error } = await sb.from('users').delete().eq('id', id);
-      if (!error) return true;
-    } catch (e) {
-      console.error('Supabase deleteUser error:', e);
-    }
+    const { error } = await sb.from('users').delete().eq('id', id);
+    if (error) supabaseFailure('deleteUser', error);
+    return true;
   }
-  return deleteUser(id);
+
+  const db = ensureDbFile();
+  const index = db.users.findIndex((u) => u.id === id);
+  if (index === -1) return false;
+  db.users.splice(index, 1);
+  saveDb(db);
+  return true;
 }
+
+// ================= ORDER OPERATIONS =================
 
 export async function getAllOrdersAsync(): Promise<OrderRecord[]> {
   const sb = getSupabase();
   if (sb) {
-    try {
-      const { data, error } = await sb.from('orders').select('*').order('created_at', { ascending: false });
-      if (!error && data) {
-        return data.map(mapSupabaseOrder);
-      }
-    } catch (e) {
-      console.error('Supabase getAllOrders error:', e);
-    }
+    const { data, error } = await sb.from('orders').select('*').order('created_at', { ascending: false });
+    if (error) supabaseFailure('getAllOrders', error);
+    return (data || []).map(mapSupabaseOrder);
   }
-  return getAllOrders();
+  return ensureDbFile().orders;
 }
 
-export async function createOrderAsync(orderData: Omit<OrderRecord, 'id' | 'createdAt'>): Promise<OrderRecord> {
+/**
+ * Rows owned by a user: matched by user_id, plus legacy rows that were stored without a
+ * user_id but with the user's email. Two queries instead of a PostgREST `or()` filter string,
+ * which would need the email escaped.
+ */
+async function selectOwnedRows(table: 'orders' | 'deposits', userId: string, userEmail: string): Promise<any[]> {
+  const sb = getSupabase()!;
+  const [byId, byLegacyEmail] = await Promise.all([
+    sb.from(table).select('*').eq('user_id', userId),
+    sb.from(table).select('*').is('user_id', null).eq('user_email', userEmail.trim().toLowerCase()),
+  ]);
+  if (byId.error) supabaseFailure(`${table} by user`, byId.error);
+  if (byLegacyEmail.error) supabaseFailure(`${table} by legacy email`, byLegacyEmail.error);
+  return [...(byId.data || []), ...(byLegacyEmail.data || [])].sort((a, b) =>
+    String(b.created_at).localeCompare(String(a.created_at))
+  );
+}
+
+function isOwnedLocally(record: { userId?: string; userEmail?: string }, userId: string, userEmail: string): boolean {
+  if (record.userId) return record.userId === userId;
+  return Boolean(record.userEmail) && record.userEmail!.toLowerCase() === userEmail.trim().toLowerCase();
+}
+
+export async function getOrdersByUserIdAsync(userId: string, userEmail: string): Promise<OrderRecord[]> {
+  if (getSupabase()) {
+    return (await selectOwnedRows('orders', userId, userEmail)).map(mapSupabaseOrder);
+  }
+  return ensureDbFile().orders.filter((o) => isOwnedLocally(o, userId, userEmail));
+}
+
+/** Update an order's status and/or merge extra fields into its details. */
+export async function updateOrderAsync(
+  orderId: string,
+  changes: { status?: OrderRecord['status']; detailsPatch?: Record<string, any> }
+): Promise<OrderRecord | null> {
   const sb = getSupabase();
   if (sb) {
-    try {
-      const id = `ORD-${Date.now().toString().slice(-6)}`;
-      const now = new Date().toISOString();
-      const insertPayload = {
-        id,
-        user_id: orderData.userId || null,
-        user_email: orderData.userEmail || null,
-        service_id: orderData.serviceId,
-        service_name: orderData.serviceName,
-        package_title: orderData.packageTitle,
-        amount: orderData.amount,
-        target_account: orderData.targetAccount,
-        status: orderData.status,
-        details: orderData.details || {},
-        created_at: now,
-      };
-      const { data, error } = await sb.from('orders').insert(insertPayload).select().single();
-      if (!error && data) {
-        if (orderData.userId) {
-          await adjustUserBalanceAsync(orderData.userId, -orderData.amount);
-        }
-        return mapSupabaseOrder(data);
-      }
-    } catch (e) {
-      console.error('Supabase createOrder error:', e);
+    const dbUpdates: any = {};
+    if (changes.status) dbUpdates.status = changes.status;
+    if (changes.detailsPatch) {
+      const { data: existing, error: readErr } = await sb.from('orders').select('details').eq('id', orderId).maybeSingle();
+      if (readErr) supabaseFailure('readOrderDetails', readErr);
+      if (!existing) return null;
+      dbUpdates.details = { ...(existing.details || {}), ...changes.detailsPatch };
     }
+    const { data, error } = await sb.from('orders').update(dbUpdates).eq('id', orderId).select().maybeSingle();
+    if (error) supabaseFailure('updateOrder', error);
+    return data ? mapSupabaseOrder(data) : null;
   }
-  return createOrder(orderData);
+
+  const db = ensureDbFile();
+  const order = db.orders.find((o) => o.id === orderId);
+  if (!order) return null;
+  if (changes.status) order.status = changes.status;
+  if (changes.detailsPatch) order.details = { ...(order.details || {}), ...changes.detailsPatch };
+  saveDb(db);
+  return order;
+}
+
+/**
+ * Compare-and-set: moves the order to `to` (or keeps its status when null) and merges `patch`
+ * into its details, but only while its status is one of `from`. Returns null when it wasn't.
+ */
+export async function transitionOrderAsync(
+  orderId: string,
+  from: OrderRecord['status'][],
+  to: OrderRecord['status'] | null,
+  patch: Record<string, any> = {}
+): Promise<OrderRecord | null> {
+  const sb = getSupabase();
+  if (sb) {
+    const { data, error } = await sb.rpc('transition_order', {
+      p_order_id: orderId,
+      p_from: from,
+      p_to: to,
+      p_patch: patch,
+    });
+    if (error) supabaseFailure('transition_order (supabase_schema.sql نى قايتا ئىجرا قىلىڭ)', error);
+    return data?.success && data.order ? mapSupabaseOrder(data.order) : null;
+  }
+
+  const db = ensureDbFile();
+  const order = db.orders.find((o) => o.id === orderId);
+  if (!order || !from.includes(order.status)) return null;
+  if (to) order.status = to;
+  order.details = { ...(order.details || {}), ...patch };
+  saveDb(db);
+  return order;
+}
+
+/** Orders that may still be waiting on the provider (oldest first). */
+export async function getInFlightProviderOrdersAsync(limit = 100): Promise<OrderRecord[]> {
+  const sb = getSupabase();
+  if (sb) {
+    const { data, error } = await sb
+      .from('orders')
+      .select('*')
+      .in('status', ['pending_provider', 'processing'])
+      .order('created_at', { ascending: true })
+      .limit(limit);
+    if (error) supabaseFailure('getInFlightProviderOrders', error);
+    return (data || []).map(mapSupabaseOrder).filter((o) => o.details?.providerProductId);
+  }
+  return ensureDbFile()
+    .orders.filter((o) => (o.status === 'pending_provider' || o.status === 'processing') && o.details?.providerProductId)
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    .slice(0, limit);
+}
+
+export async function getOrderByIdAsync(orderId: string): Promise<OrderRecord | null> {
+  const sb = getSupabase();
+  if (sb) {
+    const { data, error } = await sb.from('orders').select('*').eq('id', orderId).maybeSingle();
+    if (error) supabaseFailure('getOrderById', error);
+    return data ? mapSupabaseOrder(data) : null;
+  }
+  return ensureDbFile().orders.find((o) => o.id === orderId) || null;
 }
 
 export async function updateOrderStatusAsync(
   orderId: string,
   newStatus: OrderRecord['status']
 ): Promise<OrderRecord | null> {
-  const sb = getSupabase();
-  if (sb) {
-    try {
-      const { data, error } = await sb.from('orders').update({ status: newStatus }).eq('id', orderId).select().maybeSingle();
-      if (!error && data) {
-        return mapSupabaseOrder(data);
-      }
-    } catch (e) {
-      console.error('Supabase updateOrderStatus error:', e);
-    }
-  }
-  return updateOrderStatus(orderId, newStatus);
+  return updateOrderAsync(orderId, { status: newStatus });
 }
 
 export interface AtomicOrderResult {
@@ -778,6 +608,10 @@ export async function deductBalanceAndCreateOrderAtomicAsync(params: {
   orderId: string;
   details?: any;
 }): Promise<AtomicOrderResult> {
+  if (!Number.isFinite(params.amount) || params.amount <= 0) {
+    return { success: false, message: 'سومما خاتا' };
+  }
+
   const sb = getSupabase();
   if (sb) {
     try {
@@ -794,33 +628,36 @@ export async function deductBalanceAndCreateOrderAtomicAsync(params: {
         p_details: params.details || {},
       });
 
-      if (!error && data) {
-        if (data.success) {
-          const rawOrder = data.order || (data.data?.orderId ? { id: data.data.orderId } : null);
-          return {
-            success: true,
-            order: rawOrder ? mapSupabaseOrder(rawOrder) : undefined,
-            newBalance: Number(data.newBalance ?? data.data?.newBalance ?? 0),
-            isCached: Boolean(data.is_cached),
-          };
-        }
-        return { success: false, message: data.message || 'ترانزاكسىيە رەت قىلىندى' };
-      }
       if (error) {
         console.error('Supabase RPC deduct_balance_and_create_order error:', error);
         return { success: false, message: error.message };
       }
+      if (!data?.success) {
+        return { success: false, message: data?.message || 'ترانزاكسىيە رەت قىلىندى' };
+      }
+      if (data.is_cached) {
+        const cachedOrderId = data.orderId || data.data?.orderId;
+        return {
+          success: true,
+          isCached: true,
+          order: cachedOrderId ? ({ id: cachedOrderId } as OrderRecord) : undefined,
+          newBalance: Number(data.data?.newBalance ?? 0),
+        };
+      }
+      return {
+        success: true,
+        order: data.order ? mapSupabaseOrder(data.order) : undefined,
+        newBalance: Number(data.newBalance ?? 0),
+      };
     } catch (e: any) {
       console.error('Supabase RPC execution exception:', e);
       return { success: false, message: e?.message || 'ساندان ترانزاكسىيە كاشىلىسى' };
     }
   }
 
-  // Fallback to local DB with atomic check
+  // Local DB (single process): check and deduct synchronously
   const db = ensureDbFile();
-  const user = db.users.find(
-    (u) => u.id === params.userId || (params.userEmail && u.email.toLowerCase() === params.userEmail.toLowerCase())
-  );
+  const user = db.users.find((u) => u.id === params.userId);
   if (!user) {
     return { success: false, message: 'ئابونت تېپىلمىدى' };
   }
@@ -831,8 +668,9 @@ export async function deductBalanceAndCreateOrderAtomicAsync(params: {
     };
   }
 
-  user.balance = Math.max(0, Math.round((user.balance - params.amount) * 100) / 100);
+  user.balance = Math.round((user.balance - params.amount) * 100) / 100;
   user.totalSpent = Math.round(((user.totalSpent || 0) + params.amount) * 100) / 100;
+  updateVipTier(user);
 
   const newOrder: OrderRecord = {
     id: params.orderId,
@@ -858,9 +696,16 @@ export async function deductBalanceAndCreateOrderAtomicAsync(params: {
   };
 }
 
+const REFUNDABLE_STATUSES: OrderRecord['status'][] = ['processing', 'pending', 'pending_provider', 'failed'];
+
+/**
+ * Refunds an order to the buyer's wallet. Completed orders are only refundable with `force`
+ * (an explicit admin decision), so a late provider "failed" can never refund delivered goods.
+ */
 export async function refundOrderBalanceAtomicAsync(
   orderId: string,
-  reason: string = 'Provider Error'
+  reason: string = 'Provider Error',
+  force = false
 ): Promise<{ success: boolean; newBalance?: number; message?: string }> {
   const sb = getSupabase();
   if (sb) {
@@ -868,37 +713,38 @@ export async function refundOrderBalanceAtomicAsync(
       const { data, error } = await sb.rpc('refund_order_balance', {
         p_order_id: orderId,
         p_reason: reason,
+        p_force: force,
       });
-
-      if (!error && data && data.success) {
-        return {
-          success: true,
-          newBalance: Number(data.newBalance ?? 0),
-        };
-      }
       if (error) {
         console.error('Supabase refund_order_balance RPC error:', error);
+        return { success: false, message: error.message };
       }
+      if (!data?.success) {
+        return { success: false, message: data?.message || 'پۇل قايتۇرۇش رەت قىلىندى' };
+      }
+      return { success: true, newBalance: Number(data.newBalance ?? 0) };
     } catch (e: any) {
       console.error('Supabase refund RPC exception:', e);
+      return { success: false, message: e?.message || 'پۇل قايتۇرۇش مەغلۇپ بولدى' };
     }
   }
 
-  // Fallback to local DB
   const db = ensureDbFile();
   const order = db.orders.find((o) => o.id === orderId);
   if (!order) return { success: false, message: 'زاكاز تېپىلمىدى' };
   if (order.status === 'refunded' || order.status === 'cancelled') {
     return { success: false, message: 'زاكاز ئاللىقاچان پۇلى قايتۇرۇلغان' };
   }
+  if (!REFUNDABLE_STATUSES.includes(order.status) && !force) {
+    return { success: false, message: 'ORDER_NOT_REFUNDABLE' };
+  }
 
-  const user = db.users.find(
-    (u) => u.id === order.userId || (order.userEmail && u.email.toLowerCase() === order.userEmail.toLowerCase())
-  );
+  const user = db.users.find((u) => u.id === order.userId);
   let newBalance = 0;
   if (user) {
     user.balance = Math.round((user.balance + order.amount) * 100) / 100;
     user.totalSpent = Math.max(0, Math.round(((user.totalSpent || 0) - order.amount) * 100) / 100);
+    updateVipTier(user);
     newBalance = user.balance;
   }
 
@@ -909,128 +755,146 @@ export async function refundOrderBalanceAtomicAsync(
   return { success: true, newBalance };
 }
 
+// ================= DEPOSIT OPERATIONS =================
+
 export async function getAllDepositsAsync(): Promise<DepositRecord[]> {
   const sb = getSupabase();
   if (sb) {
-    try {
-      const { data, error } = await sb.from('deposits').select('*').order('created_at', { ascending: false });
-      if (!error && data) {
-        return data.map(mapSupabaseDeposit);
-      }
-    } catch (e) {
-      console.error('Supabase getAllDeposits error:', e);
-    }
+    const { data, error } = await sb.from('deposits').select('*').order('created_at', { ascending: false });
+    if (error) supabaseFailure('getAllDeposits', error);
+    return (data || []).map(mapSupabaseDeposit);
   }
-  return getAllDeposits();
+  return ensureDbFile().deposits;
+}
+
+export async function getDepositsByUserIdAsync(userId: string, userEmail: string): Promise<DepositRecord[]> {
+  if (getSupabase()) {
+    return (await selectOwnedRows('deposits', userId, userEmail)).map(mapSupabaseDeposit);
+  }
+  return ensureDbFile().deposits.filter((d) => isOwnedLocally(d, userId, userEmail));
 }
 
 export async function createDepositAsync(
-  depositData: Omit<DepositRecord, 'id' | 'date'> & { date?: string; status?: DepositRecord['status'] }
+  depositData: Omit<DepositRecord, 'id' | 'date' | 'status'>
 ): Promise<DepositRecord> {
+  const id = randomId('DEP');
+  const date = nowFormatted();
+  const method = depositData.method || 'شامكەش (Sham Cash)';
+
   const sb = getSupabase();
   if (sb) {
-    try {
-      const id = `DEP-${Date.now().toString().slice(-5)}`;
-      const nowFormatted = new Date().toISOString().replace('T', ' ').substring(0, 16);
-      const insertPayload = {
-        id,
-        user_id: depositData.userId || null,
-        user_name: depositData.userName,
-        user_email: depositData.userEmail,
-        method: depositData.method || 'شامكەش (Sham Cash)',
-        amount: depositData.amount,
-        status: 'pending',
-        date: depositData.date || nowFormatted,
-        tx_id: depositData.txId || null,
-        created_at: new Date().toISOString(),
-      };
-      const { data, error } = await sb.from('deposits').insert(insertPayload).select().single();
-      if (!error && data) {
-        return mapSupabaseDeposit(data);
-      }
-    } catch (e) {
-      console.error('Supabase createDeposit error:', e);
-    }
+    const insertPayload = {
+      id,
+      user_id: depositData.userId || null,
+      user_name: depositData.userName,
+      user_email: depositData.userEmail,
+      method,
+      amount: depositData.amount,
+      status: 'pending',
+      date,
+      tx_id: depositData.txId || null,
+      created_at: new Date().toISOString(),
+    };
+    const { data, error } = await sb.from('deposits').insert(insertPayload).select().single();
+    if (error) supabaseFailure('createDeposit', error);
+    return mapSupabaseDeposit(data);
   }
-  return createDeposit(depositData);
+
+  const db = ensureDbFile();
+  const newDeposit: DepositRecord = { id, ...depositData, method, status: 'pending', date };
+  db.deposits.unshift(newDeposit);
+  saveDb(db);
+  return newDeposit;
 }
 
+export class DepositReviewError extends Error {}
+
+/**
+ * Approve or reject a pending deposit. Approving credits the user's wallet in the
+ * same transaction; a deposit that is no longer pending can't be reviewed again.
+ */
 export async function updateDepositStatusAsync(
   depositId: string,
   newStatus: 'completed' | 'rejected'
 ): Promise<DepositRecord | null> {
+  const reviewedAt = nowFormatted();
   const sb = getSupabase();
   if (sb) {
-    try {
-      const nowFormatted = new Date().toISOString().replace('T', ' ').substring(0, 16);
-      const { data: existing } = await sb.from('deposits').select('*').eq('id', depositId).maybeSingle();
-      const previousStatus = existing?.status;
-
-      const { data, error } = await sb
-        .from('deposits')
-        .update({ status: newStatus, reviewed_at: nowFormatted })
-        .eq('id', depositId)
-        .select()
-        .maybeSingle();
-
-      if (!error && data) {
-        if (newStatus === 'completed' && previousStatus === 'pending') {
-          if (data.user_id) {
-            await adjustUserBalanceAsync(data.user_id, Number(data.amount));
-          } else if (data.user_email) {
-            const user = await getUserByEmailAsync(data.user_email);
-            if (user) {
-              await adjustUserBalanceAsync(user.id, Number(data.amount));
-            }
-          }
-        }
-        return mapSupabaseDeposit(data);
+    const { data, error } = await sb.rpc('review_deposit', {
+      p_deposit_id: depositId,
+      p_status: newStatus,
+      p_reviewed_at: reviewedAt,
+    });
+    if (error) {
+      if (error.message?.includes('DEPOSIT_NOT_FOUND')) return null;
+      if (error.message?.includes('DEPOSIT_ALREADY_REVIEWED')) {
+        throw new DepositReviewError('بۇ پۇل كىرگۈزۈش ئاللىقاچان تەكشۈرۈلگەن');
       }
-    } catch (e) {
-      console.error('Supabase updateDepositStatus error:', e);
+      if (error.message?.includes('USER_NOT_FOUND')) {
+        throw new DepositReviewError('پۇل كىرگۈزگەن ئىشلەتكۈچى تېپىلمىدى');
+      }
+      supabaseFailure('review_deposit (supabase_schema.sql نى قايتا ئىجرا قىلىڭ)', error);
     }
+    return data?.deposit ? mapSupabaseDeposit(data.deposit) : null;
   }
-  return updateDepositStatus(depositId, newStatus);
+
+  const db = ensureDbFile();
+  const deposit = db.deposits.find((d) => d.id === depositId);
+  if (!deposit) return null;
+  if (deposit.status !== 'pending') {
+    throw new DepositReviewError('بۇ پۇل كىرگۈزۈش ئاللىقاچان تەكشۈرۈلگەن');
+  }
+
+  if (newStatus === 'completed') {
+    const targetUser =
+      (deposit.userId && db.users.find((u) => u.id === deposit.userId)) ||
+      (deposit.userEmail && findLocalUserByEmail(db, deposit.userEmail)) ||
+      null;
+    if (!targetUser) {
+      throw new DepositReviewError('پۇل كىرگۈزگەن ئىشلەتكۈچى تېپىلمىدى');
+    }
+    targetUser.balance = Math.round((targetUser.balance + deposit.amount) * 100) / 100;
+  }
+
+  deposit.status = newStatus;
+  deposit.reviewedAt = reviewedAt;
+  saveDb(db);
+  return deposit;
 }
+
+// ================= SETTINGS OPERATIONS =================
 
 export async function getSystemSettingsAsync(): Promise<SystemSettings> {
   const sb = getSupabase();
   if (sb) {
-    try {
-      const { data, error } = await sb.from('system_settings').select('*').eq('id', 'global').maybeSingle();
-      if (!error && data) {
-        return mapSupabaseSettings(data);
-      }
-    } catch (e) {
-      console.error('Supabase getSystemSettings error:', e);
-    }
+    const { data, error } = await sb.from('system_settings').select('*').eq('id', 'global').maybeSingle();
+    if (error) supabaseFailure('getSystemSettings', error);
+    return mapSupabaseSettings(data || {});
   }
-  return getSystemSettings();
+  return ensureDbFile().settings;
 }
 
 export async function updateSystemSettingsAsync(updates: Partial<SystemSettings>): Promise<SystemSettings> {
   const sb = getSupabase();
   if (sb) {
-    try {
-      const dbUpdates: any = { updated_at: new Date().toISOString() };
-      if (updates.adminPin) dbUpdates.admin_pin = updates.adminPin;
-      if (updates.shamcashAddress) dbUpdates.shamcash_address = updates.shamcashAddress;
-      if (updates.whatsappNumber) dbUpdates.whatsapp_number = updates.whatsappNumber;
-      if (updates.telegramUsername) dbUpdates.telegram_username = updates.telegramUsername;
-      if (updates.siteName) dbUpdates.site_name = updates.siteName;
+    const dbUpdates: any = { updated_at: new Date().toISOString() };
+    if (updates.adminPin) dbUpdates.admin_pin = updates.adminPin;
+    if (updates.shamcashAddress) dbUpdates.shamcash_address = updates.shamcashAddress;
+    if (updates.whatsappNumber) dbUpdates.whatsapp_number = updates.whatsappNumber;
+    if (updates.telegramUsername) dbUpdates.telegram_username = updates.telegramUsername;
+    if (updates.siteName) dbUpdates.site_name = updates.siteName;
 
-      const { data, error } = await sb
-        .from('system_settings')
-        .upsert({ id: 'global', ...dbUpdates })
-        .select()
-        .maybeSingle();
-
-      if (!error && data) {
-        return mapSupabaseSettings(data);
-      }
-    } catch (e) {
-      console.error('Supabase updateSystemSettings error:', e);
-    }
+    const { data, error } = await sb
+      .from('system_settings')
+      .upsert({ id: 'global', ...dbUpdates })
+      .select()
+      .maybeSingle();
+    if (error) supabaseFailure('updateSystemSettings', error);
+    return mapSupabaseSettings(data || {});
   }
-  return updateSystemSettings(updates);
+
+  const db = ensureDbFile();
+  db.settings = { ...db.settings, ...updates };
+  saveDb(db);
+  return db.settings;
 }

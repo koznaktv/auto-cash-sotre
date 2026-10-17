@@ -1,29 +1,26 @@
 import { NextResponse } from 'next/server';
 import {
   getAllDepositsAsync,
+  getDepositsByUserIdAsync,
   createDepositAsync,
   updateDepositStatusAsync,
-  getUserByEmailAsync,
-  getUserByIdAsync,
+  DepositReviewError,
 } from '@/lib/db';
-import { verifyAdminToken } from '@/lib/adminAuth';
+import { verifyAdminToken, hasAdminBearer } from '@/lib/adminAuth';
+import { getSessionUser, unauthorizedResponse } from '@/lib/session';
+
+const MAX_DEPOSIT_AMOUNT = 10000;
 
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('userId');
-    const userEmail = searchParams.get('userEmail');
-
-    let deposits = await getAllDepositsAsync();
-    if (userId) {
-      deposits = deposits.filter((d) => d.userId === userId);
-    } else if (userEmail) {
-      deposits = deposits.filter(
-        (d) => d.userEmail?.toLowerCase() === userEmail.toLowerCase()
-      );
+    if (hasAdminBearer(req)) {
+      return NextResponse.json({ success: true, deposits: await getAllDepositsAsync() });
     }
 
-    return NextResponse.json({ success: true, deposits });
+    const user = await getSessionUser(req);
+    if (!user) return unauthorizedResponse();
+
+    return NextResponse.json({ success: true, deposits: await getDepositsByUserIdAsync(user.id, user.email) });
   } catch (err: any) {
     return NextResponse.json(
       { success: false, message: err?.message || 'تالونلارنى ئېلىشتا خاتالىق كۆرۈلدى' },
@@ -34,25 +31,8 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { amount, method, txId, userName, userEmail, userId } = body;
-
-    const parsedAmount = Number(amount);
-    if (!parsedAmount || parsedAmount <= 0) {
-      return NextResponse.json(
-        { success: false, message: 'سومما توغرا كىرگۈزۈلمىدى' },
-        { status: 400 }
-      );
-    }
-
-    let resolvedUser = null;
-    if (userId) {
-      resolvedUser = await getUserByIdAsync(userId);
-    } else if (userEmail) {
-      resolvedUser = await getUserByEmailAsync(userEmail);
-    }
-
-    if (!resolvedUser) {
+    const user = await getSessionUser(req);
+    if (!user) {
       return NextResponse.json(
         {
           success: false,
@@ -62,14 +42,28 @@ export async function POST(req: Request) {
       );
     }
 
+    const body = await req.json();
+    const { amount, method, txId } = body;
+
+    const parsedAmount = Math.round(Number(amount) * 100) / 100;
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0 || parsedAmount > MAX_DEPOSIT_AMOUNT) {
+      return NextResponse.json(
+        { success: false, message: 'سومما توغرا كىرگۈزۈلمىدى' },
+        { status: 400 }
+      );
+    }
+
     const newDeposit = await createDepositAsync({
-      userId: resolvedUser.id,
-      userName: resolvedUser.name,
-      userEmail: resolvedUser.email,
-      method: method || 'شامكەش (Sham Cash)',
+      userId: user.id,
+      userName: user.name,
+      userEmail: user.email,
+      method: typeof method === 'string' && method.trim() ? method.trim().slice(0, 60) : 'شامكەش (Sham Cash)',
       amount: parsedAmount,
-      status: 'pending', // Pending admin verification!
-      txId: txId || `SC-${Math.floor(10000000 + Math.random() * 90000000)}`,
+      // Pending admin verification!
+      txId:
+        typeof txId === 'string' && txId.trim()
+          ? txId.trim().slice(0, 64)
+          : `SC-${Math.floor(10000000 + Math.random() * 90000000)}`,
     });
 
     return NextResponse.json({ success: true, deposit: newDeposit });
@@ -93,7 +87,7 @@ export async function PATCH(req: Request) {
     const body = await req.json();
     const { depositId, status } = body;
 
-    if (status !== 'completed' && status !== 'rejected') {
+    if (typeof depositId !== 'string' || (status !== 'completed' && status !== 'rejected')) {
       return NextResponse.json(
         { success: false, message: 'ھالەت تۈرى خاتا' },
         { status: 400 }
@@ -110,6 +104,9 @@ export async function PATCH(req: Request) {
 
     return NextResponse.json({ success: true, deposit: updated });
   } catch (err: any) {
+    if (err instanceof DepositReviewError) {
+      return NextResponse.json({ success: false, message: err.message }, { status: 409 });
+    }
     return NextResponse.json(
       { success: false, message: err?.message || 'ھالەتنى يېڭىلاش مەغلۇپ بولدى' },
       { status: 500 }

@@ -23,6 +23,13 @@ yarn-error.log*
 Thumbs.db
 .DS_Store
 
+# Local-mode database (users, password hashes, orders) — production uses Supabase
+data/autocash_db.json
+
+# Local provider catalog cache / API call log (contains raw provider responses)
+data/provider_catalog.json
+data/provider_calls.json
+
 # Temporary scripts
 generate_data.js
 update_apps.js

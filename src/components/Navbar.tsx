@@ -1,5 +1,6 @@
 'use client';
 
+import { clearLocalAuth, logout } from '@/lib/clientAuth';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import SideDrawer from '@/components/SideDrawer';
@@ -52,9 +53,14 @@ export default function Navbar({
           avatarUrl: savedAvatar,
         });
 
-        fetch(`/api/auth/me?email=${encodeURIComponent(savedEmail)}`)
-          .then((r) => r.json())
-          .then((data) => {
+        fetch('/api/auth/me')
+          .then(async (r) => {
+            if (r.status === 401) {
+              clearLocalAuth();
+              setInternalUser(null);
+              return;
+            }
+            const data = await r.json();
             if (data.success && data.user) {
               setInternalUser(data.user);
               if (data.user.avatarUrl) {
@@ -327,9 +333,7 @@ export default function Navbar({
             user={activeUser}
             onOpenAuth={() => setInternalAuthOpen(true)}
             onLogout={() => {
-              localStorage.setItem('autocash_is_logged_in', 'false');
-              localStorage.removeItem('autocash_username');
-              localStorage.removeItem('autocash_email');
+              logout();
               setInternalUser(null);
             }}
           />

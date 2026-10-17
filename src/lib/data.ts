@@ -1,3 +1,22 @@
+import type { CheckoutField, QtyRule } from './catalog/types';
+
+export interface ServicePackage {
+  id: string;
+  title: string;
+  /** Sell price; for 'amount' products this is the price of the minimum quantity. */
+  price: number;
+  originalPrice?: number;
+  duration?: string;
+  // Present on packages that come from the syria4game catalog
+  providerProductId?: number;
+  productType?: 'amount' | 'fixed';
+  /** Sell price per unit for 'amount' products. */
+  unitPrice?: number;
+  qty?: QtyRule;
+  fields?: CheckoutField[];
+  available?: boolean;
+}
+
 export interface ServiceItem {
   id: string;
   name: string;
@@ -6,9 +25,10 @@ export interface ServiceItem {
   image?: string;
   description: string;
   badge?: string;
-  packages: { id: string; title: string; price: number; originalPrice?: number; duration?: string; }[];
+  packages: ServicePackage[];
   inputPlaceholder?: string;
   inputLabel?: string;
+  source?: 'legacy' | 'provider';
 }
 
 export const CATEGORIES_9 = [
