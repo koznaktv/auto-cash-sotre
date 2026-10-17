@@ -88,6 +88,33 @@ ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS tx_id TEXT;
 ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS reviewed_at TEXT;
 ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 
+-- Ensure id and user_id column types are TEXT (handles cases where tables were created with UUID)
+DO $$
+DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN (
+        SELECT constraint_name, table_name
+        FROM information_schema.table_constraints
+        WHERE table_schema = 'public' 
+          AND table_name IN ('deposits', 'orders', 'users')
+          AND constraint_type = 'FOREIGN KEY'
+    ) LOOP
+        EXECUTE 'ALTER TABLE public.' || quote_ident(r.table_name) || ' DROP CONSTRAINT IF EXISTS ' || quote_ident(r.constraint_name);
+    END LOOP;
+END $$;
+
+ALTER TABLE public.deposits ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE public.deposits ALTER COLUMN id TYPE TEXT USING id::text;
+ALTER TABLE public.deposits ALTER COLUMN user_id TYPE TEXT USING user_id::text;
+
+ALTER TABLE public.orders ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE public.orders ALTER COLUMN id TYPE TEXT USING id::text;
+ALTER TABLE public.orders ALTER COLUMN user_id TYPE TEXT USING user_id::text;
+
+ALTER TABLE public.users ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE public.users ALTER COLUMN id TYPE TEXT USING id::text;
+
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'orders' AND column_name = 'email') THEN
