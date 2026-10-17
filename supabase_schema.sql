@@ -359,22 +359,22 @@ BEGIN
     RETURN jsonb_build_object('success', false, 'message', 'ORDER_NOT_REFUNDABLE');
   END IF;
 
-  -- ئابونت قالدۇقىنى قۇلۇپلاپ ئەسلىگە كەلتۈرۈش
-  IF v_order.user_id IS NOT NULL THEN
-    SELECT * INTO v_user
-    FROM public.users
-    WHERE id = v_order.user_id
-    FOR UPDATE;
+  -- ئابونت قالدۇقىنى قۇلۇپلاپ ئەسلىگە كەلتۈرۈش (ID ياكى Email ئارقىلىق تاپىدۇ)
+  SELECT * INTO v_user
+  FROM public.users
+  WHERE (v_order.user_id IS NOT NULL AND v_order.user_id <> '' AND id = v_order.user_id)
+     OR (v_order.user_email IS NOT NULL AND lower(email) = lower(v_order.user_email))
+  LIMIT 1
+  FOR UPDATE;
 
-    IF FOUND THEN
-      v_new_balance := v_user.balance + v_order.amount;
-      
-      UPDATE public.users
-      SET 
-        balance = v_new_balance,
-        total_spent = GREATEST(0, total_spent - v_order.amount)
-      WHERE id = v_order.user_id;
-    END IF;
+  IF FOUND THEN
+    v_new_balance := v_user.balance + v_order.amount;
+    
+    UPDATE public.users
+    SET 
+      balance = v_new_balance,
+      total_spent = GREATEST(0, total_spent - v_order.amount)
+    WHERE id = v_user.id;
   END IF;
 
   -- زاكاز ھالىتىنى 'refunded' كە ئۆزگەرتىش
@@ -432,7 +432,8 @@ SET search_path = public
 AS $$
 DECLARE
   v_deposit RECORD;
-  v_user_id TEXT;
+  v_user RECORD;
+  v_amount NUMERIC;
 BEGIN
   IF p_status NOT IN ('completed', 'rejected') THEN
     RAISE EXCEPTION 'INVALID_STATUS';
@@ -452,21 +453,22 @@ BEGIN
   END IF;
 
   IF p_status = 'completed' THEN
-    v_user_id := v_deposit.user_id;
-    IF v_user_id IS NULL THEN
-      SELECT id INTO v_user_id FROM public.users WHERE email = lower(v_deposit.user_email);
-    END IF;
-    IF v_user_id IS NULL THEN
-      RAISE EXCEPTION 'USER_NOT_FOUND';
-    END IF;
-
-    UPDATE public.users
-    SET balance = balance + v_deposit.amount
-    WHERE id = v_user_id;
+    SELECT * INTO v_user
+    FROM public.users
+    WHERE (v_deposit.user_id IS NOT NULL AND v_deposit.user_id <> '' AND id = v_deposit.user_id)
+       OR (v_deposit.user_email IS NOT NULL AND lower(email) = lower(v_deposit.user_email))
+    LIMIT 1
+    FOR UPDATE;
 
     IF NOT FOUND THEN
       RAISE EXCEPTION 'USER_NOT_FOUND';
     END IF;
+
+    v_amount := COALESCE(v_deposit.amount, 0);
+
+    UPDATE public.users
+    SET balance = balance + v_amount
+    WHERE id = v_user.id;
   END IF;
 
   UPDATE public.deposits

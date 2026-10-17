@@ -34,7 +34,7 @@ export default function Navbar({
   const { lang, setLang, t, isRTL } = useLanguage();
   const [internalDrawerOpen, setInternalDrawerOpen] = useState(false);
   const [internalAuthOpen, setInternalAuthOpen] = useState(false);
-  const [internalUser, setInternalUser] = useState<{ name: string; email: string; id?: string; avatarUrl?: string } | null>(null);
+  const [internalUser, setInternalUser] = useState<{ name: string; email: string; id?: string; balance?: number; avatarUrl?: string } | null>(null);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -266,7 +266,7 @@ export default function Navbar({
                 </span>
                 <span className="font-extrabold text-amber-300 font-mono text-[11px] sm:text-xs flex items-center gap-0.5" dir="ltr">
                   <span className="animate-dollar-float text-amber-300">$</span>
-                  <span>{balance.toFixed(2)}</span>
+                  <span>{((typeof activeUser?.balance === 'number') ? activeUser.balance : (balance || 0)).toFixed(2)}</span>
                 </span>
               </div>
             </Link>

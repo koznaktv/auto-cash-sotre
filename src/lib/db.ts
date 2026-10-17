@@ -470,20 +470,35 @@ export async function getAllOrdersAsync(): Promise<OrderRecord[]> {
  */
 async function selectOwnedRows(table: 'orders' | 'deposits', userId: string, userEmail: string): Promise<any[]> {
   const sb = getSupabase()!;
-  const [byId, byLegacyEmail] = await Promise.all([
-    sb.from(table).select('*').eq('user_id', userId),
-    sb.from(table).select('*').is('user_id', null).eq('user_email', userEmail.trim().toLowerCase()),
-  ]);
-  if (byId.error) supabaseFailure(`${table} by user`, byId.error);
-  if (byLegacyEmail.error) supabaseFailure(`${table} by legacy email`, byLegacyEmail.error);
-  return [...(byId.data || []), ...(byLegacyEmail.data || [])].sort((a, b) =>
-    String(b.created_at).localeCompare(String(a.created_at))
+  const cleanEmail = (userEmail || '').trim().toLowerCase();
+  const queries: Promise<any>[] = [];
+
+  if (userId) {
+    queries.push(sb.from(table).select('*').eq('user_id', userId));
+  }
+  if (cleanEmail) {
+    queries.push(sb.from(table).select('*').ilike('user_email', cleanEmail));
+  }
+
+  const results = await Promise.all(queries);
+  const map = new Map<string, any>();
+  for (const res of results) {
+    if (res.data) {
+      for (const row of res.data) {
+        map.set(row.id, row);
+      }
+    }
+  }
+
+  return Array.from(map.values()).sort((a, b) =>
+    String(b.created_at || b.date || '').localeCompare(String(a.created_at || a.date || ''))
   );
 }
 
 function isOwnedLocally(record: { userId?: string; userEmail?: string }, userId: string, userEmail: string): boolean {
-  if (record.userId) return record.userId === userId;
-  return Boolean(record.userEmail) && record.userEmail!.toLowerCase() === userEmail.trim().toLowerCase();
+  if (userId && record.userId && record.userId === userId) return true;
+  if (userEmail && record.userEmail && record.userEmail.toLowerCase() === userEmail.trim().toLowerCase()) return true;
+  return false;
 }
 
 export async function getOrdersByUserIdAsync(userId: string, userEmail: string): Promise<OrderRecord[]> {
