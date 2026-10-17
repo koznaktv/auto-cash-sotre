@@ -44,8 +44,9 @@ import {
   Check,
   Zap,
   Sparkles,
-  ExternalLink,
-  Sliders
+  Sliders,
+  RotateCcw,
+  ExternalLink
 } from 'lucide-react';
 
 interface SafeUser {
@@ -154,6 +155,44 @@ export default function AdminPage() {
   const [userModalOpen, setUserModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<SafeUser | null>(null);
   const [balanceDelta, setBalanceDelta] = useState<number>(0);
+
+  // Reset Stats Modal
+  const [showResetStatsModal, setShowResetStatsModal] = useState(false);
+  const [resetUserBalances, setResetUserBalances] = useState(false);
+  const [resettingStats, setResettingStats] = useState(false);
+
+  const handleResetStats = async () => {
+    setResettingStats(true);
+    try {
+      const token = sessionStorage.getItem('autocash_admin_token');
+      const res = await fetch('/api/admin/reset-stats', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          resetDeposits: true,
+          resetOrders: true,
+          resetUserBalances,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setShowResetStatsModal(false);
+        setResetUserBalances(false);
+        await loadAllAdminData();
+      } else {
+        alert(data.message || 'خاتالىق كۆرۈلدى');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('ئۇلىنىش خاتالىقى كۆرۈلدى');
+    } finally {
+      setResettingStats(false);
+    }
+  };
 
   // 1. Session verification
   useEffect(() => {
@@ -965,21 +1004,31 @@ export default function AdminPage() {
           {/* ================= TAB 1: DASHBOARD OVERVIEW ================= */}
           {activeTab === 'dashboard' && (
             <div className="space-y-6 animate-in fade-in duration-300">
-              {/* Header with refresh button */}
+              {/* Header with refresh and reset buttons */}
               <div className="flex items-center justify-between gap-3 pb-1">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-4 rounded-full bg-amber-400" />
                   <h3 className="font-bold text-sm text-white font-alkatip">ئاساسىي سىتاتىستىكا كۆرسەتكۈچلىرى</h3>
                 </div>
-                <button
-                  type="button"
-                  onClick={loadAllAdminData}
-                  disabled={loading}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-amber-500/35 hover:border-amber-400 text-amber-300 hover:text-white text-xs font-bold transition cursor-pointer shadow-sm active:scale-95 font-alkatip"
-                >
-                  <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-amber-400' : ''}`} />
-                  <span>سىتاتىستىكىلارنى يېڭىلاش</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowResetStatsModal(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/50 border border-rose-500/40 text-rose-300 hover:text-white text-xs font-bold transition cursor-pointer shadow-sm active:scale-95 font-alkatip"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>سىتاتىستىكىلارنى نۆللەش</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={loadAllAdminData}
+                    disabled={loading}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-amber-500/35 hover:border-amber-400 text-amber-300 hover:text-white text-xs font-bold transition cursor-pointer shadow-sm active:scale-95 font-alkatip"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-amber-400' : ''}`} />
+                    <span>سىتاتىستىكىلارنى يېڭىلاش</span>
+                  </button>
+                </div>
               </div>
 
               {/* 4 Summary Metric Cards */}
@@ -1797,15 +1846,26 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={loadAllAdminData}
-                  disabled={loading}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 hover:text-white text-xs font-bold transition cursor-pointer active:scale-95 shadow-sm font-alkatip shrink-0"
-                >
-                  <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-amber-400' : ''}`} />
-                  <span>سىتاتىستىكىلارنى يېڭىلاش</span>
-                </button>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => setShowResetStatsModal(true)}
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/40 text-rose-300 hover:text-white text-xs font-bold transition cursor-pointer active:scale-95 shadow-sm font-alkatip shrink-0"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>سىتاتىستىكىلارنى نۆلگە قايتۇرۇش</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={loadAllAdminData}
+                    disabled={loading}
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 hover:text-white text-xs font-bold transition cursor-pointer active:scale-95 shadow-sm font-alkatip shrink-0"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-amber-400' : ''}`} />
+                    <span>سىتاتىستىكىلارنى يېڭىلاش</span>
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -2376,6 +2436,68 @@ export default function AdminPage() {
                 className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold transition hover:bg-slate-700 cursor-pointer"
               >
                 تاقاش
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reset Stats Confirmation Modal */}
+      {showResetStatsModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-rose-500/30 rounded-2xl p-6 max-w-md w-full shadow-2xl relative text-right font-alkatip">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+                <RotateCcw className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-slate-100">سىتاتىستىكىلارنى نۆل ھالىتىگە قايتۇرۇش</h3>
+                <p className="text-xs text-rose-400 font-medium">دىققەت: بۇ مەشغۇلات ئەسلىگە كەلمەيدۇ!</p>
+              </div>
+            </div>
+
+            <div className="bg-rose-950/20 border border-rose-500/20 rounded-xl p-3.5 mb-4 text-xs text-slate-300 leading-relaxed">
+              بۇ مەشغۇلات سىستېمىدىكى بارلىق سىناق كىرىم تالونلىرى (Deposits) ۋە زاكاز خاتىرىلىرىنى (Orders) پاكىز تازىلاپ، بارلىق سىتاتىستىكا كۆرسەتكۈچلىرىنى $0.00 ھالىتىگە ئەسلىگە كەلتۈرىدۇ.
+            </div>
+
+            <label className="flex items-center gap-3 p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 cursor-pointer mb-5 hover:bg-slate-800 transition">
+              <input
+                type="checkbox"
+                checked={resetUserBalances}
+                onChange={(e) => setResetUserBalances(e.target.checked)}
+                className="w-4 h-4 rounded text-rose-500 focus:ring-rose-500 bg-slate-900 border-slate-600"
+              />
+              <span className="text-xs font-bold text-slate-200">
+                ئەزالارنىڭ سىناق قالدۇق پۇلىنىمۇ $0 قىلىش
+              </span>
+            </label>
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                disabled={resettingStats}
+                onClick={handleResetStats}
+                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white text-xs font-black shadow-lg shadow-rose-900/40 transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {resettingStats ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>نۆللىنىۋاتىدۇ...</span>
+                  </>
+                ) : (
+                  <>
+                    <RotateCcw className="w-4 h-4" />
+                    <span>جەزملەش، نۆلگە قايتۇرۇش</span>
+                  </>
+                )}
+              </button>
+              <button
+                type="button"
+                disabled={resettingStats}
+                onClick={() => setShowResetStatsModal(false)}
+                className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs font-bold transition cursor-pointer"
+              >
+                بىكار قىلىش
               </button>
             </div>
           </div>

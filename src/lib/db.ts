@@ -922,3 +922,50 @@ export async function updateSystemSettingsAsync(updates: Partial<SystemSettings>
   saveDb(db);
   return db.settings;
 }
+
+export interface ResetStatsOptions {
+  resetDeposits?: boolean;
+  resetOrders?: boolean;
+  resetUserBalances?: boolean;
+}
+
+export async function resetAdminStatsAsync(
+  options: ResetStatsOptions = {}
+): Promise<{ deletedDeposits: number; deletedOrders: number }> {
+  const sb = getSupabase();
+  let deletedDeposits = 0;
+  let deletedOrders = 0;
+
+  if (sb) {
+    if (options.resetDeposits !== false) {
+      const { data } = await sb.from('deposits').delete().neq('id', '___NEVER___').select('id');
+      deletedDeposits = data?.length || 0;
+    }
+    if (options.resetOrders !== false) {
+      const { data } = await sb.from('orders').delete().neq('id', '___NEVER___').select('id');
+      deletedOrders = data?.length || 0;
+    }
+    if (options.resetUserBalances) {
+      await sb.from('users').update({ balance: 0, total_spent: 0 }).neq('id', '___NEVER___');
+    }
+  }
+
+  const db = ensureDbFile();
+  if (options.resetDeposits !== false) {
+    deletedDeposits = Math.max(deletedDeposits, db.deposits.length);
+    db.deposits = [];
+  }
+  if (options.resetOrders !== false) {
+    deletedOrders = Math.max(deletedOrders, db.orders.length);
+    db.orders = [];
+  }
+  if (options.resetUserBalances) {
+    db.users.forEach((u) => {
+      u.balance = 0;
+      u.totalSpent = 0;
+    });
+  }
+  saveDb(db);
+
+  return { deletedDeposits, deletedOrders };
+}
