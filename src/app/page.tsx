@@ -639,18 +639,18 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Compact Product Cards Grid */}
-            <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6 gap-1.5 sm:gap-2.5">
+            {/* Product Cards Grid: 3 per row as requested */}
+            <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
               {filteredServices.map((service) => (
                 <div
                   key={service.id}
-                  className={`gold-card-normal rounded-xl p-1.5 sm:p-2.5 flex flex-col justify-between transition-all duration-200 group relative overflow-hidden ${
+                  className={`gold-card-normal rounded-2xl p-2 sm:p-3 flex flex-col justify-between transition-all duration-200 group relative overflow-hidden ${
                     isRTL ? 'text-right' : 'text-left'
                   }`}
                 >
                   <div>
-                    {/* Compact Image thumbnail */}
-                    <div className="w-full h-14 sm:h-20 rounded-lg overflow-hidden bg-slate-900 relative mb-1.5 border border-slate-800">
+                    {/* Enlarged Image thumbnail */}
+                    <div className="w-full h-20 sm:h-28 rounded-xl overflow-hidden bg-slate-900 relative mb-2 border border-slate-800">
                       <img
                         src={
                           service.image ||
@@ -664,18 +664,18 @@ export default function HomePage() {
                         }}
                       />
                       {service.badge && (
-                        <span className={`absolute top-1 ${isRTL ? 'right-1' : 'left-1'} text-[7px] sm:text-[8px] font-black bg-amber-500 text-slate-950 px-1 py-0.2 rounded shadow font-alkatip`}>
+                        <span className={`absolute top-1.5 ${isRTL ? 'right-1.5' : 'left-1.5'} text-[8px] sm:text-[9px] font-black bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded-md shadow font-alkatip`}>
                           {translateBadge(service.badge)}
                         </span>
                       )}
                     </div>
 
-                    <h4 className="font-alkatip text-[10px] sm:text-xs font-bold text-white group-hover:text-amber-300 transition line-clamp-1 mb-1 leading-tight">
+                    <h4 className="font-alkatip text-xs sm:text-sm font-bold text-white group-hover:text-amber-300 transition line-clamp-1 mb-1.5 leading-snug">
                       {service.name}
                     </h4>
 
-                    {/* Compact starting price */}
-                    <div className="flex items-center justify-between text-[8px] sm:text-[10px] bg-slate-950/70 px-1.5 py-0.5 rounded-md border border-slate-800/60 mb-1.5 font-alkatip">
+                    {/* Starting price */}
+                    <div className="flex items-center justify-between text-[9px] sm:text-xs bg-slate-950/70 px-2 py-1 rounded-lg border border-slate-800/60 mb-2 font-alkatip">
                       <span className="text-slate-400 hidden sm:inline">
                         {isRTL ? 'باھاسى:' : 'From:'}
                       </span>
@@ -683,13 +683,13 @@ export default function HomePage() {
                         <span className="text-amber-300">$</span>
                         <span>{service.packages[0]?.price.toFixed(2)}</span>
                       </span>
-                      <span className="text-slate-400 text-[8px]">
+                      <span className="text-slate-400 text-[9px]">
                         {isRTL ? 'دىن' : ''}
                       </span>
                     </div>
                   </div>
 
-                  {/* Compact Buy Button */}
+                  {/* Buy Button */}
                   <button
                     onClick={() => {
                       if (!currentUser || !currentUser.email) {
@@ -698,10 +698,10 @@ export default function HomePage() {
                         setActiveModalService(service);
                       }
                     }}
-                    className="w-full py-1 sm:py-1.5 rounded-lg bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500 hover:opacity-95 text-slate-950 font-black text-[9px] sm:text-[11px] transition cursor-pointer font-alkatip active:scale-95 flex items-center justify-center gap-1 shadow-sm hover:shadow-amber-500/20"
+                    className="w-full py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500 hover:opacity-95 text-slate-950 font-black text-[10px] sm:text-xs transition cursor-pointer font-alkatip active:scale-95 flex items-center justify-center gap-1 shadow-sm hover:shadow-amber-500/20"
                   >
                     <span>{isRTL ? 'سېتىۋېلىش' : 'Buy Now'}</span>
-                    <Zap className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-slate-950 fill-slate-950 stroke-[2.5]" />
+                    <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-950 fill-slate-950 stroke-[2.5]" />
                   </button>
                 </div>
               ))}
