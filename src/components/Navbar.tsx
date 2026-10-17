@@ -266,7 +266,15 @@ export default function Navbar({
                 </span>
                 <span className="font-extrabold text-amber-300 font-mono text-[11px] sm:text-xs flex items-center gap-0.5" dir="ltr">
                   <span className="animate-dollar-float text-amber-300">$</span>
-                  <span>{((typeof activeUser?.balance === 'number') ? activeUser.balance : (balance || 0)).toFixed(2)}</span>
+                  <span>
+                    {(() => {
+                      const val = (typeof activeUser?.balance === 'number') ? activeUser.balance : (balance || 0);
+                      const s = Number(val).toFixed(2);
+                      if (s.endsWith('.00')) return s.slice(0, -3);
+                      if (s.endsWith('0') && s.includes('.')) return s.slice(0, -1);
+                      return s;
+                    })()}
+                  </span>
                 </span>
               </div>
             </Link>

@@ -262,7 +262,14 @@ export default function DepositPage() {
                 dir="ltr"
               >
                 <span className="text-cyan-400 animate-dollar-float">$</span>
-                <span>{balance.toFixed(2)}</span>
+                <span>
+                  {(() => {
+                    const s = Number(balance || 0).toFixed(2);
+                    if (s.endsWith('.00')) return s.slice(0, -3);
+                    if (s.endsWith('0') && s.includes('.')) return s.slice(0, -1);
+                    return s;
+                  })()}
+                </span>
               </div>
             </div>
 
