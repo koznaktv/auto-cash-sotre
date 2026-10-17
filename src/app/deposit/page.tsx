@@ -13,7 +13,9 @@ import {
   ChevronRight,
   Wallet, 
   CheckCircle2, 
-  Clock, 
+  Clock,
+  Hourglass,
+  XCircle,
   AlertCircle, 
   Copy, 
   Check, 
@@ -29,9 +31,10 @@ interface DepositRecord {
   id: string;
   method: string;
   amount: number;
-  status: 'completed' | 'processing' | 'failed';
+  status: 'completed' | 'processing' | 'failed' | 'pending' | 'rejected';
   date: string;
   txId?: string;
+  reviewedAt?: string;
 }
 
 export default function DepositPage() {
@@ -74,6 +77,17 @@ export default function DepositPage() {
     fetchDeposits();
     loadUserBalance();
   }, []);
+
+  // While a deposit is pending review, poll so it automatically turns to 'completed' once admin approves
+  useEffect(() => {
+    const hasPending = depositHistory.some((d) => d.status === 'pending' || d.status === 'processing');
+    if (!hasPending) return;
+    const timer = setInterval(() => {
+      fetchDeposits();
+      loadUserBalance();
+    }, 8000);
+    return () => clearInterval(timer);
+  }, [depositHistory]);
 
   const loadUserBalance = async () => {
     try {
@@ -177,7 +191,13 @@ export default function DepositPage() {
         const newRecord = data.deposit;
         setDepositHistory((prev) => [newRecord, ...prev]);
         setSubmittedDeposit(newRecord);
-        setIsSuccess(true);
+        setShowDepositModal(false);
+        setTxNote('');
+        setIsSuccess(false);
+        setTimeout(() => {
+          const el = document.getElementById('deposit-history-section');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 150);
       } else {
         setFormError(data.message || 'خاتالىق كۆرۈلدى');
       }
@@ -317,7 +337,46 @@ export default function DepositPage() {
         </div>
 
         {/* Deposit History */}
-        <div className="space-y-3 pt-2">
+        <div id="deposit-history-section" className="space-y-3 pt-2">
+          {/* Submission alert if recently submitted */}
+          {submittedDeposit && (submittedDeposit.status === 'pending' || (submittedDeposit as any).status === 'processing') && (
+            <div className="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/40 text-amber-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 shadow-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 flex items-center justify-center shrink-0">
+                  <Hourglass className="w-5 h-5 animate-pulse" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-amber-300 text-sm">
+                      {lang === 'ug' ? 'تالونىڭىز تاپشۇرۇلدى (تەكشۈرۈلمەكتە)' : lang === 'ar' ? 'تم استلام طلبك (قيد المراجعة)' : 'Deposit Submitted (Under Review)'}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-amber-400 text-slate-950 font-black text-[10px]">
+                      #{submittedDeposit.id}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-300 mt-1 leading-relaxed font-alkatip">
+                    {lang === 'ug'
+                      ? 'باشقۇرغۇچى شامكەشتىكى كىرىمنى تەكشۈرۈپ تەستىقلىغاندىن كېيىن، قالدۇقىڭىزغا ئاپتوماتىك قوشۇلىدۇ ۋە ھالىتى «تاماملاندى» غا ئۆزگىرىدۇ.'
+                      : lang === 'ar'
+                      ? 'سيقوم المسؤول بمراجعة إشعار الدفع وتأكيده، ثم يضاف الرصيد تلقائياً إلى محفظتك.'
+                      : 'Admin will review and approve your deposit. Balance will update automatically.'}
+                  </p>
+                </div>
+              </div>
+              <a
+                href={`https://wa.me/963984373459?text=${encodeURIComponent(
+                  `ئەسسالامۇ ئەلەيكۇم، مەن AUTO CASH سۇپىسىدا پۇل كىرگۈزدۈم.\nتالون ID: ${submittedDeposit.id}\nئىسپات نومۇرى: ${submittedDeposit.txId || ''}\nسوممىسى: $${submittedDeposit.amount} USD\nتالوننى دەلىللەپ بەرسىڭىز.`
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                className="shrink-0 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-900/30 cursor-pointer transition active:scale-95 font-alkatip"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>WhatsApp ئارقىلىق تېز دەلىللىتىش</span>
+              </a>
+            </div>
+          )}
+
           <div className="flex items-center justify-between pb-1">
             <h3 className="font-bold text-sm text-white flex items-center gap-2">
               <Clock className="w-4 h-4 text-cyan-400" />
@@ -331,35 +390,112 @@ export default function DepositPage() {
           </div>
 
           <div className="space-y-2.5">
-            {depositHistory.map((item) => (
-              <div
-                key={item.id}
-                className="p-3.5 rounded-xl bg-[#07192d] border border-slate-800 flex items-center justify-between hover:border-slate-700 transition"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
-                    <CheckCircle2 className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-white">
-                      {t('shamcashName')}
-                    </h4>
-                    <span className="text-[10px] text-slate-500 font-mono block mt-0.5" dir="ltr">
-                      {item.date} • #{item.id}
-                    </span>
-                  </div>
+            {depositHistory.length === 0 ? (
+              <div className="p-8 rounded-2xl bg-[#07192d]/60 border border-slate-800 text-center space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-slate-500">
+                  <Wallet className="w-6 h-6" />
                 </div>
-
-                <div className="text-left font-mono" dir="ltr">
-                  <span className="font-extrabold text-emerald-400 text-sm">
-                    +${item.amount.toFixed(2)}
-                  </span>
-                  <span className="block text-[9px] text-emerald-300/70">
-                    {t('statusCompleted')}
-                  </span>
-                </div>
+                <p className="text-xs text-slate-400 font-alkatip">
+                  {lang === 'ug' ? 'تېخى ھەميان كىرگۈزۈش خاتىرىسى يوق.' : lang === 'ar' ? 'لا يوجد سجل إيداع حتى الآن.' : 'No deposit history yet.'}
+                </p>
+                <button
+                  type="button"
+                  onClick={handleOpenDepositModal}
+                  className="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-bold transition cursor-pointer font-alkatip"
+                >
+                  {t('newDepositBtn')}
+                </button>
               </div>
-            ))}
+            ) : (
+              depositHistory.map((item) => {
+                const isCompleted = item.status === 'completed';
+                const isRejected = item.status === 'rejected' || (item as any).status === 'failed';
+                const isPending = !isCompleted && !isRejected;
+
+                return (
+                  <div
+                    key={item.id}
+                    className={`p-3.5 rounded-xl bg-[#07192d] border ${
+                      isPending ? 'border-amber-500/40 shadow-sm shadow-amber-500/10' : 'border-slate-800'
+                    } flex items-center justify-between hover:border-slate-700 transition gap-3`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
+                          isCompleted
+                            ? 'bg-emerald-950/60 border border-emerald-500/40 text-emerald-400'
+                            : isRejected
+                            ? 'bg-rose-950/60 border border-rose-500/40 text-rose-400'
+                            : 'bg-amber-950/60 border border-amber-500/40 text-amber-400'
+                        }`}
+                      >
+                        {isCompleted ? (
+                          <CheckCircle2 className="w-4 h-4" />
+                        ) : isRejected ? (
+                          <XCircle className="w-4 h-4" />
+                        ) : (
+                          <Hourglass className="w-4 h-4 animate-pulse" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="text-xs font-bold text-white truncate">
+                            {item.method || t('shamcashName')}
+                          </h4>
+                          {isPending && (
+                            <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/40 shrink-0 font-alkatip">
+                              {lang === 'ug' ? 'تەكشۈرۈلمەكتە' : lang === 'ar' ? 'قيد المراجعة' : 'Under Review'}
+                            </span>
+                          )}
+                          {isCompleted && (
+                            <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/40 shrink-0 font-alkatip">
+                              {lang === 'ug' ? 'تاماملاندى' : lang === 'ar' ? 'مكتمل' : 'Completed'}
+                            </span>
+                          )}
+                          {isRejected && (
+                            <span className="px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-400 text-[10px] font-bold border border-rose-500/40 shrink-0 font-alkatip">
+                              {lang === 'ug' ? 'رەت قىلىندى' : lang === 'ar' ? 'مرفوض' : 'Rejected'}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] text-slate-500 font-mono block mt-0.5 truncate" dir="ltr">
+                          {item.date} • #{item.id} {item.txId ? `• Tx: ${item.txId}` : ''}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="text-left font-mono shrink-0" dir="ltr">
+                      <span
+                        className={`font-extrabold text-sm block ${
+                          isCompleted
+                            ? 'text-emerald-400'
+                            : isRejected
+                            ? 'text-slate-500 line-through'
+                            : 'text-amber-300'
+                        }`}
+                      >
+                        {isCompleted ? '+' : ''}${formatCurrencyAmount(item.amount)}
+                      </span>
+                      <span
+                        className={`block text-[9px] font-alkatip ${
+                          isCompleted
+                            ? 'text-emerald-400/80'
+                            : isRejected
+                            ? 'text-rose-400/80'
+                            : 'text-amber-300/80'
+                        }`}
+                      >
+                        {isCompleted
+                          ? t('statusCompleted')
+                          : isRejected
+                          ? (lang === 'ug' ? 'رەت قىلىندى' : lang === 'ar' ? 'مرفوض' : 'Rejected')
+                          : (lang === 'ug' ? 'تەكشۈرۈلمەكتە...' : lang === 'ar' ? 'قيد المراجعة...' : 'Under review...')}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 
