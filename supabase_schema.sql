@@ -55,6 +55,49 @@ CREATE TABLE IF NOT EXISTS public.deposits (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- ========================================================
+-- Schema Migration: Ensure all columns exist on preexisting tables
+-- ========================================================
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS phone TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS balance NUMERIC NOT NULL DEFAULT 0;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS total_spent NUMERIC NOT NULL DEFAULT 0;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS vip_tier TEXT NOT NULL DEFAULT 'vip1';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'user';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS is_banned BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS user_id TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS user_email TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS service_id TEXT DEFAULT '';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS service_name TEXT DEFAULT '';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS package_title TEXT DEFAULT '';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS amount NUMERIC DEFAULT 0;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS target_account TEXT DEFAULT '';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'processing';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS details JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+
+ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS user_id TEXT;
+ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS user_name TEXT DEFAULT '';
+ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS user_email TEXT DEFAULT '';
+ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS method TEXT DEFAULT 'شامكەش (Sham Cash)';
+ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS amount NUMERIC DEFAULT 0;
+ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'pending';
+ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS date TEXT DEFAULT '';
+ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS tx_id TEXT;
+ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS reviewed_at TEXT;
+ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'orders' AND column_name = 'email') THEN
+    EXECUTE 'UPDATE public.orders SET user_email = email WHERE user_email IS NULL';
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'deposits' AND column_name = 'email') THEN
+    EXECUTE 'UPDATE public.deposits SET user_email = email WHERE user_email IS NULL';
+  END IF;
+END $$;
+
 -- 4. Create System Settings Table
 CREATE TABLE IF NOT EXISTS public.system_settings (
   id TEXT PRIMARY KEY DEFAULT 'global',
