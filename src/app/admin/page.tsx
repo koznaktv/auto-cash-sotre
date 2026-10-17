@@ -965,6 +965,23 @@ export default function AdminPage() {
           {/* ================= TAB 1: DASHBOARD OVERVIEW ================= */}
           {activeTab === 'dashboard' && (
             <div className="space-y-6 animate-in fade-in duration-300">
+              {/* Header with refresh button */}
+              <div className="flex items-center justify-between gap-3 pb-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-4 rounded-full bg-amber-400" />
+                  <h3 className="font-bold text-sm text-white font-alkatip">ئاساسىي سىتاتىستىكا كۆرسەتكۈچلىرى</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={loadAllAdminData}
+                  disabled={loading}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-amber-500/35 hover:border-amber-400 text-amber-300 hover:text-white text-xs font-bold transition cursor-pointer shadow-sm active:scale-95 font-alkatip"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-amber-400' : ''}`} />
+                  <span>سىتاتىستىكىلارنى يېڭىلاش</span>
+                </button>
+              </div>
+
               {/* 4 Summary Metric Cards */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 {/* 1. Total Revenue */}
@@ -1766,9 +1783,45 @@ export default function AdminPage() {
           {/* ================= TAB 6: FINANCIAL ANALYTICS ================= */}
           {activeTab === 'finance' && (
             <div className="space-y-6 animate-in fade-in duration-300">
+              {/* Header with refresh button */}
+              <div className={`p-4 sm:p-5 rounded-2xl ${themeClasses.card} flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md`}>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                    <TrendingUp className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm text-white font-alkatip">مالىيە ۋە كىرىم-چىقىم سىتاتىستىكىسى</h3>
+                    <p className={`text-xs ${themeClasses.subtext} mt-0.5 font-alkatip`}>
+                      شامكەش كىرىملىرى، زاكاز سېتىلىشلىرى ۋە ساپ قالدۇق سىتاتىستىكىسى
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={loadAllAdminData}
+                  disabled={loading}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 hover:text-white text-xs font-bold transition cursor-pointer active:scale-95 shadow-sm font-alkatip shrink-0"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-amber-400' : ''}`} />
+                  <span>سىتاتىستىكىلارنى يېڭىلاش</span>
+                </button>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className={`p-5 rounded-2xl ${themeClasses.card}`}>
-                  <span className={`text-xs ${themeClasses.subtext} block mb-1`}>جەمئىي كىرگۈزۈلگەن پۇل (Deposits)</span>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className={`text-xs ${themeClasses.subtext}`}>جەمئىي كىرگۈزۈلگەن پۇل (Deposits)</span>
+                    <button
+                      type="button"
+                      onClick={loadAllAdminData}
+                      disabled={loading}
+                      title="سىتاتىستىكىنى يېڭىلاش"
+                      className="p-1 rounded-lg text-slate-400 hover:text-amber-400 transition cursor-pointer"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-amber-400' : ''}`} />
+                    </button>
+                  </div>
                   <div className="text-3xl font-black font-mono text-emerald-400">
                     +${metrics.totalDep.toFixed(2)}
                   </div>
@@ -1776,7 +1829,18 @@ export default function AdminPage() {
                 </div>
 
                 <div className={`p-5 rounded-2xl ${themeClasses.card}`}>
-                  <span className={`text-xs ${themeClasses.subtext} block mb-1`}>جەمئىي سېتىۋېلىنغان (Sales)</span>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className={`text-xs ${themeClasses.subtext}`}>جەمئىي سېتىۋېلىنغان (Sales)</span>
+                    <button
+                      type="button"
+                      onClick={loadAllAdminData}
+                      disabled={loading}
+                      title="سىتاتىستىكىنى يېڭىلاش"
+                      className="p-1 rounded-lg text-slate-400 hover:text-cyan-400 transition cursor-pointer"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-cyan-400' : ''}`} />
+                    </button>
+                  </div>
                   <div className="text-3xl font-black font-mono text-cyan-400">
                     ${metrics.totalRev.toFixed(2)}
                   </div>
@@ -1784,7 +1848,18 @@ export default function AdminPage() {
                 </div>
 
                 <div className={`p-5 rounded-2xl ${themeClasses.card}`}>
-                  <span className={`text-xs ${themeClasses.subtext} block mb-1`}>ساپ قالدۇق پەرقى</span>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className={`text-xs ${themeClasses.subtext}`}>ساپ قالدۇق پەرقى</span>
+                    <button
+                      type="button"
+                      onClick={loadAllAdminData}
+                      disabled={loading}
+                      title="سىتاتىستىكىنى يېڭىلاش"
+                      className="p-1 rounded-lg text-slate-400 hover:text-amber-400 transition cursor-pointer"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-amber-400' : ''}`} />
+                    </button>
+                  </div>
                   <div className="text-3xl font-black font-mono text-amber-400">
                     ${Math.max(0, metrics.totalDep - metrics.totalRev).toFixed(2)}
                   </div>
