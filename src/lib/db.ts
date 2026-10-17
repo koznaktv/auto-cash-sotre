@@ -176,7 +176,8 @@ function saveDb(data: DatabaseSchema): void {
 
 function supabaseFailure(op: string, error: { message?: string } | null | undefined): never {
   console.error(`Supabase ${op} error:`, error);
-  throw new Error(`ساندان مەشغۇلاتى مەغلۇپ بولدى (${op})`);
+  const detail = error?.message ? `: ${error.message}` : '';
+  throw new Error(`ساندان مەشغۇلاتى مەغلۇپ بولدى (${op})${detail}`);
 }
 
 // ================= LOCAL (JSON FILE) OPERATIONS =================
