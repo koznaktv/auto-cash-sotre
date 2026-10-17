@@ -30,10 +30,65 @@ import {
 interface SideDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  user: { name: string; email: string; id?: string; balance?: number; avatarUrl?: string } | null;
+  user: { name: string; email: string; id?: string; balance?: number; avatarUrl?: string; vipTier?: string } | null;
   onOpenAuth: () => void;
   onLogout: () => void;
 }
+
+const VIP_TIER_CONFIG: Record<
+  string,
+  {
+    name: { ug: string; ar: string; en: string };
+    badgeClass: string;
+    iconClass: string;
+  }
+> = {
+  vip1: {
+    name: {
+      ug: 'VIP 1 (ئاددىي ئەزا)',
+      ar: 'VIP 1 (عضو عادي)',
+      en: 'VIP 1 (Standard Member)',
+    },
+    badgeClass: 'text-slate-300 bg-slate-900/80 border-slate-600/50',
+    iconClass: 'text-slate-400',
+  },
+  vip2: {
+    name: {
+      ug: 'VIP 2 (كۈمۈش ئەزا)',
+      ar: 'VIP 2 (عضو فضي)',
+      en: 'VIP 2 (Silver Member)',
+    },
+    badgeClass: 'text-amber-300 bg-amber-950/70 border-amber-500/40',
+    iconClass: 'text-amber-400',
+  },
+  vip3: {
+    name: {
+      ug: 'VIP 3 (ئالتۇن ئەزا)',
+      ar: 'VIP 3 (عضو ذهبي)',
+      en: 'VIP 3 (Gold Member)',
+    },
+    badgeClass: 'text-cyan-300 bg-cyan-950/70 border-cyan-500/40',
+    iconClass: 'text-cyan-400',
+  },
+  vip4: {
+    name: {
+      ug: 'VIP 4 (پىلاتىنا ئەزا)',
+      ar: 'VIP 4 (عضو بلاتيني)',
+      en: 'VIP 4 (Platinum Member)',
+    },
+    badgeClass: 'text-yellow-300 bg-yellow-950/70 border-yellow-500/40',
+    iconClass: 'text-yellow-400',
+  },
+  vip5: {
+    name: {
+      ug: 'VIP 5 (ئالماس ئەزا)',
+      ar: 'VIP 5 (عضو ماسي)',
+      en: 'VIP 5 (Diamond Member)',
+    },
+    badgeClass: 'text-emerald-300 bg-emerald-950/70 border-emerald-500/40',
+    iconClass: 'text-emerald-400',
+  },
+};
 
 export default function SideDrawer({
   isOpen,
@@ -45,6 +100,17 @@ export default function SideDrawer({
   const { lang, setLang, t, isRTL } = useLanguage();
   const [avatarSrc, setAvatarSrc] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const normalizedTier = (
+    user?.vipTier ||
+    (typeof window !== 'undefined' ? localStorage.getItem('autocash_vipTier') : '') ||
+    'vip1'
+  )
+    .toLowerCase()
+    .replace(/[\s-_]/g, '');
+  const activeTierConfig = VIP_TIER_CONFIG[normalizedTier] || VIP_TIER_CONFIG.vip1;
+  const vipTierLabel =
+    activeTierConfig.name[lang as 'ug' | 'ar' | 'en'] || activeTierConfig.name.ug;
 
   useEffect(() => {
     if (!user) {
@@ -288,9 +354,9 @@ export default function SideDrawer({
 
                 {/* Bottom Row: VIP Badge & Logout Button */}
                 <div className="flex items-center justify-between pt-2.5 border-t border-amber-500/20">
-                  <div className="inline-flex items-center gap-1.5 text-[10px] text-amber-300 bg-amber-950/70 px-2.5 py-1 rounded-lg border border-amber-500/40 font-bold shadow-sm">
-                    <Crown className="w-3.5 h-3.5 text-amber-400" />
-                    <span>{t('silverMember')}</span>
+                  <div className={`inline-flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-lg border font-bold shadow-sm ${activeTierConfig.badgeClass}`}>
+                    <Crown className={`w-3.5 h-3.5 ${activeTierConfig.iconClass}`} />
+                    <span>{vipTierLabel}</span>
                   </div>
                   <button
                     onClick={onLogout}

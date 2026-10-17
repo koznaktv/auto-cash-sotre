@@ -24,6 +24,61 @@ import {
   Camera,
 } from 'lucide-react';
 
+const VIP_TIER_CONFIG: Record<
+  string,
+  {
+    name: { ug: string; ar: string; en: string };
+    badgeClass: string;
+    iconClass: string;
+  }
+> = {
+  vip1: {
+    name: {
+      ug: 'VIP 1 (ئاددىي ئەزا)',
+      ar: 'VIP 1 (عضو عادي)',
+      en: 'VIP 1 (Standard Member)',
+    },
+    badgeClass: 'text-slate-300 bg-slate-900/80 border-slate-600/50',
+    iconClass: 'text-slate-400',
+  },
+  vip2: {
+    name: {
+      ug: 'VIP 2 (كۈمۈش ئەزا)',
+      ar: 'VIP 2 (عضو فضي)',
+      en: 'VIP 2 (Silver Member)',
+    },
+    badgeClass: 'text-amber-300 bg-amber-950/70 border-amber-500/40',
+    iconClass: 'text-amber-400',
+  },
+  vip3: {
+    name: {
+      ug: 'VIP 3 (ئالتۇن ئەزا)',
+      ar: 'VIP 3 (عضو ذهبي)',
+      en: 'VIP 3 (Gold Member)',
+    },
+    badgeClass: 'text-cyan-300 bg-cyan-950/70 border-cyan-500/40',
+    iconClass: 'text-cyan-400',
+  },
+  vip4: {
+    name: {
+      ug: 'VIP 4 (پىلاتىنا ئەزا)',
+      ar: 'VIP 4 (عضو بلاتيني)',
+      en: 'VIP 4 (Platinum Member)',
+    },
+    badgeClass: 'text-yellow-300 bg-yellow-950/70 border-yellow-500/40',
+    iconClass: 'text-yellow-400',
+  },
+  vip5: {
+    name: {
+      ug: 'VIP 5 (ئالماس ئەزا)',
+      ar: 'VIP 5 (عضو ماسي)',
+      en: 'VIP 5 (Diamond Member)',
+    },
+    badgeClass: 'text-emerald-300 bg-emerald-950/70 border-emerald-500/40',
+    iconClass: 'text-emerald-400',
+  },
+};
+
 export default function AccountPage() {
   const { lang, t, isRTL } = useLanguage();
   const [balance, setBalance] = useState<number>(() => {
@@ -51,6 +106,11 @@ export default function AccountPage() {
   const [passwordSuccess, setPasswordSuccess] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<string>('');
 
+  const normalizedTier = (vipTier || 'vip1').toLowerCase().replace(/[\s-_]/g, '');
+  const activeTierConfig = VIP_TIER_CONFIG[normalizedTier] || VIP_TIER_CONFIG.vip1;
+  const vipTierLabel =
+    activeTierConfig.name[lang as 'ug' | 'ar' | 'en'] || activeTierConfig.name.ug;
+
   useEffect(() => {
     loadUserData();
     window.addEventListener('autocash-auth-changed', loadUserData);
@@ -66,6 +126,7 @@ export default function AccountPage() {
       if (cached.id) setUserId(cached.id);
       if (cached.avatarUrl) setAvatarUrl(cached.avatarUrl);
       if (typeof cached.balance === 'number') setBalance(cached.balance);
+      if (cached.vipTier) setVipTier(cached.vipTier.toUpperCase());
     }
 
     const loggedInVal = localStorage.getItem('autocash_is_logged_in');
@@ -342,9 +403,9 @@ export default function AccountPage() {
                     <h2 className="font-extrabold text-sm sm:text-base text-white truncate">
                       {name}
                     </h2>
-                    <span className="inline-flex items-center gap-1 text-[10px] text-amber-300 bg-amber-950/70 px-2 py-0.5 rounded-md border border-amber-500/40 font-bold shrink-0">
-                      <Crown className="w-3 h-3 text-amber-400" />
-                      <span>VIP 2</span>
+                    <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md border font-bold shrink-0 ${activeTierConfig.badgeClass}`}>
+                      <Crown className={`w-3 h-3 ${activeTierConfig.iconClass}`} />
+                      <span>{vipTierLabel}</span>
                     </span>
                   </div>
                   <p className="text-[11px] sm:text-xs text-slate-400 font-mono mt-0.5 truncate" dir="ltr">
