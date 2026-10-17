@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import BottomNav from '@/components/BottomNav';
 import { useLanguage } from '@/context/LanguageContext';
+import { getCachedBalance, getCachedUser, ClientUser } from '@/lib/clientAuth';
 import {
   ChevronLeft,
   ChevronRight,
@@ -27,8 +28,27 @@ interface VipTier {
 
 export default function MembershipVipPage() {
   const { lang, t, isRTL } = useLanguage();
-  const [balance] = useState<number>(0.0);
+  const [balance, setBalance] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      return getCachedBalance();
+    }
+    return 0.0;
+  });
+  const [currentUser, setCurrentUser] = useState<ClientUser | null>(() => {
+    if (typeof window !== 'undefined') {
+      return getCachedUser();
+    }
+    return null;
+  });
   const [userSpent] = useState<number>(0.0);
+
+  useEffect(() => {
+    const cached = getCachedUser();
+    if (cached) {
+      setCurrentUser(cached);
+      setBalance(cached.balance ?? 0.0);
+    }
+  }, []);
 
   const vipTiers: VipTier[] = [
     {
@@ -137,7 +157,7 @@ export default function MembershipVipPage() {
       }`}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
-      <Navbar balance={balance} />
+      <Navbar balance={balance} user={currentUser} />
 
       <main className="max-w-3xl mx-auto px-4 py-5 w-full flex-1 space-y-5">
         {/* Top Header */}

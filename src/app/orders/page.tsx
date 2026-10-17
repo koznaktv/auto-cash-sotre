@@ -17,10 +17,23 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { isOrderInProgress, type Order } from '@/lib/orders';
+import { getCachedBalance, getCachedUser, storeLocalAuth, ClientUser } from '@/lib/clientAuth';
 
 export default function OrdersPage() {
   const { lang, t, isRTL } = useLanguage();
   const [orders, setOrders] = useState<Order[]>([]);
+  const [balance, setBalance] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      return getCachedBalance();
+    }
+    return 0.0;
+  });
+  const [currentUser, setCurrentUser] = useState<ClientUser | null>(() => {
+    if (typeof window !== 'undefined') {
+      return getCachedUser();
+    }
+    return null;
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -37,6 +50,28 @@ export default function OrdersPage() {
 
   useEffect(() => {
     fetchOrders();
+
+    const cached = getCachedUser();
+    if (cached) {
+      setCurrentUser(cached);
+      setBalance(cached.balance ?? 0.0);
+    }
+
+    const isLoggedIn = typeof window !== 'undefined' && localStorage.getItem('autocash_is_logged_in') === 'true';
+    if (isLoggedIn) {
+      fetch('/api/auth/me')
+        .then(async (r) => {
+          if (r.ok) {
+            const data = await r.json();
+            if (data.success && data.user) {
+              setCurrentUser(data.user);
+              setBalance(data.user.balance ?? 0.0);
+              storeLocalAuth(data.user);
+            }
+          }
+        })
+        .catch(() => {});
+    }
   }, []);
 
   const fetchOrders = async () => {
@@ -96,7 +131,7 @@ export default function OrdersPage() {
       }`}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
-      <Navbar />
+      <Navbar balance={balance} user={currentUser} />
 
       <main className="max-w-2xl mx-auto px-4 py-5 w-full flex-1 space-y-4">
         {/* Top Header */}

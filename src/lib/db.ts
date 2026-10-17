@@ -471,20 +471,20 @@ export async function getAllOrdersAsync(): Promise<OrderRecord[]> {
 async function selectOwnedRows(table: 'orders' | 'deposits', userId: string, userEmail: string): Promise<any[]> {
   const sb = getSupabase()!;
   const cleanEmail = (userEmail || '').trim().toLowerCase();
-  const queries: Promise<any>[] = [];
+  const map = new Map<string, any>();
 
   if (userId) {
-    queries.push(sb.from(table).select('*').eq('user_id', userId));
+    const { data } = await sb.from(table).select('*').eq('user_id', userId);
+    if (data) {
+      for (const row of data) {
+        map.set(row.id, row);
+      }
+    }
   }
   if (cleanEmail) {
-    queries.push(sb.from(table).select('*').ilike('user_email', cleanEmail));
-  }
-
-  const results = await Promise.all(queries);
-  const map = new Map<string, any>();
-  for (const res of results) {
-    if (res.data) {
-      for (const row of res.data) {
+    const { data } = await sb.from(table).select('*').ilike('user_email', cleanEmail);
+    if (data) {
+      for (const row of data) {
         map.set(row.id, row);
       }
     }

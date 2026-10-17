@@ -1,6 +1,6 @@
 'use client';
 
-import { clearLocalAuth, logout } from '@/lib/clientAuth';
+import { clearLocalAuth, logout, getCachedBalance, getCachedUser, storeLocalAuth, formatCurrencyAmount } from '@/lib/clientAuth';
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
@@ -26,7 +26,12 @@ import {
 
 export default function AccountPage() {
   const { lang, t, isRTL } = useLanguage();
-  const [balance, setBalance] = useState<number>(0.0);
+  const [balance, setBalance] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      return getCachedBalance();
+    }
+    return 0.0;
+  });
   const [totalDeposited, setTotalDeposited] = useState<number>(0.0);
   const [totalPurchases, setTotalPurchases] = useState<number>(0.00);
   const [totalOrders, setTotalOrders] = useState<number>(0);
@@ -53,19 +58,20 @@ export default function AccountPage() {
   }, []);
 
   const loadUserData = async () => {
+    const cached = getCachedUser();
+    if (cached) {
+      setIsLoggedIn(true);
+      if (cached.name) setName(cached.name);
+      if (cached.email) setEmail(cached.email);
+      if (cached.id) setUserId(cached.id);
+      if (cached.avatarUrl) setAvatarUrl(cached.avatarUrl);
+      if (typeof cached.balance === 'number') setBalance(cached.balance);
+    }
+
     const loggedInVal = localStorage.getItem('autocash_is_logged_in');
     const savedEmail = localStorage.getItem('autocash_email');
-    const savedName = localStorage.getItem('autocash_username');
-    const savedAvatar = localStorage.getItem('autocash_avatar');
-    const savedId = localStorage.getItem('autocash_userId');
 
     if (loggedInVal === 'true' && savedEmail) {
-      setIsLoggedIn(true);
-      if (savedName) setName(savedName);
-      if (savedEmail) setEmail(savedEmail);
-      if (savedId) setUserId(savedId);
-      if (savedAvatar) setAvatarUrl(savedAvatar);
-
       try {
         const res = await fetch('/api/auth/me');
         if (res.status === 401) {
@@ -83,13 +89,13 @@ export default function AccountPage() {
           setUserId(u.id);
           if (u.avatarUrl) {
             setAvatarUrl(u.avatarUrl);
-            localStorage.setItem('autocash_avatar', u.avatarUrl);
           }
           const rawBal = typeof u.balance === 'number' ? u.balance : parseFloat(u.balance || '0') || 0.0;
           setBalance(rawBal);
           setTotalDeposited(rawBal + (u.totalSpent || 0));
           setTotalPurchases(u.totalSpent || 0);
           setVipTier(u.vipTier ? u.vipTier.toUpperCase() : 'VIP 1');
+          storeLocalAuth(u);
         }
       } catch (e) {
         console.error(e);
@@ -263,7 +269,7 @@ export default function AccountPage() {
       }`}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
-      <Navbar balance={balance} />
+      <Navbar balance={balance} user={isLoggedIn ? { id: userId, name, email, avatarUrl, balance } : null} />
 
       <AuthModal
         isOpen={isAuthOpen}
@@ -437,7 +443,7 @@ export default function AccountPage() {
                 dir="ltr"
               >
                 <span className="animate-dollar-float text-cyan-400">$</span>
-                <span>{balance.toFixed(2)}</span>
+                <span>{formatCurrencyAmount(balance)}</span>
               </div>
             </div>
           </div>

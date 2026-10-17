@@ -1,6 +1,6 @@
 'use client';
 
-import { clearLocalAuth, logout } from '@/lib/clientAuth';
+import { clearLocalAuth, logout, getCachedBalance, getCachedUser, storeLocalAuth, formatCurrencyAmount } from '@/lib/clientAuth';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import SideDrawer from '@/components/SideDrawer';
@@ -34,25 +34,25 @@ export default function Navbar({
   const { lang, setLang, t, isRTL } = useLanguage();
   const [internalDrawerOpen, setInternalDrawerOpen] = useState(false);
   const [internalAuthOpen, setInternalAuthOpen] = useState(false);
-  const [internalUser, setInternalUser] = useState<{ name: string; email: string; id?: string; balance?: number; avatarUrl?: string } | null>(null);
+  const [internalUser, setInternalUser] = useState<{ name: string; email: string; id?: string; balance?: number; avatarUrl?: string } | null>(() => {
+    if (typeof window !== 'undefined') {
+      return getCachedUser();
+    }
+    return null;
+  });
   const [langMenuOpen, setLangMenuOpen] = useState(false);
 
   useEffect(() => {
     const refreshUser = () => {
+      const cached = getCachedUser();
+      if (cached) {
+        setInternalUser((prev) => prev || cached);
+      }
+
       const isLoggedIn = localStorage.getItem('autocash_is_logged_in');
       const savedEmail = localStorage.getItem('autocash_email');
-      const savedName = localStorage.getItem('autocash_username') || '';
-      const savedAvatar = localStorage.getItem('autocash_avatar') || '';
-      const savedId = localStorage.getItem('autocash_userId') || '';
 
       if (isLoggedIn === 'true' && savedEmail) {
-        setInternalUser((prev) => prev || {
-          id: savedId,
-          name: savedName || savedEmail.split('@')[0],
-          email: savedEmail,
-          avatarUrl: savedAvatar,
-        });
-
         fetch('/api/auth/me')
           .then(async (r) => {
             if (r.status === 401) {
@@ -63,9 +63,7 @@ export default function Navbar({
             const data = await r.json();
             if (data.success && data.user) {
               setInternalUser(data.user);
-              if (data.user.avatarUrl) {
-                localStorage.setItem('autocash_avatar', data.user.avatarUrl);
-              }
+              storeLocalAuth(data.user);
             }
           })
           .catch(() => {});
@@ -79,7 +77,19 @@ export default function Navbar({
     return () => window.removeEventListener('autocash-auth-changed', refreshUser);
   }, []);
 
-  const activeUser = externalUser ? externalUser : internalUser;
+  const activeUser = externalUser !== undefined ? externalUser : internalUser;
+  const effectiveBalance = (() => {
+    if (typeof activeUser?.balance === 'number' && activeUser.balance > 0) {
+      return activeUser.balance;
+    }
+    if (typeof balance === 'number' && balance > 0) {
+      return balance;
+    }
+    const cached = getCachedBalance();
+    if (cached > 0) return cached;
+    if (typeof activeUser?.balance === 'number') return activeUser.balance;
+    return balance || 0;
+  })();
 
   const handleOpenDrawer = () => {
     if (onOpenDrawer) {
@@ -266,15 +276,7 @@ export default function Navbar({
                 </span>
                 <span className="font-extrabold text-amber-300 font-mono text-[11px] sm:text-xs flex items-center gap-0.5" dir="ltr">
                   <span className="animate-dollar-float text-amber-300">$</span>
-                  <span>
-                    {(() => {
-                      const val = (typeof activeUser?.balance === 'number') ? activeUser.balance : (balance || 0);
-                      const s = Number(val).toFixed(2);
-                      if (s.endsWith('.00')) return s.slice(0, -3);
-                      if (s.endsWith('0') && s.includes('.')) return s.slice(0, -1);
-                      return s;
-                    })()}
-                  </span>
+                  <span>{formatCurrencyAmount(effectiveBalance)}</span>
                 </span>
               </div>
             </Link>

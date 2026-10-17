@@ -1,6 +1,6 @@
 'use client';
 
-import { clearLocalAuth, logout, syncSupabaseSession } from '@/lib/clientAuth';
+import { clearLocalAuth, logout, syncSupabaseSession, getCachedBalance, getCachedUser, storeLocalAuth, ClientUser } from '@/lib/clientAuth';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
@@ -46,13 +46,23 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeModalService, setActiveModalService] = useState<ServiceItem | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [userBalance, setUserBalance] = useState<number>(0.0);
+  const [userBalance, setUserBalance] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      return getCachedBalance();
+    }
+    return 0.0;
+  });
 
   // Show splash ONLY ONCE per browser tab session via sessionStorage
   const [showSplash, setShowSplash] = useState<boolean>(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState<{ id?: string; name: string; email: string; balance?: number; avatarUrl?: string } | null>(null);
+  const [currentUser, setCurrentUser] = useState<ClientUser | null>(() => {
+    if (typeof window !== 'undefined') {
+      return getCachedUser();
+    }
+    return null;
+  });
 
   useEffect(() => {
     // Check if splash should be shown:
@@ -90,22 +100,16 @@ export default function HomePage() {
     fetchOrders();
 
     const refreshUser = () => {
+      const cached = getCachedUser();
+      if (cached) {
+        setCurrentUser(cached);
+        setUserBalance(cached.balance ?? 0.0);
+      }
+
       const isLoggedIn = localStorage.getItem('autocash_is_logged_in');
       const savedEmail = localStorage.getItem('autocash_email');
-      const savedName = localStorage.getItem('autocash_username');
-      const savedAvatar = localStorage.getItem('autocash_avatar');
-      const savedId = localStorage.getItem('autocash_userId');
 
       if (isLoggedIn === 'true' && savedEmail) {
-        // Immediately restore user from local storage cache so there is zero flicker
-        setCurrentUser((prev) => prev || {
-          id: savedId || undefined,
-          name: savedName || savedEmail.split('@')[0],
-          email: savedEmail,
-          avatarUrl: savedAvatar || undefined,
-          balance: 0.0,
-        });
-
         fetch('/api/auth/me')
           .then(async (r) => {
             if (r.status === 401) {
@@ -118,10 +122,8 @@ export default function HomePage() {
             const data = await r.json();
             if (data.success && data.user) {
               setCurrentUser(data.user);
-              setUserBalance(data.user.balance || 0.0);
-              if (data.user.avatarUrl) {
-                localStorage.setItem('autocash_avatar', data.user.avatarUrl);
-              }
+              setUserBalance(data.user.balance ?? 0.0);
+              storeLocalAuth(data.user);
             }
           })
           .catch((e) => console.error(e));

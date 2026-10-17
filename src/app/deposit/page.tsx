@@ -1,6 +1,6 @@
 'use client';
 
-import { clearLocalAuth } from '@/lib/clientAuth';
+import { clearLocalAuth, getCachedBalance, getCachedUser, storeLocalAuth, formatCurrencyAmount, ClientUser } from '@/lib/clientAuth';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
@@ -36,10 +36,20 @@ interface DepositRecord {
 
 export default function DepositPage() {
   const { lang, t, isRTL } = useLanguage();
-  const [balance, setBalance] = useState<number>(0.0);
+  const [balance, setBalance] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      return getCachedBalance();
+    }
+    return 0.0;
+  });
   const [showDepositModal, setShowDepositModal] = useState<boolean>(false);
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
-  const [currentUser, setCurrentUser] = useState<{ id?: string; name: string; email: string; balance?: number } | null>(null);
+  const [currentUser, setCurrentUser] = useState<ClientUser | null>(() => {
+    if (typeof window !== 'undefined') {
+      return getCachedUser();
+    }
+    return null;
+  });
   const [amount, setAmount] = useState<number>(25);
   const [copied, setCopied] = useState<boolean>(false);
   const [txNote, setTxNote] = useState<string>('');
@@ -67,16 +77,15 @@ export default function DepositPage() {
 
   const loadUserBalance = async () => {
     try {
+      const cached = getCachedUser();
+      if (cached) {
+        setCurrentUser(cached);
+        setBalance(cached.balance ?? 0.0);
+      }
+
       const email = localStorage.getItem('autocash_email');
       const isLoggedIn = localStorage.getItem('autocash_is_logged_in');
-      const userId = localStorage.getItem('autocash_userId');
-      const username = localStorage.getItem('autocash_username');
       if (isLoggedIn === 'true' && email) {
-        setCurrentUser({
-          id: userId || undefined,
-          name: username || email.split('@')[0],
-          email,
-        });
         const res = await fetch('/api/auth/me');
         if (res.status === 401) {
           clearLocalAuth();
@@ -87,7 +96,8 @@ export default function DepositPage() {
         const data = await res.json();
         if (data.success && data.user) {
           setCurrentUser(data.user);
-          setBalance(data.user.balance || 0.0);
+          setBalance(data.user.balance ?? 0.0);
+          storeLocalAuth(data.user);
         }
       } else {
         setCurrentUser(null);
@@ -193,7 +203,7 @@ export default function DepositPage() {
       }`}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
-      <Navbar balance={balance} />
+      <Navbar balance={balance} user={currentUser} />
 
       <main className="max-w-2xl mx-auto px-4 py-5 w-full flex-1 space-y-4">
         {/* Top Header */}
@@ -262,14 +272,7 @@ export default function DepositPage() {
                 dir="ltr"
               >
                 <span className="text-cyan-400 animate-dollar-float">$</span>
-                <span>
-                  {(() => {
-                    const s = Number(balance || 0).toFixed(2);
-                    if (s.endsWith('.00')) return s.slice(0, -3);
-                    if (s.endsWith('0') && s.includes('.')) return s.slice(0, -1);
-                    return s;
-                  })()}
-                </span>
+                <span>{formatCurrencyAmount(balance)}</span>
               </div>
             </div>
 
