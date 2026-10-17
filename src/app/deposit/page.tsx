@@ -364,15 +364,13 @@ export default function DepositPage() {
                 </div>
               </div>
               <a
-                href={`https://wa.me/963984373459?text=${encodeURIComponent(
-                  `ئەسسالامۇ ئەلەيكۇم، مەن AUTO CASH سۇپىسىدا پۇل كىرگۈزدۈم.\nتالون ID: ${submittedDeposit.id}\nئىسپات نومۇرى: ${submittedDeposit.txId || ''}\nسوممىسى: $${submittedDeposit.amount} USD\nتالوننى دەلىللەپ بەرسىڭىز.`
-                )}`}
+                href="https://t.me/autocash_UYGHUR"
                 target="_blank"
                 rel="noreferrer"
-                className="shrink-0 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-900/30 cursor-pointer transition active:scale-95 font-alkatip"
+                className="shrink-0 px-3.5 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-sky-900/30 cursor-pointer transition active:scale-95 font-alkatip"
               >
-                <MessageCircle className="w-4 h-4" />
-                <span>WhatsApp ئارقىلىق تېز دەلىللىتىش</span>
+                <Send className="w-4 h-4 text-white -translate-x-0.5" />
+                <span>Telegram ئارقىلىق تېز دەلىللەش</span>
               </a>
             </div>
           )}
@@ -728,15 +726,13 @@ export default function DepositPage() {
                   </div>
 
                   <a
-                    href={`https://wa.me/963984373459?text=${encodeURIComponent(
-                      `ئەسسالامۇ ئەلەيكۇم، مەن AUTO CASH سۇپىسىدا پۇل كىرگۈزدۈم.\nتالون ID: ${submittedDeposit?.id}\nئىسپات نومۇرى: ${submittedDeposit?.txId}\nسوممىسى: $${submittedDeposit?.amount} USD\nتالون سۈرىتىمنى تەستىقلاپ بەرسىڭىز.`
-                    )}`}
+                    href="https://t.me/autocash_UYGHUR"
                     target="_blank"
                     rel="noreferrer"
-                    className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/40 cursor-pointer"
+                    className="w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-black transition flex items-center justify-center gap-2 shadow-lg shadow-sky-900/40 cursor-pointer font-alkatip"
                   >
-                    <MessageCircle className="w-4 h-4 text-white" />
-                    <span>تالوننى WhatsApp ئارقىلىق تېز تەستىقلىتىش</span>
+                    <Send className="w-4 h-4 text-white -translate-x-0.5" />
+                    <span>تالوننى Telegram ئارقىلىق تېز تەستىقلىتىش</span>
                   </a>
 
                   <button
