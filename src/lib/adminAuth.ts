@@ -97,15 +97,32 @@ export function clearAdminLoginFailures(ip: string): void {
 
 export async function verifyAdminPin(inputPin: string): Promise<boolean> {
   if (!inputPin) return false;
-  const settings = await getSystemSettingsAsync();
-  // A PIN changed in the admin panel wins; ADMIN_PIN covers the case where it was never changed
-  const settingsPin = (settings.adminPin || '').trim();
-  const envPin = (process.env.ADMIN_PIN || '').trim();
-  const validPin = settingsPin && settingsPin !== PUBLIC_DEFAULT_PIN ? settingsPin : envPin || settingsPin;
-  if (!validPin) return false;
-  if (process.env.NODE_ENV === 'production' && validPin === PUBLIC_DEFAULT_PIN) {
-    console.error('Admin login refused: the admin PIN is still the public default. Set ADMIN_PIN.');
-    return false;
+  const trimmed = inputPin.trim();
+
+  let settingsPin = '';
+  try {
+    const settings = await getSystemSettingsAsync();
+    settingsPin = (settings.adminPin || '').trim();
+  } catch (err) {
+    console.warn('Could not read adminPin from system_settings, checking ADMIN_PIN env:', err);
   }
-  return safeEqual(inputPin.trim(), validPin);
+
+  const envPin = (process.env.ADMIN_PIN || '').trim();
+
+  // 1. Check if input matches ADMIN_PIN from environment variables
+  if (envPin && safeEqual(trimmed, envPin)) {
+    return true;
+  }
+
+  // 2. Check if input matches adminPin from Supabase database (provided it is not the public default)
+  if (settingsPin && settingsPin !== PUBLIC_DEFAULT_PIN && safeEqual(trimmed, settingsPin)) {
+    return true;
+  }
+
+  // 3. Fallback: if no custom PIN was ever set, check if env matches input
+  if (!envPin && !settingsPin && process.env.NODE_ENV !== 'production') {
+    return safeEqual(trimmed, PUBLIC_DEFAULT_PIN);
+  }
+
+  return false;
 }

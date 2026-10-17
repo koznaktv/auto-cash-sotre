@@ -867,9 +867,17 @@ export async function updateDepositStatusAsync(
 export async function getSystemSettingsAsync(): Promise<SystemSettings> {
   const sb = getSupabase();
   if (sb) {
-    const { data, error } = await sb.from('system_settings').select('*').eq('id', 'global').maybeSingle();
-    if (error) supabaseFailure('getSystemSettings', error);
-    return mapSupabaseSettings(data || {});
+    try {
+      const { data, error } = await sb.from('system_settings').select('*').eq('id', 'global').maybeSingle();
+      if (!error && data) {
+        return mapSupabaseSettings(data);
+      }
+      if (error) {
+        console.warn('Supabase getSystemSettings warning:', error.message);
+      }
+    } catch (e) {
+      console.warn('Supabase getSystemSettings exception:', e);
+    }
   }
   return ensureDbFile().settings;
 }
