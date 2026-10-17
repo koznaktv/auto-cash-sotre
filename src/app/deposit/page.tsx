@@ -356,7 +356,7 @@ export default function DepositPage() {
                   </div>
                   <p className="text-[11px] text-slate-300 mt-1 leading-relaxed font-alkatip">
                     {lang === 'ug'
-                      ? 'باشقۇرغۇچى شامكەشتىكى كىرىمنى تەكشۈرۈپ تەستىقلىغاندىن كېيىن، قالدۇقىڭىزغا ئاپتوماتىك قوشۇلىدۇ ۋە ھالىتى «تاماملاندى» غا ئۆزگىرىدۇ.'
+                      ? 'تالون تەكشۈرۈلۈۋاتىدۇ، تەستىقلانغاندىن كېيىن ھەميانىڭىزغا ئاپتوماتىك قاچىلىنىدۇ.'
                       : lang === 'ar'
                       ? 'سيقوم المسؤول بمراجعة إشعار الدفع وتأكيده، ثم يضاف الرصيد تلقائياً إلى محفظتك.'
                       : 'Admin will review and approve your deposit. Balance will update automatically.'}
@@ -723,7 +723,7 @@ export default function DepositPage() {
                       <br />
                       ئىسپات نومۇرى: <span className="font-mono font-bold text-amber-300">{submittedDeposit?.txId}</span>
                       <br />
-                      باشقۇرغۇچى شامكەشتىكى كىرىمنى تەكشۈرۈپ تەستىقلىغاندىن كېيىن (5-15 مىنۇتتا) قالدۇقىڭىزغا ئاپتوماتىك قوشۇلىدۇ.
+                      تالون تەكشۈرۈلۈۋاتىدۇ، تەستىقلانغاندىن كىيىن ھەميانىڭىزغا ئاپتۇماتىك قاچىلىنىدۇ.
                     </p>
                   </div>
 
