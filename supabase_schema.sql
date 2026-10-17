@@ -88,6 +88,23 @@ ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS tx_id TEXT;
 ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS reviewed_at TEXT;
 ALTER TABLE public.deposits ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 
+-- Drop unexpected NOT NULL constraints on deposits and orders from older schemas
+DO $$
+DECLARE
+    col RECORD;
+BEGIN
+    FOR col IN (
+        SELECT column_name, table_name
+        FROM information_schema.columns
+        WHERE table_schema = 'public' 
+          AND table_name IN ('deposits', 'orders')
+          AND column_name <> 'id'
+          AND is_nullable = 'NO'
+    ) LOOP
+        EXECUTE 'ALTER TABLE public.' || quote_ident(col.table_name) || ' ALTER COLUMN ' || quote_ident(col.column_name) || ' DROP NOT NULL';
+    END LOOP;
+END $$;
+
 -- Drop all existing policies and foreign keys so column types can be altered freely
 DO $$
 DECLARE

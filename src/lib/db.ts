@@ -239,7 +239,7 @@ function mapSupabaseDeposit(row: any): DepositRecord {
     userName: row.user_name,
     userEmail: row.user_email,
     method: row.method,
-    amount: Number(row.amount || 0),
+    amount: Number(row.amount ?? row.amount_usd ?? 0),
     status: (row.status as any) || 'pending',
     date: row.date,
     txId: row.tx_id || undefined,
