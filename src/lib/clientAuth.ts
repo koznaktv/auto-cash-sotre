@@ -6,6 +6,8 @@ export interface ClientUser {
   email: string;
   avatarUrl?: string;
   balance?: number;
+  vipTier?: string;
+  totalSpent?: number;
 }
 
 export function storeLocalAuth(user: ClientUser): void {
@@ -15,6 +17,8 @@ export function storeLocalAuth(user: ClientUser): void {
   if (user.id) localStorage.setItem('autocash_userId', user.id);
   if (user.avatarUrl) localStorage.setItem('autocash_avatar', user.avatarUrl);
   if (typeof user.balance === 'number') localStorage.setItem('autocash_balance', String(user.balance));
+  if (user.vipTier) localStorage.setItem('autocash_vipTier', user.vipTier);
+  if (typeof user.totalSpent === 'number') localStorage.setItem('autocash_totalSpent', String(user.totalSpent));
 }
 
 export function clearLocalAuth(): void {
@@ -25,6 +29,8 @@ export function clearLocalAuth(): void {
   localStorage.removeItem('autocash_avatar');
   localStorage.removeItem('autocash_phone');
   localStorage.removeItem('autocash_balance');
+  localStorage.removeItem('autocash_vipTier');
+  localStorage.removeItem('autocash_totalSpent');
 }
 
 export function getCachedBalance(): number {
@@ -46,7 +52,10 @@ export function getCachedUser(): ClientUser | null {
   const avatarUrl = localStorage.getItem('autocash_avatar') || undefined;
   const balanceVal = localStorage.getItem('autocash_balance');
   const balance = balanceVal !== null && !isNaN(Number(balanceVal)) ? Number(balanceVal) : 0.0;
-  return { id, name, email, avatarUrl, balance };
+  const vipTier = localStorage.getItem('autocash_vipTier') || 'vip1';
+  const totalSpentVal = localStorage.getItem('autocash_totalSpent');
+  const totalSpent = totalSpentVal !== null && !isNaN(Number(totalSpentVal)) ? Number(totalSpentVal) : 0.0;
+  return { id, name, email, avatarUrl, balance, vipTier, totalSpent };
 }
 
 export function formatCurrencyAmount(val: number): string {

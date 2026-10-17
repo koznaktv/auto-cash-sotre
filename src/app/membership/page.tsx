@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import BottomNav from '@/components/BottomNav';
 import { useLanguage } from '@/context/LanguageContext';
-import { getCachedBalance, getCachedUser, ClientUser } from '@/lib/clientAuth';
+import { getCachedBalance, getCachedUser, storeLocalAuth, ClientUser } from '@/lib/clientAuth';
 import {
   ChevronLeft,
   ChevronRight,
@@ -40,7 +40,6 @@ export default function MembershipVipPage() {
     }
     return null;
   });
-  const [userSpent] = useState<number>(0.0);
 
   useEffect(() => {
     const cached = getCachedUser();
@@ -48,7 +47,22 @@ export default function MembershipVipPage() {
       setCurrentUser(cached);
       setBalance(cached.balance ?? 0.0);
     }
+
+    // Refresh live profile data from session
+    fetch('/api/auth/me')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success && d.user) {
+          setCurrentUser(d.user);
+          setBalance(d.user.balance ?? 0.0);
+          storeLocalAuth(d.user);
+        }
+      })
+      .catch(() => {});
   }, []);
+
+  const currentVipKey = (currentUser?.vipTier || 'vip1').toLowerCase();
+  const userSpent = Number(currentUser?.totalSpent || 0.0);
 
   const vipTiers: VipTier[] = [
     {
@@ -57,7 +71,7 @@ export default function MembershipVipPage() {
       name: 'VIP 1',
       minSpend: 0,
       discount: 0,
-      isCurrent: true,
+      isCurrent: currentVipKey === 'vip1',
       colorScheme: 'silver',
     },
     {
@@ -66,6 +80,7 @@ export default function MembershipVipPage() {
       name: 'VIP 2',
       minSpend: 100,
       discount: 2,
+      isCurrent: currentVipKey === 'vip2',
       colorScheme: 'bronze',
     },
     {
@@ -74,6 +89,7 @@ export default function MembershipVipPage() {
       name: 'VIP 3',
       minSpend: 500,
       discount: 5,
+      isCurrent: currentVipKey === 'vip3',
       colorScheme: 'steel',
     },
     {
@@ -82,6 +98,7 @@ export default function MembershipVipPage() {
       name: 'VIP 4',
       minSpend: 2000,
       discount: 8,
+      isCurrent: currentVipKey === 'vip4',
       colorScheme: 'gold',
     },
     {
@@ -90,9 +107,20 @@ export default function MembershipVipPage() {
       name: 'VIP 5',
       minSpend: 5000,
       discount: 12,
+      isCurrent: currentVipKey === 'vip5',
       colorScheme: 'deluxeGold',
     },
   ];
+
+  const currentTierIndex = vipTiers.findIndex((t) => t.id === currentVipKey);
+  const safeTierIndex = currentTierIndex >= 0 ? currentTierIndex : 0;
+  const currentTier = vipTiers[safeTierIndex];
+  const nextTier = safeTierIndex < vipTiers.length - 1 ? vipTiers[safeTierIndex + 1] : null;
+
+  const progressPercent = nextTier
+    ? Math.min(100, Math.max(0, (userSpent / nextTier.minSpend) * 100))
+    : 100;
+  const remainingForNext = nextTier ? Math.max(0, nextTier.minSpend - userSpent) : 0;
 
   const renderBadge = (
     colorScheme: VipTier['colorScheme'],
@@ -200,7 +228,7 @@ export default function MembershipVipPage() {
                 {t('currentLevel')}:
               </span>
               <h2 className="text-3xl sm:text-4xl font-black text-white font-mono tracking-tight flex items-center gap-2">
-                <span>VIP 1</span>
+                <span>{currentTier.name}</span>
               </h2>
               <p className="text-xs text-slate-300/90 leading-relaxed pt-1">
                 {lang === 'ug'
@@ -212,7 +240,7 @@ export default function MembershipVipPage() {
             </div>
 
             <div className="flex justify-center sm:justify-start">
-              {renderBadge('silver', 'VIP 1', 'lg')}
+              {renderBadge(currentTier.colorScheme, currentTier.name, 'lg')}
             </div>
           </div>
 
@@ -222,8 +250,8 @@ export default function MembershipVipPage() {
               <span className="text-[10px] sm:text-xs text-slate-400 block mb-1 font-alkatip">
                 {lang === 'ug' ? 'ھازىرقى ئېتىبارىڭىز' : lang === 'ar' ? 'خصمك الحالي' : 'Current Discount'}
               </span>
-              <span className="text-base sm:text-xl font-black text-white font-mono">
-                0%
+              <span className="text-base sm:text-xl font-black text-cyan-400 font-mono">
+                {currentTier.discount}%
               </span>
             </div>
 
@@ -242,7 +270,7 @@ export default function MembershipVipPage() {
                 {lang === 'ug' ? 'دەرىجە تەرتىپى' : lang === 'ar' ? 'المستوى' : 'Level Rank'}
               </span>
               <span className="text-base sm:text-xl font-black text-white font-mono">
-                1 / 5
+                {safeTierIndex + 1} / 5
               </span>
             </div>
           </div>
@@ -254,14 +282,16 @@ export default function MembershipVipPage() {
                 {lang === 'ug' ? 'كېيىنكى دەرىجىگە ئىلگىرىلەش' : lang === 'ar' ? 'التقدم نحو المستوى التالي' : 'Next Tier Progress'}
               </span>
               <span className="text-cyan-400 font-alkatip text-[11px] font-bold">
-                {lang === 'ug' ? 'VIP 2 گە قاراپ' : lang === 'ar' ? 'نحو VIP 2' : 'Toward VIP 2'}
+                {nextTier
+                  ? (lang === 'ug' ? `${nextTier.name} گە قاراپ` : lang === 'ar' ? `نحو ${nextTier.name}` : `Toward ${nextTier.name}`)
+                  : (lang === 'ug' ? 'ئەڭ يۇقىرى دەرىجە' : lang === 'ar' ? 'أعلى مستوى' : 'Top Level Reached')}
               </span>
             </div>
 
             <div className="w-full h-2 rounded-full bg-slate-900 border border-slate-800 overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-cyan-500 to-sky-400 shadow-sm transition-all duration-500"
-                style={{ width: `${Math.min(100, (userSpent / 100) * 100)}%` }}
+                style={{ width: `${progressPercent}%` }}
               />
             </div>
 
@@ -273,13 +303,19 @@ export default function MembershipVipPage() {
                   <span>{userSpent.toFixed(2)}</span>
                 </span>
               </span>
-              <span className="text-cyan-300 font-bold flex items-center gap-1">
-                <span>{lang === 'ug' ? 'VIP 2 گە ئۆرلەشكە يەنە' : lang === 'ar' ? 'المتبقي لترقية VIP 2' : 'Remaining for VIP 2:'}</span>
-                <span className="font-mono font-extrabold text-cyan-400 flex items-center gap-0.5" dir="ltr">
-                  <span className="animate-dollar-float text-cyan-400">$</span>
-                  <span>{(100 - userSpent).toFixed(2)}</span>
+              {nextTier ? (
+                <span className="text-cyan-300 font-bold flex items-center gap-1">
+                  <span>{lang === 'ug' ? `${nextTier.name} گە ئۆرلەشكە يەنە` : lang === 'ar' ? `المتبقي لترقية ${nextTier.name}:` : `Remaining for ${nextTier.name}:`}</span>
+                  <span className="font-mono font-extrabold text-cyan-400 flex items-center gap-0.5" dir="ltr">
+                    <span className="animate-dollar-float text-cyan-400">$</span>
+                    <span>{remainingForNext.toFixed(2)}</span>
+                  </span>
                 </span>
-              </span>
+              ) : (
+                <span className="text-amber-400 font-bold">
+                  {lang === 'ug' ? '★ سىز ئەڭ يۇقىرى VIP ئەزا!' : '★ Top VIP Member!'}
+                </span>
+              )}
             </div>
           </div>
         </div>

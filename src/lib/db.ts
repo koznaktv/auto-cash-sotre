@@ -188,12 +188,26 @@ function findLocalUserByEmail(db: DatabaseSchema, email: string): UserRecord | n
   return db.users.find((u) => u.email.toLowerCase() === normalized) || null;
 }
 
+const VIP_TIER_RANKS: Record<string, number> = {
+  vip1: 1,
+  vip2: 2,
+  vip3: 3,
+  vip4: 4,
+  vip5: 5,
+};
+
 function updateVipTier(user: UserRecord): void {
-  if (user.totalSpent >= 5000) user.vipTier = 'vip5';
-  else if (user.totalSpent >= 2000) user.vipTier = 'vip4';
-  else if (user.totalSpent >= 500) user.vipTier = 'vip3';
-  else if (user.totalSpent >= 100) user.vipTier = 'vip2';
-  else user.vipTier = 'vip1';
+  let earnedTier: 'vip1' | 'vip2' | 'vip3' | 'vip4' | 'vip5' = 'vip1';
+  if (user.totalSpent >= 5000) earnedTier = 'vip5';
+  else if (user.totalSpent >= 2000) earnedTier = 'vip4';
+  else if (user.totalSpent >= 500) earnedTier = 'vip3';
+  else if (user.totalSpent >= 100) earnedTier = 'vip2';
+
+  const currentRank = VIP_TIER_RANKS[user.vipTier] || 1;
+  const earnedRank = VIP_TIER_RANKS[earnedTier] || 1;
+  if (earnedRank > currentRank) {
+    user.vipTier = earnedTier;
+  }
 }
 
 // ================= SUPABASE ROW MAPPERS =================

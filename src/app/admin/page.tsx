@@ -151,10 +151,11 @@ export default function AdminPage() {
   // Settings Save Message
   const [settingsSaveMsg, setSettingsSaveMsg] = useState('');
 
-  // User Balance Edit Modal
+  // User Balance & VIP Edit Modal
   const [userModalOpen, setUserModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<SafeUser | null>(null);
   const [balanceDelta, setBalanceDelta] = useState<number>(0);
+  const [selectedVipTier, setSelectedVipTier] = useState<string>('vip1');
 
   // Reset Stats Modal
   const [showResetStatsModal, setShowResetStatsModal] = useState(false);
@@ -471,11 +472,16 @@ export default function AdminPage() {
     }
   };
 
-  // User Balance Adjust
+  // User Balance & VIP Adjust
   const handleAdjustBalance = async () => {
-    if (!selectedUser || balanceDelta === 0) return;
+    if (!selectedUser) return;
     setActionLoading(selectedUser.id);
     const token = sessionStorage.getItem('autocash_admin_token');
+
+    const updates: Record<string, any> = {};
+    if (selectedVipTier && selectedVipTier !== selectedUser.vipTier) {
+      updates.vipTier = selectedVipTier;
+    }
 
     try {
       const res = await fetch('/api/admin/users', {
@@ -486,20 +492,55 @@ export default function AdminPage() {
         },
         body: JSON.stringify({
           userId: selectedUser.id,
-          balanceDelta: balanceDelta,
+          balanceDelta: balanceDelta !== 0 ? balanceDelta : undefined,
+          updates: Object.keys(updates).length > 0 ? updates : undefined,
         }),
       });
       const data = await res.json();
       if (data.success && data.user) {
         setUsers((prev) =>
-          prev.map((u) => (u.id === selectedUser.id ? data.user : u))
+          prev.map((u) => (u.id === selectedUser.id ? { ...u, ...data.user } : u))
         );
         setUserModalOpen(false);
         setBalanceDelta(0);
         setSelectedUser(null);
+      } else {
+        alert(data.message || 'خاتالىق كۆرۈلدى');
       }
     } catch (e) {
       console.error(e);
+      alert('ئۇلىنىش خاتالىقى كۆرۈلدى');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleUpdateUserVip = async (user: SafeUser, newVipTier: string) => {
+    setActionLoading(user.id);
+    const token = sessionStorage.getItem('autocash_admin_token');
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          updates: { vipTier: newVipTier },
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.user) {
+        setUsers((prev) =>
+          prev.map((u) => (u.id === user.id ? { ...u, vipTier: data.user.vipTier } : u))
+        );
+      } else {
+        alert(data.message || 'VIP دەرىجىسى ئۆزگەرمىدى');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('ئۇلىنىش خاتالىقى كۆرۈلدى');
     } finally {
       setActionLoading(null);
     }
@@ -1778,9 +1819,19 @@ export default function AdminPage() {
                             ${user.totalSpent?.toFixed(2) || '0.00'}
                           </td>
                           <td className="py-3 px-3">
-                            <span className="uppercase font-mono font-bold text-[10px] px-2 py-0.5 rounded bg-cyan-950 border border-cyan-500/30 text-cyan-300">
-                              {user.vipTier || 'VIP1'}
-                            </span>
+                            <select
+                              value={(user.vipTier || 'vip1').toLowerCase()}
+                              disabled={actionLoading === user.id}
+                              onChange={(e) => handleUpdateUserVip(user, e.target.value)}
+                              className="font-mono font-bold text-[11px] px-2 py-1 rounded-lg bg-slate-900 border border-cyan-500/40 text-cyan-300 hover:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400 transition cursor-pointer disabled:opacity-50"
+                              title="VIP ئەزالىق دەرىجىسىنى كۆتۈرۈش / ئۆزگەرتىش"
+                            >
+                              <option value="vip1" className="bg-slate-900 text-slate-300">VIP 1 (ئاددىي - 0%)</option>
+                              <option value="vip2" className="bg-slate-900 text-amber-400">VIP 2 (كۈمۈش - 2%)</option>
+                              <option value="vip3" className="bg-slate-900 text-cyan-400">VIP 3 (ئالتۇن - 5%)</option>
+                              <option value="vip4" className="bg-slate-900 text-yellow-400">VIP 4 (پىلاتىنا - 8%)</option>
+                              <option value="vip5" className="bg-slate-900 text-emerald-400">VIP 5 (ئالماس - 12%)</option>
+                            </select>
                           </td>
                           <td className="py-3 px-3">
                             {user.isBanned ? (
@@ -1795,16 +1846,17 @@ export default function AdminPage() {
                           </td>
                           <td className="py-3 px-3 text-center">
                             <div className="flex items-center justify-center gap-1.5">
-                              {/* Edit Balance */}
+                              {/* Edit Balance & VIP */}
                               <button
                                 onClick={() => {
                                   setSelectedUser(user);
                                   setBalanceDelta(0);
+                                  setSelectedVipTier((user.vipTier || 'vip1').toLowerCase());
                                   setUserModalOpen(true);
                                 }}
                                 className="px-2 py-1 rounded-md bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[10px] font-bold transition cursor-pointer"
                               >
-                                قالدۇق تەڭشەش
+                                قالدۇق ۋە VIP تەڭشەش
                               </button>
 
                               {/* Ban / Unban */}
@@ -2377,7 +2429,7 @@ export default function AdminPage() {
           <div className={`w-full max-w-sm ${themeClasses.card} rounded-3xl p-6 shadow-2xl space-y-4 font-alkatip`}>
             <div className="flex items-center justify-between pb-2 border-b border-slate-800">
               <h3 className="font-bold text-sm text-white">
-                ئىشلەتكۈچى قالدۇقىنى تەڭشەش
+                ئىشلەتكۈچى قالدۇقى ۋە VIP دەرىجىسىنى تەڭشەش
               </h3>
               <button
                 onClick={() => setUserModalOpen(false)}
@@ -2402,6 +2454,30 @@ export default function AdminPage() {
                   ${selectedUser.balance?.toFixed(2) || '0.00'}
                 </span>
               </div>
+              <div className="flex items-center justify-between">
+                <span className={themeClasses.subtext}>نۆۋەتتىكى VIP دەرىجىسى:</span>
+                <span className="font-mono font-black text-cyan-400 text-xs uppercase">
+                  {selectedUser.vipTier || 'VIP1'}
+                </span>
+              </div>
+            </div>
+
+            {/* VIP Tier Selector */}
+            <div className="space-y-1.5 pt-2 border-t border-slate-800">
+              <label className="block text-xs font-bold text-slate-300">
+                VIP ئەزالىق دەرىجىسىنى تەڭشەش / كۆتۈرۈش:
+              </label>
+              <select
+                value={selectedVipTier}
+                onChange={(e) => setSelectedVipTier(e.target.value)}
+                className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-xs font-bold text-cyan-300 ${themeClasses.input} focus:outline-none focus:border-cyan-400 cursor-pointer`}
+              >
+                <option value="vip1" className="bg-slate-900 text-slate-300">VIP 1 (ئاددىي ئەزا - 0% ئېتىبار)</option>
+                <option value="vip2" className="bg-slate-900 text-amber-400">VIP 2 (كۈمۈش ئەزا - 2% ئېتىبار)</option>
+                <option value="vip3" className="bg-slate-900 text-cyan-400">VIP 3 (ئالتۇن ئەزا - 5% ئېتىبار)</option>
+                <option value="vip4" className="bg-slate-900 text-yellow-400">VIP 4 (پىلاتىنا ئەزا - 8% ئېتىبار)</option>
+                <option value="vip5" className="bg-slate-900 text-emerald-400">VIP 5 (ئالماس ئەزا - 12% ئېتىبار)</option>
+              </select>
             </div>
 
             <div className="space-y-2 pt-2 border-t border-slate-800">
@@ -2424,9 +2500,12 @@ export default function AdminPage() {
 
             <div className="flex items-center gap-2 pt-2">
               <button
-                disabled={actionLoading === selectedUser.id || balanceDelta === 0}
+                disabled={
+                  actionLoading === selectedUser.id ||
+                  (balanceDelta === 0 && selectedVipTier === (selectedUser.vipTier || 'vip1').toLowerCase())
+                }
                 onClick={handleAdjustBalance}
-                className="flex-1 py-2.5 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer"
+                className="flex-1 py-2.5 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer disabled:opacity-50"
               >
                 جەزملەش
               </button>
