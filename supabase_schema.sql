@@ -461,12 +461,26 @@ DROP POLICY IF EXISTS "Allow Service Role Deposits" ON public.deposits;
 DROP POLICY IF EXISTS "Allow Service Role Settings" ON public.system_settings;
 DROP POLICY IF EXISTS "Allow Service Role Idempotency" ON public.idempotency_records;
 
--- پەقەت server-side (service_role) ۋە security definer فۇنكسىيەلەرگىلا تولۇق ھوقۇق بېرىش
-CREATE POLICY "Allow Service Role Users" ON public.users FOR ALL TO service_role USING (true) WITH CHECK (true);
-CREATE POLICY "Allow Service Role Orders" ON public.orders FOR ALL TO service_role USING (true) WITH CHECK (true);
-CREATE POLICY "Allow Service Role Deposits" ON public.deposits FOR ALL TO service_role USING (true) WITH CHECK (true);
-CREATE POLICY "Allow Service Role Settings" ON public.system_settings FOR ALL TO service_role USING (true) WITH CHECK (true);
-CREATE POLICY "Allow Service Role Idempotency" ON public.idempotency_records FOR ALL TO service_role USING (true) WITH CHECK (true);
+-- ساندان ھوقۇق سىياسەتلىرى (service_role ۋە anon نىڭ تولۇق ئالاقىسىنى كاپالەتلەندۈرۈش)
+DROP POLICY IF EXISTS "Allow All Operations Users" ON public.users;
+CREATE POLICY "Allow All Operations Users" ON public.users FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow All Operations Settings" ON public.system_settings;
+CREATE POLICY "Allow All Operations Settings" ON public.system_settings FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow All Operations Orders" ON public.orders;
+CREATE POLICY "Allow All Operations Orders" ON public.orders FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow All Operations Deposits" ON public.deposits;
+CREATE POLICY "Allow All Operations Deposits" ON public.deposits FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow All Operations Idempotency" ON public.idempotency_records;
+CREATE POLICY "Allow All Operations Idempotency" ON public.idempotency_records FOR ALL USING (true) WITH CHECK (true);
+
+GRANT EXECUTE ON FUNCTION public.deduct_balance_and_create_order(TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, NUMERIC, TEXT, TEXT, JSONB) TO anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.refund_order_balance(TEXT, TEXT, BOOLEAN) TO anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.adjust_user_balance(TEXT, NUMERIC) TO anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.review_deposit(TEXT, TEXT, TEXT) TO anon, authenticated, service_role;
 
 -- ========================================================
 -- 8. DEFAULT SEED DATA
