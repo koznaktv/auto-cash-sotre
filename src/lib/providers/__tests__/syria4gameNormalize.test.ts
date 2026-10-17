@@ -77,12 +77,48 @@ describe('sahl-cash formats', () => {
     expect(normalizeFields([], ['EMAIL'])[0]).toMatchObject({ key: 'playerId', type: 'email' });
   });
 
-  it('flags extra label params as unconfirmed', () => {
-    const fields = normalizeFields([], ['Email', 'Password']);
-    expect(fields.map((f) => [f.key, Boolean(f.unconfirmed)])).toEqual([
-      ['playerId', false],
-      ['param2', true],
-    ]);
+  it('sends extra label params as named keys (docs: anyKey=anyVal)', () => {
+    expect(normalizeFields([], ['Email', 'Password']).map((f) => f.key)).toEqual(['playerId', 'password']);
+    expect(normalizeFields([], ["Recipt's Name", 'Iban of Account']).map((f) => f.key)).toEqual(['playerId', 'iban_of_account']);
+    // Arabic-only labels have no ASCII slug
+    expect(normalizeFields([], ['الاسم', 'رقم الهاتف']).map((f) => f.key)).toEqual(['playerId', 'param2']);
+  });
+
+  it('parses the documented newOrder response', () => {
+    const r = normalizeOrderResponse(
+      {
+        status: 'OK',
+        data: {
+          order_id: 'ID_9fffb0d849a45215',
+          status: 'accept',
+          price: 1.26048,
+          data: { playerId: 'test' },
+          replay_api: [{ replay: ['erg3eg'] }],
+        },
+      },
+      200
+    );
+    expect(r).toMatchObject({ outcome: 'accepted', providerOrderId: 'ID_9fffb0d849a45215', status: 'COMPLETED' });
+    // The echoed playerId must not be mistaken for a delivered code
+    expect(r.delivery).toEqual({ codes: ['erg3eg'] });
+  });
+
+  it('parses the documented check response', () => {
+    const map = parseCheckResponse(
+      { status: 'OK', data: [{ order_id: 'ID_9fffb0d849a45215', quantity: 1, data: { playerId: 'test' }, status: 'accept', replay_api: ['erg3eg'] }] },
+      ['ID_9fffb0d849a45215']
+    );
+    expect(map.get('ID_9fffb0d849a45215')).toMatchObject({ status: 'COMPLETED', delivery: { codes: ['erg3eg'] } });
+  });
+
+  it('maps documented order error codes', () => {
+    const kind = (code: number) => parseProviderError({ status: 'ERROR', error_code: code, message: 'x' }, 200)?.kind;
+    expect(kind(100)).toBe('insufficient_balance');
+    expect(kind(108)).toBe('not_allowed');
+    expect(kind(110)).toBe('not_found');
+    expect(kind(112)).toBe('validation');
+    // "Unknown error" doesn't prove nothing was bought: stays ambiguous
+    expect(normalizeOrderResponse({ status: 'ERROR', error_code: 114, message: 'Unknown error' }, 200).outcome).toBe('ambiguous');
   });
 
   it('treats long notes as text, not inputs', () => {

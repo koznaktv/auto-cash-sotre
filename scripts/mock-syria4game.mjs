@@ -39,7 +39,8 @@ const send = (res, status, body, type = 'application/json') => {
   res.writeHead(status, { 'Content-Type': type });
   res.end(typeof body === 'string' ? body : JSON.stringify(body));
 };
-const error = (res, code, message, status = 200) => send(res, status, { status: 'ERROR', error: { code, message } });
+// Real error shape (sahl-cash): {"status":"ERROR","error_code":121,"message":"Token error"}
+const error = (res, code, message, status = 200) => send(res, status, { status: 'ERROR', error_code: code, message });
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
@@ -89,18 +90,28 @@ const server = http.createServer(async (req, res) => {
       default:
         break;
     }
-    const id = String(nextOrderId++);
+    const id = `ID_${(nextOrderId++).toString(16)}`;
     const pending = scenario === 'ok-pending' || scenario === 'reject-later';
     orders.set(id, { status: pending ? 'wait' : 'accept', codes: pending ? [] : [`CODE-${id}`], checks: 0, scenario });
     byUuid.set(uuid, id);
+    // The order exists but the response is lost: only a uuid lookup can recover it
+    if (scenario === 'lost') return send(res, 502, '<html>Bad Gateway</html>', 'text/html');
     return send(res, 200, {
       status: 'OK',
-      data: { order_id: id, status: orders.get(id).status, price: product.price, replay_api: orders.get(id).codes },
+      // Documented shape: data.data echoes the params, replay_api is [{replay:[...]}]
+      data: {
+        order_id: id,
+        status: orders.get(id).status,
+        price: product.price,
+        data: { playerId: scenario },
+        replay_api: orders.get(id).codes.length ? [{ replay: orders.get(id).codes }] : null,
+      },
     });
   }
 
   if (path === '/client/api/check') {
-    const ids = (url.searchParams.get('orders') || '').replace(/[[\]]/g, '').split(',').filter(Boolean);
+    let ids = (url.searchParams.get('orders') || '').replace(/[[\]]/g, '').split(',').filter(Boolean);
+    if (url.searchParams.get('uuid') === '1') ids = ids.map((u) => byUuid.get(u)).filter(Boolean);
     const data = ids
       .filter((id) => orders.has(id))
       .map((id) => {

@@ -74,11 +74,58 @@ export async function pollProviderOrders(options: {
     const withProviderId = orders.filter((o) => o.details?.providerOrderId);
     const withoutProviderId = orders.filter((o) => !o.details?.providerOrderId);
 
-    // Orders the provider never confirmed (ambiguous outcome / interrupted call)
+    // Orders the provider never confirmed (ambiguous outcome / interrupted call): look them up by uuid
     for (const order of withoutProviderId) {
       if (Date.now() > options.deadlineMs) break;
       summary.checked++;
       const age = Date.now() - new Date(order.createdAt).getTime();
+      const uuid = order.details?.providerOrderUuid;
+      if (uuid) {
+        const lookup = await syria4GameProvider.checkOrderByUuid(String(uuid));
+        if (lookup.found && lookup.providerOrderId) {
+          // The provider has it: record its id; the regular check below settles it from now on
+          const status = lookup.entry?.status;
+          if (status === 'COMPLETED') {
+            await transitionOrderAsync(order.id, IN_FLIGHT, 'completed', {
+              providerOrderId: lookup.providerOrderId,
+              providerStatus: 'COMPLETED',
+              providerCheckedAt: new Date().toISOString(),
+              needsReview: false,
+              ...(lookup.entry?.delivery ? { delivery: lookup.entry.delivery } : {}),
+            });
+            summary.completed++;
+            continue;
+          }
+          if (status === 'FAILED') {
+            const refund = await refundOrderBalanceAtomicAsync(order.id, `تەمىنلىگۈچى رەت قىلدى: ${lookup.entry?.message || 'rejected'}`);
+            if (refund.success) summary.refunded++;
+            else {
+              await transitionOrderAsync(order.id, IN_FLIGHT, null, {
+                providerOrderId: lookup.providerOrderId,
+                needsReview: true,
+                refundError: refund.message,
+              });
+              summary.needsReview++;
+            }
+            continue;
+          }
+          await transitionOrderAsync(order.id, IN_FLIGHT, 'pending_provider', {
+            providerOrderId: lookup.providerOrderId,
+            providerStatus: status || 'UNKNOWN',
+            providerNextCheckAt: nextCheckAt(1),
+          });
+          summary.pending++;
+          continue;
+        }
+        if (lookup.success && lookup.absent && age > NO_ID_REVIEW_AFTER_MS) {
+          // Confirmed absent at the provider well after the attempt: nothing was bought, refund
+          const refund = await refundOrderBalanceAtomicAsync(order.id, 'تەمىنلىگۈچىدە زاكاز قۇرۇلمىغان');
+          if (refund.success) {
+            summary.refunded++;
+            continue;
+          }
+        }
+      }
       if (age > NO_ID_REVIEW_AFTER_MS) {
         await transitionOrderAsync(order.id, IN_FLIGHT, 'pending_provider', {
           needsReview: true,

@@ -15,6 +15,9 @@
 import { logProviderCall } from '../provider/callLog';
 import type { ProviderProduct } from '../catalog/types';
 import {
+  setAssetBase,
+  normalizeCheckStatus,
+  extractDelivery,
   normalizeOrderResponse,
   normalizeProduct,
   parseCatalog,
@@ -78,6 +81,7 @@ export class Syria4GameProvider {
   constructor() {
     const rawUrl = process.env.SYRIA4GAME_BASE_URL || 'https://syria4game.com';
     this.baseUrl = rawUrl.replace(/\/+$/, '');
+    setAssetBase(this.baseUrl);
     const rawToken = (process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '').trim();
     this.apiToken = rawToken.replace(/^["']|["']$/g, '').trim();
   }
@@ -293,6 +297,47 @@ export class Syria4GameProvider {
       orderId: input.orderId,
     });
     return { ...normalizeOrderResponse(res.data, res.httpStatus, res.text), orderUuid: input.orderUuid };
+  }
+
+  /**
+   * Looks an order up by our order_uuid (docs: `check?orders=[uuid]&uuid=1`). Used for orders whose
+   * newOrder response was lost or unclear, so they can be settled without guessing.
+   */
+  async checkOrderByUuid(
+    orderUuid: string
+  ): Promise<{
+    success: boolean;
+    found: boolean;
+    /** True only when the provider answered with an empty list: no order exists for this uuid */
+    absent?: boolean;
+    providerOrderId?: string;
+    entry?: CheckEntry;
+    error?: ProviderError;
+  }> {
+    if (!this.hasLiveToken()) return { success: false, found: false, error: NOT_CONFIGURED };
+    if (!isUuidV4(orderUuid)) return { success: false, found: false };
+    const res = await this.request('/client/api/check', {
+      endpoint: 'check',
+      query: { orders: `[${orderUuid}]`, uuid: 1 },
+      timeoutMs: 10000,
+      retries: 2,
+    });
+    if (!this.isSuccess(res)) return { success: false, found: false, error: this.failure(res) };
+    const body = res.data?.data ?? res.data;
+    const items: any[] = Array.isArray(body) ? body : body && typeof body === 'object' && body.order_id ? [body] : [];
+    // One uuid per request, so a single result can only be that order
+    if (items.length !== 1) return { success: true, found: false, absent: items.length === 0 };
+    const item = items[0];
+    return {
+      success: true,
+      found: true,
+      providerOrderId: item.order_id !== undefined ? String(item.order_id) : undefined,
+      entry: {
+        status: normalizeCheckStatus(item.status),
+        message: typeof item.message === 'string' ? item.message : undefined,
+        delivery: extractDelivery(item),
+      },
+    };
   }
 
   /** Status of several provider orders, matched strictly by provider order id. */

@@ -31,10 +31,21 @@ function toText(value: unknown): string {
   return '';
 }
 
+let assetBase = '';
+
+/** Base URL for relative image paths in provider responses (set by the API client). */
+export function setAssetBase(base: string): void {
+  assetBase = base.replace(/\/+$/, '');
+}
+
 /** Image URL, or undefined for empty values and bare hosts like "https://api.example.com/". */
 function imageUrl(value: unknown): string | undefined {
-  const text = toText(value);
-  if (!/^https?:\/\//i.test(text)) return undefined;
+  let text = toText(value);
+  if (!text) return undefined;
+  if (!/^https?:\/\//i.test(text)) {
+    if (!assetBase || !/^\/?[\w\-./]+\.(webp|png|jpe?g|gif|svg)$/i.test(text)) return undefined;
+    text = `${assetBase}/${text.replace(/^\/+/, '')}`;
+  }
   try {
     return new URL(text).pathname.length > 1 ? text : undefined;
   } catch {
@@ -74,13 +85,24 @@ export interface ProviderError {
   message: string;
 }
 
+// Codes from the provider docs. 114 / 500 ("unknown error") are left out on purpose: they don't
+// prove the order wasn't created, so they stay ambiguous (kept for review, not auto-refunded).
 const CODE_KINDS: Record<number, ProviderErrorKind> = {
-  120: 'auth',
-  121: 'auth',
-  122: 'not_allowed',
-  123: 'ip',
-  130: 'maintenance',
-  109: 'not_found',
+  120: 'auth', // Api Token is required
+  121: 'auth', // Token error
+  122: 'not_allowed', // Not allowed to use API
+  123: 'ip', // IP not allowed
+  130: 'maintenance', // Site under maintenance
+  100: 'insufficient_balance', // Insufficient balance (our provider wallet)
+  105: 'validation', // Quantity not available
+  106: 'validation', // Quantity not allowed
+  107: 'validation', // Player ID blocked
+  108: 'not_allowed', // 2FA required
+  109: 'not_found', // Product deleted or not found
+  110: 'not_found', // Product not available now
+  111: 'validation', // Try again after 1 minute
+  112: 'validation', // Quantity is too small
+  113: 'validation', // Quantity is too large
 };
 
 /** Errors that mean the provider refused the request before doing anything. */
@@ -140,6 +162,8 @@ export function parseProviderError(data: unknown, httpStatus: number): ProviderE
   const message = findErrorMessage(data) || (httpStatus ? `HTTP ${httpStatus}` : 'Provider error');
 
   if (code !== null && CODE_KINDS[code]) return { kind: CODE_KINDS[code], code, message };
+  // "Unknown error" codes: the order may or may not exist, so never treat them as a refusal
+  if (code === 114 || code === 500) return { kind: 'unknown', code, message };
   if (/balance|رصيد|insufficient/i.test(message)) return { kind: 'insufficient_balance', code: code ?? undefined, message };
   if (httpStatus >= 500) return { kind: 'unknown', code: code ?? undefined, message };
   if (isHttpError || hasErrorEnvelope || hasErrorField) {
@@ -334,22 +358,28 @@ const KNOWN_PARAM_KEYS = ['playerId', 'zoneId', 'server', 'serverId'];
 const MAX_LABEL_LENGTH = 40;
 
 /**
- * Plain string params are display labels on some providers ("User ID", "Account link", "EMAIL").
- * They are mapped by position: the first becomes `playerId`; later ones are only usable when they
- * are a known key, otherwise they're flagged `unconfirmed` until an admin defines the fields.
+ * Plain string params are display labels ("User ID", "Account link", "Email", "Password").
+ * Per the provider docs the first input is sent as `playerId` and any further inputs as extra
+ * key=value pairs ("anyKey=anyVal"), so later labels get a readable ASCII key (or `paramN`).
  */
 function fieldsFromLabels(labels: string[]): CheckoutField[] {
   const out: CheckoutField[] = [];
+  const used = new Set<string>();
   const inputs = labels.map((l) => l.trim()).filter((l) => l && l.length <= MAX_LABEL_LENGTH);
   inputs.forEach((label, index) => {
     const knownKey = KNOWN_PARAM_KEYS.find((k) => k.toLowerCase() === label.toLowerCase());
-    const key = knownKey || (index === 0 ? 'playerId' : `param${index + 1}`);
+    let key = knownKey || (index === 0 ? 'playerId' : '');
+    if (!key) {
+      const slug = label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40);
+      key = slug && !RESERVED_KEYS.has(slug) && slug !== 'playerid' ? slug : `param${index + 1}`;
+    }
+    if (used.has(key)) key = `param${index + 1}`;
+    used.add(key);
     out.push({
       key,
       label: KNOWN_LABELS[label.toLowerCase()] || label,
       type: fieldType('', label),
       required: true,
-      ...(knownKey || index === 0 ? {} : { unconfirmed: true }),
     });
   });
   return out;
@@ -416,7 +446,7 @@ export function normalizeQtyRule(qtyValues: unknown, productType: string): QtyRu
 
 // ---------------------------------------------------------------- delivery
 
-const DELIVERY_KEYS = ['replay_api', 'replay', 'codes', 'code', 'pin', 'pins', 'serial', 'voucher', 'card', 'cards', 'content', 'delivery', 'account'];
+const DELIVERY_KEYS = ['replay_api', 'replay', 'codes', 'code', 'pin', 'pins', 'serial', 'voucher', 'card', 'cards', 'content', 'delivery'];
 
 function collectStrings(value: unknown, out: string[], depth = 0): void {
   if (depth > 3 || out.length >= 50) return;
@@ -435,7 +465,9 @@ function collectStrings(value: unknown, out: string[], depth = 0): void {
 /** Codes / text the provider delivered for an order, if the body contains any. */
 export function extractDelivery(obj: unknown): Delivery | undefined {
   if (!isObject(obj)) return undefined;
-  const sources = [obj, isObject(obj.data) ? obj.data : null].filter(Boolean) as Record<string, any>[];
+  // In an order object, `data` echoes the params we sent (e.g. {playerId}); only envelopes nest codes there
+  const isOrder = obj.order_id !== undefined || obj.orderId !== undefined;
+  const sources = [obj, !isOrder && isObject(obj.data) ? obj.data : null].filter(Boolean) as Record<string, any>[];
   const codes: string[] = [];
   for (const source of sources) {
     for (const key of DELIVERY_KEYS) {
