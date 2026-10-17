@@ -307,11 +307,12 @@ export default function HomePage() {
           <div className="flex items-center gap-1.5 text-amber-300 font-bold shrink-0 gold-badge px-3 py-1 rounded-full font-alkatip text-xs sm:text-sm z-10 shadow-md">
             <Zap className="w-3.5 h-3.5 fill-amber-300 text-amber-400 animate-zap-wiggle" />
             <span>
+              <span className="autocash-shimmer font-bold mr-1">AUTO CASH</span>{' '}
               {lang === 'ug'
-                ? 'AUTO CASH نەق مەيدان:'
+                ? 'نەق مەيدان:'
                 : lang === 'ar'
-                ? 'AUTO CASH مباشر:'
-                : 'AUTO CASH Live:'}
+                ? 'مباشر:'
+                : 'Live:'}
             </span>
           </div>
 
@@ -323,7 +324,7 @@ export default function HomePage() {
                   <div className="flex items-center gap-8 shrink-0">
                     <span className="flex items-center gap-1.5">
                       <span className="text-amber-400">🌟</span>
-                      <span>AUTO CASH پىلاتفورمىسىغا كەلگەنلىكىڭىزنى قىزغىن قارشى ئالىمىز!</span>
+                      <span><span className="autocash-shimmer font-bold">AUTO CASH</span> پىلاتفورمىسىغا كەلگەنلىكىڭىزنى قىزغىن قارشى ئالىمىز!</span>
                     </span>
                     <span className="text-amber-500/50">•</span>
                     <span className="flex items-center gap-1.5">
@@ -339,7 +340,7 @@ export default function HomePage() {
                   <div className="flex items-center gap-8 shrink-0">
                     <span className="flex items-center gap-1.5">
                       <span className="text-amber-400">🌟</span>
-                      <span>AUTO CASH پىلاتفورمىسىغا كەلگەنلىكىڭىزنى قىزغىن قارشى ئالىمىز!</span>
+                      <span><span className="autocash-shimmer font-bold">AUTO CASH</span> پىلاتفورمىسىغا كەلگەنلىكىڭىزنى قىزغىن قارشى ئالىمىز!</span>
                     </span>
                     <span className="text-amber-500/50">•</span>
                     <span className="flex items-center gap-1.5">
@@ -358,7 +359,7 @@ export default function HomePage() {
                   <div className="flex items-center gap-8 shrink-0">
                     <span className="flex items-center gap-1.5">
                       <span className="text-amber-400">🌟</span>
-                      <span>أهلاً بكم في منصة AUTO CASH لشحن الألعاب والتطبيقات!</span>
+                      <span>أهلاً بكم في منصة <span className="autocash-shimmer font-bold">AUTO CASH</span> لشحن الألعاب والتطبيقات!</span>
                     </span>
                     <span className="text-amber-500/50">•</span>
                     <span className="flex items-center gap-1.5">
@@ -374,7 +375,7 @@ export default function HomePage() {
                   <div className="flex items-center gap-8 shrink-0">
                     <span className="flex items-center gap-1.5">
                       <span className="text-amber-400">🌟</span>
-                      <span>أهلاً بكم في منصة AUTO CASH لشحن الألعاب والتطبيقات!</span>
+                      <span>أهلاً بكم في منصة <span className="autocash-shimmer font-bold">AUTO CASH</span> لشحن الألعاب والتطبيقات!</span>
                     </span>
                     <span className="text-amber-500/50">•</span>
                     <span className="flex items-center gap-1.5">
@@ -393,7 +394,7 @@ export default function HomePage() {
                   <div className="flex items-center gap-8 shrink-0">
                     <span className="flex items-center gap-1.5">
                       <span className="text-amber-400">🌟</span>
-                      <span>Welcome to AUTO CASH Digital Hub!</span>
+                      <span>Welcome to <span className="autocash-shimmer font-bold">AUTO CASH</span> Digital Hub!</span>
                     </span>
                     <span className="text-amber-500/50">•</span>
                     <span className="flex items-center gap-1.5">
@@ -409,7 +410,7 @@ export default function HomePage() {
                   <div className="flex items-center gap-8 shrink-0">
                     <span className="flex items-center gap-1.5">
                       <span className="text-amber-400">🌟</span>
-                      <span>Welcome to AUTO CASH Digital Hub!</span>
+                      <span>Welcome to <span className="autocash-shimmer font-bold">AUTO CASH</span> Digital Hub!</span>
                     </span>
                     <span className="text-amber-500/50">•</span>
                     <span className="flex items-center gap-1.5">
@@ -440,15 +441,16 @@ export default function HomePage() {
               <div className="inline-flex items-center gap-2 mb-2 px-3 py-1 rounded-full gold-badge text-[11px] sm:text-xs font-semibold font-alkatip">
                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
                 <span>
+                  <span className="autocash-shimmer font-bold mr-1">AUTO CASH</span>{' '}
                   {lang === 'ug'
-                    ? 'AUTO CASH ئاپتۇماتىك پۇل قاچىلاش سېستىمىسى'
+                    ? 'ئاپتۇماتىك پۇل قاچىلاش سېستىمىسى'
                     : lang === 'ar'
-                    ? 'نظام AUTO CASH للشحن التلقائي السريع'
-                    : 'AUTO CASH Automated Instant Top-up'}
+                    ? 'للشحن التلقائي السريع'
+                    : 'Automated Instant Top-up'}
                 </span>
               </div>
               <h1 className="font-ukij text-2xl sm:text-4xl font-extrabold text-white leading-tight">
-                <span className="bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 bg-clip-text text-transparent gold-text-glow">
+                <span className="autocash-shimmer">
                   AUTO CASH
                 </span>{' '}
                 —{' '}

@@ -223,7 +223,7 @@ export default function Navbar({
               href="/"
               className="flex items-center gap-1 group cursor-pointer shrink-0"
             >
-              <span className="font-ukij font-black text-sm sm:text-base md:text-lg tracking-wider bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 bg-clip-text text-transparent gold-text-glow whitespace-nowrap">
+              <span className="font-ukij font-black text-sm sm:text-base md:text-lg tracking-wider autocash-shimmer whitespace-nowrap">
                 AUTO CASH
               </span>
               <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-300 animate-star-twinkle shrink-0" />

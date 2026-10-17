@@ -207,8 +207,8 @@ export default function WelcomeSplash({ onEnter }: { onEnter: () => void }) {
         </span>
 
         {/* Brand Name with Golden Shimmer (Unchanged) */}
-        <h1 className="font-ukij text-4xl sm:text-6xl font-black tracking-wider text-white mb-3 gold-text-glow">
-          <span className="bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
+        <h1 className="font-ukij text-4xl sm:text-6xl font-black tracking-wider text-white mb-3">
+          <span className="autocash-shimmer">
             AUTO CASH
           </span>
         </h1>

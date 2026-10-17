@@ -773,8 +773,8 @@ export default function AdminPage() {
             <Lock className="w-8 h-8" />
           </div>
 
-          <h2 className="text-xl font-bold text-center text-white font-ukij gold-text-glow mb-2">
-            AUTO CASH باشقۇرۇش مەركىزى
+          <h2 className="text-xl font-bold text-center text-white font-ukij mb-2">
+            <span className="autocash-shimmer">AUTO CASH</span> باشقۇرۇش مەركىزى
           </h2>
           <p className="text-xs text-center text-slate-400 mb-6 font-alkatip">
             سىستېمىنى باشقۇرۇش ۋە سانلىق مەلۇماتلارنى كۆرۈش ئۈچۈن مەخسۇس شىفىرنى (PIN) كىرگۈزۈڭ.
@@ -894,7 +894,7 @@ export default function AdminPage() {
               </div>
               <div>
                 <h1 className="font-ukij font-bold text-sm leading-tight text-white">
-                  {settings.siteName || 'AUTO CASH'}
+                  <span className="autocash-shimmer">{settings.siteName || 'AUTO CASH'}</span>
                 </h1>
                 <span className="text-[10px] text-amber-400 font-bold block">
                   باشقۇرۇش مەركىزى (v2.0)

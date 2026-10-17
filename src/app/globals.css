@@ -225,6 +225,39 @@ body.lang-en .font-alkatip {
   box-shadow: 0 4px 18px rgba(250, 204, 21, 0.55);
 }
 
+/* Smooth continuous Left-to-Right shimmering sweep for AUTO CASH text */
+@keyframes autoCashShimmerSweep {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.autocash-shimmer {
+  background: linear-gradient(
+    90deg,
+    #eab308 0%,
+    #facc15 20%,
+    #ffffff 45%,
+    #ffffff 55%,
+    #facc15 80%,
+    #eab308 100%
+  ) !important;
+  background-size: 200% 100% !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+  animation: autoCashShimmerSweep 3s linear infinite !important;
+  display: inline-block;
+  vertical-align: baseline;
+  will-change: background-position;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
 /* Normal, Calm & Elegant Floating for Action Buttons */
 @keyframes normalButtonFloat {
   0%, 100% {

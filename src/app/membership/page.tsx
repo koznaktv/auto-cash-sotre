@@ -212,7 +212,7 @@ export default function MembershipVipPage() {
           {/* Card Top Row */}
           <div className="flex items-center justify-between relative z-10">
             <span className="font-mono text-xs sm:text-sm font-extrabold text-cyan-400/90 tracking-widest uppercase">
-              AUTO CASH CLUB
+              <span className="autocash-shimmer">AUTO CASH</span> CLUB
             </span>
 
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 text-xs font-bold shadow-sm">

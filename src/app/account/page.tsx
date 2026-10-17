@@ -374,7 +374,7 @@ export default function AccountPage() {
             </div>
 
             <div className="pt-3 border-t border-cyan-500/15 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-slate-400">
-              <span>AUTO CASH #1001-2026</span>
+              <span><span className="autocash-shimmer font-bold mr-1">AUTO CASH</span> #1001-2026</span>
               <span className="text-emerald-400 font-bold flex items-center gap-1 self-end sm:self-auto">
                 <ShieldCheck className="w-3.5 h-3.5" />
                 <span>Verified Account</span>
