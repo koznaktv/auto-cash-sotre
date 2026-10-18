@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { ServiceItem, ServicePackage } from '@/lib/data';
 import DynamicIcon from './DynamicIcon';
 import AnimatedOrderButton from './AnimatedOrderButton';
@@ -26,6 +27,7 @@ function newIdempotencyKey(): string {
 }
 
 export default function CheckoutModal({ service, user, onClose, onSuccess, onOpenAuth }: CheckoutModalProps) {
+  const router = useRouter();
   const { t, isRTL, translatePackageTitle, translateInputLabel, translateInputPlaceholder } = useLanguage();
 
   const isProvider = Boolean(service && (service.source === 'provider' || service.id.startsWith('s4g-')));
@@ -132,15 +134,18 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
         setInfoMsg(data.message || 'زاكازىڭىز تەكشۈرۈلۈۋاتىدۇ');
         setTimeout(() => {
           onSuccess(data.order, data.newBalance);
+          onClose();
+          router.push('/orders');
         }, 1200);
         return;
       }
 
-      // Order Success! Play the celebratory checkmark animation
+      // Order Success! Play celebratory checkmark animation, then jump to My Orders
       setButtonState('success');
       setTimeout(() => {
         onSuccess(data.order, data.newBalance);
         onClose();
+        router.push('/orders');
       }, 1200);
     } catch (err: any) {
       setButtonState('idle');

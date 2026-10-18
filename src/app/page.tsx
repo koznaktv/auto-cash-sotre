@@ -3,6 +3,7 @@
 import { clearLocalAuth, logout, syncSupabaseSession, getCachedBalance, getCachedUser, storeLocalAuth, ClientUser } from '@/lib/clientAuth';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import PromoCarousel from '@/components/PromoCarousel';
 import DynamicIcon from '@/components/DynamicIcon';
@@ -31,6 +32,7 @@ import {
 let hasShownSplashInCurrentSession = false;
 
 export default function HomePage() {
+  const router = useRouter();
   const {
     lang,
     t,
@@ -205,6 +207,7 @@ export default function HomePage() {
       const orderAmount = Number(newOrder.amount ?? (newOrder as any).price ?? 0);
       setUserBalance((prev) => Math.max(0, Math.round((prev - orderAmount) * 100) / 100));
     }
+    router.push('/orders');
   };
 
   const handleSelectCategory = (catId: string) => {
