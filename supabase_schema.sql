@@ -159,8 +159,19 @@ CREATE TABLE IF NOT EXISTS public.system_settings (
   whatsapp_number TEXT NOT NULL DEFAULT '+963 984 373 459',
   telegram_username TEXT NOT NULL DEFAULT 'autocash_UYGHUR',
   site_name TEXT NOT NULL DEFAULT 'AUTO CASH',
+  provider_api_url TEXT DEFAULT 'https://syria4game.com',
+  provider_api_key TEXT DEFAULT '',
+  provider_api_type TEXT DEFAULT 'syria4game',
+  provider_api_secret TEXT DEFAULT '',
+  provider_enabled BOOLEAN DEFAULT TRUE,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE public.system_settings ADD COLUMN IF NOT EXISTS provider_api_url TEXT DEFAULT 'https://syria4game.com';
+ALTER TABLE public.system_settings ADD COLUMN IF NOT EXISTS provider_api_key TEXT DEFAULT '';
+ALTER TABLE public.system_settings ADD COLUMN IF NOT EXISTS provider_api_type TEXT DEFAULT 'syria4game';
+ALTER TABLE public.system_settings ADD COLUMN IF NOT EXISTS provider_api_secret TEXT DEFAULT '';
+ALTER TABLE public.system_settings ADD COLUMN IF NOT EXISTS provider_enabled BOOLEAN DEFAULT TRUE;
 
 -- 5. Create Idempotency Records Table (قوش چەكمە ۋە تەكرار زاكازدىن مۇداپىئەلىنىش)
 CREATE TABLE IF NOT EXISTS public.idempotency_records (

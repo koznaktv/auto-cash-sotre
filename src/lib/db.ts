@@ -910,12 +910,23 @@ export async function updateDepositStatusAsync(
 // ================= SETTINGS OPERATIONS =================
 
 export async function getSystemSettingsAsync(): Promise<SystemSettings> {
+  const localSettings = ensureDbFile().settings;
   const sb = getSupabase();
   if (sb) {
     try {
       const { data, error } = await sb.from('system_settings').select('*').eq('id', 'global').maybeSingle();
       if (!error && data) {
-        return mapSupabaseSettings(data);
+        const sbSettings = mapSupabaseSettings(data);
+        return {
+          ...localSettings,
+          ...sbSettings,
+          // Preserve local provider config if Supabase doesn't have these columns
+          providerApiUrl: sbSettings.providerApiUrl || localSettings.providerApiUrl,
+          providerApiKey: sbSettings.providerApiKey || localSettings.providerApiKey,
+          providerApiType: sbSettings.providerApiType || localSettings.providerApiType,
+          providerApiSecret: sbSettings.providerApiSecret || localSettings.providerApiSecret,
+          providerEnabled: sbSettings.providerEnabled !== undefined ? sbSettings.providerEnabled : localSettings.providerEnabled,
+        };
       }
       if (error) {
         console.warn('Supabase getSystemSettings warning:', error.message);
@@ -924,10 +935,15 @@ export async function getSystemSettingsAsync(): Promise<SystemSettings> {
       console.warn('Supabase getSystemSettings exception:', e);
     }
   }
-  return ensureDbFile().settings;
+  return localSettings;
 }
 
 export async function updateSystemSettingsAsync(updates: Partial<SystemSettings>): Promise<SystemSettings> {
+  // Always update local persistent JSON DB
+  const db = ensureDbFile();
+  db.settings = { ...db.settings, ...updates };
+  saveDb(db);
+
   const sb = getSupabase();
   if (sb) {
     const dbUpdates: any = { updated_at: new Date().toISOString() };
@@ -936,24 +952,46 @@ export async function updateSystemSettingsAsync(updates: Partial<SystemSettings>
     if (updates.whatsappNumber) dbUpdates.whatsapp_number = updates.whatsappNumber;
     if (updates.telegramUsername) dbUpdates.telegram_username = updates.telegramUsername;
     if (updates.siteName) dbUpdates.site_name = updates.siteName;
+
+    // Optional provider columns (may not yet be added in Supabase schema)
     if (updates.providerApiUrl !== undefined) dbUpdates.provider_api_url = updates.providerApiUrl;
     if (updates.providerApiKey !== undefined) dbUpdates.provider_api_key = updates.providerApiKey;
     if (updates.providerApiType !== undefined) dbUpdates.provider_api_type = updates.providerApiType;
     if (updates.providerApiSecret !== undefined) dbUpdates.provider_api_secret = updates.providerApiSecret;
     if (updates.providerEnabled !== undefined) dbUpdates.provider_enabled = updates.providerEnabled;
 
-    const { data, error } = await sb
-      .from('system_settings')
-      .upsert({ id: 'global', ...dbUpdates })
-      .select()
-      .maybeSingle();
-    if (error) supabaseFailure('updateSystemSettings', error);
-    return mapSupabaseSettings(data || {});
+    try {
+      const { data, error } = await sb
+        .from('system_settings')
+        .upsert({ id: 'global', ...dbUpdates })
+        .select()
+        .maybeSingle();
+
+      if (error) {
+        // If columns don't exist in Supabase yet, retry with only basic settings
+        console.warn('Supabase updateSystemSettings full upsert warning, retrying basic:', error.message);
+        const basicUpdates: any = { updated_at: new Date().toISOString() };
+        if (updates.adminPin) basicUpdates.admin_pin = updates.adminPin;
+        if (updates.shamcashAddress) basicUpdates.shamcash_address = updates.shamcashAddress;
+        if (updates.whatsappNumber) basicUpdates.whatsapp_number = updates.whatsappNumber;
+        if (updates.telegramUsername) basicUpdates.telegram_username = updates.telegramUsername;
+        if (updates.siteName) basicUpdates.site_name = updates.siteName;
+
+        const retryRes = await sb
+          .from('system_settings')
+          .upsert({ id: 'global', ...basicUpdates })
+          .select()
+          .maybeSingle();
+
+        if (retryRes.error) {
+          console.error('Supabase updateSystemSettings basic retry error:', retryRes.error);
+        }
+      }
+    } catch (e: any) {
+      console.warn('Supabase updateSystemSettings exception (saved locally):', e?.message);
+    }
   }
 
-  const db = ensureDbFile();
-  db.settings = { ...db.settings, ...updates };
-  saveDb(db);
   return db.settings;
 }
 
