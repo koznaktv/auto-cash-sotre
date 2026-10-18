@@ -2497,11 +2497,21 @@ export default function AdminPage() {
 
                   {/* API Key / Token */}
                   <div>
-                    <label className="block text-xs font-bold text-amber-300 mb-1.5 font-alkatip">
-                      API ئاچقۇچى (API Token / Key):
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-xs font-bold text-amber-300 font-alkatip">
+                        API ئاچقۇچى (API Token / Key):
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowPin(!showPin)}
+                        className="text-[11px] text-cyan-400 hover:text-cyan-300 transition flex items-center gap-1 cursor-pointer"
+                      >
+                        {showPin ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        <span>{showPin ? 'يوشۇرۇش' : 'كۆرسىتىش (ئېنىق كۆرۈش)'}</span>
+                      </button>
+                    </div>
                     <input
-                      type="password"
+                      type={showPin ? 'text' : 'password'}
                       value={providerForm.apiKey}
                       onChange={(e) => setProviderForm({ ...providerForm, apiKey: e.target.value })}
                       placeholder={providerStatus?.config?.hasRealKey ? `ھازىر ئاچقۇچ ساقلانغان (${providerStatus.config.providerApiKey})، ئۆزگەرتمەكچى بولسىڭىز يېڭىسىنى كىرگۈزۈڭ` : 'يېڭى API Token نى بۇ يەرگە چاپلاڭ'}
