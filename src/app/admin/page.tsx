@@ -1322,7 +1322,7 @@ export default function AdminPage() {
             {[
               { id: 'dashboard', label: 'باش تاختا (Dashboard)', icon: LayoutDashboard },
               { id: 'orders', label: 'زاكازلارنى باشقۇرۇش', icon: ShoppingBag, badge: metrics.processingCount },
-              { id: 'provider', label: 'تاشقى API (syria4game)', icon: Zap, badgeColor: 'bg-cyan-500 text-slate-950' },
+              { id: 'provider', label: 'Sahl Cash API', icon: Zap, badgeColor: 'bg-cyan-500 text-slate-950' },
               { id: 'services', label: 'مەھسۇلات / مۇلازىمەتلەر', icon: Package, badge: services.length },
               { id: 'deposits', label: 'ھەميان كىرىملىرى (شامكەش)', icon: Wallet, badge: metrics.pendingDepCount, badgeColor: 'bg-amber-500 text-slate-950' },
               { id: 'users', label: 'ئىشلەتكۈچىلەر (ئەزالار)', icon: Users, badge: metrics.userCount },
@@ -1594,7 +1594,7 @@ export default function AdminPage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-sm font-bold text-white">تاشقى تەمىنلىگۈچى (syria4game.com) API ئۇلىنىشى</h3>
+                      <h3 className="text-sm font-bold text-white">Sahl Cash (api.sahl-cash.com) API ئۇلىنىشى</h3>
                       <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold ${
                         providerStatus?.success
                           ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
@@ -1905,7 +1905,7 @@ export default function AdminPage() {
                               {order.targetAccount}
                               {order.details?.providerOrderId && (
                                 <span className="block text-[10px] text-cyan-400 font-normal" dir="ltr">
-                                  syria4game #{order.details.providerOrderId}
+                                  Sahl Cash #{order.details.providerOrderId}
                                   {order.details.providerStatus ? ` · ${order.details.providerStatus}` : ''}
                                 </span>
                               )}
@@ -2658,7 +2658,7 @@ export default function AdminPage() {
                     </div>
                     <div>
                       <h2 className="text-base sm:text-lg font-bold text-white">
-                        تاشقى تەمىنلىگۈچى (syria4game.com) API مەركىزى
+                        Sahl Cash (api.sahl-cash.com) API مەركىزى
                       </h2>
                       <p className={`text-xs ${themeClasses.subtext}`}>
                         رەسمىي ئويۇن پۇل قاچىلاش API سى، توپ سېتىۋېلىش قالدۇق پۇلى ۋە مەھسۇلات تىزىملىكى
@@ -2724,13 +2724,13 @@ export default function AdminPage() {
                   <span className={`text-xs ${themeClasses.subtext} block mb-1`}>تەمىنلىگۈچى تىپى & ئادرېسى</span>
                   <div className="text-base font-bold text-white mt-2">
                     {providerForm.apiType === 'syria4game'
-                      ? 'Syria4Game Gaming API'
+                      ? 'Sahl Cash API'
                       : providerForm.apiType === 'smm'
                       ? 'Standard SMM Panel v2 API'
                       : 'خاس REST API'}
                   </div>
                   <span className="text-[11px] text-cyan-400 mt-1 block font-mono truncate" dir="ltr">
-                    {providerForm.apiUrl || 'https://syria4game.com'}
+                    {providerForm.apiUrl || 'https://api.sahl-cash.com'}
                   </span>
                 </div>
               </div>
@@ -2748,7 +2748,7 @@ export default function AdminPage() {
                 </div>
 
                 <p className="text-xs text-slate-400 font-alkatip leading-relaxed">
-                  بۇ يەردە كود ئۆزگەرتمەي تۇرۇپلا تور بېتىڭىزنىڭ زاكازلىرىنى باشقا ھەر قانداق سۇپىغا (مەسىلەن Syria4Game ياكى باشقا تەمىنلىگۈچى SMM / Game Top-up API لارغا) ئۇلىيالايسىز. تۆۋەندىكى تەلەپلەرنى كىرگۈزۈپ «ساقلاش ۋە دەرھال ئۇلىنىشنى سىناش» كۇنۇپكىسىنى باسسىڭىز، سىستېما دەرھال نەق پۇل قالدۇقىنى تەكشۈرۈپ ئاپتوماتىك ئىشقا كىرىشتۈرىدۇ.
+                  بۇ يەردە كود ئۆزگەرتمەي تۇرۇپلا تور بېتىڭىزنىڭ زاكازلىرىنى Sahl Cash (https://api.sahl-cash.com) سۇپىسىغا تولۇق ئۇلىيالايسىز. تۆۋەندىكى تەلەپلەرنى كىرگۈزۈپ «ساقلاش ۋە دەرھال ئۇلىنىشنى سىناش» كۇنۇپكىسىنى باسسىڭىز، سىستېما دەرھال نەق پۇل قالدۇقىنى تەكشۈرۈپ ئاپتوماتىك ئىشقا كىرىشتۈرىدۇ.
                 </p>
 
                 {providerFeedback && (
@@ -2776,7 +2776,7 @@ export default function AdminPage() {
                         onChange={(e) => setProviderForm({ ...providerForm, apiType: e.target.value as any })}
                         className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-bold ${themeClasses.input} focus:outline-none focus:border-cyan-400`}
                       >
-                        <option value="syria4game" className="bg-slate-900 text-white">Syria4Game Gaming API (ئەسلىدىكى)</option>
+                        <option value="syria4game" className="bg-slate-900 text-white">Sahl Cash API (https://api.sahl-cash.com)</option>
                         <option value="smm" className="bg-slate-900 text-white">Standard SMM / Top-Up Panel v2 API</option>
                         <option value="custom_rest" className="bg-slate-900 text-white">Custom REST API (خاس ئۇلىنىش)</option>
                       </select>
@@ -2811,13 +2811,13 @@ export default function AdminPage() {
                       type="text"
                       value={providerForm.apiUrl}
                       onChange={(e) => setProviderForm({ ...providerForm, apiUrl: e.target.value })}
-                      placeholder="https://provider-domain.com ياكى https://syria4game.com"
+                      placeholder="https://api.sahl-cash.com"
                       className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-xs ${themeClasses.input} focus:outline-none focus:border-cyan-400`}
                       dir="ltr"
                       required
                     />
                     <span className="text-[10px] text-slate-500 mt-1 block">
-                      مەسىلەن: https://syria4game.com ياكى يېڭى تەمىنلىگۈچىڭىزنىڭ API ئادرېسى
+                      نۆۋەتتىكى ئادرېس: https://api.sahl-cash.com
                     </span>
                   </div>
 
@@ -2938,7 +2938,7 @@ export default function AdminPage() {
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
                       <Package className="w-4 h-4 text-cyan-400" />
-                      <span>syria4game مەھسۇلات تىزىملىكى ({providerProducts.length} تال)</span>
+                      <span>Sahl Cash مەھسۇلات تىزىملىكى ({providerProducts.length} تال)</span>
                     </h3>
                   </div>
 

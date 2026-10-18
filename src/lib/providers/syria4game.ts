@@ -103,6 +103,9 @@ export class Syria4GameProvider {
       const settings = await getSystemSettingsAsync().catch(() => null);
 
       let baseUrl = stored.providerApiUrl;
+      if (!baseUrl || baseUrl.includes('syria4game')) {
+        baseUrl = 'https://api.sahl-cash.com';
+      }
       let apiToken = stored.providerApiKey;
       let apiType = stored.providerApiType || 'syria4game';
       let apiSecret = stored.providerApiSecret;
@@ -110,8 +113,10 @@ export class Syria4GameProvider {
 
       // If DB settings has non-default custom settings, merge them
       if (settings) {
-        if (settings.providerApiUrl && settings.providerApiUrl !== 'https://syria4game.com') {
+        if (settings.providerApiUrl && !settings.providerApiUrl.includes('syria4game')) {
           baseUrl = settings.providerApiUrl;
+        } else {
+          baseUrl = 'https://api.sahl-cash.com';
         }
         if (settings.providerApiKey && settings.providerApiKey.trim().length > 0) {
           apiToken = settings.providerApiKey.trim();
@@ -127,8 +132,7 @@ export class Syria4GameProvider {
         }
       }
 
-      // If URL was left as legacy syria4game.com, but we have sahl-cash credentials, correct it
-      if (baseUrl === 'https://syria4game.com' && (apiToken.length >= 40 || (process.env.SYRIA4GAME_BASE_URL || '').includes('sahl-cash'))) {
+      if (baseUrl.includes('syria4game')) {
         baseUrl = 'https://api.sahl-cash.com';
       }
 
