@@ -22,6 +22,7 @@ export async function GET(req: Request) {
 
 const NUMERIC_LIMITS: Partial<Record<keyof ProviderSettings, [number, number]>> = {
   globalMarkupPercent: [0, 500],
+  fixedMarkupUsd: [0, 1000],
   minProfitUsd: [0, 1000],
   minOrderUsd: [0, 1000],
   priceMaxAgeMinutes: [1, 1440],

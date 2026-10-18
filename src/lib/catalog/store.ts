@@ -75,6 +75,7 @@ function mapSettings(row: any): ProviderSettings {
   return {
     catalogSource: row.catalog_source === 'provider' ? 'provider' : 'legacy',
     globalMarkupPercent: num(row.global_markup_percent, d.globalMarkupPercent),
+    fixedMarkupUsd: num(row.fixed_markup_usd, d.fixedMarkupUsd),
     minProfitUsd: num(row.min_profit_usd, d.minProfitUsd),
     minOrderUsd: num(row.min_order_usd, d.minOrderUsd),
     priceMaxAgeMinutes: num(row.price_max_age_minutes, d.priceMaxAgeMinutes),
@@ -95,6 +96,7 @@ function mapSettings(row: any): ProviderSettings {
 const SETTINGS_COLUMNS: Record<keyof ProviderSettings, string> = {
   catalogSource: 'catalog_source',
   globalMarkupPercent: 'global_markup_percent',
+  fixedMarkupUsd: 'fixed_markup_usd',
   minProfitUsd: 'min_profit_usd',
   minOrderUsd: 'min_order_usd',
   priceMaxAgeMinutes: 'price_max_age_minutes',

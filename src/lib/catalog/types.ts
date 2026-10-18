@@ -99,6 +99,7 @@ export interface CatalogOverride {
   customImage?: string | null;
   customBadge?: string | null;
   markupPercent?: number | null;
+  fixedMarkupUsd?: number | null;
   inputFieldsOverride?: CheckoutField[] | null;
   sortOrder?: number | null;
 }
@@ -106,6 +107,7 @@ export interface CatalogOverride {
 export interface ProviderSettings {
   catalogSource: 'legacy' | 'provider';
   globalMarkupPercent: number;
+  fixedMarkupUsd: number;
   minProfitUsd: number;
   minOrderUsd: number;
   priceMaxAgeMinutes: number;
@@ -125,6 +127,7 @@ export interface ProviderSettings {
 export const DEFAULT_PROVIDER_SETTINGS: ProviderSettings = {
   catalogSource: 'legacy',
   globalMarkupPercent: 15,
+  fixedMarkupUsd: 0,
   minProfitUsd: 0.01,
   minOrderUsd: 0.1,
   priceMaxAgeMinutes: 30,

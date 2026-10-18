@@ -249,7 +249,8 @@ export default function ProviderCatalogPanel({ themeClasses }: { themeClasses: T
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {numberInput('globalMarkupPercent', 'پايدا % (ئومۇمىي)', '0.1')}
+          {numberInput('globalMarkupPercent', 'پىرسەنتلىك پايدا % (Markup %)', '0.1')}
+          {numberInput('fixedMarkupUsd', 'مۇقىم پايدا $ (Fixed Profit $)', '0.01')}
           {numberInput('minProfitUsd', 'ئەڭ ئاز پايدا $')}
           {numberInput('minOrderUsd', 'ئەڭ ئاز زاكاز $')}
           {numberInput('priceMaxAgeMinutes', 'باھا cache مۇددىتى (مىنۇت)', '1')}

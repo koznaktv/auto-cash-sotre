@@ -163,10 +163,16 @@ export function buildProviderCatalog(input: {
     }
     const qty = normalizeQtyRule(product.qtyValues, product.productType);
     const isAmount = qty.kind !== 'fixed';
-
+    const fixedMarkup = override?.fixedMarkupUsd ?? settings.fixedMarkupUsd ?? 0;
     let price: number;
     try {
-      price = computeSellPrice({ unitCost: product.costPrice, qty: minQty(qty), markupPercent, minProfit: settings.minProfitUsd });
+      price = computeSellPrice({
+        unitCost: product.costPrice,
+        qty: minQty(qty),
+        markupPercent,
+        fixedMarkupUsd: fixedMarkup,
+        minProfit: settings.minProfitUsd,
+      });
     } catch {
       continue;
     }
@@ -180,7 +186,7 @@ export function buildProviderCatalog(input: {
       duration: 'دەرھال',
       providerProductId: product.id,
       productType: isAmount ? 'amount' : 'fixed',
-      ...(isAmount ? { unitPrice: unitSellPrice(product.costPrice, markupPercent) } : {}),
+      ...(isAmount ? { unitPrice: unitSellPrice(product.costPrice, markupPercent, fixedMarkup) } : {}),
       qty,
       fields,
       available: product.available,

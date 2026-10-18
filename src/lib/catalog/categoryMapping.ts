@@ -11,10 +11,10 @@ const RULES: { category: StorefrontCategory; pattern: RegExp }[] = [
   { category: 'crypto', pattern: /usdt|crypto|بيتكوين|عملات\s*رقمية|binance|trc20|bep20/i },
   { category: 'accounts', pattern: /حسابات|حساب\s*جاهز|netflix|نتفلكس|spotify|سبوتيفاي|shahid|شاهد|youtube\s*premium|disney/i },
   { category: 'social', pattern: /متابع|لايك|مشاهد|تواصل|سوشيال|followers?|likes?|views?|social|tiktok|instagram|facebook|snapchat|telegram\s*(members|stars)/i },
-  { category: 'balance', pattern: /رصيد|سيريتل|syriatel|mtn|ام\s*تي\s*ان|وحدات|كاش|cash|محفظ|balance|\bbanks?\b|بنك|transfer|حوالة|حوالات/i },
+  { category: 'balance', pattern: /رصيد|سيريتل|syriatel|mtn|ام\s*تي\s*ان|وحدات|كاش|cash|محفظ|balance|\bbanks?\b|بنك|transfer|حوالة|حوالات|turkcell|telecom|turk/i },
   { category: 'cards', pattern: /بطاق|كرت|كروت|gift|card|voucher|itunes|google\s*play|playstation|psn|xbox|steam|razer/i },
-  { category: 'apps', pattern: /تطبيق|دردشة|برامج|app|bigo|tango|likee|imo|yalla|ludo|chat|software|\btvs?\b/i },
-  { category: 'games', pattern: /ألعاب|العاب|لعبة|شحن\s*ألعاب|games?|pubg|ببجي|free\s*fire|فري\s*فاير|mobile\s*legends|clash|fortnite|roblox|genshin|valorant/i },
+  { category: 'games', pattern: /ألعاب|العاب|لعبة|شحن\s*ألعاب|games?|pubg|ببجي|free\s*fire|فري\s*فاير|mobile\s*legends|clash|fortnite|roblox|genshin|valorant|call\s*of\s*duty|cod|strike|hay\s*day|jawaker|kamlna|war|pool|sultan|brawl|fifa|pes|efootball|play/i },
+  { category: 'apps', pattern: /تطبيق|دردشة|برامج|apps?|bigo|tango|likee|imo|yalla|ludo|chat|software|\btvs?\b|live|party|voice|stream|video|miyo|ميو|tumile|livu|chamet|yoho|mixu|poppo/i },
 ];
 
 export function guessStorefrontCategory(names: string[]): StorefrontCategory | null {

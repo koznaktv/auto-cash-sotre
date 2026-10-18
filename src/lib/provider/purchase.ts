@@ -114,7 +114,13 @@ export async function placeProviderOrder(user: UserRecord, input: PurchaseInput)
   const costTotal = Math.round(unitCost * qty * 1e8) / 1e8;
   let total: number;
   try {
-    total = computeSellPrice({ unitCost, qty, markupPercent: item.markupPercent, minProfit: settings.minProfitUsd });
+    total = computeSellPrice({
+      unitCost,
+      qty,
+      markupPercent: item.markupPercent,
+      fixedMarkupUsd: settings.fixedMarkupUsd,
+      minProfit: settings.minProfitUsd,
+    });
   } catch {
     return fail(400, 'باھا ھېسابلاش مەغلۇپ بولدى');
   }

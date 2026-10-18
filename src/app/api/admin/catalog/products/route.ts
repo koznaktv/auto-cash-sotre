@@ -52,6 +52,7 @@ export async function GET(req: Request) {
             unitCost: p.costPrice,
             qty: 1,
             markupPercent: orderable?.markupPercent ?? settings.globalMarkupPercent,
+            fixedMarkupUsd: settings.fixedMarkupUsd,
             minProfit: settings.minProfitUsd,
           });
         } catch {
