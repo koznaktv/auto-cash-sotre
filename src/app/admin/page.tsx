@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { isOrderInProgress, type Order, type DepositRecord } from '@/lib/orders';
 import { CATEGORIES_9, ServiceItem } from '@/lib/data';
@@ -211,11 +211,125 @@ export default function AdminPage() {
     }
   }, []);
 
-  // 2. Fetch all admin data
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadAllAdminData();
+  // Audio alert chime using browser Web Audio API (zero audio file dependencies, instant, crisp)
+  const playNotificationSound = () => {
+    try {
+      if (typeof window === 'undefined') return;
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1); // A5
+      gain.gain.setValueAtTime(0.18, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.35);
+    } catch {}
+  };
+
+  const isRefreshingLiveRef = useRef(false);
+
+  // High-speed silent live polling: fetches orders, deposits, and users without blocking the UI
+  const refreshLiveOrdersAndDeposits = async (isManual = false) => {
+    if (isRefreshingLiveRef.current) return;
+    const token = sessionStorage.getItem('autocash_admin_token');
+    if (!token) return;
+    const headers = { Authorization: `Bearer ${token}` };
+
+    isRefreshingLiveRef.current = true;
+    try {
+      const [resOrders, resDeposits, resUsers] = await Promise.all([
+        fetch('/api/orders', { headers }).then((r) => r.json()).catch(() => null),
+        fetch('/api/deposits', { headers }).then((r) => r.json()).catch(() => null),
+        fetch('/api/admin/users', { headers }).then((r) => r.json()).catch(() => null),
+      ]);
+
+      if (resOrders && resOrders.success && Array.isArray(resOrders.orders)) {
+        setOrders((prev) => {
+          if (prev.length > 0 && resOrders.orders.length > prev.length) {
+            playNotificationSound();
+          }
+          return resOrders.orders;
+        });
+      }
+
+      if (resDeposits && resDeposits.success && Array.isArray(resDeposits.deposits)) {
+        setDeposits((prev) => {
+          const prevPending = prev.filter((d) => d.status === 'pending').length;
+          const newPending = resDeposits.deposits.filter((d: any) => d.status === 'pending').length;
+          if (prev.length > 0 && newPending > prevPending) {
+            playNotificationSound();
+          }
+          return resDeposits.deposits;
+        });
+      }
+
+      if (resUsers && resUsers.success && Array.isArray(resUsers.users)) {
+        setUsers(resUsers.users);
+      }
+    } catch (e) {
+      console.error('Silent live refresh error:', e);
+    } finally {
+      isRefreshingLiveRef.current = false;
     }
+  };
+
+  // 2. Fetch all admin data & setup high-speed 3s Live Polling + Supabase Realtime
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // Initial comprehensive data load
+    loadAllAdminData();
+
+    // High-speed 3-second live poller
+    const poller = setInterval(() => {
+      refreshLiveOrdersAndDeposits();
+    }, 3000);
+
+    // Instant refresh on window focus / tab visibility change
+    const onFocus = () => refreshLiveOrdersAndDeposits(true);
+    const onVisibility = () => {
+      if (!document.hidden) refreshLiveOrdersAndDeposits(true);
+    };
+
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
+
+    // Supabase Realtime instant WebSocket channel
+    let realtimeChannel: any = null;
+    import('@/lib/supabaseBrowser')
+      .then(({ getBrowserSupabase }) => {
+        const sb = getBrowserSupabase();
+        if (!sb) return;
+
+        realtimeChannel = sb
+          .channel('admin-live-feed')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
+            refreshLiveOrdersAndDeposits();
+          })
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'deposits' }, () => {
+            refreshLiveOrdersAndDeposits();
+          })
+          .subscribe();
+      })
+      .catch(() => {});
+
+    return () => {
+      clearInterval(poller);
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
+      if (realtimeChannel) {
+        import('@/lib/supabaseBrowser').then(({ getBrowserSupabase }) => {
+          const sb = getBrowserSupabase();
+          if (sb && realtimeChannel) sb.removeChannel(realtimeChannel);
+        });
+      }
+    };
   }, [isAuthenticated]);
 
   const loadAllAdminData = async () => {
@@ -238,7 +352,7 @@ export default function AdminPage() {
       if (resServices.success) setServices(resServices.services || []);
       if (resSettings.success && resSettings.settings) setSettings(resSettings.settings);
 
-      // Check external gaming provider (syria4game.com) status
+      // Check external gaming provider (syria4game.com) status in background
       checkProviderLive();
     } catch (e) {
       console.error('Error fetching admin data:', e);
@@ -1011,10 +1125,43 @@ export default function AdminPage() {
             </h2>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Realtime Live Sync indicator */}
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] font-bold">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
+              <span>جانلىق ئۇلاندى (Live)</span>
+            </div>
+
+            {/* Pending Deposits Counter Badge */}
+            {deposits.filter((d) => d.status === 'pending').length > 0 && (
+              <button
+                onClick={() => setActiveTab('deposits')}
+                title="تەكشۈرۈشنى كۈتۈۋاتقان ھەميان كىرىملىرى"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition shadow-sm shadow-amber-500/20 cursor-pointer animate-pulse"
+              >
+                <Wallet className="w-3.5 h-3.5" />
+                <span>{deposits.filter((d) => d.status === 'pending').length} تالون</span>
+              </button>
+            )}
+
+            {/* Pending Orders Counter Badge */}
+            {orders.filter((o) => o.status === 'processing').length > 0 && (
+              <button
+                onClick={() => setActiveTab('orders')}
+                title="بىر تەرەپ قىلىنىۋاتقان زاكازلار"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-bold transition shadow-sm shadow-cyan-500/20 cursor-pointer"
+              >
+                <ShoppingBag className="w-3.5 h-3.5" />
+                <span>{orders.filter((o) => o.status === 'processing').length} زاكاز</span>
+              </button>
+            )}
+
             {/* Refresh Data button */}
             <button
-              onClick={loadAllAdminData}
+              onClick={() => {
+                refreshLiveOrdersAndDeposits(true);
+                loadAllAdminData();
+              }}
               title="يېڭىلاش"
               className={`p-2 rounded-xl transition cursor-pointer border ${
                 isDarkMode
