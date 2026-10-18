@@ -743,8 +743,14 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           color: var(--text-main);
           display: flex;
           justify-content: center;
-          align-items: center;
+          align-items: flex-start;
           transition: background-color 0.8s cubic-bezier(0.2, 0.9, 0.3, 1);
+        }
+
+        @media (min-width: 881px) and (min-height: 650px) {
+          .nasrulla-modal-root {
+            align-items: center;
+          }
         }
 
         .nasrulla-modal-root::before {
@@ -1956,14 +1962,14 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           color: #ffd77a;
         }
 
-        /* Responsive Breakpoints */
+        /* Responsive Breakpoints for Mobile & Tablet */
         @media (max-width: 880px) {
           .nasrulla-modal-root .scene-wrapper {
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            gap: 15px;
-            padding: 30px 16px 45px;
+            gap: 10px;
+            padding: 30px 14px 45px;
             min-height: 100vh;
             min-height: 100dvh;
           }
@@ -1972,61 +1978,206 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             background: radial-gradient(circle at 50% 120px, rgba(135, 95, 25, 0.45) 0%, rgba(45, 32, 12, 0.25) 50%, rgba(7, 9, 14, 0.98) 85%);
           }
 
-          .nasrulla-modal-root .lamp-rig {
-            width: 100%;
-            max-width: 300px;
-            height: 200px;
-            margin-bottom: 2px;
+          /* Hide floor pedestal base & pole on mobile so there is no awkward floating disc */
+          .nasrulla-modal-root .lamp-base {
+            display: none !important;
           }
 
-          .nasrulla-modal-root .lamp-shade-container { top: 15px; }
-          .nasrulla-modal-root .lamp-cap { width: 36px; height: 8px; }
-          .nasrulla-modal-root .lamp-shade { width: 116px; height: 52px; }
-          .nasrulla-modal-root .lamp-bulb { width: 26px; height: 24px; bottom: -10px; }
-          .nasrulla-modal-root .lamp-stem { top: 67px; height: 110px; width: 4px; }
-          .nasrulla-modal-root .lamp-base { bottom: 15px; width: 88px; height: 14px; }
+          .nasrulla-modal-root .lamp-stem {
+            display: none !important;
+          }
+
+          /* Brass hanging rod descending from ceiling to lamp */
+          .nasrulla-modal-root .lamp-shade-container::before {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 90px;
+            background: linear-gradient(to right, #332610 0%, #7d632c 30%, #ecd996 50%, #9e7f3a 70%, #2e210a 100%);
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
+            z-index: 0;
+          }
+
+          /* Compact overhead lamp rig */
+          .nasrulla-modal-root .lamp-rig {
+            width: 100%;
+            max-width: 320px;
+            height: 140px;
+            margin-bottom: 0;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .nasrulla-modal-root .lamp-shade-container {
+            top: 20px;
+            z-index: 20;
+          }
+
+          .nasrulla-modal-root .lamp-cap {
+            width: 40px;
+            height: 10px;
+          }
+
+          .nasrulla-modal-root .lamp-shade {
+            width: 124px;
+            height: 56px;
+          }
+
+          .nasrulla-modal-root .lamp-bulb {
+            width: 28px;
+            height: 26px;
+            bottom: -12px;
+          }
+
+          .nasrulla-modal-root .cord-collar {
+            top: 76px;
+            left: calc(50% - 32px);
+          }
+
+          .nasrulla-modal-root .pull-cord-wrapper {
+            top: 78px;
+            left: calc(50% - 82px);
+            height: 200px;
+          }
+
+          .nasrulla-modal-root .cord-hint {
+            top: 185px;
+            left: calc(50% - 32px);
+            font-size: 12.5px;
+            padding: 5px 12px;
+            z-index: 30;
+          }
 
           .nasrulla-modal-root .light-beam {
-            top: 87px;
-            width: min(92vw, 360px);
-            height: 620px;
+            top: 76px;
+            width: min(94vw, 400px);
+            height: 600px;
             clip-path: polygon(32% 0%, 68% 0%, 98% 100%, 2% 100%);
             filter: blur(4px);
             transform: translateX(-50%) translateZ(0);
           }
 
           .nasrulla-modal-root .light-beam-core {
-            top: 87px;
-            width: min(75vw, 240px);
-            height: 600px;
+            top: 76px;
+            width: min(78vw, 260px);
+            height: 580px;
             clip-path: polygon(38% 0%, 62% 0%, 90% 100%, 10% 100%);
             filter: blur(2px);
             transform: translateX(-50%) translateZ(0);
           }
 
-          .nasrulla-modal-root .cord-collar { top: 85px; left: calc(50% - 28px); }
-          .nasrulla-modal-root .pull-cord-wrapper { top: 87px; left: calc(50% - 78px); }
-          .nasrulla-modal-root .cord-hint { top: 212px; left: calc(50% - 28px); font-size: 13px; padding: 6px 14px; }
+          .nasrulla-modal-root .login-card-container {
+            margin-top: 10px;
+            width: 100%;
+            max-width: 420px;
+          }
 
-          .nasrulla-modal-root .login-card-container { margin-top: 5px; width: 100%; max-width: 420px; }
-          .nasrulla-modal-root .login-card { padding: 28px 22px 24px; border-radius: 20px; }
+          .nasrulla-modal-root .login-card {
+            padding: 26px 20px 22px;
+            border-radius: 20px;
+          }
         }
 
         @media (max-width: 480px) {
-          .nasrulla-modal-root .scene-wrapper { padding: 20px 12px 35px; gap: 10px; }
-          .nasrulla-modal-root .btn-close-modal { top: 12px; left: 12px; padding: 6px 14px; font-size: 12px; }
-          .nasrulla-modal-root .lamp-rig { height: 180px; }
-          .nasrulla-modal-root .lamp-stem { top: 85px; height: 80px; }
-          .nasrulla-modal-root .lamp-base { bottom: 10px; width: 80px; height: 13px; }
-          .nasrulla-modal-root .cord-collar { top: 83px; left: calc(50% - 26px); }
-          .nasrulla-modal-root .pull-cord-wrapper { top: 85px; left: calc(50% - 76px); }
-          .nasrulla-modal-root .cord-hint { top: 206px; left: calc(50% - 26px); font-size: 12px; padding: 5px 12px; }
-          .nasrulla-modal-root .login-card { padding: 22px 16px 20px; border-radius: 18px; }
-          .nasrulla-modal-root .card-title { font-size: 19px; }
-          .nasrulla-modal-root .card-subtitle { font-size: 12.5px; }
-          .nasrulla-modal-root .custom-input { height: 44px; font-size: 13.5px; padding: 0 38px 0 12px; }
-          .nasrulla-modal-root .btn-submit { height: 45px; font-size: 15px; }
-          .nasrulla-modal-root .btn-social { height: 42px; font-size: 13px; }
+          .nasrulla-modal-root .scene-wrapper {
+            padding: 20px 10px 35px;
+            gap: 6px;
+          }
+
+          .nasrulla-modal-root .btn-close-modal {
+            top: 10px;
+            left: 10px;
+            padding: 6px 13px;
+            font-size: 12px;
+            z-index: 250;
+          }
+
+          .nasrulla-modal-root .lamp-rig {
+            height: 130px;
+          }
+
+          .nasrulla-modal-root .lamp-shade-container {
+            top: 15px;
+          }
+
+          .nasrulla-modal-root .lamp-cap {
+            width: 36px;
+            height: 8px;
+          }
+
+          .nasrulla-modal-root .lamp-shade {
+            width: 114px;
+            height: 50px;
+          }
+
+          .nasrulla-modal-root .lamp-bulb {
+            width: 26px;
+            height: 24px;
+            bottom: -10px;
+          }
+
+          .nasrulla-modal-root .cord-collar {
+            top: 65px;
+            left: calc(50% - 28px);
+          }
+
+          .nasrulla-modal-root .pull-cord-wrapper {
+            top: 67px;
+            left: calc(50% - 78px);
+          }
+
+          .nasrulla-modal-root .cord-hint {
+            top: 172px;
+            left: calc(50% - 28px);
+            font-size: 11.5px;
+            padding: 4px 10px;
+          }
+
+          .nasrulla-modal-root .light-beam {
+            top: 65px;
+          }
+
+          .nasrulla-modal-root .light-beam-core {
+            top: 65px;
+          }
+
+          .nasrulla-modal-root .login-card-container {
+            margin-top: 5px;
+          }
+
+          .nasrulla-modal-root .login-card {
+            padding: 20px 14px 18px;
+            border-radius: 18px;
+          }
+
+          .nasrulla-modal-root .card-title {
+            font-size: 18.5px;
+          }
+
+          .nasrulla-modal-root .card-subtitle {
+            font-size: 12px;
+          }
+
+          .nasrulla-modal-root .custom-input {
+            height: 44px;
+            font-size: 13.5px;
+            padding: 0 38px 0 12px;
+          }
+
+          .nasrulla-modal-root .btn-submit {
+            height: 45px;
+            font-size: 15px;
+          }
+
+          .nasrulla-modal-root .btn-social {
+            height: 42px;
+            font-size: 13px;
+          }
         }
       ` }} />
 
