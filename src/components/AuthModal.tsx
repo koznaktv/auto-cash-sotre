@@ -122,45 +122,18 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
       if (!ctx) return;
       const now = ctx.currentTime;
 
-      // 1. Mechanical snap click
+      // Ultra-lightweight instantaneous mechanical snap click (0.03s)
       const snapOsc = ctx.createOscillator();
       const snapGain = ctx.createGain();
       snapOsc.type = 'triangle';
-      snapOsc.frequency.setValueAtTime(turningOn ? 980 : 750, now);
-      snapOsc.frequency.exponentialRampToValueAtTime(140, now + 0.04);
-      snapGain.gain.setValueAtTime(0.5, now);
-      snapGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+      snapOsc.frequency.setValueAtTime(turningOn ? 950 : 700, now);
+      snapOsc.frequency.exponentialRampToValueAtTime(120, now + 0.03);
+      snapGain.gain.setValueAtTime(0.25, now);
+      snapGain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
       snapOsc.connect(snapGain);
       snapGain.connect(ctx.destination);
       snapOsc.start(now);
-      snapOsc.stop(now + 0.04);
-
-      // 2. Body resonance clack
-      const clackOsc = ctx.createOscillator();
-      const clackGain = ctx.createGain();
-      clackOsc.type = 'sine';
-      clackOsc.frequency.setValueAtTime(320, now + 0.01);
-      clackOsc.frequency.exponentialRampToValueAtTime(80, now + 0.08);
-      clackGain.gain.setValueAtTime(0.3, now + 0.01);
-      clackGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-      clackOsc.connect(clackGain);
-      clackGain.connect(ctx.destination);
-      clackOsc.start(now + 0.01);
-      clackOsc.stop(now + 0.09);
-
-      // 3. Electrical filament buzz on turning ON
-      if (turningOn) {
-        const humOsc = ctx.createOscillator();
-        const humGain = ctx.createGain();
-        humOsc.type = 'sawtooth';
-        humOsc.frequency.setValueAtTime(120, now + 0.02);
-        humGain.gain.setValueAtTime(0.05, now + 0.02);
-        humGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
-        humOsc.connect(humGain);
-        humGain.connect(ctx.destination);
-        humOsc.start(now + 0.02);
-        humOsc.stop(now + 0.26);
-      }
+      snapOsc.stop(now + 0.035);
     } catch {}
   };
 
@@ -380,9 +353,6 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         if (stretch >= s.TRIGGER_THRESHOLD_Y && !s.hasTriggeredInCurrentPull) {
           s.hasTriggeredInCurrentPull = true;
           handleToggleLamp();
-          if (typeof navigator !== 'undefined' && navigator.vibrate) {
-            navigator.vibrate(28);
-          }
         }
       } else {
         s.targetY = s.REST_Y + Math.max(-20, deltaY * 0.35);
@@ -747,7 +717,6 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           display: flex;
           justify-content: center;
           align-items: flex-start;
-          transition: background-color 0.8s cubic-bezier(0.2, 0.9, 0.3, 1);
         }
 
         @media (min-width: 881px) and (min-height: 650px) {
@@ -763,11 +732,22 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           background: radial-gradient(circle at 50% 120px, rgba(30, 36, 56, 0.5) 0%, rgba(7, 9, 14, 0.95) 80%);
           pointer-events: none;
           z-index: 0;
-          transition: background 0.8s ease;
         }
 
-        .nasrulla-modal-root.lamp-on::before {
+        .nasrulla-modal-root::after {
+          content: "";
+          position: fixed;
+          inset: 0;
           background: radial-gradient(circle at 35% 260px, rgba(135, 95, 25, 0.45) 0%, rgba(45, 32, 12, 0.25) 50%, rgba(7, 9, 14, 0.98) 85%);
+          pointer-events: none;
+          z-index: 0;
+          opacity: 0;
+          transition: opacity 0.25s ease;
+          will-change: opacity;
+        }
+
+        .nasrulla-modal-root.lamp-on::after {
+          opacity: 1;
         }
 
         .nasrulla-modal-root .vignette-overlay {
@@ -961,9 +941,9 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           background: radial-gradient(circle at 50% 32%, #ffffff 0%, #d6dae3 52%, #7a808e 100%);
           border-radius: 50%;
           z-index: 14;
-          opacity: 0.75;
-          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(255, 255, 255, 0.9);
+          opacity: 0.85;
+          transition: background 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
         }
 
         .nasrulla-modal-root .bulb-filament {
@@ -977,14 +957,13 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           border-bottom: none;
           border-radius: 4px 4px 0 0;
           opacity: 0.65;
-          transition: all 0.3s ease;
+          transition: border-color 0.2s ease, opacity 0.2s ease;
         }
 
         .nasrulla-modal-root.lamp-on .lamp-bulb {
           background: radial-gradient(circle at 50% 28%, #ffffff 0%, #fff7d6 28%, #ffd066 62%, #ff9800 100%);
           opacity: 1;
-          box-shadow: 0 0 18px 6px #ffffff, 0 0 35px 14px #ffd54f, 0 0 75px 26px rgba(255, 160, 0, 0.8);
-          filter: brightness(1.3);
+          box-shadow: 0 0 16px 4px #ffffff, 0 0 32px 10px #ffd54f;
         }
 
         .nasrulla-modal-root.lamp-on .bulb-filament {
@@ -1252,60 +1231,48 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           grid-area: 1 / 1 / 2 / 2;
           position: relative;
           width: 100%;
-          background: var(--card-bg-off);
-          border: 1px solid var(--card-border-off);
+          background: rgba(14, 18, 28, 0.92);
+          border: 1px solid rgba(255, 255, 255, 0.08);
           border-radius: 24px;
           padding: 32px 30px 28px;
           backdrop-filter: blur(8px);
           -webkit-backdrop-filter: blur(8px);
-          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
-          opacity: 0.18;
-          transform: translateY(16px) scale(0.98) translateZ(0);
+          box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+          opacity: 0.9;
+          transform: translateZ(0);
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
           transform-style: preserve-3d;
-          will-change: transform, opacity;
-          transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), background 0.35s ease, border-color 0.35s ease;
-          pointer-events: none;
+          will-change: opacity, border-color, box-shadow;
+          transition: opacity 0.25s ease, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+          pointer-events: auto;
         }
 
         .nasrulla-modal-root .card-front {
           transform: rotateY(0deg) translateZ(0);
           z-index: 2;
+          pointer-events: auto;
         }
 
         .nasrulla-modal-root .card-back {
           transform: rotateY(180deg) translateZ(0);
           z-index: 1;
+          pointer-events: none;
         }
 
         .nasrulla-modal-root.lamp-on .login-card {
           opacity: 1;
-          transform: translateY(0) scale(1) translateZ(0);
           background: var(--card-bg-on);
           border-color: var(--card-border-on);
-          box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(255, 196, 77, 0.12), inset 0 1px 1px rgba(255, 235, 179, 0.45);
-        }
-
-        .nasrulla-modal-root.lamp-on .card-front {
-          transform: rotateY(0deg) scale(1) translateZ(0);
-          pointer-events: auto;
-        }
-
-        .nasrulla-modal-root.lamp-on .card-back {
-          transform: rotateY(180deg) scale(1) translateZ(0);
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 196, 77, 0.15), inset 0 1px 1px rgba(255, 235, 179, 0.45);
         }
 
         .nasrulla-modal-root .login-card-container.flipped .card-front {
           pointer-events: none !important;
         }
 
-        .nasrulla-modal-root.lamp-on .login-card-container.flipped .card-back {
+        .nasrulla-modal-root .login-card-container.flipped .card-back {
           pointer-events: auto !important;
-        }
-
-        .nasrulla-modal-root.lamp-on .login-card-container:not(.flipped) .card-back {
-          pointer-events: none !important;
         }
 
         .nasrulla-modal-root .card-top-shine {
