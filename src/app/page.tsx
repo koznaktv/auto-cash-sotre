@@ -241,15 +241,15 @@ export default function HomePage() {
         if (dCat && dCat.success && Array.isArray(dCat.services)) {
           setServices(dCat.services);
           setCatalogSource(dCat.source === 'provider' ? 'provider' : 'legacy');
-        } else {
-          setServices(SERVICES_DATA);
+        } else if (dCat && dCat.services) {
+          setServices(dCat.services);
         }
 
-        if (dCats && dCats.success && Array.isArray(dCats.categories) && dCats.categories.length > 0) {
+        if (dCats && dCats.success && Array.isArray(dCats.categories)) {
           setCategories(dCats.categories);
         }
       })
-      .catch(() => setServices(SERVICES_DATA))
+      .catch(() => {})
       .finally(() => setCatalogLoading(false));
   }, []);
 

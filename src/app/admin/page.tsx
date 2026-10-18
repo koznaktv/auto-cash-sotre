@@ -394,7 +394,7 @@ export default function AdminPage() {
       if (resDeposits.success) setDeposits(resDeposits.deposits || []);
       if (resUsers.success) setUsers(resUsers.users || []);
       if (resServices.success) setServices(resServices.services || []);
-      if (resCategories.success && Array.isArray(resCategories.categories) && resCategories.categories.length > 0) {
+      if (resCategories.success && Array.isArray(resCategories.categories)) {
         setCategoriesList(resCategories.categories);
       }
       if (resSettings.success && resSettings.settings) setSettings(resSettings.settings);

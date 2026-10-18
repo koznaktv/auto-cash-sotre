@@ -25,13 +25,13 @@ export function getCategoriesList(): CategoryItem[] {
     }
     const content = fs.readFileSync(CATEGORIES_FILE, 'utf-8');
     const parsed = JSON.parse(content);
-    if (Array.isArray(parsed) && parsed.length > 0) {
+    if (Array.isArray(parsed)) {
       return parsed;
     }
     return [...CATEGORIES_9];
   } catch (err) {
     console.error('Error reading categories file:', err);
-    return [...CATEGORIES_9];
+    return [];
   }
 }
 

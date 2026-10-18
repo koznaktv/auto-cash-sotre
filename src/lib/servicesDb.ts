@@ -16,13 +16,13 @@ export function getServicesList(): ServiceItem[] {
     }
     const content = fs.readFileSync(SERVICES_FILE, 'utf-8');
     const parsed = JSON.parse(content);
-    if (Array.isArray(parsed) && parsed.length > 0) {
+    if (Array.isArray(parsed)) {
       return parsed;
     }
     return [...SERVICES_DATA];
   } catch (err) {
     console.error('Error reading services file:', err);
-    return [...SERVICES_DATA];
+    return [];
   }
 }
 
