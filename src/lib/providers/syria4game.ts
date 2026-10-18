@@ -128,8 +128,17 @@ export class Syria4GameProvider {
   }
 
   private buildUrlWithBase(baseUrl: string, path: string, query: Record<string, string | number | undefined> = {}): string {
+    let cleanBase = baseUrl.trim().replace(/\/+$/, '');
+    if (!cleanBase.startsWith('http://') && !cleanBase.startsWith('https://')) {
+      cleanBase = `https://${cleanBase}`;
+    }
+    // Specific fix for sahl-cash: api endpoints are strictly on api.sahl-cash.com
+    if (/^https?:\/\/sahl-cash\.com/i.test(cleanBase)) {
+      cleanBase = cleanBase.replace(/^https?:\/\/sahl-cash\.com/i, 'https://api.sahl-cash.com');
+    }
+
     const isFullUrl = path.startsWith('http://') || path.startsWith('https://');
-    const url = isFullUrl ? new URL(path) : new URL(`${baseUrl}${path.startsWith('/') ? path : `/${path}`}`);
+    const url = isFullUrl ? new URL(path) : new URL(`${cleanBase}${path.startsWith('/') ? path : `/${path}`}`);
     for (const [key, value] of Object.entries(query)) {
       if (value !== undefined && value !== null && value !== '') url.searchParams.set(key, String(value));
     }
