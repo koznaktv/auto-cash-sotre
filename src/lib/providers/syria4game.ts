@@ -74,24 +74,62 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+import { getSystemSettingsAsync } from '../db';
+
+interface ResolvedProviderConfig {
+  baseUrl: string;
+  apiToken: string;
+  apiType: 'syria4game' | 'smm' | 'custom_rest';
+  apiSecret?: string;
+  enabled: boolean;
+}
+
 export class Syria4GameProvider {
-  private baseUrl: string;
-  private apiToken: string;
+  private defaultBaseUrl: string;
+  private defaultApiToken: string;
 
   constructor() {
     const rawUrl = process.env.SYRIA4GAME_BASE_URL || 'https://syria4game.com';
-    this.baseUrl = rawUrl.replace(/\/+$/, '');
-    setAssetBase(this.baseUrl);
+    this.defaultBaseUrl = rawUrl.replace(/\/+$/, '');
+    setAssetBase(this.defaultBaseUrl);
     const rawToken = (process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '').trim();
-    this.apiToken = rawToken.replace(/^["']|["']$/g, '').trim();
+    this.defaultApiToken = rawToken.replace(/^["']|["']$/g, '').trim();
+  }
+
+  public async getResolvedConfig(): Promise<ResolvedProviderConfig> {
+    try {
+      const settings = await getSystemSettingsAsync();
+      const baseUrl = (settings.providerApiUrl || this.defaultBaseUrl || 'https://syria4game.com').replace(/\/+$/, '');
+      const apiToken = (settings.providerApiKey !== undefined && settings.providerApiKey !== ''
+        ? settings.providerApiKey
+        : this.defaultApiToken
+      ).trim();
+      const apiType = settings.providerApiType || 'syria4game';
+      const apiSecret = settings.providerApiSecret || undefined;
+      const enabled = settings.providerEnabled !== false;
+      return { baseUrl, apiToken, apiType, apiSecret, enabled };
+    } catch {
+      return {
+        baseUrl: this.defaultBaseUrl,
+        apiToken: this.defaultApiToken,
+        apiType: 'syria4game',
+        enabled: true,
+      };
+    }
   }
 
   public hasLiveToken(): boolean {
-    return this.apiToken.length > 5;
+    return this.defaultApiToken.length > 5;
   }
 
-  private buildUrl(path: string, query: Record<string, string | number | undefined> = {}): string {
-    const url = new URL(`${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`);
+  public async hasLiveConfig(): Promise<boolean> {
+    const cfg = await this.getResolvedConfig();
+    return Boolean(cfg.enabled && cfg.apiToken && cfg.apiToken.length > 3);
+  }
+
+  private buildUrlWithBase(baseUrl: string, path: string, query: Record<string, string | number | undefined> = {}): string {
+    const isFullUrl = path.startsWith('http://') || path.startsWith('https://');
+    const url = isFullUrl ? new URL(path) : new URL(`${baseUrl}${path.startsWith('/') ? path : `/${path}`}`);
     for (const [key, value] of Object.entries(query)) {
       if (value !== undefined && value !== null && value !== '') url.searchParams.set(key, String(value));
     }
@@ -99,12 +137,20 @@ export class Syria4GameProvider {
   }
 
   private async request(path: string, options: RequestOptions): Promise<RequestResult> {
-    const url = this.buildUrl(path, options.query);
+    const config = await this.getResolvedConfig();
+    setAssetBase(config.baseUrl);
+    const url = this.buildUrlWithBase(config.baseUrl, path, options.query);
     const headers: Record<string, string> = {
       Accept: 'application/json',
       'User-Agent': 'AUTO-CASH/3.0',
     };
-    if (options.auth !== false) headers['api-token'] = this.apiToken;
+    if (options.auth !== false && config.apiToken) {
+      headers['api-token'] = config.apiToken;
+      // Also provide standard Authorization header for general REST APIs
+      if (config.apiType === 'custom_rest') {
+        headers['Authorization'] = `Bearer ${config.apiToken}`;
+      }
+    }
 
     const attempts = 1 + (options.retries || 0);
     let result: RequestResult = { httpStatus: 0, data: null, text: '', durationMs: 0 };
@@ -144,7 +190,7 @@ export class Syria4GameProvider {
     await logProviderCall({
       orderId: options.orderId,
       endpoint: options.endpoint,
-      urlRedacted: url, // the token is only ever sent as a header
+      urlRedacted: url,
       httpStatus: result.httpStatus,
       durationMs: result.durationMs,
       outcome: result.networkError ? 'network_error' : error ? `error:${error.kind}` : 'ok',
@@ -169,6 +215,22 @@ export class Syria4GameProvider {
   }
 
   async ping(): Promise<{ success: boolean; error?: ProviderError; raw?: unknown }> {
+    const config = await this.getResolvedConfig();
+    if (!config.enabled) {
+      return { success: false, error: { kind: 'auth', message: 'تەمىنلىگۈچى API تاقالغان (Disabled)' } };
+    }
+    if (config.apiType === 'smm') {
+      const res = await this.request('', {
+        endpoint: 'smm_balance',
+        query: { key: config.apiToken, action: 'balance' },
+        timeoutMs: 10000,
+        retries: 1,
+        auth: false,
+      });
+      return this.isSuccess(res)
+        ? { success: true, raw: res.data ?? res.text }
+        : { success: false, error: this.failure(res) };
+    }
     const res = await this.request('/client/api/ping', { endpoint: 'ping', timeoutMs: 10000, retries: 1, auth: false });
     return this.isSuccess(res) || (res.httpStatus >= 200 && res.httpStatus < 300)
       ? { success: true, raw: res.data ?? res.text }
@@ -183,7 +245,46 @@ export class Syria4GameProvider {
     error?: ProviderError;
     raw?: unknown;
   }> {
-    if (!this.hasLiveToken()) return { success: false, balance: null, currency: 'USD', error: NOT_CONFIGURED };
+    const config = await this.getResolvedConfig();
+    if (!config.enabled) {
+      return { success: false, balance: null, currency: 'USD', error: { kind: 'auth', message: 'تەمىنلىگۈچى API تاقالغان (Disabled)' } };
+    }
+    if (!config.apiToken || config.apiToken.length < 3) {
+      return { success: false, balance: null, currency: 'USD', error: NOT_CONFIGURED };
+    }
+
+    if (config.apiType === 'smm') {
+      // Standard SMM Panel API v2: ?key=KEY&action=balance -> { balance: "12.34", currency: "USD" }
+      const res = await this.request('', {
+        endpoint: 'smm_balance',
+        query: { key: config.apiToken, action: 'balance' },
+        timeoutMs: 12000,
+        retries: 2,
+        auth: false,
+      });
+      if (!this.isSuccess(res)) return { success: false, balance: null, currency: 'USD', error: this.failure(res) };
+      const rawBalance = res.data?.balance ?? res.data?.credit ?? res.data?.funds;
+      const balance = rawBalance !== undefined ? parseFloat(String(rawBalance)) : null;
+      const currency = (res.data?.currency || 'USD').toUpperCase();
+      return {
+        success: true,
+        balance: Number.isFinite(balance) ? balance : null,
+        currency,
+        userName: res.data?.user || res.data?.username || 'SMM Provider',
+        raw: res.data,
+      };
+    }
+
+    if (config.apiType === 'custom_rest') {
+      // Custom REST endpoint: Try /api/balance or /balance or root
+      const res = await this.request('/balance', { endpoint: 'custom_balance', timeoutMs: 10000, retries: 1 });
+      if (this.isSuccess(res)) {
+        return { success: true, ...parseProfile(res.data), raw: res.data };
+      }
+      // Fallback try root or /client/api/profile
+    }
+
+    // Default: Syria4Game protocol
     const res = await this.request('/client/api/profile', { endpoint: 'profile', timeoutMs: 10000, retries: 2 });
     if (!this.isSuccess(res)) return { success: false, balance: null, currency: 'USD', error: this.failure(res) };
     return { success: true, ...parseProfile(res.data), raw: res.data };
@@ -277,10 +378,40 @@ export class Syria4GameProvider {
     orderUuid: string;
     orderId: string;
   }): Promise<OrderResponse & { orderUuid: string }> {
-    if (!this.hasLiveToken()) {
+    const config = await this.getResolvedConfig();
+    if (!config.enabled || !config.apiToken) {
       return { outcome: 'rejected', status: 'FAILED', error: NOT_CONFIGURED, message: NOT_CONFIGURED.message, orderUuid: input.orderUuid };
     }
     if (!isUuidV4(input.orderUuid)) throw new Error('order_uuid must be a UUIDv4');
+
+    if (config.apiType === 'smm') {
+      // Standard SMM: action=add&service={serviceId}&link={link}&quantity={qty}
+      const targetLink = Object.values(input.params)[0] || '';
+      const smmQuery: Record<string, string | number> = {
+        key: config.apiToken,
+        action: 'add',
+        service: input.productId,
+        link: targetLink,
+        quantity: input.qty,
+      };
+      const res = await this.request('', {
+        endpoint: 'smm_order',
+        query: smmQuery,
+        timeoutMs: 25000,
+        retries: 0,
+        orderId: input.orderId,
+        auth: false,
+      });
+      if (this.isSuccess(res) && res.data?.order) {
+        return {
+          outcome: 'accepted',
+          providerOrderId: String(res.data.order),
+          status: 'PENDING',
+          orderUuid: input.orderUuid,
+        };
+      }
+      return { ...normalizeOrderResponse(res.data, res.httpStatus, res.text), orderUuid: input.orderUuid };
+    }
 
     const query: Record<string, string | number> = {};
     for (const [key, value] of Object.entries(input.params)) {
@@ -314,7 +445,8 @@ export class Syria4GameProvider {
     entry?: CheckEntry;
     error?: ProviderError;
   }> {
-    if (!this.hasLiveToken()) return { success: false, found: false, error: NOT_CONFIGURED };
+    const config = await this.getResolvedConfig();
+    if (!config.enabled || !config.apiToken) return { success: false, found: false, error: NOT_CONFIGURED };
     if (!isUuidV4(orderUuid)) return { success: false, found: false };
     const res = await this.request('/client/api/check', {
       endpoint: 'check',
@@ -343,7 +475,33 @@ export class Syria4GameProvider {
   /** Status of several provider orders, matched strictly by provider order id. */
   async checkOrders(ids: string[]): Promise<{ success: boolean; entries: Map<string, CheckEntry>; error?: ProviderError }> {
     const entries = new Map<string, CheckEntry>();
-    if (!this.hasLiveToken()) return { success: false, entries, error: NOT_CONFIGURED };
+    const config = await this.getResolvedConfig();
+    if (!config.enabled || !config.apiToken) return { success: false, entries, error: NOT_CONFIGURED };
+
+    if (config.apiType === 'smm') {
+      // SMM Panel status: action=status&orders=id1,id2 or action=status&order=id
+      for (const id of ids) {
+        const res = await this.request('', {
+          endpoint: 'smm_status',
+          query: { key: config.apiToken, action: 'status', order: id },
+          timeoutMs: 10000,
+          retries: 1,
+          auth: false,
+        });
+        if (this.isSuccess(res) && res.data) {
+          const rawStatus = (res.data.status || '').toUpperCase();
+          let status: any = 'PENDING';
+          if (rawStatus === 'COMPLETED' || rawStatus === 'COMPLETE') status = 'COMPLETED';
+          else if (rawStatus === 'CANCELED' || rawStatus === 'CANCELLED' || rawStatus === 'REFUNDED') status = 'CANCELED';
+          else if (rawStatus === 'IN_PROGRESS' || rawStatus === 'PROCESSING') status = 'PENDING';
+          entries.set(id, {
+            status,
+            message: res.data.remains ? `Remains: ${res.data.remains}` : undefined,
+          });
+        }
+      }
+      return { success: entries.size > 0, entries };
+    }
 
     let lastError: ProviderError | undefined;
     for (let i = 0; i < ids.length; i += CHECK_BATCH_SIZE) {

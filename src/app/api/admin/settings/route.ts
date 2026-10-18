@@ -22,7 +22,18 @@ export async function PATCH(req: Request) {
     }
 
     const body = await req.json();
-    const { adminPin, shamcashAddress, whatsappNumber, telegramUsername, siteName } = body;
+    const {
+      adminPin,
+      shamcashAddress,
+      whatsappNumber,
+      telegramUsername,
+      siteName,
+      providerApiUrl,
+      providerApiKey,
+      providerApiType,
+      providerApiSecret,
+      providerEnabled,
+    } = body;
 
     const updates: any = {};
     if (adminPin) {
@@ -39,6 +50,11 @@ export async function PATCH(req: Request) {
     if (whatsappNumber) updates.whatsappNumber = String(whatsappNumber).trim();
     if (telegramUsername) updates.telegramUsername = String(telegramUsername).trim();
     if (siteName) updates.siteName = String(siteName).trim();
+    if (providerApiUrl !== undefined) updates.providerApiUrl = String(providerApiUrl).trim();
+    if (providerApiKey !== undefined) updates.providerApiKey = String(providerApiKey).trim();
+    if (providerApiType !== undefined) updates.providerApiType = providerApiType;
+    if (providerApiSecret !== undefined) updates.providerApiSecret = String(providerApiSecret).trim();
+    if (providerEnabled !== undefined) updates.providerEnabled = Boolean(providerEnabled);
 
     const updatedSettings = await updateSystemSettingsAsync(updates);
     return NextResponse.json({ success: true, settings: updatedSettings });

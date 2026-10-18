@@ -74,6 +74,11 @@ export interface SystemSettings {
   whatsappNumber: string;
   telegramUsername: string;
   siteName: string;
+  providerApiUrl?: string;
+  providerApiKey?: string;
+  providerApiType?: 'syria4game' | 'smm' | 'custom_rest';
+  providerApiSecret?: string;
+  providerEnabled?: boolean;
 }
 
 interface DatabaseSchema {
@@ -116,6 +121,11 @@ const initialDefaultData: DatabaseSchema = {
     whatsappNumber: '+963 984 373 459',
     telegramUsername: 'autocash_UYGHUR',
     siteName: 'AUTO CASH',
+    providerApiUrl: 'https://syria4game.com',
+    providerApiKey: '',
+    providerApiType: 'syria4game',
+    providerApiSecret: '',
+    providerEnabled: true,
   },
   users: [],
   orders: [],
@@ -268,6 +278,11 @@ function mapSupabaseSettings(row: any): SystemSettings {
     whatsappNumber: row.whatsapp_number || '+963 984 373 459',
     telegramUsername: row.telegram_username || 'autocash_UYGHUR',
     siteName: row.site_name || 'AUTO CASH',
+    providerApiUrl: row.provider_api_url ?? row.provider_url ?? undefined,
+    providerApiKey: row.provider_api_key ?? row.provider_token ?? undefined,
+    providerApiType: row.provider_api_type ?? undefined,
+    providerApiSecret: row.provider_api_secret ?? undefined,
+    providerEnabled: row.provider_enabled !== undefined ? Boolean(row.provider_enabled) : undefined,
   };
 }
 
@@ -921,6 +936,11 @@ export async function updateSystemSettingsAsync(updates: Partial<SystemSettings>
     if (updates.whatsappNumber) dbUpdates.whatsapp_number = updates.whatsappNumber;
     if (updates.telegramUsername) dbUpdates.telegram_username = updates.telegramUsername;
     if (updates.siteName) dbUpdates.site_name = updates.siteName;
+    if (updates.providerApiUrl !== undefined) dbUpdates.provider_api_url = updates.providerApiUrl;
+    if (updates.providerApiKey !== undefined) dbUpdates.provider_api_key = updates.providerApiKey;
+    if (updates.providerApiType !== undefined) dbUpdates.provider_api_type = updates.providerApiType;
+    if (updates.providerApiSecret !== undefined) dbUpdates.provider_api_secret = updates.providerApiSecret;
+    if (updates.providerEnabled !== undefined) dbUpdates.provider_enabled = updates.providerEnabled;
 
     const { data, error } = await sb
       .from('system_settings')

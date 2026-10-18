@@ -68,6 +68,11 @@ interface SystemSettingsState {
   whatsappNumber: string;
   telegramUsername: string;
   siteName: string;
+  providerApiUrl?: string;
+  providerApiKey?: string;
+  providerApiType?: 'syria4game' | 'smm' | 'custom_rest';
+  providerApiSecret?: string;
+  providerEnabled?: boolean;
 }
 
 interface ProviderStatus {
@@ -77,6 +82,14 @@ interface ProviderStatus {
   currency: string;
   userName?: string;
   errorMessage?: string;
+  config?: {
+    providerApiUrl: string;
+    providerApiKey: string;
+    providerApiType: 'syria4game' | 'smm' | 'custom_rest';
+    providerApiSecret?: string;
+    providerEnabled: boolean;
+    hasRealKey: boolean;
+  };
 }
 
 export default function AdminPage() {
@@ -150,6 +163,23 @@ export default function AdminPage() {
 
   // Settings Save Message
   const [settingsSaveMsg, setSettingsSaveMsg] = useState('');
+
+  // Provider Dynamic Setup State
+  const [providerForm, setProviderForm] = useState<{
+    apiUrl: string;
+    apiKey: string;
+    apiType: 'syria4game' | 'smm' | 'custom_rest';
+    apiSecret: string;
+    enabled: boolean;
+  }>({
+    apiUrl: 'https://syria4game.com',
+    apiKey: '',
+    apiType: 'syria4game',
+    apiSecret: '',
+    enabled: true,
+  });
+  const [savingProvider, setSavingProvider] = useState<boolean>(false);
+  const [providerFeedback, setProviderFeedback] = useState<{ success?: boolean; message?: string } | null>(null);
 
   // User Balance & VIP Edit Modal
   const [userModalOpen, setUserModalOpen] = useState(false);
@@ -371,11 +401,59 @@ export default function AdminPage() {
       const data = await res.json();
       if (data) {
         setProviderStatus(data);
+        if (data.config) {
+          setProviderForm((prev) => ({
+            ...prev,
+            apiUrl: data.config.providerApiUrl || prev.apiUrl,
+            apiType: data.config.providerApiType || prev.apiType,
+            apiSecret: data.config.providerApiSecret || '',
+            enabled: data.config.providerEnabled !== undefined ? data.config.providerEnabled : true,
+          }));
+        }
       }
     } catch (err) {
       console.error('Provider live check failed:', err);
     } finally {
       setCheckingProvider(false);
+    }
+  };
+
+  const handleSaveProviderConfig = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingProvider(true);
+    setProviderFeedback(null);
+    try {
+      const token = sessionStorage.getItem('autocash_admin_token');
+      const payload: any = {
+        providerApiUrl: providerForm.apiUrl.trim(),
+        providerApiType: providerForm.apiType,
+        providerApiSecret: providerForm.apiSecret.trim(),
+        providerEnabled: providerForm.enabled,
+      };
+      if (providerForm.apiKey.trim()) {
+        payload.providerApiKey = providerForm.apiKey.trim();
+      }
+      const res = await fetch('/api/admin/provider', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setProviderFeedback({ success: true, message: data.message || 'API مۇۋەپپەقىيەتلىك ئۇلاندى ھەم قالدۇق پۇل تەكشۈرۈلدى!' });
+        // Clear entered secret key from form for safety
+        setProviderForm((prev) => ({ ...prev, apiKey: '' }));
+      } else {
+        setProviderFeedback({ success: false, message: data.message || data.errorMessage || 'ساقلاندى ئەمما ئۇلىنىش مەغلۇپ بولدى' });
+      }
+      await checkProviderLive();
+    } catch (err: any) {
+      setProviderFeedback({ success: false, message: err?.message || 'تور ئۇلىنىش خاتالىقى' });
+    } finally {
+      setSavingProvider(false);
     }
   };
 
@@ -2290,7 +2368,7 @@ export default function AdminPage() {
                 <div className={`p-5 rounded-2xl ${themeClasses.card} border border-cyan-500/30`}>
                   <span className={`text-xs ${themeClasses.subtext} block mb-1`}>تەمىنلىگۈچى قالدۇق پۇلى (Wholesale Balance)</span>
                   <div className="text-3xl font-black font-mono text-cyan-400 mt-2" dir="ltr">
-                    ${providerStatus?.balance !== undefined ? providerStatus.balance.toFixed(2) : '---'}
+                    ${providerStatus?.balance !== undefined && providerStatus?.balance !== null ? Number(providerStatus.balance).toFixed(2) : '---'}
                   </div>
                   <span className="text-[11px] text-slate-400 font-mono mt-1 block">
                     پۇل بىرلىكى: {providerStatus?.currency || 'USD'}
@@ -2311,20 +2389,157 @@ export default function AdminPage() {
                   <span className="text-[11px] text-slate-400 mt-1 block">
                     {providerStatus?.success
                       ? 'ھەقىقىي زاكازلار تاشقى سۇپىغا ئەۋەتىلىدۇ'
-                      : providerStatus?.errorMessage || 'Token نى قايتا تەكشۈرۈڭ'}
+                      : providerStatus?.errorMessage || 'Token ياكى ئادرېسنى قايتا تەكشۈرۈڭ'}
                   </span>
                 </div>
 
-                {/* 3. Account Identity */}
+                {/* 3. Account & Protocol Identity */}
                 <div className={`p-5 rounded-2xl ${themeClasses.card}`}>
-                  <span className={`text-xs ${themeClasses.subtext} block mb-1`}>ھېسابات ئۇچۇرى</span>
+                  <span className={`text-xs ${themeClasses.subtext} block mb-1`}>تەمىنلىگۈچى تىپى & ئادرېسى</span>
                   <div className="text-base font-bold text-white mt-2">
-                    {providerStatus?.userName || 'تەمىنلىگۈچى ھېساباتى'}
+                    {providerForm.apiType === 'syria4game'
+                      ? 'Syria4Game Gaming API'
+                      : providerForm.apiType === 'smm'
+                      ? 'Standard SMM Panel v2 API'
+                      : 'خاس REST API'}
                   </div>
-                  <span className="text-[11px] text-slate-400 mt-1 block font-mono">
-                    Base URL: https://syria4game.com
+                  <span className="text-[11px] text-cyan-400 mt-1 block font-mono truncate" dir="ltr">
+                    {providerForm.apiUrl || 'https://syria4game.com'}
                   </span>
                 </div>
+              </div>
+
+              {/* Dynamic Provider Configuration Form */}
+              <div className={`p-5 sm:p-6 rounded-2xl ${themeClasses.card} border border-cyan-500/40 shadow-xl space-y-4`}>
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="flex items-center gap-2">
+                    <Sliders className="w-5 h-5 text-cyan-400" />
+                    <h3 className="text-sm font-bold text-white font-alkatip">API تەمىنلىگۈچىنى ئالماشتۇرۇش ۋە بىۋاسىتە ئۇلاش</h3>
+                  </div>
+                  <span className="text-[11px] px-2.5 py-1 rounded-full bg-cyan-950/60 text-cyan-300 border border-cyan-800/40 font-mono">
+                    Dynamic API Setup
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-400 font-alkatip leading-relaxed">
+                  بۇ يەردە كود ئۆزگەرتمەي تۇرۇپلا تور بېتىڭىزنىڭ زاكازلىرىنى باشقا ھەر قانداق سۇپىغا (مەسىلەن Syria4Game ياكى باشقا تەمىنلىگۈچى SMM / Game Top-up API لارغا) ئۇلىيالايسىز. تۆۋەندىكى تەلەپلەرنى كىرگۈزۈپ «ساقلاش ۋە دەرھال ئۇلىنىشنى سىناش» كۇنۇپكىسىنى باسسىڭىز، سىستېما دەرھال نەق پۇل قالدۇقىنى تەكشۈرۈپ ئاپتوماتىك ئىشقا كىرىشتۈرىدۇ.
+                </p>
+
+                {providerFeedback && (
+                  <div
+                    className={`p-3.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
+                      providerFeedback.success
+                        ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/50'
+                        : 'bg-rose-950/80 text-rose-300 border border-rose-500/50'
+                    }`}
+                  >
+                    {providerFeedback.success ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
+                    <span>{providerFeedback.message}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handleSaveProviderConfig} className="space-y-4 pt-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Provider Type */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 mb-1.5 font-alkatip">
+                        API پىروتوكولى (Provider Type):
+                      </label>
+                      <select
+                        value={providerForm.apiType}
+                        onChange={(e) => setProviderForm({ ...providerForm, apiType: e.target.value as any })}
+                        className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-bold ${themeClasses.input} focus:outline-none focus:border-cyan-400`}
+                      >
+                        <option value="syria4game" className="bg-slate-900 text-white">Syria4Game Gaming API (ئەسلىدىكى)</option>
+                        <option value="smm" className="bg-slate-900 text-white">Standard SMM / Top-Up Panel v2 API</option>
+                        <option value="custom_rest" className="bg-slate-900 text-white">Custom REST API (خاس ئۇلىنىش)</option>
+                      </select>
+                    </div>
+
+                    {/* API Enable Toggle */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 mb-1.5 font-alkatip">
+                        ئاپتوماتىك زاكاز ئەۋەتىش ھالىتى:
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setProviderForm({ ...providerForm, enabled: !providerForm.enabled })}
+                        className={`w-full py-2.5 px-3.5 rounded-xl text-xs font-bold transition flex items-center justify-between border cursor-pointer ${
+                          providerForm.enabled
+                            ? 'bg-emerald-950/40 text-emerald-300 border-emerald-500/40'
+                            : 'bg-rose-950/40 text-rose-300 border-rose-500/40'
+                        }`}
+                      >
+                        <span>{providerForm.enabled ? 'ئاپتوماتىك ئۇلىنىش ئوچۇق (Active)' : 'ئۇلىنىش تاقالغان (Disabled)'}</span>
+                        <span className={`w-2.5 h-2.5 rounded-full ${providerForm.enabled ? 'bg-emerald-400' : 'bg-rose-400'}`} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* API Base URL */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1.5 font-alkatip">
+                      API ئاساسىي ئادرېسى (Base URL):
+                    </label>
+                    <input
+                      type="text"
+                      value={providerForm.apiUrl}
+                      onChange={(e) => setProviderForm({ ...providerForm, apiUrl: e.target.value })}
+                      placeholder="https://provider-domain.com ياكى https://syria4game.com"
+                      className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-xs ${themeClasses.input} focus:outline-none focus:border-cyan-400`}
+                      dir="ltr"
+                      required
+                    />
+                    <span className="text-[10px] text-slate-500 mt-1 block">
+                      مەسىلەن: https://syria4game.com ياكى يېڭى تەمىنلىگۈچىڭىزنىڭ API ئادرېسى
+                    </span>
+                  </div>
+
+                  {/* API Key / Token */}
+                  <div>
+                    <label className="block text-xs font-bold text-amber-300 mb-1.5 font-alkatip">
+                      API ئاچقۇچى (API Token / Key):
+                    </label>
+                    <input
+                      type="password"
+                      value={providerForm.apiKey}
+                      onChange={(e) => setProviderForm({ ...providerForm, apiKey: e.target.value })}
+                      placeholder={providerStatus?.config?.hasRealKey ? `ھازىر ئاچقۇچ ساقلانغان (${providerStatus.config.providerApiKey})، ئۆزگەرتمەكچى بولسىڭىز يېڭىسىنى كىرگۈزۈڭ` : 'يېڭى API Token نى بۇ يەرگە چاپلاڭ'}
+                      className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-xs tracking-wider text-white ${themeClasses.input} focus:outline-none focus:border-cyan-400`}
+                      dir="ltr"
+                    />
+                    <span className="text-[10px] text-slate-500 mt-1 block">
+                      باشقىلار سىزگە بەرگەن مەخپىي API Key ياكى Token نى مۇشۇ يەرگە كىرگۈزۈڭ.
+                    </span>
+                  </div>
+
+                  {/* Optional API Secret / Extra identifier */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1.5 font-alkatip">
+                      قوشۇمچە مەخپىي پارول ياكى خېرىدار ID (ئەگەر كېرەك بولسا - Optional Secret):
+                    </label>
+                    <input
+                      type="text"
+                      value={providerForm.apiSecret}
+                      onChange={(e) => setProviderForm({ ...providerForm, apiSecret: e.target.value })}
+                      placeholder="ئەگەر تەمىنلىگۈچى تەلەپ قىلسا كىرگۈزۈڭ، بولمىسا بوش قالدۇرۇڭ"
+                      className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-xs ${themeClasses.input} focus:outline-none focus:border-cyan-400`}
+                      dir="ltr"
+                    />
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={savingProvider}
+                      className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:opacity-95 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 cursor-pointer active:scale-98 disabled:opacity-50"
+                    >
+                      <RefreshCw className={`w-4 h-4 ${savingProvider ? 'animate-spin' : ''}`} />
+                      <span>{savingProvider ? 'تەڭشەك ساقلىنىۋاتىدۇ ھەم ئۇلىنىش سىنىلىۋاتىدۇ...' : 'ساقلاش ۋە دەرھال ئۇلىنىشنى سىناش (Save & Test Live Connection)'}</span>
+                    </button>
+                  </div>
+                </form>
               </div>
 
               <ProviderCatalogPanel themeClasses={themeClasses} />
