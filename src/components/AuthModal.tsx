@@ -28,7 +28,15 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
   // Mode: false = login (front), true = register (back)
   const [isFlipped, setIsFlipped] = useState(false);
-  const [isLampOn, setIsLampOn] = useState(true);
+  const [isLampOn, setIsLampOn] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsLampOn(false);
+      setIsFlipped(false);
+      setErrorMsg('');
+    }
+  }, [isOpen]);
 
   // Form states
   const [loginEmail, setLoginEmail] = useState('');
@@ -346,26 +354,6 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     const cordHandle = cordHandleRef.current;
     if (!cordHandle) return;
 
-    const onPointerDown = (e: PointerEvent) => {
-      const s = physicsState.current;
-      s.isDragging = true;
-      s.hasTriggeredInCurrentPull = false;
-      s.startPointerX = e.clientX;
-      s.startPointerY = e.clientY;
-      s.startKnobX = s.currentX;
-      s.startKnobY = s.currentY;
-      s.lastClientX = e.clientX;
-      s.lastClientY = e.clientY;
-      s.lastTime = performance.now();
-      s.pointerVx = 0;
-      s.pointerVy = 0;
-
-      if (e.target && (e.target as any).setPointerCapture) {
-        try { (e.target as any).setPointerCapture(e.pointerId); } catch {}
-      }
-      ensurePhysicsRunning();
-    };
-
     const onPointerMove = (e: PointerEvent) => {
       const s = physicsState.current;
       if (!s.isDragging) return;
@@ -403,6 +391,10 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
     const releaseCord = () => {
       const s = physicsState.current;
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', releaseCord);
+      window.removeEventListener('pointercancel', releaseCord);
+
       if (!s.isDragging) return;
       s.isDragging = false;
       s.targetX = s.REST_X;
@@ -412,6 +404,30 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
       s.vy = Math.min(-12, s.pointerVy * 0.4 - 11);
 
       playCordTwangSound(480);
+      ensurePhysicsRunning();
+    };
+
+    const onPointerDown = (e: PointerEvent) => {
+      const s = physicsState.current;
+      s.isDragging = true;
+      s.hasTriggeredInCurrentPull = false;
+      s.startPointerX = e.clientX;
+      s.startPointerY = e.clientY;
+      s.startKnobX = s.currentX;
+      s.startKnobY = s.currentY;
+      s.lastClientX = e.clientX;
+      s.lastClientY = e.clientY;
+      s.lastTime = performance.now();
+      s.pointerVx = 0;
+      s.pointerVy = 0;
+
+      window.addEventListener('pointermove', onPointerMove, { passive: true });
+      window.addEventListener('pointerup', releaseCord);
+      window.addEventListener('pointercancel', releaseCord);
+
+      if (e.target && (e.target as any).setPointerCapture) {
+        try { (e.target as any).setPointerCapture(e.pointerId); } catch {}
+      }
       ensurePhysicsRunning();
     };
 
@@ -427,24 +443,21 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     };
 
     cordHandle.addEventListener('pointerdown', onPointerDown);
-    window.addEventListener('pointermove', onPointerMove);
-    window.addEventListener('pointerup', releaseCord);
-    window.addEventListener('pointercancel', releaseCord);
     cordHandle.addEventListener('click', onClick);
 
     return () => {
       cordHandle.removeEventListener('pointerdown', onPointerDown);
+      cordHandle.removeEventListener('click', onClick);
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', releaseCord);
       window.removeEventListener('pointercancel', releaseCord);
-      cordHandle.removeEventListener('click', onClick);
       if (physicsState.current.animFrameId) {
         cancelAnimationFrame(physicsState.current.animFrameId);
       }
     };
   }, [isOpen]);
 
-  // Canvas Fireflies Particles
+  // High Performance Canvas Particles (only active on desktop when lamp is ON)
   useEffect(() => {
     if (!isOpen) return;
     const canvas = canvasRef.current;
@@ -452,21 +465,26 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Offscreen sprite to eliminate blur performance hit
+    // Do not run canvas particle loop on mobile screens or when lamp is off to prevent stutter
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+    if (isMobile || !isLampOn) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
+
     const glowSprite = document.createElement('canvas');
-    glowSprite.width = 48;
-    glowSprite.height = 48;
+    glowSprite.width = 40;
+    glowSprite.height = 40;
     const sCtx = glowSprite.getContext('2d');
     if (sCtx) {
-      const sGrad = sCtx.createRadialGradient(24, 24, 0, 24, 24, 24);
+      const sGrad = sCtx.createRadialGradient(20, 20, 0, 20, 20, 20);
       sGrad.addColorStop(0, '#ffffff');
-      sGrad.addColorStop(0.2, 'rgba(255, 240, 180, 0.95)');
-      sGrad.addColorStop(0.5, 'rgba(255, 196, 77, 0.45)');
-      sGrad.addColorStop(0.8, 'rgba(255, 183, 3, 0.15)');
+      sGrad.addColorStop(0.25, 'rgba(255, 240, 180, 0.9)');
+      sGrad.addColorStop(0.55, 'rgba(255, 196, 77, 0.35)');
       sGrad.addColorStop(1, 'rgba(255, 183, 3, 0)');
       sCtx.fillStyle = sGrad;
       sCtx.beginPath();
-      sCtx.arc(24, 24, 24, 0, Math.PI * 2);
+      sCtx.arc(20, 20, 20, 0, Math.PI * 2);
       sCtx.fill();
     }
 
@@ -475,10 +493,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
       canvas.height = window.innerHeight;
     };
     resize();
-    window.addEventListener('resize', resize);
-
-    const isMobileDevice = window.innerWidth <= 768;
-    const NUM_PARTICLES = isMobileDevice ? 20 : 40;
+    window.addEventListener('resize', resize, { passive: true });
 
     class Firefly {
       x = 0;
@@ -499,19 +514,19 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         if (!canvas) return;
         this.x = Math.random() * canvas.width;
         this.y = init ? Math.random() * canvas.height : canvas.height + 10;
-        this.radius = 1.2 + Math.random() * 2.2;
-        this.baseAlpha = 0.25 + Math.random() * 0.7;
+        this.radius = 1.2 + Math.random() * 2.0;
+        this.baseAlpha = 0.2 + Math.random() * 0.6;
         this.alpha = this.baseAlpha;
-        this.vx = (Math.random() - 0.5) * 0.5;
-        this.vy = -0.25 - Math.random() * 0.5;
+        this.vx = (Math.random() - 0.5) * 0.4;
+        this.vy = -0.25 - Math.random() * 0.4;
         this.phase = Math.random() * Math.PI * 2;
-        this.phaseSpeed = 0.02 + Math.random() * 0.03;
+        this.phaseSpeed = 0.02 + Math.random() * 0.02;
       }
 
       update() {
         if (!canvas) return;
         this.phase += this.phaseSpeed;
-        this.x += this.vx + Math.sin(this.phase) * 0.35;
+        this.x += this.vx + Math.sin(this.phase) * 0.3;
         this.y += this.vy;
         const pulse = (Math.sin(this.phase) + 1) * 0.5;
         this.alpha = this.baseAlpha * pulse;
@@ -523,27 +538,14 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
       draw() {
         if (!canvas || !ctx) return;
-        const visibilityFactor = isLampOn ? 1.0 : 0.15;
-        if (visibilityFactor <= 0.01) return;
-
-        const lampCenterX = canvas.width / 2;
-        const lampTopY = 130;
-        const distFromCenter = Math.abs(this.x - lampCenterX);
-        const verticalDist = this.y - lampTopY;
-
-        let inBeamMultiplier = 1;
-        if (isLampOn && verticalDist > 0 && distFromCenter < verticalDist * 0.65) {
-          inBeamMultiplier = 1.9;
-        }
-
-        const currentAlpha = Math.min(1, this.alpha * visibilityFactor * inBeamMultiplier);
-        ctx.globalAlpha = currentAlpha;
-        const drawRadius = this.radius * (isLampOn ? 5.2 : 3.2);
+        ctx.globalAlpha = Math.min(1, this.alpha);
+        const drawRadius = this.radius * 3.5;
         ctx.drawImage(glowSprite, this.x - drawRadius, this.y - drawRadius, drawRadius * 2, drawRadius * 2);
       }
     }
 
     const particles: Firefly[] = [];
+    const NUM_PARTICLES = 16;
     for (let i = 0; i < NUM_PARTICLES; i++) {
       particles.push(new Firefly());
     }
@@ -565,6 +567,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     return () => {
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animId);
+      if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
     };
   }, [isOpen, isLampOn]);
 
@@ -847,17 +850,16 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           position: absolute;
           top: -30px;
           left: 50%;
-          transform: translateX(-50%);
+          transform: translateX(-50%) translateZ(0);
           width: 480px;
           height: 480px;
           border-radius: 50%;
-          background: radial-gradient(circle at 50% 35%, rgba(255, 205, 100, 0.38) 0%, rgba(255, 170, 40, 0.16) 45%, rgba(255, 130, 10, 0.03) 70%, transparent 85%);
-          filter: blur(32px);
+          background: radial-gradient(circle at 50% 35%, rgba(255, 205, 100, 0.32) 0%, rgba(255, 170, 40, 0.15) 35%, rgba(255, 130, 10, 0.04) 60%, transparent 80%);
           pointer-events: none;
           opacity: 0;
-          mix-blend-mode: screen;
           transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1);
           z-index: 4;
+          will-change: opacity;
         }
 
         .nasrulla-modal-root.lamp-on .lamp-ambient-glow {
@@ -1047,23 +1049,22 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           box-shadow: 0 12px 28px rgba(0, 0, 0, 0.95), 0 0 22px rgba(255, 196, 77, 0.45);
         }
 
-        /* Dual-layer Volumetric Feathered Light Beam */
+        /* Dual-layer Volumetric Feathered Light Beam (High Performance GPU Gradient) */
         .nasrulla-modal-root .light-beam {
           position: absolute;
           top: 106px;
           left: 50%;
-          transform: translateX(-50%);
+          transform: translateX(-50%) translateZ(0);
           width: 420px;
           height: 360px;
           clip-path: polygon(33.3% 0%, 66.7% 0%, 98% 100%, 2% 100%);
-          background: radial-gradient(ellipse at 50% 0%, rgba(255, 245, 200, 0.95) 0%, rgba(255, 215, 115, 0.65) 20%, rgba(255, 180, 55, 0.32) 55%, rgba(255, 140, 20, 0.06) 82%, transparent 100%);
-          filter: blur(8px);
-          mix-blend-mode: screen;
+          background: radial-gradient(ellipse at 50% 0%, rgba(255, 245, 200, 0.95) 0%, rgba(255, 215, 115, 0.58) 22%, rgba(255, 180, 55, 0.25) 52%, rgba(255, 140, 20, 0.05) 78%, transparent 100%);
           pointer-events: none;
           opacity: 0;
           transform-origin: top center;
           transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
           z-index: 6;
+          will-change: opacity;
         }
 
         .nasrulla-modal-root.lamp-on .light-beam {
@@ -1074,17 +1075,16 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           position: absolute;
           top: 106px;
           left: 50%;
-          transform: translateX(-50%);
+          transform: translateX(-50%) translateZ(0);
           width: 260px;
           height: 350px;
           clip-path: polygon(38% 0%, 62% 0%, 90% 100%, 10% 100%);
-          background: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 250, 0.92) 0%, rgba(255, 230, 145, 0.5) 30%, rgba(255, 190, 75, 0.16) 70%, transparent 95%);
-          filter: blur(6px);
-          mix-blend-mode: screen;
+          background: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 250, 0.92) 0%, rgba(255, 230, 145, 0.42) 28%, rgba(255, 190, 75, 0.12) 65%, transparent 92%);
           pointer-events: none;
           opacity: 0;
           transition: opacity 0.5s ease;
           z-index: 7;
+          will-change: opacity;
         }
 
         .nasrulla-modal-root.lamp-on .light-beam-core {
@@ -1095,17 +1095,16 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           position: absolute;
           bottom: 25px;
           left: 50%;
-          transform: translateX(-50%);
+          transform: translateX(-50%) translateZ(0);
           width: 360px;
           height: 95px;
           border-radius: 50%;
-          background: radial-gradient(ellipse at center, rgba(255, 220, 130, 0.55) 0%, rgba(255, 180, 50, 0.28) 45%, rgba(255, 140, 20, 0.08) 70%, transparent 85%);
-          filter: blur(8px);
+          background: radial-gradient(ellipse at center, rgba(255, 220, 130, 0.45) 0%, rgba(255, 180, 50, 0.2) 38%, rgba(255, 140, 20, 0.04) 68%, transparent 85%);
           pointer-events: none;
           opacity: 0;
-          mix-blend-mode: screen;
           transition: opacity 0.6s ease;
           z-index: 5;
+          will-change: opacity;
         }
 
         .nasrulla-modal-root.lamp-on .desk-reflection {
@@ -1257,15 +1256,16 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           border: 1px solid var(--card-border-off);
           border-radius: 24px;
           padding: 32px 30px 28px;
-          backdrop-filter: blur(14px);
-          -webkit-backdrop-filter: blur(14px);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
           box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
-          opacity: 0.22;
-          transform: translateY(20px) scale(0.98) translateZ(0);
+          opacity: 0.18;
+          transform: translateY(16px) scale(0.98) translateZ(0);
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
           transform-style: preserve-3d;
-          transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+          will-change: transform, opacity;
+          transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), background 0.35s ease, border-color 0.35s ease;
           pointer-events: none;
         }
 
@@ -1452,6 +1452,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             transparent 360deg
           );
           animation: modalRotateBorderBeam 3.2s linear infinite;
+          animation-play-state: paused;
           will-change: transform;
           transform: translateZ(0);
           opacity: 0;
@@ -1462,10 +1463,12 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
         .nasrulla-modal-root .input-wrapper:hover .input-border-beam {
           opacity: 0.65;
+          animation-play-state: running;
         }
 
         .nasrulla-modal-root .input-wrapper:focus-within .input-border-beam {
           opacity: 1;
+          animation-play-state: running;
           animation-duration: 1.8s;
         }
 
