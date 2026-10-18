@@ -2,9 +2,17 @@ import fs from 'fs';
 import path from 'path';
 import { SERVICES_DATA, ServiceItem } from './data';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
+const IS_SERVERLESS = Boolean(
+  process.env.VERCEL ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  (typeof process.cwd === 'function' && process.cwd().startsWith('/var/task'))
+);
+const DATA_DIR = IS_SERVERLESS ? '/tmp' : path.join(process.cwd(), 'data');
+const BUNDLED_DATA_DIR = path.join(process.cwd(), 'data');
 const SERVICES_FILE = path.join(DATA_DIR, 'autocash_services.json');
+const BUNDLED_SERVICES_FILE = path.join(BUNDLED_DATA_DIR, 'autocash_services.json');
 const DELETED_SERVICES_FILE = path.join(DATA_DIR, 'deleted_services.json');
+const BUNDLED_DELETED_FILE = path.join(BUNDLED_DATA_DIR, 'deleted_services.json');
 
 // In-memory cache for ultra-fast, consistent reads
 let cachedServices: ServiceItem[] | null = null;
@@ -13,8 +21,13 @@ let cachedDeletedIds: Set<string> | null = null;
 function getDeletedServiceIds(): Set<string> {
   if (cachedDeletedIds) return cachedDeletedIds;
   try {
-    if (fs.existsSync(DELETED_SERVICES_FILE)) {
-      const content = fs.readFileSync(DELETED_SERVICES_FILE, 'utf-8');
+    const fileToRead = fs.existsSync(DELETED_SERVICES_FILE)
+      ? DELETED_SERVICES_FILE
+      : fs.existsSync(BUNDLED_DELETED_FILE)
+      ? BUNDLED_DELETED_FILE
+      : null;
+    if (fileToRead) {
+      const content = fs.readFileSync(fileToRead, 'utf-8');
       const data = JSON.parse(content);
       if (Array.isArray(data)) {
         cachedDeletedIds = new Set(data.map(String));

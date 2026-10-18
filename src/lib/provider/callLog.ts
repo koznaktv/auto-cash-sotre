@@ -15,7 +15,12 @@ export interface ProviderCallLog {
 }
 
 const MAX_BODY = 16 * 1024;
-const LOCAL_FILE = path.join(process.cwd(), 'data', 'provider_calls.json');
+const IS_SERVERLESS = Boolean(
+  process.env.VERCEL ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  (typeof process.cwd === 'function' && process.cwd().startsWith('/var/task'))
+);
+const LOCAL_FILE = IS_SERVERLESS ? path.join('/tmp', 'provider_calls.json') : path.join(process.cwd(), 'data', 'provider_calls.json');
 const LOCAL_LIMIT = 500;
 
 function readLocal(): ProviderCallLog[] {

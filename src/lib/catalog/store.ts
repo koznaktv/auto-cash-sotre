@@ -28,33 +28,66 @@ interface LocalCatalog {
   locks: Record<string, { lockedUntil: number; holder: string }>;
 }
 
-const LOCAL_FILE = path.join(process.cwd(), 'data', 'provider_catalog.json');
-let localCache: LocalCatalog | null = null;
+function getCatalogDataPath(): string {
+  if (
+    process.env.VERCEL ||
+    process.env.AWS_LAMBDA_FUNCTION_NAME ||
+    (typeof process.cwd === 'function' && process.cwd().startsWith('/var/task'))
+  ) {
+    return path.join('/tmp', 'provider_catalog.json');
+  }
+  return path.join(process.cwd(), 'data', 'provider_catalog.json');
+}
+
+const LOCAL_FILE = getCatalogDataPath();
+const BUNDLED_FILE = path.join(process.cwd(), 'data', 'provider_catalog.json');
+
+declare global {
+  var __localCatalogCache: LocalCatalog | undefined;
+}
 
 function loadLocal(): LocalCatalog {
-  if (localCache) return localCache;
+  if (globalThis.__localCatalogCache) return globalThis.__localCatalogCache;
   try {
-    const parsed = JSON.parse(fs.readFileSync(LOCAL_FILE, 'utf-8'));
-    localCache = {
-      settings: { ...DEFAULT_PROVIDER_SETTINGS, ...(parsed.settings || {}) },
-      categories: parsed.categories || [],
-      products: parsed.products || [],
-      overrides: parsed.overrides || [],
-      runs: parsed.runs || [],
-      locks: parsed.locks || {},
-    };
-  } catch {
-    localCache = { settings: { ...DEFAULT_PROVIDER_SETTINGS }, categories: [], products: [], overrides: [], runs: [], locks: {} };
+    const fileToRead = fs.existsSync(LOCAL_FILE) ? LOCAL_FILE : fs.existsSync(BUNDLED_FILE) ? BUNDLED_FILE : null;
+    if (fileToRead) {
+      const parsed = JSON.parse(fs.readFileSync(fileToRead, 'utf-8'));
+      globalThis.__localCatalogCache = {
+        settings: { ...DEFAULT_PROVIDER_SETTINGS, ...(parsed.settings || {}) },
+        categories: parsed.categories || [],
+        products: parsed.products || [],
+        overrides: parsed.overrides || [],
+        runs: parsed.runs || [],
+        locks: parsed.locks || {},
+      };
+      return globalThis.__localCatalogCache;
+    }
+  } catch (err) {
+    console.warn('loadLocal error reading catalog file:', err);
   }
-  return localCache;
+
+  globalThis.__localCatalogCache = {
+    settings: { ...DEFAULT_PROVIDER_SETTINGS },
+    categories: [],
+    products: [],
+    overrides: [],
+    runs: [],
+    locks: {},
+  };
+  return globalThis.__localCatalogCache;
 }
 
 function saveLocal(): void {
-  if (!localCache) return;
-  fs.mkdirSync(path.dirname(LOCAL_FILE), { recursive: true });
-  const temp = `${LOCAL_FILE}.${Date.now()}.tmp`;
-  fs.writeFileSync(temp, JSON.stringify(localCache), 'utf-8');
-  fs.renameSync(temp, LOCAL_FILE);
+  const cache = globalThis.__localCatalogCache;
+  if (!cache) return;
+  try {
+    fs.mkdirSync(path.dirname(LOCAL_FILE), { recursive: true });
+    const temp = `${LOCAL_FILE}.${Date.now()}.tmp`;
+    fs.writeFileSync(temp, JSON.stringify(cache), 'utf-8');
+    fs.renameSync(temp, LOCAL_FILE);
+  } catch (err) {
+    console.warn('saveLocal warning (in-memory cache preserved):', err);
+  }
 }
 
 // ---------------------------------------------------------------- row mappers

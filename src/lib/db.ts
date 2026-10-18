@@ -88,7 +88,13 @@ interface DatabaseSchema {
   settings: SystemSettings;
 }
 
-const DATA_DIR = path.join(process.cwd(), 'data');
+const IS_SERVERLESS = Boolean(
+  process.env.VERCEL ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  (typeof process.cwd === 'function' && process.cwd().startsWith('/var/task'))
+);
+const DATA_DIR = IS_SERVERLESS ? '/tmp' : path.join(process.cwd(), 'data');
+const BUNDLED_DB_FILE = path.join(process.cwd(), 'data', 'autocash_db.json');
 const DB_FILE = path.join(DATA_DIR, 'autocash_db.json');
 
 export function randomId(prefix: string): string {
@@ -139,17 +145,20 @@ function ensureDbFile(): DatabaseSchema {
   if (cachedDb) return cachedDb;
 
   try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
-    }
+    const fileToRead = fs.existsSync(DB_FILE) ? DB_FILE : fs.existsSync(BUNDLED_DB_FILE) ? BUNDLED_DB_FILE : null;
 
-    if (!fs.existsSync(DB_FILE)) {
-      fs.writeFileSync(DB_FILE, JSON.stringify(initialDefaultData, null, 2), 'utf-8');
+    if (!fileToRead) {
+      try {
+        if (!fs.existsSync(DATA_DIR)) {
+          fs.mkdirSync(DATA_DIR, { recursive: true });
+        }
+        fs.writeFileSync(DB_FILE, JSON.stringify(initialDefaultData, null, 2), 'utf-8');
+      } catch {}
       cachedDb = JSON.parse(JSON.stringify(initialDefaultData));
       return cachedDb!;
     }
 
-    const raw = fs.readFileSync(DB_FILE, 'utf-8');
+    const raw = fs.readFileSync(fileToRead, 'utf-8');
     const parsed = JSON.parse(raw) as DatabaseSchema;
 
     // Ensure all required fields exist

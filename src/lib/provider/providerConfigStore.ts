@@ -9,8 +9,15 @@ export interface StoredProviderConfig {
   providerEnabled: boolean;
 }
 
-const DATA_DIR = path.join(process.cwd(), 'data');
+const IS_SERVERLESS = Boolean(
+  process.env.VERCEL ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  (typeof process.cwd === 'function' && process.cwd().startsWith('/var/task'))
+);
+const DATA_DIR = IS_SERVERLESS ? '/tmp' : path.join(process.cwd(), 'data');
+const BUNDLED_DATA_DIR = path.join(process.cwd(), 'data');
 const CONFIG_FILE = path.join(DATA_DIR, 'provider_config.json');
+const BUNDLED_CONFIG_FILE = path.join(BUNDLED_DATA_DIR, 'provider_config.json');
 const ENV_LOCAL_FILE = path.join(process.cwd(), '.env.local');
 
 // Default fallback URL and token
@@ -44,8 +51,13 @@ export function loadStoredProviderConfig(): StoredProviderConfig {
   }
 
   try {
-    if (fs.existsSync(CONFIG_FILE)) {
-      const raw = fs.readFileSync(CONFIG_FILE, 'utf-8');
+    const fileToRead = fs.existsSync(CONFIG_FILE)
+      ? CONFIG_FILE
+      : fs.existsSync(BUNDLED_CONFIG_FILE)
+      ? BUNDLED_CONFIG_FILE
+      : null;
+    if (fileToRead) {
+      const raw = fs.readFileSync(fileToRead, 'utf-8');
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed === 'object') {
         const token = (parsed.providerApiKey || DEFAULT_TOKEN || '').trim();
