@@ -3,12 +3,16 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { isOrderInProgress, type Order, type DepositRecord } from '@/lib/orders';
-import { CATEGORIES_9, ServiceItem } from '@/lib/data';
+import { CATEGORIES_9, ServiceItem, ServicePackage } from '@/lib/data';
+import { CategoryItem } from '@/lib/categoriesDb';
 import ProviderCatalogPanel from '@/components/admin/ProviderCatalogPanel';
 import {
   LayoutDashboard,
   ShoppingBag,
   Package,
+  Layers,
+  FolderPlus,
+  Percent,
   Users,
   Wallet,
   Settings,
@@ -133,21 +137,31 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
+  // Categories State
+  const [categoriesList, setCategoriesList] = useState<CategoryItem[]>([...CATEGORIES_9]);
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [categoryForm, setCategoryForm] = useState<{ id?: string; name: string; icon: string; count?: string; image?: string }>({
+    name: '',
+    icon: 'Package',
+    count: 'مەھسۇلاتلار',
+    image: '',
+  });
+
   // Product/Service Modal State
   const [serviceModalOpen, setServiceModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<ServiceItem | null>(null);
   const [serviceForm, setServiceForm] = useState<{
     id?: string;
     name: string;
-    category: ServiceItem['category'];
+    category: string;
     icon: string;
     image: string;
     description: string;
     badge: string;
     inputLabel: string;
     inputPlaceholder: string;
-    price: number;
-    packageTitle: string;
+    packages: Array<{ id: string; title: string; price: number; originalPrice?: number; duration?: string }>;
   }>({
     name: '',
     category: 'games',
@@ -157,8 +171,7 @@ export default function AdminPage() {
     badge: '',
     inputLabel: 'ئويۇنچى ID',
     inputPlaceholder: 'ID نومۇرىڭىزنى كىرگۈزۈڭ',
-    price: 1.99,
-    packageTitle: 'ئاساسىي بولاق',
+    packages: [{ id: 'p-1', title: 'ئاساسىي بولاق', price: 1.99, duration: 'دەرھال' }],
   });
 
   // Settings Save Message
@@ -368,11 +381,12 @@ export default function AdminPage() {
     const headers = { Authorization: `Bearer ${token}` };
 
     try {
-      const [resOrders, resDeposits, resUsers, resServices, resSettings] = await Promise.all([
+      const [resOrders, resDeposits, resUsers, resServices, resCategories, resSettings] = await Promise.all([
         fetch('/api/orders', { headers }).then((r) => r.json()),
         fetch('/api/deposits', { headers }).then((r) => r.json()),
         fetch('/api/admin/users', { headers }).then((r) => r.json()),
         fetch('/api/admin/services').then((r) => r.json()),
+        fetch('/api/admin/categories').then((r) => r.json()),
         fetch('/api/admin/settings', { headers }).then((r) => r.json()),
       ]);
 
@@ -380,6 +394,9 @@ export default function AdminPage() {
       if (resDeposits.success) setDeposits(resDeposits.deposits || []);
       if (resUsers.success) setUsers(resUsers.users || []);
       if (resServices.success) setServices(resServices.services || []);
+      if (resCategories.success && Array.isArray(resCategories.categories) && resCategories.categories.length > 0) {
+        setCategoriesList(resCategories.categories);
+      }
       if (resSettings.success && resSettings.settings) setSettings(resSettings.settings);
 
       // Check external gaming provider (syria4game.com) status in background
@@ -738,26 +755,102 @@ export default function AdminPage() {
     }
   };
 
+  // Category CRUD operations
+  const handleOpenAddCategory = () => {
+    setCategoryForm({
+      name: '',
+      icon: 'Package',
+      count: 'مەھسۇلاتلار',
+      image: '',
+    });
+    setCategoryModalOpen(true);
+  };
+
+  const handleSaveCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!categoryForm.name.trim()) return;
+    const token = sessionStorage.getItem('autocash_admin_token');
+    try {
+      const res = await fetch('/api/admin/categories', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(categoryForm),
+      });
+      const data = await res.json();
+      if (data.success && data.category) {
+        setCategoriesList((prev) => {
+          const idx = prev.findIndex((c) => c.id === data.category.id);
+          if (idx !== -1) {
+            const next = [...prev];
+            next[idx] = data.category;
+            return next;
+          }
+          return [...prev, data.category];
+        });
+        setCategoryModalOpen(false);
+      } else {
+        alert(data.message || 'سەھىپە قوشۇش مەغلۇپ بولدى');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('ئۇلىنىش خاتالىقى كۆرۈلدى');
+    }
+  };
+
+  const handleDeleteCategory = async (catId: string, catName: string) => {
+    if (!confirm(`«${catName}» سەھىپىسىنى راستىنلا ئۆچۈرەمسىز؟`)) return;
+    const token = sessionStorage.getItem('autocash_admin_token');
+    try {
+      const res = await fetch(`/api/admin/categories?id=${catId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCategoriesList((prev) => prev.filter((c) => c.id !== catId));
+        if (categoryFilter === catId) setCategoryFilter('all');
+      } else {
+        alert(data.message || 'سەھىپىنى ئۆچۈرۈش مەغلۇپ بولدى');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // Service CRUD operations
   const handleOpenAddService = () => {
     setEditingService(null);
     setServiceForm({
       name: '',
-      category: 'games',
+      category: categoryFilter !== 'all' ? categoryFilter : (categoriesList[0]?.id || 'games'),
       icon: 'Gamepad2',
       image: '',
       description: '',
       badge: 'يېڭى',
       inputLabel: 'ئويۇنچى ID (Player ID)',
       inputPlaceholder: 'ئويۇن كىملىك نومۇرىنى كىرگۈزۈڭ',
-      price: 1.99,
-      packageTitle: 'ئاساسىي بولاق',
+      packages: [
+        { id: `p-${Date.now()}-1`, title: 'ئاساسىي بولاق', price: 1.99, duration: 'دەرھال' }
+      ],
     });
     setServiceModalOpen(true);
   };
 
   const handleOpenEditService = (srv: ServiceItem) => {
     setEditingService(srv);
+    const existingPkgs = srv.packages && srv.packages.length > 0
+      ? srv.packages.map((p, idx) => ({
+          id: p.id || `p-${idx + 1}`,
+          title: p.title || 'بولاق',
+          price: Number(p.price) || 0,
+          originalPrice: p.originalPrice ? Number(p.originalPrice) : undefined,
+          duration: p.duration || 'دەرھال',
+        }))
+      : [{ id: `p-${Date.now()}-1`, title: 'ئاساسىي بولاق', price: 1.99, duration: 'دەرھال' }];
+
     setServiceForm({
       id: srv.id,
       name: srv.name,
@@ -768,37 +861,78 @@ export default function AdminPage() {
       badge: srv.badge || '',
       inputLabel: srv.inputLabel || '',
       inputPlaceholder: srv.inputPlaceholder || '',
-      price: srv.packages[0]?.price || 1.99,
-      packageTitle: srv.packages[0]?.title || 'ئاساسىي بولاق',
+      packages: existingPkgs,
     });
     setServiceModalOpen(true);
   };
 
+  const handleAddPackageRow = () => {
+    setServiceForm((prev) => ({
+      ...prev,
+      packages: [
+        ...prev.packages,
+        {
+          id: `pkg-${Date.now()}-${prev.packages.length + 1}`,
+          title: '',
+          price: 1.0,
+          duration: 'دەرھال',
+        },
+      ],
+    }));
+  };
+
+  const handleUpdatePackageRow = (index: number, field: string, val: any) => {
+    setServiceForm((prev) => {
+      const next = [...prev.packages];
+      next[index] = { ...next[index], [field]: val };
+      return { ...prev, packages: next };
+    });
+  };
+
+  const handleRemovePackageRow = (index: number) => {
+    setServiceForm((prev) => {
+      if (prev.packages.length <= 1) {
+        alert('مەھسۇلاتتا كەم دېگەندە 1 بولاق (باھا) بولۇشى كېرەك!');
+        return prev;
+      }
+      return {
+        ...prev,
+        packages: prev.packages.filter((_, i) => i !== index),
+      };
+    });
+  };
+
   const handleSaveService = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!serviceForm.packages || serviceForm.packages.length === 0) {
+      alert('كەم دېگەندە بىر بولاق ۋە باھا قوشۇڭ!');
+      return;
+    }
+
     const token = sessionStorage.getItem('autocash_admin_token');
     const headers = {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     };
 
+    const cleanPackages = serviceForm.packages.map((pkg, idx) => ({
+      id: pkg.id || `${serviceForm.id || 'p'}-${idx + 1}`,
+      title: pkg.title.trim() || `بولاق ${idx + 1}`,
+      price: Number(pkg.price) || 1.0,
+      originalPrice: pkg.originalPrice ? Number(pkg.originalPrice) : undefined,
+      duration: pkg.duration?.trim() || 'دەرھال',
+    }));
+
     const payload: Partial<ServiceItem> = {
       name: serviceForm.name,
-      category: serviceForm.category,
+      category: serviceForm.category as any,
       icon: serviceForm.icon,
       image: serviceForm.image || undefined,
       description: serviceForm.description,
       badge: serviceForm.badge || undefined,
       inputLabel: serviceForm.inputLabel || undefined,
       inputPlaceholder: serviceForm.inputPlaceholder || undefined,
-      packages: [
-        {
-          id: `${serviceForm.id || 'p'}-1`,
-          title: serviceForm.packageTitle,
-          price: Number(serviceForm.price) || 1.0,
-          duration: 'دەرھال',
-        },
-      ],
+      packages: cleanPackages,
     };
 
     try {
@@ -815,6 +949,8 @@ export default function AdminPage() {
             prev.map((s) => (s.id === editingService.id ? data.service : s))
           );
           setServiceModalOpen(false);
+        } else {
+          alert(data.message || 'ساقلاش مەغلۇپ بولدى');
         }
       } else {
         // Add new
@@ -827,10 +963,13 @@ export default function AdminPage() {
         if (data.success && data.service) {
           setServices((prev) => [data.service, ...prev]);
           setServiceModalOpen(false);
+        } else {
+          alert(data.message || 'قوشۇش مەغلۇپ بولدى');
         }
       }
     } catch (err) {
       console.error(err);
+      alert('ئۇلىنىش خاتالىقى كۆرۈلدى');
     }
   };
 
@@ -934,12 +1073,16 @@ export default function AdminPage() {
 
   // Filtered Services
   const filteredServices = useMemo(() => {
-    return services.filter(
-      (s) =>
+    return services.filter((s) => {
+      const matchCat = categoryFilter === 'all' || s.category === categoryFilter;
+      const matchSearch =
+        searchQuery.trim() === '' ||
         s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.category.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [services, searchQuery]);
+        s.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (s.description && s.description.toLowerCase().includes(searchQuery.toLowerCase()));
+      return matchCat && matchSearch;
+    });
+  }, [services, searchQuery, categoryFilter]);
 
   // Filtered Users
   const filteredUsers = useMemo(() => {
@@ -1786,6 +1929,83 @@ export default function AdminPage() {
           {/* ================= TAB 3: PRODUCTS & SERVICES (CRUD) ================= */}
           {activeTab === 'services' && (
             <div className="space-y-4 animate-in fade-in duration-300">
+              {/* Category Management Bar */}
+              <div className={`p-4 rounded-2xl ${themeClasses.card} space-y-3`}>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                      <Layers className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-sm text-white">سەھىپىلەر ۋە مەھسۇلات باشقۇرۇش</h3>
+                      <p className={`text-xs ${themeClasses.subtext}`}>
+                        سەھىپىلەرنى قوشۇش، ئۆچۈرۈش ياكى مەھسۇلات باھالىرىنى ئەپچىل تەھرىرلەش
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <button
+                      onClick={handleOpenAddCategory}
+                      className="px-3 py-2 rounded-xl bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-sm"
+                    >
+                      <FolderPlus className="w-4 h-4" />
+                      <span>+ يېڭى سەھىپە قوشۇش</span>
+                    </button>
+                    <button
+                      onClick={handleOpenAddService}
+                      className="px-4 py-2 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer flex items-center gap-1.5 shadow-md"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>+ يېڭى مەھسۇلات قوشۇش</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Categories Filter Pills with Delete Option */}
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 border-t border-slate-800/80">
+                  <button
+                    onClick={() => setCategoryFilter('all')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap ${
+                      categoryFilter === 'all' ? themeClasses.pillActive : themeClasses.pillInactive
+                    }`}
+                  >
+                    بارلىق مەھسۇلاتلار ({services.length})
+                  </button>
+                  {categoriesList.map((cat) => {
+                    const catCount = services.filter((s) => s.category === cat.id).length;
+                    const isActive = categoryFilter === cat.id;
+                    return (
+                      <div
+                        key={cat.id}
+                        className={`group flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+                          isActive ? themeClasses.pillActive : themeClasses.pillInactive
+                        }`}
+                      >
+                        <button
+                          onClick={() => setCategoryFilter(cat.id)}
+                          className="cursor-pointer"
+                        >
+                          {cat.name} ({catCount})
+                        </button>
+                        {/* Allow deleting category if admin wants */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteCategory(cat.id, cat.name);
+                          }}
+                          className="opacity-40 group-hover:opacity-100 hover:text-rose-400 p-0.5 ml-1 transition cursor-pointer"
+                          title="سەھىپىنى ئۆچۈرۈش"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Search & Actions Bar */}
               <div className={`p-4 rounded-2xl ${themeClasses.card} flex flex-col sm:flex-row items-center justify-between gap-3`}>
                 <div className="relative w-full sm:w-80">
                   <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -1793,18 +2013,14 @@ export default function AdminPage() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="مەھسۇلات ياكى سەھىپە بويىچە ئىزدەش..."
+                    placeholder="مەھسۇلات نامى ياكى تەپسىلاتى بويىچە ئىزدەش..."
                     className={`w-full pr-9 pl-3 py-2 rounded-xl text-xs ${themeClasses.input} focus:outline-none focus:border-amber-400 transition`}
                   />
                 </div>
 
-                <button
-                  onClick={handleOpenAddService}
-                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>يېڭى مەھسۇلات قوشۇش</span>
-                </button>
+                <div className="text-xs text-slate-400">
+                  كۆرسىتىلىۋاتقىنى: <span className="font-mono font-bold text-amber-400">{filteredServices.length}</span> مەھسۇلات
+                </div>
               </div>
 
               {/* Services Grid */}
@@ -1851,10 +2067,15 @@ export default function AdminPage() {
                       </p>
 
                       <div className="flex items-center justify-between text-xs py-2 border-t border-slate-800/80">
-                        <span className={themeClasses.subtext}>باشلىنىش باھاسى:</span>
-                        <span className="font-mono font-black text-amber-400 text-sm">
-                          ${srv.packages[0]?.price?.toFixed(2) || '0.00'}
+                        <span className={themeClasses.subtext}>
+                          بولاق سانى: <strong className="text-white font-mono">{srv.packages?.length || 1}</strong>
                         </span>
+                        <div className="text-left font-mono">
+                          <span className="text-[10px] text-slate-400 ml-1">باشلىنىش:</span>
+                          <span className="font-black text-amber-400 text-sm">
+                            ${srv.packages[0]?.price?.toFixed(2) || '0.00'}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
@@ -2684,12 +2905,12 @@ export default function AdminPage() {
                     onChange={(e) =>
                       setServiceForm({
                         ...serviceForm,
-                        category: e.target.value as ServiceItem['category'],
+                        category: e.target.value,
                       })
                     }
                     className={`w-full px-3 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400`}
                   >
-                    {CATEGORIES_9.map((c) => (
+                    {categoriesList.map((c) => (
                       <option key={c.id} value={c.id}>
                         {c.name}
                       </option>
@@ -2721,36 +2942,6 @@ export default function AdminPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-300 font-bold mb-1">ئاساسىي باھا ($ USD):</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0.1"
-                    required
-                    value={serviceForm.price}
-                    onChange={(e) =>
-                      setServiceForm({ ...serviceForm, price: Number(e.target.value) })
-                    }
-                    className={`w-full px-3.5 py-2 rounded-xl font-mono ${themeClasses.input} focus:outline-none focus:border-amber-400`}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-slate-300 font-bold mb-1">بولاق نامى:</label>
-                  <input
-                    type="text"
-                    value={serviceForm.packageTitle}
-                    onChange={(e) =>
-                      setServiceForm({ ...serviceForm, packageTitle: e.target.value })
-                    }
-                    placeholder="مەسىلەن: 660 UC..."
-                    className={`w-full px-3.5 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400`}
-                  />
-                </div>
-              </div>
-
               <div>
                 <label className="block text-slate-300 font-bold mb-1">خېرىداردىن سورايدىغان كىملىك خېتى (ID Label):</label>
                 <input
@@ -2760,6 +2951,80 @@ export default function AdminPage() {
                   placeholder="مەسىلەن: ئويۇنچى ID (Player ID)..."
                   className={`w-full px-3.5 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400`}
                 />
+              </div>
+
+              {/* Multi-Package Management Section */}
+              <div className="pt-2 border-t border-slate-800 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="block text-slate-200 font-bold">بولاقلار ۋە باھالار (Packages & Prices):</label>
+                    <span className="text-[10px] text-slate-400">بۇ مەھسۇلاتنىڭ باھالىرى ۋە ئوخشىمىغان بولاقلىرى</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddPackageRow}
+                    className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>+ يېڭى بولاق قوشۇش</span>
+                  </button>
+                </div>
+
+                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                  {serviceForm.packages.map((pkg, pIdx) => (
+                    <div
+                      key={pkg.id || pIdx}
+                      className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center gap-2"
+                    >
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          required
+                          value={pkg.title}
+                          onChange={(e) => handleUpdatePackageRow(pIdx, 'title', e.target.value)}
+                          placeholder="مەسىلەن: 60 UC ياكى 1 ئايلىق..."
+                          className={`w-full px-2.5 py-1.5 rounded-lg text-xs ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <div className="relative w-24">
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            required
+                            value={pkg.price}
+                            onChange={(e) => handleUpdatePackageRow(pIdx, 'price', Number(e.target.value))}
+                            placeholder="باھا $"
+                            className={`w-full px-2 py-1.5 rounded-lg text-xs font-mono font-bold text-amber-400 ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                          />
+                        </div>
+
+                        <div className="relative w-24">
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={pkg.originalPrice ?? ''}
+                            onChange={(e) => handleUpdatePackageRow(pIdx, 'originalPrice', e.target.value ? Number(e.target.value) : undefined)}
+                            placeholder="ئەسلى $"
+                            className={`w-full px-2 py-1.5 rounded-lg text-xs font-mono text-slate-400 ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                            title="ئەسلى باھا (ئەگەر ئېتىبار كۆرسەتمەكچى بولسىڭىز)"
+                          />
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePackageRow(pIdx)}
+                          className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-950/60 transition cursor-pointer"
+                          title="بۇ بولاقنى ئۆچۈرۈش"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div>
@@ -2785,6 +3050,90 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={() => setServiceModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold transition hover:bg-slate-700 cursor-pointer"
+                >
+                  بىكار قىلىش
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ================= 3.5 CATEGORY ADD/EDIT MODAL ================= */}
+      {categoryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs">
+          <div className={`w-full max-w-md ${themeClasses.card} rounded-3xl p-6 shadow-2xl space-y-4 font-alkatip`}>
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <h3 className="font-ukij font-bold text-sm text-white">
+                يېڭى سەھىپە قوشۇش
+              </h3>
+              <button
+                onClick={() => setCategoryModalOpen(false)}
+                className="text-slate-400 hover:text-white p-1 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCategory} className="space-y-3.5 text-xs">
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">سەھىپە نامى (ئۇيغۇرچە):</label>
+                <input
+                  type="text"
+                  required
+                  value={categoryForm.name}
+                  onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
+                  placeholder="مەسىلەن: سوۋغات كارتىلىرى ياكى تور كۇرسلىرى..."
+                  className={`w-full px-3.5 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">سەھىپە بەلگىسى (Icon نامى):</label>
+                <input
+                  type="text"
+                  value={categoryForm.icon}
+                  onChange={(e) => setCategoryForm({ ...categoryForm, icon: e.target.value })}
+                  placeholder="مەسىلەن: Package, Gamepad2, CreditCard, Bot..."
+                  className={`w-full px-3.5 py-2 rounded-xl font-mono ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                  dir="ltr"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">رەسىم ئۇلىنىشى (Image URL):</label>
+                <input
+                  type="url"
+                  value={categoryForm.image}
+                  onChange={(e) => setCategoryForm({ ...categoryForm, image: e.target.value })}
+                  placeholder="https://images.unsplash.com/..."
+                  className={`w-full px-3.5 py-2 rounded-xl font-mono text-[11px] ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                  dir="ltr"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">قىسقىچە تەسۋىر ياكى سان (مەسىلەن: 15 خىل مۇلازىمەت):</label>
+                <input
+                  type="text"
+                  value={categoryForm.count}
+                  onChange={(e) => setCategoryForm({ ...categoryForm, count: e.target.value })}
+                  placeholder="مەسىلەن: يېڭى مۇلازىمەتلەر..."
+                  className={`w-full px-3.5 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                />
+              </div>
+
+              <div className="pt-2 flex items-center gap-2">
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer"
+                >
+                  سەھىپىنى قوشۇش
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCategoryModalOpen(false)}
                   className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold transition hover:bg-slate-700 cursor-pointer"
                 >
                   بىكار قىلىش

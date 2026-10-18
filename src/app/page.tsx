@@ -229,17 +229,24 @@ export default function HomePage() {
 
   // Storefront catalog: the legacy list or the synced syria4game catalog (same source the order API uses)
   const [services, setServices] = useState<ServiceItem[]>([]);
+  const [categories, setCategories] = useState<any[]>([...CATEGORIES_9]);
   const [catalogSource, setCatalogSource] = useState<'legacy' | 'provider'>('legacy');
   const [catalogLoading, setCatalogLoading] = useState(true);
   useEffect(() => {
-    fetch('/api/catalog')
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.success && Array.isArray(d.services)) {
-          setServices(d.services);
-          setCatalogSource(d.source === 'provider' ? 'provider' : 'legacy');
+    Promise.all([
+      fetch('/api/catalog').then((r) => r.json()).catch(() => null),
+      fetch('/api/categories').then((r) => r.json()).catch(() => null),
+    ])
+      .then(([dCat, dCats]) => {
+        if (dCat && dCat.success && Array.isArray(dCat.services)) {
+          setServices(dCat.services);
+          setCatalogSource(dCat.source === 'provider' ? 'provider' : 'legacy');
         } else {
           setServices(SERVICES_DATA);
+        }
+
+        if (dCats && dCats.success && Array.isArray(dCats.categories) && dCats.categories.length > 0) {
+          setCategories(dCats.categories);
         }
       })
       .catch(() => setServices(SERVICES_DATA))
@@ -252,7 +259,7 @@ export default function HomePage() {
   }, {});
   // With the provider catalog, show real counts and hide categories that have nothing to sell
   const visibleCategories =
-    catalogSource === 'provider' ? CATEGORIES_9.filter((c) => serviceCountByCategory[c.id]) : CATEGORIES_9;
+    catalogSource === 'provider' ? categories.filter((c) => serviceCountByCategory[c.id]) : categories;
 
   // Only open products when a category is explicitly clicked, or searching
   const isProductsOpen = selectedCat !== null || searchQuery.trim() !== '';
@@ -266,7 +273,7 @@ export default function HomePage() {
     return matchCat && matchSearch;
   });
 
-  const activeCategoryObj = CATEGORIES_9.find((c) => c.id === selectedCat);
+  const activeCategoryObj = categories.find((c) => c.id === selectedCat);
 
   return (
     <div

@@ -20,7 +20,7 @@ export interface ServicePackage {
 export interface ServiceItem {
   id: string;
   name: string;
-  category: 'games' | 'apps' | 'balance' | 'social' | 'numbers' | 'crypto' | 'accounts' | 'cards' | 'ai';
+  category: 'games' | 'apps' | 'balance' | 'social' | 'numbers' | 'crypto' | 'accounts' | 'cards' | 'ai' | (string & {});
   icon: string;
   image?: string;
   description: string;
