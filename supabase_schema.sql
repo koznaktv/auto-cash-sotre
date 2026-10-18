@@ -626,6 +626,7 @@ CREATE TABLE IF NOT EXISTS public.provider_settings (
   id TEXT PRIMARY KEY DEFAULT 'global',
   catalog_source TEXT NOT NULL DEFAULT 'legacy' CHECK (catalog_source IN ('legacy', 'provider')),
   global_markup_percent NUMERIC NOT NULL DEFAULT 15 CHECK (global_markup_percent >= 0 AND global_markup_percent <= 500),
+  fixed_markup_usd NUMERIC NOT NULL DEFAULT 0 CHECK (fixed_markup_usd >= 0),
   min_profit_usd NUMERIC NOT NULL DEFAULT 0.01 CHECK (min_profit_usd >= 0),
   min_order_usd NUMERIC NOT NULL DEFAULT 0.10 CHECK (min_order_usd >= 0),
   price_max_age_minutes INT NOT NULL DEFAULT 30,
@@ -642,6 +643,7 @@ CREATE TABLE IF NOT EXISTS public.provider_settings (
   last_balance_at TIMESTAMPTZ,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+ALTER TABLE public.provider_settings ADD COLUMN IF NOT EXISTS fixed_markup_usd NUMERIC NOT NULL DEFAULT 0;
 INSERT INTO public.provider_settings (id) VALUES ('global') ON CONFLICT (id) DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS public.provider_sync_runs (

@@ -205,107 +205,164 @@ function mapOverride(row: any): CatalogOverride {
 }
 
 async function readAllPages(table: string): Promise<any[]> {
-  const sb = getSupabase()!;
+  const sb = getSupabase();
+  if (!sb) return [];
   const rows: any[] = [];
-  for (let from = 0; ; from += PAGE_SIZE) {
-    const { data, error } = await sb.from(table).select('*').order('id', { ascending: true }).range(from, from + PAGE_SIZE - 1);
-    if (error) fail(`read ${table}`, error);
-    rows.push(...(data || []));
-    if (!data || data.length < PAGE_SIZE) break;
+  try {
+    for (let from = 0; ; from += PAGE_SIZE) {
+      const { data, error } = await sb.from(table).select('*').order('id', { ascending: true }).range(from, from + PAGE_SIZE - 1);
+      if (error) {
+        console.warn(`Supabase read ${table} warning:`, error.message);
+        break;
+      }
+      rows.push(...(data || []));
+      if (!data || data.length < PAGE_SIZE) break;
+    }
+  } catch (err: any) {
+    console.warn(`Supabase read ${table} exception:`, err?.message);
   }
   return rows;
 }
 
 async function upsertChunks(table: string, rows: any[], onConflict: string): Promise<void> {
-  const sb = getSupabase()!;
-  for (let i = 0; i < rows.length; i += WRITE_CHUNK) {
-    const { error } = await sb.from(table).upsert(rows.slice(i, i + WRITE_CHUNK), { onConflict });
-    if (error) fail(`upsert ${table}`, error);
+  const sb = getSupabase();
+  if (!sb) return;
+  try {
+    for (let i = 0; i < rows.length; i += WRITE_CHUNK) {
+      const { error } = await sb.from(table).upsert(rows.slice(i, i + WRITE_CHUNK), { onConflict });
+      if (error) {
+        console.warn(`Supabase upsert ${table} warning:`, error.message);
+        break;
+      }
+    }
+  } catch (err: any) {
+    console.warn(`Supabase upsert ${table} exception:`, err?.message);
   }
 }
 
 // ---------------------------------------------------------------- public API
 
 export async function getProviderSettings(): Promise<ProviderSettings> {
+  const local = loadLocal();
   const sb = getSupabase();
   if (sb) {
-    const { data, error } = await sb.from('provider_settings').select('*').eq('id', 'global').maybeSingle();
-    if (error) fail('getSettings (supabase_schema.sql نى ئىجرا قىلىڭ)', error);
-    return mapSettings(data);
+    try {
+      const { data, error } = await sb.from('provider_settings').select('*').eq('id', 'global').maybeSingle();
+      if (!error && data) return mapSettings(data);
+      if (error) console.warn('Supabase provider_settings warning (fallback to local):', error.message);
+    } catch (err: any) {
+      console.warn('Supabase provider_settings exception:', err?.message);
+    }
   }
-  return { ...loadLocal().settings };
+  return { ...local.settings };
 }
 
 export async function updateProviderSettings(patch: Partial<ProviderSettings>): Promise<ProviderSettings> {
-  const sb = getSupabase();
-  if (sb) {
-    const row: Record<string, unknown> = { id: 'global', updated_at: new Date().toISOString() };
-    for (const [key, value] of Object.entries(patch)) {
-      const column = SETTINGS_COLUMNS[key as keyof ProviderSettings];
-      if (column && value !== undefined) row[column] = value;
-    }
-    const { data, error } = await sb.from('provider_settings').upsert(row).select().maybeSingle();
-    if (error) fail('updateSettings', error);
-    return mapSettings(data);
-  }
   const local = loadLocal();
   local.settings = { ...local.settings, ...patch };
   saveLocal();
+
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const row: Record<string, unknown> = { id: 'global', updated_at: new Date().toISOString() };
+      for (const [key, value] of Object.entries(patch)) {
+        const column = SETTINGS_COLUMNS[key as keyof ProviderSettings];
+        if (column && value !== undefined) row[column] = value;
+      }
+      const { data, error } = await sb.from('provider_settings').upsert(row).select().maybeSingle();
+      if (!error && data) return mapSettings(data);
+      if (error) console.warn('Supabase updateProviderSettings warning:', error.message);
+    } catch (err: any) {
+      console.warn('Supabase updateProviderSettings exception:', err?.message);
+    }
+  }
   return { ...local.settings };
 }
 
 export async function listStoredCategories(): Promise<StoredCategory[]> {
-  if (getSupabase()) return (await readAllPages('provider_categories')).map(mapCategory);
-  return loadLocal().categories;
+  const local = loadLocal();
+  const sb = getSupabase();
+  if (sb) {
+    const rows = await readAllPages('provider_categories');
+    if (rows && rows.length > 0) return rows.map(mapCategory);
+  }
+  return local.categories;
 }
 
 export async function listStoredProducts(): Promise<StoredProduct[]> {
-  if (getSupabase()) return (await readAllPages('provider_products')).map(mapProduct);
-  return loadLocal().products;
+  const local = loadLocal();
+  const sb = getSupabase();
+  if (sb) {
+    const rows = await readAllPages('provider_products');
+    if (rows && rows.length > 0) return rows.map(mapProduct);
+  }
+  return local.products;
 }
 
 export async function getStoredProduct(id: number): Promise<StoredProduct | null> {
+  const local = loadLocal();
   const sb = getSupabase();
   if (sb) {
-    const { data, error } = await sb.from('provider_products').select('*').eq('id', id).maybeSingle();
-    if (error) fail('getProduct', error);
-    return data ? mapProduct(data) : null;
+    try {
+      const { data, error } = await sb.from('provider_products').select('*').eq('id', id).maybeSingle();
+      if (!error && data) return mapProduct(data);
+    } catch {}
   }
-  return loadLocal().products.find((p) => p.id === id) || null;
+  return local.products.find((p) => p.id === id) || null;
 }
 
 export async function updateStoredProduct(id: number, patch: Partial<StoredProduct>): Promise<void> {
-  const sb = getSupabase();
-  if (sb) {
-    const existing = await getStoredProduct(id);
-    if (!existing) return;
-    const { error } = await sb.from('provider_products').update(productRow({ ...existing, ...patch })).eq('id', id);
-    if (error) fail('updateProduct', error);
-    return;
-  }
   const local = loadLocal();
   const index = local.products.findIndex((p) => p.id === id);
-  if (index === -1) return;
-  local.products[index] = { ...local.products[index], ...patch };
-  saveLocal();
+  if (index !== -1) {
+    local.products[index] = { ...local.products[index], ...patch };
+    saveLocal();
+  }
+
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const existing = await getStoredProduct(id);
+      if (existing) {
+        await sb.from('provider_products').update(productRow({ ...existing, ...patch })).eq('id', id);
+      }
+    } catch {}
+  }
 }
 
 export async function upsertStoredCategories(rows: StoredCategory[]): Promise<void> {
-  if (getSupabase()) return upsertChunks('provider_categories', rows.map(categoryRow), 'id');
   const local = loadLocal();
   const byId = new Map(local.categories.map((c) => [c.id, c]));
   for (const row of rows) byId.set(row.id, row);
   local.categories = Array.from(byId.values());
   saveLocal();
+
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      await upsertChunks('provider_categories', rows.map(categoryRow), 'id');
+    } catch (e) {
+      console.warn('Supabase upsertStoredCategories warning:', e);
+    }
+  }
 }
 
 export async function upsertStoredProducts(rows: StoredProduct[]): Promise<void> {
-  if (getSupabase()) return upsertChunks('provider_products', rows.map(productRow), 'id');
   const local = loadLocal();
   const byId = new Map(local.products.map((p) => [p.id, p]));
   for (const row of rows) byId.set(row.id, row);
   local.products = Array.from(byId.values());
   saveLocal();
+
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      await upsertChunks('provider_products', rows.map(productRow), 'id');
+    } catch (e) {
+      console.warn('Supabase upsertStoredProducts warning:', e);
+    }
+  }
 }
 
 /** Marks everything not seen in `runId` as removed (rows are kept: orders and overrides refer to them). */
@@ -351,102 +408,114 @@ export async function markUnseenRemoved(runId: number): Promise<{ products: numb
 }
 
 export async function listCatalogOverrides(): Promise<CatalogOverride[]> {
+  const local = loadLocal();
   const sb = getSupabase();
   if (sb) {
-    const { data, error } = await sb.from('catalog_overrides').select('*');
-    if (error) fail('listOverrides', error);
-    return (data || []).map(mapOverride);
+    try {
+      const { data, error } = await sb.from('catalog_overrides').select('*');
+      if (!error && data && data.length > 0) return data.map(mapOverride);
+    } catch {}
   }
-  return loadLocal().overrides;
+  return local.overrides;
 }
 
 export async function upsertCatalogOverride(override: CatalogOverride): Promise<CatalogOverride> {
-  const sb = getSupabase();
-  if (sb) {
-    const { data, error } = await sb
-      .from('catalog_overrides')
-      .upsert(
-        {
-          scope: override.scope,
-          target_id: override.targetId,
-          storefront_category: override.storefrontCategory ?? null,
-          hidden: override.hidden ?? null,
-          custom_name: override.customName ?? null,
-          custom_description: override.customDescription ?? null,
-          custom_image: override.customImage ?? null,
-          custom_badge: override.customBadge ?? null,
-          markup_percent: override.markupPercent ?? null,
-          input_fields_override: override.inputFieldsOverride ?? null,
-          sort_order: override.sortOrder ?? null,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'scope,target_id' }
-      )
-      .select()
-      .maybeSingle();
-    if (error) fail('upsertOverride', error);
-    return mapOverride(data);
-  }
   const local = loadLocal();
   const index = local.overrides.findIndex((o) => o.scope === override.scope && o.targetId === override.targetId);
   if (index === -1) local.overrides.push(override);
   else local.overrides[index] = override;
   saveLocal();
+
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { data, error } = await sb
+        .from('catalog_overrides')
+        .upsert(
+          {
+            scope: override.scope,
+            target_id: override.targetId,
+            storefront_category: override.storefrontCategory ?? null,
+            hidden: override.hidden ?? null,
+            custom_name: override.customName ?? null,
+            custom_description: override.customDescription ?? null,
+            custom_image: override.customImage ?? null,
+            custom_badge: override.customBadge ?? null,
+            markup_percent: override.markupPercent ?? null,
+            input_fields_override: override.inputFieldsOverride ?? null,
+            sort_order: override.sortOrder ?? null,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'scope,target_id' }
+        )
+        .select()
+        .maybeSingle();
+      if (!error && data) return mapOverride(data);
+    } catch {}
+  }
   return override;
 }
 
 export async function startSyncRun(trigger: string): Promise<number> {
-  const sb = getSupabase();
-  if (sb) {
-    const { data, error } = await sb.from('provider_sync_runs').insert({ trigger }).select('id').single();
-    if (error) fail('startRun', error);
-    return Number(data.id);
-  }
   const local = loadLocal();
-  const id = (local.runs[0]?.id || 0) + 1;
-  local.runs.unshift({ id, trigger, status: 'running', startedAt: new Date().toISOString() });
+  const localId = (local.runs[0]?.id || 0) + 1;
+  local.runs.unshift({ id: localId, trigger, status: 'running', startedAt: new Date().toISOString() });
   local.runs = local.runs.slice(0, 50);
   saveLocal();
-  return id;
+
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { data, error } = await sb.from('provider_sync_runs').insert({ trigger }).select('id').single();
+      if (!error && data?.id) return Number(data.id);
+    } catch {}
+  }
+  return localId;
 }
 
 export async function finishSyncRun(id: number, status: string, stats: SyncStats | null, error: string | null): Promise<void> {
-  const sb = getSupabase();
-  const finishedAt = new Date().toISOString();
-  if (sb) {
-    const res = await sb.from('provider_sync_runs').update({ status, stats, error, finished_at: finishedAt }).eq('id', id);
-    if (res.error) fail('finishRun', res.error);
-    return;
-  }
   const local = loadLocal();
+  const finishedAt = new Date().toISOString();
   const run = local.runs.find((r) => r.id === id);
   if (run) Object.assign(run, { status, stats, error, finishedAt });
   saveLocal();
+
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      await sb.from('provider_sync_runs').update({ status, stats, error, finished_at: finishedAt }).eq('id', id);
+    } catch {}
+  }
 }
 
 /** Cross-instance lock (Supabase) so two cron runs can't sync or refund at the same time. */
 export async function acquireLock(name: string, ttlSeconds: number, holder: string): Promise<boolean> {
-  const sb = getSupabase();
-  if (sb) {
-    const { data, error } = await sb.rpc('acquire_cron_lock', { p_name: name, p_ttl_seconds: ttlSeconds, p_holder: holder });
-    if (error) fail('acquire_cron_lock (supabase_schema.sql نى ئىجرا قىلىڭ)', error);
-    return data === true;
-  }
   const local = loadLocal();
   const existing = local.locks[name];
   if (existing && existing.lockedUntil > Date.now()) return false;
   local.locks[name] = { lockedUntil: Date.now() + ttlSeconds * 1000, holder };
   saveLocal();
+
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { data, error } = await sb.rpc('acquire_cron_lock', { p_name: name, p_ttl_seconds: ttlSeconds, p_holder: holder });
+      if (!error) return data === true;
+      console.warn('Supabase acquire_cron_lock notice:', error.message);
+    } catch {}
+  }
   return true;
 }
 
 export async function releaseLock(name: string, holder: string): Promise<void> {
-  const sb = getSupabase();
-  if (sb) {
-    await sb.rpc('release_cron_lock', { p_name: name, p_holder: holder });
-    return;
-  }
   const local = loadLocal();
   if (local.locks[name]?.holder === holder) delete local.locks[name];
   saveLocal();
+
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      await sb.rpc('release_cron_lock', { p_name: name, p_holder: holder });
+    } catch {}
+  }
 }
