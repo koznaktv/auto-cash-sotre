@@ -139,3 +139,43 @@ export function deleteServiceItem(id: string): boolean {
   saveServicesList(filtered);
   return true;
 }
+
+export function deleteServicesByCategory(category: string): number {
+  const current = getServicesList();
+  const matching = current.filter((s) => s.category === category);
+  if (matching.length === 0) return 0;
+
+  const deleted = getDeletedServiceIds();
+  for (const s of matching) {
+    deleted.add(s.id);
+  }
+  saveDeletedServiceIds(deleted);
+
+  const remaining = current.filter((s) => s.category !== category);
+  saveServicesList(remaining);
+  return matching.length;
+}
+
+export function clearAllServices(): number {
+  const current = getServicesList();
+  const deleted = getDeletedServiceIds();
+  for (const s of current) {
+    deleted.add(s.id);
+  }
+  for (const s of SERVICES_DATA) {
+    deleted.add(s.id);
+  }
+  saveDeletedServiceIds(deleted);
+  saveServicesList([]);
+  return current.length;
+}
+
+export function restoreDefaultServices(): number {
+  const deleted = getDeletedServiceIds();
+  for (const s of SERVICES_DATA) {
+    deleted.delete(s.id);
+  }
+  saveDeletedServiceIds(deleted);
+  saveServicesList([...SERVICES_DATA]);
+  return SERVICES_DATA.length;
+}

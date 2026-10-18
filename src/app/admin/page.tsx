@@ -801,7 +801,11 @@ export default function AdminPage() {
   };
 
   const handleDeleteCategory = async (catId: string, catName: string) => {
-    if (!confirm(`«${catName}» سەھىپىسىنى راستىنلا ئۆچۈرەمسىز؟`)) return;
+    const catProductsCount = services.filter((s) => s.category === catId).length;
+    const msg = catProductsCount > 0
+      ? `«${catName}» سەھىپىسىنى ۋە ئۇنىڭ ئىچىدىكى بارلىق (${catProductsCount}) مەھسۇلاتنى راستىنلا ئۆچۈرەمسىز؟`
+      : `«${catName}» سەھىپىسىنى راستىنلا ئۆچۈرەمسىز؟`;
+    if (!confirm(msg)) return;
     const token = sessionStorage.getItem('autocash_admin_token');
     try {
       const res = await fetch(`/api/admin/categories?id=${encodeURIComponent(catId)}`, {
@@ -811,9 +815,71 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.success) {
         setCategoriesList((prev) => prev.filter((c) => c.id !== catId));
+        setServices((prev) => prev.filter((s) => s.category !== catId));
         if (categoryFilter === catId) setCategoryFilter('all');
       } else {
         alert(data.message || 'سەھىپىنى ئۆچۈرۈش مەغلۇپ بولدى');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Clear all products
+  const handleClearAllServices = async () => {
+    if (!confirm('دىققەت! بارلىق سىناق مەھسۇلاتلارنى تولۇق يۇيۇپ نۆللىمەكچىمۇ؟ بۇنىڭدىن كېيىن قايتا چىقىۋالمايدۇ.')) return;
+    const token = sessionStorage.getItem('autocash_admin_token');
+    try {
+      const res = await fetch('/api/admin/services?all=true', {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setServices([]);
+        alert('بارلىق مەھسۇلاتلار مۇۋەپپەقىيەتلىك يۇيۇلدى!');
+      } else {
+        alert(data.message || 'يۇيۇش مەغلۇپ بولدى');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Clear products in selected category
+  const handleClearCategoryServices = async (catId: string, catName: string) => {
+    const count = services.filter((s) => s.category === catId).length;
+    if (!confirm(`«${catName}» سەھىپىسىدىكى بارلىق ${count} مەھسۇلاتنى يۇيۇۋەتمەكچىمۇ؟`)) return;
+    const token = sessionStorage.getItem('autocash_admin_token');
+    try {
+      const res = await fetch(`/api/admin/services?category=${encodeURIComponent(catId)}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setServices((prev) => prev.filter((s) => s.category !== catId));
+      } else {
+        alert(data.message || 'يۇيۇش مەغلۇپ بولدى');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Restore defaults if needed
+  const handleRestoreDefaultServices = async () => {
+    if (!confirm('دەسلەپكى ئۈلگە مەھسۇلاتلارنى ئەسلىگە كەلتۈرەمسىز؟')) return;
+    const token = sessionStorage.getItem('autocash_admin_token');
+    try {
+      const res = await fetch('/api/admin/services?reset=true', {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) {
+        await loadAllAdminData();
+        alert('ئۈلگە مەھسۇلاتلار ئەسلىگە كەلتۈرۈلدى!');
       }
     } catch (err) {
       console.error(err);
@@ -1950,7 +2016,26 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    {services.length > 0 && (
+                      <button
+                        onClick={handleClearAllServices}
+                        className="px-3 py-2 rounded-xl bg-rose-950/70 hover:bg-rose-900 border border-rose-500/40 text-rose-300 text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-sm"
+                        title="بارلىق سىناق مەھسۇلاتلارنى بىرلا قېتىمدا يۇيۇپ نۆللەش"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span>بارلىق مەھسۇلاتنى يۇيۇش ({services.length})</span>
+                      </button>
+                    )}
+                    {services.length === 0 && (
+                      <button
+                        onClick={handleRestoreDefaultServices}
+                        className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-300 text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-sm"
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                        <span>ئۈلگە مەھسۇلاتلارنى قايتۇرۇش</span>
+                      </button>
+                    )}
                     <button
                       onClick={handleOpenAddCategory}
                       className="px-3 py-2 rounded-xl bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-sm"
@@ -2024,8 +2109,22 @@ export default function AdminPage() {
                   />
                 </div>
 
-                <div className="text-xs text-slate-400">
-                  كۆرسىتىلىۋاتقىنى: <span className="font-mono font-bold text-amber-400">{filteredServices.length}</span> مەھسۇلات
+                <div className="flex items-center gap-3 flex-wrap">
+                  {categoryFilter !== 'all' && filteredServices.length > 0 && (
+                    <button
+                      onClick={() => {
+                        const activeCat = categoriesList.find((c) => c.id === categoryFilter);
+                        handleClearCategoryServices(categoryFilter, activeCat?.name || categoryFilter);
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-rose-950/70 hover:bg-rose-900 border border-rose-500/40 text-rose-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>مۇشۇ سەھىپىدىكى مەھسۇلاتلارنى يۇيۇش ({filteredServices.length})</span>
+                    </button>
+                  )}
+                  <div className="text-xs text-slate-400">
+                    كۆرسىتىلىۋاتقىنى: <span className="font-mono font-bold text-amber-400">{filteredServices.length}</span> مەھسۇلات
+                  </div>
                 </div>
               </div>
 

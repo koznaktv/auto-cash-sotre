@@ -1,5 +1,13 @@
 import { NextResponse } from 'next/server';
-import { getServicesList, addServiceItem, updateServiceItem, deleteServiceItem } from '@/lib/servicesDb';
+import {
+  getServicesList,
+  addServiceItem,
+  updateServiceItem,
+  deleteServiceItem,
+  deleteServicesByCategory,
+  clearAllServices,
+  restoreDefaultServices,
+} from '@/lib/servicesDb';
 import { verifyAdminToken } from '@/lib/adminAuth';
 
 export async function GET() {
@@ -61,6 +69,24 @@ export async function DELETE(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
+    const category = searchParams.get('category');
+    const all = searchParams.get('all');
+    const reset = searchParams.get('reset');
+
+    if (reset === 'true') {
+      const restoredCount = restoreDefaultServices();
+      return NextResponse.json({ success: true, count: restoredCount });
+    }
+
+    if (all === 'true') {
+      const deletedCount = clearAllServices();
+      return NextResponse.json({ success: true, count: deletedCount });
+    }
+
+    if (category) {
+      const deletedCount = deleteServicesByCategory(category);
+      return NextResponse.json({ success: true, count: deletedCount });
+    }
 
     if (!id) {
       return NextResponse.json({ success: false, message: 'مەھسۇلات ID كەمچىل' }, { status: 400 });

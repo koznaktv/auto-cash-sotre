@@ -67,6 +67,11 @@ export async function DELETE(req: Request) {
     }
 
     const success = deleteCategoryItem(id);
+    if (success) {
+      // Also delete all services assigned to this category
+      const { deleteServicesByCategory } = await import('@/lib/servicesDb');
+      deleteServicesByCategory(id);
+    }
     return NextResponse.json({ success });
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err?.message || 'سەھىپىنى ئۆچۈرۈش مەغلۇپ بولدى' }, { status: 500 });
