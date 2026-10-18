@@ -332,56 +332,56 @@ export class Syria4GameProvider {
     return { success: true, ...parseProfile(res.data), raw: res.data };
   }
 
-  /** Full catalog in one call; falls back to /products + /categories/all. */
+  /** Full catalog in one direct call to /products (completes in ~1s). */
   async getCatalog(): Promise<{ success: boolean; catalog?: ParsedCatalog; source?: string; error?: ProviderError }> {
     if (!this.hasLiveToken()) return { success: false, error: NOT_CONFIGURED };
 
-    const res = await this.request('/client/api/catalog', { endpoint: 'catalog', timeoutMs: 45000, retries: 1 });
-    if (this.isSuccess(res)) {
-      const catalog = parseCatalog(res.data);
-      if (catalog.products.length > 0) return { success: true, catalog, source: 'catalog' };
+    const productsRes = await this.request('/client/api/products', { endpoint: 'products', timeoutMs: 15000, retries: 1 });
+    if (!this.isSuccess(productsRes)) {
+      // Fallback try /client/api/catalog only if /products returned an error
+      const catalogRes = await this.request('/client/api/catalog', { endpoint: 'catalog', timeoutMs: 8000, retries: 0 });
+      if (this.isSuccess(catalogRes)) {
+        const catalog = parseCatalog(catalogRes.data);
+        if (catalog.products.length > 0) return { success: true, catalog, source: 'catalog' };
+      }
+      return { success: false, error: this.failure(productsRes) };
     }
-
-    const productsRes = await this.request('/client/api/products', { endpoint: 'products', timeoutMs: 45000, retries: 1 });
-    if (!this.isSuccess(productsRes)) return { success: false, error: this.failure(productsRes) };
     const catalog = parseCatalog(productsRes.data);
 
-    // Category names/parents: the /content tree (root + one level), else /categories/all
-    const treeCategories = await this.getCategoryTree();
-    const fromCategories = parseCatalog({ flat_categories: treeCategories, products: [] }).categories;
-    const byId = new Map(catalog.categories.map((c) => [c.id, c]));
-    for (const category of fromCategories) byId.set(category.id, { ...byId.get(category.id), ...category });
-    catalog.categories = Array.from(byId.values());
+    // Fast non-blocking root categories lookup (timeout 3s, 0 retries)
+    try {
+      const rootRes = await this.request('/client/api/content/0', { endpoint: 'content', timeoutMs: 3000, retries: 0 });
+      if (this.isSuccess(rootRes)) {
+        const roots: any[] = rootRes.data?.categories ?? rootRes.data?.data?.categories ?? [];
+        if (Array.isArray(roots) && roots.length > 0) {
+          const byId = new Map(catalog.categories.map((c) => [c.id, c]));
+          for (const r of roots) {
+            const id = Number(r.id);
+            if (id && byId.has(id)) {
+              byId.set(id, { ...byId.get(id)!, name: r.name || r.title || byId.get(id)!.name });
+            }
+          }
+          catalog.categories = Array.from(byId.values());
+        }
+      }
+    } catch {
+      // Ignore: products already have category names and images
+    }
+
     return { success: true, catalog, source: 'products' };
   }
 
-  /** Root categories from /content/0 plus their direct children (a handful of calls, in parallel). */
+  /** Root categories from /content/0 (fast single request, no batch loops). */
   private async getCategoryTree(): Promise<unknown[]> {
-    const rootRes = await this.request('/client/api/content/0', { endpoint: 'content', timeoutMs: 15000, retries: 1 });
+    const rootRes = await this.request('/client/api/content/0', { endpoint: 'content', timeoutMs: 5000, retries: 0 });
     const roots: any[] = this.isSuccess(rootRes) ? rootRes.data?.categories ?? rootRes.data?.data?.categories ?? [] : [];
     if (!Array.isArray(roots) || roots.length === 0) {
-      const allRes = await this.request('/client/api/categories/all', { endpoint: 'categories', timeoutMs: 20000, retries: 1 });
+      const allRes = await this.request('/client/api/categories/all', { endpoint: 'categories', timeoutMs: 5000, retries: 0 });
       if (!this.isSuccess(allRes)) return [];
       const body = allRes.data;
       return Array.isArray(body) ? body : body?.categories ?? body?.data ?? body?.items ?? [];
     }
-
-    const all: any[] = roots.map((r) => ({ ...r, parent_id: Number(r.parent_id) || null }));
-    const rootIds = roots.map((r) => Number(r.id)).filter((id) => Number.isInteger(id) && id > 0).slice(0, 60);
-    for (let i = 0; i < rootIds.length; i += 5) {
-      const batch = rootIds.slice(i, i + 5);
-      const results = await Promise.all(
-        batch.map((id) => this.request(`/client/api/content/${id}`, { endpoint: 'content', timeoutMs: 15000, retries: 1 }))
-      );
-      results.forEach((res, index) => {
-        if (!this.isSuccess(res)) return;
-        const children = res.data?.categories ?? res.data?.data?.categories ?? [];
-        if (Array.isArray(children)) {
-          for (const child of children) all.push({ ...child, parent_id: Number(child.parent_id) || batch[index] });
-        }
-      });
-    }
-    return all;
+    return roots.map((r) => ({ ...r, parent_id: Number(r.parent_id) || null }));
   }
 
   async getProducts(): Promise<{ success: boolean; products: ProviderProduct[]; errorMessage?: string }> {

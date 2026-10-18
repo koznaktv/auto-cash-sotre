@@ -118,6 +118,7 @@ export async function runCatalogSync(options: { trigger: 'admin' | 'cron' }): Pr
       lastSyncStatus: 'success',
       lastSyncStats: stats,
       lastSyncError: null,
+      catalogSource: 'provider',
       ...(profile.success && profile.balance !== null ? { lastBalance: profile.balance, lastBalanceAt: now } : {}),
     });
     invalidateCatalogCache();
