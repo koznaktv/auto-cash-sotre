@@ -4,6 +4,7 @@ import { syria4GameProvider } from '@/lib/providers/syria4game';
 import { listProviderCalls } from '@/lib/provider/callLog';
 import { getProviderSettings, updateProviderSettings } from '@/lib/catalog/store';
 import { getSystemSettingsAsync, updateSystemSettingsAsync } from '@/lib/db';
+import { saveStoredProviderConfig } from '@/lib/provider/providerConfigStore';
 
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
@@ -89,7 +90,10 @@ export async function POST(req: Request) {
     if (providerApiSecret !== undefined) updates.providerApiSecret = String(providerApiSecret).trim();
     if (providerEnabled !== undefined) updates.providerEnabled = Boolean(providerEnabled);
 
-    // 1. Save settings
+    // 1. Save settings to dedicated persistent store (.env.local + data/provider_config.json)
+    saveStoredProviderConfig(updates);
+
+    // 2. Also update database settings
     await updateSystemSettingsAsync(updates);
 
     // 2. Perform live check with the newly saved configuration

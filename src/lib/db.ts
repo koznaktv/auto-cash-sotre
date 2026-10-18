@@ -121,8 +121,8 @@ const initialDefaultData: DatabaseSchema = {
     whatsappNumber: '+963 984 373 459',
     telegramUsername: 'autocash_UYGHUR',
     siteName: 'AUTO CASH',
-    providerApiUrl: 'https://syria4game.com',
-    providerApiKey: '',
+    providerApiUrl: process.env.SYRIA4GAME_BASE_URL || 'https://api.sahl-cash.com',
+    providerApiKey: process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '',
     providerApiType: 'syria4game',
     providerApiSecret: '',
     providerEnabled: true,
@@ -156,7 +156,13 @@ function ensureDbFile(): DatabaseSchema {
     if (!parsed.users) parsed.users = [];
     if (!parsed.orders) parsed.orders = [];
     if (!parsed.deposits) parsed.deposits = [];
-    if (!parsed.settings) parsed.settings = initialDefaultData.settings;
+    if (!parsed.settings) parsed.settings = { ...initialDefaultData.settings };
+    if (!parsed.settings.providerApiUrl || parsed.settings.providerApiUrl === 'https://syria4game.com') {
+      parsed.settings.providerApiUrl = process.env.SYRIA4GAME_BASE_URL || 'https://api.sahl-cash.com';
+    }
+    if (!parsed.settings.providerApiKey && process.env.SYRIA4GAME_API_TOKEN) {
+      parsed.settings.providerApiKey = process.env.SYRIA4GAME_API_TOKEN;
+    }
 
     cachedDb = parsed;
     return cachedDb;

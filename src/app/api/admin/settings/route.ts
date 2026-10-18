@@ -50,11 +50,20 @@ export async function PATCH(req: Request) {
     if (whatsappNumber) updates.whatsappNumber = String(whatsappNumber).trim();
     if (telegramUsername) updates.telegramUsername = String(telegramUsername).trim();
     if (siteName) updates.siteName = String(siteName).trim();
-    if (providerApiUrl !== undefined) updates.providerApiUrl = String(providerApiUrl).trim();
-    if (providerApiKey !== undefined) updates.providerApiKey = String(providerApiKey).trim();
+    if (providerApiUrl !== undefined && String(providerApiUrl).trim() !== '') {
+      updates.providerApiUrl = String(providerApiUrl).trim();
+    }
+    if (providerApiKey !== undefined && String(providerApiKey).trim() !== '') {
+      updates.providerApiKey = String(providerApiKey).trim();
+    }
     if (providerApiType !== undefined) updates.providerApiType = providerApiType;
     if (providerApiSecret !== undefined) updates.providerApiSecret = String(providerApiSecret).trim();
     if (providerEnabled !== undefined) updates.providerEnabled = Boolean(providerEnabled);
+
+    if (updates.providerApiUrl || updates.providerApiKey) {
+      const { saveStoredProviderConfig } = await import('@/lib/provider/providerConfigStore');
+      saveStoredProviderConfig(updates);
+    }
 
     const updatedSettings = await updateSystemSettingsAsync(updates);
     return NextResponse.json({ success: true, settings: updatedSettings });

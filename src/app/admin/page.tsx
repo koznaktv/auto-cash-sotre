@@ -185,7 +185,7 @@ export default function AdminPage() {
     apiSecret: string;
     enabled: boolean;
   }>({
-    apiUrl: 'https://syria4game.com',
+    apiUrl: 'https://api.sahl-cash.com',
     apiKey: '',
     apiType: 'syria4game',
     apiSecret: '',
@@ -1001,7 +1001,13 @@ export default function AdminPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(settings),
+        body: JSON.stringify({
+          adminPin: settings.adminPin,
+          shamcashAddress: settings.shamcashAddress,
+          whatsappNumber: settings.whatsappNumber,
+          telegramUsername: settings.telegramUsername,
+          siteName: settings.siteName,
+        }),
       });
       const data = await res.json();
       if (data.success) {

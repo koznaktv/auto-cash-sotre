@@ -75,6 +75,7 @@ function sleep(ms: number) {
 }
 
 import { getSystemSettingsAsync } from '../db';
+import { loadStoredProviderConfig } from '../provider/providerConfigStore';
 
 interface ResolvedProviderConfig {
   baseUrl: string;
@@ -89,7 +90,7 @@ export class Syria4GameProvider {
   private defaultApiToken: string;
 
   constructor() {
-    const rawUrl = process.env.SYRIA4GAME_BASE_URL || 'https://syria4game.com';
+    const rawUrl = process.env.SYRIA4GAME_BASE_URL || 'https://api.sahl-cash.com';
     this.defaultBaseUrl = rawUrl.replace(/\/+$/, '');
     setAssetBase(this.defaultBaseUrl);
     const rawToken = (process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '').trim();
@@ -98,28 +99,56 @@ export class Syria4GameProvider {
 
   public async getResolvedConfig(): Promise<ResolvedProviderConfig> {
     try {
-      const settings = await getSystemSettingsAsync();
-      const baseUrl = (settings.providerApiUrl || this.defaultBaseUrl || 'https://syria4game.com').replace(/\/+$/, '');
-      const apiToken = (settings.providerApiKey !== undefined && settings.providerApiKey !== ''
-        ? settings.providerApiKey
-        : this.defaultApiToken
-      ).trim();
-      const apiType = settings.providerApiType || 'syria4game';
-      const apiSecret = settings.providerApiSecret || undefined;
-      const enabled = settings.providerEnabled !== false;
+      const stored = loadStoredProviderConfig();
+      const settings = await getSystemSettingsAsync().catch(() => null);
+
+      let baseUrl = stored.providerApiUrl;
+      let apiToken = stored.providerApiKey;
+      let apiType = stored.providerApiType || 'syria4game';
+      let apiSecret = stored.providerApiSecret;
+      let enabled = stored.providerEnabled !== false;
+
+      // If DB settings has non-default custom settings, merge them
+      if (settings) {
+        if (settings.providerApiUrl && settings.providerApiUrl !== 'https://syria4game.com') {
+          baseUrl = settings.providerApiUrl;
+        }
+        if (settings.providerApiKey && settings.providerApiKey.trim().length > 0) {
+          apiToken = settings.providerApiKey.trim();
+        }
+        if (settings.providerApiType) {
+          apiType = settings.providerApiType;
+        }
+        if (settings.providerApiSecret !== undefined) {
+          apiSecret = settings.providerApiSecret;
+        }
+        if (settings.providerEnabled !== undefined) {
+          enabled = settings.providerEnabled;
+        }
+      }
+
+      // If URL was left as legacy syria4game.com, but we have sahl-cash credentials, correct it
+      if (baseUrl === 'https://syria4game.com' && (apiToken.length >= 40 || (process.env.SYRIA4GAME_BASE_URL || '').includes('sahl-cash'))) {
+        baseUrl = 'https://api.sahl-cash.com';
+      }
+
+      baseUrl = baseUrl.replace(/\/+$/, '');
       return { baseUrl, apiToken, apiType, apiSecret, enabled };
     } catch {
+      const stored = loadStoredProviderConfig();
       return {
-        baseUrl: this.defaultBaseUrl,
-        apiToken: this.defaultApiToken,
-        apiType: 'syria4game',
-        enabled: true,
+        baseUrl: stored.providerApiUrl,
+        apiToken: stored.providerApiKey,
+        apiType: stored.providerApiType || 'syria4game',
+        apiSecret: stored.providerApiSecret,
+        enabled: stored.providerEnabled !== false,
       };
     }
   }
 
   public hasLiveToken(): boolean {
-    return this.defaultApiToken.length > 5;
+    const token = this.defaultApiToken || loadStoredProviderConfig().providerApiKey;
+    return Boolean(token && token.length > 5);
   }
 
   public async hasLiveConfig(): Promise<boolean> {
