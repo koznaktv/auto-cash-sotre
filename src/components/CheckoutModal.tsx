@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { ServiceItem, ServicePackage } from '@/lib/data';
 import DynamicIcon from './DynamicIcon';
+import AnimatedOrderButton from './AnimatedOrderButton';
 import { useLanguage } from '@/context/LanguageContext';
 import { X, AlertCircle, Loader2, Search, Info } from 'lucide-react';
 
@@ -39,6 +40,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
   const [errorMsg, setErrorMsg] = useState('');
   const [infoMsg, setInfoMsg] = useState('');
   const [confirmTotal, setConfirmTotal] = useState<number | null>(null);
+  const [buttonState, setButtonState] = useState<'idle' | 'loading' | 'success'>('idle');
   const isSubmittingRef = useRef(false);
 
   // Provider services: the slim catalog has no fields / qty rules, load the full service
@@ -101,6 +103,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
   const submitOrder = async (expectedTotal: number) => {
     isSubmittingRef.current = true;
     setLoading(true);
+    setButtonState('loading');
     setErrorMsg('');
     setInfoMsg('');
     try {
@@ -118,19 +121,29 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
       if (res.status === 409 && data.priceChanged && typeof data.newTotal === 'number') {
         setConfirmTotal(data.newTotal);
         setErrorMsg(data.message || 'باھا ئۆزگەردى');
+        setButtonState('idle');
         return;
       }
       if (!data.success) throw new Error(data.message || 'زاكاز قوبۇل قىلىنمىدى');
 
       if (res.status === 202) {
         // Accepted but the provider's answer was unclear: the order is being verified
+        setButtonState('success');
         setInfoMsg(data.message || 'زاكازىڭىز تەكشۈرۈلۈۋاتىدۇ');
-        onSuccess(data.order, data.newBalance);
+        setTimeout(() => {
+          onSuccess(data.order, data.newBalance);
+        }, 1200);
         return;
       }
-      onSuccess(data.order, data.newBalance);
-      onClose();
+
+      // Order Success! Play the celebratory checkmark animation
+      setButtonState('success');
+      setTimeout(() => {
+        onSuccess(data.order, data.newBalance);
+        onClose();
+      }, 1200);
     } catch (err: any) {
+      setButtonState('idle');
       setErrorMsg(err.message || 'خاتالىق كۆرۈلدى');
     } finally {
       isSubmittingRef.current = false;
@@ -471,20 +484,16 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                   {isRTL ? 'تامام' : 'Done'}
                 </button>
               ) : (
-                <button
-                  type="submit"
+                <AnimatedOrderButton
+                  status={buttonState}
                   disabled={loading || isSubmittingRef.current || !selectedPkg || selectedPkg.available === false}
-                  className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 hover:opacity-95 text-white font-semibold px-6 py-2.5 rounded-xl shadow-lg shadow-cyan-500/20 text-sm transition disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed select-none"
-                >
-                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                  <span>
-                    {loading
-                      ? 'بىر تەرەپ قىلىنماقتا...'
-                      : confirmTotal !== null
+                  label={
+                    confirmTotal !== null
                       ? `يېڭى باھا $${confirmTotal.toFixed(2)} نى جەزملەش`
-                      : t('confirmAndPay')}
-                  </span>
-                </button>
+                      : t('confirmAndPay')
+                  }
+                  isRTL={isRTL}
+                />
               )}
             </div>
           </form>
