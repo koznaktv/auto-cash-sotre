@@ -102,11 +102,13 @@ export async function POST(req: Request) {
       success: profile.success,
       message: profile.success
         ? 'تەمىنلىگۈچى API مۇۋەپپەقىيەتلىك ئۇلاندى ھەم قالدۇق پۇل تەكشۈرۈلدى!'
-        : `تەڭشەك ساقلاندى، لېكىن تەمىنلىگۈچى جاۋابى: ${profile.error?.message || 'ئۇلىنىش مەغلۇپ بولدى'}`,
+        : `تەڭشەك ساقلاندى، لېكىن تەمىنلىگۈچى قايتۇرغان جاۋاب: [${profile.error?.code || 'خاتالىق'}] ${profile.error?.message || 'ئۇلىنىش مەغلۇپ بولدى'}`,
       balance: profile.balance,
       currency: profile.currency,
       userName: profile.userName,
       errorMessage: profile.error?.message,
+      errorCode: profile.error?.code,
+      raw: profile.raw,
     });
   } catch (err: any) {
     return NextResponse.json(
