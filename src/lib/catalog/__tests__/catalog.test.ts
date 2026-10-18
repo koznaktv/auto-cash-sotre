@@ -143,4 +143,25 @@ describe('buildProviderCatalog', () => {
     const catalog = buildProviderCatalog({ ...base, overrides: [{ scope: 'category', targetId: 1, hidden: true }] });
     expect(catalog.services).toHaveLength(0);
   });
+
+  it('assigns high-definition artwork when category image is missing or bare host', () => {
+    const catalog = buildProviderCatalog({
+      ...base,
+      categories: [
+        { id: 1, parentId: null, name: 'Free Fire', image: 'https://api.sahl-cash.com/' },
+        { id: 2, parentId: 1, name: 'PUBG Mobile', image: '' },
+      ],
+      products: [
+        { id: 10, categoryId: 1, name: '100 Diamonds', costPrice: 1, currency: 'USD', available: true, productType: 'fixed' },
+        { id: 11, categoryId: 2, name: '60 UC', costPrice: 0.99, currency: 'USD', available: true, productType: 'fixed' },
+      ],
+      overrides: [],
+      settings: DEFAULT_PROVIDER_SETTINGS,
+    });
+    const ff = catalog.services.find((s) => s.id === 's4g-c1');
+    const pubg = catalog.services.find((s) => s.id === 's4g-c2');
+    expect(ff?.image).toContain('unsplash.com');
+    expect(pubg?.image).toContain('unsplash.com');
+    expect(ff?.image).not.toBe('https://api.sahl-cash.com/');
+  });
 });

@@ -8,7 +8,7 @@
 import type { ServiceItem, ServicePackage } from '../data';
 import { getServicesList } from '../servicesDb';
 import { normalizeFields, normalizeQtyRule } from '../providers/syria4gameNormalize';
-import { guessStorefrontCategory, STOREFRONT_ICONS } from './categoryMapping';
+import { guessStorefrontCategory, resolveServiceArtwork, STOREFRONT_ICONS } from './categoryMapping';
 import { computeSellPrice, resolveMarkup, unitSellPrice } from './pricing';
 import { minQty } from './fieldValidation';
 import {
@@ -222,12 +222,26 @@ export function buildProviderCatalog(input: {
     const parent = category.parentId !== null ? categoryById.get(category.parentId) : undefined;
     const firstImage = packages.map((p) => productById.get(p.providerProductId!)?.image).find(Boolean);
     packages.sort((a, b) => a.price - b.price);
+    const serviceName = override?.customName || category.name;
+    const candidateImage = override?.customImage || category.image || firstImage;
+    const isCleanImage =
+      typeof candidateImage === 'string' &&
+      candidateImage.trim() !== '' &&
+      candidateImage.trim() !== '/' &&
+      candidateImage !== 'https://api.sahl-cash.com/' &&
+      candidateImage !== 'https://api.sahl-cash.com' &&
+      candidateImage !== 'https://syria4game.com/' &&
+      candidateImage !== 'https://syria4game.com' &&
+      !candidateImage.endsWith('sahl-cash.com/') &&
+      !candidateImage.endsWith('syria4game.com/');
+    const image = isCleanImage ? candidateImage : resolveServiceArtwork(serviceName, storefrontCategory);
+
     services.push({
       id: `${SERVICE_PREFIX}${categoryId}`,
-      name: override?.customName || category.name,
+      name: serviceName,
       category: storefrontCategory,
       icon: STOREFRONT_ICONS[storefrontCategory],
-      image: override?.customImage || category.image || firstImage,
+      image,
       description: override?.customDescription || parent?.name || category.name,
       badge: override?.customBadge || undefined,
       packages,

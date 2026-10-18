@@ -47,7 +47,17 @@ function imageUrl(value: unknown): string | undefined {
     text = `${assetBase}/${text.replace(/^\/+/, '')}`;
   }
   try {
-    return new URL(text).pathname.length > 1 ? text : undefined;
+    const parsed = new URL(text);
+    if (parsed.pathname.length <= 1 || parsed.pathname === '/') return undefined;
+    if (
+      parsed.hostname.includes('sahl-cash.com') &&
+      !parsed.pathname.includes('/upload') &&
+      !parsed.pathname.includes('/image') &&
+      !/\.(png|jpe?g|webp|svg|gif)$/i.test(parsed.pathname)
+    ) {
+      return undefined;
+    }
+    return text;
   } catch {
     return undefined;
   }

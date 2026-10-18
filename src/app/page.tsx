@@ -672,8 +672,9 @@ export default function HomePage() {
                     <div className="w-full h-20 sm:h-28 rounded-xl overflow-hidden bg-slate-900 relative mb-2 border border-slate-800">
                       <img
                         src={
-                          service.image ||
-                          'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=150&auto=format&fit=crop&q=80'
+                          service.image && !service.image.endsWith('sahl-cash.com/') && service.image !== 'https://api.sahl-cash.com'
+                            ? service.image
+                            : 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=300&auto=format&fit=crop&q=80'
                         }
                         alt={service.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
