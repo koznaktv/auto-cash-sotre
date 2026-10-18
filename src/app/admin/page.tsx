@@ -138,7 +138,7 @@ export default function AdminPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
   // Categories State
-  const [categoriesList, setCategoriesList] = useState<CategoryItem[]>([...CATEGORIES_9]);
+  const [categoriesList, setCategoriesList] = useState<CategoryItem[]>([]);
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [categoryForm, setCategoryForm] = useState<{ id?: string; name: string; icon: string; count?: string; image?: string }>({
@@ -385,8 +385,8 @@ export default function AdminPage() {
         fetch('/api/orders', { headers }).then((r) => r.json()),
         fetch('/api/deposits', { headers }).then((r) => r.json()),
         fetch('/api/admin/users', { headers }).then((r) => r.json()),
-        fetch('/api/admin/services').then((r) => r.json()),
-        fetch('/api/admin/categories').then((r) => r.json()),
+        fetch(`/api/admin/services?t=${Date.now()}`, { headers, cache: 'no-store' }).then((r) => r.json()),
+        fetch(`/api/admin/categories?t=${Date.now()}`, { headers, cache: 'no-store' }).then((r) => r.json()),
         fetch('/api/admin/settings', { headers }).then((r) => r.json()),
       ]);
 
@@ -804,7 +804,7 @@ export default function AdminPage() {
     if (!confirm(`«${catName}» سەھىپىسىنى راستىنلا ئۆچۈرەمسىز؟`)) return;
     const token = sessionStorage.getItem('autocash_admin_token');
     try {
-      const res = await fetch(`/api/admin/categories?id=${catId}`, {
+      const res = await fetch(`/api/admin/categories?id=${encodeURIComponent(catId)}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -977,7 +977,7 @@ export default function AdminPage() {
     if (!confirm('بۇ مەھسۇلاتنى راستىنلا ئۆچۈرەمسىز؟')) return;
     const token = sessionStorage.getItem('autocash_admin_token');
     try {
-      const res = await fetch(`/api/admin/services?id=${id}`, {
+      const res = await fetch(`/api/admin/services?id=${encodeURIComponent(id)}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });

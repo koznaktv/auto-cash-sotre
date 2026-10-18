@@ -29,7 +29,13 @@ export async function GET(req: Request) {
 
     return NextResponse.json(
       { success: true, source, minOrderUsd: settings.minOrderUsd, services },
-      { headers: isAdminPreview ? { 'Cache-Control': 'no-store' } : { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' } }
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+          Pragma: 'no-cache',
+          Expires: '0',
+        },
+      }
     );
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err?.message || 'تىزىملىكنى ئېلىش مەغلۇپ بولدى' }, { status: 500 });

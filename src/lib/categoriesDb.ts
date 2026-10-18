@@ -12,45 +12,109 @@ export interface CategoryItem {
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const CATEGORIES_FILE = path.join(DATA_DIR, 'autocash_categories.json');
+const DELETED_CATEGORIES_FILE = path.join(DATA_DIR, 'deleted_categories.json');
+
+let cachedCategories: CategoryItem[] | null = null;
+let cachedDeletedCatIds: Set<string> | null = null;
+
+function getDeletedCategoryIds(): Set<string> {
+  if (cachedDeletedCatIds) return cachedDeletedCatIds;
+  try {
+    if (fs.existsSync(DELETED_CATEGORIES_FILE)) {
+      const content = fs.readFileSync(DELETED_CATEGORIES_FILE, 'utf-8');
+      const data = JSON.parse(content);
+      if (Array.isArray(data)) {
+        cachedDeletedCatIds = new Set(data.map(String));
+        return cachedDeletedCatIds;
+      }
+    }
+  } catch (err) {
+    console.error('Error reading deleted_categories.json:', err);
+  }
+  cachedDeletedCatIds = new Set();
+  return cachedDeletedCatIds;
+}
+
+function saveDeletedCategoryIds(set: Set<string>): void {
+  cachedDeletedCatIds = set;
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    const temp = `${DELETED_CATEGORIES_FILE}.${Date.now()}.tmp`;
+    fs.writeFileSync(temp, JSON.stringify(Array.from(set), null, 2), 'utf-8');
+    fs.renameSync(temp, DELETED_CATEGORIES_FILE);
+  } catch (err) {
+    console.error('Error saving deleted_categories.json:', err);
+  }
+}
 
 export function getCategoriesList(): CategoryItem[] {
+  const deleted = getDeletedCategoryIds();
+
+  if (cachedCategories) {
+    return cachedCategories.filter((c) => !deleted.has(c.id));
+  }
+
   try {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
     }
     if (!fs.existsSync(CATEGORIES_FILE)) {
-      const initial = [...CATEGORIES_9];
-      fs.writeFileSync(CATEGORIES_FILE, JSON.stringify(initial, null, 2), 'utf-8');
-      return initial;
+      const initial = CATEGORIES_9.filter((c) => !deleted.has(c.id));
+      const temp = `${CATEGORIES_FILE}.${Date.now()}.tmp`;
+      fs.writeFileSync(temp, JSON.stringify(initial, null, 2), 'utf-8');
+      fs.renameSync(temp, CATEGORIES_FILE);
+      cachedCategories = initial;
+      return [...initial];
     }
     const content = fs.readFileSync(CATEGORIES_FILE, 'utf-8');
     const parsed = JSON.parse(content);
     if (Array.isArray(parsed)) {
-      return parsed;
+      const filtered = parsed.filter((c) => !deleted.has(c.id));
+      cachedCategories = filtered;
+      return [...filtered];
     }
-    return [...CATEGORIES_9];
+    const fallback = CATEGORIES_9.filter((c) => !deleted.has(c.id));
+    cachedCategories = fallback;
+    return [...fallback];
   } catch (err) {
     console.error('Error reading categories file:', err);
-    return [];
+    if (cachedCategories) {
+      return cachedCategories.filter((c) => !deleted.has(c.id));
+    }
+    return CATEGORIES_9.filter((c) => !deleted.has(c.id));
   }
 }
 
 export function saveCategoriesList(categories: CategoryItem[]) {
+  const deleted = getDeletedCategoryIds();
+  const cleanList = categories.filter((c) => !deleted.has(c.id));
+  cachedCategories = cleanList;
+
   try {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
     }
-    fs.writeFileSync(CATEGORIES_FILE, JSON.stringify(categories, null, 2), 'utf-8');
+    const temp = `${CATEGORIES_FILE}.${Date.now()}.tmp`;
+    fs.writeFileSync(temp, JSON.stringify(cleanList, null, 2), 'utf-8');
+    fs.renameSync(temp, CATEGORIES_FILE);
   } catch (err) {
     console.error('Error saving categories file:', err);
   }
 }
 
 export function addCategoryItem(category: { id?: string; name: string; icon?: string; count?: string; image?: string }): CategoryItem {
-  const current = getCategoriesList();
   const id = (category.id || `cat-${Date.now()}`).toLowerCase().trim().replace(/\s+/g, '-');
   
-  // If id already exists, update it or suffix
+  // Untombstone if it was previously deleted
+  const deleted = getDeletedCategoryIds();
+  if (deleted.has(id)) {
+    deleted.delete(id);
+    saveDeletedCategoryIds(deleted);
+  }
+
+  const current = getCategoriesList();
   const existingIndex = current.findIndex((c) => c.id === id);
   const newItem: CategoryItem = {
     id,
@@ -80,9 +144,14 @@ export function updateCategoryItem(id: string, updates: Partial<CategoryItem>): 
 }
 
 export function deleteCategoryItem(id: string): boolean {
+  // 1. Permanently record in deleted tombstones
+  const deleted = getDeletedCategoryIds();
+  deleted.add(id);
+  saveDeletedCategoryIds(deleted);
+
+  // 2. Remove from active list
   const current = getCategoriesList();
   const filtered = current.filter((c) => c.id !== id);
-  if (filtered.length === current.length) return false;
   saveCategoriesList(filtered);
   return true;
 }

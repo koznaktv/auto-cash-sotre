@@ -17,7 +17,13 @@ export async function GET(_req: Request, { params }: { params: { serviceId: stri
     }
     return NextResponse.json(
       { success: true, service, minOrderUsd: settings.minOrderUsd },
-      { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' } }
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+          Pragma: 'no-cache',
+          Expires: '0',
+        },
+      }
     );
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err?.message || 'خاتالىق كۆرۈلدى' }, { status: 500 });

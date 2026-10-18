@@ -229,13 +229,13 @@ export default function HomePage() {
 
   // Storefront catalog: the legacy list or the synced syria4game catalog (same source the order API uses)
   const [services, setServices] = useState<ServiceItem[]>([]);
-  const [categories, setCategories] = useState<any[]>([...CATEGORIES_9]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [catalogSource, setCatalogSource] = useState<'legacy' | 'provider'>('legacy');
   const [catalogLoading, setCatalogLoading] = useState(true);
   useEffect(() => {
     Promise.all([
-      fetch('/api/catalog').then((r) => r.json()).catch(() => null),
-      fetch('/api/categories').then((r) => r.json()).catch(() => null),
+      fetch(`/api/catalog?t=${Date.now()}`, { cache: 'no-store' }).then((r) => r.json()).catch(() => null),
+      fetch(`/api/categories?t=${Date.now()}`, { cache: 'no-store' }).then((r) => r.json()).catch(() => null),
     ])
       .then(([dCat, dCats]) => {
         if (dCat && dCat.success && Array.isArray(dCat.services)) {
@@ -543,21 +543,28 @@ export default function HomePage() {
               </h2>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3.5">
-              {visibleCategories.map((cat, idx) => {
-                const isTransitioning = transitioningCatId === cat.id;
-                return (
-                  <button
-                    key={cat.id}
-                    onClick={() => handleSelectCategory(cat.id)}
-                    className={`relative overflow-hidden p-3 rounded-2xl ${
-                      isRTL ? 'text-right' : 'text-left'
-                    } transition-all duration-200 flex flex-col justify-between cursor-pointer group h-28 sm:h-32 gold-card-normal ${
-                      isTransitioning
-                        ? 'card-selecting-glow'
-                        : 'hover:scale-[1.03]'
-                    }`}
-                  >
+            {catalogLoading && visibleCategories.length === 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3.5">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="h-28 sm:h-32 rounded-2xl bg-[#061527] border border-amber-500/20 animate-pulse" />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3.5">
+                {visibleCategories.map((cat, idx) => {
+                  const isTransitioning = transitioningCatId === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => handleSelectCategory(cat.id)}
+                      className={`relative overflow-hidden p-3 rounded-2xl ${
+                        isRTL ? 'text-right' : 'text-left'
+                      } transition-all duration-200 flex flex-col justify-between cursor-pointer group h-28 sm:h-32 gold-card-normal ${
+                        isTransitioning
+                          ? 'card-selecting-glow'
+                          : 'hover:scale-[1.03]'
+                      }`}
+                    >
                     {/* Rotating Glowing Border Beam on Selection */}
                     {isTransitioning && <div className="border-beam-tracer" />}
 
@@ -618,7 +625,8 @@ export default function HomePage() {
                 );
               })}
             </div>
-          </div>
+          )}
+        </div>
         ) : (
           /* View 2: Inside Category Products */
           <section className="pt-2 animate-in fade-in duration-300 space-y-4" id="category-products-view">
