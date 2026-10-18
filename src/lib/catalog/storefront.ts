@@ -278,10 +278,14 @@ export async function getProviderCatalog(options: { fresh?: boolean } = {}): Pro
   return catalog;
 }
 
-/** The catalog buyers see: legacy JSON catalog or the synced provider catalog (provider_settings.catalog_source). */
+/** The catalog buyers see: synced provider catalog (falls back to legacy only if provider has 0 services). */
 export async function getCatalogServices(options: { source?: 'legacy' | 'provider' } = {}): Promise<ServiceItem[]> {
+  const providerCatalog = await getProviderCatalog();
+  if (providerCatalog.services.length > 0 || options.source === 'provider') {
+    return providerCatalog.services;
+  }
   const source = options.source || (await getProviderSettings()).catalogSource;
-  if (source === 'provider') return (await getProviderCatalog()).services;
+  if (source === 'provider') return providerCatalog.services;
   return getServicesList().map((s) => ({ ...s, source: 'legacy' as const }));
 }
 

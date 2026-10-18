@@ -27,7 +27,6 @@ Thumbs.db
 data/autocash_db.json
 
 # Local provider catalog cache / API call log (contains raw provider responses)
-data/provider_catalog.json
 data/provider_calls.json
 data/provider_config.json
 

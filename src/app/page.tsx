@@ -227,10 +227,10 @@ export default function HomePage() {
     }, 450);
   };
 
-  // Storefront catalog: the legacy list or the synced syria4game catalog (same source the order API uses)
+  // Storefront catalog: Sahl Cash synced provider catalog
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
-  const [catalogSource, setCatalogSource] = useState<'legacy' | 'provider'>('legacy');
+  const [catalogSource, setCatalogSource] = useState<'legacy' | 'provider'>('provider');
   const [catalogLoading, setCatalogLoading] = useState(true);
   useEffect(() => {
     Promise.all([
@@ -240,7 +240,7 @@ export default function HomePage() {
       .then(([dCat, dCats]) => {
         if (dCat && dCat.success && Array.isArray(dCat.services)) {
           setServices(dCat.services);
-          setCatalogSource(dCat.source === 'provider' ? 'provider' : 'legacy');
+          setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
         } else if (dCat && dCat.services) {
           setServices(dCat.services);
         }

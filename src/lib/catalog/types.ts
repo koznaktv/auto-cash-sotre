@@ -125,7 +125,7 @@ export interface ProviderSettings {
 }
 
 export const DEFAULT_PROVIDER_SETTINGS: ProviderSettings = {
-  catalogSource: 'legacy',
+  catalogSource: 'provider',
   globalMarkupPercent: 15,
   fixedMarkupUsd: 0,
   minProfitUsd: 0.01,

@@ -13,8 +13,8 @@ const RULES: { category: StorefrontCategory; pattern: RegExp }[] = [
   { category: 'social', pattern: /متابع|لايك|مشاهد|تواصل|سوشيال|followers?|likes?|views?|social|tiktok|instagram|facebook|snapchat|telegram\s*(members|stars|premium)?/i },
   { category: 'balance', pattern: /رصيد|سيريتل|syriatel|mtn|ام\s*تي\s*ان|وحدات|كاش|cash|محفظ|balance|blance|\bbanks?\b|بنك|transfer|حوالة|حوالات|turkcell|telecom|turk|alfa/i },
   { category: 'cards', pattern: /بطاق|كرت|كروت|gift|card|voucher|itunes|google\s*play|playstation|psn|xbox|steam|razer|\bps\b/i },
-  { category: 'games', pattern: /ألعاب|العاب|لعبة|شحن\s*ألعاب|games?|pubg|ببجي|free\s*fire|فري\s*فاير|mobile\s*legends|clash|fortnite|roblox|genshin|valorant|call\s*of\s*duty|cod|strike|hay\s*day|jawaker|kamlna|war|pool|sultan|brawl|fifa|pes|efootball|play|fc\s*mobile|farlight|honor/i },
-  { category: 'apps', pattern: /تطبيق|دردشة|برامج|apps?|bigo|tango|likee|imo|yalla|ludo|chat|software|\btvs?\b|live|party|voice|stream|video|miyo|ميو|tumile|livu|chamet|yoho|mixu|poppo|iptv|shahd|osn|capcut/i },
+  { category: 'games', pattern: /ألعاب|العاب|لعبة|شحن\s*ألعاب|games?|pubg|ببجي|free\s*fire|فري\s*فاير|mobile\s*legends|clash|fortnite|roblox|genshin|valorant|call\s*of\s*duty|cod|strike|hay\s*day|jawaker|kamlna|war|pool|sultan|brawl|fifa|pes|efootball|play|fc\s*mobile|farlight|honor|survival|avalon/i },
+  { category: 'apps', pattern: /تطبيق|دردشة|برامج|apps?|bigo|tango|likee|imo|yalla|ludo|chat|software|\btvs?\b|live|party|voice|stream|video|miyo|ميو|tumile|livu|chamet|yoho|mixu|poppo|iptv|shahd|osn|capcut|tool|activation|license|credit|server|repair|unlock|schematic|dongle|box|firmware|auth|flash|frp|package|section|validity/i },
 ];
 
 export function guessStorefrontCategory(names: string[]): StorefrontCategory | null {
