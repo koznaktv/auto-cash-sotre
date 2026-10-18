@@ -4,7 +4,6 @@ import { clearLocalAuth, logout, syncSupabaseSession, getCachedBalance, getCache
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
-import BottomNav from '@/components/BottomNav';
 import PromoCarousel from '@/components/PromoCarousel';
 import DynamicIcon from '@/components/DynamicIcon';
 import CheckoutModal from '@/components/CheckoutModal';
@@ -755,9 +754,6 @@ export default function HomePage() {
           <OrdersList orders={orders} />
         </section>
       </main>
-
-      {/* Floating Bottom Navigation */}
-      <BottomNav />
 
       {/* Checkout Modal */}
       {activeModalService && (

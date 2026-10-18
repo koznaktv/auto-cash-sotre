@@ -4,7 +4,6 @@ import { clearLocalAuth, getCachedBalance, getCachedUser, storeLocalAuth, format
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
-import BottomNav from '@/components/BottomNav';
 import AuthModal from '@/components/AuthModal';
 import { useLanguage } from '@/context/LanguageContext';
 import { 
@@ -758,8 +757,6 @@ export default function DepositPage() {
           fetchDeposits();
         }}
       />
-
-      <BottomNav />
     </div>
   );
 }

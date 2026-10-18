@@ -4,7 +4,6 @@ import { clearLocalAuth, logout, getCachedBalance, getCachedUser, storeLocalAuth
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
-import BottomNav from '@/components/BottomNav';
 import AuthModal from '@/components/AuthModal';
 import { useLanguage } from '@/context/LanguageContext';
 import {
@@ -712,8 +711,6 @@ export default function AccountPage() {
           </form>
         </div>
       </main>
-
-      <BottomNav />
     </div>
   );
 }

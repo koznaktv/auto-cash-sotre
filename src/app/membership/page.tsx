@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
-import BottomNav from '@/components/BottomNav';
 import { useLanguage } from '@/context/LanguageContext';
 import { getCachedBalance, getCachedUser, storeLocalAuth, ClientUser } from '@/lib/clientAuth';
 import {
@@ -458,8 +457,6 @@ export default function MembershipVipPage() {
           })}
         </div>
       </main>
-
-      <BottomNav />
     </div>
   );
 }

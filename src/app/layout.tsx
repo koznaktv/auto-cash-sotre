@@ -38,6 +38,7 @@ export const metadata: Metadata = {
 };
 
 import TelegramFloat from '@/components/TelegramFloat';
+import BottomNav from '@/components/BottomNav';
 import { LanguageProvider } from '@/context/LanguageContext';
 
 export default function RootLayout({
@@ -51,6 +52,7 @@ export default function RootLayout({
         <LanguageProvider>
           {children}
           <TelegramFloat />
+          <BottomNav />
         </LanguageProvider>
       </body>
     </html>
