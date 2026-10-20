@@ -1,0 +1,272 @@
+{
+  "clash_of_clans": {
+    "name": "Clash of Clans",
+    "path": "/images/services/clash_of_clans.jpg",
+    "size": 57929
+  },
+  "brawl_stars": {
+    "name": "Brawl Stars",
+    "path": "/images/services/brawl_stars.jpg",
+    "size": 59227
+  },
+  "blood_strike": {
+    "name": "Blood Strike",
+    "path": "/images/services/blood_strike.jpg",
+    "size": 159532
+  },
+  "ball_pool_8": {
+    "name": "8 Ball Pool",
+    "path": "/images/services/ball_pool_8.jpg",
+    "size": 62833
+  },
+  "honor_of_kings": {
+    "name": "Honor of Kings",
+    "path": "/images/services/honor_of_kings.jpg",
+    "size": 77519
+  },
+  "genshin_impact": {
+    "name": "Genshin Impact",
+    "path": "/images/services/genshin_impact.jpg",
+    "size": 71118
+  },
+  "free_fire": {
+    "name": "Free Fire",
+    "path": "/images/services/free_fire.jpg",
+    "size": 88545
+  },
+  "farlight_84": {
+    "name": "Farlight 84",
+    "path": "/images/services/farlight_84.jpg",
+    "size": 62420
+  },
+  "jawaker": {
+    "name": "Jawaker",
+    "path": "/images/services/jawaker.jpg",
+    "size": 15992
+  },
+  "borneo_schematics": {
+    "name": "Borneo Schematics",
+    "path": "/images/services/borneo_schematics.jpg",
+    "size": 42763
+  },
+  "decoders_tools": {
+    "name": "Decoders Tools",
+    "path": "/images/services/decoders_tools.jpg",
+    "size": 22315
+  },
+  "playstation": {
+    "name": "PlayStation",
+    "path": "/images/services/playstation.jpg",
+    "size": 29854
+  },
+  "pubg_mobile": {
+    "name": "PUBG Mobile",
+    "path": "/images/services/pubg_mobile.jpg",
+    "size": 72318
+  },
+  "pubg_new_state": {
+    "name": "PUBG New State",
+    "path": "/images/services/pubg_new_state.jpg",
+    "size": 62621
+  },
+  "call_of_duty": {
+    "name": "Call of Duty Mobile",
+    "path": "/images/services/call_of_duty.jpg",
+    "size": 88595
+  },
+  "roblox": {
+    "name": "Roblox",
+    "path": "/images/services/roblox.jpg",
+    "size": 16168
+  },
+  "clash_royale": {
+    "name": "Clash Royale",
+    "path": "/images/services/clash_royale.jpg",
+    "size": 78269
+  },
+  "hay_day": {
+    "name": "Hay Day",
+    "path": "/images/services/hay_day.jpg",
+    "size": 81210
+  },
+  "yalla_ludo": {
+    "name": "Yalla Ludo",
+    "path": "/images/services/yalla_ludo.jpg",
+    "size": 87890
+  },
+  "kamlna": {
+    "name": "Kamlna",
+    "path": "/images/services/kamlna.jpg",
+    "size": 34970
+  },
+  "weplay": {
+    "name": "WePlay",
+    "path": "/images/services/weplay.jpg",
+    "size": 32421
+  },
+  "top_war": {
+    "name": "Top War",
+    "path": "/images/services/top_war.jpg",
+    "size": 89990
+  },
+  "revenge_of_sultans": {
+    "name": "Revenge of Sultans",
+    "path": "/images/services/revenge_of_sultans.jpg",
+    "size": 105402
+  },
+  "king_of_avalon": {
+    "name": "King of Avalon",
+    "path": "/images/services/king_of_avalon.jpg",
+    "size": 75700
+  },
+  "mobile_legends": {
+    "name": "Mobile Legends",
+    "path": "/images/services/mobile_legends.jpg",
+    "size": 94294
+  },
+  "fc_mobile": {
+    "name": "EA SPORTS FC Mobile",
+    "path": "/images/services/fc_mobile.jpg",
+    "size": 90951
+  },
+  "fortnite": {
+    "name": "Fortnite",
+    "path": "/images/services/fortnite.jpg",
+    "size": 24201
+  },
+  "tiktok": {
+    "name": "TikTok",
+    "path": "/images/services/tiktok.jpg",
+    "size": 30097
+  },
+  "telegram": {
+    "name": "Telegram",
+    "path": "/images/services/telegram.jpg",
+    "size": 28411
+  },
+  "snapchat": {
+    "name": "Snapchat",
+    "path": "/images/services/snapchat.jpg",
+    "size": 48820
+  },
+  "imo": {
+    "name": "Imo",
+    "path": "/images/services/imo.jpg",
+    "size": 27721
+  },
+  "azar": {
+    "name": "Azar",
+    "path": "/images/services/azar.jpg",
+    "size": 23269
+  },
+  "livu": {
+    "name": "LivU",
+    "path": "/images/services/livu.jpg",
+    "size": 29267
+  },
+  "tumile": {
+    "name": "Tumile",
+    "path": "/images/services/tumile.jpg",
+    "size": 25096
+  },
+  "mixu": {
+    "name": "MixU",
+    "path": "/images/services/mixu.jpg",
+    "size": 24522
+  },
+  "miyo": {
+    "name": "Miyo",
+    "path": "/images/services/miyo.jpg",
+    "size": 23558
+  },
+  "hicat": {
+    "name": "HiCat",
+    "path": "/images/services/hicat.jpg",
+    "size": 33973
+  },
+  "likee": {
+    "name": "Likee",
+    "path": "/images/services/likee.jpg",
+    "size": 19797
+  },
+  "chatgpt": {
+    "name": "ChatGPT",
+    "path": "/images/services/chatgpt.jpg",
+    "size": 40870
+  },
+  "canva": {
+    "name": "Canva",
+    "path": "/images/services/canva.jpg",
+    "size": 26169
+  },
+  "capcut": {
+    "name": "CapCut",
+    "path": "/images/services/capcut.jpg",
+    "size": 16228
+  },
+  "netflix": {
+    "name": "Netflix",
+    "path": "/images/services/netflix.jpg",
+    "size": 23300
+  },
+  "spotify": {
+    "name": "Spotify",
+    "path": "/images/services/spotify.jpg",
+    "size": 36954
+  },
+  "anghami": {
+    "name": "Anghami",
+    "path": "/images/services/anghami.jpg",
+    "size": 54436
+  },
+  "shahid": {
+    "name": "Shahid VIP",
+    "path": "/images/services/shahid.jpg",
+    "size": 20594
+  },
+  "steam": {
+    "name": "Steam",
+    "path": "/images/services/steam.jpg",
+    "size": 27697
+  },
+  "google_play": {
+    "name": "Google Play",
+    "path": "/images/services/google_play.jpg",
+    "size": 28785
+  },
+  "apple_itunes": {
+    "name": "Apple Gift Cards",
+    "path": "/images/services/apple_itunes.jpg",
+    "size": 18827
+  },
+  "razer_gold": {
+    "name": "Razer Gold",
+    "path": "/images/services/razer_gold.jpg",
+    "size": 21373
+  },
+  "syriatel": {
+    "name": "Syriatel",
+    "path": "/images/services/syriatel.jpg",
+    "size": 39856
+  },
+  "mtn": {
+    "name": "MTN",
+    "path": "/images/services/mtn.jpg",
+    "size": 23658
+  },
+  "turkcell": {
+    "name": "Turkcell",
+    "path": "/images/services/turkcell.jpg",
+    "size": 25381
+  },
+  "turk_telekom": {
+    "name": "Turk Telekom",
+    "path": "/images/services/turk_telekom.jpg",
+    "size": 18541
+  },
+  "crypto_usdt": {
+    "name": "Tether USDT",
+    "path": "/images/services/crypto_usdt.jpg",
+    "size": 25981
+  }
+}

@@ -674,7 +674,7 @@ export default function HomePage() {
                         src={
                           service.image && !service.image.endsWith('sahl-cash.com/') && service.image !== 'https://api.sahl-cash.com'
                             ? service.image
-                            : 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=300&auto=format&fit=crop&q=80'
+                            : '/images/services/pubg_mobile.jpg'
                         }
                         alt={service.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"

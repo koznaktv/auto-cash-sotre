@@ -160,8 +160,8 @@ describe('buildProviderCatalog', () => {
     });
     const ff = catalog.services.find((s) => s.id === 's4g-c1');
     const pubg = catalog.services.find((s) => s.id === 's4g-c2');
-    expect(ff?.image).toContain('unsplash.com');
-    expect(pubg?.image).toContain('unsplash.com');
+    expect(ff?.image).toContain('/images/services/free_fire.jpg');
+    expect(pubg?.image).toContain('/images/services/pubg_mobile.jpg');
     expect(ff?.image).not.toBe('https://api.sahl-cash.com/');
   });
 });

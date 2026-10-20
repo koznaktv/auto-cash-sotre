@@ -40,232 +40,318 @@ export const STOREFRONT_ICONS: Record<StorefrontCategory, string> = {
 };
 
 export const CATEGORY_FALLBACK_IMAGES: Record<StorefrontCategory, string> = {
-  games: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&auto=format&fit=crop&q=80',
-  apps: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&auto=format&fit=crop&q=80',
-  ai: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&auto=format&fit=crop&q=80',
-  numbers: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=600&auto=format&fit=crop&q=80',
-  cards: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=600&auto=format&fit=crop&q=80',
-  accounts: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=600&auto=format&fit=crop&q=80',
-  crypto: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=600&auto=format&fit=crop&q=80',
-  social: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=600&auto=format&fit=crop&q=80',
-  balance: 'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=600&auto=format&fit=crop&q=80',
+  games: '/images/services/pubg_mobile.jpg',
+  apps: '/images/services/tiktok.jpg',
+  ai: '/images/services/chatgpt.jpg',
+  numbers: '/images/services/telegram.jpg',
+  cards: '/images/services/google_play.jpg',
+  accounts: '/images/services/netflix.jpg',
+  crypto: '/images/services/crypto_usdt.jpg',
+  social: '/images/services/snapchat.jpg',
+  balance: '/shamcash.png',
 };
 
 const SERVICE_ARTWORK_PATTERNS: { pattern: RegExp; image: string }[] = [
   // Free Fire
   {
     pattern: /free\s*fire|فري\s*فاير/i,
-    image: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/free_fire.jpg',
   },
-  // PUBG Mobile & related
+  // PUBG Mobile, PUBG Lite, PUBG New State
+  {
+    pattern: /new\s*state/i,
+    image: '/images/services/pubg_new_state.jpg',
+  },
   {
     pattern: /pubg|ببجي/i,
-    image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/pubg_mobile.jpg',
   },
-  // Clash of Clans / Clash Royale
+  // Clash of Clans
+  {
+    pattern: /clash\s*of\s*clans|كلاش\s*اوف|كلاش\s*رويال\s*clans/i,
+    image: '/images/services/clash_of_clans.jpg',
+  },
+  // Clash Royale
+  {
+    pattern: /clash\s*royale|رويال/i,
+    image: '/images/services/clash_royale.jpg',
+  },
+  // General Clash fallback
   {
     pattern: /clash|كلاش/i,
-    image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/clash_of_clans.jpg',
   },
   // Brawl Stars
   {
     pattern: /brawl|براول/i,
-    image: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/brawl_stars.jpg',
   },
   // 8 Ball Pool
   {
     pattern: /ball\s*pool|بليارد|pool\s*8/i,
-    image: 'https://images.unsplash.com/photo-1534158914592-062992fbe900?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/ball_pool_8.jpg',
   },
   // Blood Strike
   {
     pattern: /blood\s*strike|بلود\s*سترايك/i,
-    image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/blood_strike.jpg',
+  },
+  // Borneo Schematics
+  {
+    pattern: /borneo|بورنيو/i,
+    image: '/images/services/borneo_schematics.jpg',
+  },
+  // Decoders Tools & GSM Tools
+  {
+    pattern: /decoder|decoders/i,
+    image: '/images/services/decoders_tools.jpg',
   },
   // Call of Duty Mobile
   {
-    pattern: /call\s*of\s*duty|cod|كول\s*اوف/i,
-    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&auto=format&fit=crop&q=80',
+    pattern: /call\s*of\s*duty|\bcod\b|كول\s*اوف/i,
+    image: '/images/services/call_of_duty.jpg',
   },
   // FC Mobile / FIFA
   {
     pattern: /fc\s*mobile|fifa|football|كرة\s*القدم/i,
-    image: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/fc_mobile.jpg',
   },
   // Farlight 84
   {
     pattern: /farlight|فارلايت/i,
-    image: 'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/farlight_84.jpg',
   },
   // Genshin Impact
   {
     pattern: /genshin|جينشين/i,
-    image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/genshin_impact.jpg',
   },
   // Honor of Kings
   {
     pattern: /honor\s*of\s*kings|اونور/i,
-    image: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/honor_of_kings.jpg',
   },
   // Hay Day
   {
     pattern: /hay\s*day|هاي\s*داي/i,
-    image: 'https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/hay_day.jpg',
   },
   // Mobile Legends
   {
     pattern: /legend\s*mobile|mobile\s*legends|موبايل\s*ليجند/i,
-    image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/mobile_legends.jpg',
   },
   // Roblox
   {
     pattern: /roblox|روبلوكس/i,
-    image: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/roblox.jpg',
   },
   // Fortnite
   {
     pattern: /fortnite|فورتنايت/i,
-    image: 'https://images.unsplash.com/photo-1589241062272-c0a000072dfa?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/fortnite.jpg',
   },
-  // Strategy games: Revenge of Sultans, King of Avalon, Top War, Whiteout Survival
+  // Strategy games: Revenge of Sultans, King of Avalon, Top War
   {
-    pattern: /revenge|sultan|انتقام\s*السلاطين|avalon|top\s*war|survival/i,
-    image: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=600&auto=format&fit=crop&q=80',
+    pattern: /revenge|sultan|انتقام\s*السلاطين/i,
+    image: '/images/services/revenge_of_sultans.jpg',
+  },
+  {
+    pattern: /avalon/i,
+    image: '/images/services/king_of_avalon.jpg',
+  },
+  {
+    pattern: /top\s*war/i,
+    image: '/images/services/top_war.jpg',
   },
   // Board & Card games: Jawaker, Kamlna
   {
-    pattern: /jawaker|جواكر|kamlna|كملنا/i,
-    image: 'https://images.unsplash.com/photo-1511193311914-0346f16efe90?w=600&auto=format&fit=crop&q=80',
+    pattern: /jawaker|جواكر/i,
+    image: '/images/services/jawaker.jpg',
+  },
+  {
+    pattern: /kamlna|كملنا/i,
+    image: '/images/services/kamlna.jpg',
   },
   // Casual Games: Yalla Ludo, We Play
   {
-    pattern: /yalla\s*ludo|ludo|we\s*play|لودو/i,
-    image: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=600&auto=format&fit=crop&q=80',
+    pattern: /yalla\s*ludo|لودو/i,
+    image: '/images/services/yalla_ludo.jpg',
+  },
+  {
+    pattern: /we\s*play/i,
+    image: '/images/services/weplay.jpg',
   },
   // TikTok
   {
     pattern: /tiktok|تيك\s*توك/i,
-    image: 'https://images.unsplash.com/photo-1611605698335-8b1569810432?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/tiktok.jpg',
   },
   // Telegram
   {
     pattern: /telegram|تليجرام|تلغرام/i,
-    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/telegram.jpg',
   },
   // Snapchat
   {
     pattern: /snap\s*chat|سناب/i,
-    image: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/snapchat.jpg',
   },
   // Music: Anghami, Spotify
   {
-    pattern: /anghami|spotify|ساوند/i,
-    image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&auto=format&fit=crop&q=80',
+    pattern: /anghami|انغامي/i,
+    image: '/images/services/anghami.jpg',
+  },
+  {
+    pattern: /spotify|ساوند/i,
+    image: '/images/services/spotify.jpg',
   },
   // Chat & Social Apps
   {
-    pattern: /imo|miyo|tumile|livu|mixu|likee|chat|شات|دردشة|azar|live|hicat|مومو|سوجو|غوميت|بارتي|star\s*lite/i,
-    image: 'https://images.unsplash.com/photo-1577563908411-5077b6dc7624?w=600&auto=format&fit=crop&q=80',
+    pattern: /imo|ايمو/i,
+    image: '/images/services/imo.jpg',
+  },
+  {
+    pattern: /azar|ازار/i,
+    image: '/images/services/azar.jpg',
+  },
+  {
+    pattern: /livu|ليف\s*يو/i,
+    image: '/images/services/livu.jpg',
+  },
+  {
+    pattern: /tumile|توميل/i,
+    image: '/images/services/tumile.jpg',
+  },
+  {
+    pattern: /mixu|ميكس/i,
+    image: '/images/services/mixu.jpg',
+  },
+  {
+    pattern: /miyo|ميو/i,
+    image: '/images/services/miyo.jpg',
+  },
+  {
+    pattern: /hicat|هاي\s*كات/i,
+    image: '/images/services/hicat.jpg',
+  },
+  {
+    pattern: /likee|لايكي/i,
+    image: '/images/services/likee.jpg',
   },
   // ChatGPT & OpenAI
   {
-    pattern: /chat\s*gpt|openai/i,
-    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&auto=format&fit=crop&q=80',
+    pattern: /chat\s*gpt|chatgpt|openai|\bai\b|سۈنئىي\s*ئەقىل|ذكاء/i,
+    image: '/images/services/chatgpt.jpg',
   },
-  // Gemini AI
+  // Chat & Social Apps
   {
-    pattern: /gemini/i,
-    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80',
+    pattern: /\bchat\b|شات|دردشة|live|مومو|سوجو|غوميت|بارتي|star\s*lite/i,
+    image: '/images/services/yalla_ludo.jpg',
   },
   // Canva & Design
   {
     pattern: /canva|design|تصميم/i,
-    image: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/canva.jpg',
   },
   // CapCut
   {
-    pattern: /capcut/i,
-    image: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=600&auto=format&fit=crop&q=80',
-  },
-  // Adobe
-  {
-    pattern: /adobe|ادوبي/i,
-    image: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=600&auto=format&fit=crop&q=80',
-  },
-  // Office & Windows
-  {
-    pattern: /office|windows|اوفيس|ويندوز/i,
-    image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop&q=80',
+    pattern: /capcut|كاب\s*كات/i,
+    image: '/images/services/capcut.jpg',
   },
   // Netflix
   {
     pattern: /netflix|نتفلكس/i,
-    image: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/netflix.jpg',
   },
   // Streaming & IPTV
   {
-    pattern: /iptv|disney|osn|shahid|شاهد|look\s*4k|\btvs?\b|تلفزيون|watch/i,
-    image: 'https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?w=600&auto=format&fit=crop&q=80',
+    pattern: /shahid|شاهد/i,
+    image: '/images/services/shahid.jpg',
   },
-  // VPN
   {
-    pattern: /vpn|express|nord|proton/i,
-    image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&auto=format&fit=crop&q=80',
+    pattern: /iptv|disney|osn|look\s*4k|\btvs?\b|تلفزيون|watch/i,
+    image: '/images/services/netflix.jpg',
   },
   // PlayStation / PSN
   {
     pattern: /play\s*station|psn|\bps\b|بلايستيشن/i,
-    image: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/playstation.jpg',
   },
   // Steam
   {
     pattern: /steam|ستيم/i,
-    image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/steam.jpg',
   },
   // Google Play
   {
     pattern: /google\s*play|جوجل\s*بلاي/i,
-    image: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/google_play.jpg',
   },
   // iTunes / Apple
   {
     pattern: /itunes|apple|ابل|ايتونز/i,
-    image: 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/apple_itunes.jpg',
   },
   // Razer Gold
   {
     pattern: /razer|رايزر/i,
-    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/razer_gold.jpg',
+  },
+  // Borneo Schematics
+  {
+    pattern: /borneo|بورنيو/i,
+    image: '/images/services/borneo_schematics.jpg',
+  },
+  // Decoders Tools & GSM Tools
+  {
+    pattern: /decoder|decoders/i,
+    image: '/images/services/decoders_tools.jpg',
+  },
+  {
+    pattern: /tool|dongle|box|schematics|activation|unlock|frp|flash|chimera|miracle|octoplus|xiaomi|samkey|dft|hydra|z3x|amt|emg|repair|credits?|token|server|infinity|cert|huawei/i,
+    image: '/images/services/decoders_tools.jpg',
   },
   // General Cards
   {
     pattern: /recharge\s*cards|cards?|بطاق|كروت/i,
-    image: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/google_play.jpg',
   },
-  // Telecom (Syriatel, MTN, Turkcell, etc.)
+  // Telecom (Syriatel, MTN, Turkcell, Turk Telekom)
   {
-    pattern: /syriatel|mtn|turkcell|telecom|alfa|سيريتل|ام\s*تي\s*ان/i,
-    image: 'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=600&auto=format&fit=crop&q=80',
+    pattern: /syriatel|سيريتل/i,
+    image: '/images/services/syriatel.jpg',
   },
-  // Banks & Cash
   {
-    pattern: /bank|كاش|cash|sham|balance|رصيد/i,
-    image: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=600&auto=format&fit=crop&q=80',
+    pattern: /mtn|ام\s*تي\s*ان/i,
+    image: '/images/services/mtn.jpg',
+  },
+  {
+    pattern: /turkcell|تركسل/i,
+    image: '/images/services/turkcell.jpg',
+  },
+  {
+    pattern: /telecom|ترك\s*تليكوم|turk\s*telekom/i,
+    image: '/images/services/turk_telekom.jpg',
+  },
+  // Banks & Cash (Sham Cash)
+  {
+    pattern: /sham|شام/i,
+    image: '/shamcash.png',
+  },
+  {
+    pattern: /bank|كاش|cash|balance|رصيد/i,
+    image: '/shamcash.png',
   },
   // Numbers & SMS
   {
     pattern: /أرقام|ارقام|رقم|sms|otp|number/i,
-    image: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/telegram.jpg',
   },
   // Crypto / USDT
   {
     pattern: /usdt|crypto|بيتكوين/i,
-    image: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=600&auto=format&fit=crop&q=80',
-  },
-  // GSM Tools & Schematics
-  {
-    pattern: /tool|dongle|box|schematics|activation|unlock|frp|flash|chimera|miracle|octoplus|xiaomi|samkey|dft|hydra|z3x|amt|emg|repair|credits?|token|server|infinity|cert|huawei/i,
-    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80',
+    image: '/images/services/crypto_usdt.jpg',
   },
 ];
 
