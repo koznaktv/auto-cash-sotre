@@ -247,12 +247,33 @@ export interface ParsedCatalog {
 /** Parses `/client/api/catalog`, `/products`, or `/products-wrapped` bodies. */
 export function parseCatalog(data: unknown): ParsedCatalog {
   const body: any = data;
-  const rawProducts: unknown[] = Array.isArray(body)
-    ? body
-    : body?.products ?? body?.data?.products ?? body?.items ?? (Array.isArray(body?.data) ? body.data : []);
+  let rawProducts: unknown[] = [];
+  if (Array.isArray(body)) {
+    rawProducts = body;
+  } else if (body && typeof body === 'object') {
+    if (Array.isArray(body.products)) {
+      rawProducts = body.products;
+    } else if (Array.isArray(body.data?.products)) {
+      rawProducts = body.data.products;
+    } else if (Array.isArray(body.items)) {
+      rawProducts = body.items;
+    } else if (Array.isArray(body.data)) {
+      rawProducts = body.data;
+    } else {
+      const vals = Object.values(body);
+      if (
+        vals.length > 0 &&
+        typeof vals[0] === 'object' &&
+        vals[0] !== null &&
+        ('id' in (vals[0] as any) || 'price' in (vals[0] as any) || 'name' in (vals[0] as any))
+      ) {
+        rawProducts = vals;
+      }
+    }
+  }
 
   const products: ProviderProduct[] = [];
-  for (const raw of Array.isArray(rawProducts) ? rawProducts : []) {
+  for (const raw of rawProducts) {
     const product = normalizeProduct(raw);
     if (product) products.push(product);
   }

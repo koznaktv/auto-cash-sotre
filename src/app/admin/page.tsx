@@ -239,6 +239,29 @@ export default function AdminPage() {
     image: '',
   });
   const [iconFilterTab, setIconFilterTab] = useState<'all' | 'game' | 'app' | 'pay'>('all');
+  const [productSourceFilter, setProductSourceFilter] = useState<'all' | 'published' | 'sahl'>('all');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const PAGE_SIZE = 24;
+
+  const [hiddenSahlKeys, setHiddenSahlKeys] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const val = localStorage.getItem('autocash_hidden_sahl_keys');
+        return val ? JSON.parse(val) : [];
+      } catch {}
+    }
+    return [];
+  });
+
+  const handleHideSahlKey = (key: string) => {
+    setHiddenSahlKeys((prev) => {
+      const next = [...prev, key];
+      try {
+        localStorage.setItem('autocash_hidden_sahl_keys', JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  };
 
   // Product/Service Modal State
   const [serviceModalOpen, setServiceModalOpen] = useState(false);
@@ -502,13 +525,14 @@ export default function AdminPage() {
     const headers = { Authorization: `Bearer ${token}` };
 
     try {
-      const [resOrders, resDeposits, resUsers, resServices, resCategories, resSettings] = await Promise.all([
+      const [resOrders, resDeposits, resUsers, resServices, resCategories, resSettings, resProducts] = await Promise.all([
         fetch('/api/orders', { headers }).then((r) => r.json()),
         fetch('/api/deposits', { headers }).then((r) => r.json()),
         fetch('/api/admin/users', { headers }).then((r) => r.json()),
         fetch(`/api/admin/services?t=${Date.now()}`, { headers, cache: 'no-store' }).then((r) => r.json()),
         fetch(`/api/admin/categories?t=${Date.now()}`, { headers, cache: 'no-store' }).then((r) => r.json()),
         fetch('/api/admin/settings', { headers }).then((r) => r.json()),
+        fetch('/api/admin/provider?action=products', { headers }).then((r) => r.json()).catch(() => null),
       ]);
 
       if (resOrders.success) setOrders(resOrders.orders || []);
@@ -519,6 +543,9 @@ export default function AdminPage() {
         setCategoriesList(resCategories.categories);
       }
       if (resSettings.success && resSettings.settings) setSettings(resSettings.settings);
+      if (resProducts && resProducts.success && Array.isArray(resProducts.products)) {
+        setProviderProducts(resProducts.products);
+      }
 
       // Check external gaming provider (syria4game.com) status in background
       checkProviderLive();
@@ -528,6 +555,12 @@ export default function AdminPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated && activeTab === 'services' && providerProducts.length === 0 && !loadingProducts) {
+      fetchProviderProducts(true);
+    }
+  }, [isAuthenticated, activeTab, providerProducts.length, loadingProducts]);
 
   const checkProviderLive = async () => {
     setCheckingProvider(true);
@@ -595,7 +628,7 @@ export default function AdminPage() {
     }
   };
 
-  const fetchProviderProducts = async () => {
+  const fetchProviderProducts = async (silent = false) => {
     setLoadingProducts(true);
     try {
       const token = sessionStorage.getItem('autocash_admin_token');
@@ -605,11 +638,14 @@ export default function AdminPage() {
       const data = await res.json();
       if (data && data.success && Array.isArray(data.products)) {
         setProviderProducts(data.products);
-      } else {
+        if (!silent) {
+          alert(`Sahl Cash تىن ${data.products.length} دانە مەھسۇلات ئۇتۇقلۇق يېڭىلاندى!`);
+        }
+      } else if (!silent) {
         alert(data?.errorMessage || 'مەھسۇلاتلارنى ئېلىش مەغلۇپ بولدى');
       }
     } catch (err: any) {
-      alert(err.message || 'تور كاشىلىسى');
+      if (!silent) alert(err.message || 'تور كاشىلىسى');
     } finally {
       setLoadingProducts(false);
     }
@@ -1156,7 +1192,7 @@ export default function AdminPage() {
     };
 
     try {
-      if (editingService) {
+      if (editingService && !editingService.id.startsWith('sahl_')) {
         // Edit existing
         const res = await fetch('/api/admin/services', {
           method: 'PUT',
@@ -1169,11 +1205,13 @@ export default function AdminPage() {
             prev.map((s) => (s.id === editingService.id ? data.service : s))
           );
           setServiceModalOpen(false);
+          setEditingService(null);
+          alert(`«${data.service.name}» مۇۋەپپەقىيەتلىك يېڭىلاندى!`);
         } else {
           alert(data.message || 'ساقلاش مەغلۇپ بولدى');
         }
       } else {
-        // Add new
+        // Add new or save Sahl Cash item to custom services
         const res = await fetch('/api/admin/services', {
           method: 'POST',
           headers,
@@ -1181,8 +1219,10 @@ export default function AdminPage() {
         });
         const data = await res.json();
         if (data.success && data.service) {
-          setServices((prev) => [data.service, ...prev]);
+          setServices((prev) => [data.service, ...prev.filter((s) => s.id !== data.service.id)]);
           setServiceModalOpen(false);
+          setEditingService(null);
+          alert(`«${data.service.name}» دۇكانغا مۇۋەپپەقىيەتلىك قوشۇلدى!`);
         } else {
           alert(data.message || 'قوشۇش مەغلۇپ بولدى');
         }
@@ -1194,6 +1234,11 @@ export default function AdminPage() {
   };
 
   const handleDeleteService = async (id: string) => {
+    if (id.startsWith('sahl_')) {
+      if (!confirm('بۇ Sahl Cash مەھسۇلاتىنى تىزىملىكتىن يوشۇرۇۋەتمەكچىمۇ؟')) return;
+      handleHideSahlKey(id.replace('sahl_', ''));
+      return;
+    }
     if (!confirm('بۇ مەھسۇلاتنى راستىنلا ئۆچۈرەمسىز؟')) return;
     const token = sessionStorage.getItem('autocash_admin_token');
     try {
@@ -1212,13 +1257,55 @@ export default function AdminPage() {
 
   const handleQuickChangeCategory = async (serviceId: string, newCategory: string) => {
     const token = sessionStorage.getItem('autocash_admin_token');
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
     try {
+      if (serviceId.startsWith('sahl_')) {
+        const sahlKey = serviceId.replace('sahl_', '');
+        const sahlItem = groupedSahlServices.find((g) => g.key === sahlKey);
+        if (sahlItem) {
+          const payload = {
+            name: sahlItem.uyghurName || sahlItem.name,
+            category: newCategory,
+            icon: getCategoryIcon(newCategory),
+            image: sahlItem.image || '/logo.png',
+            description: `${sahlItem.uyghurName || sahlItem.name} ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى`,
+            badge: '⚡ ئاپتوماتىك',
+            inputLabel: sahlItem.inputLabel,
+            inputPlaceholder: sahlItem.inputPlaceholder,
+            published: true,
+            source: 'provider',
+            packages: sahlItem.packages.map((p) => ({
+              id: `pkg-${sahlItem.key}-${p.id}`,
+              title: p.title || p.originalName,
+              price: Number(p.sellPrice) || 1,
+              originalPrice: Number(p.originalPrice) || Math.round((Number(p.sellPrice) || 1) * 1.2 * 100) / 100,
+              duration: 'دەرھال',
+              providerProductId: p.id,
+              productType: p.productType === 'amount' ? 'amount' : 'fixed',
+              available: true,
+            })),
+          };
+
+          const res = await fetch('/api/admin/services', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (data.success && data.service) {
+            setServices((prev) => [data.service, ...prev.filter((s) => s.id !== data.service.id)]);
+          }
+          return;
+        }
+      }
+
+      // Existing service
       const res = await fetch('/api/admin/services', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify({ id: serviceId, category: newCategory }),
       });
       const data = await res.json();
@@ -1449,6 +1536,97 @@ export default function AdminPage() {
 
     return list;
   }, [providerProducts]);
+
+  // Unified list: Saved custom services + all Sahl Cash grouped services
+  const unifiedServicesList = useMemo<ServiceItem[]>(() => {
+    const list: ServiceItem[] = [...services];
+
+    for (const sahl of groupedSahlServices) {
+      if (hiddenSahlKeys.includes(sahl.key)) continue;
+
+      const uyghurLow = (sahl.uyghurName || '').toLowerCase().trim();
+      const origLow = (sahl.name || '').toLowerCase().trim();
+
+      const alreadySaved = services.find((s) => {
+        const sName = (s.name || '').toLowerCase().trim();
+        return (
+          s.id === `sahl_${sahl.key}` ||
+          sName === uyghurLow ||
+          sName === origLow ||
+          (s.packages && s.packages.some((p) => sahl.packages.some((sp) => sp.id === p.providerProductId)))
+        );
+      });
+
+      if (!alreadySaved) {
+        list.push({
+          id: `sahl_${sahl.key}`,
+          name: sahl.uyghurName || sahl.name,
+          category: sahl.category,
+          icon: getCategoryIcon(sahl.category),
+          image: sahl.image || '/logo.png',
+          description: `${sahl.uyghurName || sahl.name} ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى`,
+          badge: '⚡ Sahl Cash',
+          inputLabel: sahl.inputLabel,
+          inputPlaceholder: sahl.inputPlaceholder,
+          published: false,
+          source: 'provider',
+          packages: sahl.packages.map((p) => ({
+            id: `pkg-${sahl.key}-${p.id}`,
+            title: p.title || p.originalName,
+            price: Number(p.sellPrice) || 1,
+            originalPrice: Number(p.originalPrice) || Math.round((Number(p.sellPrice) || 1) * 1.2 * 100) / 100,
+            duration: 'دەرھال',
+            providerProductId: p.id,
+            productType: p.productType === 'amount' ? 'amount' : 'fixed',
+            available: true,
+          })),
+        });
+      }
+    }
+
+    return list;
+  }, [services, groupedSahlServices, hiddenSahlKeys]);
+
+  const handleBatchPublishActiveCategory = async () => {
+    const unaddedInCat = filteredServices.filter((s) => s.id.startsWith('sahl_'));
+    if (unaddedInCat.length === 0) {
+      alert('بۇ سەھىپىدىكى بارلىق مەھسۇلاتلار ئاللىقاچان دۇكانغا قوشۇلغان!');
+      return;
+    }
+    const catName = categoriesList.find((c) => c.id === categoryFilter)?.name || 'بۇ سەھىپە';
+    if (!confirm(`«${catName}» سەھىپىسىدىكى ${unaddedInCat.length} دانە مەھسۇلاتنى بىرلا ۋاقىتتا دۇكانغا قوشۇپ باشبەتكە چىقىرامسىز؟`)) return;
+
+    setLoadingProducts(true);
+    const token = sessionStorage.getItem('autocash_admin_token');
+    const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+
+    let successCount = 0;
+    for (const item of unaddedInCat) {
+      try {
+        const payload = {
+          name: item.name,
+          category: item.category,
+          icon: item.icon || getCategoryIcon(item.category),
+          image: item.image,
+          description: item.description,
+          badge: '⚡ ئاپتوماتىك',
+          inputLabel: item.inputLabel,
+          inputPlaceholder: item.inputPlaceholder,
+          published: true,
+          source: 'provider',
+          packages: item.packages,
+        };
+        const res = await fetch('/api/admin/services', { method: 'POST', headers, body: JSON.stringify(payload) });
+        const d = await res.json();
+        if (d.success && d.service) {
+          setServices((prev) => [d.service, ...prev.filter((s) => s.id !== d.service.id)]);
+          successCount++;
+        }
+      } catch {}
+    }
+    setLoadingProducts(false);
+    alert(`${successCount} دانە مەھسۇلات مۇۋەپپەقىيەتلىك دۇكانغا قوشۇلدى!`);
+  };
 
   // Filter grouped services by Category Tab & Search query
   const filteredGroupedServices = useMemo(() => {
@@ -1815,18 +1993,33 @@ export default function AdminPage() {
     });
   }, [orders, searchQuery, statusFilter]);
 
-  // Filtered Services
+  // Filtered Services & Pagination (Unified from Sahl Cash & Custom)
   const filteredServices = useMemo(() => {
-    return services.filter((s) => {
+    return unifiedServicesList.filter((s) => {
       const matchCat = categoryFilter === 'all' || s.category === categoryFilter;
       const matchSearch =
         searchQuery.trim() === '' ||
         s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         s.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (s.description && s.description.toLowerCase().includes(searchQuery.toLowerCase()));
-      return matchCat && matchSearch;
+      const isCustomSaved = !s.id.startsWith('sahl_');
+      const matchSource =
+        productSourceFilter === 'all' ||
+        (productSourceFilter === 'published' && isCustomSaved && s.published !== false) ||
+        (productSourceFilter === 'sahl' && s.id.startsWith('sahl_'));
+      return matchCat && matchSearch && matchSource;
     });
-  }, [services, searchQuery, categoryFilter]);
+  }, [unifiedServicesList, searchQuery, categoryFilter, productSourceFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredServices.length / PAGE_SIZE));
+  const paginatedServices = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredServices.slice(start, start + PAGE_SIZE);
+  }, [filteredServices, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [categoryFilter, searchQuery, productSourceFilter]);
 
   // Filtered Users
   const filteredUsers = useMemo(() => {
@@ -2739,30 +2932,46 @@ export default function AdminPage() {
                       className="px-4 py-2 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer flex items-center gap-1.5 shadow-md"
                     >
                       <Plus className="w-4 h-4" />
-                      <span>+ يېڭى مەھسۇلات قوشۇش</span>
+                      <span>+ قولدا قوشۇش</span>
                     </button>
                     <button
-                      onClick={handleOpenSahlCashImporter}
-                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:opacity-95 text-white font-black text-xs transition cursor-pointer flex items-center gap-1.5 shadow-md shadow-cyan-500/20"
+                      onClick={() => fetchProviderProducts(false)}
+                      disabled={loadingProducts}
+                      className="px-3.5 py-2 rounded-xl bg-cyan-900/70 hover:bg-cyan-800 border border-cyan-500/50 text-cyan-200 text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50"
+                      title="Sahl Cash تىن ئەڭ يېڭى مەھسۇلات ۋە باھالارنى قايتا يېڭىلاش"
                     >
-                      <Zap className="w-4 h-4 text-amber-300 animate-pulse" />
-                      <span>⚡ Sahl Cash تىن مەھسۇلات تاللاپ قوشۇش</span>
+                      <RefreshCw className={`w-3.5 h-3.5 text-amber-300 ${loadingProducts ? 'animate-spin' : ''}`} />
+                      <span>{loadingProducts ? 'يېڭىلىنىۋاتىدۇ...' : '⚡ Sahl Cash يېڭىلاش'}</span>
                     </button>
+                    {categoryFilter !== 'all' && (
+                      <button
+                        onClick={handleBatchPublishActiveCategory}
+                        disabled={loadingProducts}
+                        className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:opacity-90 text-slate-950 text-xs font-black transition cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50"
+                        title="مۇشۇ سەھىپىدىكى بارلىق Sahl Cash مەھسۇلاتلىرىنى بىراقلا دۇكانغا قوشۇپ باشبەتكە چىقىرىش"
+                      >
+                        <Zap className="w-3.5 h-3.5 fill-slate-950" />
+                        <span>🚀 سەھىپىنى دۇكانغا تولۇق قوشۇش</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 
                 {/* Categories Filter Pills with Delete Option */}
                 <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 border-t border-slate-800/80">
                   <button
-                    onClick={() => setCategoryFilter('all')}
+                    onClick={() => {
+                      setCategoryFilter('all');
+                      setCurrentPage(1);
+                    }}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap ${
                       categoryFilter === 'all' ? themeClasses.pillActive : themeClasses.pillInactive
                     }`}
                   >
-                    بارلىق مەھسۇلاتلار ({services.length})
+                    بارلىق مەھسۇلاتلار ({unifiedServicesList.length})
                   </button>
                   {categoriesList.map((cat) => {
-                    const catCount = services.filter((s) => s.category === cat.id).length;
+                    const catCount = unifiedServicesList.filter((s) => s.category === cat.id).length;
                     const isActive = categoryFilter === cat.id;
                     return (
                       <div
@@ -2774,7 +2983,10 @@ export default function AdminPage() {
                         }`}
                       >
                         <button
-                          onClick={() => setCategoryFilter(cat.id)}
+                          onClick={() => {
+                            setCategoryFilter(cat.id);
+                            setCurrentPage(1);
+                          }}
                           className="flex items-center gap-1.5 cursor-pointer"
                         >
                           <span className="animate-moving-icon">
@@ -2815,20 +3027,71 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Search & Actions Bar */}
-              <div className={`p-4 rounded-2xl ${themeClasses.card} flex flex-col sm:flex-row items-center justify-between gap-3`}>
-                <div className="relative w-full sm:w-80">
-                  <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="مەھسۇلات نامى ياكى تەپسىلاتى بويىچە ئىزدەش..."
-                    className={`w-full pr-9 pl-3 py-2 rounded-xl text-xs ${themeClasses.input} focus:outline-none focus:border-amber-400 transition`}
-                  />
+              {/* Search & Source Filter Bar */}
+              <div className={`p-4 rounded-2xl ${themeClasses.card} flex flex-col md:flex-row items-center justify-between gap-3`}>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto">
+                  <div className="relative w-full sm:w-72">
+                    <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      placeholder="مەھسۇلات نامى ياكى تەپسىلاتى بويىچە ئىزدەش..."
+                      className={`w-full pr-9 pl-3 py-2 rounded-xl text-xs ${themeClasses.input} focus:outline-none focus:border-amber-400 transition`}
+                    />
+                  </div>
+
+                  {/* Filter chips: All / Published / Sahl */}
+                  <div className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-[11px] font-bold overflow-x-auto shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProductSourceFilter('all');
+                        setCurrentPage(1);
+                      }}
+                      className={`px-2.5 py-1 rounded-lg transition cursor-pointer whitespace-nowrap ${
+                        productSourceFilter === 'all'
+                          ? 'bg-amber-400 text-slate-950 font-black shadow-xs'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      ھەممىسى ({unifiedServicesList.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProductSourceFilter('published');
+                        setCurrentPage(1);
+                      }}
+                      className={`px-2.5 py-1 rounded-lg transition cursor-pointer whitespace-nowrap ${
+                        productSourceFilter === 'published'
+                          ? 'bg-emerald-400 text-slate-950 font-black shadow-xs'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      ✅ دۇكاندا كۆرۈنىدىغان ({services.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProductSourceFilter('sahl');
+                        setCurrentPage(1);
+                      }}
+                      className={`px-2.5 py-1 rounded-lg transition cursor-pointer whitespace-nowrap ${
+                        productSourceFilter === 'sahl'
+                          ? 'bg-cyan-400 text-slate-950 font-black shadow-xs'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      ⚡ Sahl Cash تىزىملىكى
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-center justify-between sm:justify-end gap-3 w-full md:w-auto">
                   {categoryFilter !== 'all' && filteredServices.length > 0 && (
                     <button
                       onClick={() => {
@@ -2838,109 +3101,163 @@ export default function AdminPage() {
                       className="px-3 py-1.5 rounded-xl bg-rose-950/70 hover:bg-rose-900 border border-rose-500/40 text-rose-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
-                      <span>مۇشۇ سەھىپىدىكى مەھسۇلاتلارنى يۇيۇش ({filteredServices.length})</span>
+                      <span>مۇشۇ سەھىپىدىكى مەھسۇلاتلارنى يۇيۇش</span>
                     </button>
                   )}
                   <div className="text-xs text-slate-400">
                     كۆرسىتىلىۋاتقىنى: <span className="font-mono font-bold text-amber-400">{filteredServices.length}</span> مەھسۇلات
+                    {totalPages > 1 && (
+                      <span className="font-mono text-slate-500 mr-2">
+                        (بەت: {currentPage}/{totalPages})
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* Services Grid */}
+              {/* Services Grid (All products directly from Sahl Cash & Custom) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
-                {filteredServices.map((srv) => (
-                  <div
-                    key={srv.id}
-                    className={`p-4 rounded-2xl ${themeClasses.card} flex flex-col justify-between hover:border-amber-400/50 transition group`}
-                  >
-                    <div>
-                      <div className="flex items-start justify-between gap-2 mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-900 border border-slate-800 flex items-center justify-center shrink-0">
-                            {srv.image ? (
-                              <img
-                                src={srv.image}
-                                alt={srv.name}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  (e.currentTarget as HTMLImageElement).src = '/logo.png';
-                                }}
-                              />
-                            ) : (
-                              <Package className="w-6 h-6 text-cyan-400" />
-                            )}
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-sm text-white line-clamp-1">{srv.name}</h4>
-                            {(() => {
-                              const catObj = categoriesList.find((c) => c.id === srv.category);
-                              return (
-                                <span className="inline-flex items-center gap-1 text-[10px] text-amber-300 font-bold bg-amber-400/10 px-1.5 py-0.5 rounded-md mt-0.5 border border-amber-400/20">
+                {paginatedServices.map((srv) => {
+                  const isSavedCustom = !srv.id.startsWith('sahl_');
+                  const catObj = categoriesList.find((c) => c.id === srv.category);
+                  const minPrice = srv.packages && srv.packages.length > 0 ? srv.packages[0].price : 0;
+
+                  return (
+                    <div
+                      key={srv.id}
+                      className={`p-4 rounded-2xl ${themeClasses.card} flex flex-col justify-between hover:border-amber-400/50 transition group relative ${
+                        isSavedCustom ? 'ring-1 ring-emerald-500/20' : ''
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-start justify-between gap-2 mb-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-900 border border-slate-800 flex items-center justify-center shrink-0 shadow-md">
+                              {srv.image ? (
+                                <img
+                                  src={srv.image}
+                                  alt={srv.name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.currentTarget as HTMLImageElement).src = '/logo.png';
+                                  }}
+                                />
+                              ) : (
+                                <Package className="w-6 h-6 text-cyan-400" />
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <h4 className="font-bold text-sm text-white line-clamp-1">{srv.name}</h4>
+                              <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+                                <span className="inline-flex items-center gap-1 text-[10px] text-amber-300 font-bold bg-amber-400/10 px-1.5 py-0.5 rounded-md border border-amber-400/20">
                                   <DynamicIcon name={catObj?.icon || 'Package'} className="w-3 h-3 text-amber-400" />
                                   <span>{catObj?.name || srv.category}</span>
                                 </span>
-                              );
-                            })()}
+                                {isSavedCustom ? (
+                                  <span className="text-[9px] text-emerald-300 font-bold bg-emerald-950/80 border border-emerald-500/40 px-1.5 py-0.2 rounded-md">
+                                    دۇكاندا ئوچۇق
+                                  </span>
+                                ) : (
+                                  <span className="text-[9px] text-cyan-300 font-bold bg-cyan-950/80 border border-cyan-500/40 px-1.5 py-0.2 rounded-md">
+                                    Sahl Cash
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {srv.badge && (
+                            <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30 shrink-0">
+                              {srv.badge}
+                            </span>
+                          )}
+                        </div>
+
+                        <p className={`text-xs ${themeClasses.subtext} line-clamp-2 mb-3`}>
+                          {srv.description || `${srv.name} ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى`}
+                        </p>
+
+                        <div className="flex items-center justify-between text-xs py-2 border-t border-slate-800/80">
+                          <span className={themeClasses.subtext}>
+                            بولاق سانى: <strong className="text-white font-mono">{srv.packages?.length || 1}</strong>
+                          </span>
+                          <div className="text-left font-mono">
+                            <span className="text-[10px] text-slate-400 ml-1">باشلىنىش:</span>
+                            <span className="font-black text-amber-400 text-sm">
+                              ${formatSmartPrice(minPrice)}
+                            </span>
                           </div>
                         </div>
-
-                        {srv.badge && (
-                          <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">
-                            {srv.badge}
-                          </span>
-                        )}
                       </div>
 
-                      <p className={`text-xs ${themeClasses.subtext} line-clamp-2 mb-3`}>
-                        {srv.description || 'تەپسىلات يوق'}
-                      </p>
-
-                      <div className="flex items-center justify-between text-xs py-2 border-t border-slate-800/80">
-                        <span className={themeClasses.subtext}>
-                          بولاق سانى: <strong className="text-white font-mono">{srv.packages?.length || 1}</strong>
-                        </span>
-                        <div className="text-left font-mono">
-                          <span className="text-[10px] text-slate-400 ml-1">باشلىنىش:</span>
-                          <span className="font-black text-amber-400 text-sm">
-                            ${formatSmartPrice(srv.packages[0]?.price)}
-                          </span>
+                      <div className="flex items-center gap-2 pt-3 border-t border-slate-800/80">
+                        {/* Quick Category Move Dropdown */}
+                        <div className="flex-1 min-w-0" title="سەھىپىگە يۆتكەش ياكى دۇكانغا قوشۇش">
+                          <select
+                            value={srv.category}
+                            onChange={(e) => handleQuickChangeCategory(srv.id, e.target.value)}
+                            className="w-full py-1.5 px-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 font-bold text-[11px] focus:outline-none focus:border-amber-400 cursor-pointer truncate"
+                          >
+                            {categoriesList.map((c) => (
+                              <option key={c.id} value={c.id} className="bg-slate-950 text-white">
+                                {c.name}
+                              </option>
+                            ))}
+                          </select>
                         </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 pt-3 border-t border-slate-800/80">
-                      {/* Quick Category Move Dropdown */}
-                      <div className="flex-1 min-w-0" title="سەھىپىگە يۆتكەش">
-                        <select
-                          value={srv.category}
-                          onChange={(e) => handleQuickChangeCategory(srv.id, e.target.value)}
-                          className="w-full py-1.5 px-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 font-bold text-[11px] focus:outline-none focus:border-amber-400 cursor-pointer truncate"
+                        <button
+                          onClick={() => handleOpenEditService(srv)}
+                          className="px-3 py-1.5 rounded-lg bg-cyan-950/70 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 font-bold text-xs transition flex items-center justify-center gap-1 cursor-pointer shrink-0"
+                          title="تەھرىرلەش (باھا ۋە بولاقلارنى تەڭشەش)"
                         >
-                          {categoriesList.map((c) => (
-                            <option key={c.id} value={c.id} className="bg-slate-950 text-white">
-                              {c.name}
-                            </option>
-                          ))}
-                        </select>
+                          <Edit3 className="w-3.5 h-3.5" />
+                          <span>تەھرىرلەش</span>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteService(srv.id)}
+                          className="p-1.5 rounded-lg bg-rose-950/70 hover:bg-rose-900 border border-rose-500/40 text-rose-300 transition flex items-center justify-center cursor-pointer shrink-0"
+                          title={isSavedCustom ? 'دۇكاندىن ئۆچۈرۈش' : 'تىزىملىكتىن يوشۇرۇش'}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
-                      <button
-                        onClick={() => handleOpenEditService(srv)}
-                        className="px-3 py-1.5 rounded-lg bg-cyan-950/70 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 font-bold text-xs transition flex items-center justify-center gap-1 cursor-pointer shrink-0"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                        <span>تەھرىرلەش</span>
-                      </button>
-                      <button
-                        onClick={() => handleDeleteService(srv.id)}
-                        className="p-1.5 rounded-lg bg-rose-950/70 hover:bg-rose-900 border border-rose-500/40 text-rose-300 transition flex items-center justify-center cursor-pointer shrink-0"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 pt-6 pb-2">
+                  <button
+                    type="button"
+                    disabled={currentPage === 1}
+                    onClick={() => {
+                      setCurrentPage((p) => Math.max(1, p - 1));
+                      window.scrollTo({ top: 400, behavior: 'smooth' });
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-300 font-bold disabled:opacity-30 cursor-pointer hover:bg-slate-800 transition"
+                  >
+                    ئالدىنقى بەت
+                  </button>
+                  <div className="flex items-center gap-1 font-mono text-xs px-2">
+                    <span className="text-amber-400 font-black">{currentPage}</span>
+                    <span className="text-slate-500">/</span>
+                    <span className="text-slate-400">{totalPages}</span>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={currentPage === totalPages}
+                    onClick={() => {
+                      setCurrentPage((p) => Math.min(totalPages, p + 1));
+                      window.scrollTo({ top: 400, behavior: 'smooth' });
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-300 font-bold disabled:opacity-30 cursor-pointer hover:bg-slate-800 transition"
+                  >
+                    كېيىنكى بەت
+                  </button>
+                </div>
+              )}
 
               {filteredServices.length === 0 && (
                 <div className={`p-8 sm:p-12 rounded-2xl ${themeClasses.card} text-center space-y-4 border-2 border-dashed border-slate-800`}>
@@ -2948,17 +3265,17 @@ export default function AdminPage() {
                     <Package className="w-7 h-7" />
                   </div>
                   <div className="space-y-1">
-                    <h4 className="font-bold text-sm text-white">تېخى ھېچقانداق مەھسۇلات چىقىرىلمىدى</h4>
+                    <h4 className="font-bold text-sm text-white">بۇ تۈردە مەھسۇلات تېپىلمىدى</h4>
                     <p className={`text-xs ${themeClasses.subtext} max-w-md mx-auto`}>
-                      باشبەتتە خېرىدارلارغا مەھسۇلات كۆرسىتىش ئۈچۈن، «⚡ Sahl Cash تىن مەھسۇلات تاللاپ قوشۇش» كۇنۇپكىسىنى بېسىپ خالىغان ئويۇن ياكى ئەپنى بىر چېكىش بىلەنلا باشبەتكە چىقارسىڭىز بولىدۇ.
+                      ئىزدەش شەرتى ياكى سەھىپە تاللىشىنى ئۆزگەرتىپ كۆرۈڭ، ياكى «⚡ Sahl Cash يېڭىلاش» كۇنۇپكىسىنى بېسىپ مەھسۇلاتلارنى قايتا يۈكلەڭ.
                     </p>
                   </div>
                   <button
-                    onClick={handleOpenSahlCashImporter}
+                    onClick={() => fetchProviderProducts(false)}
                     className="px-4 py-2 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer shadow-md inline-flex items-center gap-1.5"
                   >
-                    <Zap className="w-4 h-4" />
-                    <span>Sahl Cash مەھسۇلات تاللاش</span>
+                    <RefreshCw className="w-4 h-4" />
+                    <span>Sahl Cash مەھسۇلاتلىرىنى يېڭىلاش</span>
                   </button>
                 </div>
               )}
@@ -3694,7 +4011,7 @@ export default function AdminPage() {
                   </button>
 
                   <button
-                    onClick={fetchProviderProducts}
+                    onClick={() => fetchProviderProducts(false)}
                     disabled={loadingProducts}
                     className="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs transition flex items-center justify-center gap-2 border border-slate-700 cursor-pointer disabled:opacity-50"
                   >
