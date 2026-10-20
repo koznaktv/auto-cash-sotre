@@ -78,9 +78,14 @@ export default function Navbar({
   }, []);
 
   const activeUser = externalUser !== undefined ? externalUser : internalUser;
+  const savedEmail = typeof window !== 'undefined' ? localStorage.getItem('autocash_email') || '' : '';
+  const savedRole = typeof window !== 'undefined' ? localStorage.getItem('autocash_role') || '' : '';
+  const currentEmail = activeUser?.email || savedEmail;
+  const currentRole = (activeUser as any)?.role || savedRole;
+
   const isAdmin = Boolean(
-    activeUser?.email?.trim().toLowerCase() === 'dronemax0996@gmail.com' ||
-    (activeUser as any)?.role === 'admin'
+    currentEmail?.trim().toLowerCase() === 'dronemax0996@gmail.com' ||
+    currentRole === 'admin'
   );
 
 
@@ -268,6 +273,18 @@ export default function Navbar({
               </span>
               <span>{t('addFunds')}</span>
             </Link>
+
+            {/* Mobile Admin Direct Button (visible only when isAdmin is true) */}
+            {isAdmin && (
+              <a
+                href="/admin"
+                className="xl:hidden inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-bold font-alkatip transition active:scale-95 shrink-0 shadow-sm"
+                title={t('adminPanel')}
+              >
+                <LayoutDashboard className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span className="text-[11px] font-bold">باشقۇرۇش</span>
+              </a>
+            )}
 
             {/* Wallet pill */}
             <Link

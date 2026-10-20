@@ -232,10 +232,21 @@ export default function SideDrawer({
     reader.readAsDataURL(file);
   };
 
+  const savedEmail = typeof window !== 'undefined' ? localStorage.getItem('autocash_email') || '' : '';
+  const savedRole = typeof window !== 'undefined' ? localStorage.getItem('autocash_role') || '' : '';
+  const currentEmail = user?.email || savedEmail;
+  const currentRole = (user as any)?.role || savedRole;
+
   const isAdmin = Boolean(
-    user?.email?.trim().toLowerCase() === 'dronemax0996@gmail.com' ||
-    (user as any)?.role === 'admin'
+    currentEmail?.trim().toLowerCase() === 'dronemax0996@gmail.com' ||
+    currentRole === 'admin'
   );
+
+  const handleNavigate = (href: string) => (e: React.MouseEvent) => {
+    isBrowserPoppedRef.current = true;
+    onClose();
+    window.location.href = href;
+  };
 
   if (!isOpen) return null;
 
@@ -477,7 +488,7 @@ export default function SideDrawer({
 
             <Link
               href="/deposit"
-              onClick={onClose}
+              onClick={handleNavigate('/deposit')}
               className="flex items-center gap-3 p-3 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900 border border-transparent hover:border-amber-500/20 transition group"
             >
               <span className="animate-soft-float" style={{ animationDelay: '0.3s' }}>
@@ -488,7 +499,7 @@ export default function SideDrawer({
 
             <Link
               href="/orders"
-              onClick={onClose}
+              onClick={handleNavigate('/orders')}
               className="flex items-center gap-3 p-3 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900 border border-transparent hover:border-amber-500/20 transition group"
             >
               <span className="animate-soft-float" style={{ animationDelay: '0.6s' }}>
@@ -499,7 +510,7 @@ export default function SideDrawer({
 
             <Link
               href="/account"
-              onClick={onClose}
+              onClick={handleNavigate('/account')}
               className="flex items-center gap-3 p-3 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900 border border-transparent hover:border-amber-500/20 transition group"
             >
               <span className="animate-soft-float" style={{ animationDelay: '0.7s' }}>
@@ -510,7 +521,7 @@ export default function SideDrawer({
 
             <Link
               href="/membership"
-              onClick={onClose}
+              onClick={handleNavigate('/membership')}
               className="flex items-center gap-3 p-3 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900 border border-transparent hover:border-amber-500/20 transition group"
             >
               <span className="animate-crown-wiggle">
@@ -520,16 +531,16 @@ export default function SideDrawer({
             </Link>
 
             {isAdmin && (
-              <Link
+              <a
                 href="/admin"
-                onClick={onClose}
-                className="flex items-center gap-3 p-3 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900 border border-transparent hover:border-amber-500/20 transition group"
+                onClick={handleNavigate('/admin')}
+                className="flex items-center gap-3 p-3 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900 border border-transparent hover:border-amber-500/20 transition group cursor-pointer"
               >
                 <span className="animate-soft-float" style={{ animationDelay: '1.2s' }}>
                   <LayoutDashboard className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition" />
                 </span>
                 <span className="font-semibold">{t('adminPanel')}</span>
-              </Link>
+              </a>
             )}
           </div>
 
