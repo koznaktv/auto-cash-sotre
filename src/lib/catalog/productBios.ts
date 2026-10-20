@@ -102,13 +102,15 @@ export function getProductBio(
   selectedPkg?: ServicePackage | null,
   lang: SupportedLang = 'ug'
 ): { title: string; content: string } {
+  if (!service) return { title: '', content: '' };
   const pkgTitle = selectedPkg?.title || '';
-  const fullText = `${service.name} ${pkgTitle} ${service.description || ''}`;
+  const serviceName = service.name || '';
+  const fullText = `${serviceName} ${pkgTitle} ${service.description || ''}`;
 
   // 1. If admin provided a custom description override, use it
-  if (service.description && service.description.length > 50 && service.description !== service.name) {
+  if (service.description && service.description.length > 50 && service.description !== serviceName) {
     return {
-      title: pkgTitle || service.name,
+      title: pkgTitle || serviceName,
       content: service.description,
     };
   }
@@ -121,7 +123,7 @@ export function getProductBio(
 
     if (isMatch) {
       return {
-        title: pkgTitle || service.name,
+        title: pkgTitle || serviceName,
         content: entry[lang] || entry.ug,
       };
     }
@@ -134,8 +136,8 @@ export function getProductBio(
 
   if (lang === 'ar') {
     return {
-      title: pkgTitle || service.name,
-      content: `${service.name} - خدمة شحن رسمية وسريعة.
+      title: pkgTitle || serviceName,
+      content: `${serviceName} - خدمة شحن رسمية وسريعة.
 • التنفيذ: تسليم فوري ومباشر بعد تأكيد الطلب.
 • الأمان: معالجة آمنة ومضمونة 100%.
 • يرجى التأكد من كتابة البيانات المطلوبة بشكل صحيح قبل إتمام عملية الدفع.`,
@@ -144,8 +146,8 @@ export function getProductBio(
 
   if (lang === 'en') {
     return {
-      title: pkgTitle || service.name,
-      content: `${service.name} - Official & automated digital service.
+      title: pkgTitle || serviceName,
+      content: `${serviceName} - Official & automated digital service.
 • Delivery: Instant and direct processing upon confirmation.
 • Security: 100% verified and secure.
 • Please verify all input information before completing the payment.`,
@@ -154,8 +156,8 @@ export function getProductBio(
 
   // Uyghur default
   return {
-    title: pkgTitle || service.name,
-    content: `${service.name} - رەسمىي ۋە ئاپتوماتىك مۇلازىمەت.
+    title: pkgTitle || serviceName,
+    content: `${serviceName} - رەسمىي ۋە ئاپتوماتىك مۇلازىمەت.
 • يەتكۈزۈش: سېتىۋېلىش تەستىقلانغاندىن كېيىن سىستېما ئارقىلىق دەرھال بىر تەرەپ قىلىنىدۇ.
 • بىخەتەرلىك: 100% بىخەتەر، ئورگان تەرەپ كاپالىتىگە ئىگە.
 • مەشغۇلات ئەسكەرتىشى: پۇل تۆلەشتىن بۇرۇن كىرگۈزگەن ئۇچۇر ياكى نومۇرلارنىڭ توغرىلىقىنى قايتا بىر قۇر تەكشۈرۈۋېلىڭ.`,

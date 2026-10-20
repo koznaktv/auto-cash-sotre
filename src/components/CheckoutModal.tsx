@@ -245,8 +245,14 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
             )}
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white">{service.name}</h3>
-            <p className="text-xs text-slate-400">{service.description}</p>
+            <h3 className="text-lg font-bold text-white">{translatePackageTitle(service.name)}</h3>
+            <p className="text-xs text-slate-400">
+              {service.description && service.description !== service.name
+                ? translatePackageTitle(service.description)
+                : isProvider
+                ? (lang === 'ar' ? 'خدمة شحن فورية ومباشرة' : lang === 'en' ? 'Instant digital delivery' : 'دەرھال ۋە ئاپتوماتىك قاچىلاش مۇلازىمىتى')
+                : service.description}
+            </p>
           </div>
         </div>
 
@@ -509,7 +515,11 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                   disabled={loading || isSubmittingRef.current || !selectedPkg || selectedPkg.available === false}
                   label={
                     confirmTotal !== null
-                      ? `يېڭى باھا $${formatSmartPrice(confirmTotal)} نى جەزملەش`
+                      ? (lang === 'ar'
+                          ? `تأكيد السعر الجديد $${formatSmartPrice(confirmTotal)}`
+                          : lang === 'en'
+                          ? `Confirm New Price $${formatSmartPrice(confirmTotal)}`
+                          : `يېڭى باھا $${formatSmartPrice(confirmTotal)} نى جەزملەش`)
                       : t('confirmAndPay')
                   }
                   isRTL={isRTL}
