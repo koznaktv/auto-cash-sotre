@@ -25,6 +25,12 @@ const BUNDLED_DELETED_FILE = path.join(BUNDLED_DATA_DIR, 'deleted_categories.jso
 
 let cachedCategories: CategoryItem[] | null = null;
 let cachedDeletedCatIds: Set<string> | null = null;
+let lastCategoriesFetch = 0;
+const CATEGORIES_CACHE_TTL = 30_000; // 30 seconds
+
+export function invalidateCategoriesCache(): void {
+  lastCategoriesFetch = 0;
+}
 
 function getDeletedCategoryIds(): Set<string> {
   if (cachedDeletedCatIds) return cachedDeletedCatIds;
@@ -104,6 +110,11 @@ export function getCategoriesList(): CategoryItem[] {
 export async function getCategoriesListAsync(): Promise<CategoryItem[]> {
   const deleted = getDeletedCategoryIds();
 
+  // Instant in-memory cache return (<0.1ms) if cached recently
+  if (cachedCategories && Date.now() - lastCategoriesFetch < CATEGORIES_CACHE_TTL) {
+    return cachedCategories.filter((c) => !deleted.has(c.id));
+  }
+
   // Try Supabase first if available
   const sb = getSupabase();
   if (sb) {
@@ -114,6 +125,7 @@ export async function getCategoriesListAsync(): Promise<CategoryItem[]> {
         if (Array.isArray(parsed)) {
           const clean = parsed.filter((c: CategoryItem) => !deleted.has(c.id));
           cachedCategories = clean;
+          lastCategoriesFetch = Date.now();
           return [...clean];
         }
       }
@@ -122,13 +134,16 @@ export async function getCategoriesListAsync(): Promise<CategoryItem[]> {
     }
   }
 
-  return getCategoriesList();
+  const list = getCategoriesList();
+  lastCategoriesFetch = Date.now();
+  return list;
 }
 
 export function saveCategoriesList(categories: CategoryItem[]) {
   const deleted = getDeletedCategoryIds();
   const cleanList = categories.filter((c) => !deleted.has(c.id));
   cachedCategories = cleanList;
+  lastCategoriesFetch = Date.now();
 
   try {
     if (!fs.existsSync(DATA_DIR)) {

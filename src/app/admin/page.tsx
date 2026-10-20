@@ -991,6 +991,13 @@ export default function AdminPage() {
     setCategoryModalOpen(true);
   };
 
+  const clearStorefrontCache = () => {
+    try {
+      localStorage.removeItem('autocash_cached_catalog');
+      localStorage.removeItem('autocash_cached_categories');
+    } catch {}
+  };
+
   const handleSaveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!categoryForm.name.trim()) {
@@ -1015,6 +1022,7 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.success && data.category) {
+        clearStorefrontCache();
         setCategoriesList((prev) => {
           const idx = prev.findIndex((c) => c.id === data.category.id);
           if (idx !== -1) {
@@ -1059,6 +1067,7 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.success) {
+        clearStorefrontCache();
         setCategoriesList((prev) => prev.filter((c) => c.id !== catId));
         setServices((prev) => prev.filter((s) => s.category !== catId));
         if (categoryFilter === catId) setCategoryFilter('all');
@@ -1272,6 +1281,7 @@ export default function AdminPage() {
         });
         const data = await res.json();
         if (data.success && data.service) {
+          clearStorefrontCache();
           setServices((prev) =>
             prev.map((s) => (s.id === editingService.id ? data.service : s))
           );
@@ -1290,6 +1300,7 @@ export default function AdminPage() {
         });
         const data = await res.json();
         if (data.success && data.service) {
+          clearStorefrontCache();
           setServices((prev) => [data.service, ...prev.filter((s) => s.id !== data.service.id)]);
           setServiceModalOpen(false);
           setEditingService(null);
@@ -1319,6 +1330,7 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.success) {
+        clearStorefrontCache();
         setServices((prev) => prev.filter((s) => s.id !== id));
       }
     } catch (err) {
@@ -1705,6 +1717,7 @@ export default function AdminPage() {
         }
       } catch {}
     }
+    clearStorefrontCache();
     setLoadingProducts(false);
     alert(`${successCount} دانە مەھسۇلات مۇۋەپپەقىيەتلىك دۇكانغا قوشۇلدى!`);
   };
@@ -1919,6 +1932,7 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.success && data.service) {
+        clearStorefrontCache();
         setServices((prev) => [data.service, ...prev.filter((s) => s.id !== data.service.id)]);
         setSahlCashModalOpen(false);
         setSelectedSahlGroup(null);

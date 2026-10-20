@@ -275,25 +275,56 @@ async function upsertChunks(table: string, rows: any[], onConflict: string): Pro
 
 // ---------------------------------------------------------------- public API
 
+let cachedSettings: ProviderSettings | null = null;
+let lastSettingsFetch = 0;
+const SETTINGS_CACHE_TTL = 30_000;
+
+export function invalidateProviderSettingsCache(): void {
+  lastSettingsFetch = 0;
+  cachedSettings = null;
+}
+
+let cachedStoredCategories: { at: number; data: StoredCategory[] } | null = null;
+let cachedStoredProducts: { at: number; data: StoredProduct[] } | null = null;
+let cachedOverrides: { at: number; data: CatalogOverride[] } | null = null;
+const STORED_CACHE_TTL = 60_000;
+
+export function invalidateStoredCatalogMemoryCache(): void {
+  cachedStoredCategories = null;
+  cachedStoredProducts = null;
+  cachedOverrides = null;
+}
+
 export async function getProviderSettings(): Promise<ProviderSettings> {
+  if (cachedSettings && Date.now() - lastSettingsFetch < SETTINGS_CACHE_TTL) {
+    return { ...cachedSettings };
+  }
   const local = loadLocal();
   const sb = getSupabase();
   if (sb) {
     try {
       const { data, error } = await sb.from('provider_settings').select('*').eq('id', 'global').maybeSingle();
-      if (!error && data) return mapSettings(data);
+      if (!error && data) {
+        cachedSettings = mapSettings(data);
+        lastSettingsFetch = Date.now();
+        return { ...cachedSettings };
+      }
       if (error) console.warn('Supabase provider_settings warning (fallback to local):', error.message);
     } catch (err: any) {
       console.warn('Supabase provider_settings exception:', err?.message);
     }
   }
-  return { ...local.settings };
+  cachedSettings = { ...local.settings };
+  lastSettingsFetch = Date.now();
+  return { ...cachedSettings };
 }
 
 export async function updateProviderSettings(patch: Partial<ProviderSettings>): Promise<ProviderSettings> {
   const local = loadLocal();
   local.settings = { ...local.settings, ...patch };
   saveLocal();
+  cachedSettings = { ...local.settings };
+  lastSettingsFetch = Date.now();
 
   const sb = getSupabase();
   if (sb) {
@@ -304,7 +335,10 @@ export async function updateProviderSettings(patch: Partial<ProviderSettings>): 
         if (column && value !== undefined) row[column] = value;
       }
       const { data, error } = await sb.from('provider_settings').upsert(row).select().maybeSingle();
-      if (!error && data) return mapSettings(data);
+      if (!error && data) {
+        cachedSettings = mapSettings(data);
+        return { ...cachedSettings };
+      }
       if (error) console.warn('Supabase updateProviderSettings warning:', error.message);
     } catch (err: any) {
       console.warn('Supabase updateProviderSettings exception:', err?.message);
@@ -314,22 +348,38 @@ export async function updateProviderSettings(patch: Partial<ProviderSettings>): 
 }
 
 export async function listStoredCategories(): Promise<StoredCategory[]> {
+  if (cachedStoredCategories && Date.now() - cachedStoredCategories.at < STORED_CACHE_TTL) {
+    return cachedStoredCategories.data;
+  }
   const local = loadLocal();
   const sb = getSupabase();
   if (sb) {
     const rows = await readAllPages('provider_categories');
-    if (rows && rows.length > 0) return rows.map(mapCategory);
+    if (rows && rows.length > 0) {
+      const mapped = rows.map(mapCategory);
+      cachedStoredCategories = { at: Date.now(), data: mapped };
+      return mapped;
+    }
   }
+  cachedStoredCategories = { at: Date.now(), data: local.categories };
   return local.categories;
 }
 
 export async function listStoredProducts(): Promise<StoredProduct[]> {
+  if (cachedStoredProducts && Date.now() - cachedStoredProducts.at < STORED_CACHE_TTL) {
+    return cachedStoredProducts.data;
+  }
   const local = loadLocal();
   const sb = getSupabase();
   if (sb) {
     const rows = await readAllPages('provider_products');
-    if (rows && rows.length > 0) return rows.map(mapProduct);
+    if (rows && rows.length > 0) {
+      const mapped = rows.map(mapProduct);
+      cachedStoredProducts = { at: Date.now(), data: mapped };
+      return mapped;
+    }
   }
+  cachedStoredProducts = { at: Date.now(), data: local.products };
   return local.products;
 }
 
@@ -365,6 +415,7 @@ export async function updateStoredProduct(id: number, patch: Partial<StoredProdu
 }
 
 export async function upsertStoredCategories(rows: StoredCategory[]): Promise<void> {
+  invalidateStoredCatalogMemoryCache();
   const local = loadLocal();
   const byId = new Map(local.categories.map((c) => [c.id, c]));
   for (const row of rows) byId.set(row.id, row);
@@ -382,6 +433,7 @@ export async function upsertStoredCategories(rows: StoredCategory[]): Promise<vo
 }
 
 export async function upsertStoredProducts(rows: StoredProduct[]): Promise<void> {
+  invalidateStoredCatalogMemoryCache();
   const local = loadLocal();
   const byId = new Map(local.products.map((p) => [p.id, p]));
   for (const row of rows) byId.set(row.id, row);
@@ -400,6 +452,7 @@ export async function upsertStoredProducts(rows: StoredProduct[]): Promise<void>
 
 /** Marks everything not seen in `runId` as removed (rows are kept: orders and overrides refer to them). */
 export async function markUnseenRemoved(runId: number): Promise<{ products: number; categories: number }> {
+  invalidateStoredCatalogMemoryCache();
   const now = new Date().toISOString();
   const sb = getSupabase();
   if (sb) {
@@ -441,18 +494,27 @@ export async function markUnseenRemoved(runId: number): Promise<{ products: numb
 }
 
 export async function listCatalogOverrides(): Promise<CatalogOverride[]> {
+  if (cachedOverrides && Date.now() - cachedOverrides.at < STORED_CACHE_TTL) {
+    return cachedOverrides.data;
+  }
   const local = loadLocal();
   const sb = getSupabase();
   if (sb) {
     try {
       const { data, error } = await sb.from('catalog_overrides').select('*');
-      if (!error && data && data.length > 0) return data.map(mapOverride);
+      if (!error && data && data.length > 0) {
+        const mapped = data.map(mapOverride);
+        cachedOverrides = { at: Date.now(), data: mapped };
+        return mapped;
+      }
     } catch {}
   }
+  cachedOverrides = { at: Date.now(), data: local.overrides };
   return local.overrides;
 }
 
 export async function upsertCatalogOverride(override: CatalogOverride): Promise<CatalogOverride> {
+  invalidateStoredCatalogMemoryCache();
   const local = loadLocal();
   const index = local.overrides.findIndex((o) => o.scope === override.scope && o.targetId === override.targetId);
   if (index === -1) local.overrides.push(override);

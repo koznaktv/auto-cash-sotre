@@ -234,20 +234,47 @@ export default function HomePage() {
   const [catalogSource, setCatalogSource] = useState<'legacy' | 'provider'>('provider');
   const [catalogLoading, setCatalogLoading] = useState(true);
   useEffect(() => {
+    // Instant cache hydration: if previously loaded, display IMMEDIATELY (<1ms)
+    try {
+      const cachedCat = localStorage.getItem('autocash_cached_catalog');
+      const cachedCats = localStorage.getItem('autocash_cached_categories');
+      if (cachedCat) {
+        const parsed = JSON.parse(cachedCat);
+        if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
+          setServices(parsed.services);
+          setCatalogSource(parsed.source === 'legacy' ? 'legacy' : 'provider');
+          setCatalogLoading(false);
+        }
+      }
+      if (cachedCats) {
+        const parsedCats = JSON.parse(cachedCats);
+        if (Array.isArray(parsedCats) && parsedCats.length > 0) {
+          setCategories(parsedCats);
+        }
+      }
+    } catch {}
+
+    // Fetch fresh catalog from API
     Promise.all([
-      fetch(`/api/catalog?t=${Date.now()}`, { cache: 'no-store' }).then((r) => r.json()).catch(() => null),
-      fetch(`/api/categories?t=${Date.now()}`, { cache: 'no-store' }).then((r) => r.json()).catch(() => null),
+      fetch('/api/catalog').then((r) => r.json()).catch(() => null),
+      fetch('/api/categories').then((r) => r.json()).catch(() => null),
     ])
       .then(([dCat, dCats]) => {
         if (dCat && dCat.success && Array.isArray(dCat.services)) {
           setServices(dCat.services);
           setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
+          try {
+            localStorage.setItem('autocash_cached_catalog', JSON.stringify({ services: dCat.services, source: dCat.source }));
+          } catch {}
         } else if (dCat && dCat.services) {
           setServices(dCat.services);
         }
 
         if (dCats && dCats.success && Array.isArray(dCats.categories)) {
           setCategories(dCats.categories);
+          try {
+            localStorage.setItem('autocash_cached_categories', JSON.stringify(dCats.categories));
+          } catch {}
         }
       })
       .catch(() => {})

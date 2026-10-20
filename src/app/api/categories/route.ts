@@ -10,9 +10,7 @@ export async function GET() {
       { success: true, categories },
       {
         headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
-          Pragma: 'no-cache',
-          Expires: '0',
+          'Cache-Control': 'public, s-maxage=15, stale-while-revalidate=60',
         },
       }
     );

@@ -27,13 +27,15 @@ export async function GET(req: Request) {
       })),
     }));
 
+    const cacheHeader = isAdminPreview
+      ? 'no-store, no-cache, must-revalidate, max-age=0'
+      : 'public, s-maxage=10, stale-while-revalidate=50';
+
     return NextResponse.json(
       { success: true, source, minOrderUsd: settings.minOrderUsd, services },
       {
         headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
-          Pragma: 'no-cache',
-          Expires: '0',
+          'Cache-Control': cacheHeader,
         },
       }
     );

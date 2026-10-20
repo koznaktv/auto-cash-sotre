@@ -18,6 +18,12 @@ const BUNDLED_DELETED_FILE = path.join(BUNDLED_DATA_DIR, 'deleted_services.json'
 // In-memory cache for ultra-fast, consistent reads
 let cachedServices: ServiceItem[] | null = null;
 let cachedDeletedIds: Set<string> | null = null;
+let lastServicesFetch = 0;
+const SERVICES_CACHE_TTL = 30_000; // 30 seconds
+
+export function invalidateServicesCache(): void {
+  lastServicesFetch = 0;
+}
 
 function getDeletedServiceIds(): Set<string> {
   if (cachedDeletedIds) return cachedDeletedIds;
@@ -100,6 +106,11 @@ export function getServicesList(): ServiceItem[] {
 export async function getServicesListAsync(): Promise<ServiceItem[]> {
   const deleted = getDeletedServiceIds();
 
+  // Instant in-memory cache return (<0.1ms) if cached recently
+  if (cachedServices && Date.now() - lastServicesFetch < SERVICES_CACHE_TTL) {
+    return cachedServices.filter((s) => !deleted.has(s.id));
+  }
+
   // Try Supabase first if in serverless or cache is empty
   const sb = getSupabase();
   if (sb) {
@@ -110,6 +121,7 @@ export async function getServicesListAsync(): Promise<ServiceItem[]> {
         if (Array.isArray(parsed)) {
           const clean = parsed.filter((s: ServiceItem) => !deleted.has(s.id));
           cachedServices = clean;
+          lastServicesFetch = Date.now();
           return [...clean];
         }
       }
@@ -118,13 +130,16 @@ export async function getServicesListAsync(): Promise<ServiceItem[]> {
     }
   }
 
-  return getServicesList();
+  const list = getServicesList();
+  lastServicesFetch = Date.now();
+  return list;
 }
 
 export function saveServicesList(services: ServiceItem[]) {
   const deleted = getDeletedServiceIds();
   const cleanList = services.filter((s) => !deleted.has(s.id));
   cachedServices = cleanList;
+  lastServicesFetch = Date.now();
 
   try {
     if (!fs.existsSync(DATA_DIR)) {
