@@ -3,6 +3,7 @@
 import { clearLocalAuth, logout, getCachedBalance, getCachedUser, storeLocalAuth, formatCurrencyAmount } from '@/lib/clientAuth';
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import AuthModal from '@/components/AuthModal';
 import { useLanguage } from '@/context/LanguageContext';
@@ -79,6 +80,7 @@ const VIP_TIER_CONFIG: Record<
 };
 
 export default function AccountPage() {
+  const router = useRouter();
   const { lang, t, isRTL } = useLanguage();
   const [balance, setBalance] = useState<number>(() => {
     if (typeof window !== 'undefined') {
@@ -320,6 +322,7 @@ export default function AccountPage() {
     setBalance(usr.balance || 0.0);
     setIsLoggedIn(true);
     fetchOrdersCount();
+    router.replace('/');
   };
 
   return (

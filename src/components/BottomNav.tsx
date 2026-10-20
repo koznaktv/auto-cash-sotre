@@ -118,6 +118,7 @@ export default function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
+              replace={item.href === '/'}
               prefetch={true}
               scroll={false}
               onClick={() => setOptimisticIndex(index)}

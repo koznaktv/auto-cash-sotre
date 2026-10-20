@@ -95,7 +95,7 @@ export async function syncSupabaseSession(accessToken: string): Promise<ClientUs
 }
 
 /** Only same-site relative paths are allowed as post-login redirects. */
-export function safeRedirectPath(next: string | null, fallback = '/account'): string {
+export function safeRedirectPath(next: string | null, fallback = '/'): string {
   // Reject control characters and backslashes: the URL parser strips tabs/newlines,
   // so '/\t/evil.com' would otherwise resolve to '//evil.com'
   if (!next || !next.startsWith('/') || /[\u0000-\u001f\u007f\\]/.test(next)) return fallback;

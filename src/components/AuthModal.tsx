@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import { X } from 'lucide-react';
 import { getBrowserSupabase } from '@/lib/supabaseBrowser';
@@ -24,6 +25,7 @@ interface AuthModalProps {
 }
 
 export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
+  const router = useRouter();
   const { t } = useLanguage();
 
   // Mode: false = login (front), true = register (back)
@@ -590,7 +592,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${origin}/auth/callback`,
+          redirectTo: `${origin}/auth/callback?next=/`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -641,6 +643,9 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
       setTimeout(() => {
         onSuccess(data.user);
         onClose();
+        if (typeof window !== 'undefined' && window.location.pathname !== '/') {
+          router.replace('/');
+        }
       }, 1600);
     } catch (err: any) {
       setErrorMsg(err?.message || 'كىرىش مەغلۇپ بولدى');
@@ -700,6 +705,9 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
       setTimeout(() => {
         onSuccess(data.user);
         onClose();
+        if (typeof window !== 'undefined' && window.location.pathname !== '/') {
+          router.replace('/');
+        }
       }, 1600);
     } catch (err: any) {
       setErrorMsg(err?.message || 'تىزىملىتىش مەغلۇپ بولدى');

@@ -1,7 +1,7 @@
 'use client';
 
 import { clearLocalAuth, logout, syncSupabaseSession, getCachedBalance, getCachedUser, storeLocalAuth, ClientUser, formatSmartPrice } from '@/lib/clientAuth';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
@@ -65,6 +65,45 @@ export default function HomePage() {
     }
     return null;
   });
+
+  // Home page root anchor: ensure home page is the base and pressing back doesn't escape back into /account or previous tabs
+  const activeModalServiceRef = useRef(activeModalService);
+  const isAuthOpenRef = useRef(isAuthOpen);
+  const isDrawerOpenRef = useRef(isDrawerOpen);
+
+  useEffect(() => {
+    activeModalServiceRef.current = activeModalService;
+  }, [activeModalService]);
+
+  useEffect(() => {
+    isAuthOpenRef.current = isAuthOpen;
+  }, [isAuthOpen]);
+
+  useEffect(() => {
+    isDrawerOpenRef.current = isDrawerOpen;
+  }, [isDrawerOpen]);
+
+  useEffect(() => {
+    try {
+      window.history.replaceState({ rootPage: 'home' }, '', '/');
+    } catch {}
+
+    const handlePopState = () => {
+      // If a modal or drawer is open, its own popstate listener will close it
+      if (activeModalServiceRef.current || isAuthOpenRef.current || isDrawerOpenRef.current) {
+        return;
+      }
+      // On the home page without any modal open, lock home as the base!
+      try {
+        window.history.pushState({ rootPage: 'home' }, '', '/');
+      } catch {}
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
 
   useEffect(() => {
     // Check if splash should be shown:
