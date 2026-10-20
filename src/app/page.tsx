@@ -258,9 +258,8 @@ export default function HomePage() {
     acc[s.category] = (acc[s.category] || 0) + 1;
     return acc;
   }, {});
-  // With the provider catalog, show real counts and hide categories that have nothing to sell
-  const visibleCategories =
-    catalogSource === 'provider' ? categories.filter((c) => serviceCountByCategory[c.id]) : categories;
+  // Only show categories that have at least one active published product
+  const visibleCategories = categories.filter((c) => (serviceCountByCategory[c.id] || 0) > 0);
 
   // Only open products when a category is explicitly clicked, or searching
   const isProductsOpen = selectedCat !== null || searchQuery.trim() !== '';
@@ -550,6 +549,28 @@ export default function HomePage() {
                   <div key={i} className="h-28 sm:h-32 rounded-2xl bg-[#061527] border border-amber-500/20 animate-pulse" />
                 ))}
               </div>
+            ) : visibleCategories.length === 0 ? (
+              <div className="py-14 px-6 rounded-3xl bg-gradient-to-b from-[#061527] to-[#040d1a] border border-amber-500/25 text-center space-y-4 max-w-lg mx-auto shadow-2xl animate-in fade-in duration-300">
+                <div className="w-16 h-16 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 mx-auto shadow-lg shadow-amber-500/10">
+                  <Sparkles className="w-8 h-8" />
+                </div>
+                <div className="space-y-1.5">
+                  <h3 className="font-ukij font-bold text-base sm:text-lg text-white">
+                    {lang === 'ug'
+                      ? 'نۆۋەتتە باشبەتكە ھېچقانداق مەھسۇلات چىقىرىلمىدى'
+                      : lang === 'ar'
+                      ? 'لا توجد منتجات منشورة حالياً'
+                      : 'No products published yet'}
+                  </h3>
+                  <p className="font-alkatip text-xs sm:text-sm text-slate-300/90 leading-relaxed">
+                    {lang === 'ug'
+                      ? 'باشقۇرغۇچى باشقۇرۇش مەركىزىدىن مەھسۇلات ۋە سەھىپىلەرنى تەڭشەپ ئېلان قىلغاندىن كېيىن، ئاپتوماتىك بۇ يەردە كۆرۈنىدۇ.'
+                      : lang === 'ar'
+                      ? 'ستظهر المنتجات هنا فور قيام المدير بنشرها من لوحة التحكم.'
+                      : 'Products will appear here once published from the admin panel.'}
+                  </p>
+                </div>
+              </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3.5">
                 {visibleCategories.map((cat, idx) => {
@@ -617,9 +638,7 @@ export default function HomePage() {
                         {getCategoryName(cat.id, cat.name)}
                       </h3>
                       <span className="font-alkatip text-[9px] sm:text-[10px] text-amber-200 font-semibold block mt-0.5 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
-                        {catalogSource === 'provider'
-                          ? `${serviceCountByCategory[cat.id] || 0} ${isRTL ? 'مۇلازىمەت' : 'services'}`
-                          : getCategoryCount(cat.id, cat.count)}
+                        {serviceCountByCategory[cat.id] || 0} {isRTL ? 'مۇلازىمەت' : 'services'}
                       </span>
                     </div>
                   </button>

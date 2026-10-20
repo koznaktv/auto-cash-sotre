@@ -292,15 +292,19 @@ export async function getProviderCatalog(options: { fresh?: boolean } = {}): Pro
   return catalog;
 }
 
-/** The catalog buyers see: synced provider catalog (falls back to legacy only if provider has 0 services). */
+/** The catalog buyers see: only admin-managed & published services by default; or full provider catalog if source is provider. */
 export async function getCatalogServices(options: { source?: 'legacy' | 'provider' } = {}): Promise<ServiceItem[]> {
-  const providerCatalog = await getProviderCatalog();
-  if (providerCatalog.services.length > 0 || options.source === 'provider') {
+  const settings = await getProviderSettings();
+  const source = options.source || settings.catalogSource;
+  if (source === 'provider') {
+    const providerCatalog = await getProviderCatalog();
     return providerCatalog.services;
   }
-  const source = options.source || (await getProviderSettings()).catalogSource;
-  if (source === 'provider') return providerCatalog.services;
-  return getServicesList().map((s) => ({ ...s, source: 'legacy' as const }));
+  const { getServicesListAsync } = await import('../servicesDb');
+  const customServices = await getServicesListAsync();
+  return customServices
+    .filter((s) => s.published !== false)
+    .map((s) => ({ ...s, source: (s.source || 'legacy') }));
 }
 
 export type ResolveResult =

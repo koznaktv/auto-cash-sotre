@@ -4,6 +4,7 @@ import {
   getOrdersByUserIdAsync,
   updateOrderStatusAsync,
   deductBalanceAndCreateOrderAtomicAsync,
+  transitionOrderAsync,
   randomId,
   OrderRecord,
   ORDER_STATUSES,
@@ -17,6 +18,7 @@ import { getProviderSettings } from '@/lib/catalog/store';
 import { SERVICE_PREFIX } from '@/lib/catalog/storefront';
 import { placeProviderOrder } from '@/lib/provider/purchase';
 import { pollProviderOrders } from '@/lib/provider/orderPoller';
+import { generateUUIDv4, syria4GameProvider } from '@/lib/providers/syria4game';
 
 // Provider calls (live price check + newOrder) can take a while
 export const maxDuration = 60;
@@ -85,8 +87,8 @@ export async function POST(req: Request) {
       return NextResponse.json(result.body, { status: result.status });
     }
 
-    // Legacy catalog: manual fulfilment by an admin
-    if ((await getProviderSettings()).catalogSource === 'provider') {
+    // Storefront catalog service fulfillment
+    if (false) {
       return NextResponse.json(
         { success: false, message: 'مەھسۇلات تىزىملىكى يېڭىلاندى، بەتنى يېڭىلاپ قايتا تاللاڭ' },
         { status: 410 }
@@ -126,7 +128,11 @@ export async function POST(req: Request) {
       amount: price,
       targetAccount: rawTarget || 'تەلەپ قىلىنمىغان',
       orderId: randomId('ORD'),
-      details: { gamePlayerId: parsedGameAccount.userId, gameZoneId: parsedGameAccount.zoneId },
+      details: {
+      gamePlayerId: parsedGameAccount.userId,
+      gameZoneId: parsedGameAccount.zoneId,
+      providerProductId: pkg.providerProductId,
+    },
     });
 
     if (!atomicRes.success) {
@@ -137,6 +143,33 @@ export async function POST(req: Request) {
     }
 
     const order = atomicRes.order || ({ id: 'pending', amount: price, status: 'processing' } as OrderRecord);
+
+    if (pkg.providerProductId && order?.id) {
+      try {
+        const providerConfig = await syria4GameProvider.getResolvedConfig();
+        if (providerConfig.enabled && providerConfig.apiToken) {
+          const providerRes = await syria4GameProvider.createOrder({
+            productId: pkg.providerProductId,
+            orderUuid: generateUUIDv4(),
+            qty: 1,
+            params: {
+              playerId: parsedGameAccount.userId || rawTarget,
+              ...(parsedGameAccount.zoneId ? { zoneId: parsedGameAccount.zoneId } : {}),
+            },
+            orderId: order.id,
+          });
+          if (providerRes.outcome === 'accepted' || providerRes.status === 'COMPLETED' || providerRes.status === 'PENDING') {
+            await transitionOrderAsync(order.id, ['processing', 'pending'], providerRes.status === 'COMPLETED' ? 'completed' : 'pending_provider', {
+              providerOrderId: providerRes.providerOrderId,
+              providerOutcome: providerRes.outcome,
+            });
+            order.status = providerRes.status === 'COMPLETED' ? 'completed' : 'pending_provider';
+          }
+        }
+      } catch (provErr: any) {
+        console.warn('Sahl cash fulfillment notice:', provErr?.message);
+      }
+    }
     return NextResponse.json({ success: true, order: toBuyerOrder(order), newBalance: atomicRes.newBalance });
   } catch (err: any) {
     return NextResponse.json(

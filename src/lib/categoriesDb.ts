@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { CATEGORIES_9 } from './data';
+import { getSupabase } from './supabase';
 
 export interface CategoryItem {
   id: string;
@@ -100,6 +101,30 @@ export function getCategoriesList(): CategoryItem[] {
   }
 }
 
+export async function getCategoriesListAsync(): Promise<CategoryItem[]> {
+  const deleted = getDeletedCategoryIds();
+
+  // Try Supabase first if available
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { data, error } = await sb.from('system_settings').select('site_name').eq('id', 'custom_categories').maybeSingle();
+      if (!error && data?.site_name) {
+        const parsed = JSON.parse(data.site_name);
+        if (Array.isArray(parsed)) {
+          const clean = parsed.filter((c: CategoryItem) => !deleted.has(c.id));
+          cachedCategories = clean;
+          return [...clean];
+        }
+      }
+    } catch (e: any) {
+      console.warn('Supabase getCategoriesListAsync notice:', e?.message);
+    }
+  }
+
+  return getCategoriesList();
+}
+
 export function saveCategoriesList(categories: CategoryItem[]) {
   const deleted = getDeletedCategoryIds();
   const cleanList = categories.filter((c) => !deleted.has(c.id));
@@ -115,6 +140,27 @@ export function saveCategoriesList(categories: CategoryItem[]) {
   } catch (err) {
     console.error('Error saving categories file:', err);
   }
+
+  // Backup to Supabase for 100% serverless persistence
+  try {
+    const sb = getSupabase();
+    if (sb) {
+      Promise.resolve(
+        sb.from('system_settings').upsert({
+          id: 'custom_categories',
+          site_name: JSON.stringify(cleanList),
+          admin_pin: 'CATEGORIES_BACKUP',
+          shamcash_address: 'META',
+          whatsapp_number: 'META',
+          telegram_username: 'META',
+        })
+      )
+        .then((res: any) => {
+          if (res?.error) console.warn('Supabase saveCategoriesList notice:', res.error.message);
+        })
+        .catch(() => {});
+    }
+  } catch {}
 }
 
 export function addCategoryItem(category: { id?: string; name: string; icon?: string; count?: string; image?: string }): CategoryItem {

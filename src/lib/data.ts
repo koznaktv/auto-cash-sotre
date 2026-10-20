@@ -29,6 +29,7 @@ export interface ServiceItem {
   inputPlaceholder?: string;
   inputLabel?: string;
   source?: 'legacy' | 'provider';
+  published?: boolean;
 }
 
 export const CATEGORIES_9 = [

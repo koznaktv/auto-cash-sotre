@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { SERVICES_DATA, ServiceItem } from './data';
+import { getSupabase } from './supabase';
 
 const IS_SERVERLESS = Boolean(
   process.env.VERCEL ||
@@ -96,6 +97,30 @@ export function getServicesList(): ServiceItem[] {
   }
 }
 
+export async function getServicesListAsync(): Promise<ServiceItem[]> {
+  const deleted = getDeletedServiceIds();
+
+  // Try Supabase first if in serverless or cache is empty
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { data, error } = await sb.from('system_settings').select('site_name').eq('id', 'custom_services').maybeSingle();
+      if (!error && data?.site_name) {
+        const parsed = JSON.parse(data.site_name);
+        if (Array.isArray(parsed)) {
+          const clean = parsed.filter((s: ServiceItem) => !deleted.has(s.id));
+          cachedServices = clean;
+          return [...clean];
+        }
+      }
+    } catch (e: any) {
+      console.warn('Supabase getServicesListAsync notice:', e?.message);
+    }
+  }
+
+  return getServicesList();
+}
+
 export function saveServicesList(services: ServiceItem[]) {
   const deleted = getDeletedServiceIds();
   const cleanList = services.filter((s) => !deleted.has(s.id));
@@ -112,6 +137,27 @@ export function saveServicesList(services: ServiceItem[]) {
   } catch (err) {
     console.error('Error saving services file:', err);
   }
+
+  // Backup to Supabase for 100% serverless persistence
+  try {
+    const sb = getSupabase();
+    if (sb) {
+      Promise.resolve(
+        sb.from('system_settings').upsert({
+          id: 'custom_services',
+          site_name: JSON.stringify(cleanList),
+          admin_pin: 'SERVICES_BACKUP',
+          shamcash_address: 'META',
+          whatsapp_number: 'META',
+          telegram_username: 'META',
+        })
+      )
+        .then((res: any) => {
+          if (res?.error) console.warn('Supabase saveServicesList notice:', res.error.message);
+        })
+        .catch(() => {});
+    }
+  } catch {}
 }
 
 export function addServiceItem(service: Omit<ServiceItem, 'id'> & { id?: string }): ServiceItem {

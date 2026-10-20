@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import {
   getServicesList,
+  getServicesListAsync,
   addServiceItem,
   updateServiceItem,
   deleteServiceItem,
@@ -12,7 +13,7 @@ import { verifyAdminToken } from '@/lib/adminAuth';
 
 export async function GET() {
   try {
-    const services = getServicesList();
+    const services = await getServicesListAsync();
     return NextResponse.json({ success: true, services });
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err?.message || 'مەھسۇلاتلارنى ئېلىش مەغلۇپ بولدى' }, { status: 500 });

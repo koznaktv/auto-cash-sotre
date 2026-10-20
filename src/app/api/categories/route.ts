@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getCategoriesList } from '@/lib/categoriesDb';
+import { getCategoriesListAsync } from '@/lib/categoriesDb';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const categories = getCategoriesList();
+    const categories = await getCategoriesListAsync();
     return NextResponse.json(
       { success: true, categories },
       {

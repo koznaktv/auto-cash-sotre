@@ -1,6 +1,6 @@
 {
   "settings": {
-    "catalogSource": "provider",
+    "catalogSource": "legacy",
     "globalMarkupPercent": 15,
     "fixedMarkupUsd": 0,
     "minProfitUsd": 0,
