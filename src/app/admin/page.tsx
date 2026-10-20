@@ -320,7 +320,7 @@ export default function AdminPage() {
     zoneIdPlaceholder: string;
     bioContent: string;
     published: boolean;
-    packages: Array<{ id: string; title: string; price: number; originalPrice?: number; duration?: string }>;
+    packages: Array<{ id: string; title: string; price: number; originalPrice?: number; costPrice?: number; duration?: string }>;
   }>({
     name: '',
     category: 'games',
@@ -335,8 +335,10 @@ export default function AdminPage() {
     zoneIdPlaceholder: 'مەسىلەن: 1234',
     bioContent: '',
     published: true,
-    packages: [{ id: 'p-1', title: 'ئاساسىي بولاق', price: 1.99, duration: 'دەرھال' }],
+    packages: [{ id: 'p-1', title: 'ئاساسىي بولاق', price: 1.99, costPrice: 1.65, originalPrice: 2.39, duration: 'دەرھال' }],
   });
+
+  const [serviceMarkupPercent, setServiceMarkupPercent] = useState<number>(20);
 
   // Sahl Cash Importer / Customizer Modal State (Whole-Service & All Packages)
   const [sahlCashModalOpen, setSahlCashModalOpen] = useState(false);
@@ -1170,15 +1172,41 @@ export default function AdminPage() {
 
   const handleOpenEditService = (srv: ServiceItem) => {
     setEditingService(srv);
+    let detectedMarkup = 20;
+
     const existingPkgs = srv.packages && srv.packages.length > 0
-      ? srv.packages.map((p, idx) => ({
-          id: p.id || `p-${idx + 1}`,
-          title: p.title || 'بولاق',
-          price: Number(p.price) || 0,
-          originalPrice: p.originalPrice ? Number(p.originalPrice) : undefined,
-          duration: p.duration || 'دەرھال',
-        }))
-      : [{ id: `p-${Date.now()}-1`, title: 'ئاساسىي بولاق', price: 1.99, duration: 'دەرھال' }];
+      ? srv.packages.map((p, idx) => {
+          const val1 = Number(p.price) || 0;
+          const val2 = p.originalPrice ? Number(p.originalPrice) : undefined;
+          const cost = (p as any).costPrice !== undefined
+            ? Number((p as any).costPrice)
+            : val2 !== undefined && val2 < val1
+            ? val2
+            : val2 !== undefined && val2 > val1
+            ? val1
+            : val1;
+          const sell = (p as any).costPrice !== undefined
+            ? val1
+            : val2 !== undefined && val2 > val1
+            ? val2
+            : val1;
+
+          if (cost > 0 && sell > cost && idx === 0) {
+            detectedMarkup = Math.round(((sell - cost) / cost) * 100);
+          }
+
+          return {
+            id: p.id || `p-${idx + 1}`,
+            title: p.title || 'بولاق',
+            costPrice: cost,
+            price: sell,
+            originalPrice: p.originalPrice ? Number(p.originalPrice) : Math.round(sell * 1.2 * 100) / 100,
+            duration: p.duration || 'دەرھال',
+          };
+        })
+      : [{ id: `p-${Date.now()}-1`, title: 'ئاساسىي بولاق', costPrice: 1.0, price: 1.20, originalPrice: 1.44, duration: 'دەرھال' }];
+
+    setServiceMarkupPercent(detectedMarkup > 0 ? detectedMarkup : 20);
 
     const detected = detectServiceInputs(srv.name, srv.category);
 
@@ -1203,18 +1231,69 @@ export default function AdminPage() {
   };
 
   const handleAddPackageRow = () => {
-    setServiceForm((prev) => ({
-      ...prev,
-      packages: [
-        ...prev.packages,
-        {
-          id: `pkg-${Date.now()}-${prev.packages.length + 1}`,
-          title: '',
-          price: 1.0,
-          duration: 'دەرھال',
-        },
-      ],
-    }));
+    setServiceForm((prev) => {
+      const base = 1.0;
+      const sell = Math.round(base * (1 + serviceMarkupPercent / 100) * 100) / 100;
+      return {
+        ...prev,
+        packages: [
+          ...prev.packages,
+          {
+            id: `pkg-${Date.now()}-${prev.packages.length + 1}`,
+            title: '',
+            costPrice: base,
+            price: sell,
+            originalPrice: Math.round(sell * 1.2 * 100) / 100,
+            duration: 'دەرھال',
+          },
+        ],
+      };
+    });
+  };
+
+  const handleBasePriceChange = (index: number, newBase: number) => {
+    setServiceForm((prev) => {
+      const next = [...prev.packages];
+      const base = Number(newBase) || 0;
+      const sell = Math.round(base * (1 + serviceMarkupPercent / 100) * 100) / 100;
+      next[index] = {
+        ...next[index],
+        costPrice: base,
+        price: Math.max(0.01, sell),
+        originalPrice: Math.round(sell * 1.2 * 100) / 100,
+      };
+      return { ...prev, packages: next };
+    });
+  };
+
+  const handleSellPriceChange = (index: number, newSell: number) => {
+    setServiceForm((prev) => {
+      const next = [...prev.packages];
+      const sell = Number(newSell) || 0;
+      next[index] = {
+        ...next[index],
+        price: sell,
+        originalPrice: Math.max(sell, Math.round(sell * 1.2 * 100) / 100),
+      };
+      return { ...prev, packages: next };
+    });
+  };
+
+  const handleApplyServiceBulkMarkup = (percent: number) => {
+    setServiceMarkupPercent(percent);
+    setServiceForm((prev) => {
+      const nextPkgs = prev.packages.map((pkg) => {
+        const base = Number(pkg.costPrice) || Number(pkg.price) || 1;
+        const sell = Math.round(base * (1 + percent / 100) * 100) / 100;
+        return {
+          ...pkg,
+          costPrice: base,
+          price: Math.max(0.01, sell),
+          originalPrice: Math.round(sell * 1.2 * 100) / 100,
+        };
+      });
+      return { ...prev, packages: nextPkgs };
+    });
   };
 
   const handleUpdatePackageRow = (index: number, field: string, val: any) => {
@@ -1251,13 +1330,22 @@ export default function AdminPage() {
       Authorization: `Bearer ${token}`,
     };
 
-    const cleanPackages = serviceForm.packages.map((pkg, idx) => ({
-      id: pkg.id || `${serviceForm.id || 'p'}-${idx + 1}`,
-      title: pkg.title.trim() || `بولاق ${idx + 1}`,
-      price: Number(pkg.price) || 1.0,
-      originalPrice: pkg.originalPrice ? Number(pkg.originalPrice) : undefined,
-      duration: pkg.duration?.trim() || 'دەرھال',
-    }));
+    const cleanPackages = serviceForm.packages.map((pkg, idx) => {
+      const sellPrice = Number(pkg.price) || Number(pkg.costPrice) || 1.0;
+      const baseCost = Number(pkg.costPrice) || (pkg.originalPrice && pkg.originalPrice < sellPrice ? Number(pkg.originalPrice) : sellPrice);
+      const origPrice = pkg.originalPrice && pkg.originalPrice > sellPrice
+        ? Number(pkg.originalPrice)
+        : Math.round(sellPrice * 1.2 * 100) / 100;
+
+      return {
+        id: pkg.id || `${serviceForm.id || 'p'}-${idx + 1}`,
+        title: pkg.title.trim() || `بولاق ${idx + 1}`,
+        price: sellPrice,
+        costPrice: baseCost,
+        originalPrice: origPrice,
+        duration: pkg.duration?.trim() || 'دەرھال',
+      };
+    });
 
     const payload: Partial<ServiceItem> = {
       name: serviceForm.name,
@@ -4825,7 +4913,7 @@ export default function AdminPage() {
               </div>
 
               {/* Multi-Package Management Section */}
-              <div className="pt-2 border-t border-slate-800 space-y-2.5">
+              <div className="pt-2 border-t border-slate-800 space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
                     <label className="block text-slate-200 font-bold">بولاقلار ۋە باھالار (Packages & Prices):</label>
@@ -4841,60 +4929,150 @@ export default function AdminPage() {
                   </button>
                 </div>
 
-                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                  {serviceForm.packages.map((pkg, pIdx) => (
-                    <div
-                      key={pkg.id || pIdx}
-                      className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center gap-2"
-                    >
-                      <div className="flex-1">
-                        <input
-                          type="text"
-                          required
-                          value={pkg.title}
-                          onChange={(e) => handleUpdatePackageRow(pIdx, 'title', e.target.value)}
-                          placeholder="مەسىلەن: 60 UC ياكى 1 ئايلىق..."
-                          className={`w-full px-2.5 py-1.5 rounded-lg text-xs ${themeClasses.input} focus:outline-none focus:border-amber-400`}
-                        />
-                      </div>
+                {/* Auto Percentage Markup Toolbar */}
+                <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-slate-900 border border-amber-500/30 space-y-2">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <span className="text-[11px] font-bold text-amber-300 flex items-center gap-1.5">
+                      <Zap className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                      <span>پىرسەنت بويىچە ئەسلى باھادىن ئاپتوماتىك باھا قوشۇش (% Markup):</span>
+                    </span>
+                    <span className="text-[10px] text-slate-400">
+                      بىر چېكىپلا بارلىق بولاقلارغا ئاپتوماتىك باھا قوشىدۇ
+                    </span>
+                  </div>
 
-                      <div className="flex items-center gap-2">
-                        <div className="relative w-24">
-                          <input
-                            type="number"
-                            step="0.01"
-                            min="0.01"
-                            required
-                            value={pkg.price}
-                            onChange={(e) => handleUpdatePackageRow(pIdx, 'price', Number(e.target.value))}
-                            placeholder="باھا $"
-                            className={`w-full px-2 py-1.5 rounded-lg text-xs font-mono font-bold text-amber-400 ${themeClasses.input} focus:outline-none focus:border-amber-400`}
-                          />
-                        </div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {[10, 15, 20, 25, 30, 40, 50].map((pct) => (
+                      <button
+                        key={pct}
+                        type="button"
+                        onClick={() => handleApplyServiceBulkMarkup(pct)}
+                        className={`px-2.5 py-1 rounded-xl text-xs font-bold border transition cursor-pointer ${
+                          serviceMarkupPercent === pct
+                            ? 'bg-amber-400 text-slate-950 border-amber-300 font-black shadow-md'
+                            : 'bg-slate-800/90 text-slate-200 border-slate-700 hover:bg-slate-700'
+                        }`}
+                      >
+                        +{pct}% {pct === 20 ? '(تەۋسىيە)' : ''}
+                      </button>
+                    ))}
 
-                        <div className="relative w-24">
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={pkg.originalPrice ?? ''}
-                            onChange={(e) => handleUpdatePackageRow(pIdx, 'originalPrice', e.target.value ? Number(e.target.value) : undefined)}
-                            placeholder="ئەسلى $"
-                            className={`w-full px-2 py-1.5 rounded-lg text-xs font-mono text-slate-400 ${themeClasses.input} focus:outline-none focus:border-amber-400`}
-                            title="ئەسلى باھا (ئەگەر ئېتىبار كۆرسەتمەكچى بولسىڭىز)"
-                          />
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => handleRemovePackageRow(pIdx)}
-                          className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-950/60 transition cursor-pointer"
-                          title="بۇ بولاقنى ئۆچۈرۈش"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                    <div className="flex items-center gap-1 bg-slate-900 px-2.5 py-1 rounded-xl border border-slate-700">
+                      <span className="text-[11px] text-slate-400 font-bold">ئىختىيارى:</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="500"
+                        value={serviceMarkupPercent}
+                        onChange={(e) => {
+                          const val = Number(e.target.value) || 0;
+                          setServiceMarkupPercent(val);
+                          handleApplyServiceBulkMarkup(val);
+                        }}
+                        className="w-12 bg-transparent text-amber-400 font-bold font-mono text-xs focus:outline-none text-center"
+                        dir="ltr"
+                      />
+                      <span className="text-[10px] text-amber-400 font-bold">%</span>
                     </div>
-                  ))}
+
+                    <button
+                      type="button"
+                      onClick={() => handleApplyServiceBulkMarkup(serviceMarkupPercent)}
+                      className="px-3 py-1 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition cursor-pointer shadow-sm flex items-center gap-1"
+                      title="ھازىرقى پىرسەنتنى بارلىق بولاقلارغا يۈرگۈزۈش"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                      <span>ھەممىسىگە قوشۇش</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Column Headers */}
+                <div className="hidden sm:flex items-center gap-2 px-3 text-[10px] font-bold text-slate-400">
+                  <div className="flex-1">بولاق نامى (Package Title)</div>
+                  <div className="w-24 text-center">ئەسلى باھا $ (Base)</div>
+                  <div className="w-24 text-center text-amber-400 font-black">سېتىش باھاسى $ (Sell)</div>
+                  <div className="w-14 text-center text-emerald-400">پايدا %</div>
+                  <div className="w-7 text-center"></div>
+                </div>
+
+                <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                  {serviceForm.packages.map((pkg, pIdx) => {
+                    const baseCost = Number(pkg.costPrice) || Number(pkg.price) || 0;
+                    const sellPrice = Number(pkg.price) || 0;
+                    const diffPct = baseCost > 0 ? Math.round(((sellPrice - baseCost) / baseCost) * 100) : 0;
+
+                    return (
+                      <div
+                        key={pkg.id || pIdx}
+                        className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center gap-2"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <input
+                            type="text"
+                            required
+                            value={pkg.title}
+                            onChange={(e) => handleUpdatePackageRow(pIdx, 'title', e.target.value)}
+                            placeholder="مەسىلەن: 60 UC ياكى 1 ئايلىق..."
+                            className={`w-full px-2.5 py-1.5 rounded-lg text-xs ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          {/* Base / Cost Price Input */}
+                          <div className="relative w-24" title="ئەسلى تەننەرخ ياكى بازا باھا">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={pkg.costPrice ?? pkg.price ?? ''}
+                              onChange={(e) => handleBasePriceChange(pIdx, Number(e.target.value) || 0)}
+                              placeholder="ئەسلى $"
+                              className={`w-full px-2 py-1.5 rounded-lg text-xs font-mono text-slate-300 ${themeClasses.input} focus:outline-none focus:border-cyan-400 text-center`}
+                            />
+                          </div>
+
+                          {/* Final Selling Price Input (Marked up) */}
+                          <div className="relative w-24" title="دۇكاندا خېرىدارلار كۆرىدىغان ۋە تۆلەيدىغان ئاخىرقى سېتىلىش باھاسى">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0.01"
+                              required
+                              value={pkg.price}
+                              onChange={(e) => handleSellPriceChange(pIdx, Number(e.target.value) || 0)}
+                              placeholder="سېتىش $"
+                              className={`w-full px-2 py-1.5 rounded-lg text-xs font-mono font-bold text-amber-400 ${themeClasses.input} focus:outline-none focus:border-amber-400 text-center`}
+                            />
+                          </div>
+
+                          {/* Markup Indicator Tag */}
+                          <div className="w-14 text-center">
+                            <span
+                              className={`inline-block px-1.5 py-0.5 rounded-md font-mono text-[10px] font-bold ${
+                                diffPct > 0
+                                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                  : diffPct < 0
+                                  ? 'bg-rose-500/20 text-rose-300'
+                                  : 'bg-slate-800 text-slate-400'
+                              }`}
+                            >
+                              {diffPct >= 0 ? `+${diffPct}%` : `${diffPct}%`}
+                            </span>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePackageRow(pIdx)}
+                            className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-950/60 transition cursor-pointer"
+                            title="بۇ بولاقنى ئۆچۈرۈش"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
