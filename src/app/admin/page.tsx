@@ -91,7 +91,7 @@ export interface SahlPackageRow {
   selected: boolean;
 }
 
-export interface SahlGroupedService {
+interface SahlGroupedService {
   key: string;
   name: string;
   uyghurName: string;
@@ -108,6 +108,40 @@ export interface SahlGroupedService {
   maxCost: number;
   packages: SahlPackageRow[];
 }
+
+const ANIMATED_BADGE_PRESETS = [
+  { icon: '⚡', text: 'ئاپتوماتىك', label: '⚡ ئاپتوماتىك' },
+  { icon: '🔥', text: 'ئەڭ قىزىق', label: '🔥 ئەڭ قىزىق' },
+  { icon: '👑', text: 'VIP مۇلازىمەت', label: '👑 VIP مۇلازىمەت' },
+  { icon: '⭐', text: 'تەۋسىيە', label: '⭐ تەۋسىيە' },
+  { icon: '💎', text: 'ئالىي دەرىجىلىك', label: '💎 ئالىي دەرىجىلىك' },
+  { icon: '🚀', text: 'تېز يەتكۈزۈش', label: '🚀 تېز يەتكۈزۈش' },
+  { icon: '🎉', text: 'ئېتىبار باھا', label: '🎉 ئېتىبار باھا' },
+  { icon: '✨', text: 'يېڭى چىققان', label: '✨ يېڭى چىققان' },
+  { icon: '🔒', text: '100% كاپالەتلىك', label: '🔒 100% كاپالەتلىك' },
+  { icon: '🏆', text: 'ئەڭ كۆپ سېتىلغان', label: '🏆 ئەڭ كۆپ سېتىلغان' },
+];
+
+const renderMovingBadge = (badge: string) => {
+  if (!badge) return null;
+  const match = badge.match(/^([\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF]|\u2B50|\u26A1|\uD83D[\uDE00-\uDFFF]|\uD83C[\uDF00-\uDFFF]|\uD83E[\uDD00-\uDFFF]|⚡|🔥|👑|⭐|💎|🚀|🎉|✨|🔒|🏆|💫|🎮|🤖)/);
+  if (match) {
+    const icon = match[0];
+    const rest = badge.slice(icon.length).trim();
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30 shrink-0 shadow-sm">
+        <span className="animate-moving-icon">{icon}</span>
+        <span>{rest}</span>
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30 shrink-0 shadow-sm">
+      <span className="animate-moving-icon">⚡</span>
+      <span>{badge}</span>
+    </span>
+  );
+};
 
 interface SystemSettingsState {
   adminPin: string;
@@ -3221,11 +3255,7 @@ export default function AdminPage() {
                             </div>
                           </div>
 
-                          {srv.badge && (
-                            <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30 shrink-0">
-                              {srv.badge}
-                            </span>
-                          )}
+                          {srv.badge && renderMovingBadge(srv.badge)}
                         </div>
 
                         <p className={`text-xs ${themeClasses.subtext} line-clamp-2 mb-3`}>
@@ -4508,14 +4538,61 @@ export default function AdminPage() {
                 </div>
 
                 <div>
-                  <label className="block text-slate-300 font-bold mb-1">بەلگە خېتى (Badge):</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-slate-300 font-bold">بەلگە خېتى (Badge):</label>
+                    {serviceForm.badge && (
+                      <span className="text-[10px] text-amber-300 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/30 flex items-center gap-1 font-bold">
+                        <span className="animate-moving-icon">{serviceForm.badge.match(/^[^\w\s\u0600-\u06FF]/)?.[0] || '⚡'}</span>
+                        <span>{serviceForm.badge}</span>
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="text"
                     value={serviceForm.badge}
                     onChange={(e) => setServiceForm({ ...serviceForm, badge: e.target.value })}
-                    placeholder="مەسىلەن: ئەڭ قىزىق..."
-                    className={`w-full px-3.5 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                    placeholder="مەسىلەن: ⚡ ئاپتوماتىك ياكى 🔥 ئەڭ قىزىق..."
+                    className={`w-full px-3.5 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400 font-bold`}
                   />
+                </div>
+              </div>
+
+              {/* Animated Moving Badges Picker for Service */}
+              <div className="p-3 rounded-2xl bg-black/40 border border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-amber-300 flex items-center gap-1">
+                    <span className="animate-moving-icon">✨</span>
+                    <span>ھەرىكەتلىك بەلگىلەر (بىر چېكىپلا تاللاش):</span>
+                  </span>
+                  {serviceForm.badge && (
+                    <button
+                      type="button"
+                      onClick={() => setServiceForm({ ...serviceForm, badge: '' })}
+                      className="text-[10px] text-slate-400 hover:text-rose-400 cursor-pointer"
+                    >
+                      بەلگىنى ئۆچۈرۈش
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {ANIMATED_BADGE_PRESETS.map((item) => {
+                    const isSelected = serviceForm.badge === item.label;
+                    return (
+                      <button
+                        key={item.label}
+                        type="button"
+                        onClick={() => setServiceForm({ ...serviceForm, badge: isSelected ? '' : item.label })}
+                        className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition cursor-pointer flex items-center gap-1.5 border shadow-sm ${
+                          isSelected
+                            ? 'bg-amber-400 text-slate-950 border-amber-300 font-black shadow-amber-400/20 scale-105'
+                            : 'bg-slate-900/90 hover:bg-slate-800 text-slate-200 border-slate-700/80 hover:border-slate-600'
+                        }`}
+                      >
+                        <span className="animate-moving-icon">{item.icon}</span>
+                        <span>{item.text}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -5020,14 +5097,61 @@ export default function AdminPage() {
 
                     {/* Badge */}
                     <div>
-                      <label className="block text-slate-300 font-bold mb-1">بەلگە (Badge):</label>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-slate-300 font-bold">بەلگە (Badge):</label>
+                        {sahlForm.badge && (
+                          <span className="text-[10px] text-amber-300 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/30 flex items-center gap-1 font-bold">
+                            <span className="animate-moving-icon">{sahlForm.badge.match(/^[^\w\s\u0600-\u06FF]/)?.[0] || '⚡'}</span>
+                            <span>{sahlForm.badge}</span>
+                          </span>
+                        )}
+                      </div>
                       <input
                         type="text"
                         value={sahlForm.badge}
                         onChange={(e) => setSahlForm({ ...sahlForm, badge: e.target.value })}
                         placeholder="مەسىلەن: ⚡ ئاپتوماتىك ياكى ئەڭ ياخشى سېتىلغان"
-                        className={`w-full px-3.5 py-2.5 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                        className={`w-full px-3.5 py-2.5 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400 font-bold`}
                       />
+                    </div>
+                  </div>
+
+                  {/* Animated Moving Badges Picker for Sahl Modal */}
+                  <div className="p-3 rounded-2xl bg-black/40 border border-slate-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-amber-300 flex items-center gap-1">
+                        <span className="animate-moving-icon">✨</span>
+                        <span>ھەرىكەتلىك بەلگىلەر (بىر چېكىپلا تاللاش):</span>
+                      </span>
+                      {sahlForm.badge && (
+                        <button
+                          type="button"
+                          onClick={() => setSahlForm({ ...sahlForm, badge: '' })}
+                          className="text-[10px] text-slate-400 hover:text-rose-400 cursor-pointer"
+                        >
+                          بەلگىنى ئۆچۈرۈش
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {ANIMATED_BADGE_PRESETS.map((item) => {
+                        const isSelected = sahlForm.badge === item.label;
+                        return (
+                          <button
+                            key={item.label}
+                            type="button"
+                            onClick={() => setSahlForm({ ...sahlForm, badge: isSelected ? '' : item.label })}
+                            className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition cursor-pointer flex items-center gap-1.5 border shadow-sm ${
+                              isSelected
+                                ? 'bg-amber-400 text-slate-950 border-amber-300 font-black shadow-amber-400/20 scale-105'
+                                : 'bg-slate-900/90 hover:bg-slate-800 text-slate-200 border-slate-700/80 hover:border-slate-600'
+                            }`}
+                          >
+                            <span className="animate-moving-icon">{item.icon}</span>
+                            <span>{item.text}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 

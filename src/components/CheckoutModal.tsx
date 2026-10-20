@@ -296,8 +296,18 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
               <DynamicIcon name={service.icon} className="w-6 h-6" />
             )}
           </div>
-          <div>
-            <h3 className="text-lg font-bold text-white">{translatePackageTitle(service.name)}</h3>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-lg font-bold text-white">{translatePackageTitle(service.name)}</h3>
+              {service.badge && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-black bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 px-2 py-0.5 rounded-full shadow-md font-alkatip">
+                  <span className="animate-moving-icon">
+                    {service.badge.match(/^([\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF]|\u2B50|\u26A1|\uD83D[\uDE00-\uDFFF]|\uD83C[\uDF00-\uDFFF]|\uD83E[\uDD00-\uDFFF]|⚡|🔥|👑|⭐|💎|🚀|🎉|✨|🔒|🏆|💫|🎮|🤖)/)?.[0] || '⚡'}
+                  </span>
+                  <span>{service.badge.replace(/^([\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF]|\u2B50|\u26A1|\uD83D[\uDE00-\uDFFF]|\uD83C[\uDF00-\uDFFF]|\uD83E[\uDD00-\uDFFF]|⚡|🔥|👑|⭐|💎|🚀|🎉|✨|🔒|🏆|💫|🎮|🤖)\s*/, '')}</span>
+                </span>
+              )}
+            </div>
             <p className="text-xs text-slate-400">
               {service.description && service.description !== service.name
                 ? translatePackageTitle(service.description)

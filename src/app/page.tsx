@@ -709,8 +709,11 @@ export default function HomePage() {
                         }}
                       />
                       {service.badge && (
-                        <span className={`absolute top-1.5 ${isRTL ? 'right-1.5' : 'left-1.5'} text-[8px] sm:text-[9px] font-black bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded-md shadow font-alkatip`}>
-                          {translateBadge(service.badge)}
+                        <span className={`absolute top-1.5 ${isRTL ? 'right-1.5' : 'left-1.5'} text-[8px] sm:text-[9px] font-black bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 px-1.5 py-0.5 rounded-md shadow-lg font-alkatip flex items-center gap-1 z-10 border border-amber-300/60`}>
+                          <span className="animate-moving-icon">
+                            {service.badge.match(/^([\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF]|\u2B50|\u26A1|\uD83D[\uDE00-\uDFFF]|\uD83C[\uDF00-\uDFFF]|\uD83E[\uDD00-\uDFFF]|⚡|🔥|👑|⭐|💎|🚀|🎉|✨|🔒|🏆|💫|🎮|🤖)/)?.[0] || '⚡'}
+                          </span>
+                          <span>{translateBadge(service.badge.replace(/^([\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF]|\u2B50|\u26A1|\uD83D[\uDE00-\uDFFF]|\uD83C[\uDF00-\uDFFF]|\uD83E[\uDD00-\uDFFF]|⚡|🔥|👑|⭐|💎|🚀|🎉|✨|🔒|🏆|💫|🎮|🤖)\s*/, ''))}</span>
                         </span>
                       )}
                     </div>
