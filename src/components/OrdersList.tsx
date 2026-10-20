@@ -11,7 +11,7 @@ interface OrdersListProps {
 }
 
 export default function OrdersList({ orders }: OrdersListProps) {
-  const { lang, t, isRTL } = useLanguage();
+  const { lang, t, isRTL, translatePackageTitle } = useLanguage();
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -73,9 +73,9 @@ export default function OrdersList({ orders }: OrdersListProps) {
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <h4 className="font-bold text-white text-base">{order.serviceName}</h4>
+                <h4 className="font-bold text-white text-base">{translatePackageTitle(order.serviceName)}</h4>
                 <p className="text-xs text-slate-400">
-                  {isRTL ? 'تۈر:' : 'Package:'} <span className="text-slate-200">{order.packageTitle}</span> | {isRTL ? 'ئابۇنىت:' : 'Account:'}{' '}
+                  {isRTL ? 'تۈر:' : 'Package:'} <span className="text-slate-200">{translatePackageTitle(order.packageTitle)}</span> | {isRTL ? 'ئابۇنىت:' : 'Account:'}{' '}
                   <span className="text-cyan-400 font-mono" dir="ltr">{order.targetAccount}</span>
                 </p>
               </div>

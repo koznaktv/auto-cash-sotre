@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { smartTranslateTitle, smartTranslateFieldLabel } from '@/lib/catalog/smartTranslate';
 
 export type Language = 'ug' | 'ar' | 'en';
 
@@ -525,31 +526,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   const translatePackageTitle = (title: string): string => {
-    if (lang === 'ug') return title;
-
-    if (lang === 'ar') {
-      if (title.includes('ئاساسىي')) return title.replace('ئاساسىي بولاق', 'الباقة الأساسية');
-      if (title.includes('ئوتتۇرا')) return title.replace('ئوتتۇرا بولاق', 'الباقة المتوسطة');
-      if (title.includes('VIP')) return title.replace('VIP بولاق', 'باقة VIP');
-      if (title.includes('Ultra')) return title.replace('Ultra بولاق', 'باقة ألترا');
-      if (title.includes('بولاق')) return title.replace('بولاق', 'باقة');
-      if (title.includes('ئايلىق')) return title.replace('ئايلىق', 'شهري');
-      if (title.includes('يىللىق')) return title.replace('يىللىق', 'سنوي');
-      return title;
-    }
-
-    if (lang === 'en') {
-      if (title.includes('ئاساسىي')) return title.replace('ئاساسىي بولاق', 'Basic Pack');
-      if (title.includes('ئوتتۇرا')) return title.replace('ئوتتۇرا بولاق', 'Medium Pack');
-      if (title.includes('VIP')) return title.replace('VIP بولاق', 'VIP Pack');
-      if (title.includes('Ultra')) return title.replace('Ultra بولاق', 'Ultra Pack');
-      if (title.includes('بولاق')) return title.replace('بولاق', 'Pack');
-      if (title.includes('ئايلىق')) return title.replace('ئايلىق', 'Monthly');
-      if (title.includes('يىللىق')) return title.replace('يىللىق', 'Yearly');
-      return title;
-    }
-
-    return title;
+    return smartTranslateTitle(title, lang);
   };
 
   const translateBadge = (badge?: string): string | undefined => {
@@ -572,18 +549,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const translateInputLabel = (label?: string): string | undefined => {
     if (!label) return undefined;
-    if (lang === 'ug') return label;
-    if (lang === 'ar') {
-      if (label.includes('ئويۇنچى ID')) return 'معرف اللاعب (Player ID)';
-      if (label.includes('ھېسابات')) return 'معرف الحساب أو البريد';
-      return label;
-    }
-    if (lang === 'en') {
-      if (label.includes('ئويۇنچى ID')) return 'Player ID';
-      if (label.includes('ھېسابات')) return 'Account ID / Email';
-      return label;
-    }
-    return label;
+    return smartTranslateFieldLabel(label, lang);
   };
 
   const translateInputPlaceholder = (placeholder?: string): string | undefined => {

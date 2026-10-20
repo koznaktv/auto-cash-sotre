@@ -324,7 +324,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                         >
                           {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />}
                         </div>
-                        <span className="font-medium">{isProvider ? pkg.title : translatePackageTitle(pkg.title)}</span>
+                        <span className="font-medium">{translatePackageTitle(pkg.title)}</span>
                         {unavailable ? (
                           <span className="text-[11px] bg-slate-800 px-2 py-0.5 rounded text-slate-400">يوق</span>
                         ) : (
@@ -387,7 +387,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
               (selectedPkg?.fields || []).map((field) => (
                 <div key={field.key}>
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    {field.label}
+                    {translateInputLabel(field.label) || field.label}
                     {field.required && <span className="text-rose-400"> *</span>}
                   </label>
                   {field.type === 'select' && field.options ? (

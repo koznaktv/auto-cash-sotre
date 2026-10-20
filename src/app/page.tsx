@@ -40,6 +40,7 @@ export default function HomePage() {
     getCategoryName,
     getCategoryCount,
     translateBadge,
+    translatePackageTitle,
   } = useLanguage();
 
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
@@ -691,7 +692,7 @@ export default function HomePage() {
                     </div>
 
                     <h4 className="font-alkatip text-xs sm:text-sm font-bold text-white group-hover:text-amber-300 transition line-clamp-1 mb-1.5 leading-snug">
-                      {service.name}
+                      {translatePackageTitle(service.name)}
                     </h4>
 
                     {/* Starting price */}

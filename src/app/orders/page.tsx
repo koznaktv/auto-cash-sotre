@@ -22,7 +22,7 @@ import { getCachedBalance, getCachedUser, storeLocalAuth, ClientUser } from '@/l
 import { formatSmartPrice } from '@/lib/formatMoney';
 
 export default function OrdersPage() {
-  const { lang, t, isRTL } = useLanguage();
+  const { lang, t, isRTL, translatePackageTitle } = useLanguage();
   const [orders, setOrders] = useState<Order[]>([]);
   const [balance, setBalance] = useState<number>(() => {
     if (typeof window !== 'undefined') {
@@ -380,11 +380,11 @@ export default function OrdersPage() {
                   <div className="flex items-center justify-between pt-1">
                     <div>
                       <h3 className="font-bold text-white text-sm">
-                        {order.serviceName}
+                        {translatePackageTitle(order.serviceName)}
                       </h3>
                       <div className="text-[11px] text-slate-400 mt-0.5">
                         <span>{isRTL ? 'بولاق:' : 'Package:'} </span>
-                        <span className="text-amber-200">{order.packageTitle}</span>
+                        <span className="text-amber-200">{translatePackageTitle(order.packageTitle)}</span>
                         <span className="mx-1.5">•</span>
                         <span>{isRTL ? 'ئابۇنىت:' : 'Account:'} </span>
                         <span className="text-cyan-300 font-mono" dir="ltr">{order.targetAccount}</span>
