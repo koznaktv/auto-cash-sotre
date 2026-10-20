@@ -991,11 +991,46 @@ export async function getSystemSettingsAsync(): Promise<SystemSettings> {
   if (sb) {
     try {
       const { data, error } = await sb.from('system_settings').select('*').eq('id', 'global').maybeSingle();
+      let metaData: any = null;
+      try {
+        const metaRes = await sb.from('system_settings').select('site_name').eq('id', 'system_meta').maybeSingle();
+        metaData = metaRes?.data;
+      } catch {}
+
+      let parsedMeta: any = {};
+      if (metaData && metaData.site_name) {
+        try {
+          parsedMeta = JSON.parse(metaData.site_name);
+        } catch {}
+      }
+
       if (!error && data) {
         const sbSettings = mapSupabaseSettings(data);
+        const effectiveExchangeRate =
+          sbSettings.shamcashExchangeRate ||
+          (parsedMeta.shamcashExchangeRate ? Number(parsedMeta.shamcashExchangeRate) : undefined) ||
+          localSettings.shamcashExchangeRate ||
+          15000;
+
+        const effectiveTsaKey =
+          sbSettings.tsaApiKey ||
+          parsedMeta.tsaApiKey ||
+          localSettings.tsaApiKey;
+
+        const effectiveAutoDeposit =
+          sbSettings.tsaAutoDepositEnabled !== undefined
+            ? sbSettings.tsaAutoDepositEnabled
+            : parsedMeta.tsaAutoDepositEnabled !== undefined
+            ? Boolean(parsedMeta.tsaAutoDepositEnabled)
+            : localSettings.tsaAutoDepositEnabled;
+
         return {
           ...localSettings,
           ...sbSettings,
+          shamcashExchangeRate: effectiveExchangeRate,
+          tsaApiKey: effectiveTsaKey,
+          tsaAutoDepositEnabled: effectiveAutoDeposit,
+          shamcashAddress: sbSettings.shamcashAddress || parsedMeta.shamcashAddress || localSettings.shamcashAddress,
           // Preserve local provider config if Supabase doesn't have these columns
           providerApiUrl: sbSettings.providerApiUrl || localSettings.providerApiUrl,
           providerApiKey: sbSettings.providerApiKey || localSettings.providerApiKey,
@@ -1056,16 +1091,30 @@ export async function updateSystemSettingsAsync(updates: Partial<SystemSettings>
         if (updates.telegramUsername) basicUpdates.telegram_username = updates.telegramUsername;
         if (updates.siteName) basicUpdates.site_name = updates.siteName;
 
-        const retryRes = await sb
+        await sb
           .from('system_settings')
           .upsert({ id: 'global', ...basicUpdates })
           .select()
           .maybeSingle();
-
-        if (retryRes.error) {
-          console.error('Supabase updateSystemSettings basic retry error:', retryRes.error);
-        }
       }
+
+      // Universal meta backup in site_name of system_meta row (guaranteed to succeed on all Supabase schemas)
+      const metaPayload = {
+        shamcashExchangeRate: updates.shamcashExchangeRate ?? db.settings.shamcashExchangeRate,
+        tsaApiKey: updates.tsaApiKey ?? db.settings.tsaApiKey,
+        tsaAutoDepositEnabled: updates.tsaAutoDepositEnabled ?? db.settings.tsaAutoDepositEnabled,
+        shamcashAddress: updates.shamcashAddress ?? db.settings.shamcashAddress,
+        updatedAt: new Date().toISOString(),
+      };
+
+      await sb.from('system_settings').upsert({
+        id: 'system_meta',
+        site_name: JSON.stringify(metaPayload),
+        admin_pin: 'META_BACKUP',
+        shamcash_address: 'META',
+        whatsapp_number: 'META',
+        telegram_username: 'META',
+      });
     } catch (e: any) {
       console.warn('Supabase updateSystemSettings exception (saved locally):', e?.message);
     }

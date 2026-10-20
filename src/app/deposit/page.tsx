@@ -91,7 +91,7 @@ export default function DepositPage() {
 
   const fetchDepositConfig = async () => {
     try {
-      const res = await fetch('/api/deposits/config');
+      const res = await fetch(`/api/deposits/config?t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       if (data.success) {
         if (data.shamcashAddress) setShamAddress(data.shamcashAddress);
