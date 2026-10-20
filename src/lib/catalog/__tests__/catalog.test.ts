@@ -148,12 +148,12 @@ describe('buildProviderCatalog', () => {
     const catalog = buildProviderCatalog({
       ...base,
       categories: [
-        { id: 1, parentId: null, name: 'Free Fire', image: 'https://api.sahl-cash.com/' },
-        { id: 2, parentId: 1, name: 'PUBG Mobile', image: '' },
+        { id: 1, parentId: null, name: 'Free Fire', image: 'https://api.sahl-cash.com/', rootId: null, depth: 0 } as any,
+        { id: 2, parentId: 1, name: 'PUBG Mobile', image: '', rootId: 1, depth: 1 } as any,
       ],
       products: [
-        { id: 10, categoryId: 1, name: '100 Diamonds', costPrice: 1, currency: 'USD', available: true, productType: 'fixed' },
-        { id: 11, categoryId: 2, name: '60 UC', costPrice: 0.99, currency: 'USD', available: true, productType: 'fixed' },
+        { id: 10, categoryId: 1, name: '100 Diamonds', costPrice: 1, currency: 'USD', available: true, productType: 'fixed' } as any,
+        { id: 11, categoryId: 2, name: '60 UC', costPrice: 0.99, currency: 'USD', available: true, productType: 'fixed' } as any,
       ],
       overrides: [],
       settings: DEFAULT_PROVIDER_SETTINGS,

@@ -172,6 +172,9 @@ export function parseProviderError(data: unknown, httpStatus: number): ProviderE
   const message = findErrorMessage(data) || (httpStatus ? `HTTP ${httpStatus}` : 'Provider error');
 
   if (code !== null && CODE_KINDS[code]) return { kind: CODE_KINDS[code], code, message };
+  if (code === 123 || /ip\s*(not\s*allowed|address|blocked|invalid|error)/i.test(message)) {
+    return { kind: 'ip', code: code ?? 123, message: message || 'IP not allowed' };
+  }
   // "Unknown error" codes: the order may or may not exist, so never treat them as a refusal
   if (code === 114 || code === 500) return { kind: 'unknown', code, message };
   if (/balance|رصيد|insufficient/i.test(message)) return { kind: 'insufficient_balance', code: code ?? undefined, message };

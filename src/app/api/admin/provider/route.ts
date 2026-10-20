@@ -9,7 +9,33 @@ import { saveStoredProviderConfig } from '@/lib/provider/providerConfigStore';
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
 
-/** ?action=balance (default) | ping | products | calls[&orderId=] */
+async function fetchServerPublicIp(): Promise<string | null> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 3500);
+    const res = await fetch('https://api.ipify.org?format=json', { signal: controller.signal, cache: 'no-store' });
+    clearTimeout(timer);
+    if (res.ok) {
+      const json = await res.json().catch(() => null);
+      if (json?.ip) return String(json.ip).trim();
+    }
+  } catch {}
+
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 3000);
+    const res = await fetch('https://icanhazip.com', { signal: controller.signal, cache: 'no-store' });
+    clearTimeout(timer);
+    if (res.ok) {
+      const text = await res.text().catch(() => '');
+      if (text) return text.trim();
+    }
+  } catch {}
+
+  return null;
+}
+
+/** ?action=balance (default) | ping | products | calls[&orderId=] | ip */
 export async function GET(req: Request) {
   try {
     if (!verifyAdminToken(req)) {
@@ -21,6 +47,11 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const action = searchParams.get('action') || 'balance';
+
+    if (action === 'ip') {
+      const ip = await fetchServerPublicIp();
+      return NextResponse.json({ success: true, ip: ip || 'ئېنىقلانمىدى' });
+    }
 
     if (action === 'ping') {
       const ping = await syria4GameProvider.ping();
@@ -38,21 +69,51 @@ export async function GET(req: Request) {
     }
 
     // Default: wholesale balance & connection status + current provider config
-    const resolvedConfig = await syria4GameProvider.getResolvedConfig();
-    const profile = await syria4GameProvider.getProfile();
+    const [resolvedConfig, profile, serverPublicIp, catalogSettings] = await Promise.all([
+      syria4GameProvider.getResolvedConfig(),
+      syria4GameProvider.getProfile(),
+      fetchServerPublicIp(),
+      getProviderSettings().catch(() => null),
+    ]);
+
     if (profile.success && profile.balance !== null) {
       await updateProviderSettings({ lastBalance: profile.balance, lastBalanceAt: new Date().toISOString() }).catch(() => {});
     }
-    const catalogSettings = await getProviderSettings().catch(() => null);
+
+    const isIpBlocked = Boolean(
+      profile.error &&
+      (profile.error.kind === 'ip' ||
+        profile.error.code === 123 ||
+        /ip/i.test(profile.error.message || ''))
+    );
+
+    let formattedError = profile.error
+      ? `${profile.error.code ? `[${profile.error.code}] ` : ''}${profile.error.message}`
+      : undefined;
+
+    if (isIpBlocked) {
+      formattedError = `[123] IP ئادرېسى چەكلەندى (IP not allowed). سىزنىڭ نۆۋەتتىكى ئاممىۋى IP ئادرېسىڭىز: ${serverPublicIp || 'ئېنىقلانمىدى'}`;
+    }
+
+    const effectiveBalance: number | undefined =
+      profile.balance !== null && profile.balance !== undefined
+        ? profile.balance
+        : catalogSettings?.lastBalance !== undefined && catalogSettings.lastBalance !== null
+        ? catalogSettings.lastBalance
+        : undefined;
 
     return NextResponse.json({
       success: profile.success,
       isConfigured: await syria4GameProvider.hasLiveConfig(),
-      balance: profile.balance ?? undefined,
+      balance: effectiveBalance,
+      isLiveBalance: profile.success,
+      lastBalanceAt: catalogSettings?.lastBalanceAt,
       currency: profile.currency,
       userName: profile.userName,
-      errorMessage: profile.error ? `${profile.error.code ? `[${profile.error.code}] ` : ''}${profile.error.message}` : undefined,
-      lowBalance: Boolean(catalogSettings && profile.balance !== null && profile.balance < catalogSettings.lowBalanceThresholdUsd),
+      serverPublicIp: serverPublicIp || 'ئېنىقلانمىدى',
+      isIpBlocked,
+      errorMessage: formattedError,
+      lowBalance: Boolean(catalogSettings && effectiveBalance !== undefined && effectiveBalance < catalogSettings.lowBalanceThresholdUsd),
       config: {
         providerApiUrl: resolvedConfig.baseUrl,
         providerApiKey: resolvedConfig.apiToken ? `${resolvedConfig.apiToken.slice(0, 4)}...${resolvedConfig.apiToken.slice(-4)}` : '',
@@ -96,20 +157,39 @@ export async function POST(req: Request) {
     // 2. Also update database settings
     await updateSystemSettingsAsync(updates);
 
-    // 2. Perform live check with the newly saved configuration
-    const profile = await syria4GameProvider.getProfile();
+    // 3. Perform live check with the newly saved configuration
+    const [profile, serverPublicIp] = await Promise.all([
+      syria4GameProvider.getProfile(),
+      fetchServerPublicIp(),
+    ]);
+
     if (profile.success && profile.balance !== null) {
       await updateProviderSettings({ lastBalance: profile.balance, lastBalanceAt: new Date().toISOString() }).catch(() => {});
     }
 
+    const isIpBlocked = Boolean(
+      profile.error &&
+      (profile.error.kind === 'ip' ||
+        profile.error.code === 123 ||
+        /ip/i.test(profile.error.message || ''))
+    );
+
+    let feedbackMsg = profile.success
+      ? 'تەمىنلىگۈچى API مۇۋەپپەقىيەتلىك ئۇلاندى ھەم قالدۇق پۇل تەكشۈرۈلدى!'
+      : `تەڭشەك ساقلاندى، لېكىن تەمىنلىگۈچى قايتۇرغان جاۋاب: [${profile.error?.code || 'خاتالىق'}] ${profile.error?.message || 'ئۇلىنىش مەغلۇپ بولدى'}`;
+
+    if (isIpBlocked) {
+      feedbackMsg = `تەڭشەك ساقلاندى، لېكىن Sahl Cash IP ئادرېسىڭىزنى توسۇۋالدى [123: IP not allowed]. نۆۋەتتىكى مۇلازىمېتىر ئاممىۋى IP ئادرېسىڭىز: ${serverPublicIp || 'ئېنىقلانمىدى'}`;
+    }
+
     return NextResponse.json({
       success: profile.success,
-      message: profile.success
-        ? 'تەمىنلىگۈچى API مۇۋەپپەقىيەتلىك ئۇلاندى ھەم قالدۇق پۇل تەكشۈرۈلدى!'
-        : `تەڭشەك ساقلاندى، لېكىن تەمىنلىگۈچى قايتۇرغان جاۋاب: [${profile.error?.code || 'خاتالىق'}] ${profile.error?.message || 'ئۇلىنىش مەغلۇپ بولدى'}`,
+      message: feedbackMsg,
       balance: profile.balance,
       currency: profile.currency,
       userName: profile.userName,
+      serverPublicIp: serverPublicIp || 'ئېنىقلانمىدى',
+      isIpBlocked,
       errorMessage: profile.error?.message,
       errorCode: profile.error?.code,
       raw: profile.raw,

@@ -50,7 +50,9 @@ import {
   Sparkles,
   Sliders,
   RotateCcw,
-  ExternalLink
+  ExternalLink,
+  Copy,
+  Globe
 } from 'lucide-react';
 
 interface SafeUser {
@@ -86,6 +88,10 @@ interface ProviderStatus {
   currency: string;
   userName?: string;
   errorMessage?: string;
+  serverPublicIp?: string;
+  isIpBlocked?: boolean;
+  isLiveBalance?: boolean;
+  lastBalanceAt?: string;
   config?: {
     providerApiUrl: string;
     providerApiKey: string;
@@ -1608,6 +1614,25 @@ export default function AdminPage() {
                           ? `✕ ئۇلانمىدى (${providerStatus.errorMessage})`
                           : '○ كۈتۈلمەكتە'}
                       </span>
+                      {providerStatus?.serverPublicIp && providerStatus.serverPublicIp !== 'ئېنىقلانمىدى' && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(providerStatus.serverPublicIp!);
+                            alert(`نۆۋەتتىكى ئاممىۋى IP كۆچۈرۈلدى: ${providerStatus.serverPublicIp}`);
+                          }}
+                          className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold transition flex items-center gap-1 cursor-pointer ${
+                            providerStatus?.isIpBlocked
+                              ? 'bg-rose-600 hover:bg-rose-500 text-white animate-pulse'
+                              : 'bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700'
+                          }`}
+                          title="Sahl Cash تەمىنلىگۈچىگە كىرگۈزىدىغان ئاممىۋى IP نى كۆچۈرۈۋېلىش"
+                        >
+                          <Globe className="w-3 h-3" />
+                          <span>IP: {providerStatus.serverPublicIp}</span>
+                          <Copy className="w-2.5 h-2.5 ml-0.5" />
+                        </button>
+                      )}
                     </div>
                     <p className={`text-xs mt-1 ${themeClasses.subtext}`}>
                       {providerStatus?.userName ? `ھېسابات: ${providerStatus.userName} | ` : ''}
@@ -2688,12 +2713,59 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Status Overview 3 Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* IP Whitelist Warning Alert */}
+              {providerStatus?.isIpBlocked && (
+                <div className="p-4 sm:p-5 rounded-2xl bg-rose-500/15 border-2 border-rose-500/50 text-rose-200 space-y-3 shadow-xl">
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-300 font-bold text-lg shrink-0">
+                        ⚠️
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-sm text-white">Sahl Cash سىزنىڭ IP ئادرېسىڭىزنى چەكلىدى (IP not allowed - كود 123)</h4>
+                        <p className="text-xs text-rose-300/90 font-alkatip">تەمىنلىگۈچى (Sahl Cash) تورىڭىزنىڭ ئاممىۋى IP ئادرېسى ئۆزگىرىپ كەتكەنلىكى ئۈچۈن ئۇلىنىشنى رەت قىلغان.</p>
+                      </div>
+                    </div>
+                    {providerStatus?.serverPublicIp && providerStatus.serverPublicIp !== 'ئېنىقلانمىدى' && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(providerStatus.serverPublicIp!);
+                          alert(`نۆۋەتتىكى مۇلازىمېتىر ئاممىۋى IP كۆچۈرۈلدى: ${providerStatus.serverPublicIp}`);
+                        }}
+                        className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition flex items-center gap-2 shadow-lg cursor-pointer"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>نۆۋەتتىكى IP نى كۆچۈرۈش ({providerStatus.serverPublicIp})</span>
+                      </button>
+                    )}
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-black/40 border border-rose-500/20 text-xs text-slate-300 space-y-2 font-alkatip">
+                    <div className="font-bold text-white flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>قايتا ئۈزۈلمەيدىغان قىلىش ئۇسۇللىرى (مەڭگۈلۈك ھەل قىلىش):</span>
+                    </div>
+                    <ul className="space-y-1.5 list-disc list-inside text-slate-300 text-[11px] leading-relaxed">
+                      <li>
+                        <strong className="text-cyan-300">1-ئۇسۇل (ھازىرلا تۈزىتىش):</strong> sahl-cash.com دىكى شەخسىي بەت → API تەڭشىكىگە كىرىپ، «IP Address» تۈرىنى <span className="text-white font-mono bg-slate-800 px-1.5 py-0.5 rounded">پۈتۈنلەي بوش (قۇرۇق)</span> قويۇپ ياكى <span className="text-white font-mono bg-slate-800 px-1.5 py-0.5 rounded">0.0.0.0</span> قىلىپ ساقلاپ سىناڭ.
+                      </li>
+                      <li>
+                        <strong className="text-emerald-300">2-ئۇسۇل (ئەڭ ياخشى، ئۆمۈرلۈك ھەل قىلىش):</strong> Sahl Cash نىڭ WhatsApp/Telegram تېخنىكىلىق خېرىدارلار مۇلازىمىتىگە مۇنداق دەپ خەت يېزىڭ: <span className="text-white font-mono bg-slate-800 px-1.5 py-0.5 rounded">«أرجو إلغاء قيد الآيبي IP restriction على حساب الـ API»</span> (API ھېساباتىمدىكى IP تەكشۈرۈش چەكلىمىسىنى بىكار قىلىپ بېرىڭلار). ئۇلار چەكلىمىنى ئېلىۋەتسە مەڭگۈ قايتا ئۈزۈلمەيدۇ.
+                      </li>
+                      <li>
+                        <strong className="text-amber-300">3-ئۇسۇل (ۋاقىتلىق):</strong> ئەگەر چەكلىمىنى تېخى ئالمىغان بولسا، يۇقىرىدىكى قىزىل كۇنۇپكىنى بېسىپ نۆۋەتتىكى IP نى كۆچۈرۈۋېلىپ، Sahl Cash نىڭ API تەڭشىكىدىكى «IP Address» تۈرىگە چاپلاپ ساقلاڭ.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+
+              {/* Status Overview 4 Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* 1. Wholesale Balance */}
                 <div className={`p-5 rounded-2xl ${themeClasses.card} border border-cyan-500/30`}>
-                  <span className={`text-xs ${themeClasses.subtext} block mb-1`}>تەمىنلىگۈچى قالدۇق پۇلى (Wholesale Balance)</span>
-                  <div className="text-3xl font-black font-mono text-cyan-400 mt-2" dir="ltr">
+                  <span className={`text-xs ${themeClasses.subtext} block mb-1`}>تەمىنلىگۈچى قالدۇق پۇلى</span>
+                  <div className="text-2xl sm:text-3xl font-black font-mono text-cyan-400 mt-2" dir="ltr">
                     ${providerStatus?.balance !== undefined && providerStatus?.balance !== null ? Number(providerStatus.balance).toFixed(2) : '---'}
                   </div>
                   <span className="text-[11px] text-slate-400 font-mono mt-1 block">
@@ -2708,18 +2780,46 @@ export default function AdminPage() {
                   <span className={`text-xs ${themeClasses.subtext} block mb-1`}>API ئۇلىنىش ھالىتى</span>
                   <div className="mt-2 flex items-center gap-2">
                     <span className={`w-3 h-3 rounded-full ${providerStatus?.success ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}`} />
-                    <span className="text-lg font-bold text-white">
-                      {providerStatus?.success ? 'نەق ئۇلاندى (Live Active)' : 'ئۇلانمىدى (Unauthorized / Error)'}
+                    <span className="text-base sm:text-lg font-bold text-white">
+                      {providerStatus?.success ? 'نەق ئۇلاندى' : 'ئۇلانمىدى'}
                     </span>
                   </div>
-                  <span className="text-[11px] text-slate-400 mt-1 block">
+                  <span className="text-[11px] text-slate-400 mt-1 block truncate" title={providerStatus?.errorMessage}>
                     {providerStatus?.success
-                      ? 'ھەقىقىي زاكازلار تاشقى سۇپىغا ئەۋەتىلىدۇ'
-                      : providerStatus?.errorMessage || 'Token ياكى ئادرېسنى قايتا تەكشۈرۈڭ'}
+                      ? 'ھەقىقىي زاكازلار سۇپىغا ئەۋەتىلىدۇ'
+                      : providerStatus?.errorMessage || 'Token ياكى IP نى قايتا تەكشۈرۈڭ'}
                   </span>
                 </div>
 
-                {/* 3. Account & Protocol Identity */}
+                {/* 3. Server Outbound Public IP */}
+                <div className={`p-5 rounded-2xl ${themeClasses.card} border ${
+                  providerStatus?.isIpBlocked ? 'border-rose-500/50 bg-rose-950/10' : 'border-slate-800'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className={`text-xs ${themeClasses.subtext} block`}>مۇلازىمېتىر ئاممىۋى IP سى</span>
+                    <Globe className="w-3.5 h-3.5 text-cyan-400" />
+                  </div>
+                  <div className="text-base sm:text-lg font-bold font-mono text-white mt-2 truncate" dir="ltr">
+                    {providerStatus?.serverPublicIp || 'ئېنىقلانمىدى'}
+                  </div>
+                  {providerStatus?.serverPublicIp && providerStatus.serverPublicIp !== 'ئېنىقلانمىدى' ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(providerStatus.serverPublicIp!);
+                        alert(`IP كۆچۈرۈلدى: ${providerStatus.serverPublicIp}`);
+                      }}
+                      className="mt-1.5 text-[11px] text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-alkatip cursor-pointer"
+                    >
+                      <Copy className="w-3 h-3" />
+                      <span>IP نى كۆچۈرۈش</span>
+                    </button>
+                  ) : (
+                    <span className="text-[11px] text-slate-500 mt-1 block">تەكشۈرۈلمەكتە...</span>
+                  )}
+                </div>
+
+                {/* 4. Account & Protocol Identity */}
                 <div className={`p-5 rounded-2xl ${themeClasses.card}`}>
                   <span className={`text-xs ${themeClasses.subtext} block mb-1`}>تەمىنلىگۈچى تىپى & ئادرېسى</span>
                   <div className="text-base font-bold text-white mt-2">
