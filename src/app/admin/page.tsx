@@ -1131,8 +1131,8 @@ export default function AdminPage() {
     }
   };
 
-  const handleSaveSettings = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveSettings = async (e?: React.FormEvent) => {
+    if (e && e.preventDefault) e.preventDefault();
     const token = sessionStorage.getItem('autocash_admin_token');
     try {
       const res = await fetch('/api/admin/settings', {
@@ -1155,6 +1155,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.success) {
         setSettingsSaveMsg('تەڭشەكلەر مۇۋەپپەقىيەتلىك ساقلاندى!');
+        alert(`تەڭشەكلەر مۇۋەپپەقىيەتلىك ساقلاندى!\nسورىيە پۇلى نىسبىتى: 1 USD = ${(settings.shamcashExchangeRate || 15000).toLocaleString()} SYP`);
         setTimeout(() => setSettingsSaveMsg(''), 3000);
       }
     } catch (err) {
@@ -2395,6 +2396,56 @@ export default function AdminPage() {
                       className="py-2 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow cursor-pointer"
                     >
                       ساقلاش
+                    </button>
+                  </div>
+                </div>
+
+
+                {/* Exchange Rate Setting Controls */}
+                <div className="p-3 rounded-xl bg-slate-900/90 border border-amber-500/30 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                  <div>
+                    <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <DollarSign className="w-4 h-4 text-amber-400" />
+                      <span>سورىيە پۇلى پېرېۋوت نىسبىتى (1 USD = X SYP):</span>
+                    </span>
+                    <p className="text-[11px] text-slate-400 mt-0.5 font-alkatip">
+                      خېرىدار شامكەشتە لىرا (SYP) ئاتقاندا، سىستېما مۇشۇ نىسبەت بويىچە ئاپتوماتىك دوللارغا ئايلاندۇرىدۇ.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-1">
+                      {[14000, 14500, 15000, 15500, 16000].map((rate) => (
+                        <button
+                          key={rate}
+                          type="button"
+                          onClick={() => setSettings({ ...settings, shamcashExchangeRate: rate })}
+                          className={`px-2 py-1 rounded-lg text-[11px] font-mono font-bold transition cursor-pointer ${
+                            (settings.shamcashExchangeRate || 15000) === rate
+                              ? 'bg-amber-400 text-slate-950 font-black shadow'
+                              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                          }`}
+                        >
+                          {rate.toLocaleString()}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="relative w-28">
+                      <input
+                        type="number"
+                        min="1000"
+                        step="100"
+                        value={settings.shamcashExchangeRate || 15000}
+                        onChange={(e) => setSettings({ ...settings, shamcashExchangeRate: Number(e.target.value) })}
+                        className={`w-full px-2.5 py-1.5 rounded-lg font-mono font-black text-xs text-amber-300 ${themeClasses.input} focus:outline-none focus:border-amber-400 text-center`}
+                        dir="ltr"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleSaveSettings()}
+                      className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow cursor-pointer"
+                    >
+                      ✓ نىسبەتنى ساقلاش
                     </button>
                   </div>
                 </div>

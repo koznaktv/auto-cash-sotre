@@ -677,7 +677,7 @@ export default function DepositPage() {
               <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/90 space-y-2 mb-4 text-xs">
                 <div className="flex items-center justify-between">
                   <span className="text-slate-300 font-bold">شامكەش (Sham Cash) ھېساباتىمىز:</span>
-                  <span className="text-[11px] text-amber-300 font-mono">
+                  <span className="text-[11px] text-amber-300 font-mono font-bold bg-amber-950/40 border border-amber-500/30 px-2.5 py-0.5 rounded-lg shadow-sm" dir="ltr">
                     1 USD = {exchangeRate.toLocaleString()} SYP
                   </span>
                 </div>
@@ -746,6 +746,14 @@ export default function DepositPage() {
                   }`}
                   dir="ltr"
                 />
+                {amount > 0 && (
+                  <div className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-amber-950/20 border border-amber-500/20 text-[11px] text-amber-300/90 font-mono">
+                    <span>تەڭ كېلىدىغان شامكەش لىراسى:</span>
+                    <span className="font-bold text-amber-300 font-mono" dir="ltr">
+                      {(amount * exchangeRate).toLocaleString()} SYP
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Step 4: Transaction ID Input (رقم العملية) */}
