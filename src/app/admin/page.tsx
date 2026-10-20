@@ -141,6 +141,45 @@ interface ProviderStatus {
   };
 }
 
+// 🎨 Moving/Lively Game & App Icons for Categories ("مىدىرلاپ تۇرىدىغان بەلگىلەر")
+const AVAILABLE_ANIMATED_ICONS = [
+  // 🎮 مەشھۇر ئويۇن بەلگىلىرى
+  { id: 'Gamepad2', label: 'ئويۇنلار', category: 'game' },
+  { id: 'Swords', label: 'جەڭ / كلاش', category: 'game' },
+  { id: 'Crosshair', label: 'پابجى / نىشان', category: 'game' },
+  { id: 'Target', label: 'مەرگەن / ئېتىش', category: 'game' },
+  { id: 'Flame', label: 'قىزىق ئويۇنلار', category: 'game' },
+  { id: 'Trophy', label: 'لوڭقا / مۇسابىقە', category: 'game' },
+  { id: 'Crown', label: 'VIP / شاھ', category: 'game' },
+  { id: 'Gem', label: 'ئالماس / ئالتۇن', category: 'game' },
+  { id: 'Zap', label: 'چاقماق / فلاش', category: 'game' },
+  { id: 'Rocket', label: 'سۈرئەت / دەرىجە', category: 'game' },
+  { id: 'Ghost', label: 'روھ / جەڭچى', category: 'game' },
+  { id: 'Skull', label: 'خەتەرلىك / سۈرئەت', category: 'game' },
+  { id: 'Bomb', label: 'بومبا / مەخسۇس', category: 'game' },
+
+  // 📱 ئەپلەر ۋە ئالاقە
+  { id: 'Smartphone', label: 'يانفون ئەپلىرى', category: 'app' },
+  { id: 'MessageSquareShare', label: 'تېلېگرام / نومۇر', category: 'app' },
+  { id: 'Share2', label: 'ئىجتىمائىي تور', category: 'app' },
+  { id: 'Music', label: 'تىك توك / مۇزىكا', category: 'app' },
+  { id: 'Video', label: 'يوتۇب / سىن', category: 'app' },
+  { id: 'Tv', label: 'IPTV / نېتفلىكىس', category: 'app' },
+  { id: 'Headphones', label: 'ئاۋاز / كۇلۇب', category: 'app' },
+  { id: 'Bot', label: 'سۈنئىي ئەقىل (AI)', category: 'app' },
+  { id: 'Globe', label: 'خەلقئارالىق تور', category: 'app' },
+
+  // 💰 پۇل، ھەميان ۋە كارتىلار
+  { id: 'Wallet', label: 'شامكەش / ھەميان', category: 'pay' },
+  { id: 'CreditCard', label: 'Google / iTunes', category: 'pay' },
+  { id: 'Coins', label: 'USDT / كرىپتو', category: 'pay' },
+  { id: 'Gift', label: 'سوۋغات كارتىسى', category: 'pay' },
+  { id: 'ShieldCheck', label: 'بىخەتەرلىك', category: 'pay' },
+  { id: 'KeyRound', label: 'تەييار ھېسابات', category: 'pay' },
+  { id: 'Sparkles', label: 'ئالاھىدە تۈرلەر', category: 'pay' },
+  { id: 'Package', label: 'ئومۇمىي بولاق', category: 'pay' },
+];
+
 export default function AdminPage() {
   // Auth state
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -199,6 +238,7 @@ export default function AdminPage() {
     count: 'مەھسۇلاتلار',
     image: '',
   });
+  const [iconFilterTab, setIconFilterTab] = useState<'all' | 'game' | 'app' | 'pay'>('all');
 
   // Product/Service Modal State
   const [serviceModalOpen, setServiceModalOpen] = useState(false);
@@ -2737,7 +2777,9 @@ export default function AdminPage() {
                           onClick={() => setCategoryFilter(cat.id)}
                           className="flex items-center gap-1.5 cursor-pointer"
                         >
-                          <DynamicIcon name={cat.icon || 'Package'} className="w-3.5 h-3.5" />
+                          <span className="animate-moving-icon">
+                            <DynamicIcon name={cat.icon || 'Package'} className="w-3.5 h-3.5" />
+                          </span>
                           <span>{cat.name}</span>
                           <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${isActive ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-800 text-slate-400'}`}>
                             {catCount}
@@ -4330,7 +4372,9 @@ export default function AdminPage() {
                               : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 border border-slate-700/60'
                           }`}
                         >
-                          <DynamicIcon name={cat.icon || 'Package'} className="w-3.5 h-3.5" />
+                          <span className="animate-moving-icon">
+                            <DynamicIcon name={cat.icon || 'Package'} className="w-3.5 h-3.5" />
+                          </span>
                           <span>{cat.name}</span>
                           <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-900 text-slate-400'}`}>
                             {count}
@@ -4882,14 +4926,16 @@ export default function AdminPage() {
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent flex items-end justify-between p-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-amber-400 text-slate-950 flex items-center justify-center font-bold">
-                        <DynamicIcon name={categoryForm.icon || 'Package'} className="w-4 h-4" />
+                      <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold shadow-lg shadow-amber-400/40">
+                        <span className="animate-moving-icon">
+                          <DynamicIcon name={categoryForm.icon || 'Gamepad2'} className="w-4.5 h-4.5" />
+                        </span>
                       </div>
                       <span className="text-white font-extrabold text-xs drop-shadow">
                         {categoryForm.name || 'سەھىپە نامى'}
                       </span>
                     </div>
-                    <span className="text-[10px] text-amber-300 font-mono">
+                    <span className="text-[10px] text-amber-300 font-mono bg-slate-950/70 px-2 py-0.5 rounded-full border border-amber-400/30">
                       {categoryForm.count || 'مۇلازىمەتلەر'}
                     </span>
                   </div>
@@ -4929,43 +4975,69 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Visual Icon Picker */}
-              <div className="space-y-1.5">
-                <label className="block text-slate-300 font-bold">
-                  سەھىپە سىنبەلگىسى (Icon):
-                </label>
-                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+              {/* Visual Animated Icon Picker ("مىدىرلاپ تۇرىدىغان بەلگىلەر") */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-slate-300 font-bold">
+                    سەھىپە سىنبەلگىسى (ھەرىكەتلىك / مىدىرلاپ تۇرىدىغان بەلگىلەر):
+                  </label>
+                  <span className="text-[10px] text-amber-300 font-mono bg-amber-400/15 px-2 py-0.5 rounded-md border border-amber-400/30">
+                    ✨ تاللانغان: {categoryForm.icon || 'Gamepad2'}
+                  </span>
+                </div>
+
+                {/* Filter Tabs for Quick Icon Discovery */}
+                <div className="flex items-center gap-1 p-1 bg-slate-900/90 rounded-xl border border-slate-800 text-[11px] font-bold">
                   {[
-                    { id: 'Gamepad2', label: 'ئويۇنلار' },
-                    { id: 'Smartphone', label: 'ئەپلەر' },
-                    { id: 'Share2', label: 'ئىجتىمائىي' },
-                    { id: 'CreditCard', label: 'كارتىلار' },
-                    { id: 'Bot', label: 'سۈنئىي ئەقىل' },
-                    { id: 'MessageSquareShare', label: 'نومۇرلار' },
-                    { id: 'Coins', label: 'كرىپتو' },
-                    { id: 'Wallet', label: 'ھەميان' },
-                    { id: 'Crown', label: 'VIP' },
-                    { id: 'Zap', label: 'تېز' },
-                    { id: 'Package', label: 'ئومۇمىي' },
-                    { id: 'ShieldCheck', label: 'بىخەتەر' },
-                  ].map((item) => {
-                    const isSelected = (categoryForm.icon || 'Package') === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => setCategoryForm({ ...categoryForm, icon: item.id })}
-                        className={`p-2 rounded-xl border flex flex-col items-center justify-center gap-1 transition cursor-pointer ${
-                          isSelected
-                            ? 'bg-amber-400 text-slate-950 border-amber-300 font-black shadow-md scale-105'
-                            : 'bg-slate-900 border-slate-700/80 text-slate-300 hover:bg-slate-800'
-                        }`}
-                      >
-                        <DynamicIcon name={item.id} className="w-4 h-4" />
-                        <span className="text-[10px] truncate max-w-full">{item.label}</span>
-                      </button>
-                    );
-                  })}
+                    { id: 'all', label: 'ھەممىسى' },
+                    { id: 'game', label: '🎮 ئويۇنلار' },
+                    { id: 'app', label: '📱 ئەپلەر' },
+                    { id: 'pay', label: '💰 پۇل ۋە كارتىلار' },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setIconFilterTab(tab.id as any)}
+                      className={`flex-1 py-1 px-1.5 rounded-lg transition cursor-pointer text-center text-[10px] sm:text-[11px] ${
+                        iconFilterTab === tab.id
+                          ? 'bg-amber-400 text-slate-950 font-black shadow-xs'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Animated Icons Grid */}
+                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-56 overflow-y-auto p-1.5 rounded-2xl bg-slate-950/60 border border-slate-800/80">
+                  {AVAILABLE_ANIMATED_ICONS
+                    .filter((item) => iconFilterTab === 'all' || item.category === iconFilterTab)
+                    .map((item, idx) => {
+                      const isSelected = (categoryForm.icon || 'Gamepad2') === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setCategoryForm({ ...categoryForm, icon: item.id })}
+                          className={`p-2 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all duration-200 cursor-pointer ${
+                            isSelected
+                              ? 'bg-gradient-to-b from-amber-400 to-amber-500 text-slate-950 border-amber-300 font-black shadow-lg shadow-amber-400/40 scale-105 ring-2 ring-amber-300'
+                              : 'bg-slate-900/90 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-amber-400/50'
+                          }`}
+                        >
+                          <span
+                            style={{ animationDelay: `${(idx % 6) * 0.22}s` }}
+                            className={`animate-moving-icon ${isSelected ? 'text-slate-950' : 'text-amber-400'}`}
+                          >
+                            <DynamicIcon name={item.id} className="w-5 h-5" />
+                          </span>
+                          <span className="text-[10px] font-bold truncate max-w-full leading-tight">
+                            {item.label}
+                          </span>
+                        </button>
+                      );
+                    })}
                 </div>
               </div>
 

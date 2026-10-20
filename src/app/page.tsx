@@ -606,7 +606,7 @@ export default function HomePage() {
                     </div>
 
                     <div className="relative z-10 flex items-center justify-between w-full">
-                      {/* Icon with staggered lightweight float animation */}
+                      {/* Icon with staggered lightweight float animation + moving lively badge */}
                       <div
                         style={{ animationDelay: `${(idx % 4) * 0.35}s` }}
                         className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all border shadow-md animate-cat-icon ${
@@ -615,7 +615,12 @@ export default function HomePage() {
                             : 'bg-slate-950/85 border-amber-400/50 text-amber-300 group-hover:scale-110 group-hover:bg-amber-400 group-hover:text-slate-950'
                         }`}
                       >
-                        <DynamicIcon name={cat.icon} className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <span
+                          style={{ animationDelay: `${(idx % 6) * 0.25}s` }}
+                          className="animate-moving-icon drop-shadow-[0_0_6px_rgba(251,191,36,0.5)]"
+                        >
+                          <DynamicIcon name={cat.icon} className="w-4 h-4 sm:w-5 sm:h-5" />
+                        </span>
                       </div>
 
                       {/* Pill button with subtle lightweight nudge animation */}
