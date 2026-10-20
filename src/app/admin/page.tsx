@@ -53,7 +53,15 @@ import {
   RotateCcw,
   ExternalLink,
   Copy,
-  Globe
+  Globe,
+  Gamepad2,
+  Smartphone,
+  Bot,
+  Share2,
+  Coins,
+  MessageSquareShare,
+  ArrowLeft,
+  ArrowRight
 } from 'lucide-react';
 
 interface SafeUser {
@@ -67,6 +75,31 @@ interface SafeUser {
   role: string;
   createdAt: string;
   isBanned?: boolean;
+}
+
+export interface SahlPackageRow {
+  id: number;
+  originalName: string;
+  title: string;
+  costPrice: number;
+  sellPrice: number;
+  originalPrice: number;
+  productType?: 'fixed' | 'amount';
+  selected: boolean;
+}
+
+export interface SahlGroupedService {
+  key: string;
+  name: string;
+  uyghurName: string;
+  category: string;
+  categoryName: string;
+  image: string;
+  inputLabel: string;
+  inputPlaceholder: string;
+  minCost: number;
+  maxCost: number;
+  packages: SahlPackageRow[];
 }
 
 interface SystemSettingsState {
@@ -190,10 +223,12 @@ export default function AdminPage() {
     packages: [{ id: 'p-1', title: 'ئاساسىي بولاق', price: 1.99, duration: 'دەرھال' }],
   });
 
-  // Sahl Cash Importer / Customizer Modal State
+  // Sahl Cash Importer / Customizer Modal State (Whole-Service & All Packages)
   const [sahlCashModalOpen, setSahlCashModalOpen] = useState(false);
   const [sahlSearch, setSahlSearch] = useState('');
-  const [selectedSahlProduct, setSelectedSahlProduct] = useState<any | null>(null);
+  const [sahlCategoryFilter, setSahlCategoryFilter] = useState('all');
+  const [selectedSahlGroup, setSelectedSahlGroup] = useState<SahlGroupedService | null>(null);
+  const [sahlBulkMarkup, setSahlBulkMarkup] = useState<number>(15);
   const [savingSahlProduct, setSavingSahlProduct] = useState(false);
   const [sahlForm, setSahlForm] = useState<{
     name: string;
@@ -201,26 +236,20 @@ export default function AdminPage() {
     image: string;
     badge: string;
     description: string;
-    costPrice: number;
-    sellPrice: number;
-    markupPercent: number;
-    packageTitle: string;
     inputLabel: string;
     inputPlaceholder: string;
     published: boolean;
+    packages: SahlPackageRow[];
   }>({
     name: '',
     category: 'games',
     image: '',
     badge: '⚡ ئاپتوماتىك',
     description: 'ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى',
-    costPrice: 0,
-    sellPrice: 1,
-    markupPercent: 15,
-    packageTitle: '',
     inputLabel: 'ئويۇنچى ID (Player ID)',
     inputPlaceholder: 'ئويۇن كىملىك نومۇرىنى كىرگۈزۈڭ',
     published: true,
+    packages: [],
   });
 
   // Settings Save Message
@@ -1105,44 +1134,97 @@ export default function AdminPage() {
     }
   };
 
-  // Sahl Cash Importer & Customizer Helper Functions
-  const guessCategoryFromName = (name: string): string => {
-    const n = name.toLowerCase();
-    if (/pubg|free fire|game|diamond|uc|coin|mobile legends|roblox|steam|valorant|fifa|clash|call of duty|brawl|league/i.test(n)) {
+  // Sahl Cash Importer & Customizer Helper Dictionaries & Functions
+  const UYGHUR_SERVICE_NAMES: Record<string, string> = {
+    'PUBG Mobile': 'پابجى كۆچمە (PUBG Mobile)',
+    'PUBGM Lite': 'پابجى لايت (PUBGM Lite)',
+    'PUBG New State': 'پابجى يېڭى ھالەت (PUBG New State)',
+    'Free Fire': 'فىرى فاير (Free Fire)',
+    'Blood strike': 'بىلاد سىترايك (Blood Strike)',
+    'Brawl Stars': 'بىراۋل ستارس (Brawl Stars)',
+    'Clash of Clans': 'كلاش ئوف كىلانس (Clash of Clans)',
+    'Clash Royale': 'كلاش روئال (Clash Royale)',
+    'Ball Pool 8': '8 توپ بىليارت (8 Ball Pool)',
+    'Farlight 84': 'فارلايت 84 (Farlight 84)',
+    'Honor of Kings': 'شەرەپ پادىشاھى (Honor of Kings)',
+    'Legend Mobile': 'موبايىل لېجېندىس (Mobile Legends)',
+    'Roblox Canada': 'روبلوكس (Roblox)',
+    'Roblox': 'روبلوكس (Roblox)',
+    'Jawaker': 'جاۋاكەر (Jawaker)',
+    'Hay Day': 'ھاي دەي (Hay Day)',
+    'YALLA LUDO': 'ياللا لۇدو (Yalla Ludo)',
+    'Revenge of Sultans': 'سۇلتانلار ئىنتىقامى (Revenge of Sultans)',
+    'Genshin Impact': 'گېنشىن ئىمپېكت (Genshin Impact)',
+    'Fortnite': 'فورتنايت (Fortnite)',
+    'Call of Duty Mobile': 'كول ئوف دۇتى (Call of Duty)',
+    'Top War': 'توپ ۋار (Top War)',
+    'Chat GPT': 'ChatGPT سۈنئىي ئەقىل (ChatGPT)',
+    'Tiktok services': 'تىك توك مۇلازىمىتى (TikTok)',
+    'Recharge Cards SC': 'خەلقئارالىق قاچىلاش كارتىلىرى',
+    'Digital Banks': 'رەقەملىك بانكا ۋە كرىپتو (Digital Banks / USDT)',
+    'Turkcell': 'تۈرك سېل قاچىلاش (Turkcell)',
+    'Turk Telecom': 'تۈرك تېلېكوم قاچىلاش (Turk Telecom)',
+    'تطبيق الارقام': 'مەۋھۇم نومۇر مۇلازىمىتى (Virtual Numbers)',
+    'يلا شات - Yalla Chat': 'ياللا شات (Yalla Chat)',
+    'اهلن شات - Ahlan Chat': 'ئەھلەن شات (Ahlan Chat)',
+    'لايكي - Likee': 'لايكى (Likee)',
+    'Steam USD': 'سىتىم دوللار كارتىسى (Steam USD)',
+    'GOOGLE PLAY TR': 'گۇگۇل پىلەي تۈركىيە (Google Play TR)',
+    'iTunes Turkey': 'ئالما تۈركىيە كارتىسى (iTunes TR)',
+    'iTunes Dollar': 'ئالما دوللار كارتىسى (iTunes USD)',
+    'Netflix Turkey': 'نېتفلىكىس تۈركىيە (Netflix TR)',
+    'MTN Blance': 'MTN سۈرىيە قالدۇقى (MTN Balance)',
+    'Syriatel Blance': 'سۈرىياتېل قالدۇقى (Syriatel Balance)',
+  };
+
+  const guessCategoryFromName = (name: string, rawCat?: string): string => {
+    const combined = `${name} ${rawCat || ''}`.toLowerCase();
+    if (/pubg|free fire|game|diamond|uc|coin|mobile legends|legend mobile|roblox|steam|valorant|fifa|clash|call of duty|brawl|league|blood strike|ball pool|farlight|honor of kings|genshin|fortnite|top war|jawaker|hay day|yalla ludo|revenge of sultans/i.test(combined)) {
       return 'games';
     }
-    if (/telegram|whatsapp|tiktok|instagram|twitter|facebook|snapchat|likee/i.test(n)) {
-      return 'social';
-    }
-    if (/chatgpt|openai|claude|gemini|midjourney|ai/i.test(n)) {
+    if (/chatgpt|openai|claude|gemini|midjourney|ai\b/i.test(combined)) {
       return 'ai';
     }
-    if (/card|gift|google play|itunes|apple|razer|playstation|xbox|amazon|psn|vcc/i.test(n)) {
+    if (/card|gift|google play|itunes|apple|razer|playstation|xbox|amazon|psn|vcc|recharge card/i.test(combined)) {
       return 'cards';
     }
-    if (/sms|number|virtual|otp/i.test(n)) {
+    if (/sms|number|virtual|otp|الارقام|تطبيق الارقام/i.test(combined)) {
       return 'numbers';
     }
-    if (/usdt|crypto|binance|bitcoin/i.test(n)) {
+    if (/tiktok|telegram|whatsapp|instagram|twitter|facebook|snapchat|likee|social|yalla chat|ahlan/i.test(combined)) {
+      return 'social';
+    }
+    if (/usdt|crypto|binance|bitcoin|digital bank|shamcash/i.test(combined)) {
       return 'crypto';
+    }
+    if (/blance|balance|mtn|syriatel|turkcell|turk telecom/i.test(combined)) {
+      return 'balance';
     }
     return 'apps';
   };
 
   const guessImageFromName = (name: string, originalImage?: string): string => {
-    const n = name.toLowerCase();
     if (originalImage && !originalImage.endsWith('sahl-cash.com/') && originalImage !== 'https://api.sahl-cash.com' && originalImage.startsWith('http')) {
       return originalImage;
     }
+    const n = name.toLowerCase();
     if (/pubg/i.test(n)) return '/images/services/pubg_mobile.jpg';
     if (/free fire/i.test(n)) return '/images/services/free_fire.jpg';
+    if (/blood strike/i.test(n)) return 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=80';
+    if (/brawl/i.test(n)) return 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=500&auto=format&fit=crop&q=80';
+    if (/clash/i.test(n)) return 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=500&auto=format&fit=crop&q=80';
+    if (/roblox/i.test(n)) return 'https://images.unsplash.com/photo-1563089145-599997674d42?w=500&auto=format&fit=crop&q=80';
+    if (/genshin/i.test(n)) return 'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?w=500&auto=format&fit=crop&q=80';
     if (/telegram/i.test(n)) return 'https://images.unsplash.com/photo-1611746872915-64382b5c76da?w=500&auto=format&fit=crop&q=80';
+    if (/tiktok/i.test(n)) return 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=500&auto=format&fit=crop&q=80';
     if (/chatgpt|openai|ai/i.test(n)) return 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=500&auto=format&fit=crop&q=80';
     if (/netflix/i.test(n)) return 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=500&auto=format&fit=crop&q=80';
     if (/google play/i.test(n)) return 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=500&auto=format&fit=crop&q=80';
     if (/itunes|apple/i.test(n)) return 'https://images.unsplash.com/photo-1616469829941-c7200edec809?w=500&auto=format&fit=crop&q=80';
     if (/steam/i.test(n)) return 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=80';
-    if (/tiktok/i.test(n)) return 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=500&auto=format&fit=crop&q=80';
+    if (/razer/i.test(n)) return 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80';
+    if (/number|ارقام/i.test(n)) return 'https://images.unsplash.com/photo-1512428559087-560fa5ceab42?w=500&auto=format&fit=crop&q=80';
+    if (/turkcell|turk telecom|syriatel|mtn/i.test(n)) return 'https://images.unsplash.com/photo-1534536281715-e28d76689b4d?w=500&auto=format&fit=crop&q=80';
     return 'https://images.unsplash.com/photo-1616469829941-c7200edec809?w=500&auto=format&fit=crop&q=80';
   };
 
@@ -1161,41 +1243,265 @@ export default function AdminPage() {
     }
   };
 
+  const cleanPackageTitle = (pkgName: string, serviceName: string): string => {
+    let title = (pkgName || '').trim();
+    const escaped = serviceName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    title = title.replace(new RegExp('^' + escaped + '\\s*[-:]*\\s*', 'i'), '').trim();
+    return title || pkgName;
+  };
+
+  // Group all Sahl Cash provider products into services with ALL packages
+  const groupedSahlServices = useMemo<SahlGroupedService[]>(() => {
+    if (!providerProducts || providerProducts.length === 0) return [];
+
+    const map = new Map<string, {
+      key: string;
+      name: string;
+      categoryName: string;
+      image: string;
+      packages: any[];
+    }>();
+
+    for (const prod of providerProducts) {
+      const rawCat = (prod.categoryName || 'Other').trim();
+      const isChatApp = rawCat.toLowerCase() === 'chat apps';
+      const key = isChatApp ? `chat_${prod.name.trim()}` : rawCat;
+      const name = isChatApp ? prod.name.trim() : rawCat;
+
+      if (!map.has(key)) {
+        map.set(key, {
+          key,
+          name,
+          categoryName: rawCat,
+          image: prod.categoryImage || prod.image || '',
+          packages: [],
+        });
+      }
+
+      map.get(key)!.packages.push(prod);
+    }
+
+    const list: SahlGroupedService[] = [];
+
+    for (const item of Array.from(map.values())) {
+      const cat = guessCategoryFromName(item.name, item.categoryName);
+      const img = guessImageFromName(item.name, item.image);
+      const uyghur = UYGHUR_SERVICE_NAMES[item.name] || item.name;
+
+      const pkgs: SahlPackageRow[] = item.packages.map((p) => {
+        const cost = Number(p.costPrice ?? p.price ?? 0);
+        const sell = Math.round(cost * 1.15 * 100) / 100;
+        const original = Math.round(sell * 1.2 * 100) / 100;
+        return {
+          id: p.id,
+          originalName: p.name,
+          title: cleanPackageTitle(p.name, item.name),
+          costPrice: cost,
+          sellPrice: Math.max(0.1, sell),
+          originalPrice: Math.max(sell, original),
+          productType: p.productType === 'amount' ? 'amount' : 'fixed',
+          selected: true,
+        };
+      });
+
+      pkgs.sort((a, b) => a.costPrice - b.costPrice);
+
+      const minCost = pkgs.length > 0 ? pkgs[0].costPrice : 0;
+      const maxCost = pkgs.length > 0 ? pkgs[pkgs.length - 1].costPrice : 0;
+
+      let inputLabel = 'ئويۇنچى ID (Player ID)';
+      let inputPlaceholder = 'ئويۇن كىملىك نومۇرىنى كىرگۈزۈڭ (مەسىلەن: 51234567)';
+      if (cat === 'social' || cat === 'apps') {
+        inputLabel = 'ھېسابات نومۇرى / ئېلخەت / كىملىك';
+        inputPlaceholder = 'مەسىلەن: ئىشلەتكۈچى نامى ياكى كىملىك نومۇرى';
+      } else if (cat === 'cards') {
+        inputLabel = 'تاپشۇرۇۋالغۇچى ئېلخەت / تېلېفون';
+        inputPlaceholder = 'كارتا ئۇچۇرى ئەۋەتىلىدىغان ئېلخەت ياكى تېلېفون نومۇرى';
+      } else if (cat === 'numbers') {
+        inputLabel = 'دۆلەت ياكى مۇلازىمەت تەلەپلىرى';
+        inputPlaceholder = 'قايسى دۆلەت نومۇرى كېرەكلىكىنى يېزىڭ';
+      } else if (cat === 'balance') {
+        inputLabel = 'تېلېفون نومۇرى';
+        inputPlaceholder = 'قالدۇق قاچىلىنىدىغان تېلېفون نومۇرىنى كىرگۈزۈڭ';
+      }
+
+      list.push({
+        key: item.key,
+        name: item.name,
+        uyghurName: uyghur,
+        category: cat,
+        categoryName: item.categoryName,
+        image: img,
+        inputLabel,
+        inputPlaceholder,
+        minCost,
+        maxCost,
+        packages: pkgs,
+      });
+    }
+
+    // Sort by package count descending & prioritize popular services
+    list.sort((a, b) => {
+      const isTopA = /pubg|free fire|blood strike|brawl|clash|tiktok|chat gpt|jawaker/i.test(a.name);
+      const isTopB = /pubg|free fire|blood strike|brawl|clash|tiktok|chat gpt|jawaker/i.test(b.name);
+      if (isTopA && !isTopB) return -1;
+      if (!isTopA && isTopB) return 1;
+      return b.packages.length - a.packages.length;
+    });
+
+    return list;
+  }, [providerProducts]);
+
+  // Filter grouped services by Category Tab & Search query
+  const filteredGroupedServices = useMemo(() => {
+    return groupedSahlServices.filter((s) => {
+      // Category filter
+      if (sahlCategoryFilter !== 'all' && s.category !== sahlCategoryFilter) {
+        return false;
+      }
+      // Search query
+      if (sahlSearch.trim()) {
+        const q = sahlSearch.toLowerCase().trim();
+        const matchesName = s.name.toLowerCase().includes(q) || s.uyghurName.toLowerCase().includes(q);
+        const matchesCat = s.categoryName.toLowerCase().includes(q) || s.category.toLowerCase().includes(q);
+        const matchesPkg = s.packages.some((p) => p.title.toLowerCase().includes(q) || p.originalName.toLowerCase().includes(q) || String(p.id) === q);
+        return matchesName || matchesCat || matchesPkg;
+      }
+      return true;
+    });
+  }, [groupedSahlServices, sahlCategoryFilter, sahlSearch]);
+
   const handleOpenSahlCashImporter = async () => {
     setSahlSearch('');
-    setSelectedSahlProduct(null);
+    setSahlCategoryFilter('all');
+    setSelectedSahlGroup(null);
     setSahlCashModalOpen(true);
     if (providerProducts.length === 0) {
       await fetchProviderProducts();
     }
   };
 
-  const handleSelectSahlProduct = (prod: any) => {
-    setSelectedSahlProduct(prod);
-    const cost = Number(prod.costPrice ?? prod.price ?? 0);
-    const markup = 15;
-    const sell = Math.round((cost > 0 ? cost * 1.15 : 1) * 100) / 100;
-    const cat = guessCategoryFromName(prod.name);
-    const img = guessImageFromName(prod.name, prod.image || prod.categoryImage);
+  const handleSelectSahlGroup = (group: SahlGroupedService) => {
+    setSelectedSahlGroup(group);
+    setSahlBulkMarkup(15);
+    const initialPackages: SahlPackageRow[] = group.packages.map((p) => {
+      const cost = p.costPrice;
+      const sell = Math.round(cost * 1.15 * 100) / 100;
+      const orig = Math.round(sell * 1.2 * 100) / 100;
+      return {
+        ...p,
+        sellPrice: Math.max(0.1, sell),
+        originalPrice: Math.max(sell, orig),
+        selected: true,
+      };
+    });
 
     setSahlForm({
-      name: prod.name,
-      category: cat,
-      image: img,
+      name: group.uyghurName || group.name,
+      category: group.category,
+      image: group.image,
       badge: '⚡ ئاپتوماتىك',
-      description: `${prod.name} ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى`,
-      costPrice: cost,
-      sellPrice: sell,
-      markupPercent: markup,
-      packageTitle: prod.name,
-      inputLabel: cat === 'games' ? 'ئويۇنچى ID (Player ID)' : 'ھېسابات نومۇرى / ئېلخەت',
-      inputPlaceholder: cat === 'games' ? 'ئويۇن كىملىك نومۇرىنى كىرگۈزۈڭ (مەسىلەن: 51234567)' : 'ھېسابات ئۇچۇرىنى كىرگۈزۈڭ',
+      description: `${group.name} ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى`,
+      inputLabel: group.inputLabel,
+      inputPlaceholder: group.inputPlaceholder,
       published: true,
+      packages: initialPackages,
     });
   };
 
+  const handleApplyBulkMarkup = (markupPercent: number) => {
+    setSahlBulkMarkup(markupPercent);
+    setSahlForm((prev) => ({
+      ...prev,
+      packages: prev.packages.map((pkg) => {
+        const cost = pkg.costPrice;
+        const sell = Math.round(cost * (1 + markupPercent / 100) * 100) / 100;
+        const orig = Math.round(sell * 1.2 * 100) / 100;
+        return {
+          ...pkg,
+          sellPrice: Math.max(0.1, sell),
+          originalPrice: Math.max(sell, orig),
+        };
+      }),
+    }));
+  };
+
+  const handleToggleAllPackages = (selected: boolean) => {
+    setSahlForm((prev) => ({
+      ...prev,
+      packages: prev.packages.map((p) => ({ ...p, selected })),
+    }));
+  };
+
+  const handleTogglePackage = (pkgId: number) => {
+    setSahlForm((prev) => ({
+      ...prev,
+      packages: prev.packages.map((p) => (p.id === pkgId ? { ...p, selected: !p.selected } : p)),
+    }));
+  };
+
+  const handlePackagePriceChange = (pkgId: number, newPrice: number) => {
+    setSahlForm((prev) => ({
+      ...prev,
+      packages: prev.packages.map((p) =>
+        p.id === pkgId
+          ? {
+              ...p,
+              sellPrice: newPrice,
+              originalPrice: Math.max(newPrice, Math.round(newPrice * 1.2 * 100) / 100),
+            }
+          : p
+      ),
+    }));
+  };
+
+  const handlePackageTitleChange = (pkgId: number, newTitle: string) => {
+    setSahlForm((prev) => ({
+      ...prev,
+      packages: prev.packages.map((p) => (p.id === pkgId ? { ...p, title: newTitle } : p)),
+    }));
+  };
+
   const handleImportSpecificProduct = (prod: any) => {
-    handleSelectSahlProduct(prod);
+    // Look up existing grouped service
+    const matchingGroup = groupedSahlServices.find((g) =>
+      g.packages.some((p) => p.id === prod.id) || g.name.toLowerCase() === (prod.categoryName || '').toLowerCase()
+    );
+    if (matchingGroup) {
+      handleSelectSahlGroup(matchingGroup);
+    } else {
+      // Fallback: create single-service group
+      const cost = Number(prod.costPrice ?? prod.price ?? 0);
+      const sell = Math.round(cost * 1.15 * 100) / 100;
+      const cat = guessCategoryFromName(prod.name);
+      const img = guessImageFromName(prod.name, prod.image || prod.categoryImage);
+      const uyghur = UYGHUR_SERVICE_NAMES[prod.name] || prod.name;
+      const fallbackGroup: SahlGroupedService = {
+        key: `single_${prod.id}`,
+        name: prod.name,
+        uyghurName: uyghur,
+        category: cat,
+        categoryName: prod.categoryName || '',
+        image: img,
+        inputLabel: cat === 'games' ? 'ئويۇنچى ID (Player ID)' : 'ھېسابات نومۇرى / ئېلخەت',
+        inputPlaceholder: 'ئۇچۇرىڭىزنى كىرگۈزۈڭ',
+        minCost: cost,
+        maxCost: cost,
+        packages: [
+          {
+            id: prod.id,
+            originalName: prod.name,
+            title: prod.name,
+            costPrice: cost,
+            sellPrice: Math.max(0.1, sell),
+            originalPrice: Math.max(sell, Math.round(sell * 1.2 * 100) / 100),
+            productType: prod.productType === 'amount' ? 'amount' : 'fixed',
+            selected: true,
+          },
+        ],
+      };
+      handleSelectSahlGroup(fallbackGroup);
+    }
     setSahlCashModalOpen(true);
   };
 
@@ -1205,6 +1511,12 @@ export default function AdminPage() {
       alert('مەھسۇلات نامى ۋە سەھىپىسىنى تاللاڭ');
       return;
     }
+    const selectedPackages = sahlForm.packages.filter((p) => p.selected);
+    if (selectedPackages.length === 0) {
+      alert('كەم دېگەندە 1 بولاقنى تاللىشىڭىز كېرەك');
+      return;
+    }
+
     setSavingSahlProduct(true);
     try {
       const token = sessionStorage.getItem('autocash_admin_token');
@@ -1217,24 +1529,22 @@ export default function AdminPage() {
         category: sahlForm.category,
         icon: getCategoryIcon(sahlForm.category),
         image: sahlForm.image.trim() || '/images/services/pubg_mobile.jpg',
-        description: sahlForm.description.trim() || 'ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى',
+        description: sahlForm.description.trim() || `${sahlForm.name} ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى`,
         badge: sahlForm.badge.trim() || '⚡ ئاپتوماتىك',
         inputLabel: sahlForm.inputLabel.trim(),
         inputPlaceholder: sahlForm.inputPlaceholder.trim(),
         published: sahlForm.published,
         source: 'provider',
-        packages: [
-          {
-            id: `pkg-${Date.now()}-1`,
-            title: sahlForm.packageTitle.trim() || sahlForm.name.trim(),
-            price: Number(sahlForm.sellPrice) || 1,
-            originalPrice: Math.round(Number(sahlForm.sellPrice) * 1.2 * 100) / 100,
-            duration: 'دەرھال',
-            providerProductId: selectedSahlProduct ? selectedSahlProduct.id : undefined,
-            productType: selectedSahlProduct?.productType === 'amount' ? 'amount' : 'fixed',
-            available: true,
-          },
-        ],
+        packages: selectedPackages.map((p, idx) => ({
+          id: `pkg-${Date.now()}-${idx + 1}`,
+          title: p.title.trim() || p.originalName,
+          price: Number(p.sellPrice) || 1,
+          originalPrice: Number(p.originalPrice) || Math.round(Number(p.sellPrice) * 1.2 * 100) / 100,
+          duration: 'دەرھال',
+          providerProductId: p.id,
+          productType: p.productType === 'amount' ? 'amount' : 'fixed',
+          available: true,
+        })),
       };
 
       const res = await fetch('/api/admin/services', {
@@ -1244,9 +1554,10 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.success && data.service) {
-        setServices((prev) => [data.service, ...prev]);
+        setServices((prev) => [data.service, ...prev.filter((s) => s.id !== data.service.id)]);
         setSahlCashModalOpen(false);
-        alert(`«${sahlForm.name}» مەھسۇلاتى مۇۋەپپەقىيەتلىك باشبەتكە چىقىرىلدى!`);
+        setSelectedSahlGroup(null);
+        alert(`«${sahlForm.name}» ناملىق مەھسۇلات ${selectedPackages.length} دانە بولىقى بىلەن مۇۋەپپەقىيەتلىك باشبەتكە چىقىرىلدى!`);
       } else {
         alert(data.message || 'قوشۇش مەغلۇپ بولدى');
       }
@@ -1256,16 +1567,6 @@ export default function AdminPage() {
       setSavingSahlProduct(false);
     }
   };
-
-  const filteredSahlProducts = providerProducts.filter((p) => {
-    if (!sahlSearch.trim()) return true;
-    const q = sahlSearch.toLowerCase().trim();
-    return (
-      p.name.toLowerCase().includes(q) ||
-      String(p.id).includes(q) ||
-      (p.categoryName && p.categoryName.toLowerCase().includes(q))
-    );
-  });
 
   // Save Settings Handler
   const handleTestTsaConnection = async () => {
@@ -3830,7 +4131,7 @@ export default function AdminPage() {
       {/* ================= 3.4 SAHL CASH PRODUCT IMPORTER & CUSTOMIZER MODAL ================= */}
       {sahlCashModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className={`w-full max-w-2xl ${themeClasses.card} rounded-3xl p-5 sm:p-7 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto font-alkatip border border-cyan-500/40`}>
+          <div className={`w-full max-w-4xl ${themeClasses.card} rounded-3xl p-5 sm:p-7 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto font-alkatip border border-cyan-500/40`}>
             {/* Header */}
             <div className="flex items-center justify-between pb-3.5 border-b border-slate-800">
               <div className="flex items-center gap-2.5">
@@ -3842,108 +4143,217 @@ export default function AdminPage() {
                     Sahl Cash تىن مەھسۇلات تاللاش ۋە باشبەتكە چىقىرىش
                   </h3>
                   <p className={`text-xs ${themeClasses.subtext}`}>
-                    Sahl Cash API سىدىكى مەھسۇلاتلارنى خاسلاشتۇرۇپ، نامى، رەسىمى ۋە سەھىپىسىنى تەڭشەپ نەق ئېلان قىلىش
+                    مەھسۇلاتلار بارلىق بولاقلىرى بىلەن تەييارلاندى. سەھىپە بويىچە تاللاپ ياكى ئىزدەپ، بىر چېكىش بىلەنلا باشبەتكە چىقىرىڭ.
                   </p>
                 </div>
               </div>
               <button
-                onClick={() => setSahlCashModalOpen(false)}
+                onClick={() => {
+                  setSahlCashModalOpen(false);
+                  setSelectedSahlGroup(null);
+                }}
                 className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800 transition cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Step 1: Search & Pick Product from Sahl Cash */}
-            <div className="p-4 rounded-2xl bg-[#06172a] border border-cyan-500/30 space-y-3">
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <label className="text-xs font-bold text-cyan-300 flex items-center gap-1.5">
-                  <Search className="w-4 h-4" />
-                  <span>1-قەدەم: Sahl Cash مەھسۇلاتىنى ئىزدەڭ ياكى تاللاڭ</span>
-                </label>
-                <span className="text-[11px] text-slate-400 font-mono">
-                  جەمئىي تېپىلغىنى: {providerProducts.length} مەھسۇلات
-                </span>
-              </div>
-
-              <div className="relative">
-                <Search className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  value={sahlSearch}
-                  onChange={(e) => setSahlSearch(e.target.value)}
-                  placeholder="مەھسۇلات نامى ياكى ID نى ئىزدەڭ (مەسىلەن: PUBG, Free Fire, Telegram, Netflix...)"
-                  className={`w-full pr-10 pl-3.5 py-2.5 rounded-xl text-xs font-bold ${themeClasses.input} focus:outline-none focus:border-cyan-400`}
-                />
-              </div>
-
-              {/* Quick popular search chips */}
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px]">
-                <span className="text-slate-400 shrink-0">تېز ئىزدەش:</span>
-                {['PUBG', 'Free Fire', 'Telegram', 'Netflix', 'ChatGPT', 'Mobile Legends', 'TikTok', 'Google Play', 'Steam'].map((chip) => (
-                  <button
-                    key={chip}
-                    type="button"
-                    onClick={() => setSahlSearch(chip)}
-                    className="px-2.5 py-0.5 rounded-full bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold border border-slate-700 transition cursor-pointer shrink-0"
-                  >
-                    {chip}
-                  </button>
-                ))}
-              </div>
-
-              {/* Dropdown list of filtered Sahl Cash products */}
-              <div className="max-h-48 overflow-y-auto space-y-1.5 rounded-xl border border-slate-800 p-2 bg-slate-950/60 divide-y divide-slate-800/60">
-                {filteredSahlProducts.length === 0 ? (
-                  <div className="py-4 text-center text-xs text-slate-400">
-                    {loadingProducts ? 'Sahl Cash مەھسۇلاتلىرى يۈكلىنىۋاتىدۇ...' : 'مەھسۇلات تېپىلمىدى ياكى يۇقىرىدىن نام كىرگۈزۈڭ'}
+            {/* If NO service is selected yet: Show Categories Filter + Search + Services Grid */}
+            {!selectedSahlGroup ? (
+              <div className="space-y-4">
+                {/* Search Bar & Stats */}
+                <div className="p-4 rounded-2xl bg-[#06172a] border border-cyan-500/30 space-y-3">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <label className="text-xs font-bold text-cyan-300 flex items-center gap-1.5">
+                      <Search className="w-4 h-4" />
+                      <span>مەھسۇلات ياكى بولاق نامىنى ئىزدەڭ:</span>
+                    </label>
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      جەمئىي مۇلازىمەت: {filteredGroupedServices.length} خىل (بولاقلار بىلەن بىرگە)
+                    </span>
                   </div>
-                ) : (
-                  filteredSahlProducts.slice(0, 30).map((prod) => {
-                    const isSelected = selectedSahlProduct?.id === prod.id;
-                    const cost = Number(prod.costPrice ?? prod.price ?? 0);
-                    return (
+
+                  <div className="relative">
+                    <Search className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      value={sahlSearch}
+                      onChange={(e) => setSahlSearch(e.target.value)}
+                      placeholder="مەسىلەن: PUBG, Free Fire, Blood Strike, Brawl Stars, ChatGPT, TikTok, Steam, Google Play..."
+                      className={`w-full pr-10 pl-3.5 py-2.5 rounded-xl text-xs font-bold ${themeClasses.input} focus:outline-none focus:border-cyan-400`}
+                    />
+                    {sahlSearch && (
                       <button
-                        key={prod.id}
                         type="button"
-                        onClick={() => handleSelectSahlProduct(prod)}
-                        className={`w-full p-2.5 rounded-xl text-right transition flex items-center justify-between gap-3 cursor-pointer ${
-                          isSelected
-                            ? 'bg-cyan-500/25 border border-cyan-400 text-white'
-                            : 'hover:bg-slate-800/80 text-slate-200'
-                        }`}
+                        onClick={() => setSahlSearch('')}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs cursor-pointer"
                       >
-                        <div className="min-w-0">
-                          <div className="font-bold text-xs truncate flex items-center gap-2">
-                            <span>{prod.name}</span>
-                            {isSelected && <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0" />}
-                          </div>
-                          <span className="text-[10px] text-slate-400 block mt-0.5 truncate">
-                            سەھىپىسى: {prod.categoryName || 'ئومۇمىي'} · ID: #{prod.id}
-                          </span>
-                        </div>
-                        <div className="shrink-0 text-left font-mono" dir="ltr">
-                          <span className="text-[10px] text-slate-400 block">تەننەرخ:</span>
-                          <span className="font-black text-xs text-cyan-400">${cost}</span>
-                        </div>
+                        ✕
                       </button>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-
-            {/* Step 2: Customization Form (Appears when a product is selected) */}
-            {selectedSahlProduct && (
-              <form onSubmit={handleSaveSahlProduct} className="space-y-4 animate-in fade-in duration-200">
-                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200 flex items-center justify-between gap-2">
-                  <div>
-                    <span className="font-bold text-white block">تاللانغان مەھسۇلات: {selectedSahlProduct.name}</span>
-                    <span className="text-[11px] text-amber-300">Sahl Cash نىڭ كۆپ مىقدارلىق تەننەرخ باھاسى: ${Number(selectedSahlProduct.costPrice ?? selectedSahlProduct.price ?? 0)}</span>
+                    )}
                   </div>
-                  <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-mono border border-cyan-500/30 shrink-0">
-                    ID: #{selectedSahlProduct.id}
-                  </span>
+
+                  {/* Category Filter Pills */}
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 border-t border-slate-800/80">
+                    {[
+                      { id: 'all', label: '🌟 ھەممىسى' },
+                      { id: 'games', label: '🎮 ئويۇنلار' },
+                      { id: 'apps', label: '📱 ئەپلەر' },
+                      { id: 'social', label: '👥 ئىجتىمائىي' },
+                      { id: 'cards', label: '💳 قاچىلاش كارتىلىرى' },
+                      { id: 'ai', label: '🤖 سۈنئىي ئەقىل' },
+                      { id: 'numbers', label: '📩 مەۋھۇم نومۇرلار' },
+                      { id: 'crypto', label: '💰 كرىپتو ۋە ھەميان' },
+                      { id: 'balance', label: '⚡ تېلېفون قالدۇقى' },
+                    ].map((cat) => {
+                      const isActive = sahlCategoryFilter === cat.id;
+                      const count = cat.id === 'all'
+                        ? groupedSahlServices.length
+                        : groupedSahlServices.filter((s) => s.category === cat.id).length;
+                      return (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => setSahlCategoryFilter(cat.id)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                            isActive
+                              ? 'bg-amber-400 text-slate-950 font-black shadow-md'
+                              : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 border border-slate-700/60'
+                          }`}
+                        >
+                          <span>{cat.label}</span>
+                          <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-900 text-slate-400'}`}>
+                            {count}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Quick popular search chips */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 text-[11px]">
+                    <span className="text-slate-400 shrink-0">تېز ئىزدەش:</span>
+                    {['PUBG Mobile', 'Free Fire', 'Blood strike', 'Brawl Stars', 'Clash of Clans', 'ChatGPT', 'TikTok', 'Steam', 'Google Play', 'تطبيق الارقام'].map((chip) => (
+                      <button
+                        key={chip}
+                        type="button"
+                        onClick={() => setSahlSearch(chip)}
+                        className="px-2.5 py-0.5 rounded-full bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold border border-slate-700 transition cursor-pointer shrink-0"
+                      >
+                        {chip}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Grouped Services Grid */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-300 px-1">
+                    <span>مۇلازىمەت تۈرلىرى ({filteredGroupedServices.length} تال):</span>
+                    <span className="text-slate-400 text-[11px]">بىرنى تاللىسىڭىز پۈتۈن بولاقلىرى بىلەن تەڭشەش بۆلىكى ئېچىلىدۇ</span>
+                  </div>
+
+                  {loadingProducts ? (
+                    <div className="p-12 text-center text-xs text-slate-400 flex flex-col items-center gap-2">
+                      <RefreshCw className="w-6 h-6 animate-spin text-cyan-400" />
+                      <span>Sahl Cash تىن مەھسۇلاتلار يۈكلىنىۋاتىدۇ...</span>
+                    </div>
+                  ) : filteredGroupedServices.length === 0 ? (
+                    <div className="p-12 text-center text-xs text-slate-400 border border-dashed border-slate-800 rounded-2xl">
+                      مەھسۇلات تېپىلمىدى. يۇقىرىدىن نام ياكى باشقا سەھىپىنى تاللاڭ.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-[52vh] overflow-y-auto p-1">
+                      {filteredGroupedServices.map((service) => {
+                        const isImported = services.some((s) => s.name.toLowerCase().includes(service.name.toLowerCase()) || s.name.toLowerCase().includes(service.uyghurName.toLowerCase()));
+                        return (
+                          <div
+                            key={service.key}
+                            onClick={() => handleSelectSahlGroup(service)}
+                            className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-400/60 hover:bg-slate-800/60 transition cursor-pointer flex flex-col justify-between gap-3 group relative shadow-md hover:shadow-cyan-500/10"
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="w-13 h-13 rounded-2xl overflow-hidden bg-slate-950 border border-slate-700/80 shrink-0 shadow">
+                                <img
+                                  src={service.image}
+                                  alt={service.name}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                                  onError={(e) => {
+                                    (e.currentTarget as HTMLImageElement).src = '/logo.png';
+                                  }}
+                                />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <h4 className="font-bold text-xs text-white truncate">
+                                    {service.uyghurName}
+                                  </h4>
+                                </div>
+                                <span className="text-[11px] font-mono text-cyan-300 block truncate mt-0.5" dir="ltr">
+                                  {service.name}
+                                </span>
+                                <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                                  <span className="px-2 py-0.5 rounded-md bg-amber-400/15 border border-amber-400/30 text-amber-300 font-bold text-[10px]">
+                                    📦 {service.packages.length} بولاق
+                                  </span>
+                                  {isImported && (
+                                    <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">
+                                      ✓ باشبەتتە بار
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+                              <span className="text-slate-400 font-mono" dir="ltr">
+                                ${service.minCost.toFixed(2)} - ${service.maxCost.toFixed(2)}
+                              </span>
+                              <span className="text-amber-400 font-bold flex items-center gap-1 group-hover:translate-x-[-2px] transition">
+                                <span>تاللاش</span>
+                                <ArrowLeft className="w-3.5 h-3.5" />
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* Step 2: Customization Form with ALL Packages & Bulk Markup */
+              <form onSubmit={handleSaveSahlProduct} className="space-y-4 animate-in fade-in duration-200">
+                {/* Back button & Selected Service Banner */}
+                <div className="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-900 border border-slate-700 shrink-0 shadow">
+                      <img
+                        src={sahlForm.image}
+                        alt="Service"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = '/logo.png';
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white text-sm">{selectedSahlGroup.uyghurName}</span>
+                        <span className="text-cyan-300 font-mono text-xs">({selectedSahlGroup.name})</span>
+                      </div>
+                      <span className="text-xs text-amber-300 block mt-0.5">
+                        جەمئىي {sahlForm.packages.length} بولاق تەييارلاندى · تاللانغىنى: {sahlForm.packages.filter((p) => p.selected).length} بولاق
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSahlGroup(null)}
+                    className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition cursor-pointer flex items-center gap-1"
+                  >
+                    <span>← باشقا مەھسۇلاتنى تاللاش</span>
+                  </button>
                 </div>
 
                 <div className="space-y-3.5 text-xs">
@@ -3957,7 +4367,7 @@ export default function AdminPage() {
                       required
                       value={sahlForm.name}
                       onChange={(e) => setSahlForm({ ...sahlForm, name: e.target.value })}
-                      placeholder="مەسىلەن: پابجى كۆچمە 60 UC"
+                      placeholder="مەسىلەن: پابجى كۆچمە (PUBG Mobile)"
                       className={`w-full px-3.5 py-2.5 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400 text-white font-bold`}
                     />
                   </div>
@@ -4046,6 +4456,13 @@ export default function AdminPage() {
                           </button>
                           <button
                             type="button"
+                            onClick={() => setSahlForm({ ...sahlForm, image: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=500&auto=format&fit=crop&q=80' })}
+                            className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 font-mono"
+                          >
+                            TikTok
+                          </button>
+                          <button
+                            type="button"
                             onClick={() => setSahlForm({ ...sahlForm, image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=500&auto=format&fit=crop&q=80' })}
                             className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 font-mono"
                           >
@@ -4068,80 +4485,142 @@ export default function AdminPage() {
                     />
                   </div>
 
-                  {/* Price & Profit Calculator */}
+                  {/* ⚡ Universal Bulk Profit Markup Bar */}
                   <div className="p-4 rounded-2xl bg-black/40 border border-amber-500/30 space-y-3">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
                       <span className="font-bold text-amber-300 text-xs flex items-center gap-1.5">
                         <DollarSign className="w-4 h-4 text-emerald-400" />
-                        <span>باھا ۋە پايدا بەلگىلەش</span>
+                        <span>بارلىق بولاقلارنىڭ پايدا نىسبىتى (% Markup):</span>
                       </span>
-                      <span className="text-[11px] font-mono text-cyan-300" dir="ltr">
-                        تەننەرخ: ${sahlForm.costPrice}
+                      <span className="text-[11px] text-slate-400">
+                        بۇ نىسبەت تۆۋەندىكى بارلىق {sahlForm.packages.length} بولاقنىڭ سېتىش باھاسىغا بىرلا ۋاقىتتا قوللىنىلىدۇ
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                      <div>
-                        <label className="block text-slate-300 font-bold mb-1">سېتىش باھاسى ($ USD):</label>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <div className="flex items-center gap-1.5 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-700">
+                        <span className="text-slate-400 font-bold text-xs">%</span>
                         <input
                           type="number"
-                          step="0.01"
-                          required
-                          value={sahlForm.sellPrice}
-                          onChange={(e) => {
-                            const newSell = Number(e.target.value);
-                            const markup = sahlForm.costPrice > 0 ? Math.round(((newSell - sahlForm.costPrice) / sahlForm.costPrice) * 100) : 0;
-                            setSahlForm({ ...sahlForm, sellPrice: newSell, markupPercent: markup });
-                          }}
-                          className={`w-full px-3.5 py-2.5 rounded-xl text-base font-black font-mono text-amber-400 ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                          step="1"
+                          value={sahlBulkMarkup}
+                          onChange={(e) => handleApplyBulkMarkup(Number(e.target.value) || 0)}
+                          className="w-16 bg-transparent text-amber-400 font-bold font-mono text-sm focus:outline-none"
                           dir="ltr"
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-slate-300 font-bold mb-1">پايدا پىرسەنتى (% Markup):</label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="number"
-                            step="1"
-                            value={sahlForm.markupPercent}
-                            onChange={(e) => {
-                              const newMarkup = Number(e.target.value);
-                              const newSell = Math.round((sahlForm.costPrice * (1 + newMarkup / 100)) * 100) / 100;
-                              setSahlForm({ ...sahlForm, markupPercent: newMarkup, sellPrice: newSell });
-                            }}
-                            className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-xs ${themeClasses.input} focus:outline-none focus:border-amber-400`}
-                            dir="ltr"
-                          />
-                          <div className="flex items-center gap-1 shrink-0">
-                            {[10, 15, 20, 30].map((pct) => (
-                              <button
-                                key={pct}
-                                type="button"
-                                onClick={() => {
-                                  const newSell = Math.round((sahlForm.costPrice * (1 + pct / 100)) * 100) / 100;
-                                  setSahlForm({ ...sahlForm, markupPercent: pct, sellPrice: newSell });
-                                }}
-                                className={`px-2 py-1.5 rounded-lg text-[10px] font-bold border transition cursor-pointer ${
-                                  sahlForm.markupPercent === pct
-                                    ? 'bg-amber-400 text-slate-950 border-amber-300 font-black'
-                                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
-                                }`}
-                              >
-                                +{pct}%
-                              </button>
-                            ))}
-                          </div>
-                        </div>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {[10, 15, 20, 25, 30, 50].map((pct) => (
+                          <button
+                            key={pct}
+                            type="button"
+                            onClick={() => handleApplyBulkMarkup(pct)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
+                              sahlBulkMarkup === pct
+                                ? 'bg-amber-400 text-slate-950 border-amber-300 font-black shadow-md'
+                                : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                            }`}
+                          >
+                            +{pct}% {pct === 15 ? '(تەۋسىيە)' : ''}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 📦 All Packages Management Table */}
+                  <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-3">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="flex items-center gap-2">
+                        <Layers className="w-4 h-4 text-cyan-400" />
+                        <span className="font-bold text-white text-xs">
+                          بارلىق بولاقلار تىزىملىكى ({sahlForm.packages.filter((p) => p.selected).length} / {sahlForm.packages.length} تاللانغان)
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[11px]">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleAllPackages(true)}
+                          className="text-cyan-400 hover:underline cursor-pointer"
+                        >
+                          ھەممىسىنى تاللاش
+                        </button>
+                        <span className="text-slate-600">|</span>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleAllPackages(false)}
+                          className="text-slate-400 hover:underline cursor-pointer"
+                        >
+                          تاللاشنى بىكار قىلىش
+                        </button>
                       </div>
                     </div>
 
-                    {/* Profit banner */}
-                    <div className="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 flex items-center justify-between text-xs font-bold text-emerald-300">
-                      <span>ساپ پايدىڭىز:</span>
-                      <span className="font-mono" dir="ltr">
-                        +${Math.max(0, Math.round((sahlForm.sellPrice - sahlForm.costPrice) * 100) / 100)} ({sahlForm.markupPercent}%)
-                      </span>
+                    <div className="max-h-64 overflow-y-auto space-y-2 pr-1">
+                      {sahlForm.packages.map((pkg) => {
+                        const profit = Math.round((pkg.sellPrice - pkg.costPrice) * 100) / 100;
+                        const profitPct = pkg.costPrice > 0 ? Math.round(((pkg.sellPrice - pkg.costPrice) / pkg.costPrice) * 100) : 0;
+                        return (
+                          <div
+                            key={pkg.id}
+                            className={`p-2.5 rounded-xl border transition flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap ${
+                              pkg.selected
+                                ? 'bg-slate-900/90 border-slate-700'
+                                : 'bg-slate-950/50 border-slate-850 opacity-60'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5 flex-1 min-w-[200px]">
+                              <input
+                                type="checkbox"
+                                checked={pkg.selected}
+                                onChange={() => handleTogglePackage(pkg.id)}
+                                className="w-4 h-4 accent-amber-400 rounded cursor-pointer shrink-0"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <input
+                                  type="text"
+                                  value={pkg.title}
+                                  onChange={(e) => handlePackageTitleChange(pkg.id, e.target.value)}
+                                  className="w-full bg-slate-950/80 px-2 py-1 rounded-lg border border-slate-700 text-white font-bold text-xs focus:outline-none focus:border-amber-400"
+                                  placeholder="بولاق نامى"
+                                />
+                                <span className="text-[10px] text-slate-500 font-mono block mt-0.5 truncate" dir="ltr">
+                                  #{pkg.id} · {pkg.originalName}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 shrink-0">
+                              {/* Cost price */}
+                              <div className="text-left font-mono" dir="ltr">
+                                <span className="text-[10px] text-slate-400 block">تەننەرخ:</span>
+                                <span className="text-cyan-400 font-bold text-xs">${pkg.costPrice}</span>
+                              </div>
+
+                              {/* Sell price input */}
+                              <div className="text-left" dir="ltr">
+                                <span className="text-[10px] text-amber-300 font-bold block">سېتىش ($):</span>
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  value={pkg.sellPrice}
+                                  onChange={(e) => handlePackagePriceChange(pkg.id, Number(e.target.value) || 0)}
+                                  className="w-20 bg-slate-950 px-2 py-1 rounded-lg border border-amber-500/40 text-amber-300 font-bold font-mono text-xs focus:outline-none focus:border-amber-400 text-center"
+                                />
+                              </div>
+
+                              {/* Net Profit badge */}
+                              <div className="text-left font-mono" dir="ltr">
+                                <span className="text-[10px] text-emerald-400 block">ساپ پايدا:</span>
+                                <span className={`text-[11px] font-bold ${profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                  +${profit} ({profitPct}%)
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -4173,7 +4652,7 @@ export default function AdminPage() {
                   <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
                     <div>
                       <span className="font-bold text-white text-xs block">باشبەتتە نەق كۆرسىتىش (ئېلان قىلىش):</span>
-                      <span className="text-[11px] text-slate-400">ساقلىغاندىن كېيىن دەرھال ماگىزىن باشبېتىدە كۆرۈنىدۇ</span>
+                      <span className="text-[11px] text-slate-400">ساقلىغاندىن كېيىن دەرھال ماگىزىن باشبېتىدە نەق كۆرۈنىدۇ</span>
                     </div>
                     <input
                       type="checkbox"
@@ -4188,15 +4667,22 @@ export default function AdminPage() {
                 <div className="flex items-center gap-3 pt-3 border-t border-slate-800">
                   <button
                     type="submit"
-                    disabled={savingSahlProduct}
+                    disabled={savingSahlProduct || sahlForm.packages.filter((p) => p.selected).length === 0}
                     className="flex-1 py-3 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"
                   >
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>{savingSahlProduct ? 'ساقلىنىۋاتىدۇ...' : 'ساقلاش ۋە دەرھال باشبەتكە چىقىرىش'}</span>
+                    <span>
+                      {savingSahlProduct
+                        ? 'ساقلىنىۋاتىدۇ...'
+                        : `ساقلاش ۋە دەرھال باشبەتكە چىقىرىش (${sahlForm.packages.filter((p) => p.selected).length} بولاق بىلەن)`}
+                    </span>
                   </button>
                   <button
                     type="button"
-                    onClick={() => setSahlCashModalOpen(false)}
+                    onClick={() => {
+                      setSahlCashModalOpen(false);
+                      setSelectedSahlGroup(null);
+                    }}
                     className="px-5 py-3 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold transition hover:bg-slate-700 cursor-pointer"
                   >
                     بىكار قىلىش
