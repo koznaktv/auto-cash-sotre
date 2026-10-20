@@ -12,6 +12,7 @@ import { validateGameAccount } from '@/lib/validation/gameAccountValidator';
 import { minQty, validateOrderFields, validateQty } from '@/lib/catalog/fieldValidation';
 import { estimateTotal } from '@/lib/catalog/pricing';
 import { formatSmartPrice } from '@/lib/formatMoney';
+import { getProductBio } from '@/lib/catalog/productBios';
 
 interface CheckoutModalProps {
   service: ServiceItem | null;
@@ -29,7 +30,7 @@ function newIdempotencyKey(): string {
 
 export default function CheckoutModal({ service, user, onClose, onSuccess, onOpenAuth }: CheckoutModalProps) {
   const router = useRouter();
-  const { t, isRTL, translatePackageTitle, translateInputLabel, translateInputPlaceholder } = useLanguage();
+  const { lang, t, isRTL, translatePackageTitle, translateInputLabel, translateInputPlaceholder } = useLanguage();
 
   const isProvider = Boolean(service && (service.source === 'provider' || service.id.startsWith('s4g-')));
   const [detail, setDetail] = useState<ServiceItem | null>(isProvider ? null : service);
@@ -100,6 +101,11 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
     if (qty === minQty(selectedPkg.qty)) return selectedPkg.price;
     return estimateTotal(selectedPkg.unitPrice, qty);
   }, [selectedPkg, qty]);
+
+  const productBio = useMemo(() => {
+    if (!service) return null;
+    return getProductBio(service, selectedPkg, lang);
+  }, [service, selectedPkg, lang]);
 
   if (!service) return null;
 
@@ -409,7 +415,14 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                       inputMode={field.type === 'number' ? 'numeric' : undefined}
                       value={fieldValues[field.key] || ''}
                       onChange={(e) => setFieldValues((v) => ({ ...v, [field.key]: e.target.value }))}
-                      placeholder={field.placeholder || ''}
+                      placeholder={
+                        translateInputPlaceholder(field.placeholder) ||
+                        (lang === 'ar'
+                          ? `أدخل ${translateInputLabel(field.label) || field.label}...`
+                          : lang === 'en'
+                          ? `Enter ${translateInputLabel(field.label) || field.label}...`
+                          : `«${translateInputLabel(field.label) || field.label}» كىرگۈزۈڭ...`)
+                      }
                       maxLength={field.maxLength || 100}
                       className={inputClass}
                     />
@@ -503,6 +516,25 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                 />
               )}
             </div>
+
+            {/* Product Bio & Instructions (matches user screenshot) */}
+            {productBio && productBio.content && (
+              <div className="mt-4 pt-3 border-t border-slate-800/80">
+                <div
+                  className={`p-3.5 rounded-xl bg-slate-950/70 border border-slate-800/80 ${
+                    isRTL ? 'border-r-4 border-r-rose-500 text-right' : 'border-l-4 border-l-rose-500 text-left'
+                  }`}
+                >
+                  <h4 className="text-xs sm:text-sm font-bold text-rose-400 mb-1.5 font-alkatip flex items-center gap-1.5" dir={isRTL ? 'rtl' : 'ltr'}>
+                    <Info className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                    <span>{translatePackageTitle(productBio.title)}</span>
+                  </h4>
+                  <div className="text-[11px] sm:text-xs text-slate-300 leading-relaxed font-alkatip whitespace-pre-line">
+                    {productBio.content}
+                  </div>
+                </div>
+              </div>
+            )}
           </form>
         )}
       </div>

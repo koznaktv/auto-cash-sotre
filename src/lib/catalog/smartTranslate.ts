@@ -485,6 +485,18 @@ export function smartTranslateFieldLabel(label: string | null | undefined, lang:
     return 'Player ID';
   }
 
+  if (lower === 'user name' || lower === 'username' || lower === 'اسم المستخدم') {
+    if (lang === 'ug') return 'ئىشلەتكۈچى نامى (Username)';
+    if (lang === 'ar') return 'اسم المستخدم';
+    return 'Username';
+  }
+
+  if (lower === 'password' || lower === 'pass' || lower === 'كلمة سر' || lower === 'كلمة السر') {
+    if (lang === 'ug') return 'مەخپىي نومۇر (Password)';
+    if (lang === 'ar') return 'كلمة السر';
+    return 'Password';
+  }
+
   if (lower === 'imei' || lower === 'imei number') {
     if (lang === 'ug') return 'IMEI نومۇرى';
     if (lang === 'ar') return 'رقم IMEI';

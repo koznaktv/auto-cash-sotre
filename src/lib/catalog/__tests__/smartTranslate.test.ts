@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { smartTranslateTitle, smartTranslateFieldLabel } from '../smartTranslate';
+import { getProductBio } from '../productBios';
 
 describe('smartTranslateTitle', () => {
   it('translates user screenshot packages accurately to Uyghur', () => {
@@ -48,7 +49,28 @@ describe('smartTranslateFieldLabel', () => {
     expect(smartTranslateFieldLabel('IMEI', 'ug')).toBe('IMEI نومۇرى');
     expect(smartTranslateFieldLabel('Phone', 'ug')).toBe('تېلېفون نومۇرى');
     expect(smartTranslateFieldLabel('Link', 'ug')).toBe('ئۇلىنىش (Link / URL)');
+    expect(smartTranslateFieldLabel('user name', 'ug')).toBe('ئىشلەتكۈچى نامى (Username)');
+    expect(smartTranslateFieldLabel('password', 'ug')).toBe('مەخپىي نومۇر (Password)');
     expect(smartTranslateFieldLabel('USER ID', 'ar')).toBe('معرف اللاعب (Player ID)');
     expect(smartTranslateFieldLabel('USER ID', 'en')).toBe('Player ID');
   });
 });
+
+describe('getProductBio', () => {
+  it('returns rich description for Chimera Tool matching user screenshot', () => {
+    const fakeService: any = { id: 's4g-189', name: 'Chimera tool pro', category: 'apps', packages: [] };
+    const fakePkg: any = { id: 'pkg-1745', title: 'Chimera Tool Basic 100 device', price: 100.28 };
+    const bio = getProductBio(fakeService, fakePkg, 'ug');
+    expect(bio.title).toBe('Chimera Tool Basic 100 device');
+    expect(bio.content).toContain('ChimeraTool قاچىلانغاندىن كېيىن دەرھال ئىشلىتىشكە بولىدىغان ئاددىي ۋە ئەتراپلىق يۇمشاق دېتال قورالىدۇر');
+    expect(bio.content).toContain('Samsung, Huawei, Xiaomi');
+  });
+
+  it('returns Arabic bio for Chimera Tool when lang is ar', () => {
+    const fakeService: any = { id: 's4g-189', name: 'Chimera tool pro', category: 'apps', packages: [] };
+    const fakePkg: any = { id: 'pkg-1745', title: 'Chimera Tool Basic 100 device', price: 100.28 };
+    const bio = getProductBio(fakeService, fakePkg, 'ar');
+    expect(bio.content).toContain('ChimeraTool هو تطبيق شامل وبسيط');
+  });
+});
+
