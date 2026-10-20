@@ -231,7 +231,7 @@ export default function HomePage() {
   // Storefront catalog: Sahl Cash synced provider catalog
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
-  const [catalogSource, setCatalogSource] = useState<'legacy' | 'provider'>('provider');
+  const [catalogSource, setCatalogSource] = useState<'legacy' | 'provider'>('legacy');
   const [catalogLoading, setCatalogLoading] = useState(true);
   useEffect(() => {
     // Instant cache hydration: if previously loaded, display IMMEDIATELY (<1ms)
@@ -242,7 +242,7 @@ export default function HomePage() {
         const parsed = JSON.parse(cachedCat);
         if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
           setServices(parsed.services);
-          setCatalogSource(parsed.source === 'legacy' ? 'legacy' : 'provider');
+          setCatalogSource(parsed.source === 'provider' ? 'provider' : 'legacy');
           setCatalogLoading(false);
         }
       }
@@ -256,8 +256,8 @@ export default function HomePage() {
 
     // Fetch fresh catalog from API
     Promise.all([
-      fetch('/api/catalog').then((r) => r.json()).catch(() => null),
-      fetch('/api/categories').then((r) => r.json()).catch(() => null),
+      fetch(`/api/catalog?t=${Date.now()}`, { cache: 'no-store' }).then((r) => r.json()).catch(() => null),
+      fetch(`/api/categories?t=${Date.now()}`, { cache: 'no-store' }).then((r) => r.json()).catch(() => null),
     ])
       .then(([dCat, dCats]) => {
         if (dCat && dCat.success && Array.isArray(dCat.services)) {

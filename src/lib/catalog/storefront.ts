@@ -300,42 +300,25 @@ export async function getProviderCatalog(options: { fresh?: boolean } = {}): Pro
   return catalog;
 }
 
-/** The catalog buyers see: custom services managed by admin take top priority; provider catalog fills in or provides fallback. */
+/** The storefront buyers see: ONLY products chosen and published by the admin. */
 export async function getCatalogServices(options: { source?: 'legacy' | 'provider' } = {}): Promise<ServiceItem[]> {
-  const settings = await getProviderSettings();
-  const source = options.source || settings.catalogSource;
-
-  const { getServicesListAsync } = await import('../servicesDb');
-  const customServices = await getServicesListAsync();
-  const publishedCustom: ServiceItem[] = (customServices || []).map((s) => ({
-    ...s,
-    published: s.published !== false,
-    source: (s.source || 'legacy') as 'legacy' | 'provider',
-  }));
-
-  if (source === 'legacy') {
-    if (publishedCustom.length > 0) {
-      return publishedCustom;
-    }
+  // Only if an admin preview explicitly asks for ?source=provider do we show raw provider catalog
+  if (options.source === 'provider') {
     const providerCatalog = await getProviderCatalog();
     return providerCatalog.services || [];
   }
 
-  // source === 'provider':
-  const providerCatalog = await getProviderCatalog();
-  if (!providerCatalog.services || providerCatalog.services.length === 0) {
-    return publishedCustom;
-  }
+  const { getServicesListAsync } = await import('../servicesDb');
+  const customServices = await getServicesListAsync();
+  const publishedCustom: ServiceItem[] = (customServices || [])
+    .filter((s) => s.published !== false)
+    .map((s) => ({
+      ...s,
+      published: true,
+      source: (s.source || 'legacy') as 'legacy' | 'provider',
+    }));
 
-  // Merge: custom services take precedence over raw provider catalog
-  const customIds = new Set(publishedCustom.map((s) => s.id));
-  const merged: ServiceItem[] = [...publishedCustom];
-  for (const s of providerCatalog.services) {
-    if (!customIds.has(s.id)) {
-      merged.push(s);
-    }
-  }
-  return merged;
+  return publishedCustom;
 }
 
 export type ResolveResult =
