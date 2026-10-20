@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { RefreshCw, Save, AlertTriangle, PlayCircle, Search, Eye, EyeOff, ScrollText } from 'lucide-react';
 import { STOREFRONT_CATEGORIES, type ProviderSettings, type StorefrontCategory } from '@/lib/catalog/types';
+import { formatSmartPrice } from '@/lib/formatMoney';
 
 type Theme = Record<string, string>;
 
@@ -421,12 +422,12 @@ export default function ProviderCatalogPanel({ themeClasses }: { themeClasses: T
                   </td>
                   <td className="p-2 text-slate-400">{p.categoryName}</td>
                   <td className="p-2 font-mono" dir="ltr">
-                    ${p.costPrice}
+                    ${formatSmartPrice(p.costPrice)}
                     {p.prevCostPrice !== null && p.prevCostPrice !== undefined && (
-                      <span className="block text-[10px] text-slate-500 line-through">${p.prevCostPrice}</span>
+                      <span className="block text-[10px] text-slate-500 line-through">${formatSmartPrice(p.prevCostPrice)}</span>
                     )}
                   </td>
-                  <td className="p-2 font-mono text-emerald-300" dir="ltr">{p.sellPrice !== null ? `$${p.sellPrice.toFixed(2)}` : '—'}</td>
+                  <td className="p-2 font-mono text-emerald-300" dir="ltr">{p.sellPrice !== null ? `$${formatSmartPrice(p.sellPrice)}` : '—'}</td>
                   <td className="p-2">
                     <input
                       type="number"

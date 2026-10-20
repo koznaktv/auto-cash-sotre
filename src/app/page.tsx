@@ -1,6 +1,6 @@
 'use client';
 
-import { clearLocalAuth, logout, syncSupabaseSession, getCachedBalance, getCachedUser, storeLocalAuth, ClientUser } from '@/lib/clientAuth';
+import { clearLocalAuth, logout, syncSupabaseSession, getCachedBalance, getCachedUser, storeLocalAuth, ClientUser, formatSmartPrice } from '@/lib/clientAuth';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -701,7 +701,7 @@ export default function HomePage() {
                       </span>
                       <span className="font-extrabold text-amber-400 font-mono flex items-center gap-0.5" dir="ltr">
                         <span className="text-amber-300">$</span>
-                        <span>{service.packages[0]?.price.toFixed(2)}</span>
+                        <span>{formatSmartPrice(service.packages[0]?.price)}</span>
                       </span>
                       <span className="text-slate-400 text-[9px]">
                         {isRTL ? 'دىن' : ''}

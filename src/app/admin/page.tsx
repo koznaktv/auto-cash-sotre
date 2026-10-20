@@ -6,6 +6,7 @@ import { isOrderInProgress, type Order, type DepositRecord } from '@/lib/orders'
 import { CATEGORIES_9, ServiceItem, ServicePackage } from '@/lib/data';
 import { CategoryItem } from '@/lib/categoriesDb';
 import ProviderCatalogPanel from '@/components/admin/ProviderCatalogPanel';
+import { formatSmartPrice } from '@/lib/formatMoney';
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -539,7 +540,7 @@ export default function AdminPage() {
 
   // Refund to the buyer's wallet (replaces plain "cancel", which used to keep the money)
   const handleRefundOrder = async (order: Order) => {
-    if (!window.confirm(`${order.id}: $${order.amount.toFixed(2)} خېرىدارنىڭ ھەميانىغا قايتۇرۇلسۇنمۇ؟`)) return;
+    if (!window.confirm(`${order.id}: $${formatSmartPrice(order.amount)} خېرىدارنىڭ ھەميانىغا قايتۇرۇلسۇنمۇ؟`)) return;
     setActionLoading(order.id);
     const token = sessionStorage.getItem('autocash_admin_token');
     const call = (force: boolean) =>
@@ -1645,7 +1646,7 @@ export default function AdminPage() {
                   <div className="text-left" dir="ltr">
                     <span className="text-[11px] text-slate-400 block text-right font-medium">تەمىنلىگۈچى قالدۇق پۇلى:</span>
                     <span className="text-xl sm:text-2xl font-black font-mono text-cyan-400">
-                      ${providerStatus?.balance !== undefined ? providerStatus.balance.toFixed(2) : '---'}
+                      ${providerStatus?.balance !== undefined ? formatSmartPrice(providerStatus.balance) : '---'}
                     </span>
                     <span className="text-[11px] text-slate-400 ml-1 font-mono">
                       {providerStatus?.currency || 'USD'}
@@ -1800,7 +1801,7 @@ export default function AdminPage() {
                             {order.targetAccount}
                           </td>
                           <td className="py-2.5 px-3 font-mono font-bold text-amber-400">
-                            ${order.amount.toFixed(2)}
+                            ${formatSmartPrice(order.amount)}
                           </td>
                           <td className="py-2.5 px-3">
                             <span
@@ -1946,7 +1947,7 @@ export default function AdminPage() {
                               )}
                               {typeof order.details?.costTotal === 'number' && (
                                 <span className="block text-[10px] text-slate-500 font-normal" dir="ltr">
-                                  cost ${order.details.costTotal.toFixed(4)} · profit ${(order.amount - order.details.costTotal).toFixed(2)}
+                                  cost ${formatSmartPrice(order.details.costTotal)} · profit ${formatSmartPrice(order.amount - order.details.costTotal)}
                                 </span>
                               )}
                             </td>
@@ -1954,7 +1955,7 @@ export default function AdminPage() {
                               {order.userEmail || 'ئېنىقسىز'}
                             </td>
                             <td className="py-3 px-3 font-mono font-bold text-amber-400">
-                              ${order.amount.toFixed(2)}
+                              ${formatSmartPrice(order.amount)}
                             </td>
                             <td className="py-3 px-3">
                               <span
@@ -2203,7 +2204,7 @@ export default function AdminPage() {
                         <div className="text-left font-mono">
                           <span className="text-[10px] text-slate-400 ml-1">باشلىنىش:</span>
                           <span className="font-black text-amber-400 text-sm">
-                            ${srv.packages[0]?.price?.toFixed(2) || '0.00'}
+                            ${formatSmartPrice(srv.packages[0]?.price)}
                           </span>
                         </div>
                       </div>
@@ -2280,7 +2281,7 @@ export default function AdminPage() {
                               <span className="text-[10px] text-slate-400 font-mono">{dep.userEmail}</span>
                             </td>
                             <td className="py-3 px-3 font-mono font-black text-emerald-400 text-sm">
-                              +${dep.amount.toFixed(2)}
+                              +${formatSmartPrice(dep.amount)}
                             </td>
                             <td className="py-3 px-3 font-mono text-slate-400 text-[10px]">
                               {dep.date}
@@ -2389,10 +2390,10 @@ export default function AdminPage() {
                             {user.phone && <div className="text-[10px] text-slate-500">{user.phone}</div>}
                           </td>
                           <td className="py-3 px-3 font-mono font-black text-amber-400 text-sm">
-                            ${user.balance?.toFixed(2) || '0.00'}
+                            ${formatSmartPrice(user.balance)}
                           </td>
                           <td className="py-3 px-3 font-mono text-slate-400">
-                            ${user.totalSpent?.toFixed(2) || '0.00'}
+                            ${formatSmartPrice(user.totalSpent)}
                           </td>
                           <td className="py-3 px-3">
                             <select
@@ -2766,7 +2767,7 @@ export default function AdminPage() {
                 <div className={`p-5 rounded-2xl ${themeClasses.card} border border-cyan-500/30`}>
                   <span className={`text-xs ${themeClasses.subtext} block mb-1`}>تەمىنلىگۈچى قالدۇق پۇلى</span>
                   <div className="text-2xl sm:text-3xl font-black font-mono text-cyan-400 mt-2" dir="ltr">
-                    ${providerStatus?.balance !== undefined && providerStatus?.balance !== null ? Number(providerStatus.balance).toFixed(2) : '---'}
+                    ${providerStatus?.balance !== undefined && providerStatus?.balance !== null ? formatSmartPrice(providerStatus.balance) : '---'}
                   </div>
                   <span className="text-[11px] text-slate-400 font-mono mt-1 block">
                     پۇل بىرلىكى: {providerStatus?.currency || 'USD'}
@@ -3377,7 +3378,7 @@ export default function AdminPage() {
               <div className="flex items-center justify-between">
                 <span className={themeClasses.subtext}>نۆۋەتتىكى قالدۇقى:</span>
                 <span className="font-mono font-black text-amber-400 text-sm">
-                  ${selectedUser.balance?.toFixed(2) || '0.00'}
+                  ${formatSmartPrice(selectedUser.balance)}
                 </span>
               </div>
               <div className="flex items-center justify-between">

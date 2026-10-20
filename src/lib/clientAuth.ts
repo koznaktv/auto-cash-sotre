@@ -58,11 +58,12 @@ export function getCachedUser(): ClientUser | null {
   return { id, name, email, avatarUrl, balance, vipTier, totalSpent };
 }
 
-export function formatCurrencyAmount(val: number): string {
-  const s = Number(val || 0).toFixed(2);
-  if (s.endsWith('.00')) return s.slice(0, -3);
-  if (s.endsWith('0') && s.includes('.')) return s.slice(0, -1);
-  return s;
+import { formatSmartPrice } from './formatMoney';
+
+export { formatSmartPrice };
+
+export function formatCurrencyAmount(val: number | string | null | undefined): string {
+  return formatSmartPrice(val);
 }
 
 /** Ends the server session, the local cache and any Supabase (Google) session. */

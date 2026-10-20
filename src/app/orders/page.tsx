@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { isOrderInProgress, type Order } from '@/lib/orders';
 import { getCachedBalance, getCachedUser, storeLocalAuth, ClientUser } from '@/lib/clientAuth';
+import { formatSmartPrice } from '@/lib/formatMoney';
 
 export default function OrdersPage() {
   const { lang, t, isRTL } = useLanguage();
@@ -392,7 +393,7 @@ export default function OrdersPage() {
 
                     <div className="text-left font-mono" dir="ltr">
                       <span className="font-extrabold text-amber-400 text-sm">
-                        ${Number(order.amount ?? (order as any).price ?? 0).toFixed(2)}
+                        ${formatSmartPrice(Number(order.amount ?? (order as any).price ?? 0))}
                       </span>
                       <span className="block text-[10px] text-slate-500">
                         {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

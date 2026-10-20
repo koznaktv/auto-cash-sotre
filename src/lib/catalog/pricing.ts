@@ -7,6 +7,13 @@ export function ceilCents(value: number): number {
   return Math.ceil(value * 100 - 1e-7) / 100;
 }
 
+/** Micro-precision ceil: preserves up to 8 decimal places for micro/fractional amounts without premature 2-decimal truncation. */
+export function ceilPrecision(value: number, decimals: number = 8): number {
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  const factor = Math.pow(10, decimals);
+  return Math.ceil(value * factor - 1e-9) / factor;
+}
+
 export function clampMarkup(value: number): number {
   if (!Number.isFinite(value)) return 0;
   return Math.min(Math.max(value, 0), MAX_MARKUP_PERCENT);
@@ -27,7 +34,7 @@ export function unitSellPrice(unitCost: number, markupPercent: number, fixedMark
 }
 
 /**
- * Total the buyer pays: (cost × (1 + markup%)) + fixedMarkupUsd, rounded up to the cent, and never less than
+ * Total the buyer pays: (cost × (1 + markup%)) + fixedMarkupUsd, rounded up, and never less than
  * cost + minProfit. Throws if the result would not be above cost (we never sell at a loss).
  */
 export function computeSellPrice(input: {
@@ -46,15 +53,27 @@ export function computeSellPrice(input: {
   const fixedMarkup = Math.max(0, Number.isFinite(input.fixedMarkupUsd) ? (input.fixedMarkupUsd || 0) : 0);
 
   let sell = cost * (1 + markupPercent / 100) + fixedMarkup;
-  sell = ceilCents(sell);
 
-  const minProfit = Math.max(0, input.minProfit || 0);
-  if (sell - cost < minProfit) sell = ceilCents(cost + minProfit);
-  if (sell <= cost) sell = ceilCents(cost + 0.01);
+  if (cost < 0.01) {
+    sell = ceilPrecision(sell);
+    const minProfit = Math.min(Math.max(0, input.minProfit || 0), cost * 0.2);
+    if (sell - cost < minProfit) sell = ceilPrecision(cost + minProfit);
+    if (sell <= cost) sell = ceilPrecision(cost + 1e-7);
+  } else {
+    sell = ceilCents(sell);
+    const minProfit = Math.max(0, input.minProfit || 0);
+    if (sell - cost < minProfit) sell = ceilCents(cost + minProfit);
+    if (sell <= cost) sell = ceilCents(cost + 0.01);
+  }
+
   return sell;
 }
 
 /** What the checkout shows before the server confirms (no min-profit rule: the server may raise it). */
 export function estimateTotal(unitPrice: number, qty: number): number {
-  return ceilCents(unitPrice * qty);
+  const raw = unitPrice * qty;
+  if (raw < 0.01 || Math.round(raw * 100) !== Math.round(raw * 1e6) / 1e4) {
+    return ceilPrecision(raw);
+  }
+  return ceilCents(raw);
 }

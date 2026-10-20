@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { ceilCents, computeSellPrice, resolveMarkup } from '../pricing';
+import { ceilCents, ceilPrecision, computeSellPrice, resolveMarkup } from '../pricing';
+import { formatSmartPrice } from '../../formatMoney';
 import { validateOrderFields, validateQty } from '../fieldValidation';
 import { buildProviderCatalog } from '../storefront';
 import { guessStorefrontCategory } from '../categoryMapping';
@@ -20,6 +21,26 @@ describe('pricing', () => {
     const price = computeSellPrice({ unitCost: 0.000016, qty: 1000, markupPercent: 15, minProfit: 0.01 });
     expect(price).toBe(0.03);
     expect(price).toBeGreaterThan(0.016);
+  });
+
+  it('preserves micro-cent precision for sub-cent wholesale products', () => {
+    // Sahl Cash product #134 Party Star: costPrice 0.0010568041237113402
+    const cost = 0.0010568041237113402;
+    const price = computeSellPrice({ unitCost: cost, qty: 1, markupPercent: 15, minProfit: 0.01 });
+    expect(price).toBeLessThan(0.01);
+    expect(price).toBeGreaterThan(cost);
+    expect(formatSmartPrice(cost)).toBe('0.0010568');
+    expect(formatSmartPrice(price)).toMatch(/^0\.0012/);
+  });
+
+  it('formats standard and micro prices accurately with formatSmartPrice', () => {
+    expect(formatSmartPrice(0)).toBe('0.00');
+    expect(formatSmartPrice(null)).toBe('0.00');
+    expect(formatSmartPrice(10)).toBe('10.00');
+    expect(formatSmartPrice(1.5)).toBe('1.50');
+    expect(formatSmartPrice(0.05)).toBe('0.05');
+    expect(formatSmartPrice(0.0010568041237113402)).toBe('0.0010568');
+    expect(formatSmartPrice('0.00005')).toBe('0.00005');
   });
 
   it('never sells at or below cost, even with 0% markup', () => {

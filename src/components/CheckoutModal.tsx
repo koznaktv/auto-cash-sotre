@@ -11,6 +11,7 @@ import { X, AlertCircle, Loader2, Search, Info } from 'lucide-react';
 import { validateGameAccount } from '@/lib/validation/gameAccountValidator';
 import { minQty, validateOrderFields, validateQty } from '@/lib/catalog/fieldValidation';
 import { estimateTotal } from '@/lib/catalog/pricing';
+import { formatSmartPrice } from '@/lib/formatMoney';
 
 interface CheckoutModalProps {
   service: ServiceItem | null;
@@ -333,7 +334,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                         )}
                       </div>
                       <div className="font-bold text-cyan-400 font-mono shrink-0" dir="ltr">
-                        {pkg.productType === 'amount' ? `${isRTL ? 'دىن' : 'from'} ` : ''}${pkg.price.toFixed(2)}
+                        {pkg.productType === 'amount' ? `${isRTL ? 'دىن' : 'from'} ` : ''}${formatSmartPrice(pkg.price)}
                       </div>
                     </button>
                   );
@@ -372,9 +373,10 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                 )}
                 {selectedPkg.unitPrice !== undefined && (
                   <p className="mt-1 text-[11px] text-slate-500" dir="ltr">
-                    {selectedPkg.unitPrice < 0.01
-                      ? `$${(selectedPkg.unitPrice * 1000).toFixed(4)} / 1000`
-                      : `$${selectedPkg.unitPrice.toFixed(4)} / 1`}
+                    {`$${formatSmartPrice(selectedPkg.unitPrice)} / 1`}
+                    {selectedPkg.unitPrice < 0.01 && (
+                      <span className="text-slate-400 ms-1.5">(${formatSmartPrice(selectedPkg.unitPrice * 1000)} / 1000)</span>
+                    )}
                   </p>
                 )}
               </div>
@@ -465,7 +467,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
               <div>
                 <span className="text-xs text-slate-400 block">{t('amount')}</span>
                 <span className="text-xl font-extrabold text-cyan-400 font-mono" dir="ltr">
-                  ${displayTotal.toFixed(2)}
+                  ${formatSmartPrice(displayTotal)}
                 </span>
               </div>
 
@@ -494,7 +496,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                   disabled={loading || isSubmittingRef.current || !selectedPkg || selectedPkg.available === false}
                   label={
                     confirmTotal !== null
-                      ? `يېڭى باھا $${confirmTotal.toFixed(2)} نى جەزملەش`
+                      ? `يېڭى باھا $${formatSmartPrice(confirmTotal)} نى جەزملەش`
                       : t('confirmAndPay')
                   }
                   isRTL={isRTL}

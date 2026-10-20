@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { isOrderInProgress, type Order } from '@/lib/orders';
+import { formatSmartPrice } from '@/lib/formatMoney';
 import { useLanguage } from '@/context/LanguageContext';
 import { CheckCircle2, Clock, AlertTriangle, Copy, CreditCard } from 'lucide-react';
 
@@ -80,7 +81,7 @@ export default function OrdersList({ orders }: OrdersListProps) {
               </div>
 
               <div className="text-left font-bold text-lg text-cyan-400 font-mono" dir="ltr">
-                ${Number(order.amount ?? (order as any).price ?? 0).toFixed(2)}
+                ${formatSmartPrice(Number(order.amount ?? (order as any).price ?? 0))}
               </div>
             </div>
 

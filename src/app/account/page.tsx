@@ -525,7 +525,7 @@ export default function AccountPage() {
                 dir="ltr"
               >
                 <span className="animate-dollar-float text-cyan-400">$</span>
-                <span>{totalDeposited.toFixed(2)}</span>
+                <span>{formatCurrencyAmount(totalDeposited)}</span>
               </div>
             </div>
           </div>
@@ -545,7 +545,7 @@ export default function AccountPage() {
                 dir="ltr"
               >
                 <span className="animate-dollar-float text-cyan-400">$</span>
-                <span>{totalPurchases.toFixed(2)}</span>
+                <span>{formatCurrencyAmount(totalPurchases)}</span>
               </div>
             </div>
           </div>
