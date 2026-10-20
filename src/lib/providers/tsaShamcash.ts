@@ -75,6 +75,49 @@ export async function getTsaConfig(): Promise<{
 /**
  * Checks TSA API connection status using an API key.
  */
+
+/**
+ * Fetches all linked Sham Cash and Syriatel accounts from TSA API.
+ */
+export async function getLinkedAccounts(apiKey: string): Promise<{
+  success: boolean;
+  shamcash: { account_address: string; [key: string]: any }[];
+  syriatel: any[];
+  error?: string;
+}> {
+  try {
+    const cleanKey = apiKey.trim();
+    if (!cleanKey) return { success: false, shamcash: [], syriatel: [], error: 'TSA API Key كىرگۈزۈلمىگەن' };
+
+    const res = await fetch(`${TSA_API_BASE}?resource=accounts&action=list`, {
+      method: 'GET',
+      headers: {
+        'X-Api-Key': cleanKey,
+        Accept: 'application/json',
+      },
+      cache: 'no-store',
+    });
+
+    const data = await res.json().catch(() => null);
+    if (!res.ok || !data?.success) {
+      return {
+        success: false,
+        shamcash: [],
+        syriatel: [],
+        error: data?.error || data?.message || `ھېساباتلارنى تەكشۈرۈش مەغلۇپ بولدى (${res.status})`,
+      };
+    }
+
+    return {
+      success: true,
+      shamcash: Array.isArray(data?.data?.shamcash) ? data.data.shamcash : [],
+      syriatel: Array.isArray(data?.data?.syriatel) ? data.data.syriatel : [],
+    };
+  } catch (err: any) {
+    return { success: false, shamcash: [], syriatel: [], error: err?.message || 'TSA API ئۇلىنىش مەغلۇپ بولدى' };
+  }
+}
+
 export async function checkTsaStatus(apiKey: string): Promise<{ ok: boolean; message?: string }> {
   try {
     const res = await fetch(`${TSA_API_BASE}?resource=status`, {

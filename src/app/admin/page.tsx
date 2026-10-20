@@ -1092,6 +1092,12 @@ export default function AdminPage() {
       });
       const data = await res.json();
       setTsaTestResult(data);
+      if (data.success && data.accountAddress) {
+        setSettings(prev => ({
+          ...prev,
+          shamcashAddress: prev.shamcashAddress && prev.shamcashAddress !== 'efe8a2b200d66411c7c7e296369cbba8' ? prev.shamcashAddress : data.accountAddress,
+        }));
+      }
     } catch (err: any) {
       setTsaTestResult({ success: false, message: err?.message || 'سىناق مەغلۇپ بولدى' });
     } finally {
@@ -2704,15 +2710,26 @@ export default function AdminPage() {
                           شامكەش ئاپتوماتىك پۇل كىرگۈزۈش (TSA API)
                         </h4>
                       </div>
-                      <a
-                        href="https://tsa-api.com/api/docs"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-[11px] text-cyan-400 hover:underline font-mono"
-                        dir="ltr"
-                      >
-                        tsa-api.com/api/docs ↗
-                      </a>
+                      <div className="flex items-center gap-2">
+                        <a
+                          href="https://tsa-api.com/dashboard/link"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-[11px] text-amber-400 hover:underline font-bold"
+                        >
+                          🔗 TSA دە ھېسابات باغلاش (dashboard/link) ↗
+                        </a>
+                        <span className="text-slate-600">|</span>
+                        <a
+                          href="https://tsa-api.com/api/docs"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-[11px] text-cyan-400 hover:underline font-mono"
+                          dir="ltr"
+                        >
+                          API ھۆججىتى ↗
+                        </a>
+                      </div>
                     </div>
 
                     <div>

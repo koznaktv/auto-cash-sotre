@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSystemSettingsAsync, updateSystemSettingsAsync } from '@/lib/db';
 import { verifyAdminToken, PUBLIC_DEFAULT_PIN } from '@/lib/adminAuth';
-import { checkTsaStatus, getShamcashBalance } from '@/lib/providers/tsaShamcash';
+import { checkTsaStatus, getShamcashBalance, getLinkedAccounts } from '@/lib/providers/tsaShamcash';
 
 export async function GET(req: Request) {
   try {
@@ -100,13 +100,13 @@ export async function POST(req: Request) {
     const body = await req.json();
     const action = body.action;
 
-    if (action === 'test-tsa') {
+        if (action === 'test-tsa') {
       const apiKey = body.apiKey ? String(body.apiKey).trim() : undefined;
-      const accountAddress = body.accountAddress ? String(body.accountAddress).trim() : undefined;
+      let accountAddress = body.accountAddress ? String(body.accountAddress).trim() : undefined;
 
       const currentSettings = await getSystemSettingsAsync();
       const testKey = apiKey || currentSettings.tsaApiKey || process.env.TSA_API_KEY || '';
-      const testAddress = accountAddress || currentSettings.shamcashAddress || process.env.SHAMCASH_ADDRESS || '';
+      let testAddress = accountAddress || currentSettings.shamcashAddress || process.env.SHAMCASH_ADDRESS || '';
 
       if (!testKey) {
         return NextResponse.json(
@@ -115,7 +115,7 @@ export async function POST(req: Request) {
         );
       }
 
-      // Check TSA API status
+      // 1. Check TSA API status
       const statusRes = await checkTsaStatus(testKey);
       if (!statusRes.ok) {
         return NextResponse.json({
@@ -124,7 +124,14 @@ export async function POST(req: Request) {
         });
       }
 
-      // If address provided, fetch Sham Cash balance
+      // 2. Fetch linked accounts to auto-discover account address if needed
+      const accountsRes = await getLinkedAccounts(testKey);
+      const linkedShamcash = accountsRes.shamcash || [];
+      if (!testAddress && linkedShamcash.length > 0 && linkedShamcash[0].account_address) {
+        testAddress = linkedShamcash[0].account_address;
+      }
+
+      // 3. If address provided or discovered, fetch Sham Cash balance
       let balanceData: any = null;
       if (testAddress) {
         const balRes = await getShamcashBalance(testKey, testAddress);
@@ -138,6 +145,10 @@ export async function POST(req: Request) {
         message: 'TSA API مۇۋەپپەقىيەتلىك ئۇلاندى!',
         balances: balanceData,
         accountAddress: testAddress,
+        linkedAccounts: {
+          shamcash: linkedShamcash,
+          syriatel: accountsRes.syriatel || [],
+        },
       });
     }
 
