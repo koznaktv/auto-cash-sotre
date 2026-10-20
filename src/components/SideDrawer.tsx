@@ -99,7 +99,23 @@ export default function SideDrawer({
 }: SideDrawerProps) {
   const { lang, setLang, t, isRTL } = useLanguage();
   const [avatarSrc, setAvatarSrc] = useState<string>('');
+  const [siteLogo, setSiteLogo] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('autocash_site_logo') || '/logo.png';
+    }
+    return '/logo.png';
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const loadLogo = () => {
+      const cached = localStorage.getItem('autocash_site_logo');
+      if (cached) setSiteLogo(cached);
+    };
+    loadLogo();
+    window.addEventListener('autocash-logo-changed', loadLogo);
+    return () => window.removeEventListener('autocash-logo-changed', loadLogo);
+  }, []);
 
 
 
@@ -253,7 +269,7 @@ export default function SideDrawer({
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full border border-amber-400 overflow-hidden bg-[#04101e] flex items-center justify-center">
                 <img
-                  src="/logo.png"
+                  src={siteLogo || '/logo.png'}
                   alt="AUTO CASH"
                   className="w-full h-full object-cover"
                 />

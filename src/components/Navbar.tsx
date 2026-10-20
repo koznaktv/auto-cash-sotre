@@ -41,6 +41,12 @@ export default function Navbar({
     return null;
   });
   const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const [siteLogo, setSiteLogo] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('autocash_site_logo') || '/logo.png';
+    }
+    return '/logo.png';
+  });
 
   useEffect(() => {
     const refreshUser = () => {
@@ -75,6 +81,26 @@ export default function Navbar({
     refreshUser();
     window.addEventListener('autocash-auth-changed', refreshUser);
     return () => window.removeEventListener('autocash-auth-changed', refreshUser);
+  }, []);
+
+  useEffect(() => {
+    const loadLogo = () => {
+      const cached = localStorage.getItem('autocash_site_logo');
+      if (cached) setSiteLogo(cached);
+    };
+    loadLogo();
+    fetch('/api/settings')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success && d.settings?.siteLogo) {
+          setSiteLogo(d.settings.siteLogo);
+          localStorage.setItem('autocash_site_logo', d.settings.siteLogo);
+        }
+      })
+      .catch(() => {});
+
+    window.addEventListener('autocash-logo-changed', loadLogo);
+    return () => window.removeEventListener('autocash-logo-changed', loadLogo);
   }, []);
 
   const activeUser = externalUser !== undefined ? externalUser : internalUser;
@@ -132,7 +158,7 @@ export default function Navbar({
               title={t('menuTitle')}
             >
               <img
-                src="/logo.png"
+                src={siteLogo || '/logo.png'}
                 alt="AUTO CASH Logo"
                 className="w-full h-full rounded-full object-cover brightness-110 contrast-105"
               />

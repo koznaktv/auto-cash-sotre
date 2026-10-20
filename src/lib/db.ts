@@ -74,6 +74,7 @@ export interface SystemSettings {
   whatsappNumber: string;
   telegramUsername: string;
   siteName: string;
+  siteLogo?: string;
   providerApiUrl?: string;
   providerApiKey?: string;
   providerApiType?: 'syria4game' | 'smm' | 'custom_rest';
@@ -130,6 +131,7 @@ const initialDefaultData: DatabaseSchema = {
     whatsappNumber: '+963 984 373 459',
     telegramUsername: 'autocash_UYGHUR',
     siteName: 'AUTO CASH',
+    siteLogo: '/logo.png',
     providerApiUrl: process.env.SAHL_CASH_BASE_URL || process.env.SYRIA4GAME_BASE_URL || 'https://api.sahl-cash.com',
     providerApiKey: process.env.SAHL_CASH_API_TOKEN || process.env.SAHL_CASH_API_KEY || process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '',
     providerApiType: 'syria4game',
@@ -300,6 +302,7 @@ function mapSupabaseSettings(row: any): SystemSettings {
     whatsappNumber: row.whatsapp_number || '+963 984 373 459',
     telegramUsername: row.telegram_username || 'autocash_UYGHUR',
     siteName: row.site_name || 'AUTO CASH',
+    siteLogo: row.site_logo || undefined,
     providerApiUrl: row.provider_api_url ?? row.provider_url ?? undefined,
     providerApiKey: row.provider_api_key ?? row.provider_token ?? undefined,
     providerApiType: row.provider_api_type ?? undefined,
@@ -1030,6 +1033,7 @@ export async function getSystemSettingsAsync(): Promise<SystemSettings> {
           shamcashExchangeRate: effectiveExchangeRate,
           tsaApiKey: effectiveTsaKey,
           tsaAutoDepositEnabled: effectiveAutoDeposit,
+          siteLogo: sbSettings.siteLogo || parsedMeta.siteLogo || localSettings.siteLogo || '/logo.png',
           shamcashAddress: sbSettings.shamcashAddress || parsedMeta.shamcashAddress || localSettings.shamcashAddress,
           // Preserve local provider config if Supabase doesn't have these columns
           providerApiUrl: sbSettings.providerApiUrl || localSettings.providerApiUrl,
@@ -1063,6 +1067,7 @@ export async function updateSystemSettingsAsync(updates: Partial<SystemSettings>
     if (updates.whatsappNumber) dbUpdates.whatsapp_number = updates.whatsappNumber;
     if (updates.telegramUsername) dbUpdates.telegram_username = updates.telegramUsername;
     if (updates.siteName) dbUpdates.site_name = updates.siteName;
+    if (updates.siteLogo !== undefined) dbUpdates.site_logo = updates.siteLogo;
 
     // Optional provider columns (may not yet be added in Supabase schema)
     if (updates.providerApiUrl !== undefined) dbUpdates.provider_api_url = updates.providerApiUrl;
@@ -1104,6 +1109,7 @@ export async function updateSystemSettingsAsync(updates: Partial<SystemSettings>
         tsaApiKey: updates.tsaApiKey ?? db.settings.tsaApiKey,
         tsaAutoDepositEnabled: updates.tsaAutoDepositEnabled ?? db.settings.tsaAutoDepositEnabled,
         shamcashAddress: updates.shamcashAddress ?? db.settings.shamcashAddress,
+        siteLogo: updates.siteLogo ?? db.settings.siteLogo,
         updatedAt: new Date().toISOString(),
       };
 

@@ -155,6 +155,7 @@ interface SystemSettingsState {
   whatsappNumber: string;
   telegramUsername: string;
   siteName: string;
+  siteLogo?: string;
   providerApiUrl?: string;
   providerApiKey?: string;
   providerApiType?: 'syria4game' | 'smm' | 'custom_rest';
@@ -259,6 +260,7 @@ export default function AdminPage() {
     whatsappNumber: '+963 984 373 459',
     telegramUsername: 'autocash_UYGHUR',
     siteName: 'AUTO CASH',
+    siteLogo: '/logo.png',
     tsaApiKey: '',
     tsaAutoDepositEnabled: true,
     shamcashExchangeRate: 15000,
@@ -2532,6 +2534,45 @@ export default function AdminPage() {
     }
   };
 
+  // Logo Upload Handler
+  const logoFileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxDim = 320;
+        let width = img.width;
+        let height = img.height;
+        if (width > height) {
+          if (width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          }
+        } else {
+          if (height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        // Use PNG for logos to preserve transparent background!
+        const resizedDataUrl = canvas.toDataURL('image/png');
+        setSettings((prev) => ({ ...prev, siteLogo: resizedDataUrl }));
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSaveSettings = async (e?: React.FormEvent) => {
     if (e && e.preventDefault) e.preventDefault();
     const token = sessionStorage.getItem('autocash_admin_token');
@@ -2548,6 +2589,7 @@ export default function AdminPage() {
           whatsappNumber: settings.whatsappNumber,
           telegramUsername: settings.telegramUsername,
           siteName: settings.siteName,
+          siteLogo: settings.siteLogo,
           tsaApiKey: settings.tsaApiKey,
           tsaAutoDepositEnabled: settings.tsaAutoDepositEnabled,
           shamcashExchangeRate: settings.shamcashExchangeRate,
@@ -2555,6 +2597,10 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.success) {
+        if (settings.siteLogo) {
+          localStorage.setItem('autocash_site_logo', settings.siteLogo);
+          window.dispatchEvent(new Event('autocash-logo-changed'));
+        }
         setSettingsSaveMsg('تەڭشەكلەر مۇۋەپپەقىيەتلىك ساقلاندى!');
         alert(`تەڭشەكلەر مۇۋەپپەقىيەتلىك ساقلاندى!\nسورىيە پۇلى نىسبىتى: 1 USD = ${(settings.shamcashExchangeRate || 15000).toLocaleString()} SYP`);
         setTimeout(() => setSettingsSaveMsg(''), 3000);
@@ -4575,6 +4621,77 @@ export default function AdminPage() {
                 )}
 
                 <form onSubmit={handleSaveSettings} className="space-y-4 text-xs">
+                  {/* Site Logo Section */}
+                  <div className="p-4 rounded-2xl bg-amber-950/20 border border-amber-500/30 space-y-3 shadow-inner">
+                    <div className="flex items-center justify-between pb-1 border-b border-amber-500/20">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-amber-400 animate-star-twinkle" />
+                        <h4 className="font-bold text-white text-xs sm:text-sm font-alkatip">
+                          تور بېكەت لوگو رەسىمى (Logo)
+                        </h4>
+                      </div>
+                      <span className="text-[10px] text-amber-300 font-bold bg-amber-500/20 px-2 py-0.5 rounded-md border border-amber-500/30">
+                        باش بەت ۋە تىزىملىكلەردە چىقىدۇ
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-center gap-4">
+                      {/* Logo Preview */}
+                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl p-1 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-lg shadow-amber-500/30 ring-2 ring-amber-400/60 flex items-center justify-center bg-[#04101e] shrink-0">
+                        <img
+                          src={settings.siteLogo || '/logo.png'}
+                          alt="Logo Preview"
+                          className="w-full h-full object-contain rounded-xl"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src = '/logo.png';
+                          }}
+                        />
+                      </div>
+
+                      <div className="flex-1 w-full space-y-2">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <input
+                            type="file"
+                            ref={logoFileInputRef}
+                            onChange={handleLogoUpload}
+                            accept="image/*"
+                            className="hidden"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => logoFileInputRef.current?.click()}
+                            className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95"
+                          >
+                            <Upload className="w-4 h-4" />
+                            <span>تېلېفون ياكى كومپيۇتېردىن رەسىم يۈكلەش</span>
+                          </button>
+
+                          {settings.siteLogo && settings.siteLogo !== '/logo.png' && (
+                            <button
+                              type="button"
+                              onClick={() => setSettings({ ...settings, siteLogo: '/logo.png' })}
+                              className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition cursor-pointer flex items-center gap-1"
+                            >
+                              <RotateCcw className="w-3.5 h-3.5" />
+                              <span>دەسلەپكى لوگوغا قايتۇرۇش</span>
+                            </button>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] text-slate-400 mb-1">ياكى لوگو رەسىم ئۇلانمىسى (URL):</label>
+                          <input
+                            type="text"
+                            value={settings.siteLogo || ''}
+                            onChange={(e) => setSettings({ ...settings, siteLogo: e.target.value })}
+                            placeholder="مەسىلەن: https://... ياكى /logo.png"
+                            className={`w-full px-3 py-2 rounded-xl font-mono text-xs text-cyan-300 ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                            dir="ltr"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <div>
                     <label className="block text-slate-300 font-bold mb-1.5">تور بېكەت نامى:</label>
                     <input
