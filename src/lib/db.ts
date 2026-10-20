@@ -79,6 +79,9 @@ export interface SystemSettings {
   providerApiType?: 'syria4game' | 'smm' | 'custom_rest';
   providerApiSecret?: string;
   providerEnabled?: boolean;
+  tsaApiKey?: string;
+  tsaAutoDepositEnabled?: boolean;
+  shamcashExchangeRate?: number;
 }
 
 interface DatabaseSchema {
@@ -132,6 +135,9 @@ const initialDefaultData: DatabaseSchema = {
     providerApiType: 'syria4game',
     providerApiSecret: '',
     providerEnabled: true,
+    tsaApiKey: process.env.TSA_API_KEY || '',
+    tsaAutoDepositEnabled: true,
+    shamcashExchangeRate: Number(process.env.SHAMCASH_EXCHANGE_RATE || 15000),
   },
   users: [],
   orders: [],
@@ -298,6 +304,9 @@ function mapSupabaseSettings(row: any): SystemSettings {
     providerApiType: row.provider_api_type ?? undefined,
     providerApiSecret: row.provider_api_secret ?? undefined,
     providerEnabled: row.provider_enabled !== undefined ? Boolean(row.provider_enabled) : undefined,
+    tsaApiKey: row.tsa_api_key ?? process.env.TSA_API_KEY ?? undefined,
+    tsaAutoDepositEnabled: row.tsa_auto_deposit !== undefined ? Boolean(row.tsa_auto_deposit) : undefined,
+    shamcashExchangeRate: row.shamcash_exchange_rate ? Number(row.shamcash_exchange_rate) : undefined,
   };
 }
 
@@ -867,6 +876,57 @@ export async function createDepositAsync(
   return newDeposit;
 }
 
+export async function getDepositByIdAsync(depositId: string): Promise<DepositRecord | null> {
+  const sb = getSupabase();
+  if (sb) {
+    const { data, error } = await sb.from('deposits').select('*').eq('id', depositId).maybeSingle();
+    if (error) {
+      console.warn('getDepositByIdAsync warning:', error.message);
+      return null;
+    }
+    return data ? mapSupabaseDeposit(data) : null;
+  }
+  const db = ensureDbFile();
+  return db.deposits.find((d) => d.id === depositId) || null;
+}
+
+export async function getDepositByTxIdAsync(txId: string): Promise<DepositRecord | null> {
+  const normalized = (txId || '').trim();
+  if (!normalized) return null;
+  const sb = getSupabase();
+  if (sb) {
+    const { data, error } = await sb.from('deposits').select('*').eq('tx_id', normalized).maybeSingle();
+    if (error) {
+      console.warn('getDepositByTxIdAsync warning:', error.message);
+      return null;
+    }
+    return data ? mapSupabaseDeposit(data) : null;
+  }
+  const db = ensureDbFile();
+  return db.deposits.find((d) => d.txId === normalized) || null;
+}
+
+export async function isTxIdAlreadyCompletedAsync(txId: string): Promise<boolean> {
+  const normalized = (txId || '').trim();
+  if (!normalized) return false;
+  const sb = getSupabase();
+  if (sb) {
+    const { data, error } = await sb
+      .from('deposits')
+      .select('id')
+      .eq('tx_id', normalized)
+      .eq('status', 'completed')
+      .limit(1);
+    if (error) {
+      console.warn('isTxIdAlreadyCompletedAsync warning:', error.message);
+      return false;
+    }
+    return Boolean(data && data.length > 0);
+  }
+  const db = ensureDbFile();
+  return db.deposits.some((d) => d.txId === normalized && d.status === 'completed');
+}
+
 export class DepositReviewError extends Error {}
 
 /**
@@ -974,6 +1034,9 @@ export async function updateSystemSettingsAsync(updates: Partial<SystemSettings>
     if (updates.providerApiType !== undefined) dbUpdates.provider_api_type = updates.providerApiType;
     if (updates.providerApiSecret !== undefined) dbUpdates.provider_api_secret = updates.providerApiSecret;
     if (updates.providerEnabled !== undefined) dbUpdates.provider_enabled = updates.providerEnabled;
+    if (updates.tsaApiKey !== undefined) dbUpdates.tsa_api_key = updates.tsaApiKey;
+    if (updates.tsaAutoDepositEnabled !== undefined) dbUpdates.tsa_auto_deposit = updates.tsaAutoDepositEnabled;
+    if (updates.shamcashExchangeRate !== undefined) dbUpdates.shamcash_exchange_rate = updates.shamcashExchangeRate;
 
     try {
       const { data, error } = await sb

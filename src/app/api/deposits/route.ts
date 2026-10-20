@@ -4,10 +4,16 @@ import {
   getDepositsByUserIdAsync,
   createDepositAsync,
   updateDepositStatusAsync,
+  isTxIdAlreadyCompletedAsync,
   DepositReviewError,
 } from '@/lib/db';
 import { verifyAdminToken, hasAdminBearer } from '@/lib/adminAuth';
 import { getSessionUser, unauthorizedResponse } from '@/lib/session';
+import {
+  getTsaConfig,
+  normalizeTxId,
+  verifyShamcashTransaction,
+} from '@/lib/providers/tsaShamcash';
 
 const MAX_DEPOSIT_AMOUNT = 10000;
 
@@ -48,25 +54,103 @@ export async function POST(req: Request) {
     const parsedAmount = Math.round(Number(amount) * 100) / 100;
     if (!Number.isFinite(parsedAmount) || parsedAmount <= 0 || parsedAmount > MAX_DEPOSIT_AMOUNT) {
       return NextResponse.json(
-        { success: false, message: 'سومما توغرا كىرگۈزۈلمىدى' },
+        { success: false, message: 'سومما توغرا كىرگۈزۈلمىدى (0 دىن يۇقىرى كىرگۈزۈڭ)' },
         { status: 400 }
       );
     }
 
+    const cleanTxId = normalizeTxId(typeof txId === 'string' ? txId : '');
+    if (!cleanTxId) {
+      return NextResponse.json(
+        { success: false, message: 'شامكەش تالون نومۇرى (رقم العملية) كىرگۈزۈلمىدى' },
+        { status: 400 }
+      );
+    }
+
+    // Anti-replay / anti-fraud: check if this transaction ID has already been credited!
+    const alreadyCompleted = await isTxIdAlreadyCompletedAsync(cleanTxId);
+    if (alreadyCompleted) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'بۇ تالون نومۇرى (رقم العملية) بۇرۇن ئاللىقاچان تەستىقلانغان ۋە ئىشلىتىلگەن! قايتا كىرگۈزۈشكە بولمايدۇ.',
+        },
+        { status: 400 }
+      );
+    }
+
+    const depositMethod =
+      typeof method === 'string' && method.trim() ? method.trim().slice(0, 60) : 'شامكەش (Sham Cash)';
+
+    // Check TSA API configuration
+    const tsaConfig = await getTsaConfig();
+
+    if (tsaConfig.autoDepositEnabled && tsaConfig.apiKey && tsaConfig.shamcashAddress) {
+      try {
+        const verifyRes = await verifyShamcashTransaction(cleanTxId, {
+          apiKey: tsaConfig.apiKey,
+          accountAddress: tsaConfig.shamcashAddress,
+          exchangeRate: tsaConfig.exchangeRate,
+        });
+
+        if (verifyRes.success && verifyRes.found && verifyRes.transaction) {
+          const tx = verifyRes.transaction;
+
+          // Double check the transaction's tranId from TSA
+          if (await isTxIdAlreadyCompletedAsync(tx.tranId)) {
+            return NextResponse.json(
+              { success: false, message: 'بۇ تالون نومۇرى بۇرۇن ئاللىقاچان ئىشلىتىلگەن!' },
+              { status: 400 }
+            );
+          }
+
+          // Use the exact credited USD amount from the verified Sham Cash transaction
+          const finalCreditAmount = tx.usdAmount > 0 ? tx.usdAmount : parsedAmount;
+
+          const created = await createDepositAsync({
+            userId: user.id,
+            userName: user.name,
+            userEmail: user.email,
+            method: depositMethod,
+            amount: finalCreditAmount,
+            txId: tx.tranId,
+          });
+
+          // Atomically approve and credit user wallet
+          const completedDeposit = await updateDepositStatusAsync(created.id, 'completed');
+
+          return NextResponse.json({
+            success: true,
+            autoApproved: true,
+            deposit: completedDeposit || created,
+            creditedAmount: finalCreditAmount,
+            currency: tx.currency,
+            originalAmount: tx.amount,
+            message: `شامكەش تالونى مۇۋەپپەقىيەتلىك دەلىللەندى! ھېساباتىڭىزغا $${finalCreditAmount} قوشۇلدى.`,
+          });
+        }
+      } catch (tsaErr) {
+        console.warn('TSA verification exception, falling back to pending deposit:', tsaErr);
+      }
+    }
+
+    // Fallback: If not auto-approved, record as pending deposit for admin review / manual retry
     const newDeposit = await createDepositAsync({
       userId: user.id,
       userName: user.name,
       userEmail: user.email,
-      method: typeof method === 'string' && method.trim() ? method.trim().slice(0, 60) : 'شامكەش (Sham Cash)',
+      method: depositMethod,
       amount: parsedAmount,
-      // Pending admin verification!
-      txId:
-        typeof txId === 'string' && txId.trim()
-          ? txId.trim().slice(0, 64)
-          : `SC-${Math.floor(10000000 + Math.random() * 90000000)}`,
+      txId: cleanTxId,
     });
 
-    return NextResponse.json({ success: true, deposit: newDeposit });
+    return NextResponse.json({
+      success: true,
+      autoApproved: false,
+      deposit: newDeposit,
+      message:
+        'تالون يوللاندى. شامكەش سىستېمىسىدا 10-30 سېكۇنت كېچىكىش بولۇشى مۇمكىن؛ بىر ئازدىن كېيىن تىزىملىكتىكى «دەلىللەش» كۇنۇپكىسىنى بېسىپ ئاپتوماتىك تەستىقلىيالايسىز.',
+    });
   } catch (err: any) {
     return NextResponse.json(
       { success: false, message: err?.message || 'پۇل كىرگۈزۈش ئىلتىماسى ئەۋەتىلمىدى' },

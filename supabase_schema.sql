@@ -172,6 +172,9 @@ ALTER TABLE public.system_settings ADD COLUMN IF NOT EXISTS provider_api_key TEX
 ALTER TABLE public.system_settings ADD COLUMN IF NOT EXISTS provider_api_type TEXT DEFAULT 'syria4game';
 ALTER TABLE public.system_settings ADD COLUMN IF NOT EXISTS provider_api_secret TEXT DEFAULT '';
 ALTER TABLE public.system_settings ADD COLUMN IF NOT EXISTS provider_enabled BOOLEAN DEFAULT TRUE;
+ALTER TABLE public.system_settings ADD COLUMN IF NOT EXISTS tsa_api_key TEXT DEFAULT '';
+ALTER TABLE public.system_settings ADD COLUMN IF NOT EXISTS tsa_auto_deposit BOOLEAN DEFAULT TRUE;
+ALTER TABLE public.system_settings ADD COLUMN IF NOT EXISTS shamcash_exchange_rate NUMERIC DEFAULT 15000;
 
 -- 5. Create Idempotency Records Table (قوش چەكمە ۋە تەكرار زاكازدىن مۇداپىئەلىنىش)
 CREATE TABLE IF NOT EXISTS public.idempotency_records (
@@ -190,6 +193,7 @@ CREATE INDEX IF NOT EXISTS idx_orders_user_email ON public.orders(user_email);
 CREATE INDEX IF NOT EXISTS idx_orders_created_at ON public.orders(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_deposits_user_id ON public.deposits(user_id);
 CREATE INDEX IF NOT EXISTS idx_deposits_status ON public.deposits(status);
+CREATE INDEX IF NOT EXISTS idx_deposits_tx_id ON public.deposits(tx_id);
 CREATE INDEX IF NOT EXISTS idx_idempotency_created_at ON public.idempotency_records(created_at);
 
 -- ========================================================

@@ -80,6 +80,9 @@ interface SystemSettingsState {
   providerApiType?: 'syria4game' | 'smm' | 'custom_rest';
   providerApiSecret?: string;
   providerEnabled?: boolean;
+  tsaApiKey?: string;
+  tsaAutoDepositEnabled?: boolean;
+  shamcashExchangeRate?: number;
 }
 
 interface ProviderStatus {
@@ -137,7 +140,13 @@ export default function AdminPage() {
     whatsappNumber: '+963 984 373 459',
     telegramUsername: 'autocash_UYGHUR',
     siteName: 'AUTO CASH',
+    tsaApiKey: '',
+    tsaAutoDepositEnabled: true,
+    shamcashExchangeRate: 15000,
   });
+
+  const [tsaTesting, setTsaTesting] = useState<boolean>(false);
+  const [tsaTestResult, setTsaTestResult] = useState<{ success: boolean; message: string; balances?: any[] } | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -1064,6 +1073,58 @@ export default function AdminPage() {
   };
 
   // Save Settings Handler
+  const handleTestTsaConnection = async () => {
+    setTsaTesting(true);
+    setTsaTestResult(null);
+    try {
+      const token = sessionStorage.getItem('autocash_admin_token');
+      const res = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          action: 'test-tsa',
+          apiKey: settings.tsaApiKey,
+          accountAddress: settings.shamcashAddress,
+        }),
+      });
+      const data = await res.json();
+      setTsaTestResult(data);
+    } catch (err: any) {
+      setTsaTestResult({ success: false, message: err?.message || 'سىناق مەغلۇپ بولدى' });
+    } finally {
+      setTsaTesting(false);
+    }
+  };
+
+  const handleVerifyWithTsa = async (depositId: string) => {
+    setActionLoading(depositId);
+    try {
+      const token = sessionStorage.getItem('autocash_admin_token');
+      const res = await fetch('/api/deposits/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ depositId }),
+      });
+      const data = await res.json();
+      if (data.success && data.verified) {
+        alert(data.message || 'تالون دەلىللەندى!');
+        loadAllAdminData();
+      } else {
+        alert(data.message || 'شامكەشتىن تېخى تېپىلمىدى.');
+      }
+    } catch (err: any) {
+      alert(err?.message || 'دەلىللەش مەغلۇپ بولدى');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     const token = sessionStorage.getItem('autocash_admin_token');
@@ -1080,6 +1141,9 @@ export default function AdminPage() {
           whatsappNumber: settings.whatsappNumber,
           telegramUsername: settings.telegramUsername,
           siteName: settings.siteName,
+          tsaApiKey: settings.tsaApiKey,
+          tsaAutoDepositEnabled: settings.tsaAutoDepositEnabled,
+          shamcashExchangeRate: settings.shamcashExchangeRate,
         }),
       });
       const data = await res.json();
@@ -2308,10 +2372,18 @@ export default function AdminPage() {
                                 <div className="flex items-center justify-center gap-2">
                                   <button
                                     disabled={actionLoading === dep.id}
+                                    onClick={() => handleVerifyWithTsa(dep.id)}
+                                    className="px-2.5 py-1.5 rounded-lg bg-cyan-700 hover:bg-cyan-600 text-white font-bold text-xs transition cursor-pointer shadow-md flex items-center gap-1"
+                                    title="TSA API ئارقىلىق شامكەشتىن ئاپتوماتىك تەكشۈرۈپ تەستىقلاش"
+                                  >
+                                    ⚡ TSA دەلىللەش
+                                  </button>
+                                  <button
+                                    disabled={actionLoading === dep.id}
                                     onClick={() => handleUpdateDepositStatus(dep.id, 'completed')}
                                     className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition cursor-pointer shadow-md"
                                   >
-                                    ✓ تەستىقلاش (پۇل قوشۇش)
+                                    ✓ قولدا تەستىقلاش
                                   </button>
                                   <button
                                     disabled={actionLoading === dep.id}
@@ -2621,6 +2693,90 @@ export default function AdminPage() {
                       className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-cyan-300 ${themeClasses.input} focus:outline-none focus:border-amber-400`}
                       dir="ltr"
                     />
+                  </div>
+
+                  {/* TSA API Shamcash Auto-Recharge Block */}
+                  <div className="p-4 rounded-2xl bg-cyan-950/25 border border-cyan-500/40 space-y-3 shadow-inner">
+                    <div className="flex items-center justify-between pb-1 border-b border-cyan-500/20">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+                        <h4 className="font-bold text-white text-xs sm:text-sm">
+                          شامكەش ئاپتوماتىك پۇل كىرگۈزۈش (TSA API)
+                        </h4>
+                      </div>
+                      <a
+                        href="https://tsa-api.com/api/docs"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[11px] text-cyan-400 hover:underline font-mono"
+                        dir="ltr"
+                      >
+                        tsa-api.com/api/docs ↗
+                      </a>
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-300 font-bold mb-1">
+                        TSA API ئاچقۇچى (API Key / Token):
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="TSA API ئاچقۇچىڭىزنى چاپلاڭ..."
+                        value={settings.tsaApiKey || ''}
+                        onChange={(e) => setSettings({ ...settings, tsaApiKey: e.target.value })}
+                        className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-cyan-300 ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                        dir="ltr"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-1">
+                          سورىيە پۇلى پېرېۋوت نىسبىتى (1 USD = X SYP):
+                        </label>
+                        <input
+                          type="number"
+                          value={settings.shamcashExchangeRate || 15000}
+                          onChange={(e) => setSettings({ ...settings, shamcashExchangeRate: Number(e.target.value) })}
+                          className={`w-full px-3.5 py-2 rounded-xl font-mono text-white ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                          dir="ltr"
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between sm:justify-start gap-3 sm:pt-6">
+                        <label className="text-slate-300 font-bold cursor-pointer select-none">
+                          ئاپتوماتىك قاچىلاشنى قوزغىتىش:
+                        </label>
+                        <input
+                          type="checkbox"
+                          checked={settings.tsaAutoDepositEnabled !== false}
+                          onChange={(e) => setSettings({ ...settings, tsaAutoDepositEnabled: e.target.checked })}
+                          className="w-5 h-5 accent-amber-400 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="pt-1 flex flex-col sm:flex-row items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={tsaTesting}
+                        onClick={handleTestTsaConnection}
+                        className="px-4 py-2 rounded-xl bg-cyan-700 hover:bg-cyan-600 text-white font-bold text-xs transition cursor-pointer flex items-center gap-1.5 shadow-md w-full sm:w-auto justify-center active:scale-95"
+                      >
+                        <span>{tsaTesting ? 'سىناق قىلىنىۋاتىدۇ...' : '⚡ API نى سىناش ۋە شامكەش قالدۇقىنى كۆرۈش'}</span>
+                      </button>
+                    </div>
+
+                    {tsaTestResult && (
+                      <div className={`p-3 rounded-xl text-xs font-bold ${tsaTestResult.success ? 'bg-emerald-950/80 border border-emerald-500/50 text-emerald-300' : 'bg-rose-950/80 border border-rose-500/50 text-rose-300'}`}>
+                        <p>{tsaTestResult.message}</p>
+                        {tsaTestResult.balances && Array.isArray(tsaTestResult.balances) && (
+                          <p className="mt-1 font-mono text-white" dir="ltr">
+                            شامكەش قالدۇقى: {tsaTestResult.balances.map((b) => `${b.balance} ${b.currency}`).join(' | ')}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div>
