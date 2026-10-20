@@ -1,7 +1,7 @@
 'use client';
 
 import { clearLocalAuth, logout, getCachedBalance, getCachedUser, storeLocalAuth, formatCurrencyAmount } from '@/lib/clientAuth';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import SideDrawer from '@/components/SideDrawer';
 import AuthModal from '@/components/AuthModal';
@@ -41,27 +41,6 @@ export default function Navbar({
     return null;
   });
   const [langMenuOpen, setLangMenuOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  // Secret 5-tap gesture on logo/brand name for admin access
-  const logoClicksRef = useRef(0);
-  const logoTimerRef = useRef<any>(null);
-
-  const handleSecretLogoClick = (e: React.MouseEvent) => {
-    logoClicksRef.current += 1;
-    if (logoTimerRef.current) clearTimeout(logoTimerRef.current);
-
-    if (logoClicksRef.current >= 5) {
-      e.preventDefault();
-      logoClicksRef.current = 0;
-      window.location.href = '/admin';
-      return;
-    }
-
-    logoTimerRef.current = setTimeout(() => {
-      logoClicksRef.current = 0;
-    }, 2500);
-  };
 
   useEffect(() => {
     const refreshUser = () => {
@@ -99,17 +78,6 @@ export default function Navbar({
   }, []);
 
   const activeUser = externalUser !== undefined ? externalUser : internalUser;
-
-  useEffect(() => {
-    const checkAdmin = () => {
-      const hasToken = typeof window !== 'undefined' && Boolean(sessionStorage.getItem('autocash_admin_token'));
-      const hasRole = (activeUser as any)?.role === 'admin';
-      setIsAdmin(Boolean(hasToken || hasRole));
-    };
-    checkAdmin();
-    window.addEventListener('storage', checkAdmin);
-    return () => window.removeEventListener('storage', checkAdmin);
-  }, [activeUser]);
   const effectiveBalance = (() => {
     if (typeof activeUser?.balance === 'number' && activeUser.balance > 0) {
       return activeUser.balance;
@@ -253,9 +221,7 @@ export default function Navbar({
             {/* 4. Brand Name */}
             <Link
               href="/"
-              className="flex items-center gap-1 group cursor-pointer shrink-0 select-none"
-              onClick={handleSecretLogoClick}
-              title="AUTO CASH"
+              className="flex items-center gap-1 group cursor-pointer shrink-0"
             >
               <span className="font-ukij font-black text-sm sm:text-base md:text-lg tracking-wider autocash-shimmer whitespace-nowrap">
                 AUTO CASH
@@ -276,12 +242,10 @@ export default function Navbar({
                 <Crown className="w-4 h-4 text-amber-400 animate-crown-wiggle" />
                 <span>{t('vipMembership')}</span>
               </Link>
-              {isAdmin && (
-                <Link href="/admin" className="flex items-center gap-1.5 text-amber-400/80 hover:text-amber-300 transition-colors">
-                  <LayoutDashboard className="w-4 h-4" />
-                  <span>{t('adminPanel')}</span>
-                </Link>
-              )}
+              <Link href="/admin" className="flex items-center gap-1.5 text-amber-400/80 hover:text-amber-300 transition-colors">
+                <LayoutDashboard className="w-4 h-4" />
+                <span>{t('adminPanel')}</span>
+              </Link>
             </nav>
           </div>
 

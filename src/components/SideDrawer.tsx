@@ -99,40 +99,7 @@ export default function SideDrawer({
 }: SideDrawerProps) {
   const { lang, setLang, t, isRTL } = useLanguage();
   const [avatarSrc, setAvatarSrc] = useState<string>('');
-  const [isAdmin, setIsAdmin] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Secret 5-tap gesture on drawer logo/brand name for admin access
-  const drawerClicksRef = useRef(0);
-  const drawerTimerRef = useRef<any>(null);
-
-  const handleSecretLogoClick = (e: React.MouseEvent) => {
-    drawerClicksRef.current += 1;
-    if (drawerTimerRef.current) clearTimeout(drawerTimerRef.current);
-
-    if (drawerClicksRef.current >= 5) {
-      e.preventDefault();
-      drawerClicksRef.current = 0;
-      onClose();
-      window.location.href = '/admin';
-      return;
-    }
-
-    drawerTimerRef.current = setTimeout(() => {
-      drawerClicksRef.current = 0;
-    }, 2500);
-  };
-
-  useEffect(() => {
-    const checkAdmin = () => {
-      const hasToken = typeof window !== 'undefined' && Boolean(sessionStorage.getItem('autocash_admin_token'));
-      const hasRole = (user as any)?.role === 'admin';
-      setIsAdmin(Boolean(hasToken || hasRole));
-    };
-    checkAdmin();
-    window.addEventListener('storage', checkAdmin);
-    return () => window.removeEventListener('storage', checkAdmin);
-  }, [user]);
 
   const normalizedTier = (
     user?.vipTier ||
@@ -286,7 +253,7 @@ export default function SideDrawer({
         <div>
           {/* Header */}
           <div className="flex items-center justify-between pb-4 border-b border-amber-500/20 mb-4">
-            <div onClick={handleSecretLogoClick} className="flex items-center gap-2 cursor-pointer select-none" title="AUTO CASH">
+            <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full border border-amber-400 overflow-hidden bg-[#04101e] flex items-center justify-center">
                 <img
                   src="/logo.png"
@@ -546,18 +513,16 @@ export default function SideDrawer({
               <span className="font-semibold">{t('vipPerksDrawer')}</span>
             </Link>
 
-            {isAdmin && (
-              <Link
-                href="/admin"
-                onClick={onClose}
-                className="flex items-center gap-3 p-3 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900 border border-transparent hover:border-amber-500/20 transition group"
-              >
-                <span className="animate-soft-float" style={{ animationDelay: '1.2s' }}>
-                  <LayoutDashboard className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition" />
-                </span>
-                <span className="font-semibold">{t('adminPanel')}</span>
-              </Link>
-            )}
+            <Link
+              href="/admin"
+              onClick={onClose}
+              className="flex items-center gap-3 p-3 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900 border border-transparent hover:border-amber-500/20 transition group"
+            >
+              <span className="animate-soft-float" style={{ animationDelay: '1.2s' }}>
+                <LayoutDashboard className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition" />
+              </span>
+              <span className="font-semibold">{t('adminPanel')}</span>
+            </Link>
           </div>
 
           {/* Support section */}
