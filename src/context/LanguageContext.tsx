@@ -518,7 +518,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   const getCategoryName = (id: string, defaultName: string): string => {
-    return CATEGORY_NAMES[id]?.[lang] || defaultName;
+    if (defaultName && defaultName.trim()) {
+      if (lang === 'ug' || !CATEGORY_NAMES[id]) {
+        return defaultName.trim();
+      }
+      return CATEGORY_NAMES[id]?.[lang] || defaultName.trim();
+    }
+    return CATEGORY_NAMES[id]?.[lang] || id;
   };
 
   const getCategoryCount = (id: string, defaultCount: string): string => {

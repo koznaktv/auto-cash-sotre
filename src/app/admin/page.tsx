@@ -7,6 +7,7 @@ import { CATEGORIES_9, ServiceItem, ServicePackage } from '@/lib/data';
 import { CategoryItem } from '@/lib/categoriesDb';
 import ProviderCatalogPanel from '@/components/admin/ProviderCatalogPanel';
 import { formatSmartPrice } from '@/lib/formatMoney';
+import DynamicIcon from '@/components/DynamicIcon';
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -60,6 +61,7 @@ import {
   Share2,
   Coins,
   MessageSquareShare,
+  Crown,
   ArrowLeft,
   ArrowRight
 } from 'lucide-react';
@@ -190,9 +192,10 @@ export default function AdminPage() {
   const [categoriesList, setCategoriesList] = useState<CategoryItem[]>([]);
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<CategoryItem | null>(null);
   const [categoryForm, setCategoryForm] = useState<{ id?: string; name: string; icon: string; count?: string; image?: string }>({
     name: '',
-    icon: 'Package',
+    icon: 'Gamepad2',
     count: 'مەھسۇلاتلار',
     image: '',
   });
@@ -835,27 +838,49 @@ export default function AdminPage() {
 
   // Category CRUD operations
   const handleOpenAddCategory = () => {
+    setEditingCategory(null);
     setCategoryForm({
       name: '',
-      icon: 'Package',
+      icon: 'Gamepad2',
       count: 'مەھسۇلاتلار',
-      image: '',
+      image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=80',
+    });
+    setCategoryModalOpen(true);
+  };
+
+  const handleOpenEditCategory = (cat: CategoryItem) => {
+    setEditingCategory(cat);
+    setCategoryForm({
+      id: cat.id,
+      name: cat.name,
+      icon: cat.icon || 'Gamepad2',
+      count: cat.count || 'مەھسۇلاتلار',
+      image: cat.image || '',
     });
     setCategoryModalOpen(true);
   };
 
   const handleSaveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!categoryForm.name.trim()) return;
+    if (!categoryForm.name.trim()) {
+      alert('سەھىپە نامىنى كىرگۈزۈڭ');
+      return;
+    }
     const token = sessionStorage.getItem('autocash_admin_token');
+    const isEdit = Boolean(editingCategory && editingCategory.id);
+    const method = isEdit ? 'PUT' : 'POST';
+    const payload = isEdit
+      ? { id: editingCategory!.id, ...categoryForm }
+      : categoryForm;
+
     try {
       const res = await fetch('/api/admin/categories', {
-        method: 'POST',
+        method,
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(categoryForm),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (data.success && data.category) {
@@ -868,9 +893,20 @@ export default function AdminPage() {
           }
           return [...prev, data.category];
         });
+
+        // Automatically select this category if inside product forms!
+        if (sahlCashModalOpen) {
+          setSahlForm((prev) => ({ ...prev, category: data.category.id }));
+        }
+        if (serviceModalOpen) {
+          setServiceForm((prev) => ({ ...prev, category: data.category.id }));
+        }
+
         setCategoryModalOpen(false);
+        setEditingCategory(null);
+        alert(`«${data.category.name}» سەھىپىسى مۇۋەپپەقىيەتلىك ${isEdit ? 'يېڭىلاندى' : 'قوشۇلدى'}!`);
       } else {
-        alert(data.message || 'سەھىپە قوشۇش مەغلۇپ بولدى');
+        alert(data.message || 'سەھىپە ساقلاش مەغلۇپ بولدى');
       }
     } catch (err) {
       console.error(err);
@@ -1128,6 +1164,28 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.success) {
         setServices((prev) => prev.filter((s) => s.id !== id));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleQuickChangeCategory = async (serviceId: string, newCategory: string) => {
+    const token = sessionStorage.getItem('autocash_admin_token');
+    try {
+      const res = await fetch('/api/admin/services', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ id: serviceId, category: newCategory }),
+      });
+      const data = await res.json();
+      if (data.success && data.service) {
+        setServices((prev) =>
+          prev.map((s) => (s.id === serviceId ? { ...s, category: newCategory } : s))
+        );
       }
     } catch (err) {
       console.error(err);
@@ -2669,26 +2727,45 @@ export default function AdminPage() {
                     return (
                       <div
                         key={cat.id}
-                        className={`group flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap ${
-                          isActive ? themeClasses.pillActive : themeClasses.pillInactive
+                        className={`group flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap border ${
+                          isActive
+                            ? 'bg-amber-400 text-slate-950 border-amber-300 font-black shadow-md'
+                            : 'bg-slate-900/90 text-slate-200 border-slate-700/80 hover:bg-slate-800'
                         }`}
                       >
                         <button
                           onClick={() => setCategoryFilter(cat.id)}
-                          className="cursor-pointer"
+                          className="flex items-center gap-1.5 cursor-pointer"
                         >
-                          {cat.name} ({catCount})
+                          <DynamicIcon name={cat.icon || 'Package'} className="w-3.5 h-3.5" />
+                          <span>{cat.name}</span>
+                          <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${isActive ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-800 text-slate-400'}`}>
+                            {catCount}
+                          </span>
+                        </button>
+                        {/* Edit category button */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenEditCategory(cat);
+                          }}
+                          className="p-1 rounded-md hover:bg-black/20 text-slate-400 hover:text-white transition cursor-pointer"
+                          title="سەھىپىنى تەھرىرلەش (ئىسمى، رەسىمى ۋە بەلگىسىنى ئۆزگەرتىش)"
+                        >
+                          <Edit3 className="w-3 h-3" />
                         </button>
                         {/* Allow deleting category if admin wants */}
                         <button
+                          type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDeleteCategory(cat.id, cat.name);
                           }}
-                          className="opacity-40 group-hover:opacity-100 hover:text-rose-400 p-0.5 ml-1 transition cursor-pointer"
+                          className="p-1 rounded-md hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition cursor-pointer"
                           title="سەھىپىنى ئۆچۈرۈش"
                         >
-                          <X className="w-3 h-3" />
+                          <Trash2 className="w-3 h-3" />
                         </button>
                       </div>
                     );
@@ -2754,9 +2831,15 @@ export default function AdminPage() {
                           </div>
                           <div>
                             <h4 className="font-bold text-sm text-white line-clamp-1">{srv.name}</h4>
-                            <span className="text-[10px] text-amber-400 block font-mono">
-                              {srv.category}
-                            </span>
+                            {(() => {
+                              const catObj = categoriesList.find((c) => c.id === srv.category);
+                              return (
+                                <span className="inline-flex items-center gap-1 text-[10px] text-amber-300 font-bold bg-amber-400/10 px-1.5 py-0.5 rounded-md mt-0.5 border border-amber-400/20">
+                                  <DynamicIcon name={catObj?.icon || 'Package'} className="w-3 h-3 text-amber-400" />
+                                  <span>{catObj?.name || srv.category}</span>
+                                </span>
+                              );
+                            })()}
                           </div>
                         </div>
 
@@ -2785,16 +2868,30 @@ export default function AdminPage() {
                     </div>
 
                     <div className="flex items-center gap-2 pt-3 border-t border-slate-800/80">
+                      {/* Quick Category Move Dropdown */}
+                      <div className="flex-1 min-w-0" title="سەھىپىگە يۆتكەش">
+                        <select
+                          value={srv.category}
+                          onChange={(e) => handleQuickChangeCategory(srv.id, e.target.value)}
+                          className="w-full py-1.5 px-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 font-bold text-[11px] focus:outline-none focus:border-amber-400 cursor-pointer truncate"
+                        >
+                          {categoriesList.map((c) => (
+                            <option key={c.id} value={c.id} className="bg-slate-950 text-white">
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                       <button
                         onClick={() => handleOpenEditService(srv)}
-                        className="flex-1 py-1.5 rounded-lg bg-cyan-950/70 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 font-bold text-xs transition flex items-center justify-center gap-1 cursor-pointer"
+                        className="px-3 py-1.5 rounded-lg bg-cyan-950/70 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 font-bold text-xs transition flex items-center justify-center gap-1 cursor-pointer shrink-0"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
                         <span>تەھرىرلەش</span>
                       </button>
                       <button
                         onClick={() => handleDeleteService(srv.id)}
-                        className="p-1.5 rounded-lg bg-rose-950/70 hover:bg-rose-900 border border-rose-500/40 text-rose-300 transition flex items-center justify-center cursor-pointer"
+                        className="p-1.5 rounded-lg bg-rose-950/70 hover:bg-rose-900 border border-rose-500/40 text-rose-300 transition flex items-center justify-center cursor-pointer shrink-0"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -3967,7 +4064,17 @@ export default function AdminPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 font-bold mb-1">سەھىپىسى:</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-slate-300 font-bold">سەھىپىسى:</label>
+                    <button
+                      type="button"
+                      onClick={handleOpenAddCategory}
+                      className="text-[10px] text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-0.5 cursor-pointer"
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span>+ يېڭى سەھىپە</span>
+                    </button>
+                  </div>
                   <select
                     value={serviceForm.category}
                     onChange={(e) =>
@@ -3976,11 +4083,11 @@ export default function AdminPage() {
                         category: e.target.value,
                       })
                     }
-                    className={`w-full px-3 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                    className={`w-full px-3 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400 font-bold`}
                   >
                     {categoriesList.map((c) => (
                       <option key={c.id} value={c.id}>
-                        {c.name}
+                        {c.name} ({c.id})
                       </option>
                     ))}
                   </select>
@@ -4193,23 +4300,25 @@ export default function AdminPage() {
                     )}
                   </div>
 
-                  {/* Category Filter Pills */}
+                  {/* Category Filter Pills (Dynamically loaded from categoriesList) */}
                   <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 border-t border-slate-800/80">
-                    {[
-                      { id: 'all', label: '🌟 ھەممىسى' },
-                      { id: 'games', label: '🎮 ئويۇنلار' },
-                      { id: 'apps', label: '📱 ئەپلەر' },
-                      { id: 'social', label: '👥 ئىجتىمائىي' },
-                      { id: 'cards', label: '💳 قاچىلاش كارتىلىرى' },
-                      { id: 'ai', label: '🤖 سۈنئىي ئەقىل' },
-                      { id: 'numbers', label: '📩 مەۋھۇم نومۇرلار' },
-                      { id: 'crypto', label: '💰 كرىپتو ۋە ھەميان' },
-                      { id: 'balance', label: '⚡ تېلېفون قالدۇقى' },
-                    ].map((cat) => {
+                    <button
+                      type="button"
+                      onClick={() => setSahlCategoryFilter('all')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                        sahlCategoryFilter === 'all'
+                          ? 'bg-amber-400 text-slate-950 font-black shadow-md'
+                          : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 border border-slate-700/60'
+                      }`}
+                    >
+                      <span>🌟 بارلىق تۈرلەر</span>
+                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${sahlCategoryFilter === 'all' ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-900 text-slate-400'}`}>
+                        {groupedSahlServices.length}
+                      </span>
+                    </button>
+                    {categoriesList.map((cat) => {
                       const isActive = sahlCategoryFilter === cat.id;
-                      const count = cat.id === 'all'
-                        ? groupedSahlServices.length
-                        : groupedSahlServices.filter((s) => s.category === cat.id).length;
+                      const count = groupedSahlServices.filter((s) => s.category === cat.id).length;
                       return (
                         <button
                           key={cat.id}
@@ -4221,7 +4330,8 @@ export default function AdminPage() {
                               : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 border border-slate-700/60'
                           }`}
                         >
-                          <span>{cat.label}</span>
+                          <DynamicIcon name={cat.icon || 'Package'} className="w-3.5 h-3.5" />
+                          <span>{cat.name}</span>
                           <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-900 text-slate-400'}`}>
                             {count}
                           </span>
@@ -4375,7 +4485,17 @@ export default function AdminPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     {/* Category */}
                     <div>
-                      <label className="block text-slate-300 font-bold mb-1">سەھىپە تۈرى:</label>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-slate-300 font-bold">سەھىپە تۈرى:</label>
+                        <button
+                          type="button"
+                          onClick={handleOpenAddCategory}
+                          className="text-[11px] text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-1 cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>+ يېڭى سەھىپە</span>
+                        </button>
+                      </div>
                       <select
                         value={sahlForm.category}
                         onChange={(e) => setSahlForm({ ...sahlForm, category: e.target.value })}
@@ -4696,79 +4816,186 @@ export default function AdminPage() {
 
       {/* ================= 3.5 CATEGORY ADD/EDIT MODAL ================= */}
       {categoryModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs">
-          <div className={`w-full max-w-md ${themeClasses.card} rounded-3xl p-6 shadow-2xl space-y-4 font-alkatip`}>
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <h3 className="font-ukij font-bold text-sm text-white">
-                يېڭى سەھىپە قوشۇش
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className={`w-full max-w-lg ${themeClasses.card} rounded-3xl p-5 sm:p-7 shadow-2xl space-y-4 font-alkatip border border-amber-500/40 max-h-[92vh] overflow-y-auto`}>
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-amber-400/15 border border-amber-400/30 flex items-center justify-center text-amber-300 font-bold">
+                  <FolderPlus className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-ukij font-bold text-base text-white">
+                    {editingCategory ? 'سەھىپىنى تەھرىرلەش' : 'يېڭى سەھىپە قوشۇش'}
+                  </h3>
+                  <p className={`text-xs ${themeClasses.subtext}`}>
+                    سەھىپىنىڭ نامى، رەسىمى ۋە بەلگىسىنى خالىغانچە كىرگۈزۈڭ
+                  </p>
+                </div>
+              </div>
               <button
+                type="button"
                 onClick={() => setCategoryModalOpen(false)}
-                className="text-slate-400 hover:text-white p-1 cursor-pointer"
+                className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800 transition cursor-pointer"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveCategory} className="space-y-3.5 text-xs">
+            <form onSubmit={handleSaveCategory} className="space-y-4 text-xs">
+              {/* Category Name */}
               <div>
-                <label className="block text-slate-300 font-bold mb-1">سەھىپە نامى (ئۇيغۇرچە):</label>
+                <label className="block text-slate-300 font-bold mb-1">
+                  سەھىپە نامى (ئۇيغۇرچە):
+                </label>
                 <input
                   type="text"
                   required
                   value={categoryForm.name}
                   onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
-                  placeholder="مەسىلەن: سوۋغات كارتىلىرى ياكى تور كۇرسلىرى..."
-                  className={`w-full px-3.5 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                  placeholder="مەسىلەن: مەشھۇر ئويۇنلار، تور كارتىلىرى، VIP مۇلازىمەتلەر..."
+                  className={`w-full px-3.5 py-2.5 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400 font-bold text-white text-xs`}
                 />
               </div>
 
-              <div>
-                <label className="block text-slate-300 font-bold mb-1">سەھىپە بەلگىسى (Icon نامى):</label>
+              {/* Category Live Image Banner & Image URL */}
+              <div className="space-y-2">
+                <label className="block text-slate-300 font-bold">
+                  سەھىپە تەگلىك رەسىمى (Image URL):
+                </label>
+                
+                {/* Live Preview Banner */}
+                <div className="relative w-full h-24 rounded-2xl overflow-hidden bg-slate-950 border border-slate-700 shadow-md">
+                  {categoryForm.image ? (
+                    <img
+                      src={categoryForm.image}
+                      alt="Category Preview"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = '/logo.png';
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-slate-500 text-xs font-bold">
+                      رەسىم تاللانمىدى
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent flex items-end justify-between p-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-amber-400 text-slate-950 flex items-center justify-center font-bold">
+                        <DynamicIcon name={categoryForm.icon || 'Package'} className="w-4 h-4" />
+                      </div>
+                      <span className="text-white font-extrabold text-xs drop-shadow">
+                        {categoryForm.name || 'سەھىپە نامى'}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-amber-300 font-mono">
+                      {categoryForm.count || 'مۇلازىمەتلەر'}
+                    </span>
+                  </div>
+                </div>
+
                 <input
                   type="text"
-                  value={categoryForm.icon}
-                  onChange={(e) => setCategoryForm({ ...categoryForm, icon: e.target.value })}
-                  placeholder="مەسىلەن: Package, Gamepad2, CreditCard, Bot..."
-                  className={`w-full px-3.5 py-2 rounded-xl font-mono ${themeClasses.input} focus:outline-none focus:border-amber-400`}
-                  dir="ltr"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-300 font-bold mb-1">رەسىم ئۇلىنىشى (Image URL):</label>
-                <input
-                  type="url"
                   value={categoryForm.image}
                   onChange={(e) => setCategoryForm({ ...categoryForm, image: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  className={`w-full px-3.5 py-2 rounded-xl font-mono text-[11px] ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                  placeholder="https://images.unsplash.com/... ياكى تور رەسىمى"
+                  className={`w-full px-3.5 py-2 rounded-xl font-mono text-xs ${themeClasses.input} focus:outline-none focus:border-amber-400`}
                   dir="ltr"
                 />
+
+                {/* Preset image chips */}
+                <div className="flex items-center gap-1.5 flex-wrap text-[10px]">
+                  <span className="text-slate-400">تەييار رەسىملەر:</span>
+                  {[
+                    { label: '🎮 ئويۇنلار', url: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=80' },
+                    { label: '📱 ئەپلەر', url: 'https://images.unsplash.com/photo-1616469829941-c7200edec809?w=500&auto=format&fit=crop&q=80' },
+                    { label: '👥 ئىجتىمائىي', url: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=500&auto=format&fit=crop&q=80' },
+                    { label: '💳 كارتىلار', url: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=500&auto=format&fit=crop&q=80' },
+                    { label: '🤖 AI', url: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=500&auto=format&fit=crop&q=80' },
+                    { label: '📩 نومۇرلار', url: 'https://images.unsplash.com/photo-1512428559087-560fa5ceab42?w=500&auto=format&fit=crop&q=80' },
+                    { label: '💰 كرىپتو', url: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=500&auto=format&fit=crop&q=80' },
+                    { label: '👑 VIP', url: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=500&auto=format&fit=crop&q=80' },
+                  ].map((preset) => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => setCategoryForm({ ...categoryForm, image: preset.url })}
+                      className="px-2 py-0.5 rounded-md bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold border border-slate-700 transition cursor-pointer"
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
+              {/* Visual Icon Picker */}
+              <div className="space-y-1.5">
+                <label className="block text-slate-300 font-bold">
+                  سەھىپە سىنبەلگىسى (Icon):
+                </label>
+                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                  {[
+                    { id: 'Gamepad2', label: 'ئويۇنلار' },
+                    { id: 'Smartphone', label: 'ئەپلەر' },
+                    { id: 'Share2', label: 'ئىجتىمائىي' },
+                    { id: 'CreditCard', label: 'كارتىلار' },
+                    { id: 'Bot', label: 'سۈنئىي ئەقىل' },
+                    { id: 'MessageSquareShare', label: 'نومۇرلار' },
+                    { id: 'Coins', label: 'كرىپتو' },
+                    { id: 'Wallet', label: 'ھەميان' },
+                    { id: 'Crown', label: 'VIP' },
+                    { id: 'Zap', label: 'تېز' },
+                    { id: 'Package', label: 'ئومۇمىي' },
+                    { id: 'ShieldCheck', label: 'بىخەتەر' },
+                  ].map((item) => {
+                    const isSelected = (categoryForm.icon || 'Package') === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => setCategoryForm({ ...categoryForm, icon: item.id })}
+                        className={`p-2 rounded-xl border flex flex-col items-center justify-center gap-1 transition cursor-pointer ${
+                          isSelected
+                            ? 'bg-amber-400 text-slate-950 border-amber-300 font-black shadow-md scale-105'
+                            : 'bg-slate-900 border-slate-700/80 text-slate-300 hover:bg-slate-800'
+                        }`}
+                      >
+                        <DynamicIcon name={item.id} className="w-4 h-4" />
+                        <span className="text-[10px] truncate max-w-full">{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Count / Subtext */}
               <div>
-                <label className="block text-slate-300 font-bold mb-1">قىسقىچە تەسۋىر ياكى سان (مەسىلەن: 15 خىل مۇلازىمەت):</label>
+                <label className="block text-slate-300 font-bold mb-1">
+                  قىسقىچە بايان ياكى ئىزاھات (Subtext):
+                </label>
                 <input
                   type="text"
                   value={categoryForm.count}
                   onChange={(e) => setCategoryForm({ ...categoryForm, count: e.target.value })}
-                  placeholder="مەسىلەن: يېڭى مۇلازىمەتلەر..."
+                  placeholder="مەسىلەن: قىزىق مۇلازىمەتلەر ياكى تېز يەتكۈزۈش..."
                   className={`w-full px-3.5 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400`}
                 />
               </div>
 
-              <div className="pt-2 flex items-center gap-2">
+              {/* Action Buttons */}
+              <div className="pt-2 flex items-center gap-2.5">
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer"
+                  className="flex-1 py-3 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer flex items-center justify-center gap-2 shadow-lg"
                 >
-                  سەھىپىنى قوشۇش
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{editingCategory ? 'ئۆزگەرتىشنى ساقلاش' : 'سەھىپىنى قوشۇش'}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setCategoryModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold transition hover:bg-slate-700 cursor-pointer"
+                  className="px-5 py-3 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold transition hover:bg-slate-700 cursor-pointer"
                 >
                   بىكار قىلىش
                 </button>

@@ -16,7 +16,11 @@ import {
   KeyRound,
   Coins,
   Share2,
-  Wallet
+  Wallet,
+  Package,
+  Crown,
+  Zap,
+  ShieldCheck
 } from 'lucide-react';
 
 interface IconProps {
@@ -60,7 +64,15 @@ export default function DynamicIcon({ name, className = 'w-5 h-5' }: IconProps) 
       return <Share2 className={className} />;
     case 'Wallet':
       return <Wallet className={className} />;
+    case 'Package':
+      return <Package className={className} />;
+    case 'Crown':
+      return <Crown className={className} />;
+    case 'Zap':
+      return <Zap className={className} />;
+    case 'ShieldCheck':
+      return <ShieldCheck className={className} />;
     default:
-      return <Bot className={className} />;
+      return <Package className={className} />;
   }
 }

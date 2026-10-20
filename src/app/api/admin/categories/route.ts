@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
-import { getCategoriesList, addCategoryItem, updateCategoryItem, deleteCategoryItem } from '@/lib/categoriesDb';
+import { getCategoriesList, getCategoriesListAsync, addCategoryItem, updateCategoryItem, deleteCategoryItem } from '@/lib/categoriesDb';
 import { verifyAdminToken } from '@/lib/adminAuth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const categories = getCategoriesList();
+    const categories = await getCategoriesListAsync();
     return NextResponse.json({ success: true, categories });
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err?.message || 'سەھىپىلەرنى ئېلىش مەغلۇپ بولدى' }, { status: 500 });
