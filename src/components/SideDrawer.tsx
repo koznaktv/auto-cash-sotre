@@ -99,25 +99,9 @@ export default function SideDrawer({
 }: SideDrawerProps) {
   const { lang, setLang, t, isRTL } = useLanguage();
   const [avatarSrc, setAvatarSrc] = useState<string>('');
-  const [isAdmin, setIsAdmin] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const checkAdmin = () => {
-      const email = user?.email || (typeof window !== 'undefined' ? localStorage.getItem('autocash_email') : '');
-      const isOwner = email?.trim().toLowerCase() === 'dronemax0996@gmail.com';
-      const role = (user as any)?.role || (typeof window !== 'undefined' ? localStorage.getItem('autocash_role') : '');
-      const hasToken = typeof window !== 'undefined' && Boolean(sessionStorage.getItem('autocash_admin_token'));
-      setIsAdmin(Boolean(isOwner || role === 'admin' || hasToken));
-    };
-    checkAdmin();
-    window.addEventListener('autocash-auth-changed', checkAdmin);
-    window.addEventListener('storage', checkAdmin);
-    return () => {
-      window.removeEventListener('autocash-auth-changed', checkAdmin);
-      window.removeEventListener('storage', checkAdmin);
-    };
-  }, [user]);
+
 
   const normalizedTier = (
     user?.vipTier ||
@@ -158,7 +142,6 @@ export default function SideDrawer({
             if (gAvatar) {
               setAvatarSrc(gAvatar);
               localStorage.setItem('autocash_avatar', gAvatar);
-              window.dispatchEvent(new Event('autocash-auth-changed'));
             }
           }).catch(() => {});
         }
@@ -248,6 +231,11 @@ export default function SideDrawer({
     };
     reader.readAsDataURL(file);
   };
+
+  const isAdmin = Boolean(
+    user?.email?.trim().toLowerCase() === 'dronemax0996@gmail.com' ||
+    (user as any)?.role === 'admin'
+  );
 
   if (!isOpen) return null;
 

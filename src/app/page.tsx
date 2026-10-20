@@ -167,7 +167,6 @@ export default function HomePage() {
                 const syncedUser = await syncSupabaseSession(session.access_token);
                 setCurrentUser(syncedUser);
                 setUserBalance(syncedUser.balance ?? 0.0);
-                window.dispatchEvent(new Event('autocash-auth-changed'));
               } else {
                 setCurrentUser(null);
                 setUserBalance(0.0);

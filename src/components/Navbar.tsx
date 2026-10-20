@@ -41,7 +41,6 @@ export default function Navbar({
     return null;
   });
   const [langMenuOpen, setLangMenuOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const refreshUser = () => {
@@ -79,23 +78,12 @@ export default function Navbar({
   }, []);
 
   const activeUser = externalUser !== undefined ? externalUser : internalUser;
+  const isAdmin = Boolean(
+    activeUser?.email?.trim().toLowerCase() === 'dronemax0996@gmail.com' ||
+    (activeUser as any)?.role === 'admin'
+  );
 
-  useEffect(() => {
-    const checkAdmin = () => {
-      const email = activeUser?.email || (typeof window !== 'undefined' ? localStorage.getItem('autocash_email') : '');
-      const isOwner = email?.trim().toLowerCase() === 'dronemax0996@gmail.com';
-      const role = (activeUser as any)?.role || (typeof window !== 'undefined' ? localStorage.getItem('autocash_role') : '');
-      const hasToken = typeof window !== 'undefined' && Boolean(sessionStorage.getItem('autocash_admin_token'));
-      setIsAdmin(Boolean(isOwner || role === 'admin' || hasToken));
-    };
-    checkAdmin();
-    window.addEventListener('autocash-auth-changed', checkAdmin);
-    window.addEventListener('storage', checkAdmin);
-    return () => {
-      window.removeEventListener('autocash-auth-changed', checkAdmin);
-      window.removeEventListener('storage', checkAdmin);
-    };
-  }, [activeUser]);
+
   const effectiveBalance = (() => {
     if (typeof activeUser?.balance === 'number' && activeUser.balance > 0) {
       return activeUser.balance;
