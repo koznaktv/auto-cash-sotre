@@ -1551,11 +1551,11 @@ export default function AdminPage() {
         const sahlItem = groupedSahlServices.find((g) => g.key === sahlKey);
         if (sahlItem) {
           const payload = {
-            name: sahlItem.uyghurName || sahlItem.name,
+            name: srv.name || sahlItem.name,
             category: srv.category || sahlItem.category,
             icon: getCategoryIcon(srv.category || sahlItem.category),
             image: sahlItem.image || srv.image || '/logo.png',
-            description: srv.description || `${sahlItem.uyghurName || sahlItem.name} ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى`,
+            description: srv.description || `${srv.name || sahlItem.name} ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى`,
             badge: srv.badge || '⚡ ئاپتوماتىك',
             inputLabel: sahlItem.inputLabel,
             inputPlaceholder: sahlItem.inputPlaceholder,
@@ -1859,11 +1859,11 @@ export default function AdminPage() {
       if (!alreadySaved) {
         list.push({
           id: `sahl_${sahl.key}`,
-          name: sahl.uyghurName || sahl.name,
+          name: sahl.name,
           category: sahl.category,
           icon: getCategoryIcon(sahl.category),
           image: sahl.image || '/logo.png',
-          description: `${sahl.uyghurName || sahl.name} ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى`,
+          description: `${sahl.name} ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى`,
           badge: '⚡ Sahl Cash',
           inputLabel: sahl.inputLabel,
           inputPlaceholder: sahl.inputPlaceholder,
@@ -1977,7 +1977,7 @@ export default function AdminPage() {
     });
 
     setSahlForm({
-      name: group.uyghurName || group.name,
+      name: group.name,
       category: group.category,
       image: group.image,
       badge: '⚡ ئاپتوماتىك',
@@ -2315,7 +2315,8 @@ export default function AdminPage() {
         q === '' ||
         (s.name && s.name.toLowerCase().includes(q)) ||
         (s.category && s.category.toLowerCase().includes(q)) ||
-        (s.description && s.description.toLowerCase().includes(q));
+        (s.description && s.description.toLowerCase().includes(q)) ||
+        (s.packages && s.packages.some((p) => (p.title && p.title.toLowerCase().includes(q))));
       const isCustomSaved = savedServiceIds.has(s.id);
       const matchSource =
         productSourceFilter === 'all' ||
@@ -5461,13 +5462,15 @@ export default function AdminPage() {
                               </div>
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-1.5 flex-wrap">
-                                  <h4 className="font-bold text-xs text-white truncate">
-                                    {service.uyghurName}
+                                  <h4 className="font-bold text-sm text-white truncate" dir="ltr">
+                                    {service.name}
                                   </h4>
                                 </div>
-                                <span className="text-[11px] font-mono text-cyan-300 block truncate mt-0.5" dir="ltr">
-                                  {service.name}
-                                </span>
+                                {service.uyghurName && service.uyghurName !== service.name && (
+                                  <span className="text-[11px] text-amber-300 block truncate mt-0.5">
+                                    {service.uyghurName}
+                                  </span>
+                                )}
                                 <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                                   <span className="px-2 py-0.5 rounded-md bg-amber-400/15 border border-amber-400/30 text-amber-300 font-bold text-[10px]">
                                     📦 {service.packages.length} بولاق
@@ -5515,8 +5518,10 @@ export default function AdminPage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-white text-sm">{selectedSahlGroup.uyghurName}</span>
-                        <span className="text-cyan-300 font-mono text-xs">({selectedSahlGroup.name})</span>
+                        <span className="font-bold text-white text-base" dir="ltr">{selectedSahlGroup.name}</span>
+                        {selectedSahlGroup.uyghurName && selectedSahlGroup.uyghurName !== selectedSahlGroup.name && (
+                          <span className="text-amber-300 text-xs">({selectedSahlGroup.uyghurName})</span>
+                        )}
                       </div>
                       <span className="text-xs text-amber-300 block mt-0.5">
                         جەمئىي {sahlForm.packages.length} بولاق تەييارلاندى · تاللانغىنى: {sahlForm.packages.filter((p) => p.selected).length} بولاق
