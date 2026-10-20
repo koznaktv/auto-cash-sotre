@@ -67,7 +67,7 @@ interface RequestOptions {
 
 const NOT_CONFIGURED: ProviderError = {
   kind: 'auth',
-  message: 'SYRIA4GAME_API_TOKEN مۇھىت ئۆزگەرگۈچىسى تەڭشەلمىگەن',
+  message: 'SAHL_CASH_API_TOKEN مۇھىت ئۆزگەرگۈچىسى تەڭشەلمىگەن',
 };
 
 function sleep(ms: number) {
@@ -88,12 +88,13 @@ interface ResolvedProviderConfig {
 export class Syria4GameProvider {
   private defaultBaseUrl: string;
   private defaultApiToken: string;
+  private lastResolvedToken: string = '';
 
   constructor() {
-    const rawUrl = process.env.SYRIA4GAME_BASE_URL || 'https://api.sahl-cash.com';
+    const rawUrl = process.env.SAHL_CASH_BASE_URL || process.env.SYRIA4GAME_BASE_URL || 'https://api.sahl-cash.com';
     this.defaultBaseUrl = rawUrl.replace(/\/+$/, '');
     setAssetBase(this.defaultBaseUrl);
-    const rawToken = (process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '').trim();
+    const rawToken = (process.env.SAHL_CASH_API_TOKEN || process.env.SAHL_CASH_API_KEY || process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '').trim();
     this.defaultApiToken = rawToken.replace(/^["']|["']$/g, '').trim();
   }
 
@@ -137,6 +138,7 @@ export class Syria4GameProvider {
       }
 
       baseUrl = baseUrl.replace(/\/+$/, '');
+      this.lastResolvedToken = apiToken;
       return { baseUrl, apiToken, apiType, apiSecret, enabled };
     } catch {
       const stored = loadStoredProviderConfig();
@@ -151,7 +153,7 @@ export class Syria4GameProvider {
   }
 
   public hasLiveToken(): boolean {
-    const token = this.defaultApiToken || loadStoredProviderConfig().providerApiKey;
+    const token = this.lastResolvedToken || this.defaultApiToken || loadStoredProviderConfig().providerApiKey;
     return Boolean(token && token.length > 5);
   }
 
@@ -334,7 +336,8 @@ export class Syria4GameProvider {
 
   /** Full catalog in one direct call to /products (completes in ~1s). */
   async getCatalog(): Promise<{ success: boolean; catalog?: ParsedCatalog; source?: string; error?: ProviderError }> {
-    if (!this.hasLiveToken()) return { success: false, error: NOT_CONFIGURED };
+    const config = await this.getResolvedConfig();
+    if (!config.enabled || !config.apiToken || config.apiToken.length < 3) return { success: false, error: NOT_CONFIGURED };
 
     const productsRes = await this.request('/client/api/products', { endpoint: 'products', timeoutMs: 15000, retries: 1 });
     if (!this.isSuccess(productsRes)) {
@@ -395,7 +398,8 @@ export class Syria4GameProvider {
   async getProduct(
     productId: number
   ): Promise<{ success: boolean; product?: ProviderProduct; notFound?: boolean; error?: ProviderError }> {
-    if (!this.hasLiveToken()) return { success: false, error: NOT_CONFIGURED };
+    const config = await this.getResolvedConfig();
+    if (!config.enabled || !config.apiToken || config.apiToken.length < 3) return { success: false, error: NOT_CONFIGURED };
     const res = await this.request('/client/api/products', {
       endpoint: 'product',
       query: { products_id: productId },

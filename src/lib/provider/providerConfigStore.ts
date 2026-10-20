@@ -21,8 +21,8 @@ const BUNDLED_CONFIG_FILE = path.join(BUNDLED_DATA_DIR, 'provider_config.json');
 const ENV_LOCAL_FILE = path.join(process.cwd(), '.env.local');
 
 // Default fallback URL and token
-const DEFAULT_URL = (process.env.SYRIA4GAME_BASE_URL || 'https://api.sahl-cash.com').trim();
-const DEFAULT_TOKEN = (process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '').trim();
+const DEFAULT_URL = (process.env.SAHL_CASH_BASE_URL || process.env.SYRIA4GAME_BASE_URL || 'https://api.sahl-cash.com').trim();
+const DEFAULT_TOKEN = (process.env.SAHL_CASH_API_TOKEN || process.env.SAHL_CASH_API_KEY || process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '').trim();
 
 let memoryCachedConfig: StoredProviderConfig | null = null;
 
@@ -159,8 +159,10 @@ export function saveStoredProviderConfig(updates: Partial<StoredProviderConfig>)
   }
 
   // 2. Update process.env
+  process.env.SAHL_CASH_BASE_URL = nextUrl;
   process.env.SYRIA4GAME_BASE_URL = nextUrl;
   if (nextToken) {
+    process.env.SAHL_CASH_API_TOKEN = nextToken;
     process.env.SYRIA4GAME_API_TOKEN = nextToken;
   }
 
