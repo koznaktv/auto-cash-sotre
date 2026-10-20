@@ -319,6 +319,7 @@ export default function AdminPage() {
     zoneIdLabel: string;
     zoneIdPlaceholder: string;
     bioContent: string;
+    published: boolean;
     packages: Array<{ id: string; title: string; price: number; originalPrice?: number; duration?: string }>;
   }>({
     name: '',
@@ -333,6 +334,7 @@ export default function AdminPage() {
     zoneIdLabel: 'رايون كودى (Zone ID)',
     zoneIdPlaceholder: 'مەسىلەن: 1234',
     bioContent: '',
+    published: true,
     packages: [{ id: 'p-1', title: 'ئاساسىي بولاق', price: 1.99, duration: 'دەرھال' }],
   });
 
@@ -1158,6 +1160,7 @@ export default function AdminPage() {
       zoneIdLabel: 'رايون كودى (Zone ID)',
       zoneIdPlaceholder: 'مەسىلەن: 1234',
       bioContent: '',
+      published: true,
       packages: [
         { id: `p-${Date.now()}-1`, title: 'ئاساسىي بولاق', price: 1.99, duration: 'دەرھال' }
       ],
@@ -1193,6 +1196,7 @@ export default function AdminPage() {
       zoneIdLabel: srv.zoneIdLabel || detected.zoneIdLabel || 'رايون كودى (Zone ID)',
       zoneIdPlaceholder: srv.zoneIdPlaceholder || detected.zoneIdPlaceholder || 'مەسىلەن: 1234',
       bioContent: srv.bioContent || detected.defaultBio || '',
+      published: srv.published !== false,
       packages: existingPkgs,
     });
     setServiceModalOpen(true);
@@ -1268,6 +1272,8 @@ export default function AdminPage() {
       zoneIdLabel: serviceForm.requiresZoneId ? (serviceForm.zoneIdLabel || 'رايون كودى (Zone ID)') : undefined,
       zoneIdPlaceholder: serviceForm.requiresZoneId ? (serviceForm.zoneIdPlaceholder || 'مەسىلەن: 1234') : undefined,
       bioContent: serviceForm.bioContent?.trim() || undefined,
+      published: serviceForm.published !== false,
+      source: 'provider',
       packages: cleanPackages,
     };
 
@@ -1287,7 +1293,7 @@ export default function AdminPage() {
           );
           setServiceModalOpen(false);
           setEditingService(null);
-          alert(`«${data.service.name}» مۇۋەپپەقىيەتلىك يېڭىلاندى!`);
+          alert(`«${data.service.name}» مۇۋەپپەقىيەتلىك ساقلاندى ھەمدە باشبەتتە دەل ۋاقتىدا نەق كۆرسىتىلدى!`);
         } else {
           alert(data.message || 'ساقلاش مەغلۇپ بولدى');
         }
@@ -1304,7 +1310,7 @@ export default function AdminPage() {
           setServices((prev) => [data.service, ...prev.filter((s) => s.id !== data.service.id)]);
           setServiceModalOpen(false);
           setEditingService(null);
-          alert(`«${data.service.name}» دۇكانغا مۇۋەپپەقىيەتلىك قوشۇلدى!`);
+          alert(`«${data.service.name}» مۇۋەپپەقىيەتلىك ساقلاندى ھەمدە دەرھال باشبەتكە چىقىرىلدى!`);
         } else {
           alert(data.message || 'قوشۇش مەغلۇپ بولدى');
         }
@@ -1383,7 +1389,9 @@ export default function AdminPage() {
           });
           const data = await res.json();
           if (data.success && data.service) {
+            clearStorefrontCache();
             setServices((prev) => [data.service, ...prev.filter((s) => s.id !== data.service.id)]);
+            alert(`«${data.service.name}» سەھىپىگە يۆتكەلدى ۋە باشبەتكە مۇۋەپپەقىيەتلىك چىقىرىلدى!`);
           }
           return;
         }
@@ -1393,16 +1401,95 @@ export default function AdminPage() {
       const res = await fetch('/api/admin/services', {
         method: 'PUT',
         headers,
-        body: JSON.stringify({ id: serviceId, category: newCategory }),
+        body: JSON.stringify({ id: serviceId, category: newCategory, published: true }),
       });
       const data = await res.json();
       if (data.success && data.service) {
+        clearStorefrontCache();
         setServices((prev) =>
-          prev.map((s) => (s.id === serviceId ? { ...s, category: newCategory } : s))
+          prev.map((s) => (s.id === serviceId ? { ...s, category: newCategory, published: true } : s))
         );
+        alert('سەھىپە ئۆزگەرتىشى مۇۋەپپەقىيەتلىك ساقلاندى ۋە باشبەتتە نەق چىقتى!');
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handlePublishServiceToHomepage = async (srv: ServiceItem) => {
+    const token = sessionStorage.getItem('autocash_admin_token');
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+    try {
+      if (srv.id.startsWith('sahl_')) {
+        const sahlKey = srv.id.replace('sahl_', '');
+        const sahlItem = groupedSahlServices.find((g) => g.key === sahlKey);
+        if (sahlItem) {
+          const payload = {
+            name: sahlItem.uyghurName || sahlItem.name,
+            category: srv.category || sahlItem.category,
+            icon: getCategoryIcon(srv.category || sahlItem.category),
+            image: sahlItem.image || srv.image || '/logo.png',
+            description: srv.description || `${sahlItem.uyghurName || sahlItem.name} ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى`,
+            badge: srv.badge || '⚡ ئاپتوماتىك',
+            inputLabel: sahlItem.inputLabel,
+            inputPlaceholder: sahlItem.inputPlaceholder,
+            requiresZoneId: sahlItem.requiresZoneId,
+            zoneIdLabel: sahlItem.zoneIdLabel,
+            zoneIdPlaceholder: sahlItem.zoneIdPlaceholder,
+            bioContent: sahlItem.bioContent,
+            published: true,
+            source: 'provider',
+            packages: sahlItem.packages.map((p) => ({
+              id: `pkg-${sahlItem.key}-${p.id}`,
+              title: p.title || p.originalName,
+              price: Number(p.sellPrice) || 1,
+              originalPrice: Number(p.originalPrice) || Math.round((Number(p.sellPrice) || 1) * 1.2 * 100) / 100,
+              duration: 'دەرھال',
+              providerProductId: p.id,
+              productType: p.productType === 'amount' ? 'amount' : 'fixed',
+              available: true,
+            })),
+          };
+
+          const res = await fetch('/api/admin/services', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (data.success && data.service) {
+            clearStorefrontCache();
+            setServices((prev) => [data.service, ...prev.filter((s) => s.id !== data.service.id)]);
+            alert(`«${data.service.name}» مۇۋەپپەقىيەتلىك ساقلاندى ھەمدە دەرھال باشبەتكە چىقىرىلدى!`);
+          } else {
+            alert(data.message || 'ساقلاش مەغلۇپ بولدى');
+          }
+          return;
+        }
+      }
+
+      // Existing service: enforce published: true
+      const res = await fetch('/api/admin/services', {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ id: srv.id, published: true }),
+      });
+      const data = await res.json();
+      if (data.success && data.service) {
+        clearStorefrontCache();
+        setServices((prev) =>
+          prev.map((s) => (s.id === srv.id ? { ...s, published: true } : s))
+        );
+        alert(`«${srv.name}» باشبەتتە نەق چىقىرىلدى!`);
+      } else {
+        alert(data.message || 'ساقلاش مەغلۇپ بولدى');
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert('ئۇلىنىش خاتالىقى كۆرۈلدى');
     }
   };
 
@@ -3194,7 +3281,17 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between sm:justify-end gap-3 w-full md:w-auto">
+                <div className="flex items-center justify-between sm:justify-end gap-2.5 w-full md:w-auto">
+                  <a
+                    href="/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black transition flex items-center gap-1.5 cursor-pointer shadow-md shrink-0"
+                    title="باشبەتكە چىققان مەھسۇلاتلارنى يېڭى بەتتە نەق كۆرۈش"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>باشبەتتە كۆرۈش ↗</span>
+                  </a>
                   {categoryFilter !== 'all' && filteredServices.length > 0 && (
                     <button
                       onClick={() => {
@@ -3204,7 +3301,7 @@ export default function AdminPage() {
                       className="px-3 py-1.5 rounded-xl bg-rose-950/70 hover:bg-rose-900 border border-rose-500/40 text-rose-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
-                      <span>مۇشۇ سەھىپىدىكى مەھسۇلاتلارنى يۇيۇش</span>
+                      <span>مۇشۇ سەھىپىدىكىلەرنى يۇيۇش</span>
                     </button>
                   )}
                   <div className="text-xs text-slate-400">
@@ -3289,36 +3386,69 @@ export default function AdminPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 pt-3 border-t border-slate-800/80">
-                        {/* Quick Category Move Dropdown */}
-                        <div className="flex-1 min-w-0" title="سەھىپىگە يۆتكەش ياكى دۇكانغا قوشۇش">
-                          <select
-                            value={srv.category}
-                            onChange={(e) => handleQuickChangeCategory(srv.id, e.target.value)}
-                            className="w-full py-1.5 px-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 font-bold text-[11px] focus:outline-none focus:border-amber-400 cursor-pointer truncate"
+                      <div className="flex flex-col gap-2 pt-3 border-t border-slate-800/80">
+                        <div className="flex items-center gap-2">
+                          {/* Quick Category Move Dropdown */}
+                          <div className="flex-1 min-w-0" title="سەھىپىگە يۆتكەش">
+                            <select
+                              value={srv.category}
+                              onChange={(e) => handleQuickChangeCategory(srv.id, e.target.value)}
+                              className="w-full py-1.5 px-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 font-bold text-[11px] focus:outline-none focus:border-amber-400 cursor-pointer truncate"
+                            >
+                              {categoriesList.map((c) => (
+                                <option key={c.id} value={c.id} className="bg-slate-950 text-white">
+                                  {c.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <button
+                            onClick={() => handleOpenEditService(srv)}
+                            className="px-3 py-1.5 rounded-lg bg-cyan-950/70 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 font-bold text-xs transition flex items-center justify-center gap-1 cursor-pointer shrink-0"
+                            title="تەھرىرلەش (باھا، نامى ۋە بولاقلارنى تەڭشەش)"
                           >
-                            {categoriesList.map((c) => (
-                              <option key={c.id} value={c.id} className="bg-slate-950 text-white">
-                                {c.name}
-                              </option>
-                            ))}
-                          </select>
+                            <Edit3 className="w-3.5 h-3.5" />
+                            <span>تەھرىرلەش</span>
+                          </button>
+                          <button
+                            onClick={() => handleDeleteService(srv.id)}
+                            className="p-1.5 rounded-lg bg-rose-950/70 hover:bg-rose-900 border border-rose-500/40 text-rose-300 transition flex items-center justify-center cursor-pointer shrink-0"
+                            title={isSavedCustom ? 'دۇكاندىن ئۆچۈرۈش' : 'تىزىملىكتىن يوشۇرۇش'}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
-                        <button
-                          onClick={() => handleOpenEditService(srv)}
-                          className="px-3 py-1.5 rounded-lg bg-cyan-950/70 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 font-bold text-xs transition flex items-center justify-center gap-1 cursor-pointer shrink-0"
-                          title="تەھرىرلەش (باھا ۋە بولاقلارنى تەڭشەش)"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                          <span>تەھرىرلەش</span>
-                        </button>
-                        <button
-                          onClick={() => handleDeleteService(srv.id)}
-                          className="p-1.5 rounded-lg bg-rose-950/70 hover:bg-rose-900 border border-rose-500/40 text-rose-300 transition flex items-center justify-center cursor-pointer shrink-0"
-                          title={isSavedCustom ? 'دۇكاندىن ئۆچۈرۈش' : 'تىزىملىكتىن يوشۇرۇش'}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+
+                        {/* Direct Save & Show on Homepage Action Button */}
+                        <div>
+                          {isSavedCustom ? (
+                            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-emerald-950/50 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold">
+                              <span className="flex items-center gap-1.5">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                                <span>باشبەتتە نەق كۆرۈنۈۋاتىدۇ</span>
+                              </span>
+                              <a
+                                href="/"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-[10px] text-cyan-300 hover:text-cyan-200 underline font-mono flex items-center gap-0.5"
+                                title="دەرھال باشبەتتىن كۆرۈش"
+                              >
+                                <span>كۆرۈش ↗</span>
+                              </a>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handlePublishServiceToHomepage(srv)}
+                              className="w-full py-1.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+                              title="بۇ مەھسۇلاتنى دەرھال ساقلاش ۋە باشبەتكە چىقىرىش"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>💾 ساقلاش ۋە دەرھال باشبەتكە چىقىرىش</span>
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
@@ -4813,17 +4943,32 @@ export default function AdminPage() {
                 />
               </div>
 
+              {/* Homepage Visibility Toggle */}
+              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
+                <div>
+                  <span className="font-bold text-white text-xs block">باشبەتتە نەق كۆرسىتىش (ئېلان قىلىش):</span>
+                  <span className="text-[11px] text-slate-400">بۇ تاللانسا، ساقلاش كۇنۇپكىسىنى باسقان ھامانلا باشبەتتە نەق چىقىدۇ</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={serviceForm.published !== false}
+                  onChange={(e) => setServiceForm({ ...serviceForm, published: e.target.checked })}
+                  className="w-5 h-5 accent-amber-400 rounded cursor-pointer"
+                />
+              </div>
+
               <div className="pt-2 flex items-center gap-2">
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer"
+                  className="flex-1 py-3 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer flex items-center justify-center gap-2 shadow-lg"
                 >
-                  {editingService ? 'ئۆزگەرتىشنى ساقلاش' : 'مەھسۇلاتنى قوشۇش'}
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>💾 ساقلاش ۋە دەرھال باشبەتتە كۆرسىتىش</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setServiceModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold transition hover:bg-slate-700 cursor-pointer"
+                  className="px-4 py-3 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold transition hover:bg-slate-700 cursor-pointer"
                 >
                   بىكار قىلىش
                 </button>
