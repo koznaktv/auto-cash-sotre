@@ -65,8 +65,13 @@ import {
   MessageSquareShare,
   Crown,
   ArrowLeft,
-  ArrowRight
+  ArrowRight,
+  Image as ImageIcon,
+  ArrowUp,
+  ArrowDown,
+  Save
 } from 'lucide-react';
+import { PromoSlideData, DEFAULT_PROMO_SLIDES } from '@/lib/bannersData';
 
 interface SafeUser {
   id: string;
@@ -236,7 +241,7 @@ export default function AdminPage() {
 
   // Navigation tab
   const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'orders' | 'provider' | 'services' | 'deposits' | 'users' | 'finance' | 'settings'
+    'dashboard' | 'orders' | 'provider' | 'services' | 'banners' | 'deposits' | 'users' | 'finance' | 'settings'
   >('dashboard');
 
   // Main Data States
@@ -277,6 +282,34 @@ export default function AdminPage() {
     icon: 'Gamepad2',
     count: 'مەھسۇلاتلار',
     image: '',
+  });
+
+  // Banners / Promo Carousel State
+  const [banners, setBanners] = useState<PromoSlideData[]>(DEFAULT_PROMO_SLIDES);
+  const [bannerModalOpen, setBannerModalOpen] = useState<boolean>(false);
+  const [editingBanner, setEditingBanner] = useState<PromoSlideData | null>(null);
+  const [bannerForm, setBannerForm] = useState<{
+    id: string;
+    title: string;
+    subtitle: string;
+    badge: string;
+    tag: string;
+    linkText: string;
+    category: string;
+    image: string;
+    targetUrl: string;
+    enabled: boolean;
+  }>({
+    id: '',
+    title: '',
+    subtitle: '',
+    badge: '⚡ ئەڭ قىزىق ئويۇن',
+    tag: 'كاپالەتلىك كود',
+    linkText: 'دەرھال قاچىلاش ⚡',
+    category: 'games',
+    image: '',
+    targetUrl: '',
+    enabled: true,
   });
   const [iconFilterTab, setIconFilterTab] = useState<'all' | 'game' | 'app' | 'pay'>('all');
   const [productSourceFilter, setProductSourceFilter] = useState<'all' | 'published' | 'sahl'>('all');
@@ -587,7 +620,7 @@ export default function AdminPage() {
     const headers = { Authorization: `Bearer ${token}` };
 
     try {
-      const [resOrders, resDeposits, resUsers, resServices, resCategories, resSettings, resProducts] = await Promise.all([
+      const [resOrders, resDeposits, resUsers, resServices, resCategories, resSettings, resProducts, resBanners] = await Promise.all([
         fetch('/api/orders', { headers }).then((r) => r.json()),
         fetch('/api/deposits', { headers }).then((r) => r.json()),
         fetch('/api/admin/users', { headers }).then((r) => r.json()),
@@ -595,6 +628,7 @@ export default function AdminPage() {
         fetch(`/api/admin/categories?t=${Date.now()}`, { headers, cache: 'no-store' }).then((r) => r.json()),
         fetch('/api/admin/settings', { headers }).then((r) => r.json()),
         fetch('/api/admin/provider?action=products', { headers }).then((r) => r.json()).catch(() => null),
+        fetch(`/api/admin/banners?t=${Date.now()}`, { headers, cache: 'no-store' }).then((r) => r.json()).catch(() => null),
       ]);
 
       if (resOrders.success) setOrders(resOrders.orders || []);
@@ -603,6 +637,9 @@ export default function AdminPage() {
       if (resServices.success) setServices(resServices.services || []);
       if (resCategories.success && Array.isArray(resCategories.categories)) {
         setCategoriesList(resCategories.categories);
+      }
+      if (resBanners && resBanners.success && Array.isArray(resBanners.banners)) {
+        setBanners(resBanners.banners);
       }
       if (resSettings.success && resSettings.settings) setSettings(resSettings.settings);
       if (resProducts && resProducts.success && Array.isArray(resProducts.products)) {
@@ -1084,6 +1121,198 @@ export default function AdminPage() {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  // ================= BANNERS / PROMO CAROUSEL HANDLERS =================
+  const getBannerFieldStr = (val: any): string => {
+    if (!val) return '';
+    if (typeof val === 'string') return val;
+    return val.ug || val.en || val.ar || Object.values(val)[0] || '';
+  };
+
+  const handleOpenAddBanner = () => {
+    setEditingBanner(null);
+    setBannerForm({
+      id: `slide-${Date.now()}`,
+      title: '',
+      subtitle: '',
+      badge: '✨ قىزىق تەشۋىقات',
+      tag: 'كاپالەتلىك كود',
+      linkText: 'دەرھال كۆرۈش ⚡',
+      category: 'games',
+      image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200',
+      targetUrl: '',
+      enabled: true,
+    });
+    setBannerModalOpen(true);
+  };
+
+  const handleOpenEditBanner = (b: PromoSlideData) => {
+    setEditingBanner(b);
+    setBannerForm({
+      id: b.id,
+      title: getBannerFieldStr(b.title),
+      subtitle: getBannerFieldStr(b.subtitle),
+      badge: getBannerFieldStr(b.badge) || '✨ قىزىق تەشۋىقات',
+      tag: getBannerFieldStr(b.tag) || 'كاپالەتلىك كود',
+      linkText: getBannerFieldStr(b.linkText) || 'دەرھال كۆرۈش ⚡',
+      category: b.category || 'games',
+      image: b.image || '',
+      targetUrl: b.targetUrl || '',
+      enabled: b.enabled !== false,
+    });
+    setBannerModalOpen(true);
+  };
+
+  const handleSaveBanner = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bannerForm.title.trim()) {
+      alert('ئېلان نامىنى (ماۋزۇسىنى) كىرگۈزۈڭ');
+      return;
+    }
+    if (!bannerForm.image.trim()) {
+      alert('ئېلان ئارقا كۆرۈنۈش رەسىمىنى كىرگۈزۈڭ ياكى رەسىم تاللاڭ');
+      return;
+    }
+
+    const token = sessionStorage.getItem('autocash_admin_token');
+    const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+
+    const payload = {
+      action: editingBanner ? 'update' : 'add',
+      banner: {
+        id: bannerForm.id || `slide-${Date.now()}`,
+        title: bannerForm.title.trim(),
+        subtitle: bannerForm.subtitle.trim(),
+        badge: bannerForm.badge.trim(),
+        tag: bannerForm.tag.trim(),
+        linkText: bannerForm.linkText.trim(),
+        category: bannerForm.category,
+        image: bannerForm.image.trim(),
+        targetUrl: bannerForm.targetUrl.trim(),
+        enabled: bannerForm.enabled,
+      },
+    };
+
+    try {
+      const res = await fetch('/api/admin/banners', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.banners)) {
+        setBanners(data.banners);
+        setBannerModalOpen(false);
+        setEditingBanner(null);
+        alert('ئېلان مۇۋەپپەقىيەتلىك ساقلاندى ھەمدە دەرھال باشبەتكە چىقىرىلدى!');
+      } else {
+        alert(data.message || 'ساقلاش مەغلۇپ بولدى');
+      }
+    } catch {
+      alert('ساقلاشتا خاتالىق يۈز بەردى');
+    }
+  };
+
+  const handleDeleteBanner = async (id: string) => {
+    if (!confirm('بۇ ئېلاننى راستتىنلا ئۆچۈرەمسىز؟')) return;
+    const token = sessionStorage.getItem('autocash_admin_token');
+    const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+    try {
+      const res = await fetch('/api/admin/banners', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ action: 'delete', bannerId: id }),
+      });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.banners)) {
+        setBanners(data.banners);
+      }
+    } catch {}
+  };
+
+  const handleToggleBannerEnabled = async (b: PromoSlideData) => {
+    const updated = banners.map((item) =>
+      item.id === b.id ? { ...item, enabled: !item.enabled } : item
+    );
+    setBanners(updated);
+    const token = sessionStorage.getItem('autocash_admin_token');
+    const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+    await fetch('/api/admin/banners', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ action: 'save_all', banners: updated }),
+    });
+  };
+
+  const handleMoveBanner = async (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= banners.length) return;
+    const reordered = [...banners];
+    const temp = reordered[index];
+    reordered[index] = reordered[targetIndex];
+    reordered[targetIndex] = temp;
+    setBanners(reordered);
+
+    const token = sessionStorage.getItem('autocash_admin_token');
+    const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+    await fetch('/api/admin/banners', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ action: 'save_all', banners: reordered }),
+    });
+  };
+
+  const handleResetBanners = async () => {
+    if (!confirm('بارلىق ئېلانلارنى ئەسلىدىكى كۆڭۈلدىكى تەڭشەككە قايتۇرامسىز؟')) return;
+    const token = sessionStorage.getItem('autocash_admin_token');
+    const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+    const res = await fetch('/api/admin/banners', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ action: 'reset' }),
+    });
+    const data = await res.json();
+    if (data.success && Array.isArray(data.banners)) {
+      setBanners(data.banners);
+      alert('ئېلانلار ئەسلىدىكى ھالەتكە قايتۇرۇلدى!');
+    }
+  };
+
+  const handleBannerImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('پەقەت رەسىم ھۆججىتى (JPG, PNG, WebP) تاللاشقا بولىدۇ');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new (window as any).Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        const maxDim = 1280;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        setBannerForm((prev) => ({ ...prev, image: dataUrl }));
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   };
 
   // Clear all products
@@ -2504,6 +2733,7 @@ export default function AdminPage() {
               { id: 'orders', label: 'زاكازلارنى باشقۇرۇش', icon: ShoppingBag, badge: metrics.processingCount },
               { id: 'provider', label: 'Sahl Cash API', icon: Zap, badgeColor: 'bg-cyan-500 text-slate-950' },
               { id: 'services', label: 'مەھسۇلات / مۇلازىمەتلەر', icon: Package, badge: services.length },
+              { id: 'banners', label: 'باشبەت ئېلانلىرى (سلايدېر)', icon: ImageIcon, badge: banners.length, badgeColor: 'bg-amber-400 text-slate-950' },
               { id: 'deposits', label: 'ھەميان كىرىملىرى (شامكەش)', icon: Wallet, badge: metrics.pendingDepCount, badgeColor: 'bg-amber-500 text-slate-950' },
               { id: 'users', label: 'ئىشلەتكۈچىلەر (ئەزالار)', icon: Users, badge: metrics.userCount },
               { id: 'finance', label: 'پۇل مۇئامىلە ۋە كىرىم', icon: TrendingUp },
@@ -2591,6 +2821,7 @@ export default function AdminPage() {
               {activeTab === 'dashboard' && 'باش تاختا كۆرسەتكۈچلىرى'}
               {activeTab === 'orders' && 'زاكازلارنى باشقۇرۇش مەركىزى'}
               {activeTab === 'services' && 'مەھسۇلات ۋە مۇلازىمەتلەر تىزىملىكى'}
+              {activeTab === 'banners' && 'باشبەت ئېلان تاختىسى ۋە سلايدېر تەڭشىكى'}
               {activeTab === 'deposits' && 'ھەميان كىرىملىرى ۋە تالونلار'}
               {activeTab === 'users' && 'ئەزالار ۋە ئىشلەتكۈچىلەر باشقۇرۇش'}
               {activeTab === 'finance' && 'پۇل مۇئامىلە ۋە كىرىم ئانالىزى'}
@@ -3241,6 +3472,14 @@ export default function AdminPage() {
                     >
                       <FolderPlus className="w-4 h-4" />
                       <span>+ يېڭى سەھىپە قوشۇش</span>
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('banners')}
+                      className="px-3 py-2 rounded-xl bg-amber-950/80 hover:bg-amber-900 border border-amber-500/40 text-amber-300 text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-sm"
+                      title="باشبەتتىكى چوڭ ئېلان تاختىسى ۋە سلايدېرنى تەھرىرلەش"
+                    >
+                      <ImageIcon className="w-4 h-4 text-amber-400" />
+                      <span>باشبەت ئېلانلىرى (سلايدېر)</span>
                     </button>
                     <button
                       onClick={handleOpenAddService}
@@ -4352,6 +4591,246 @@ export default function AdminPage() {
                     <span>تەڭشەكلەرنى ساقلاش</span>
                   </button>
                 </form>
+              </div>
+            </div>
+          )}
+
+          {/* ================= TAB 8: PROMO BANNERS ================= */}
+          {activeTab === 'banners' && (
+            <div className="space-y-6 animate-in fade-in duration-300">
+              {/* Header Card */}
+              <div className={`p-5 sm:p-6 rounded-2xl ${themeClasses.card} flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-amber-500/30 bg-gradient-to-r from-[#07192d] to-[#04101e]`}>
+                <div>
+                  <div className="flex items-center gap-2.5 mb-1.5">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold shadow-md shadow-amber-500/10">
+                      <ImageIcon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                        <span>باشبەت ئېلان تاختىسى ۋە سلايدېر تەڭشىكى</span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                          {banners.length} ئېلان
+                        </span>
+                      </h2>
+                      <p className={`text-xs ${themeClasses.subtext}`}>
+                        باشبەتتىكى چوڭ تەشۋىقات ئېلانلىرىنىڭ رەسىمى، ماۋزۇسى، ھەرىكەتلىك بەلگىسى (Emoji) ۋە ئۇلانمىلىرىنى بۇ يەردىن خالىغانچە ئۆزگەرتىڭ.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 w-full md:w-auto">
+                  <button
+                    type="button"
+                    onClick={handleResetBanners}
+                    className="flex-1 md:flex-none px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center justify-center gap-1.5 border border-slate-700 cursor-pointer"
+                    title="ئەسلىدىكى كۆڭۈلدىكى ئېلانلارغا قايتۇرۇش"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    <span>ئەسلىگە قايتۇرۇش</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleOpenAddBanner}
+                    className="flex-1 md:flex-none px-4 py-2.5 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/20"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>يېڭى ئېلان قوشۇش</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Live Preview Card */}
+              <div className={`p-4 sm:p-5 rounded-2xl ${themeClasses.card} space-y-3`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    <span className="font-bold text-xs text-white">باشبەتتە كۆرۈنۈش ئەندىزىسى (Live Preview):</span>
+                  </div>
+                  <span className="text-[11px] text-slate-400">ساقلانغان ھامان دۇكان باشبىتىدە دەرھال كۈچكە ئىگە بولىدۇ</span>
+                </div>
+
+                {banners.length > 0 && (
+                  <div className="relative rounded-2xl overflow-hidden border border-amber-500/30 bg-[#061424] max-h-56 sm:max-h-64 shadow-xl">
+                    <img
+                      src={banners[0]?.image}
+                      alt="Banner Preview"
+                      className="w-full h-48 sm:h-56 object-cover filter brightness-90"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200';
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-l from-[#040d1a] via-[#040d1a]/80 to-transparent p-5 flex flex-col justify-between">
+                      <div className="flex items-center justify-between">
+                        <span className="gold-badge text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full flex items-center gap-1.5 shadow-sm">
+                          <span className="animate-moving-icon">
+                            {getBannerFieldStr(banners[0]?.badge).match(/^([\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF]|\u2B50|\u26A1|\uD83D[\uDE00-\uDFFF]|\uD83C[\uDF00-\uDFFF]|\uD83E[\uDD00-\uDFFF]|⚡|🔥|👑|⭐|💎|🚀|🎉|✨|🔒|🏆|💫|🎮|🤖|📲|💳)/)?.[0] || '✨'}
+                          </span>
+                          <span>{getBannerFieldStr(banners[0]?.badge).replace(/^([\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF]|\u2B50|\u26A1|\uD83D[\uDE00-\uDFFF]|\uD83C[\uDF00-\uDFFF]|\uD83E[\uDD00-\uDFFF]|⚡|🔥|👑|⭐|💎|🚀|🎉|✨|🔒|🏆|💫|🎮|🤖|📲|💳)\s*/, '') || getBannerFieldStr(banners[0]?.badge)}</span>
+                        </span>
+                        <span className="text-[10px] text-amber-200 font-bold bg-slate-900/80 px-2 py-0.5 rounded-full border border-amber-500/30">
+                          {getBannerFieldStr(banners[0]?.tag) || 'ئالاھىدە'}
+                        </span>
+                      </div>
+
+                      <div className="max-w-md">
+                        <h4 className="font-ukij font-bold text-base sm:text-xl text-white gold-text-glow leading-snug line-clamp-1">
+                          {getBannerFieldStr(banners[0]?.title)}
+                        </h4>
+                        <p className="text-xs text-amber-100/80 line-clamp-1 mt-1">
+                          {getBannerFieldStr(banners[0]?.subtitle)}
+                        </p>
+                        <div className="mt-3">
+                          <span className="gold-shimmer-btn px-4 py-1.5 rounded-lg text-xs font-black inline-flex items-center gap-1">
+                            <span>{getBannerFieldStr(banners[0]?.linkText) || 'سېتىۋېلىش ⚡'}</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Banners List Grid */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-sm text-white">نۆۋەتتىكى بارلىق سلايدېر ئېلانلىرى ({banners.length} دانە):</h3>
+                  <span className="text-xs text-slate-400">تەرتىپىنى يا ئوق كۇنۇپكىلىرى ئارقىلىق ئۆزگەرتەلەيسىز</span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {banners.map((b, idx) => {
+                    const isFirst = idx === 0;
+                    const isLast = idx === banners.length - 1;
+                    const title = getBannerFieldStr(b.title);
+                    const subtitle = getBannerFieldStr(b.subtitle);
+                    const badge = getBannerFieldStr(b.badge);
+                    const tag = getBannerFieldStr(b.tag);
+                    const linkText = getBannerFieldStr(b.linkText);
+
+                    return (
+                      <div
+                        key={b.id || idx}
+                        className={`p-4 rounded-2xl ${themeClasses.card} border ${
+                          b.enabled !== false ? 'border-slate-800 hover:border-amber-400/50' : 'border-slate-800/40 opacity-60'
+                        } transition flex flex-col justify-between gap-3 shadow-md relative group`}
+                      >
+                        {/* Top banner controls */}
+                        <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-800/80">
+                          <div className="flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-lg bg-amber-400/15 border border-amber-400/30 text-amber-300 font-mono font-bold text-xs flex items-center justify-center">
+                              #{idx + 1}
+                            </span>
+                            <span className="text-xs text-slate-300 font-bold">
+                              سەھىپە: <strong className="text-amber-400 font-mono">{b.category || 'games'}</strong>
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-1">
+                            {/* Move Up */}
+                            <button
+                              type="button"
+                              disabled={isFirst}
+                              onClick={() => handleMoveBanner(idx, 'up')}
+                              className="p-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                              title="ئۈستىگە يۆتكەش"
+                            >
+                              <ArrowUp className="w-3.5 h-3.5" />
+                            </button>
+                            {/* Move Down */}
+                            <button
+                              type="button"
+                              disabled={isLast}
+                              onClick={() => handleMoveBanner(idx, 'down')}
+                              className="p-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                              title="ئاستىغا يۆتكەش"
+                            >
+                              <ArrowDown className="w-3.5 h-3.5" />
+                            </button>
+                            {/* Toggle Active */}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleBannerEnabled(b)}
+                              className={`px-2 py-0.5 rounded-lg text-[10px] font-bold border transition cursor-pointer ${
+                                b.enabled !== false
+                                  ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40'
+                                  : 'bg-rose-950/80 text-rose-300 border-rose-500/40'
+                              }`}
+                            >
+                              {b.enabled !== false ? 'ئوچۇق' : 'يوشۇرۇن'}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Banner preview content */}
+                        <div className="flex gap-3 items-start">
+                          <div className="w-24 h-16 rounded-xl overflow-hidden bg-slate-900 border border-slate-700 shrink-0 shadow">
+                            <img
+                              src={b.image}
+                              alt={title}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLImageElement).src = '/logo.png';
+                              }}
+                            />
+                          </div>
+
+                          <div className="min-w-0 flex-1 space-y-1">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {badge && (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-amber-400/15 border border-amber-400/30 text-amber-300 px-2 py-0.2 rounded-md">
+                                  <span className="animate-moving-icon">
+                                    {badge.match(/^([\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF]|\u2B50|\u26A1|\uD83D[\uDE00-\uDFFF]|\uD83C[\uDF00-\uDFFF]|\uD83E[\uDD00-\uDFFF]|⚡|🔥|👑|⭐|💎|🚀|🎉|✨|🔒|🏆|💫|🎮|🤖|📲|💳)/)?.[0] || '✨'}
+                                  </span>
+                                  <span>{badge.replace(/^([\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF]|\u2B50|\u26A1|\uD83D[\uDE00-\uDFFF]|\uD83C[\uDF00-\uDFFF]|\uD83E[\uDD00-\uDFFF]|⚡|🔥|👑|⭐|💎|🚀|🎉|✨|🔒|🏆|💫|🎮|🤖|📲|💳)\s*/, '') || badge}</span>
+                                </span>
+                              )}
+                              {tag && (
+                                <span className="text-[10px] text-slate-300 bg-slate-800 px-1.5 py-0.2 rounded-md border border-slate-700">
+                                  {tag}
+                                </span>
+                              )}
+                            </div>
+
+                            <h4 className="font-bold text-xs sm:text-sm text-white line-clamp-1 leading-snug">
+                              {title}
+                            </h4>
+                            <p className="text-[11px] text-slate-400 line-clamp-1">
+                              {subtitle}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Bottom Actions */}
+                        <div className="flex items-center justify-between pt-2 border-t border-slate-800/80">
+                          <span className="text-[11px] font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-md border border-amber-400/20">
+                            كۇنۇپكا: {linkText}
+                          </span>
+
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditBanner(b)}
+                              className="px-3 py-1 rounded-lg bg-cyan-950/70 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 font-bold text-xs transition flex items-center gap-1 cursor-pointer"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span>تەھرىرلەش</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteBanner(b.id)}
+                              className="p-1 rounded-lg bg-rose-950/70 hover:bg-rose-900 border border-rose-500/40 text-rose-300 transition cursor-pointer"
+                              title="ئۆچۈرۈش"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}
@@ -6221,6 +6700,302 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={() => setCategoryModalOpen(false)}
+                  className="px-5 py-3 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold transition hover:bg-slate-700 cursor-pointer"
+                >
+                  بىكار قىلىش
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ================= 3.6 PROMO BANNER ADD/EDIT MODAL ================= */}
+      {bannerModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className={`w-full max-w-xl ${themeClasses.card} rounded-3xl p-5 sm:p-7 shadow-2xl space-y-4 font-alkatip border border-amber-500/40 max-h-[92vh] overflow-y-auto`}>
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-400 font-bold">
+                  <ImageIcon className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm sm:text-base text-white">
+                    {editingBanner ? 'ئېلاننى تەھرىرلەش' : 'يېڭى باشبەت ئېلانى قوشۇش'}
+                  </h3>
+                  <p className="text-[11px] text-slate-400">
+                    رەسىم، ماۋزۇ، ھەرىكەتلىك بەلگە (Emoji) ۋە ئۇلانمىلارنى تاللاڭ
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setBannerModalOpen(false)}
+                className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800 transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveBanner} className="space-y-4 text-xs">
+              {/* Image Editor with Device Upload & Presets */}
+              <div className="space-y-2">
+                <label className="block text-slate-300 font-bold flex items-center justify-between">
+                  <span>ئارقا كۆرۈنۈش رەسىمى (Image):</span>
+                  <span className="text-amber-400 text-[11px]">يۇقىرى سۈپەتلىك (1200x500 ئەتراپىدا)</span>
+                </label>
+
+                {bannerForm.image && (
+                  <div className="relative w-full h-36 rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 shadow-inner group">
+                    <img
+                      src={bannerForm.image}
+                      alt="Banner Preview"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = '/logo.png';
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setBannerForm((prev) => ({ ...prev, image: '' }))}
+                      className="absolute top-2 left-2 p-1.5 rounded-xl bg-rose-950/80 hover:bg-rose-900 border border-rose-500/40 text-rose-300 transition shadow cursor-pointer"
+                      title="رەسىمنى ئۆچۈرۈش"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2">
+                  <label className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-cyan-950/80 hover:bg-cyan-900/90 border border-cyan-500/40 text-cyan-300 font-bold transition cursor-pointer text-xs shadow-sm">
+                    <Upload className="w-4 h-4" />
+                    <span>تېلېفون ياكى كومپيۇتېردىن رەسىم تاللاش</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleBannerImageUpload}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                <div className="relative">
+                  <input
+                    type="url"
+                    value={bannerForm.image}
+                    onChange={(e) => setBannerForm({ ...bannerForm, image: e.target.value })}
+                    placeholder="ياكى رەسىم ئادرېسىنى (URL) بۇ يەرگە چاپلاڭ: https://..."
+                    className={`w-full px-3.5 py-2 rounded-xl font-mono text-[11px] ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                    dir="ltr"
+                  />
+                </div>
+
+                {/* Popular Background Presets */}
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold block mb-1.5">تەييار كۆركەم رەسىم ئۆرنەكلىرى:</span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {[
+                      { label: '🎮 PUBG / Gaming', url: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200&auto=format&fit=crop&q=80' },
+                      { label: '🔥 Free Fire / Action', url: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80' },
+                      { label: '🤖 ChatGPT / AI', url: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&auto=format&fit=crop&q=80' },
+                      { label: '📲 مەۋھۇم نومۇر', url: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=1200&auto=format&fit=crop&q=80' },
+                      { label: '💳 ۋىزا & كارتىلار', url: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&auto=format&fit=crop&q=80' },
+                      { label: '🪙 كرىپتو ۋە بانكا', url: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=1200&auto=format&fit=crop&q=80' },
+                    ].map((preset) => (
+                      <button
+                        key={preset.label}
+                        type="button"
+                        onClick={() => setBannerForm((prev) => ({ ...prev, image: preset.url }))}
+                        className="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 hover:border-amber-400/60 text-slate-300 hover:text-white text-[10px] font-bold transition cursor-pointer"
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Title Input with Quick Suggestions */}
+              <div className="space-y-1.5">
+                <label className="block text-slate-300 font-bold">
+                  ئېلان ماۋزۇسى (Title):
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={bannerForm.title}
+                  onChange={(e) => setBannerForm({ ...bannerForm, title: e.target.value })}
+                  placeholder="مەسىلەن: PUBG Mobile UC ۋە Royale Pass تولۇقلاش"
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-bold ${themeClasses.input} focus:outline-none focus:border-amber-400 text-sm`}
+                />
+                <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                  <span className="text-[10px] text-slate-400">تەييار ماۋزۇ:</span>
+                  {[
+                    'PUBG Mobile UC ۋە پۇل قاچىلاش',
+                    'ChatGPT Plus & Claude Pro ئايلىق / يىللىق',
+                    'خەلقئارالىق مەۋھۇم ۋىزا كارتىلار (VCC)',
+                    'مەۋھۇم نومۇر (SMS) — Telegram, WhatsApp',
+                  ].map((sug) => (
+                    <button
+                      key={sug}
+                      type="button"
+                      onClick={() => setBannerForm((prev) => ({ ...prev, title: sug }))}
+                      className="text-[10px] px-2 py-0.5 rounded-md bg-slate-900 border border-slate-700 text-slate-300 hover:text-amber-300 transition cursor-pointer"
+                    >
+                      + {sug}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Subtitle / Description */}
+              <div className="space-y-1.5">
+                <label className="block text-slate-300 font-bold">
+                  ئېلان تۈشەندۈرۈشى (Subtitle):
+                </label>
+                <textarea
+                  rows={2}
+                  value={bannerForm.subtitle}
+                  onChange={(e) => setBannerForm({ ...bannerForm, subtitle: e.target.value })}
+                  placeholder="مەسىلەن: ئويۇنچى ID نومۇرىڭىز بىلەن 10 سېكۇنتتا بىۋاسىتە ھېساباتقا كىرىدۇ"
+                  className={`w-full px-3.5 py-2 rounded-xl text-xs ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                />
+              </div>
+
+              {/* Badge with Animated Emoji Picker */}
+              <div className="space-y-1.5">
+                <label className="block text-slate-300 font-bold flex items-center justify-between">
+                  <span>ھەرىكەتلىك بەلگە (Badge with Moving Emoji):</span>
+                  <span className="text-amber-400 text-[10px]">باش تەرەپتىكى سېرىق كۇنۇپكىچە</span>
+                </label>
+                <input
+                  type="text"
+                  value={bannerForm.badge}
+                  onChange={(e) => setBannerForm({ ...bannerForm, badge: e.target.value })}
+                  placeholder="مەسىلەن: ⚡ ئەڭ قىزىق ئويۇن"
+                  className={`w-full px-3.5 py-2 rounded-xl font-bold ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                />
+
+                <div className="pt-1">
+                  <span className="text-[10px] text-slate-400 font-bold block mb-1">ھەرىكەتلىك بەلگە ۋە ئىپادىلەرنى تاللاڭ:</span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {[
+                      { emoji: '⚡', label: '⚡ ئەڭ قىزىق' },
+                      { emoji: '✨', label: '✨ ئالاھىدە تاللاش' },
+                      { emoji: '🔥', label: '🔥 قىزىق ئېتىبار' },
+                      { emoji: '💎', label: '💎 ئالماس & UC' },
+                      { emoji: '👑', label: '👑 VIP مۇلازىمەت' },
+                      { emoji: '🤖', label: '🤖 سۈنئىي ئەقىل' },
+                      { emoji: '📲', label: '📲 مەۋھۇم نومۇر' },
+                      { emoji: '💳', label: '💳 ۋىزا كارتىلار' },
+                      { emoji: '🎮', label: '🎮 ئويۇن مەركىزى' },
+                      { emoji: '🚀', label: '🚀 دەرھال يەتكۈزۈش' },
+                      { emoji: '⭐', label: '⭐ كاپالەتلىك' },
+                      { emoji: '🎉', label: '🎉 بايراملىق سوۋغات' },
+                    ].map((badgeItem) => (
+                      <button
+                        key={badgeItem.label}
+                        type="button"
+                        onClick={() => setBannerForm((prev) => ({ ...prev, badge: badgeItem.label }))}
+                        className="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 hover:border-amber-400/60 text-slate-300 hover:text-white text-[11px] font-bold transition cursor-pointer flex items-center gap-1"
+                      >
+                        <span className="animate-moving-icon">{badgeItem.emoji}</span>
+                        <span>{badgeItem.label.replace(/^.\s*/, '')}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Tag and Button Text */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">بۇلۇڭ بەلگىسى (Tag):</label>
+                  <input
+                    type="text"
+                    value={bannerForm.tag}
+                    onChange={(e) => setBannerForm({ ...bannerForm, tag: e.target.value })}
+                    placeholder="مەسىلەن: كاپالەتلىك كود"
+                    className={`w-full px-3 py-2 rounded-xl text-xs ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">كۇنۇپكا سۆزى (Button Text):</label>
+                  <input
+                    type="text"
+                    value={bannerForm.linkText}
+                    onChange={(e) => setBannerForm({ ...bannerForm, linkText: e.target.value })}
+                    placeholder="مەسىلەن: دەرھال قاچىلاش ⚡"
+                    className={`w-full px-3 py-2 rounded-xl text-xs ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                  />
+                </div>
+              </div>
+
+              {/* Category and Target URL */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">نىشان سەھىپە (Category):</label>
+                  <select
+                    value={bannerForm.category}
+                    onChange={(e) => setBannerForm({ ...bannerForm, category: e.target.value })}
+                    className={`w-full px-3 py-2 rounded-xl text-xs ${themeClasses.input} focus:outline-none focus:border-amber-400 cursor-pointer`}
+                  >
+                    {categoriesList.map((c) => (
+                      <option key={c.id} value={c.id} className="bg-slate-950 text-white">
+                        {c.name} ({c.id})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">ئىختىيارىي ئۇلانما (URL, ئېھتىياج بولسا):</label>
+                  <input
+                    type="text"
+                    value={bannerForm.targetUrl}
+                    onChange={(e) => setBannerForm({ ...bannerForm, targetUrl: e.target.value })}
+                    placeholder="بوش قالدۇرسا شۇ سەھىپىنى ئاچىدۇ"
+                    className={`w-full px-3 py-2 rounded-xl text-xs font-mono ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                    dir="ltr"
+                  />
+                </div>
+              </div>
+
+              {/* Enabled Switch */}
+              <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
+                <div>
+                  <span className="font-bold text-white text-xs block">ئېلاننى كۆرسىتىش (Active Status):</span>
+                  <span className="text-[11px] text-slate-400">تاقىۋەتسىڭىز دۇكان باشبىتىدە كۆرۈنمەيدۇ</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setBannerForm((prev) => ({ ...prev, enabled: !prev.enabled }))}
+                  className={`px-3 py-1.5 rounded-xl font-bold text-xs border transition cursor-pointer ${
+                    bannerForm.enabled
+                      ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-300'
+                      : 'bg-slate-800 border-slate-700 text-slate-400'
+                  }`}
+                >
+                  {bannerForm.enabled ? '✓ دۇكاندا كۆرسىتىلسۇن' : '✕ يوشۇرۇلسۇن'}
+                </button>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3 pt-3 border-t border-slate-800">
+                <button
+                  type="submit"
+                  className="flex-1 py-3 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 shadow-lg active:scale-98"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>ئېلاننى ساقلاش ۋە باشبەتكە چىقىرىش</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setBannerModalOpen(false)}
                   className="px-5 py-3 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold transition hover:bg-slate-700 cursor-pointer"
                 >
                   بىكار قىلىش
