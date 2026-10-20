@@ -191,7 +191,11 @@ export function addServiceItem(service: Omit<ServiceItem, 'id'> & { id?: string 
   }
 
   const current = getServicesList();
-  const newItem: ServiceItem = { ...service, id };
+  const newItem: ServiceItem = {
+    ...service,
+    id,
+    published: service.published !== false,
+  };
   const updated = [newItem, ...current.filter((s) => s.id !== id)];
   saveServicesList(updated);
   return newItem;
