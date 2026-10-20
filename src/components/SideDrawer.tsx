@@ -148,6 +148,43 @@ export default function SideDrawer({
     }
   }, [user, isOpen]);
 
+  const isBrowserPoppedRef = useRef(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+
+      try {
+        window.history.pushState({ autocash_side_drawer: true }, '');
+      } catch {}
+
+      const handlePopState = () => {
+        isBrowserPoppedRef.current = true;
+        onClose();
+      };
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') onClose();
+      };
+
+      window.addEventListener('popstate', handlePopState);
+      window.addEventListener('keydown', handleKeyDown);
+
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        window.removeEventListener('popstate', handlePopState);
+        window.removeEventListener('keydown', handleKeyDown);
+
+        if (!isBrowserPoppedRef.current && window.history.state?.autocash_side_drawer) {
+          try {
+            window.history.back();
+          } catch {}
+        }
+      };
+    }
+  }, [isOpen, onClose]);
+
   const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !file.type.startsWith('image/')) return;

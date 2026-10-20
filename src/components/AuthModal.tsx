@@ -29,14 +29,46 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   // Mode: false = login (front), true = register (back)
   const [isFlipped, setIsFlipped] = useState(false);
   const [isLampOn, setIsLampOn] = useState(false);
+  const isBrowserPoppedRef = useRef(false);
 
   useEffect(() => {
     if (isOpen) {
       setIsLampOn(false);
       setIsFlipped(false);
       setErrorMsg('');
+
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+
+      try {
+        window.history.pushState({ autocash_auth_modal: true }, '');
+      } catch {}
+
+      const handlePopState = () => {
+        isBrowserPoppedRef.current = true;
+        onClose();
+      };
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') onClose();
+      };
+
+      window.addEventListener('popstate', handlePopState);
+      window.addEventListener('keydown', handleKeyDown);
+
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        window.removeEventListener('popstate', handlePopState);
+        window.removeEventListener('keydown', handleKeyDown);
+
+        if (!isBrowserPoppedRef.current && window.history.state?.autocash_auth_modal) {
+          try {
+            window.history.back();
+          } catch {}
+        }
+      };
     }
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   // Form states
   const [loginEmail, setLoginEmail] = useState('');

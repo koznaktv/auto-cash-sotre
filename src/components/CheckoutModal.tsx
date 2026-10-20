@@ -47,6 +47,46 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
   const [confirmTotal, setConfirmTotal] = useState<number | null>(null);
   const [buttonState, setButtonState] = useState<'idle' | 'loading' | 'success'>('idle');
   const isSubmittingRef = useRef(false);
+  const isBrowserPoppedRef = useRef(false);
+
+  // Manage browser history & popstate for mobile back button and edge swipe gesture
+  useEffect(() => {
+    // Lock body scroll while modal is active
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    // Push history state so mobile back button/gesture closes modal instead of navigating away (e.g. to /account)
+    try {
+      window.history.pushState({ autocash_checkout_modal: true }, '');
+    } catch {}
+
+    const handlePopState = () => {
+      isBrowserPoppedRef.current = true;
+      onClose();
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('keydown', handleKeyDown);
+
+      // If closed by React (clicking X, backdrop, login button, or order success) and NOT by browser back
+      if (!isBrowserPoppedRef.current && window.history.state?.autocash_checkout_modal) {
+        try {
+          window.history.back();
+        } catch {}
+      }
+    };
+  }, [onClose]);
 
   // Provider services: the slim catalog has no fields / qty rules, load the full service
   useEffect(() => {
@@ -270,7 +310,14 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
   }`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200"
+    >
       <div
         className={`relative w-full max-w-lg max-h-[92vh] overflow-y-auto bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 sm:p-7 ${
           isRTL ? 'text-right' : 'text-left'
