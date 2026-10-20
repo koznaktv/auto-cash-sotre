@@ -30,7 +30,7 @@ import {
 interface SideDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  user: { name: string; email: string; id?: string; balance?: number; avatarUrl?: string; vipTier?: string } | null;
+  user: { name: string; email: string; id?: string; balance?: number; avatarUrl?: string; vipTier?: string; role?: string } | null;
   onOpenAuth: () => void;
   onLogout: () => void;
 }
@@ -99,7 +99,25 @@ export default function SideDrawer({
 }: SideDrawerProps) {
   const { lang, setLang, t, isRTL } = useLanguage();
   const [avatarSrc, setAvatarSrc] = useState<string>('');
+  const [isAdmin, setIsAdmin] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const checkAdmin = () => {
+      const email = user?.email || (typeof window !== 'undefined' ? localStorage.getItem('autocash_email') : '');
+      const isOwner = email?.trim().toLowerCase() === 'dronemax0996@gmail.com';
+      const role = (user as any)?.role || (typeof window !== 'undefined' ? localStorage.getItem('autocash_role') : '');
+      const hasToken = typeof window !== 'undefined' && Boolean(sessionStorage.getItem('autocash_admin_token'));
+      setIsAdmin(Boolean(isOwner || role === 'admin' || hasToken));
+    };
+    checkAdmin();
+    window.addEventListener('autocash-auth-changed', checkAdmin);
+    window.addEventListener('storage', checkAdmin);
+    return () => {
+      window.removeEventListener('autocash-auth-changed', checkAdmin);
+      window.removeEventListener('storage', checkAdmin);
+    };
+  }, [user]);
 
   const normalizedTier = (
     user?.vipTier ||
@@ -513,16 +531,18 @@ export default function SideDrawer({
               <span className="font-semibold">{t('vipPerksDrawer')}</span>
             </Link>
 
-            <Link
-              href="/admin"
-              onClick={onClose}
-              className="flex items-center gap-3 p-3 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900 border border-transparent hover:border-amber-500/20 transition group"
-            >
-              <span className="animate-soft-float" style={{ animationDelay: '1.2s' }}>
-                <LayoutDashboard className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition" />
-              </span>
-              <span className="font-semibold">{t('adminPanel')}</span>
-            </Link>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                onClick={onClose}
+                className="flex items-center gap-3 p-3 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900 border border-transparent hover:border-amber-500/20 transition group"
+              >
+                <span className="animate-soft-float" style={{ animationDelay: '1.2s' }}>
+                  <LayoutDashboard className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition" />
+                </span>
+                <span className="font-semibold">{t('adminPanel')}</span>
+              </Link>
+            )}
           </div>
 
           {/* Support section */}

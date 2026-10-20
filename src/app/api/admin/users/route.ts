@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 import {
   getAllUsersAsync,
   updateUserAsync,
   deleteUserAsync,
   adjustUserBalanceAsync,
   getUserByIdAsync,
+  getUserByEmailAsync,
+  createUserAsync,
 } from '@/lib/db';
 import { verifyAdminToken } from '@/lib/adminAuth';
 
@@ -45,7 +48,15 @@ export async function PATCH(req: Request) {
       if (typeof updates.name === 'string') safeUpdates.name = updates.name.trim().slice(0, 80);
       if (typeof updates.phone === 'string') safeUpdates.phone = updates.phone.trim().slice(0, 32);
       if (typeof updates.isBanned === 'boolean') safeUpdates.isBanned = updates.isBanned;
-      if (['user', 'admin'].includes(updates.role)) safeUpdates.role = updates.role;
+      if (['user', 'admin'].includes(updates.role)) {
+        // Protect super admin
+        const targetUser = await getUserByIdAsync(userId);
+        if (targetUser?.email?.trim().toLowerCase() === 'dronemax0996@gmail.com' && updates.role === 'user') {
+          safeUpdates.role = 'admin';
+        } else {
+          safeUpdates.role = updates.role;
+        }
+      }
       if (['vip1', 'vip2', 'vip3', 'vip4', 'vip5'].includes(updates.vipTier)) safeUpdates.vipTier = updates.vipTier;
       await updateUserAsync(userId, safeUpdates);
     }
@@ -59,6 +70,54 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ success: true, user: safeUser });
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err?.message || 'ئىشلەتكۈچىنى ئۆزگەرتىش مەغلۇپ بولدى' }, { status: 500 });
+  }
+}
+
+
+export async function POST(req: Request) {
+  try {
+    if (!verifyAdminToken(req)) {
+      return NextResponse.json({ success: false, message: 'رۇخسەت يوق (Unauthorized)' }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { email, role = 'admin' } = body;
+
+    if (!email || typeof email !== 'string') {
+      return NextResponse.json({ success: false, message: 'ئېلخەت ئادرېسى كەمچىل' }, { status: 400 });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    let user = await getUserByEmailAsync(cleanEmail);
+
+    if (user) {
+      const isOwner = cleanEmail === 'dronemax0996@gmail.com';
+      const finalRole = isOwner ? 'admin' : (role === 'admin' ? 'admin' : 'user');
+      await updateUserAsync(user.id, { role: finalRole });
+      const updated = await getUserByIdAsync(user.id);
+      const { passwordHash, salt, ...safeUser } = updated!;
+      return NextResponse.json({
+        success: true,
+        user: safeUser,
+        message: finalRole === 'admin' ? `«${user.name}» گە باشقۇرغۇچى كىرىش ھوقۇقى بېرىلدى!` : `«${user.name}» نىڭ باشقۇرغۇچىلىق ھوقۇقى تاقالدى!`,
+      });
+    } else {
+      // Pre-create user with admin role so when they log in they have admin
+      const newUser = await createUserAsync({
+        name: cleanEmail.split('@')[0],
+        email: cleanEmail,
+        password: crypto.randomBytes(24).toString('hex'),
+        role: 'admin',
+      });
+      const { passwordHash, salt, ...safeUser } = newUser;
+      return NextResponse.json({
+        success: true,
+        user: safeUser,
+        message: `يېڭى باشقۇرغۇچى قوشۇلدى (${cleanEmail})`,
+      });
+    }
+  } catch (err: any) {
+    return NextResponse.json({ success: false, message: err?.message || 'مەشغۇلات مەغلۇپ بولدى' }, { status: 500 });
   }
 }
 

@@ -40,6 +40,7 @@ export async function POST(req: Request) {
     }
 
     const cleanEmail = verifiedUser.email.trim().toLowerCase();
+    const isSuperAdmin = cleanEmail === 'dronemax0996@gmail.com';
     const meta = verifiedUser.user_metadata || {};
     const name: string = meta.full_name || meta.name || cleanEmail.split('@')[0];
     const avatarUrl: string | undefined = meta.avatar_url || meta.picture || undefined;
@@ -54,11 +55,16 @@ export async function POST(req: Request) {
         email: cleanEmail,
         password: crypto.randomBytes(24).toString('hex'),
         avatarUrl,
-        role: 'user',
+        role: isSuperAdmin ? 'admin' : 'user',
       });
       isNew = true;
-    } else if (avatarUrl && !user.avatarUrl) {
-      user = (await updateUserAsync(user.id, { avatarUrl })) || user;
+    } else {
+      const updates: Record<string, unknown> = {};
+      if (avatarUrl && !user.avatarUrl) updates.avatarUrl = avatarUrl;
+      if (isSuperAdmin && user.role !== 'admin') updates.role = 'admin';
+      if (Object.keys(updates).length > 0) {
+        user = (await updateUserAsync(user.id, updates)) || user;
+      }
     }
 
     if (user.isBanned) {

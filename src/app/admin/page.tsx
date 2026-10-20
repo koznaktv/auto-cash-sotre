@@ -438,6 +438,9 @@ export default function AdminPage() {
   const [selectedUser, setSelectedUser] = useState<SafeUser | null>(null);
   const [balanceDelta, setBalanceDelta] = useState<number>(0);
   const [selectedVipTier, setSelectedVipTier] = useState<string>('vip1');
+  const [selectedUserRole, setSelectedUserRole] = useState<'user' | 'admin'>('user');
+  const [newAdminEmail, setNewAdminEmail] = useState('');
+  const [addingAdmin, setAddingAdmin] = useState(false);
 
   // Reset Stats Modal
   const [showResetStatsModal, setShowResetStatsModal] = useState(false);
@@ -937,6 +940,87 @@ export default function AdminPage() {
     }
   };
 
+  // User Role (Admin / User) Handler
+  const handleToggleUserRole = async (user: SafeUser, explicitRole?: 'admin' | 'user') => {
+    if (user.email?.toLowerCase() === 'dronemax0996@gmail.com' && (explicitRole === 'user' || user.role === 'admin')) {
+      alert('بۇ ئاساسىي باشقۇرغۇچى (Super Admin) ھېساباتى، بۇنىڭ ھوقۇقىنى تاقاشقا بولمايدۇ!');
+      return;
+    }
+
+    const newRole = explicitRole || (user.role === 'admin' ? 'user' : 'admin');
+    const confirmMsg = newRole === 'admin'
+      ? `"${user.name}" (${user.email}) غا باشقۇرغۇچى كىرىش ھوقۇقى بېرەمسىز؟`
+      : `"${user.name}" (${user.email}) نىڭ باشقۇرغۇچىلىق ھوقۇقىنى تاقامسىز؟`;
+
+    if (!confirm(confirmMsg)) return;
+
+    setActionLoading(user.id);
+    const token = sessionStorage.getItem('autocash_admin_token');
+
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          updates: { role: newRole },
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUsers((prev) =>
+          prev.map((u) => (u.id === user.id ? { ...u, role: newRole } : u))
+        );
+        alert(newRole === 'admin' ? 'باشقۇرۇش ھوقۇقى ئېچىپ بېرىلدى!' : 'باشقۇرۇش ھوقۇقى تاقالدى!');
+      } else {
+        alert(data.message || 'مەشغۇلات مەغلۇپ بولدى');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('ئۇلىنىش خاتالىقى');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleGrantAdminByEmail = async () => {
+    if (!newAdminEmail.trim() || !newAdminEmail.includes('@')) {
+      alert('ئېنىق ئېلخەت ئادرېسى كىرگۈزۈڭ');
+      return;
+    }
+    setAddingAdmin(true);
+    const token = sessionStorage.getItem('autocash_admin_token');
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          email: newAdminEmail.trim().toLowerCase(),
+          role: 'admin',
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message || 'باشقۇرغۇچىلىق ھوقۇقى بېرىلدى!');
+        setNewAdminEmail('');
+        await loadAllAdminData();
+      } else {
+        alert(data.message || 'مەشغۇلات مەغلۇپ بولدى');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('ئۇلىنىش خاتالىقى');
+    } finally {
+      setAddingAdmin(false);
+    }
+  };
+
   // User Balance & VIP Adjust
   const handleAdjustBalance = async () => {
     if (!selectedUser) return;
@@ -946,6 +1030,9 @@ export default function AdminPage() {
     const updates: Record<string, any> = {};
     if (selectedVipTier && selectedVipTier !== selectedUser.vipTier) {
       updates.vipTier = selectedVipTier;
+    }
+    if (selectedUserRole && selectedUserRole !== selectedUser.role) {
+      updates.role = selectedUserRole;
     }
 
     try {
@@ -4183,6 +4270,38 @@ export default function AdminPage() {
                 </div>
               </div>
 
+              {/* Admin Delegation Bar */}
+              <div className={`p-4 rounded-2xl ${themeClasses.card} border border-amber-500/30 bg-amber-950/20 flex flex-col sm:flex-row items-center justify-between gap-3`}>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-xs text-amber-300">باشقۇرغۇچى كىرىش ھوقۇقى تەيىنلەش</h4>
+                    <p className="text-[11px] text-slate-400">ئۆزىڭىز ئىشەنگەن كىشىلەرگە باشقۇرۇش مەركىزىنى ئېچىپ بېرىڭ ياكى تاقاڭ</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <input
+                    type="email"
+                    value={newAdminEmail}
+                    onChange={(e) => setNewAdminEmail(e.target.value)}
+                    placeholder="مەسىلەن: user@gmail.com"
+                    className={`px-3 py-1.5 rounded-xl text-xs ${themeClasses.input} focus:outline-none focus:border-amber-400 font-mono w-full sm:w-64`}
+                    dir="ltr"
+                  />
+                  <button
+                    type="button"
+                    disabled={addingAdmin || !newAdminEmail.trim()}
+                    onClick={handleGrantAdminByEmail}
+                    className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition cursor-pointer whitespace-nowrap disabled:opacity-50"
+                  >
+                    {addingAdmin ? 'تەڭشىلىۋاتىدۇ...' : '+ باشقۇرغۇچى قىلىش'}
+                  </button>
+                </div>
+              </div>
+
               {/* Users Table */}
               <div className={`p-5 rounded-2xl ${themeClasses.card}`}>
                 <div className="overflow-x-auto">
@@ -4250,19 +4369,47 @@ export default function AdminPage() {
                             )}
                           </td>
                           <td className="py-3 px-3 text-center">
-                            <div className="flex items-center justify-center gap-1.5">
-                              {/* Edit Balance & VIP */}
+                            <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                              {/* Edit Balance & VIP & Role */}
                               <button
                                 onClick={() => {
                                   setSelectedUser(user);
                                   setBalanceDelta(0);
                                   setSelectedVipTier((user.vipTier || 'vip1').toLowerCase());
+                                  setSelectedUserRole(user.role === 'admin' ? 'admin' : 'user');
                                   setUserModalOpen(true);
                                 }}
                                 className="px-2 py-1 rounded-md bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[10px] font-bold transition cursor-pointer"
                               >
-                                قالدۇق ۋە VIP تەڭشەش
+                                تەھرىرلەش
                               </button>
+
+                              {/* Quick Toggle Admin Role Button */}
+                              {user.email?.toLowerCase() === 'dronemax0996@gmail.com' ? (
+                                <span className="px-2 py-1 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-black">
+                                  👑 ئاساسىي ئىگە
+                                </span>
+                              ) : user.role === 'admin' ? (
+                                <button
+                                  type="button"
+                                  disabled={actionLoading === user.id}
+                                  onClick={() => handleToggleUserRole(user, 'user')}
+                                  className="px-2 py-1 rounded-md bg-amber-950/60 hover:bg-amber-900 text-amber-200 border border-amber-700/50 text-[10px] font-bold transition cursor-pointer"
+                                  title="باشقۇرۇش مەركىزىنى تاقاش"
+                                >
+                                  باشقۇرغۇچىلىقنى تاقاش
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  disabled={actionLoading === user.id}
+                                  onClick={() => handleToggleUserRole(user, 'admin')}
+                                  className="px-2 py-1 rounded-md bg-emerald-950/60 hover:bg-emerald-900 text-emerald-200 border border-emerald-700/50 text-[10px] font-bold transition cursor-pointer"
+                                  title="باشقۇرۇش مەركىزىنى ئېچىپ بېرىش"
+                                >
+                                  + باشقۇرغۇچى قىلىش
+                                </button>
+                              )}
 
                               {/* Ban / Unban */}
                               <button
@@ -7045,6 +7192,24 @@ export default function AdminPage() {
               </div>
             </div>
 
+            {/* Admin Role Selector */}
+            <div className="space-y-1.5 pt-2 border-t border-slate-800">
+              <label className="block text-xs font-bold text-slate-300">
+                باشقۇرۇش مەركىزى كىرىش ھوقۇقى (Role):
+              </label>
+              <select
+                value={selectedUserRole}
+                disabled={selectedUser.email?.toLowerCase() === 'dronemax0996@gmail.com'}
+                onChange={(e) => setSelectedUserRole(e.target.value as 'user' | 'admin')}
+                className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-xs font-bold ${
+                  selectedUserRole === 'admin' ? 'text-amber-300 border-amber-500/50' : 'text-slate-300'
+                } ${themeClasses.input} focus:outline-none focus:border-amber-400 cursor-pointer disabled:opacity-50`}
+              >
+                <option value="user" className="bg-slate-900 text-slate-300">ئادەتتىكى خېرىدار (باشقۇرۇش مەركىزى كۆرۈنمەيدۇ)</option>
+                <option value="admin" className="bg-slate-900 text-amber-300">باشقۇرغۇچى (باشقۇرۇش مەركىزى ئېچىپ بېرىلىدۇ)</option>
+              </select>
+            </div>
+
             {/* VIP Tier Selector */}
             <div className="space-y-1.5 pt-2 border-t border-slate-800">
               <label className="block text-xs font-bold text-slate-300">
@@ -7085,7 +7250,9 @@ export default function AdminPage() {
               <button
                 disabled={
                   actionLoading === selectedUser.id ||
-                  (balanceDelta === 0 && selectedVipTier === (selectedUser.vipTier || 'vip1').toLowerCase())
+                  (balanceDelta === 0 &&
+                    selectedVipTier === (selectedUser.vipTier || 'vip1').toLowerCase() &&
+                    selectedUserRole === (selectedUser.role === 'admin' ? 'admin' : 'user'))
                 }
                 onClick={handleAdjustBalance}
                 className="flex-1 py-2.5 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer disabled:opacity-50"

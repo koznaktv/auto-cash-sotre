@@ -8,6 +8,7 @@ export interface ClientUser {
   balance?: number;
   vipTier?: string;
   totalSpent?: number;
+  role?: string;
 }
 
 export function storeLocalAuth(user: ClientUser): void {
@@ -19,6 +20,7 @@ export function storeLocalAuth(user: ClientUser): void {
   if (typeof user.balance === 'number') localStorage.setItem('autocash_balance', String(user.balance));
   if (user.vipTier) localStorage.setItem('autocash_vipTier', user.vipTier);
   if (typeof user.totalSpent === 'number') localStorage.setItem('autocash_totalSpent', String(user.totalSpent));
+  if (user.role) localStorage.setItem('autocash_role', user.role);
 }
 
 export function clearLocalAuth(): void {
@@ -31,6 +33,7 @@ export function clearLocalAuth(): void {
   localStorage.removeItem('autocash_balance');
   localStorage.removeItem('autocash_vipTier');
   localStorage.removeItem('autocash_totalSpent');
+  localStorage.removeItem('autocash_role');
 }
 
 export function getCachedBalance(): number {
@@ -55,7 +58,8 @@ export function getCachedUser(): ClientUser | null {
   const vipTier = localStorage.getItem('autocash_vipTier') || 'vip1';
   const totalSpentVal = localStorage.getItem('autocash_totalSpent');
   const totalSpent = totalSpentVal !== null && !isNaN(Number(totalSpentVal)) ? Number(totalSpentVal) : 0.0;
-  return { id, name, email, avatarUrl, balance, vipTier, totalSpent };
+  const role = localStorage.getItem('autocash_role') || (email.toLowerCase() === 'dronemax0996@gmail.com' ? 'admin' : undefined);
+  return { id, name, email, avatarUrl, balance, vipTier, totalSpent, role };
 }
 
 import { formatSmartPrice } from './formatMoney';
