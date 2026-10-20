@@ -107,36 +107,25 @@ export default function HomePage() {
 
   useEffect(() => {
     // Check if splash should be shown:
-    // 1. Initial page load (first time opening site)
-    // 2. OR page reload / refresh (F5, pull-to-refresh, reload this page)
-    // Client-side router navigation between pages does NOT trigger the splash.
+    // Only for brand-new visitors entering the website for the very first time.
+    // Never show on page reloads, tab navigation, or subsequent visits.
     try {
-      const navEntries = typeof window !== 'undefined' ? window.performance?.getEntriesByType?.('navigation') : [];
-      const navEntry = navEntries && navEntries.length > 0 ? (navEntries[0] as PerformanceNavigationTiming) : null;
-      const isReload = navEntry?.type === 'reload' || (typeof window !== 'undefined' && (window.performance as any)?.navigation?.type === 1);
-      const splashShown = sessionStorage.getItem('autocash_splash_shown');
+      const alreadySeen =
+        typeof window !== 'undefined' &&
+        (localStorage.getItem('autocash_welcome_shown') === 'true' ||
+          sessionStorage.getItem('autocash_welcome_shown') === 'true');
 
-      if (!hasShownSplashInCurrentSession && (isReload || !splashShown)) {
+      if (!alreadySeen && !hasShownSplashInCurrentSession) {
         setShowSplash(true);
-        sessionStorage.setItem('autocash_splash_shown', 'true');
         hasShownSplashInCurrentSession = true;
+        try {
+          sessionStorage.setItem('autocash_welcome_shown', 'true');
+          localStorage.setItem('autocash_welcome_shown', 'true');
+        } catch {}
       }
     } catch {
       // Fallback
-      if (!hasShownSplashInCurrentSession) {
-        setShowSplash(true);
-        hasShownSplashInCurrentSession = true;
-      }
     }
-
-    const handleBeforeUnload = () => {
-      try {
-        sessionStorage.removeItem('autocash_splash_shown');
-      } catch {
-        // ignore
-      }
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
 
     fetchOrders();
 
@@ -199,13 +188,13 @@ export default function HomePage() {
     window.addEventListener('autocash-auth-changed', refreshUser);
     return () => {
       window.removeEventListener('autocash-auth-changed', refreshUser);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, []);
 
   const handleDismissSplash = () => {
     try {
-      sessionStorage.setItem('autocash_splash_shown', 'true');
+      localStorage.setItem('autocash_welcome_shown', 'true');
+      sessionStorage.setItem('autocash_welcome_shown', 'true');
     } catch {}
     hasShownSplashInCurrentSession = true;
     setShowSplash(false);
