@@ -11,6 +11,7 @@ import { normalizeFields, normalizeQtyRule } from '../providers/syria4gameNormal
 import { guessStorefrontCategory, resolveServiceArtwork, STOREFRONT_ICONS } from './categoryMapping';
 import { computeSellPrice, resolveMarkup, unitSellPrice } from './pricing';
 import { minQty } from './fieldValidation';
+import { detectServiceInputs } from './productBios';
 import {
   getProviderSettings,
   listCatalogOverrides,
@@ -236,6 +237,7 @@ export function buildProviderCatalog(input: {
       !candidateImage.endsWith('syria4game.com/');
     const image = isCleanImage ? candidateImage : resolveServiceArtwork(serviceName, storefrontCategory);
 
+    const detected = detectServiceInputs(serviceName, storefrontCategory);
     services.push({
       id: `${SERVICE_PREFIX}${categoryId}`,
       name: serviceName,
@@ -244,6 +246,12 @@ export function buildProviderCatalog(input: {
       image,
       description: override?.customDescription || parent?.name || category.name,
       badge: override?.customBadge || undefined,
+      inputLabel: detected.inputLabel,
+      inputPlaceholder: detected.inputPlaceholder,
+      requiresZoneId: detected.requiresZoneId,
+      zoneIdLabel: detected.zoneIdLabel,
+      zoneIdPlaceholder: detected.zoneIdPlaceholder,
+      bioContent: detected.defaultBio,
       packages,
       source: 'provider',
     });

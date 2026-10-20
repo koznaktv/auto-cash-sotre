@@ -7,6 +7,7 @@ import { CATEGORIES_9, ServiceItem, ServicePackage } from '@/lib/data';
 import { CategoryItem } from '@/lib/categoriesDb';
 import ProviderCatalogPanel from '@/components/admin/ProviderCatalogPanel';
 import { formatSmartPrice } from '@/lib/formatMoney';
+import { detectServiceInputs, getServiceDefaultBio } from '@/lib/catalog/productBios';
 import DynamicIcon from '@/components/DynamicIcon';
 import {
   LayoutDashboard,
@@ -99,6 +100,10 @@ export interface SahlGroupedService {
   image: string;
   inputLabel: string;
   inputPlaceholder: string;
+  requiresZoneId?: boolean;
+  zoneIdLabel?: string;
+  zoneIdPlaceholder?: string;
+  bioContent?: string;
   minCost: number;
   maxCost: number;
   packages: SahlPackageRow[];
@@ -276,6 +281,10 @@ export default function AdminPage() {
     badge: string;
     inputLabel: string;
     inputPlaceholder: string;
+    requiresZoneId: boolean;
+    zoneIdLabel: string;
+    zoneIdPlaceholder: string;
+    bioContent: string;
     packages: Array<{ id: string; title: string; price: number; originalPrice?: number; duration?: string }>;
   }>({
     name: '',
@@ -286,6 +295,10 @@ export default function AdminPage() {
     badge: '',
     inputLabel: 'ئويۇنچى ID',
     inputPlaceholder: 'ID نومۇرىڭىزنى كىرگۈزۈڭ',
+    requiresZoneId: false,
+    zoneIdLabel: 'رايون كودى (Zone ID)',
+    zoneIdPlaceholder: 'مەسىلەن: 1234',
+    bioContent: '',
     packages: [{ id: 'p-1', title: 'ئاساسىي بولاق', price: 1.99, duration: 'دەرھال' }],
   });
 
@@ -304,6 +317,10 @@ export default function AdminPage() {
     description: string;
     inputLabel: string;
     inputPlaceholder: string;
+    requiresZoneId: boolean;
+    zoneIdLabel: string;
+    zoneIdPlaceholder: string;
+    bioContent: string;
     published: boolean;
     packages: SahlPackageRow[];
   }>({
@@ -314,6 +331,10 @@ export default function AdminPage() {
     description: 'ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى',
     inputLabel: 'ئويۇنچى ID (Player ID)',
     inputPlaceholder: 'ئويۇن كىملىك نومۇرىنى كىرگۈزۈڭ',
+    requiresZoneId: false,
+    zoneIdLabel: 'رايون كودى (Zone ID)',
+    zoneIdPlaceholder: 'مەسىلەن: 1234',
+    bioContent: '',
     published: true,
     packages: [],
   });
@@ -1079,15 +1100,21 @@ export default function AdminPage() {
   // Service CRUD operations
   const handleOpenAddService = () => {
     setEditingService(null);
+    const cat = categoryFilter !== 'all' ? categoryFilter : (categoriesList[0]?.id || 'games');
+    const detected = detectServiceInputs('', cat);
     setServiceForm({
       name: '',
-      category: categoryFilter !== 'all' ? categoryFilter : (categoriesList[0]?.id || 'games'),
+      category: cat,
       icon: 'Gamepad2',
       image: '',
       description: '',
-      badge: 'يېڭى',
-      inputLabel: 'ئويۇنچى ID (Player ID)',
-      inputPlaceholder: 'ئويۇن كىملىك نومۇرىنى كىرگۈزۈڭ',
+      badge: '⚡ ئاپتوماتىك',
+      inputLabel: detected.inputLabel,
+      inputPlaceholder: detected.inputPlaceholder,
+      requiresZoneId: false,
+      zoneIdLabel: 'رايون كودى (Zone ID)',
+      zoneIdPlaceholder: 'مەسىلەن: 1234',
+      bioContent: '',
       packages: [
         { id: `p-${Date.now()}-1`, title: 'ئاساسىي بولاق', price: 1.99, duration: 'دەرھال' }
       ],
@@ -1107,6 +1134,8 @@ export default function AdminPage() {
         }))
       : [{ id: `p-${Date.now()}-1`, title: 'ئاساسىي بولاق', price: 1.99, duration: 'دەرھال' }];
 
+    const detected = detectServiceInputs(srv.name, srv.category);
+
     setServiceForm({
       id: srv.id,
       name: srv.name,
@@ -1115,8 +1144,12 @@ export default function AdminPage() {
       image: srv.image || '',
       description: srv.description || '',
       badge: srv.badge || '',
-      inputLabel: srv.inputLabel || '',
-      inputPlaceholder: srv.inputPlaceholder || '',
+      inputLabel: srv.inputLabel || detected.inputLabel,
+      inputPlaceholder: srv.inputPlaceholder || detected.inputPlaceholder,
+      requiresZoneId: srv.requiresZoneId !== undefined ? srv.requiresZoneId : detected.requiresZoneId,
+      zoneIdLabel: srv.zoneIdLabel || detected.zoneIdLabel || 'رايون كودى (Zone ID)',
+      zoneIdPlaceholder: srv.zoneIdPlaceholder || detected.zoneIdPlaceholder || 'مەسىلەن: 1234',
+      bioContent: srv.bioContent || detected.defaultBio || '',
       packages: existingPkgs,
     });
     setServiceModalOpen(true);
@@ -1188,6 +1221,10 @@ export default function AdminPage() {
       badge: serviceForm.badge || undefined,
       inputLabel: serviceForm.inputLabel || undefined,
       inputPlaceholder: serviceForm.inputPlaceholder || undefined,
+      requiresZoneId: Boolean(serviceForm.requiresZoneId),
+      zoneIdLabel: serviceForm.requiresZoneId ? (serviceForm.zoneIdLabel || 'رايون كودى (Zone ID)') : undefined,
+      zoneIdPlaceholder: serviceForm.requiresZoneId ? (serviceForm.zoneIdPlaceholder || 'مەسىلەن: 1234') : undefined,
+      bioContent: serviceForm.bioContent?.trim() || undefined,
       packages: cleanPackages,
     };
 
@@ -1275,6 +1312,10 @@ export default function AdminPage() {
             badge: '⚡ ئاپتوماتىك',
             inputLabel: sahlItem.inputLabel,
             inputPlaceholder: sahlItem.inputPlaceholder,
+            requiresZoneId: sahlItem.requiresZoneId,
+            zoneIdLabel: sahlItem.zoneIdLabel,
+            zoneIdPlaceholder: sahlItem.zoneIdPlaceholder,
+            bioContent: sahlItem.bioContent,
             published: true,
             source: 'provider',
             packages: sahlItem.packages.map((p) => ({
@@ -1494,21 +1535,19 @@ export default function AdminPage() {
       const minCost = pkgs.length > 0 ? pkgs[0].costPrice : 0;
       const maxCost = pkgs.length > 0 ? pkgs[pkgs.length - 1].costPrice : 0;
 
-      let inputLabel = 'ئويۇنچى ID (Player ID)';
-      let inputPlaceholder = 'ئويۇن كىملىك نومۇرىنى كىرگۈزۈڭ (مەسىلەن: 51234567)';
-      if (cat === 'social' || cat === 'apps') {
-        inputLabel = 'ھېسابات نومۇرى / ئېلخەت / كىملىك';
-        inputPlaceholder = 'مەسىلەن: ئىشلەتكۈچى نامى ياكى كىملىك نومۇرى';
-      } else if (cat === 'cards') {
-        inputLabel = 'تاپشۇرۇۋالغۇچى ئېلخەت / تېلېفون';
-        inputPlaceholder = 'كارتا ئۇچۇرى ئەۋەتىلىدىغان ئېلخەت ياكى تېلېفون نومۇرى';
-      } else if (cat === 'numbers') {
-        inputLabel = 'دۆلەت ياكى مۇلازىمەت تەلەپلىرى';
-        inputPlaceholder = 'قايسى دۆلەت نومۇرى كېرەكلىكىنى يېزىڭ';
-      } else if (cat === 'balance') {
-        inputLabel = 'تېلېفون نومۇرى';
-        inputPlaceholder = 'قالدۇق قاچىلىنىدىغان تېلېفون نومۇرىنى كىرگۈزۈڭ';
+      // Collect all params across packages
+      const allParams: string[] = [];
+      for (const p of item.packages) {
+        if (Array.isArray(p.params)) {
+          for (const param of p.params) {
+            if (typeof param === 'string' && !allParams.includes(param)) {
+              allParams.push(param);
+            }
+          }
+        }
       }
+
+      const inputCfg = detectServiceInputs(item.name, cat, allParams);
 
       list.push({
         key: item.key,
@@ -1517,8 +1556,12 @@ export default function AdminPage() {
         category: cat,
         categoryName: item.categoryName,
         image: img,
-        inputLabel,
-        inputPlaceholder,
+        inputLabel: inputCfg.inputLabel,
+        inputPlaceholder: inputCfg.inputPlaceholder,
+        requiresZoneId: inputCfg.requiresZoneId,
+        zoneIdLabel: inputCfg.zoneIdLabel,
+        zoneIdPlaceholder: inputCfg.zoneIdPlaceholder,
+        bioContent: inputCfg.defaultBio,
         minCost,
         maxCost,
         packages: pkgs,
@@ -1568,6 +1611,10 @@ export default function AdminPage() {
           badge: '⚡ Sahl Cash',
           inputLabel: sahl.inputLabel,
           inputPlaceholder: sahl.inputPlaceholder,
+          requiresZoneId: sahl.requiresZoneId,
+          zoneIdLabel: sahl.zoneIdLabel,
+          zoneIdPlaceholder: sahl.zoneIdPlaceholder,
+          bioContent: sahl.bioContent,
           published: false,
           source: 'provider',
           packages: sahl.packages.map((p) => ({
@@ -1680,6 +1727,10 @@ export default function AdminPage() {
       description: `${group.name} ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى`,
       inputLabel: group.inputLabel,
       inputPlaceholder: group.inputPlaceholder,
+      requiresZoneId: Boolean(group.requiresZoneId),
+      zoneIdLabel: group.zoneIdLabel || 'رايون كودى (Zone ID)',
+      zoneIdPlaceholder: group.zoneIdPlaceholder || 'مەسىلەن: 1234',
+      bioContent: group.bioContent || '',
       published: true,
       packages: initialPackages,
     });
@@ -1809,6 +1860,10 @@ export default function AdminPage() {
         badge: sahlForm.badge.trim() || '⚡ ئاپتوماتىك',
         inputLabel: sahlForm.inputLabel.trim(),
         inputPlaceholder: sahlForm.inputPlaceholder.trim(),
+        requiresZoneId: Boolean(sahlForm.requiresZoneId),
+        zoneIdLabel: sahlForm.requiresZoneId ? (sahlForm.zoneIdLabel || 'رايون كودى (Zone ID)') : undefined,
+        zoneIdPlaceholder: sahlForm.requiresZoneId ? (sahlForm.zoneIdPlaceholder || 'مەسىلەن: 1234') : undefined,
+        bioContent: sahlForm.bioContent?.trim() || undefined,
         published: sahlForm.published,
         source: 'provider',
         packages: selectedPackages.map((p, idx) => ({
@@ -4476,15 +4531,76 @@ export default function AdminPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-slate-300 font-bold mb-1">خېرىداردىن سورايدىغان كىملىك خېتى (ID Label):</label>
-                <input
-                  type="text"
-                  value={serviceForm.inputLabel}
-                  onChange={(e) => setServiceForm({ ...serviceForm, inputLabel: e.target.value })}
-                  placeholder="مەسىلەن: ئويۇنچى ID (Player ID)..."
-                  className={`w-full px-3.5 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400`}
-                />
+              {/* Account / UID & Zone ID Settings */}
+              <div className="p-3.5 rounded-2xl bg-black/40 border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="block text-slate-200 font-bold text-xs flex items-center gap-1.5">
+                    <span>🎮 خېرىداردىن كىملىك سورايدىغان كۆزنەك تەڭشىكى:</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer text-[11px] text-amber-300 font-bold">
+                    <input
+                      type="checkbox"
+                      checked={serviceForm.requiresZoneId}
+                      onChange={(e) =>
+                        setServiceForm({
+                          ...serviceForm,
+                          requiresZoneId: e.target.checked,
+                          zoneIdLabel: e.target.checked ? (serviceForm.zoneIdLabel || 'رايون كودى (Zone ID)') : serviceForm.zoneIdLabel,
+                        })
+                      }
+                      className="w-4 h-4 accent-amber-400 rounded cursor-pointer"
+                    />
+                    <span>رايون كودى (Zone ID) تەلەپ قىلسۇن</span>
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-400 text-[11px] mb-1">ئاساسىي كىملىك خېتى (UID Label):</label>
+                    <input
+                      type="text"
+                      value={serviceForm.inputLabel}
+                      onChange={(e) => setServiceForm({ ...serviceForm, inputLabel: e.target.value })}
+                      placeholder="مەسىلەن: ئويۇنچى ID (Player ID)..."
+                      className={`w-full px-3 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400 text-xs`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 text-[11px] mb-1">ئەسكەرتىش خېتى (Placeholder):</label>
+                    <input
+                      type="text"
+                      value={serviceForm.inputPlaceholder}
+                      onChange={(e) => setServiceForm({ ...serviceForm, inputPlaceholder: e.target.value })}
+                      placeholder="مەسىلەن: 51234567"
+                      className={`w-full px-3 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400 text-xs`}
+                    />
+                  </div>
+                </div>
+
+                {serviceForm.requiresZoneId && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-800/80 animate-in fade-in">
+                    <div>
+                      <label className="block text-amber-300 text-[11px] mb-1 font-bold">رايون نومۇرى خېتى (Zone ID Label):</label>
+                      <input
+                        type="text"
+                        value={serviceForm.zoneIdLabel}
+                        onChange={(e) => setServiceForm({ ...serviceForm, zoneIdLabel: e.target.value })}
+                        placeholder="مەسىلەن: رايون كودى (Zone ID)"
+                        className={`w-full px-3 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400 text-xs`}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-amber-300 text-[11px] mb-1 font-bold">رايون كودى كىرگۈزۈش ئەسكەرتىشى:</label>
+                      <input
+                        type="text"
+                        value={serviceForm.zoneIdPlaceholder}
+                        onChange={(e) => setServiceForm({ ...serviceForm, zoneIdPlaceholder: e.target.value })}
+                        placeholder="مەسىلەن: 1234"
+                        className={`w-full px-3 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400 text-xs`}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Multi-Package Management Section */}
@@ -4561,8 +4677,40 @@ export default function AdminPage() {
                 </div>
               </div>
 
+              {/* Product Bio & Instructions (تەرجىمىھال ۋە كۆرسەتمە) */}
+              <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="block text-amber-300 font-bold text-xs flex items-center gap-1.5">
+                      <span>📖 تەرجىمىھال سۆزى ۋە مەشغۇلات كۆرسەتمىسى:</span>
+                    </label>
+                    <span className="text-[10px] text-slate-400">
+                      خېرىدارلار سېتىۋېلىش كۆزنىكىدە كۆرىدىغان تەپسىلىي بايان ياكى كۆرسەتمە
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const autoBio = getServiceDefaultBio(serviceForm.name, serviceForm.category);
+                      setServiceForm((prev) => ({ ...prev, bioContent: autoBio }));
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-cyan-950 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-[11px] font-bold transition cursor-pointer flex items-center gap-1"
+                    title="ئويۇن ياكى ئەپكە ئائىت تەييار ئۆلچەملىك كۆرسەتمىنى ئاپتوماتىك كىرگۈزىدۇ"
+                  >
+                    <span>✨ ئاپتوماتىك تولدۇرۇش</span>
+                  </button>
+                </div>
+                <textarea
+                  rows={4}
+                  value={serviceForm.bioContent}
+                  onChange={(e) => setServiceForm({ ...serviceForm, bioContent: e.target.value })}
+                  placeholder="مەسىلەن: ئويۇندىكى تەگلىكتىن UID ۋە Zone ID نى ئايرىم كىرگۈزۈڭ..."
+                  className={`w-full px-3.5 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400 text-xs leading-relaxed`}
+                />
+              </div>
+
               <div>
-                <label className="block text-slate-300 font-bold mb-1">تۈشەندۈرۈشى:</label>
+                <label className="block text-slate-300 font-bold mb-1">قىسقىچە تۈشەندۈرۈشى:</label>
                 <textarea
                   rows={2}
                   value={serviceForm.description}
@@ -5105,28 +5253,108 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  {/* Input Label for Buyer Account */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    <div>
-                      <label className="block text-slate-300 font-bold mb-1">خېرىدار كىرگۈزىدىغان ئۇچۇر تۈرى:</label>
-                      <input
-                        type="text"
-                        value={sahlForm.inputLabel}
-                        onChange={(e) => setSahlForm({ ...sahlForm, inputLabel: e.target.value })}
-                        placeholder="مەسىلەن: ئويۇنچى ID (Player ID)"
-                        className={`w-full px-3.5 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400`}
-                      />
+                  {/* Account / UID & Zone ID Settings */}
+                  <div className="p-3.5 rounded-2xl bg-black/40 border border-slate-800 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-slate-200 font-bold text-xs flex items-center gap-1.5">
+                        <span>🎮 خېرىداردىن كىملىك سورايدىغان كۆزنەك تەڭشىكى:</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer text-[11px] text-amber-300 font-bold">
+                        <input
+                          type="checkbox"
+                          checked={sahlForm.requiresZoneId}
+                          onChange={(e) =>
+                            setSahlForm({
+                              ...sahlForm,
+                              requiresZoneId: e.target.checked,
+                              zoneIdLabel: e.target.checked ? (sahlForm.zoneIdLabel || 'رايون كودى (Zone ID)') : sahlForm.zoneIdLabel,
+                            })
+                          }
+                          className="w-4 h-4 accent-amber-400 rounded cursor-pointer"
+                        />
+                        <span>رايون كودى (Zone ID) تەلەپ قىلسۇن</span>
+                      </label>
                     </div>
-                    <div>
-                      <label className="block text-slate-300 font-bold mb-1">ئەسكەرتىش كىرگۈزۈش سۆزى (Placeholder):</label>
-                      <input
-                        type="text"
-                        value={sahlForm.inputPlaceholder}
-                        onChange={(e) => setSahlForm({ ...sahlForm, inputPlaceholder: e.target.value })}
-                        placeholder="مەسىلەن: 51234567"
-                        className={`w-full px-3.5 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400`}
-                      />
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-slate-400 text-[11px] mb-1">ئاساسىي كىملىك خېتى (UID Label):</label>
+                        <input
+                          type="text"
+                          value={sahlForm.inputLabel}
+                          onChange={(e) => setSahlForm({ ...sahlForm, inputLabel: e.target.value })}
+                          placeholder="مەسىلەن: ئويۇنچى ID (Player ID)"
+                          className={`w-full px-3 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400 text-xs`}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 text-[11px] mb-1">ئەسكەرتىش كىرگۈزۈش سۆزى (Placeholder):</label>
+                        <input
+                          type="text"
+                          value={sahlForm.inputPlaceholder}
+                          onChange={(e) => setSahlForm({ ...sahlForm, inputPlaceholder: e.target.value })}
+                          placeholder="مەسىلەن: 51234567"
+                          className={`w-full px-3 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400 text-xs`}
+                        />
+                      </div>
                     </div>
+
+                    {sahlForm.requiresZoneId && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-800/80 animate-in fade-in">
+                        <div>
+                          <label className="block text-amber-300 text-[11px] mb-1 font-bold">رايون نومۇرى خېتى (Zone ID Label):</label>
+                          <input
+                            type="text"
+                            value={sahlForm.zoneIdLabel}
+                            onChange={(e) => setSahlForm({ ...sahlForm, zoneIdLabel: e.target.value })}
+                            placeholder="مەسىلەن: رايون كودى (Zone ID)"
+                            className={`w-full px-3 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400 text-xs`}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-amber-300 text-[11px] mb-1 font-bold">رايون كودى كىرگۈزۈش ئەسكەرتىشى:</label>
+                          <input
+                            type="text"
+                            value={sahlForm.zoneIdPlaceholder}
+                            onChange={(e) => setSahlForm({ ...sahlForm, zoneIdPlaceholder: e.target.value })}
+                            placeholder="مەسىلەن: 1234"
+                            className={`w-full px-3 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400 text-xs`}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Product Bio & Instructions (تەرجىمىھال ۋە كۆرسەتمە) */}
+                  <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <label className="block text-amber-300 font-bold text-xs flex items-center gap-1.5">
+                          <span>📖 تەرجىمىھال سۆزى ۋە مەشغۇلات كۆرسەتمىسى:</span>
+                        </label>
+                        <span className="text-[10px] text-slate-400">
+                          خېرىدارلار سېتىۋېلىش كۆزنىكىدە كۆرىدىغان تەپسىلىي بايان ياكى كۆرسەتمە
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const autoBio = getServiceDefaultBio(sahlForm.name, sahlForm.category);
+                          setSahlForm((prev) => ({ ...prev, bioContent: autoBio }));
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-cyan-950 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-[11px] font-bold transition cursor-pointer flex items-center gap-1"
+                        title="ئويۇن ياكى ئەپكە ئائىت تەييار ئۆلچەملىك كۆرسەتمىنى ئاپتوماتىك كىرگۈزىدۇ"
+                      >
+                        <span>✨ ئاپتوماتىك تولدۇرۇش</span>
+                      </button>
+                    </div>
+                    <textarea
+                      rows={4}
+                      value={sahlForm.bioContent}
+                      onChange={(e) => setSahlForm({ ...sahlForm, bioContent: e.target.value })}
+                      placeholder="مەسىلەن: ئويۇندىكى تەگلىكتىن UID ۋە Zone ID نى كىرگۈزۈڭ..."
+                      className={`w-full px-3.5 py-2 rounded-xl ${themeClasses.input} focus:outline-none focus:border-amber-400 text-xs leading-relaxed`}
+                    />
                   </div>
 
                   {/* Homepage Publish Toggle */}

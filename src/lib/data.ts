@@ -28,6 +28,10 @@ export interface ServiceItem {
   packages: ServicePackage[];
   inputPlaceholder?: string;
   inputLabel?: string;
+  requiresZoneId?: boolean;
+  zoneIdLabel?: string;
+  zoneIdPlaceholder?: string;
+  bioContent?: string;
   source?: 'legacy' | 'provider';
   published?: boolean;
 }

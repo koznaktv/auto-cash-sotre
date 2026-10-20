@@ -38,6 +38,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
   const [selectedPkgId, setSelectedPkgId] = useState('');
   const [packageQuery, setPackageQuery] = useState('');
   const [accountInput, setAccountInput] = useState('');
+  const [zoneInput, setZoneInput] = useState('');
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [qtyInput, setQtyInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -102,6 +103,21 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
     return estimateTotal(selectedPkg.unitPrice, qty);
   }, [selectedPkg, qty]);
 
+  const isMlbb = useMemo(() => {
+    if (!service) return false;
+    const s = `${service.id} ${service.name} ${detail?.name || ''}`.toLowerCase();
+    return /mobile\s*legend|mlbb|legend\s*mobile|موبايل\s*ليجند/i.test(s);
+  }, [service, detail]);
+
+  const requiresZoneId = Boolean(
+    service?.requiresZoneId ||
+    detail?.requiresZoneId ||
+    isMlbb ||
+    Boolean(service?.zoneIdLabel) ||
+    Boolean(detail?.zoneIdLabel) ||
+    (selectedPkg?.fields || []).some((f) => /zone\s*id|zoneid|zone_id|server/i.test(f.key) || /zone\s*id|رايون/i.test(f.label))
+  );
+
   const productBio = useMemo(() => {
     if (!service) return null;
     return getProductBio(service, selectedPkg, lang);
@@ -109,16 +125,28 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
 
   if (!service) return null;
 
-  const submitOrder = async (expectedTotal: number) => {
+  const submitOrder = async (expectedTotal: number, customTarget?: string) => {
     isSubmittingRef.current = true;
     setLoading(true);
     setButtonState('loading');
     setErrorMsg('');
     setInfoMsg('');
     try {
+      const targetStr = (customTarget ?? accountInput).trim();
       const body = isProvider
-        ? { serviceId: service.id, packageId: selectedPkgId, fields: fieldValues, qty, expectedTotal }
-        : { serviceId: service.id, packageId: selectedPkgId, targetAccount: accountInput.trim() };
+        ? {
+            serviceId: service.id,
+            packageId: selectedPkgId,
+            fields: {
+              ...fieldValues,
+              ...(accountInput.trim() ? { playerId: accountInput.trim() } : {}),
+              ...(zoneInput.trim() ? { zoneId: zoneInput.trim() } : {}),
+            },
+            targetAccount: targetStr,
+            qty,
+            expectedTotal,
+          }
+        : { serviceId: service.id, packageId: selectedPkgId, targetAccount: targetStr };
 
       const res = await fetch('/api/orders', {
         method: 'POST',
@@ -179,12 +207,29 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
       return;
     }
 
+    // For services requiring Zone ID
+    if (requiresZoneId) {
+      if (!accountInput.trim()) {
+        setErrorMsg('ئويۇنچى كىملىكى (UID) نى كىرگۈزۈش شەرت!');
+        return;
+      }
+      if (!zoneInput.trim()) {
+        setErrorMsg('رايون كودى (Zone ID) نى كىرگۈزۈش شەرت! (مەسىلەن: 1234)');
+        return;
+      }
+    }
+
     if (isProvider) {
       if (selectedPkg.available === false) {
         setErrorMsg('بۇ تۈر ھازىر يوق');
         return;
       }
-      const fieldCheck = validateOrderFields(fieldValues, selectedPkg.fields || []);
+      const updatedFields = {
+        ...fieldValues,
+        ...(accountInput.trim() ? { playerId: accountInput.trim() } : {}),
+        ...(zoneInput.trim() ? { zoneId: zoneInput.trim() } : {}),
+      };
+      const fieldCheck = validateOrderFields(updatedFields, selectedPkg.fields || []);
       if (!fieldCheck.ok) {
         setErrorMsg(fieldCheck.message || 'ئۇچۇر خاتا');
         return;
@@ -194,22 +239,29 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
         setErrorMsg(qtyCheck.message || 'سانى خاتا');
         return;
       }
-      await submitOrder(confirmTotal ?? estimatedTotal);
+      const combined = requiresZoneId && zoneInput.trim()
+        ? `${accountInput.trim()} (${zoneInput.trim()})`
+        : accountInput.trim();
+      await submitOrder(confirmTotal ?? estimatedTotal, combined);
       return;
     }
 
-    if (service.inputLabel && !accountInput.trim()) {
+    const combinedAccount = requiresZoneId && zoneInput.trim()
+      ? `${accountInput.trim()} (${zoneInput.trim()})`
+      : accountInput.trim();
+
+    if (service.inputLabel && !combinedAccount) {
       setErrorMsg(`${translateInputLabel(service.inputLabel) || 'ID'} نى كىرگۈزۈڭ`);
       return;
     }
-    if (service.category === 'games' || service.inputLabel) {
-      const val = validateGameAccount(service.id, accountInput.trim());
+    if (service.category === 'games' || service.inputLabel || requiresZoneId) {
+      const val = validateGameAccount(service.id, combinedAccount);
       if (!val.isValid) {
         setErrorMsg(val.message || 'كىملىك فورماتى خاتا!');
         return;
       }
     }
-    await submitOrder(selectedPkg.price);
+    await submitOrder(selectedPkg.price, combinedAccount);
   };
 
   const displayTotal = confirmTotal ?? estimatedTotal;
@@ -436,34 +488,80 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                 </div>
               ))}
 
-            {/* Legacy single account input */}
-            {!isProvider && service.inputLabel && (
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                  {translateInputLabel(service.inputLabel)}
-                </label>
-                <input
-                  type="text"
-                  value={accountInput}
-                  onChange={(e) => setAccountInput(e.target.value)}
-                  placeholder={translateInputPlaceholder(service.inputPlaceholder)}
-                  className={inputClass}
-                />
-                {service.id.toLowerCase().includes('mobile-legend') && (
-                  <p className="mt-1.5 text-[11px] text-amber-300/80">
-                    💡 ئەسكەرتىش: كىملىك ۋە رايون كودىنى بىللە كىرگۈزۈڭ، مەسىلەن:{' '}
-                    <span dir="ltr" className="font-mono font-bold text-amber-300">
-                      12345678 (1234)
-                    </span>
-                  </p>
-                )}
-                {service.id.toLowerCase().includes('pubg') && (
-                  <p className="mt-1.5 text-[11px] text-amber-300/80">
-                    💡 ئەسكەرتىش: پەقەت 8 دىن 12 خانىغىچە رەقەملىك UID كىرگۈزۈڭ، مەسىلەن:{' '}
-                    <span dir="ltr" className="font-mono font-bold text-amber-300">
-                      5123456789
-                    </span>
-                  </p>
+            {/* Legacy or custom service account input with UID + Zone ID support */}
+            {(!isProvider || (selectedPkg?.fields || []).length === 0) && (service.inputLabel || requiresZoneId || service.category === 'games') && (
+              <div className="space-y-3">
+                {requiresZoneId ? (
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+                          <span>{translateInputLabel(service.inputLabel || detail?.inputLabel || 'ئويۇنچى كىملىكى (UID)')}</span>
+                          <span className="text-rose-400 font-bold">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={accountInput}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            // Smart auto-split: if user pastes "12345678 (1234)" or "12345678-1234"
+                            const match = val.match(/^(\d{6,12})[\s\(\-_/\|]+(\d{3,6})\)?$/);
+                            if (match) {
+                              setAccountInput(match[1]);
+                              setZoneInput(match[2]);
+                            } else {
+                              setAccountInput(val);
+                            }
+                          }}
+                          placeholder={translateInputPlaceholder(service.inputPlaceholder || detail?.inputPlaceholder || 'مەسىلەن: 12345678')}
+                          className={inputClass}
+                          dir="ltr"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+                          <span>{translateInputLabel(service.zoneIdLabel || detail?.zoneIdLabel || 'رايون كودى (Zone ID)')}</span>
+                          <span className="text-rose-400 font-bold">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={zoneInput}
+                          onChange={(e) => setZoneInput(e.target.value)}
+                          placeholder={translateInputPlaceholder(service.zoneIdPlaceholder || detail?.zoneIdPlaceholder || 'مەسىلەن: 1234')}
+                          className={inputClass}
+                          dir="ltr"
+                        />
+                      </div>
+                    </div>
+                    <p className="mt-1 text-[11px] text-amber-300/90 flex items-center gap-1 font-alkatip">
+                      <span>💡 ئەسكەرتىش: كىملىك (UID) بىلەن تىرناق ئىچىدىكى 4 ياكى 5 خانىلىق رايون كودى (Zone ID) نى ئايرىم كىرگۈزۈڭ.</span>
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+                      <span>{translateInputLabel(service.inputLabel || detail?.inputLabel || 'ھېسابات / ئويۇنچى ID')}</span>
+                      {service.category !== 'cards' && <span className="text-rose-400 font-bold">*</span>}
+                    </label>
+                    <input
+                      type="text"
+                      value={accountInput}
+                      onChange={(e) => setAccountInput(e.target.value)}
+                      placeholder={translateInputPlaceholder(service.inputPlaceholder || detail?.inputPlaceholder || 'ئۇچۇرىڭىزنى كىرگۈزۈڭ')}
+                      className={inputClass}
+                      dir="ltr"
+                    />
+                    {service.id.toLowerCase().includes('pubg') && (
+                      <p className="mt-1.5 text-[11px] text-amber-300/80">
+                        💡 ئەسكەرتىش: پەقەت 8 دىن 12 خانىغىچە رەقەملىك UID كىرگۈزۈڭ (مەسىلەن: 5123456789).
+                      </p>
+                    )}
+                    {service.id.toLowerCase().includes('free-fire') && (
+                      <p className="mt-1.5 text-[11px] text-amber-300/80">
+                        💡 ئەسكەرتىش: پەقەت ئويۇندىكى Player ID نى كىرگۈزۈڭ.
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
             )}
