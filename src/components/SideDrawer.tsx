@@ -149,39 +149,20 @@ export default function SideDrawer({
     }
   }, [user, isOpen]);
 
-  const isBrowserPoppedRef = useRef(false);
-
   useEffect(() => {
     if (isOpen) {
       const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
 
-      try {
-        window.history.pushState({ autocash_side_drawer: true }, '');
-      } catch {}
-
-      const handlePopState = () => {
-        isBrowserPoppedRef.current = true;
-        onClose();
-      };
-
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape') onClose();
       };
 
-      window.addEventListener('popstate', handlePopState);
       window.addEventListener('keydown', handleKeyDown);
 
       return () => {
         document.body.style.overflow = originalOverflow;
-        window.removeEventListener('popstate', handlePopState);
         window.removeEventListener('keydown', handleKeyDown);
-
-        if (!isBrowserPoppedRef.current && window.history.state?.autocash_side_drawer) {
-          try {
-            window.history.back();
-          } catch {}
-        }
       };
     }
   }, [isOpen, onClose]);
@@ -243,7 +224,6 @@ export default function SideDrawer({
   );
 
   const handleNavigate = (href: string) => (e: React.MouseEvent) => {
-    isBrowserPoppedRef.current = true;
     onClose();
     window.location.href = href;
   };

@@ -47,23 +47,10 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
   const [confirmTotal, setConfirmTotal] = useState<number | null>(null);
   const [buttonState, setButtonState] = useState<'idle' | 'loading' | 'success'>('idle');
   const isSubmittingRef = useRef(false);
-  const isBrowserPoppedRef = useRef(false);
-
-  // Manage browser history & popstate for mobile back button and edge swipe gesture
+  // Manage scroll and keyboard for modal
   useEffect(() => {
-    // Lock body scroll while modal is active
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-
-    // Push history state so mobile back button/gesture closes modal instead of navigating away (e.g. to /account)
-    try {
-      window.history.pushState({ autocash_checkout_modal: true }, '');
-    } catch {}
-
-    const handlePopState = () => {
-      isBrowserPoppedRef.current = true;
-      onClose();
-    };
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -71,20 +58,11 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
       }
     };
 
-    window.addEventListener('popstate', handlePopState);
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       document.body.style.overflow = originalOverflow;
-      window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('keydown', handleKeyDown);
-
-      // If closed by React (clicking X, backdrop, login button, or order success) and NOT by browser back
-      if (!isBrowserPoppedRef.current && window.history.state?.autocash_checkout_modal) {
-        try {
-          window.history.back();
-        } catch {}
-      }
     };
   }, [onClose]);
 
