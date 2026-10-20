@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
 import {
-  getServicesList,
   getServicesListAsync,
-  addServiceItem,
-  updateServiceItem,
-  deleteServiceItem,
+  addServiceItemAsync,
+  updateServiceItemAsync,
+  deleteServiceItemAsync,
   deleteServicesByCategory,
   clearAllServices,
   restoreDefaultServices,
@@ -31,7 +30,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: 'نامى ۋە سەھىپىسى چوقۇم بولۇشى كېرەك' }, { status: 400 });
     }
 
-    const newService = addServiceItem(body);
+    const newService = await addServiceItemAsync(body);
     return NextResponse.json({ success: true, service: newService });
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err?.message || 'مەھسۇلات قوشۇش مەغلۇپ بولدى' }, { status: 500 });
@@ -51,7 +50,7 @@ export async function PUT(req: Request) {
       return NextResponse.json({ success: false, message: 'مەھسۇلات ID كەمچىل' }, { status: 400 });
     }
 
-    const updated = updateServiceItem(id, updates);
+    const updated = await updateServiceItemAsync(id, updates);
     if (!updated) {
       return NextResponse.json({ success: false, message: 'مەھسۇلات تېپىلمىدى' }, { status: 404 });
     }
@@ -89,13 +88,13 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ success: true, count: deletedCount });
     }
 
-    if (!id) {
-      return NextResponse.json({ success: false, message: 'مەھسۇلات ID كەمچىل' }, { status: 400 });
+    if (id) {
+      const success = await deleteServiceItemAsync(id);
+      return NextResponse.json({ success });
     }
 
-    const success = deleteServiceItem(id);
-    return NextResponse.json({ success });
+    return NextResponse.json({ success: false, message: 'پارامېتىر كەمچىل' }, { status: 400 });
   } catch (err: any) {
-    return NextResponse.json({ success: false, message: err?.message || 'مەھسۇلاتنى ئۆچۈرۈش مەغلۇپ بولدى' }, { status: 500 });
+    return NextResponse.json({ success: false, message: err?.message || 'ئۆچۈرۈش مەغلۇپ بولدى' }, { status: 500 });
   }
 }

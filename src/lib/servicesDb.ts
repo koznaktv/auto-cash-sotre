@@ -147,7 +147,7 @@ export async function getServicesListAsync(): Promise<ServiceItem[]> {
   return list;
 }
 
-export function saveServicesList(services: ServiceItem[]) {
+export async function saveServicesListAsync(services: ServiceItem[]): Promise<void> {
   const deleted = getDeletedServiceIds();
   const cleanList = services.filter((s) => !deleted.has(s.id));
   cachedServices = cleanList;
@@ -162,7 +162,6 @@ export function saveServicesList(services: ServiceItem[]) {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
     }
-    // Atomic write to prevent half-read race conditions
     const temp = `${SERVICES_FILE}.${Date.now()}.tmp`;
     fs.writeFileSync(temp, JSON.stringify(cleanList, null, 2), 'utf-8');
     fs.renameSync(temp, SERVICES_FILE);
@@ -170,38 +169,54 @@ export function saveServicesList(services: ServiceItem[]) {
     console.error('Error saving services file:', err);
   }
 
-  // Backup to Supabase for 100% serverless persistence
-  try {
-    const sb = getSupabase();
-    if (sb) {
-      Promise.resolve(
-        sb.from('system_settings').upsert({
-          id: 'custom_services',
-          site_name: JSON.stringify(cleanList),
-          admin_pin: 'SERVICES_BACKUP',
-          shamcash_address: 'META',
-          whatsapp_number: 'META',
-          telegram_username: 'META',
-        })
-      )
-        .then((res: any) => {
-          if (res?.error) console.warn('Supabase saveServicesList notice:', res.error.message);
-        })
-        .catch(() => {});
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { error } = await sb.from('system_settings').upsert({
+        id: 'custom_services',
+        site_name: JSON.stringify(cleanList),
+        admin_pin: 'SERVICES_BACKUP',
+        shamcash_address: 'META',
+        whatsapp_number: 'META',
+        telegram_username: 'META',
+      });
+      if (error) console.warn('Supabase saveServicesListAsync error:', error.message);
+    } catch (err: any) {
+      console.warn('Supabase saveServicesListAsync catch:', err?.message);
     }
-  } catch {}
+  }
 }
 
-export function addServiceItem(service: Omit<ServiceItem, 'id'> & { id?: string }): ServiceItem {
+export function saveServicesList(services: ServiceItem[]) {
+  saveServicesListAsync(services).catch(() => {});
+}
+
+export async function addServiceItemAsync(service: Omit<ServiceItem, 'id'> & { id?: string }): Promise<ServiceItem> {
   const id = service.id || `srv-${Date.now()}`;
-  
-  // Untombstone if it was previously deleted
   const deleted = getDeletedServiceIds();
   if (deleted.has(id)) {
     deleted.delete(id);
     saveDeletedServiceIds(deleted);
   }
 
+  const current = await getServicesListAsync();
+  const newItem: ServiceItem = {
+    ...service,
+    id,
+    published: service.published !== false,
+  };
+  const updated = [newItem, ...current.filter((s) => s.id !== id)];
+  await saveServicesListAsync(updated);
+  return newItem;
+}
+
+export function addServiceItem(service: Omit<ServiceItem, 'id'> & { id?: string }): ServiceItem {
+  const id = service.id || `srv-${Date.now()}`;
+  const deleted = getDeletedServiceIds();
+  if (deleted.has(id)) {
+    deleted.delete(id);
+    saveDeletedServiceIds(deleted);
+  }
   const current = getServicesList();
   const newItem: ServiceItem = {
     ...service,
@@ -213,13 +228,35 @@ export function addServiceItem(service: Omit<ServiceItem, 'id'> & { id?: string 
   return newItem;
 }
 
+export async function updateServiceItemAsync(id: string, updates: Partial<ServiceItem>): Promise<ServiceItem | null> {
+  const current = await getServicesListAsync();
+  const index = current.findIndex((s) => s.id === id);
+  if (index === -1) return null;
+  const updatedItem: ServiceItem = { ...current[index], ...updates, id };
+  current[index] = updatedItem;
+  await saveServicesListAsync(current);
+  return updatedItem;
+}
+
 export function updateServiceItem(id: string, updates: Partial<ServiceItem>): ServiceItem | null {
   const current = getServicesList();
   const index = current.findIndex((s) => s.id === id);
   if (index === -1) return null;
-  current[index] = { ...current[index], ...updates };
+  const updatedItem: ServiceItem = { ...current[index], ...updates, id };
+  current[index] = updatedItem;
   saveServicesList(current);
-  return current[index];
+  return updatedItem;
+}
+
+export async function deleteServiceItemAsync(id: string): Promise<boolean> {
+  const deleted = getDeletedServiceIds();
+  deleted.add(id);
+  saveDeletedServiceIds(deleted);
+
+  const current = await getServicesListAsync();
+  const filtered = current.filter((s) => s.id !== id);
+  await saveServicesListAsync(filtered);
+  return true;
 }
 
 export function deleteServiceItem(id: string): boolean {

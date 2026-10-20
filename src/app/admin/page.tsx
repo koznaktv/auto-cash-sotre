@@ -54,6 +54,7 @@ import {
   Sliders,
   RotateCcw,
   ExternalLink,
+  Upload,
   Copy,
   Globe,
   Gamepad2,
@@ -1178,20 +1179,11 @@ export default function AdminPage() {
 
     const existingPkgs = srv.packages && srv.packages.length > 0
       ? srv.packages.map((p, idx) => {
-          const val1 = Number(p.price) || 0;
-          const val2 = p.originalPrice ? Number(p.originalPrice) : undefined;
-          const cost = (p as any).costPrice !== undefined
-            ? Number((p as any).costPrice)
-            : val2 !== undefined && val2 < val1
-            ? val2
-            : val2 !== undefined && val2 > val1
-            ? val1
-            : val1;
-          const sell = (p as any).costPrice !== undefined
-            ? val1
-            : val2 !== undefined && val2 > val1
-            ? val2
-            : val1;
+          const sell = Number(p.price) || 1.0;
+          const cost = Number((p as any).costPrice) || (p.originalPrice && Number(p.originalPrice) < sell ? Number(p.originalPrice) : Math.round((sell / 1.2) * 100) / 100);
+          const orig = p.originalPrice && Number(p.originalPrice) > sell
+            ? Number(p.originalPrice)
+            : Math.round(sell * 1.2 * 100) / 100;
 
           if (cost > 0 && sell > cost && idx === 0) {
             detectedMarkup = Math.round(((sell - cost) / cost) * 100);
@@ -1199,10 +1191,10 @@ export default function AdminPage() {
 
           return {
             id: p.id || `p-${idx + 1}`,
-            title: p.title || 'بولاق',
+            title: p.title || `بولاق ${idx + 1}`,
             costPrice: cost,
             price: sell,
-            originalPrice: p.originalPrice ? Number(p.originalPrice) : Math.round(sell * 1.2 * 100) / 100,
+            originalPrice: orig,
             duration: p.duration || 'دەرھال',
           };
         })
@@ -1230,6 +1222,47 @@ export default function AdminPage() {
       packages: existingPkgs,
     });
     setServiceModalOpen(true);
+  };
+
+  const handleServiceImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('پەقەت رەسىم ھۆججىتى تاللىيالايسىز');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const rawDataUrl = event.target?.result as string;
+      const img = new Image();
+      img.onload = () => {
+        const maxDim = 800;
+        let width = img.width;
+        let height = img.height;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressed = canvas.toDataURL('image/jpeg', 0.85);
+          setServiceForm((prev) => ({ ...prev, image: compressed }));
+        } else {
+          setServiceForm((prev) => ({ ...prev, image: rawDataUrl }));
+        }
+      };
+      img.src = rawDataUrl;
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleAddPackageRow = () => {
@@ -1383,7 +1416,7 @@ export default function AdminPage() {
           );
           setServiceModalOpen(false);
           setEditingService(null);
-          alert(`«${data.service.name}» مۇۋەپپەقىيەتلىك ساقلاندى ھەمدە باشبەتتە دەل ۋاقتىدا نەق كۆرسىتىلدى!`);
+          alert(`«${data.service.name}» نىڭ رەسىمى، باھالىرى ۋە بارلىق تەڭشەكلىرى مۇۋەپپەقىيەتلىك ساقلاندى ھەمدە باشبەتتە نەق يېڭىلاندى!`);
         } else {
           alert(data.message || 'ساقلاش مەغلۇپ بولدى');
         }
@@ -4854,16 +4887,100 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-slate-300 font-bold mb-1">رەسىم ئۇلىنىشى (Image URL):</label>
-                <input
-                  type="url"
-                  value={serviceForm.image}
-                  onChange={(e) => setServiceForm({ ...serviceForm, image: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  className={`w-full px-3.5 py-2 rounded-xl font-mono text-[11px] ${themeClasses.input} focus:outline-none focus:border-amber-400`}
-                  dir="ltr"
-                />
+              {/* Enhanced Image Editor (Preview + File Upload + Popular Presets + URL) */}
+              <div className="p-3.5 rounded-2xl bg-black/40 border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="block text-slate-200 font-bold text-xs flex items-center gap-1.5">
+                    <span>🖼️ مەھسۇلات رەسىمىنى تەھرىرلەش:</span>
+                  </label>
+                  {serviceForm.image && (
+                    <button
+                      type="button"
+                      onClick={() => setServiceForm({ ...serviceForm, image: '' })}
+                      className="text-[10px] text-rose-400 hover:text-rose-300 font-bold cursor-pointer"
+                    >
+                      ✕ رەسىمنى چىقىرىۋېتىش
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-start gap-3">
+                  {/* Live Preview Thumbnail */}
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-900 border border-amber-500/30 overflow-hidden flex items-center justify-center shrink-0 shadow-md relative group">
+                    {serviceForm.image ? (
+                      <img
+                        src={serviceForm.image}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = '/logo.png';
+                        }}
+                      />
+                    ) : (
+                      <Package className="w-8 h-8 text-cyan-400" />
+                    )}
+                  </div>
+
+                  {/* File Upload Button & URL input */}
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <label className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-500 hover:to-cyan-600 text-white font-bold text-xs cursor-pointer shadow-sm flex items-center gap-1.5 transition">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>📁 تېلېفون / كومپيۇتېردىن رەسىم يۈكلەش</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleServiceImageFileUpload}
+                          className="hidden"
+                        />
+                      </label>
+                      <span className="text-[10px] text-slate-400">ياكى ئاستىغا تور ئادرېسىنى كىرگۈزۈڭ:</span>
+                    </div>
+
+                    <input
+                      type="text"
+                      value={serviceForm.image}
+                      onChange={(e) => setServiceForm({ ...serviceForm, image: e.target.value })}
+                      placeholder="https://... ياكى /images/services/pubg_mobile.jpg"
+                      className={`w-full px-3 py-1.5 rounded-xl font-mono text-[11px] ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                      dir="ltr"
+                    />
+                  </div>
+                </div>
+
+                {/* Popular 1-Click Game & App Image Presets */}
+                <div className="pt-2 border-t border-slate-800/80 space-y-1.5">
+                  <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
+                    <span>تەييار رەسىملەردىن بىر چېكىپلا تاللاش:</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
+                    {[
+                      { name: 'PUBG', url: '/images/services/pubg_mobile.jpg' },
+                      { name: 'Free Fire', url: '/images/services/free_fire.jpg' },
+                      { name: 'Blood Strike', url: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=80' },
+                      { name: 'TikTok', url: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=500&auto=format&fit=crop&q=80' },
+                      { name: 'Telegram', url: 'https://images.unsplash.com/photo-1611746872915-64382b5c76da?w=500&auto=format&fit=crop&q=80' },
+                      { name: 'ChatGPT', url: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=500&auto=format&fit=crop&q=80' },
+                      { name: 'Netflix', url: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=500&auto=format&fit=crop&q=80' },
+                      { name: 'Roblox', url: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=500&auto=format&fit=crop&q=80' },
+                      { name: 'Brawl Stars', url: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=500&auto=format&fit=crop&q=80' },
+                      { name: 'Clash of Clans', url: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=500&auto=format&fit=crop&q=80' },
+                    ].map((preset) => (
+                      <button
+                        key={preset.name}
+                        type="button"
+                        onClick={() => setServiceForm({ ...serviceForm, image: preset.url })}
+                        className={`px-2 py-0.5 rounded-lg border text-[10px] font-bold transition cursor-pointer ${
+                          serviceForm.image === preset.url
+                            ? 'bg-amber-400 text-slate-950 border-amber-300 font-black'
+                            : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800 hover:border-amber-400/40'
+                        }`}
+                      >
+                        {preset.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* Account / UID & Zone ID Settings */}
