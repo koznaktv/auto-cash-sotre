@@ -300,19 +300,42 @@ export async function getProviderCatalog(options: { fresh?: boolean } = {}): Pro
   return catalog;
 }
 
-/** The catalog buyers see: only admin-managed & published services by default; or full provider catalog if source is provider. */
+/** The catalog buyers see: custom services managed by admin take top priority; provider catalog fills in or provides fallback. */
 export async function getCatalogServices(options: { source?: 'legacy' | 'provider' } = {}): Promise<ServiceItem[]> {
   const settings = await getProviderSettings();
   const source = options.source || settings.catalogSource;
-  if (source === 'provider') {
-    const providerCatalog = await getProviderCatalog();
-    return providerCatalog.services;
-  }
+
   const { getServicesListAsync } = await import('../servicesDb');
   const customServices = await getServicesListAsync();
-  return customServices
-    .filter((s) => s.published !== false)
-    .map((s) => ({ ...s, source: (s.source || 'legacy') }));
+  const publishedCustom: ServiceItem[] = (customServices || []).map((s) => ({
+    ...s,
+    published: s.published !== false,
+    source: (s.source || 'legacy') as 'legacy' | 'provider',
+  }));
+
+  if (source === 'legacy') {
+    if (publishedCustom.length > 0) {
+      return publishedCustom;
+    }
+    const providerCatalog = await getProviderCatalog();
+    return providerCatalog.services || [];
+  }
+
+  // source === 'provider':
+  const providerCatalog = await getProviderCatalog();
+  if (!providerCatalog.services || providerCatalog.services.length === 0) {
+    return publishedCustom;
+  }
+
+  // Merge: custom services take precedence over raw provider catalog
+  const customIds = new Set(publishedCustom.map((s) => s.id));
+  const merged: ServiceItem[] = [...publishedCustom];
+  for (const s of providerCatalog.services) {
+    if (!customIds.has(s.id)) {
+      merged.push(s);
+    }
+  }
+  return merged;
 }
 
 export type ResolveResult =

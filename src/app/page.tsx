@@ -1,7 +1,7 @@
 'use client';
 
 import { clearLocalAuth, logout, syncSupabaseSession, getCachedBalance, getCachedUser, storeLocalAuth, ClientUser, formatSmartPrice } from '@/lib/clientAuth';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
@@ -281,12 +281,37 @@ export default function HomePage() {
       .finally(() => setCatalogLoading(false));
   }, []);
 
-  const serviceCountByCategory = services.reduce<Record<string, number>>((acc, s) => {
-    acc[s.category] = (acc[s.category] || 0) + 1;
-    return acc;
-  }, {});
+  // Combine official categories with any categories present in loaded services
+  const effectiveCategories = useMemo(() => {
+    const map = new Map<string, any>();
+    for (const c of categories) {
+      map.set(c.id, c);
+    }
+    for (const s of services) {
+      if (s.category && !map.has(s.category)) {
+        map.set(s.category, {
+          id: s.category,
+          name: s.category,
+          icon: 'Package',
+          count: 'مەھسۇلاتلار',
+          image: '/logo.png',
+        });
+      }
+    }
+    return Array.from(map.values());
+  }, [categories, services]);
+
+  const serviceCountByCategory = useMemo(() => {
+    return services.reduce<Record<string, number>>((acc, s) => {
+      acc[s.category] = (acc[s.category] || 0) + 1;
+      return acc;
+    }, {});
+  }, [services]);
+
   // Only show categories that have at least one active published product
-  const visibleCategories = categories.filter((c) => (serviceCountByCategory[c.id] || 0) > 0);
+  const visibleCategories = useMemo(() => {
+    return effectiveCategories.filter((c) => (serviceCountByCategory[c.id] || 0) > 0);
+  }, [effectiveCategories, serviceCountByCategory]);
 
   // Only open products when a category is explicitly clicked, or searching
   const isProductsOpen = selectedCat !== null || searchQuery.trim() !== '';
@@ -570,13 +595,13 @@ export default function HomePage() {
               </h2>
             </div>
 
-            {catalogLoading && visibleCategories.length === 0 ? (
+            {catalogLoading && services.length === 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3.5">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <div key={i} className="h-28 sm:h-32 rounded-2xl bg-[#061527] border border-amber-500/20 animate-pulse" />
                 ))}
               </div>
-            ) : visibleCategories.length === 0 ? (
+            ) : services.length === 0 ? (
               <div className="py-14 px-6 rounded-3xl bg-gradient-to-b from-[#061527] to-[#040d1a] border border-amber-500/25 text-center space-y-4 max-w-lg mx-auto shadow-2xl animate-in fade-in duration-300">
                 <div className="w-16 h-16 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 mx-auto shadow-lg shadow-amber-500/10">
                   <Sparkles className="w-8 h-8" />

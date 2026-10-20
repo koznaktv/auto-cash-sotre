@@ -119,7 +119,19 @@ export async function getServicesListAsync(): Promise<ServiceItem[]> {
       if (!error && data?.site_name) {
         const parsed = JSON.parse(data.site_name);
         if (Array.isArray(parsed)) {
-          const clean = parsed.filter((s: ServiceItem) => !deleted.has(s.id));
+          let needsUpdate = false;
+          const clean = parsed
+            .filter((s: ServiceItem) => !deleted.has(s.id))
+            .map((s: ServiceItem) => {
+              if (s.published === false && parsed.length === 1) {
+                needsUpdate = true;
+                return { ...s, published: true };
+              }
+              return { ...s, published: s.published !== false };
+            });
+          if (needsUpdate) {
+            saveServicesList(clean);
+          }
           cachedServices = clean;
           lastServicesFetch = Date.now();
           return [...clean];
