@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { APP_VERSION_CONFIG } from '@/lib/appVersion';
-import { Download, Sparkles, X, Smartphone, ShieldAlert, AlertTriangle, ExternalLink } from 'lucide-react';
+import { Download, Sparkles, X, Smartphone, ShieldAlert, AlertTriangle, ExternalLink, Send } from 'lucide-react';
 
 function compareVersions(v1: string, v2: string): number {
   const p1 = v1.replace(/^v/i, '').split('.').map((n) => parseInt(n, 10) || 0);
@@ -153,6 +153,46 @@ export default function AppUpdateNotifier() {
     setIsVisible(false);
   };
 
+  const [downloadStarted, setDownloadStarted] = useState(false);
+
+  const getDirectDownloadUrl = () => {
+    const host = typeof window !== 'undefined' ? window.location.host : 'auto-cash-sotre.vercel.app';
+    const protocol = typeof window !== 'undefined' ? window.location.protocol : 'https:';
+    // ?ref=t.me triggers Android Intent.ACTION_VIEW in older APKs (v1.0.0, v1.1.0)
+    return `${protocol}//${host}/download/autocash.apk?ref=t.me&v=${currentVersion}`;
+  };
+
+  const handleForceDownload = (e?: React.MouseEvent) => {
+    if (e) {
+      try {
+        e.preventDefault();
+      } catch {}
+    }
+    setDownloadStarted(true);
+
+    const targetUrl = getDirectDownloadUrl();
+
+    // 1. Direct navigation which WebView intercepts via shouldOverrideUrlLoading
+    window.location.href = targetUrl;
+
+    // 2. Also open window in new target
+    try {
+      window.open(targetUrl, '_blank');
+    } catch {}
+
+    // 3. Fallback timer if still on page
+    setTimeout(() => {
+      try {
+        const a = document.createElement('a');
+        a.href = targetUrl;
+        a.download = `autocash_v${currentVersion}.apk`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch {}
+    }, 500);
+  };
+
   const handleDownload = () => {
     try {
       localStorage.setItem('autocash_notified_version', currentVersion);
@@ -161,12 +201,8 @@ export default function AppUpdateNotifier() {
     setIsVisible(false);
 
     // Trigger direct download of latest APK
-    const link = document.createElement('a');
-    link.href = '/download/autocash.apk';
-    link.download = `autocash_v${currentVersion}.apk`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const targetUrl = getDirectDownloadUrl();
+    window.location.href = targetUrl;
   };
 
   // ==============================================================
@@ -174,6 +210,7 @@ export default function AppUpdateNotifier() {
   // ==============================================================
   if (isForceLocked) {
     const forceMsgs = APP_VERSION_CONFIG.forceUpdateMessages[lang] || APP_VERSION_CONFIG.forceUpdateMessages.ug;
+    const directUrl = getDirectDownloadUrl();
 
     return (
       <div
@@ -207,7 +244,7 @@ export default function AppUpdateNotifier() {
           {/* Version Comparison Pills */}
           <div className="flex items-center justify-center gap-2 mb-4 text-xs font-mono">
             <span className="px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-800 text-slate-400">
-              ھازىرقى: <strong className="text-rose-400">v{installedVersion || '1.1.0'}</strong>
+              ھازىرقى: <strong className="text-rose-400">v{installedVersion || '1.0.0'}</strong>
             </span>
             <span className="text-slate-500">➔</span>
             <span className="px-2.5 py-1 rounded-xl bg-emerald-950/70 border border-emerald-500/50 text-emerald-300 font-bold">
@@ -220,26 +257,41 @@ export default function AppUpdateNotifier() {
             {forceMsgs.message}
           </p>
 
-          {/* Big Action Button (Direct APK Download) */}
+          {/* Big Action Button (Direct APK Download via Android Intent trigger) */}
           <a
-            href="/download/autocash.apk"
-            download={`autocash_v${currentVersion}.apk`}
+            href={directUrl}
+            onClick={handleForceDownload}
             className="w-full py-4 px-5 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-2xl shadow-amber-500/30 transition transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
           >
-            <Download className="w-5 h-5 stroke-[2.5]" />
-            <span>{forceMsgs.button}</span>
+            <Download className={`w-5 h-5 stroke-[2.5] ${downloadStarted ? 'animate-bounce' : ''}`} />
+            <span>
+              {downloadStarted
+                ? (isRTL ? 'چۈشۈرۈش باشلاندى... قايتا بېسىش' : 'Download Started... Click to retry')
+                : forceMsgs.button}
+            </span>
           </a>
 
-          {/* Alternative Link for External Browser */}
-          <div className="mt-4 pt-4 border-t border-slate-800/80 flex items-center justify-center gap-4 text-xs text-slate-400">
+          {/* Alternative Links */}
+          <div className="mt-5 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-300">
             <a
-              href="https://auto-cash-sotre.vercel.app/download"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 hover:text-amber-400 transition underline underline-offset-4"
+              href={directUrl}
+              onClick={handleForceDownload}
+              className="inline-flex items-center gap-1.5 text-amber-300 hover:text-amber-200 transition underline underline-offset-4 font-semibold cursor-pointer"
             >
               <span>توركۆرگۈچتە ئېچىپ چۈشۈرۈش</span>
               <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+
+            <span className="text-slate-600">·</span>
+
+            <a
+              href="https://t.me/autocash_UYGHUR?ref=t.me"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 transition underline underline-offset-4 font-semibold cursor-pointer"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>تېلېگرام ئارقىلىق ئېلىش</span>
             </a>
           </div>
         </div>
