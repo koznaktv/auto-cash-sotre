@@ -272,10 +272,6 @@ export default function Navbar({
                 <Crown className="w-4 h-4 text-amber-400 animate-crown-wiggle" />
                 <span>{t('vipMembership')}</span>
               </Link>
-              <Link href="/download" className="hover:text-amber-400 transition-colors flex items-center gap-1 text-cyan-300">
-                <Smartphone className="w-4 h-4 text-cyan-400" />
-                <span>{t('downloadAppNav')}</span>
-              </Link>
               {isAdmin && (
                 <Link href="/admin" className="flex items-center gap-1.5 text-amber-400/80 hover:text-amber-300 transition-colors">
                   <LayoutDashboard className="w-4 h-4" />
@@ -308,17 +304,6 @@ export default function Navbar({
                 <span className="text-[11px] font-bold">{t('admin')}</span>
               </a>
             )}
-
-            {/* App Download Button */}
-            <button
-              type="button"
-              onClick={() => setDownloadModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-cyan-500/10 hover:from-amber-500/30 hover:to-cyan-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold transition hover:scale-105 active:scale-95 shrink-0 shadow-sm cursor-pointer"
-              title={t('downloadApp')}
-            >
-              <Smartphone className="w-3.5 h-3.5 text-amber-400 animate-pulse shrink-0" />
-              <span className="hidden sm:inline font-alkatip text-[11px] font-black">{t('downloadAppNav')}</span>
-            </button>
 
             {/* Wallet pill */}
             <Link

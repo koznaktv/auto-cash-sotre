@@ -589,37 +589,6 @@ export default function HomePage() {
           <PromoCarousel onSelectCategory={handleSelectCategory} />
         </section>
 
-        {/* Android App Showcase Banner */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#081c33] via-[#05172b] to-[#040f1c] border border-amber-500/35 p-3.5 sm:p-4 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3.5">
-          <div className="flex items-center gap-3">
-            <div className="relative shrink-0">
-              <div className="w-11 h-11 rounded-xl p-0.5 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 shadow-md shadow-amber-500/20">
-                <img src="/logo.png" alt="App Icon" className="w-full h-full rounded-[9px] object-cover bg-[#04101e]" />
-              </div>
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold text-xs sm:text-sm text-white">{t('androidAppTitle')}</h3>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-[10px] font-bold">
-                  v1.0.0
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-300 mt-0.5 max-w-xl">
-                {t('androidAppSubtitle')}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
-            <Link
-              href="/download"
-              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow-md transition hover:scale-105 active:scale-95 cursor-pointer"
-            >
-              <Smartphone className="w-3.5 h-3.5" />
-              <span>{t('downloadApp')}</span>
-            </Link>
-          </div>
-        </div>
-
         {/* Global Search Bar */}
         <div className="relative max-w-2xl mx-auto">
           <input
