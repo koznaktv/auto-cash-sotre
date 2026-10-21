@@ -241,11 +241,49 @@ export async function editTelegramMessage(
       }),
     });
     const data = await res.json();
+    if (!data.ok && options.parse_mode && data.description?.includes("can't parse entities")) {
+      const plainText = text.replace(/<[^>]+>/g, '');
+      const retryRes = await fetch(`https://api.telegram.org/bot${token}/editMessageText`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          message_id: messageId,
+          text: plainText,
+          disable_web_page_preview: options.disable_web_page_preview ?? true,
+          reply_markup: options.reply_markup,
+        }),
+      });
+      const retryData = await retryRes.json();
+      return Boolean(retryData.ok);
+    }
     return Boolean(data.ok);
   } catch (err: any) {
     console.error('[Telegram] editMessageText error:', err?.message);
     return false;
   }
+}
+
+/**
+ * Helper to smoothly edit message in-place or fallback to sending a new one
+ */
+async function showOrEditMessage(
+  chatId: number | string,
+  messageId: number | undefined,
+  text: string,
+  replyMarkup: any
+): Promise<void> {
+  if (chatId && messageId) {
+    const edited = await editTelegramMessage(chatId, messageId, text, {
+      parse_mode: 'HTML',
+      reply_markup: replyMarkup,
+    });
+    if (edited) return;
+  }
+  await sendTelegramMessage(chatId, text, {
+    parse_mode: 'HTML',
+    reply_markup: replyMarkup,
+  });
 }
 
 /**
@@ -1036,14 +1074,11 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 ③ دۇكاننىڭ «ھەميانغا پۇل كىرگۈزۈش» بېتىگە كىرگۈزۈپ «دەلىللەش» كۇنۇپكىسىنى بېسىڭ.
 ⚡️ تالون سېكۇنت ئىچىدە تەستىقلىنىپ، مەبلەغ ھەميىنىڭىزگە چۈشىدۇ!
 `.trim();
-      await sendTelegramMessage(chatId, shamcashText, {
-        parse_mode: 'HTML',
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: '💎💳 ھەميانغا پۇل كىرگۈزۈش كۆزنىكى ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` } }],
-            [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
-          ],
-        },
+      await showOrEditMessage(chatId, messageId, shamcashText, {
+        inline_keyboard: [
+          [{ text: '💎💳 ھەميانغا پۇل كىرگۈزۈش كۆزنىكى ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` } }],
+          [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
       });
       return;
     }
@@ -1064,14 +1099,11 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👇 <b>سېتىۋېلىش ياكى قاچىلاش ئۈچۈن دۇكاننى ئېچىڭ:</b>
 `.trim();
-      await sendTelegramMessage(chatId, catalogText, {
-        parse_mode: 'HTML',
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: '⚡️🛍️ دۇكاننى ئېچىش | Open Store ➔', web_app: { url: TELEGRAM_CONFIG.storeUrl } }],
-            [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
-          ],
-        },
+      await showOrEditMessage(chatId, messageId, catalogText, {
+        inline_keyboard: [
+          [{ text: '⚡️🛍️ دۇكاننى ئېچىش | Open Store ➔', web_app: { url: TELEGRAM_CONFIG.storeUrl } }],
+          [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
       });
       return;
     }
@@ -1080,10 +1112,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     if (data === 'quick_guide') {
       await answerCallbackQuery(cqId);
       const guideText = getTutorialGuideMessage(cq.from?.first_name);
-      await sendTelegramMessage(chatId, guideText, {
-        parse_mode: 'HTML',
-        reply_markup: getTutorialInlineKeyboard(),
-      });
+      await showOrEditMessage(chatId, messageId, guideText, getTutorialInlineKeyboard());
       return;
     }
 
@@ -1095,39 +1124,29 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       }
       await answerCallbackQuery(cqId, 'دوكلات يېڭىلاندى!');
       const report = await getDailyFinancialStats();
-      if (chatId && messageId) {
-        await editTelegramMessage(chatId, messageId, report, {
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: '🔄 دوكلاتنى قايتا يېڭىلاش', callback_data: 'refresh_stats' },
-                { text: '📊 باشقۇرۇش كۆزنىكى', url: `${TELEGRAM_CONFIG.storeUrl}/admin` },
-              ],
-              [
-                { text: '🔙 باشقۇرۇش باش بېتىگە قايتىش | Back', callback_data: 'back_to_main' },
-              ],
-            ],
-          },
-        });
-      }
+      await showOrEditMessage(chatId, messageId, report, {
+        inline_keyboard: [
+          [
+            { text: '🔄⚡️ دوكلاتنى قايتا يېڭىلاش 📊', callback_data: 'refresh_stats' },
+            { text: '📊🖥️ باشقۇرۇش كۆزنىكى', url: `${TELEGRAM_CONFIG.storeUrl}/admin` },
+          ],
+          [
+            { text: '🔙🏠 باشقۇرۇش باش بېتىگە قايتىش ↩️', callback_data: 'back_to_main' },
+          ],
+        ],
+      });
       return;
     }
 
-    // 9. Back to Main Menu (Universal Back Button for Customer & Admin)
+    // 9. Back to Main Menu (Universal In-Place Return for Customer & Admin)
     if (data === 'back_to_main') {
       await answerCallbackQuery(cqId);
       if (isAdmin) {
         const adminWelcome = getAdminWelcomeMessage(fromUser || cq.from?.first_name);
-        await sendTelegramMessage(chatId, adminWelcome, {
-          parse_mode: 'HTML',
-          reply_markup: getAdminInlineKeyboard(),
-        });
+        await showOrEditMessage(chatId, messageId, adminWelcome, getAdminInlineKeyboard());
       } else {
         const welcomeText = getWelcomeMessage(cq.from?.first_name);
-        await sendTelegramMessage(chatId, welcomeText, {
-          parse_mode: 'HTML',
-          reply_markup: getStoreInlineKeyboard(),
-        });
+        await showOrEditMessage(chatId, messageId, welcomeText, getStoreInlineKeyboard());
       }
       return;
     }
