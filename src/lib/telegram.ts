@@ -814,6 +814,12 @@ function getTutorialInlineKeyboard() {
           url: TELEGRAM_CONFIG.channelUrl,
         },
       ],
+      [
+        {
+          text: '🔙 ئاساسىي بەتكە قايتىش | Back to Menu',
+          callback_data: 'back_to_main',
+        },
+      ],
     ],
   };
 }
@@ -1011,6 +1017,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
         reply_markup: {
           inline_keyboard: [
             [{ text: '💳 ھەميانغا پۇل كىرگۈزۈش', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` } }],
+            [{ text: '🔙 ئاساسىي بەتكە قايتىش | Back to Menu', callback_data: 'back_to_main' }],
           ],
         },
       });
@@ -1032,6 +1039,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
         reply_markup: {
           inline_keyboard: [
             [{ text: '🛒 دۇكاننى ئېچىش | Open Store', web_app: { url: TELEGRAM_CONFIG.storeUrl } }],
+            [{ text: '🔙 ئاساسىي بەتكە قايتىش | Back to Menu', callback_data: 'back_to_main' }],
           ],
         },
       });
@@ -1065,8 +1073,30 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
                 { text: '🔄 دوكلاتنى قايتا يېڭىلاش', callback_data: 'refresh_stats' },
                 { text: '📊 باشقۇرۇش كۆزنىكى', url: `${TELEGRAM_CONFIG.storeUrl}/admin` },
               ],
+              [
+                { text: '🔙 باشقۇرۇش باش بېتىگە قايتىش | Back', callback_data: 'back_to_main' },
+              ],
             ],
           },
+        });
+      }
+      return;
+    }
+
+    // 9. Back to Main Menu (Universal Back Button for Customer & Admin)
+    if (data === 'back_to_main') {
+      await answerCallbackQuery(cqId);
+      if (isAdmin) {
+        const adminWelcome = getAdminWelcomeMessage(fromUser || cq.from?.first_name);
+        await sendTelegramMessage(chatId, adminWelcome, {
+          parse_mode: 'HTML',
+          reply_markup: getAdminInlineKeyboard(),
+        });
+      } else {
+        const welcomeText = getWelcomeMessage(cq.from?.first_name);
+        await sendTelegramMessage(chatId, welcomeText, {
+          parse_mode: 'HTML',
+          reply_markup: getStoreInlineKeyboard(),
         });
       }
       return;
@@ -1144,6 +1174,9 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
             { text: '🔄 دوكلاتنى قايتا يېڭىلاش', callback_data: 'refresh_stats' },
             { text: '📊 باشقۇرۇش كۆزنىكى', url: `${TELEGRAM_CONFIG.storeUrl}/admin` },
           ],
+          [
+            { text: '🔙 باشقۇرۇش باش بېتىگە قايتىش | Back', callback_data: 'back_to_main' },
+          ],
         ],
       },
     });
@@ -1210,6 +1243,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
           ],
           [
             { text: '💬 خېرىدارلار مۇلازىمىتى', url: TELEGRAM_CONFIG.supportUrl },
+            { text: '🔙 ئاساسىي بەتكە قايتىش | Back', callback_data: 'back_to_main' },
           ],
         ],
       },
@@ -1237,6 +1271,9 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
         inline_keyboard: [
           [
             { text: '🛒 بارلىق مەھسۇلاتلارنى كۆرۈش', web_app: { url: TELEGRAM_CONFIG.storeUrl } },
+          ],
+          [
+            { text: '🔙 ئاساسىي بەتكە قايتىش | Back', callback_data: 'back_to_main' },
           ],
         ],
       },
@@ -1269,6 +1306,7 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
           ],
           [
             { text: '💬 خېرىدارلار مۇلازىمىتى', url: TELEGRAM_CONFIG.supportUrl },
+            { text: '🔙 ئاساسىي بەتكە قايتىش | Back', callback_data: 'back_to_main' },
           ],
         ],
       },
@@ -1302,7 +1340,10 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
       reply_markup: {
         inline_keyboard: [
           [{ text: '💳 ھەميانغا پۇل كىرگۈزۈش', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` } }],
-          [{ text: '💬 مۇلازىمەت بىلەن كۆرۈشۈش', url: TELEGRAM_CONFIG.supportUrl }],
+          [
+            { text: '💬 مۇلازىمەت بىلەن كۆرۈشۈش', url: TELEGRAM_CONFIG.supportUrl },
+            { text: '🔙 ئاساسىي بەتكە قايتىش | Back', callback_data: 'back_to_main' },
+          ],
         ],
       },
     });
@@ -1332,6 +1373,7 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
       reply_markup: {
         inline_keyboard: [
           [{ text: '🛒 دۇكاننى ئېچىش | Open Store', web_app: { url: TELEGRAM_CONFIG.storeUrl } }],
+          [{ text: '🔙 ئاساسىي بەتكە قايتىش | Back', callback_data: 'back_to_main' }],
         ],
       },
     });
@@ -1362,7 +1404,10 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
       reply_markup: {
         inline_keyboard: [
           [{ text: '💬 خېرىدارلار مۇلازىمىتىگە ئۇلىنىش', url: TELEGRAM_CONFIG.supportUrl }],
-          [{ text: '📢 رەسمىي قانال', url: TELEGRAM_CONFIG.channelUrl }],
+          [
+            { text: '📢 رەسمىي قانال', url: TELEGRAM_CONFIG.channelUrl },
+            { text: '🔙 ئاساسىي بەتكە قايتىش | Back', callback_data: 'back_to_main' },
+          ],
         ],
       },
     });
