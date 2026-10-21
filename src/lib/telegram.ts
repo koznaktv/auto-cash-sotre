@@ -67,7 +67,10 @@ export function registerAdminChatId(fromId?: number | string, fromUsername?: str
 }
 
 export function getBotToken(): string {
-  return process.env.TELEGRAM_BOT_TOKEN || '';
+  return (
+    process.env.TELEGRAM_BOT_TOKEN ||
+    '8886426395:AAGYz2nDCPrtOyqDH-mmqSwq_ctIAvIBcKY'
+  );
 }
 
 // In-memory traffic & subscriber cache
@@ -185,6 +188,21 @@ export async function sendTelegramMessage(
     const data = await res.json();
     if (!data.ok) {
       console.error('[Telegram] API error:', data.description);
+      // Fallback: If parse error, send as plain text
+      if (options.parse_mode && data.description?.includes("can't parse entities")) {
+        const plainText = text.replace(/<[^>]+>/g, '');
+        const retryRes = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: plainText,
+            disable_web_page_preview: options.disable_web_page_preview ?? true,
+            reply_markup: options.reply_markup,
+          }),
+        });
+        return await retryRes.json();
+      }
     }
     return data;
   } catch (err: any) {
