@@ -334,7 +334,7 @@ export default function SideDrawer({
               </span>
             </div>
 
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="grid grid-cols-2 gap-2">
               {[
                 { code: 'ug', label: 'ئۇيغۇرچە' },
                 { code: 'en', label: 'English' },
@@ -347,14 +347,14 @@ export default function SideDrawer({
                   key={item.code}
                   type="button"
                   onClick={() => setLang(item.code as any)}
-                  className={`py-2 px-1.5 rounded-xl text-[11px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                  className={`py-2 px-2.5 rounded-xl text-xs font-bold transition flex items-center justify-between gap-1.5 cursor-pointer ${
                     lang === item.code
                       ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black shadow-md ring-2 ring-amber-300/80 scale-[1.02]'
                       : 'bg-slate-900/80 border border-slate-700/60 text-slate-300 hover:border-amber-400/40 hover:text-white'
                   }`}
                 >
-                  <LanguageFlag code={item.code} className="w-4 h-2.5 rounded-[2px] object-cover shrink-0 shadow-sm" />
                   <span className="truncate">{item.label}</span>
+                  <LanguageFlag code={item.code} className="w-4 h-3 rounded-[2px] object-cover shrink-0 shadow-sm" />
                 </button>
               ))}
             </div>
@@ -368,7 +368,10 @@ export default function SideDrawer({
                 <div className="flex items-center gap-3">
                   {/* User Avatar with Glowing Gold Frame */}
                   <div className="relative shrink-0 group/avatar">
-                    <div className="w-13 h-13 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 shadow-md shadow-amber-500/30">
+                    <div
+                      className="w-12 h-12 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 shadow-md shadow-amber-500/30 shrink-0"
+                      style={{ width: '48px', height: '48px' }}
+                    >
                       <img
                         src={avatarSrc || (user as any)?.avatarUrl || (user as any)?.avatar || "/avatar.png"}
                         alt={user.name}
@@ -376,7 +379,7 @@ export default function SideDrawer({
                           (e.target as HTMLImageElement).src = '/avatar.png';
                         }}
                         onClick={() => fileInputRef.current?.click()}
-                        className="w-12 h-12 rounded-full object-cover bg-slate-900 border border-slate-950 cursor-pointer hover:opacity-90 transition"
+                        className="w-full h-full rounded-full object-cover bg-slate-900 border border-slate-950 cursor-pointer hover:opacity-90 transition"
                         title={t('changePhoto')}
                       />
                     </div>
@@ -449,12 +452,15 @@ export default function SideDrawer({
                 <div className="flex items-center gap-3">
                   {/* Site Logo with Amber Glow */}
                   <div className="relative shrink-0">
-                    <div className="w-13 h-13 rounded-2xl p-[2px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/35 overflow-hidden">
+                    <div
+                      className="w-12 h-12 rounded-2xl p-[2px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/35 overflow-hidden shrink-0 flex items-center justify-center bg-[#04101e]"
+                      style={{ width: '48px', height: '48px' }}
+                    >
                       <img
                         src={getBrandLogo(siteLogo)}
                         alt="AUTO CASH Logo"
-                        className="w-full h-full rounded-[14px] object-cover bg-[#04101e]"
-                        style={{ imageRendering: '-webkit-optimize-contrast' }}
+                        className="w-full h-full rounded-[14px] object-cover"
+                        style={{ imageRendering: '-webkit-optimize-contrast', width: '100%', height: '100%' }}
                       />
                     </div>
                     <span
