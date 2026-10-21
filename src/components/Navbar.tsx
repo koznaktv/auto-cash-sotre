@@ -84,7 +84,11 @@ export default function Navbar({
 
     refreshUser();
     window.addEventListener('autocash-auth-changed', refreshUser);
-    return () => window.removeEventListener('autocash-auth-changed', refreshUser);
+    window.addEventListener('autocash-app-resumed', refreshUser);
+    return () => {
+      window.removeEventListener('autocash-auth-changed', refreshUser);
+      window.removeEventListener('autocash-app-resumed', refreshUser);
+    };
   }, []);
 
   useEffect(() => {

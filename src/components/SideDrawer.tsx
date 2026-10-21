@@ -297,6 +297,8 @@ export default function SideDrawer({
             </div>
             <button
               onClick={onClose}
+              data-modal-close="true"
+              title={t('close')}
               className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer"
             >
               <X className="w-5 h-5" />

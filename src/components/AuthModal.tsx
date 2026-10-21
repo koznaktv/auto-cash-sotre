@@ -2178,6 +2178,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         type="button"
         className="btn-close-modal"
         onClick={onClose}
+        data-modal-close="true"
         title={t('close')}
       >
         <X className="w-4 h-4 text-amber-400" />

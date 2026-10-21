@@ -305,6 +305,8 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
         {/* Close Button */}
         <button
           onClick={onClose}
+          data-modal-close="true"
+          title={t('close')}
           className={`absolute top-5 ${
             isRTL ? 'left-5' : 'right-5'
           } text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer`}

@@ -87,6 +87,7 @@ export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalPr
           </div>
           <button
             onClick={onClose}
+            data-modal-close="true"
             className="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition border border-slate-700 cursor-pointer"
             title={t('close')}
           >
@@ -114,7 +115,7 @@ export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalPr
               </p>
               <div className="flex flex-wrap items-center gap-2 mt-2 text-[10px] text-slate-400 font-mono">
                 <span className="px-2 py-0.5 rounded-md bg-slate-900 border border-slate-700">
-                  {t('versionLabel')} 1.1.0
+                  {t('versionLabel')} 1.2.0
                 </span>
                 <span className="px-2 py-0.5 rounded-md bg-slate-900 border border-slate-700">
                   {t('sizeLabel')} ~4.5 MB
