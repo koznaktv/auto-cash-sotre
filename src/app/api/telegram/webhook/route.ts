@@ -63,7 +63,7 @@ export async function GET(req: Request) {
           body: JSON.stringify({
             menu_button: {
               type: 'web_app',
-              text: '🛒 دۇكاننى ئېچىش',
+              text: '⚡️ دۇكاننى ئېچىش 🛍️',
               web_app: { url: TELEGRAM_CONFIG.storeUrl },
             },
           }),
