@@ -644,8 +644,8 @@ function getStoreInlineKeyboard() {
       ],
       [
         {
-          text: '📢 رەسمىي قانال',
-          url: TELEGRAM_CONFIG.channelUrl,
+          text: '💡 ئىشلىتىش قوللانمىسى (Tutorial)',
+          callback_data: 'quick_guide',
         },
         {
           text: '💬 خېرىدارلار مۇلازىمىتى',
@@ -653,6 +653,10 @@ function getStoreInlineKeyboard() {
         },
       ],
       [
+        {
+          text: '📢 رەسمىي قانال',
+          url: TELEGRAM_CONFIG.channelUrl,
+        },
         {
           text: '📲 تېلېفون ئەپنى چۈشۈرۈش (APK)',
           url: `${TELEGRAM_CONFIG.storeUrl}/download`,
@@ -687,6 +691,116 @@ function getWelcomeMessage(firstName?: string): string {
 }
 
 /**
+ * Build Admin VIP Control Panel Welcome Message
+ */
+function getAdminWelcomeMessage(adminName?: string): string {
+  const name = adminName ? `@${adminName}` : 'ھۆرمەتلىك مەسئۇل باشقۇرغۇچى';
+  return `
+👑 <b>AUTO CASH — مەسئۇل باشقۇرغۇچى كۆزنىكى</b> 👑
+━━━━━━━━━━━━━━━━━━
+سالام، ${name}! سۇپىنىڭ ئاپتوماتىك باشقۇرۇش مەركىزىگە خۇش كەپسىز!
+
+⚡️ <b>سىستېما ھالىتى:</b> %100 جانلىق ۋە پۈتۈنلەي نورمال خىزمەت قىلىۋاتىدۇ.
+🔔 يېڭى كەلگەن زاكازلار، شامكەش تالونلىرى، ساختا تالون سىگناللىرى دەرھال سىزگە يەتكۈزۈلىدۇ.
+
+👇 <b>تۆۋەندىكى كۇنۇپكىلار ئارقىلىق سىستېمىنى باشقۇرۇڭ ياكى دوكلاتلارنى كۆرۈڭ:</b>
+`.trim();
+}
+
+function getAdminInlineKeyboard() {
+  return {
+    inline_keyboard: [
+      [
+        {
+          text: '📊 بۈگۈنكى كۈنلۈك سودا دوكلاتى (/stats)',
+          callback_data: 'refresh_stats',
+        },
+      ],
+      [
+        {
+          text: '🛒 دۇكاننى تەكشۈرۈش | Open Store',
+          web_app: { url: TELEGRAM_CONFIG.storeUrl },
+        },
+        {
+          text: '💳 شامكەش ئادرېسى كۆرۈش',
+          callback_data: 'quick_deposit',
+        },
+      ],
+      [
+        {
+          text: '🌐 باشقۇرۇش كۆزنىكى تورى',
+          url: `${TELEGRAM_CONFIG.storeUrl}/admin`,
+        },
+        {
+          text: '📢 رەسمىي تېلېگرام قانال',
+          url: TELEGRAM_CONFIG.channelUrl,
+        },
+      ],
+    ],
+  };
+}
+
+/**
+ * Step-by-step Interactive Tutorial / How-to Guide
+ */
+function getTutorialGuideMessage(firstName?: string): string {
+  const customerName = firstName ? `<b>${firstName}</b>` : 'ھۆرمەتلىك خېرىدار';
+  return `
+💡 <b>AUTO CASH قولايلىق ئىشلىتىش قوللانمىسى</b>
+━━━━━━━━━━━━━━━━━━
+👋 سالام، ${customerName}!
+بىزنىڭ سۇپىمىزدىن مەھسۇلات سېتىۋېلىش ۋە پۇل قاچىلاش ئىنتايىن ئاددىي بولۇپ، 4 قەدەم بىلەنلا 1 مىنۇتتا ئىشىڭىز تاماملىنىدۇ:
+
+1️⃣ <b>1-قەدەم: دۇكاننى ئېچىش</b>
+• تۆۋەندىكى <b>«🛒 1-قەدەم: دۇكاننى ئېچىش»</b> كۇنۇپكىسىنى بېسىڭ. تېلېگرام ئىچىدە بارلىق ئويۇن ۋە ئەپلەر تىزىملىكى ئېچىلىدۇ.
+
+2️⃣ <b>2-قەدەم: مەھسۇلات تاللاش & ID كىرگۈزۈش</b>
+• قاچىلىماقچى بولغان ئويۇننى تاللاپ (مەسىلەن: PUBG UC)، ئويۇندىكى ID نومۇرىڭىزنى كىرگۈزۈڭ.
+
+3️⃣ <b>3-قەدەم: ھەميانغا پۇل سېلىش (شامكەش)</b>
+• <b>«💳 2-قەدەم: شامكەش ئادرېسى ئېلىش»</b> كۇنۇپكىسىنى باسسىڭىز، بىزنىڭ شامكەش ئادرېسىمىز چىقىدۇ. سىز پۇل ئەۋەتكەندىن كېيىن چىققان تالون نومۇرى (TxID) نى دۇكانغا كىرگۈزۈپ «دەلىللەش»نى باسسىڭىز، پۇل سېكۇنتتا ھەميىنىڭىزگە چۈشىدۇ!
+
+4️⃣ <b>4-قەدەم: شۇئان ئاپتوماتىك قاچىلاش</b>
+• ھەميان قالدۇقىڭىز بىلەن «سېتىۋېلىش»نى باسسىڭىز، سىستېما شۇئان ئويۇنىڭىزغا پۇلنى قاچىلاپ بېرىدۇ!
+━━━━━━━━━━━━━━━━━━
+👇 <b>سىناپ كۆرۈش ئۈچۈن تۆۋەندىكى كۇنۇپكىلارنىڭ بىرىنى بېسىڭ:</b>
+`.trim();
+}
+
+function getTutorialInlineKeyboard() {
+  return {
+    inline_keyboard: [
+      [
+        {
+          text: '🛒 1-قەدەم: دۇكاننى ئېچىش | Open Store',
+          web_app: { url: TELEGRAM_CONFIG.storeUrl },
+        },
+      ],
+      [
+        {
+          text: '💳 2-قەدەم: شامكەش ئادرېسى ئېلىش',
+          callback_data: 'quick_deposit',
+        },
+        {
+          text: '🎮 3-قەدەم: ئالقىشلىق مەھسۇلاتلار',
+          callback_data: 'quick_catalog',
+        },
+      ],
+      [
+        {
+          text: '💬 خېرىدارلار مۇلازىمىتىگە يېزىش',
+          url: TELEGRAM_CONFIG.supportUrl,
+        },
+        {
+          text: '📢 رەسمىي تېلېگرام قانال',
+          url: TELEGRAM_CONFIG.channelUrl,
+        },
+      ],
+    ],
+  };
+}
+
+/**
  * Handle incoming Telegram Webhook Updates (Messages & Interactive Inline Buttons)
  */
 export async function handleTelegramWebhook(update: any): Promise<void> {
@@ -705,17 +819,16 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     const chatId = message?.chat?.id;
     const messageId = message?.message_id;
 
-    // Security check: Only designated Admins (@nasrulla0996, @autochah_UYGHUR) can approve/reject/refund
+    // Security check: register admin chat ID if from an authorized admin account
     registerAdminChatId(fromId, fromUser);
     const isAdmin = isTelegramAdmin(fromId, fromUser);
 
-    if (!isAdmin) {
-      await answerCallbackQuery(cqId, '⚠️ كەچۈرۈڭ، بۇ مەشغۇلاتنى پەقەت مەسئۇل باشقۇرغۇچىلا قىلالايدۇ!', true);
-      return;
-    }
-
-    // 1. Approve Deposit (dep_approve:<depositId>)
+    // 1. Approve Deposit (dep_approve:<depositId>) [ADMIN ONLY]
     if (data.startsWith('dep_approve:')) {
+      if (!isAdmin) {
+        await answerCallbackQuery(cqId, '⚠️ كەچۈرۈڭ، بۇ مەشغۇلاتنى پەقەت مەسئۇل باشقۇرغۇچىلا قىلالايدۇ!', true);
+        return;
+      }
       const depositId = data.replace('dep_approve:', '').trim();
       try {
         const deposit = await getDepositByIdAsync(depositId);
@@ -761,8 +874,12 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       return;
     }
 
-    // 2. Reject Deposit (dep_reject:<depositId>)
+    // 2. Reject Deposit (dep_reject:<depositId>) [ADMIN ONLY]
     if (data.startsWith('dep_reject:')) {
+      if (!isAdmin) {
+        await answerCallbackQuery(cqId, '⚠️ رۇخسەت يوق: پەقەت مەسئۇل باشقۇرغۇچىلا قىلالايدۇ!', true);
+        return;
+      }
       const depositId = data.replace('dep_reject:', '').trim();
       try {
         const deposit = await getDepositByIdAsync(depositId);
@@ -794,8 +911,12 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       return;
     }
 
-    // 3. Flag Fraud (dep_fraud:<depositId>)
+    // 3. Flag Fraud (dep_fraud:<depositId>) [ADMIN ONLY]
     if (data.startsWith('dep_fraud:')) {
+      if (!isAdmin) {
+        await answerCallbackQuery(cqId, '⚠️ رۇخسەت يوق: پەقەت مەسئۇل باشقۇرغۇچىلا قىلالايدۇ!', true);
+        return;
+      }
       const depositId = data.replace('dep_fraud:', '').trim();
       try {
         const deposit = await getDepositByIdAsync(depositId);
@@ -825,8 +946,12 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       return;
     }
 
-    // 4. Refund Failed Order (ord_refund:<orderId>)
+    // 4. Refund Failed Order (ord_refund:<orderId>) [ADMIN ONLY]
     if (data.startsWith('ord_refund:')) {
+      if (!isAdmin) {
+        await answerCallbackQuery(cqId, '⚠️ رۇخسەت يوق: پەقەت مەسئۇل باشقۇرغۇچىلا قىلالايدۇ!', true);
+        return;
+      }
       const orderId = data.replace('ord_refund:', '').trim();
       try {
         const refundRes = await refundOrderBalanceAtomicAsync(
@@ -895,7 +1020,18 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       return;
     }
 
-    // 7. Refresh Stats (Admin)
+    // 7. Quick Guide / Tutorial
+    if (data === 'quick_guide') {
+      await answerCallbackQuery(cqId);
+      const guideText = getTutorialGuideMessage(cq.from?.first_name);
+      await sendTelegramMessage(chatId, guideText, {
+        parse_mode: 'HTML',
+        reply_markup: getTutorialInlineKeyboard(),
+      });
+      return;
+    }
+
+    // 8. Refresh Stats (Admin)
     if (data === 'refresh_stats') {
       if (!isAdmin) {
         await answerCallbackQuery(cqId, 'رۇخسەت يوق', true);
@@ -942,10 +1078,35 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 
   // 1. Command /start
   if (text.startsWith('/start')) {
+    if (isAdmin) {
+      const adminWelcome = getAdminWelcomeMessage(from?.username || from?.first_name);
+      await sendTelegramMessage(chatId, adminWelcome, {
+        parse_mode: 'HTML',
+        reply_markup: getAdminInlineKeyboard(),
+      });
+      return;
+    }
+
     const welcomeText = getWelcomeMessage(from?.first_name);
     await sendTelegramMessage(chatId, welcomeText, {
       parse_mode: 'HTML',
       reply_markup: getStoreInlineKeyboard(),
+    });
+    return;
+  }
+
+  // 1.1 Command /guide, /how, /ogren (Interactive Teaching & How-To Mode)
+  if (
+    text.startsWith('/guide') ||
+    text.startsWith('/how') ||
+    text.startsWith('/ogren') ||
+    text.startsWith('/tutorial') ||
+    text.startsWith('/kollanma')
+  ) {
+    const guideText = getTutorialGuideMessage(from?.first_name);
+    await sendTelegramMessage(chatId, guideText, {
+      parse_mode: 'HTML',
+      reply_markup: getTutorialInlineKeyboard(),
     });
     return;
   }
@@ -1190,19 +1351,34 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
     return;
   }
 
-  // General Warm & Prestigious Greeting for ANY message
-  const personalizedGreeting = `
-👋 ئەسسالامۇ ئەلەيكۇم ھۆرمەتلىك <b>${from?.first_name || 'خېرىدار'}</b>!
-<b>AUTO CASH</b> رەسمىي سۇپىسىغا كەلگىنىڭىزنى قىزغىن قارشى ئالىمىز!
+  // 8. Dynamic Teaching & How-To Guide for ANY other text / random message
+  if (isAdmin) {
+    // If Admin types random text, show Admin Quick Help & Control Menu
+    const adminHelpReply = `
+👑 <b>AUTO CASH — باشقۇرغۇچى قولايلىق ياردەمچىسى</b>
+━━━━━━━━━━━━━━━━━━
+👋 ھۆرمەتلىك باشقۇرغۇچى @${from?.username || from?.first_name}!
+سىز سىستېمىغا بۇيرۇق ياكى ئېلان يوللىيالايسىز:
 
-🎮 تېلېگرام ئىچىدىن چىقمايلا بارلىق ئويۇن ۋە ئەپلەرگە ئەڭ ئەرزان باھادا پۇل قاچىلىيالايسىز.
-پۇل كىرگۈزۈش شامكەش (Sham Cash) ئارقىلىق 24/7 سائەت ئاپتوماتىك سېكۇنتتا كىرىدۇ.
-
-👇 <b>دۇكاننى ئېچىش ياكى مال سېتىۋېلىش ئۈچۈن تۆۋەندىكى كۇنۇپكىنى بېسىڭ:</b>
+📊 <b>/stats</b> — كۈنلۈك كىرىم، ساپ پايدا ۋە زاكاز دوكلاتىنى كۆرۈش
+📢 <b>/post &lt;ئېلان مەزمۇنى&gt;</b> — تېلېگرام قانىلى ۋە بارلىق خېرىدارلارغا ئېلان تارقىتىش
+🛒 <b>/start</b> — باشقۇرغۇچى باش بەت كۆزنىكىنى ئېچىش
+━━━━━━━━━━━━━━━━━━
+👇 ياكى تۆۋەندىكى كۇنۇپكىلار ئارقىلىق تېز باشقۇرۇڭ:
 `.trim();
 
-  await sendTelegramMessage(chatId, personalizedGreeting, {
+    await sendTelegramMessage(chatId, adminHelpReply, {
+      parse_mode: 'HTML',
+      reply_markup: getAdminInlineKeyboard(),
+    });
+    return;
+  }
+
+  // If Customer types ANY text or word, switch to the interactive 4-step tutorial guide ("قانداق قىلىشنى ئۆگىتىش ھالىتى")
+  const teachingGuideMessage = getTutorialGuideMessage(from?.first_name);
+
+  await sendTelegramMessage(chatId, teachingGuideMessage, {
     parse_mode: 'HTML',
-    reply_markup: getStoreInlineKeyboard(),
+    reply_markup: getTutorialInlineKeyboard(),
   });
 }
