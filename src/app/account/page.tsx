@@ -38,8 +38,8 @@ const VIP_TIER_CONFIG: Record<
       ar: 'VIP 1 (عضو عادي)',
       en: 'VIP 1 (Standard Member)',
     },
-    badgeClass: 'text-slate-300 bg-slate-900/80 border-slate-600/50',
-    iconClass: 'text-slate-400',
+    badgeClass: 'text-slate-200 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-slate-500/60 shadow-slate-500/20',
+    iconClass: 'text-slate-300',
   },
   vip2: {
     name: {
@@ -47,7 +47,7 @@ const VIP_TIER_CONFIG: Record<
       ar: 'VIP 2 (عضو فضي)',
       en: 'VIP 2 (Silver Member)',
     },
-    badgeClass: 'text-amber-300 bg-amber-950/70 border-amber-500/40',
+    badgeClass: 'text-amber-200 bg-gradient-to-r from-amber-950 via-orange-950 to-amber-950 border-amber-500/70 shadow-amber-600/30',
     iconClass: 'text-amber-400',
   },
   vip3: {
@@ -56,8 +56,8 @@ const VIP_TIER_CONFIG: Record<
       ar: 'VIP 3 (عضو ذهبي)',
       en: 'VIP 3 (Gold Member)',
     },
-    badgeClass: 'text-cyan-300 bg-cyan-950/70 border-cyan-500/40',
-    iconClass: 'text-cyan-400',
+    badgeClass: 'text-cyan-200 bg-gradient-to-r from-cyan-950 via-sky-950 to-blue-950 border-cyan-400/70 shadow-cyan-400/35',
+    iconClass: 'text-cyan-300',
   },
   vip4: {
     name: {
@@ -65,8 +65,8 @@ const VIP_TIER_CONFIG: Record<
       ar: 'VIP 4 (عضو بلاتيني)',
       en: 'VIP 4 (Platinum Member)',
     },
-    badgeClass: 'text-yellow-300 bg-yellow-950/70 border-yellow-500/40',
-    iconClass: 'text-yellow-400',
+    badgeClass: 'text-yellow-100 bg-gradient-to-r from-yellow-950 via-amber-900 to-yellow-950 border-yellow-400/80 shadow-yellow-400/40',
+    iconClass: 'text-yellow-300',
   },
   vip5: {
     name: {
@@ -74,8 +74,8 @@ const VIP_TIER_CONFIG: Record<
       ar: 'VIP 5 (عضو ماسي)',
       en: 'VIP 5 (Diamond Member)',
     },
-    badgeClass: 'text-emerald-300 bg-emerald-950/70 border-emerald-500/40',
-    iconClass: 'text-emerald-400',
+    badgeClass: 'text-emerald-200 bg-gradient-to-r from-emerald-950 via-teal-900 to-emerald-950 border-emerald-400/80 shadow-emerald-400/40',
+    iconClass: 'text-emerald-300',
   },
 };
 
@@ -405,10 +405,17 @@ export default function AccountPage() {
                     <h2 className="font-extrabold text-sm sm:text-base text-white truncate">
                       {name}
                     </h2>
-                    <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md border font-bold shrink-0 ${activeTierConfig.badgeClass}`}>
-                      <Crown className={`w-3 h-3 ${activeTierConfig.iconClass}`} />
-                      <span>{vipTierLabel}</span>
-                    </span>
+                    <Link
+                      href="/membership"
+                      className={`inline-flex items-center gap-1.5 text-[10px] px-2.5 py-0.5 rounded-full border font-black shrink-0 shadow-md transition-transform hover:scale-105 active:scale-95 animate-vip-float cursor-pointer ${activeTierConfig.badgeClass}`}
+                      title={t('vipMembership')}
+                    >
+                      <span className="animate-vip-crown">
+                        <Crown className={`w-3 h-3 ${activeTierConfig.iconClass} drop-shadow`} />
+                      </span>
+                      <span className="font-mono tracking-tight">{vipTierLabel}</span>
+                      <span className="animate-star-twinkle text-[9px]">✨</span>
+                    </Link>
                   </div>
                   <p className="text-[11px] sm:text-xs text-slate-400 font-mono mt-0.5 truncate" dir="ltr">
                     {email}

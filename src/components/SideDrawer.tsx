@@ -54,8 +54,8 @@ const VIP_TIER_CONFIG: Record<
       uz: 'VIP 1 (Oddiy a’zo)',
       ru: 'VIP 1 (Стандартный)',
     },
-    badgeClass: 'text-slate-300 bg-slate-900/80 border-slate-600/50',
-    iconClass: 'text-slate-400',
+    badgeClass: 'text-slate-200 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-slate-500/60 shadow-slate-500/20',
+    iconClass: 'text-slate-300',
   },
   vip2: {
     name: {
@@ -66,7 +66,7 @@ const VIP_TIER_CONFIG: Record<
       uz: 'VIP 2 (Kumush a’zo)',
       ru: 'VIP 2 (Серебряный)',
     },
-    badgeClass: 'text-amber-300 bg-amber-950/70 border-amber-500/40',
+    badgeClass: 'text-amber-200 bg-gradient-to-r from-amber-950 via-orange-950 to-amber-950 border-amber-500/70 shadow-amber-600/30',
     iconClass: 'text-amber-400',
   },
   vip3: {
@@ -78,8 +78,8 @@ const VIP_TIER_CONFIG: Record<
       uz: 'VIP 3 (Oltin a’zo)',
       ru: 'VIP 3 (Золотой)',
     },
-    badgeClass: 'text-cyan-300 bg-cyan-950/70 border-cyan-500/40',
-    iconClass: 'text-cyan-400',
+    badgeClass: 'text-cyan-200 bg-gradient-to-r from-cyan-950 via-sky-950 to-blue-950 border-cyan-400/70 shadow-cyan-400/35',
+    iconClass: 'text-cyan-300',
   },
   vip4: {
     name: {
@@ -90,8 +90,8 @@ const VIP_TIER_CONFIG: Record<
       uz: 'VIP 4 (Platina a’zo)',
       ru: 'VIP 4 (Платиновый)',
     },
-    badgeClass: 'text-yellow-300 bg-yellow-950/70 border-yellow-500/40',
-    iconClass: 'text-yellow-400',
+    badgeClass: 'text-yellow-100 bg-gradient-to-r from-yellow-950 via-amber-900 to-yellow-950 border-yellow-400/80 shadow-yellow-400/40',
+    iconClass: 'text-yellow-300',
   },
   vip5: {
     name: {
@@ -102,8 +102,8 @@ const VIP_TIER_CONFIG: Record<
       uz: 'VIP 5 (Olmos a’zo)',
       ru: 'VIP 5 (Бриллиантовый)',
     },
-    badgeClass: 'text-emerald-300 bg-emerald-950/70 border-emerald-500/40',
-    iconClass: 'text-emerald-400',
+    badgeClass: 'text-emerald-200 bg-gradient-to-r from-emerald-950 via-teal-900 to-emerald-950 border-emerald-400/80 shadow-emerald-400/40',
+    iconClass: 'text-emerald-300',
   },
 };
 
@@ -412,10 +412,18 @@ export default function SideDrawer({
 
                 {/* Bottom Row: VIP Badge & Logout Button */}
                 <div className="flex items-center justify-between pt-2.5 border-t border-amber-500/20">
-                  <div className={`inline-flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-lg border font-bold shadow-sm ${activeTierConfig.badgeClass}`}>
-                    <Crown className={`w-3.5 h-3.5 ${activeTierConfig.iconClass}`} />
-                    <span>{vipTierLabel}</span>
-                  </div>
+                  <Link
+                    href="/membership"
+                    onClick={onClose}
+                    className={`inline-flex items-center gap-1.5 text-[10px] px-3 py-1 rounded-full border font-black shadow-md transition-transform hover:scale-105 active:scale-95 animate-vip-float cursor-pointer ${activeTierConfig.badgeClass}`}
+                    title={t('vipMembership')}
+                  >
+                    <span className="animate-vip-crown">
+                      <Crown className={`w-3.5 h-3.5 ${activeTierConfig.iconClass} drop-shadow`} />
+                    </span>
+                    <span className="font-mono tracking-tight">{vipTierLabel}</span>
+                    <span className="animate-star-twinkle text-[9px]">✨</span>
+                  </Link>
                   <button
                     onClick={onLogout}
                     className="text-rose-400 hover:text-rose-300 px-2 py-1 rounded-lg hover:bg-rose-950/40 border border-transparent hover:border-rose-500/30 transition cursor-pointer flex items-center gap-1 text-[11px] font-bold"
