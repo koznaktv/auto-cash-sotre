@@ -10,19 +10,19 @@ export interface AppVersionInfo {
 }
 
 export const APP_VERSION_CONFIG: AppVersionInfo = {
-  version: '1.2.3',
-  code: 6,
-  minRequiredVersion: '1.2.3', // Any installed app version lower than 1.2.3 is strictly disabled
+  version: '1.3.0',
+  code: 7,
+  minRequiredVersion: '1.3.0', // Any installed app version lower than 1.3.0 is strictly disabled
   forceUpdate: true,
   releaseDate: '2026-10-21',
   downloadUrl: '/download/autocash.apk',
   releaseNotes: {
-    ug: 'AUTO CASH v1.2.3: ئاندروئىد تېلېفون سىستېمىسىنىڭ ئېچىلىش قارشى ئېلىش بېتى (Android Native Splash Screen API v31+) تولۇق يېڭىلاندى. كونا سىستېمىلىق قارا كۋادرات چىقىۋېلىش مەسىلىسى تۈپتىن تۈگىتىلىپ، ئالتۇن بەلگە تولۇق سۈزۈكلەشتۈرۈلدى.',
-    en: 'AUTO CASH v1.2.3: Fully configured Android 12+ Native Splash Screen API (windowSplashScreenAnimatedIcon) with crystal-clear vector/high-DPI gold emblem, removing squircle container blur.',
-    ar: 'AUTO CASH v1.2.3: ترقية شاشة البداية الأصلية في أندرويد 12+ بدقة فائقة وإزالة الحواف الباهتة.',
-    tr: 'AUTO CASH v1.2.3: Android 12+ sistem başlangıç ekranı (Splash Screen) ultra net altın amblem ile güncellendi, bulanıklık giderildi.',
-    uz: 'AUTO CASH v1.2.3: Android 12+ tizim ochilish ekrani (Splash Screen) tiniq oltin emblem bilan yangilandi.',
-    ru: 'AUTO CASH v1.2.3: Нативный сплэш-скрин Android 12+ обновлен четким золотым логотипом высокого разрешения.',
+    ug: 'AUTO CASH v1.3.0: يېڭى ھەشەمەتلىك رەسمىي ماركا بەلگىسى (Brand New 3D Gold Logo) تولۇق پۈتتى. توربەت ۋە ئەپنىڭ بارلىق جايلىرىدىكى كونا لوگولار دۇنياۋى سەۋىيەدىكى سەرخىل، سۈزۈك ئالتۇن بەلگىگە يېڭىلاندى.',
+    en: 'AUTO CASH v1.3.0: Brand new luxury 3D official gold gaming emblem released. All legacy logos across web, mobile app, launcher icons, and splash screens upgraded to crystal-clear high-definition assets.',
+    ar: 'AUTO CASH v1.3.0: إطلاق الشعار الرسمي الفاخر الجديد ثلاثي الأبعاد وتحديث كافة الأيقونات وشاشات البداية بدقة استثنائية.',
+    tr: 'AUTO CASH v1.3.0: Yepyeni lüks 3D resmi altın logo yayınlandı. Web sitesi, mobil uygulama, simgeler ve açılış ekranları ultra net görselle yenilendi.',
+    uz: 'AUTO CASH v1.3.0: Yangi hashamatli 3D rasmiy oltin logo chiqarildi. Barcha ilova belgilari va veb-sayt to‘liq yangilandi.',
+    ru: 'AUTO CASH v1.3.0: Выпущен совершенно новый роскошный 3D-логотип. Обновлены все иконки, нативный сплэш-скрин и интерфейс сайта.',
   },
   forceUpdateMessages: {
     ug: {
