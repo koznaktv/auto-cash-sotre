@@ -10,39 +10,55 @@ export default function WelcomeSplash({ onEnter }: { onEnter: () => void }) {
   const [launching, setLaunching] = useState(false);
   const [fading, setFading] = useState(false);
 
-  // Auto transition after 4.2 seconds if user doesn't click
+  // Fast auto transition after 1.6 seconds if user doesn't click
   useEffect(() => {
     const timer = setTimeout(() => {
       triggerLaunch();
-    }, 4200);
+    }, 1600);
     return () => clearTimeout(timer);
   }, []);
 
-  const triggerLaunch = () => {
+  const instantDismiss = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setVisible(false);
+    onEnter();
+  };
+
+  const triggerLaunch = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     if (launching) return;
     setLaunching(true);
 
-    // Smooth transition sequence
+    // Ultra-fast smooth launch transition
     setTimeout(() => {
       setFading(true);
-    }, 450);
+    }, 150);
 
     setTimeout(() => {
       setVisible(false);
       onEnter();
-    }, 950);
+    }, 380);
   };
 
   if (!visible) return null;
 
   return (
     <div
-      className={`fixed inset-0 z-[100] flex items-center justify-center bg-[#01050c] text-center p-4 transition-all duration-700 ease-in-out select-none overflow-hidden ${
+      onClick={triggerLaunch}
+      className={`fixed inset-0 z-[100] flex items-center justify-center bg-[#01050c] text-center p-4 transition-all duration-300 ease-in-out select-none overflow-hidden cursor-pointer ${
         fading
           ? 'opacity-0 scale-105 pointer-events-none filter blur-sm'
           : 'opacity-100 scale-100'
       }`}
     >
+      {/* Instant Skip Button in Top Corner */}
+      <button
+        onClick={instantDismiss}
+        type="button"
+        className="absolute top-4 ltr:right-4 rtl:left-4 z-20 px-3 py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 text-xs font-alkatip flex items-center gap-1.5 transition cursor-pointer shadow-lg backdrop-blur-md"
+      >
+        <span>ئۆتكۈزۈۋېتىش • Skip</span>
+      </button>
       {/* 1. Atmospheric Deep Cosmic Glow */}
       <div className="absolute inset-0 bg-radial from-[#07182c]/90 via-[#030c18] to-[#01050c] pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[520px] rounded-full bg-amber-500/10 blur-[100px] pointer-events-none" />

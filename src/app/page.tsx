@@ -186,6 +186,18 @@ export default function HomePage() {
     // Only for brand-new visitors entering the website for the very first time.
     // Never show on page reloads, tab navigation, or subsequent visits.
     try {
+      // In native Android app, skip web welcome splash entirely (Native Android splash handles launch)
+      const isNativeApp = typeof navigator !== 'undefined' && /AutoCashApp/i.test(navigator.userAgent || '');
+      if (isNativeApp) {
+        setShowSplash(false);
+        try {
+          sessionStorage.setItem('autocash_welcome_shown', 'true');
+          localStorage.setItem('autocash_welcome_shown', 'true');
+        } catch {}
+        fetchOrders();
+        return;
+      }
+
       const alreadySeen =
         typeof window !== 'undefined' &&
         (localStorage.getItem('autocash_welcome_shown') === 'true' ||
@@ -334,49 +346,65 @@ export default function HomePage() {
     }, 450);
   };
 
-  // Storefront catalog: Sahl Cash synced provider catalog
-  const [services, setServices] = useState<ServiceItem[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [catalogSource, setCatalogSource] = useState<'legacy' | 'provider'>('legacy');
-  const [catalogLoading, setCatalogLoading] = useState(true);
-  useEffect(() => {
-    // Instant cache hydration: if previously loaded, display IMMEDIATELY (<1ms)
-    try {
-      const cachedCat = localStorage.getItem('autocash_cached_catalog');
-      const cachedCats = localStorage.getItem('autocash_cached_categories');
-      if (cachedCat) {
-        const parsed = JSON.parse(cachedCat);
-        if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
-          setServices(parsed.services);
-          setCatalogSource(parsed.source === 'provider' ? 'provider' : 'legacy');
-          setCatalogLoading(false);
+  // Storefront catalog: Sahl Cash synced provider catalog (with instant 0ms preloaded fallback)
+  const [services, setServices] = useState<ServiceItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cachedCat = localStorage.getItem('autocash_cached_catalog');
+        if (cachedCat) {
+          const parsed = JSON.parse(cachedCat);
+          if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
+            return parsed.services;
+          }
         }
-      }
-      if (cachedCats) {
-        const parsedCats = JSON.parse(cachedCats);
-        if (Array.isArray(parsedCats) && parsedCats.length > 0) {
-          setCategories(parsedCats);
-        }
-      }
-    } catch {}
+      } catch {}
+    }
+    return SERVICES_DATA;
+  });
 
-    // Fetch fresh catalog from API
+  const [categories, setCategories] = useState<any[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cachedCats = localStorage.getItem('autocash_cached_categories');
+        if (cachedCats) {
+          const parsedCats = JSON.parse(cachedCats);
+          if (Array.isArray(parsedCats) && parsedCats.length > 0) {
+            return parsedCats;
+          }
+        }
+      } catch {}
+    }
+    return [...CATEGORIES_9];
+  });
+
+  const [catalogSource, setCatalogSource] = useState<'legacy' | 'provider'>('legacy');
+  const [catalogLoading, setCatalogLoading] = useState(false);
+  useEffect(() => {
+    // Background revalidation: fetch latest updates without blocking initial render
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 7000);
+
     Promise.all([
-      fetch(`/api/catalog?t=${Date.now()}`, { cache: 'no-store' }).then((r) => r.json()).catch(() => null),
-      fetch(`/api/categories?t=${Date.now()}`, { cache: 'no-store' }).then((r) => r.json()).catch(() => null),
+      fetch('/api/catalog', { signal: controller.signal, next: { revalidate: 30 } as any })
+        .then((r) => r.json())
+        .catch(() => null),
+      fetch('/api/categories', { signal: controller.signal, next: { revalidate: 30 } as any })
+        .then((r) => r.json())
+        .catch(() => null),
     ])
       .then(([dCat, dCats]) => {
-        if (dCat && dCat.success && Array.isArray(dCat.services)) {
+        clearTimeout(timeoutId);
+        if (dCat && dCat.success && Array.isArray(dCat.services) && dCat.services.length > 0) {
           setServices(dCat.services);
           setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
           try {
             localStorage.setItem('autocash_cached_catalog', JSON.stringify({ services: dCat.services, source: dCat.source }));
           } catch {}
-        } else if (dCat && dCat.services) {
+        } else if (dCat && Array.isArray(dCat.services) && dCat.services.length > 0) {
           setServices(dCat.services);
         }
 
-        if (dCats && dCats.success && Array.isArray(dCats.categories)) {
+        if (dCats && dCats.success && Array.isArray(dCats.categories) && dCats.categories.length > 0) {
           setCategories(dCats.categories);
           try {
             localStorage.setItem('autocash_cached_categories', JSON.stringify(dCats.categories));
@@ -384,7 +412,15 @@ export default function HomePage() {
         }
       })
       .catch(() => {})
-      .finally(() => setCatalogLoading(false));
+      .finally(() => {
+        clearTimeout(timeoutId);
+        setCatalogLoading(false);
+      });
+
+    return () => {
+      controller.abort();
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   // Combine official categories with any categories present in loaded services

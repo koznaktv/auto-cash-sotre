@@ -102,15 +102,6 @@ export default function AppUpdateNotifier() {
       }
     }
 
-    // Ancient Android WebView without custom UA header
-    const isOldAndroidWrapper = ua.includes('; wv') && ua.includes('Android') && !ua.includes('AutoCashApp');
-    if (isOldAndroidWrapper && forceUpdate) {
-      setInstalledVersion('1.0.0');
-      setIsForceLocked(true);
-      setIsVisible(false);
-      return;
-    }
-
     // ==============================================================
     // CASE B: Regular Web Visitors (Mobile / Desktop Browsers)
     // ==============================================================

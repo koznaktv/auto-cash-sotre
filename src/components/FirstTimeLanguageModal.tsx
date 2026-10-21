@@ -65,6 +65,13 @@ export default function FirstTimeLanguageModal() {
 
   useEffect(() => {
     try {
+      // If user is in the native Android App, skip modal to maintain lightning-fast native UX
+      const isNativeApp = typeof navigator !== 'undefined' && /AutoCashApp/i.test(navigator.userAgent || '');
+      if (isNativeApp) {
+        localStorage.setItem('autocash_language_selected', 'true');
+        return;
+      }
+
       // 1. Strictly check if the user has already seen and chosen/dismissed the language modal
       const alreadyChosen = localStorage.getItem('autocash_language_selected') === 'true';
       if (alreadyChosen) {
@@ -79,11 +86,11 @@ export default function FirstTimeLanguageModal() {
       const isRoot = typeof window !== 'undefined' && window.location.pathname === '/';
 
       if (!splashShown && isRoot) {
-        // Wait for welcome splash to blast off smoothly, then show language prompt!
+        // Wait for welcome splash to finish, then show language prompt smoothly
         const onSplashDismiss = () => {
           setTimeout(() => {
             setIsOpen(true);
-          }, 450);
+          }, 200);
         };
         window.addEventListener('autocash-welcome-dismissed', onSplashDismiss, { once: true });
 
@@ -93,7 +100,7 @@ export default function FirstTimeLanguageModal() {
           if (!checkAgain) {
             setIsOpen(true);
           }
-        }, 5200);
+        }, 2200);
 
         return () => {
           window.removeEventListener('autocash-welcome-dismissed', onSplashDismiss);
@@ -103,7 +110,7 @@ export default function FirstTimeLanguageModal() {
         // If not on root or splash was already seen, open smoothly after a brief delay
         const timer = setTimeout(() => {
           setIsOpen(true);
-        }, 600);
+        }, 300);
         return () => clearTimeout(timer);
       }
     } catch {
@@ -133,9 +140,13 @@ export default function FirstTimeLanguageModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[95] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300 select-none">
+    <div
+      onClick={handleDismiss}
+      className="fixed inset-0 z-[95] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300 select-none cursor-pointer"
+    >
       <div
-        className="relative w-full max-w-lg bg-gradient-to-b from-[#081a2e] via-[#051322] to-[#020b16] border border-amber-500/40 rounded-3xl p-5 sm:p-7 shadow-[0_0_60px_rgba(0,0,0,0.95)] overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-lg bg-gradient-to-b from-[#081a2e] via-[#051322] to-[#020b16] border border-amber-500/40 rounded-3xl p-5 sm:p-7 shadow-[0_0_60px_rgba(0,0,0,0.95)] overflow-hidden cursor-default"
         dir={selected === 'ug' || selected === 'ar' ? 'rtl' : 'ltr'}
       >
         {/* Ambient Glowing Background Halos */}

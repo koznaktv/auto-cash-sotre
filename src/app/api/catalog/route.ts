@@ -27,7 +27,9 @@ export async function GET(req: Request) {
       })),
     }));
 
-    const cacheHeader = 'no-store, no-cache, must-revalidate, max-age=0';
+    const cacheHeader = isAdminPreview
+      ? 'no-store, no-cache, must-revalidate, max-age=0'
+      : 'public, s-maxage=30, stale-while-revalidate=120';
 
     return NextResponse.json(
       { success: true, source, minOrderUsd: settings.minOrderUsd, services },
