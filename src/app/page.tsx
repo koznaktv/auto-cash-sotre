@@ -272,6 +272,7 @@ export default function HomePage() {
     try {
       localStorage.setItem('autocash_welcome_shown', 'true');
       sessionStorage.setItem('autocash_welcome_shown', 'true');
+      window.dispatchEvent(new CustomEvent('autocash-welcome-dismissed'));
     } catch {}
     hasShownSplashInCurrentSession = true;
     setShowSplash(false);

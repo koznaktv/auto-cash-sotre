@@ -40,6 +40,7 @@ export const metadata: Metadata = {
 import TelegramFloat from '@/components/TelegramFloat';
 import BottomNav from '@/components/BottomNav';
 import AppUpdateNotifier from '@/components/AppUpdateNotifier';
+import FirstTimeLanguageModal from '@/components/FirstTimeLanguageModal';
 import { LanguageProvider } from '@/context/LanguageContext';
 
 export default function RootLayout({
@@ -55,6 +56,7 @@ export default function RootLayout({
           <TelegramFloat />
           <BottomNav />
           <AppUpdateNotifier />
+          <FirstTimeLanguageModal />
         </LanguageProvider>
       </body>
     </html>
