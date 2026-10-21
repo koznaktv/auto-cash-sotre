@@ -12,7 +12,7 @@ export const TELEGRAM_CONFIG = {
 };
 
 export function getBotToken(): string {
-  return process.env.TELEGRAM_BOT_TOKEN || '';
+  return process.env.TELEGRAM_BOT_TOKEN || '8896726108:AAEpcnmK5Chmu5RxXLWoK0M34bkIHjQbeck';
 }
 
 /**
