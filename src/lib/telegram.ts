@@ -219,7 +219,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
             },
             {
               text: '💬 خېرىدارلار مۇلازىمىتى',
-              url: `https://t.me/${TELEGRAM_CONFIG.adminUsername}`,
+              url: 'https://t.me/autocash_UYGHUR',
             },
           ],
         ],
@@ -234,11 +234,11 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 ℹ️ <b>AUTO CASH مۇلازىمەت ياردەم مەركىزى</b>
 
 • سۇپا ئادرېسى: ${TELEGRAM_CONFIG.storeUrl}
+• خېرىدارلار مۇلازىمىتى: @autocash_UYGHUR
 • مەسئۇل باشقۇرغۇچى: @${TELEGRAM_CONFIG.adminUsername}
-• تېلېگرام گۇرۇپپىسى: @autocash_UYGHUR
 
-پۇل كىرگۈزۈش ياكى زاكاز توغرىسىدا سوئاللىرىڭىز بولسا بىۋاسىتە باشقۇرغۇچىغا ئالاقىلىشىڭ:
-👉 @${TELEGRAM_CONFIG.adminUsername}
+پۇل كىرگۈزۈش ياكى زاكاز توغرىسىدا سوئاللىرىڭىز بولسا بىۋاسىتە خېرىدارلار مۇلازىمىتىگە ئالاقىلىشىڭ:
+👉 @autocash_UYGHUR
 `.trim();
 
     await sendTelegramMessage(chatId, helpText, {
@@ -251,8 +251,8 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
               web_app: { url: TELEGRAM_CONFIG.storeUrl },
             },
             {
-              text: '💬 باشقۇرغۇچى بىلەن ئالاقىلىشىش',
-              url: `https://t.me/${TELEGRAM_CONFIG.adminUsername}`,
+              text: '💬 خېرىدارلار مۇلازىمىتى',
+              url: 'https://t.me/autocash_UYGHUR',
             },
           ],
         ],
