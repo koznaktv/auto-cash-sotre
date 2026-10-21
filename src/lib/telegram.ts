@@ -1,6 +1,6 @@
 /**
  * Telegram Bot & Notification & Real-Time Management Service for AUTO CASH
- * Bot: @Autocash_store_bot
+ * Bot: @Autocash_24_bot
  * Admin: @nasrulla0996 (ID: 7575664493)
  * Channel: @autocash_cannel
  * Support: @autocash_UYGHUR
@@ -18,7 +18,7 @@ import {
 } from './db';
 
 export const TELEGRAM_CONFIG = {
-  botUsername: 'Autocash_store_bot',
+  botUsername: 'Autocash_24_bot',
   channelUrl: 'https://t.me/autocash_cannel',
   channelUsername: 'autocash_cannel',
   supportUrl: 'https://t.me/autocash_UYGHUR',

@@ -45,18 +45,39 @@ export async function GET(req: Request) {
     });
   }
 
-  // 1. Set Webhook
+  // 1. Set Webhook & Menu Button
   if (action === 'setWebhook') {
     const webhookUrl = `${TELEGRAM_CONFIG.storeUrl}/api/telegram/webhook`;
     try {
       const res = await fetch(
-        `https://api.telegram.org/bot${token}/setWebhook?url=${encodeURIComponent(webhookUrl)}`
+        `https://api.telegram.org/bot${token}/setWebhook?url=${encodeURIComponent(webhookUrl)}&allowed_updates=["message","callback_query"]`
       );
       const data = await res.json();
+
+      // Configure Chat Menu Button (WebApp Store)
+      let menuButtonOk = false;
+      try {
+        const menuRes = await fetch(`https://api.telegram.org/bot${token}/setChatMenuButton`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            menu_button: {
+              type: 'web_app',
+              text: '🛒 دۇكاننى ئېچىش',
+              web_app: { url: TELEGRAM_CONFIG.storeUrl },
+            },
+          }),
+        });
+        const menuData = await menuRes.json();
+        menuButtonOk = Boolean(menuData.ok);
+      } catch {}
+
       return NextResponse.json({
         success: data.ok,
         telegramResponse: data,
+        menuButtonConfigured: menuButtonOk,
         webhookUrl,
+        botUsername: TELEGRAM_CONFIG.botUsername,
       });
     } catch (err: any) {
       return NextResponse.json({ success: false, error: err?.message }, { status: 500 });

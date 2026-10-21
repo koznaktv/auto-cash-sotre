@@ -87,7 +87,7 @@ node scripts/mock-syria4game.mjs  # پۇل خەجلىمەي سىناش ئۈچۈ�
 
 ## 🤖 7. تېلېگرام سەپلىمىلىرى (Telegram Integrations)
 
-- **رەسمىي تېلېگرام دۇكان بوتى:** [@Autocash_store_bot](https://t.me/Autocash_store_bot)
+- **رەسمىي تېلېگرام دۇكان بوتى:** [@Autocash_24_bot](https://t.me/Autocash_24_bot)
 - **رەسمىي تېلېگرام قانىلى:** [@autocash_cannel](https://t.me/autocash_cannel)
 - **تېلېگرام خېرىدارلار مۇلازىمىتى:** [@autocash_UYGHUR](https://t.me/autocash_UYGHUR)
 - **باشقۇرغۇچى تېلېگرام ھېسابلىرى (Admins):** 
