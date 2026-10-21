@@ -14,6 +14,7 @@ import {
 import { syria4GameProvider } from '../providers/syria4game';
 import { acquireLock, getProviderSettings, releaseLock, updateProviderSettings } from '../catalog/store';
 import { pruneProviderCalls } from './callLog';
+import { postOrderCompletedToChannel } from '../telegram';
 
 const BACKOFF_MINUTES = [1, 2, 5, 10, 30, 60];
 const MAX_UNKNOWN_CHECKS = 5;
@@ -94,6 +95,15 @@ export async function pollProviderOrders(options: {
               ...(lookup.entry?.delivery ? { delivery: lookup.entry.delivery } : {}),
             });
             summary.completed++;
+            postOrderCompletedToChannel({
+              id: order.id,
+              serviceName: order.serviceName,
+              packageTitle: order.packageTitle,
+              amount: order.amount,
+              targetAccount: (order as any).targetAccount || order.details?.targetAccount || order.details?.playerId,
+              userName: (order as any).userName,
+              userEmail: order.userEmail,
+            }).catch(() => {});
             continue;
           }
           if (status === 'FAILED') {

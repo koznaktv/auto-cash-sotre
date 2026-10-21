@@ -19,6 +19,7 @@ import {
 
 export const TELEGRAM_CONFIG = {
   botUsername: 'Autocash_24_bot',
+  channelId: '-1004310150591',
   channelUrl: 'https://t.me/autocash_cannel',
   channelUsername: 'autocash_cannel',
   supportUrl: 'https://t.me/autocash_UYGHUR',
@@ -382,6 +383,88 @@ ${fieldsText ? `📝 <b>قوشۇمچە ئۇچۇرلار:</b>\n${fieldsText}\n` :
     });
   } catch (e) {
     console.warn('[Telegram] notifyNewOrder error:', e);
+  }
+}
+
+/**
+ * 1.1 Automatically broadcast completed / fulfilled orders to the official channel (@autocash_cannel)
+ * Builds trust, transparency, and social proof for visitors and customers.
+ */
+export async function postOrderCompletedToChannel(order: {
+  id: string;
+  serviceName?: string;
+  packageTitle?: string;
+  amount?: number | string;
+  targetAccount?: string;
+  userName?: string;
+  userEmail?: string;
+}): Promise<boolean> {
+  const token = getBotToken();
+  if (!token) return false;
+
+  const targetChannel = TELEGRAM_CONFIG.channelId || `@${TELEGRAM_CONFIG.channelUsername}`;
+
+  // Mask sensitive parts for user privacy and security
+  const cleanId = order.id.slice(0, 8);
+  const rawTarget = String(order.targetAccount || '').trim();
+  const maskedTarget =
+    rawTarget.length > 4
+      ? `${rawTarget.slice(0, 2)}***${rawTarget.slice(-2)}`
+      : rawTarget ? '***' : '—';
+
+  const cleanAmount = Number(order.amount || 0).toFixed(2);
+  const timeStr = new Date().toLocaleString('ug-CN', { timeZone: 'Asia/Urumqi' });
+
+  const channelText = `
+╭━━━ 👑 <b>AUTO CASH | يېڭى زاكاز تاماملاندى!</b> 👑 ━━━╮
+      ⚡️ <i>ئاپتوماتىك پۇل قاچىلاش مۇۋەپپەقىيەتلىك بولدى</i> ⚡️
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+📦 <b>زاكاز نومۇرى:</b> <code>#${cleanId}</code>
+🎮 <b>مەھسۇلات:</b> <b>${order.serviceName || 'رەقەملىك مەھسۇلات'}</b> - ${order.packageTitle || ''}
+💎 <b>سوممىسى:</b> <b>$${cleanAmount} USD</b>
+🎯 <b>قاچىلانغان ID:</b> <code>${maskedTarget}</code>
+⚡️ <b>سۈرئىتى:</b> سېكۇنتتا ئاپتوماتىك كىردى 🚀
+⏰ <b>ۋاقتى:</b> ${timeStr}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✨ <i>خېرىدارىمىزنىڭ ھېساباتىغا پۇل مۇۋەپپەقىيەتلىك يەتكۈزۈپ بېرىلدى. AUTO CASH نى تاللىغىنىڭىزغا كۆپ رەھمەت!</i>
+
+🛒 <b>سىزمۇ ئەڭ ئەرزان باھادا پۇل قاچىلاڭ:</b>
+👇 تۆۋەندىكى كۇنۇپكىنى بېسىپ دۇكاننى ئېچىڭ!
+`.trim();
+
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: targetChannel,
+        text: channelText,
+        parse_mode: 'HTML',
+        disable_web_page_preview: true,
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: '⚡️🛍️ زاكاز بېرىش | دۇكاننى ئېچىش ➔',
+                url: `https://t.me/${TELEGRAM_CONFIG.botUsername}?start=channel`,
+              },
+            ],
+            [
+              {
+                text: '💬✨ خېرىدارلار مۇلازىمىتى (24/7) 👨‍💻',
+                url: TELEGRAM_CONFIG.supportUrl,
+              },
+            ],
+          ],
+        },
+      }),
+    });
+    const data = await res.json();
+    return Boolean(data.ok);
+  } catch (err: any) {
+    console.error('[Telegram] postOrderCompletedToChannel error:', err?.message);
+    return false;
   }
 }
 

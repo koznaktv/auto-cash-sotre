@@ -19,7 +19,7 @@ import { SERVICE_PREFIX } from '@/lib/catalog/storefront';
 import { placeProviderOrder } from '@/lib/provider/purchase';
 import { pollProviderOrders } from '@/lib/provider/orderPoller';
 import { generateUUIDv4, syria4GameProvider } from '@/lib/providers/syria4game';
-import { notifyNewOrder } from '@/lib/telegram';
+import { notifyNewOrder, postOrderCompletedToChannel } from '@/lib/telegram';
 
 // Provider calls (live price check + newOrder) can take a while
 export const maxDuration = 60;
@@ -198,6 +198,20 @@ export async function POST(req: Request) {
       status: order.status,
       fields: fields,
     }).catch(() => {});
+
+    // Automatically broadcast completed order to the official Telegram channel (@autocash_cannel)
+    if (order.status === 'completed') {
+      postOrderCompletedToChannel({
+        id: order.id,
+        serviceName: order.serviceName,
+        packageTitle: order.packageTitle,
+        amount: order.amount,
+        targetAccount: (order as any).targetAccount || rawTarget,
+        userName: user.name,
+        userEmail: order.userEmail || user.email,
+      }).catch(() => {});
+    }
+
     return NextResponse.json({ success: true, order: toBuyerOrder(order), newBalance: atomicRes.newBalance });
   } catch (err: any) {
     return NextResponse.json(
@@ -226,6 +240,18 @@ export async function PATCH(req: Request) {
     const updated = await updateOrderStatusAsync(orderId, status);
     if (!updated) {
       return NextResponse.json({ success: false, message: 'زاكاز تېپىلمىدى' }, { status: 404 });
+    }
+
+    if (status === 'completed') {
+      postOrderCompletedToChannel({
+        id: updated.id,
+        serviceName: updated.serviceName,
+        packageTitle: updated.packageTitle,
+        amount: updated.amount,
+        targetAccount: (updated as any).targetAccount || updated.details?.targetAccount || updated.details?.playerId,
+        userName: (updated as any).userName,
+        userEmail: updated.userEmail,
+      }).catch(() => {});
     }
 
     return NextResponse.json({ success: true, order: updated });
