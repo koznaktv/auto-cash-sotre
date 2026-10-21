@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import BottomNav from '@/components/BottomNav';
 import { useLanguage } from '@/context/LanguageContext';
 import { getCachedBalance, getCachedUser, ClientUser } from '@/lib/clientAuth';
+import { APP_VERSION_CONFIG } from '@/lib/appVersion';
 import {
   Download,
   Smartphone,
@@ -83,7 +84,7 @@ export default function AppDownloadPage() {
             <div className="flex-1 text-center md:text-start space-y-3">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-950/70 border border-amber-500/40 text-amber-300 text-xs font-bold">
                 <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-                <span>Android v1.2.0</span>
+                <span>Android v{APP_VERSION_CONFIG.version}</span>
               </div>
               <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
                 {t('androidAppTitle')}
@@ -95,7 +96,7 @@ export default function AppDownloadPage() {
               {/* Specs tags */}
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 pt-1 text-xs text-slate-400 font-mono">
                 <span className="px-3 py-1 rounded-lg bg-slate-900/90 border border-slate-700/80">
-                  {t('versionLabel')} 1.2.0
+                  {t('versionLabel')} {APP_VERSION_CONFIG.version}
                 </span>
                 <span className="px-3 py-1 rounded-lg bg-slate-900/90 border border-slate-700/80">
                   {t('sizeLabel')} ~4.5 MB

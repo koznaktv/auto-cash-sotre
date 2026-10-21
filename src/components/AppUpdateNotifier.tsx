@@ -162,6 +162,12 @@ export default function AppUpdateNotifier() {
     return `${protocol}//${host}/download/autocash.apk?ref=t.me&v=${currentVersion}`;
   };
 
+  const getWebDownloadPageUrl = () => {
+    const host = typeof window !== 'undefined' ? window.location.host : 'auto-cash-sotre.vercel.app';
+    const protocol = typeof window !== 'undefined' ? window.location.protocol : 'https:';
+    return `${protocol}//${host}/download?ref=t.me`;
+  };
+
   const handleForceDownload = (e?: React.MouseEvent) => {
     if (e) {
       try {
@@ -266,19 +272,18 @@ export default function AppUpdateNotifier() {
             <Download className={`w-5 h-5 stroke-[2.5] ${downloadStarted ? 'animate-bounce' : ''}`} />
             <span>
               {downloadStarted
-                ? (isRTL ? 'چۈشۈرۈش باشلاندى... قايتا بېسىش' : 'Download Started... Click to retry')
-                : forceMsgs.button}
+                ? (isRTL ? 'چۈشۈرۈش قوزغالدى... قايتا بېسىش' : 'Download Started... Click to retry')
+                : (forceMsgs?.button || (isRTL ? 'يېڭى نەشرىنى توربەتتىن چۈشۈرۈڭ' : 'Download New Version from Website'))}
             </span>
           </a>
 
           {/* Alternative Links */}
           <div className="mt-5 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-300">
             <a
-              href={directUrl}
-              onClick={handleForceDownload}
+              href={getWebDownloadPageUrl()}
               className="inline-flex items-center gap-1.5 text-amber-300 hover:text-amber-200 transition underline underline-offset-4 font-semibold cursor-pointer"
             >
-              <span>توركۆرگۈچتە ئېچىپ چۈشۈرۈش</span>
+              <span>توربەتتىكى چۈشۈرۈش بېتى</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
 

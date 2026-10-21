@@ -27,33 +27,33 @@ export const APP_VERSION_CONFIG: AppVersionInfo = {
   forceUpdateMessages: {
     ug: {
       title: 'بۇ نەشرى ئىناۋەتسىز بولدى / يېڭىلاش مەجبۇرىي',
-      message: 'سىز ئىشلىتىۋاتقان ئەپ نەشرى كونا بولۇپ، بىخەتەرلىك ۋە سىستېما تەلەپلىرى سەۋەبىدىن ئىشلىتىش توختىتىلدى. سۇپىدىن داۋاملىق نورمال پايدىلىنىش ۋە مۇلازىمەتلەردىن بەھرىمەن بولۇش ئۈچۈن، دەرھال تۆۋەندىكى ئۇلانمىدىن ئەڭ يېڭى نەشرىنى چۈشۈرۈپ قاچىلاڭ.',
-      button: 'ھازىرلا ئەڭ يېڭى نەشرىنى چۈشۈرۈش (APK)',
+      message: 'سىز ئىشلىتىۋاتقان ئەپ نەشرى كونا بولۇپ، بىخەتەرلىك ۋە سىستېما تەلەپلىرى سەۋەبىدىن ئىشلىتىش توختىتىلدى. سۇپىدىن داۋاملىق نورمال پايدىلىنىش ۋە مۇلازىمەتلەردىن بەھرىمەن بولۇش ئۈچۈن، دەرھال تۆۋەندىكى كۇنۇپكىنى بېسىپ ئەڭ يېڭى نەشرىنى توربەتتىن چۈشۈرۈۋېلىڭ.',
+      button: 'يېڭى نەشرىنى توربەتتىن چۈشۈرۈڭ',
     },
     en: {
       title: 'This App Version Has Expired / Update Required',
-      message: 'The version of the app you are running is outdated and has been disabled for security and system compatibility. To continue using AUTO CASH, please download and install the latest version below.',
-      button: 'Download Latest Version Now (APK)',
+      message: 'The version of the app you are running is outdated and has been disabled for security and system compatibility. To continue using AUTO CASH, please download the latest version from our website below.',
+      button: 'Download New Version from Website',
     },
     ar: {
       title: 'هذا الإصدار من التطبيق قديم / التحديث إجباري',
-      message: 'الإصدار الحالي الذي تستخدمه قديم وتم إيقافه لأسباب أمنية وتوافقية. لمواصلة استخدام الخدمات وإتمام الطلبات، يرجى تحميل وتثبيت أحدث إصدار من الرابط أدناه فوراً.',
-      button: 'تحميل أحدث إصدار الآن (APK)',
+      message: 'الإصدار الحالي الذي تستخدمه قديم وتم إيقافه لأسباب أمنية وتوافقية. لمواصلة استخدام الخدمات وإتمام الطلبات، يرجى تحميل أحدث إصدار من الموقع.',
+      button: 'تحميل الإصدار الجديد من الموقع',
     },
     tr: {
       title: 'Bu Sürümün Süresi Doldu / Güncelleme Zorunlu',
-      message: 'Kullandığınız uygulama sürümü eskidir ve güvenlik ile sistem uyumluluğu nedeniyle durdurulmuştur. Hizmetlerden yararlanmaya devam etmek için lütfen aşağıdaki bağlantıdan en son sürümü hemen indirin.',
-      button: 'En Son Sürümü Şimdi İndir (APK)',
+      message: 'Kullandığınız uygulama sürümü eskidir ve güvenlik ile sistem uyumluluğu nedeniyle durdurulmuştur. Hizmetlerden yararlanmaya devam etmek için lütfen aşağıdaki bağlantıdan en son sürümü web sitemizden indirin.',
+      button: 'Yeni Sürümü Web Sitesinden İndirin',
     },
     uz: {
       title: 'Ushbu ilova talqini eskirgan / Majburiy yangilash',
-      message: 'Siz ishlatayotgan ilova talqini eskirgan va xavfsizlik talablari sababli to‘xtatildi. Xizmatlardan to‘liq foydalanish uchun darhol quyidagi havola orqali yangi talqinni yuklab oling.',
-      button: 'Eng yangi talqinni hoziroq yuklab olish (APK)',
+      message: 'Siz ishlatayotgan ilova talqini eskirgan va xavfsizlik talablari sababli to‘xtatildi. Xizmatlardan to‘liq foydalanish uchun darhol yangi talqinni veb-saytdan yuklab oling.',
+      button: 'Yangi talqinni veb-saytdan yuklab oling',
     },
     ru: {
       title: 'Версия приложения устарела / Требуется обновление',
-      message: 'Используемая вами версия приложения устарела и отключена в целях безопасности и совместимости. Для продолжения работы немедленно скачайте и установите актуальную версию по ссылке ниже.',
-      button: 'Скачать актуальную версию (APK)',
+      message: 'Используемая вами версия приложения устарела и отключена в целях безопасности и совместимости. Для продолжения работы скачайте актуальную версию с нашего сайта.',
+      button: 'Скачать новую версию с сайта',
     },
   },
 };
