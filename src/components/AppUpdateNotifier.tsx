@@ -3,7 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { APP_VERSION_CONFIG } from '@/lib/appVersion';
-import { Download, Sparkles, X, Smartphone, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Download, Sparkles, X, Smartphone } from 'lucide-react';
+
+function compareVersions(v1: string, v2: string): number {
+  const p1 = v1.replace(/^v/i, '').split('.').map((n) => parseInt(n, 10) || 0);
+  const p2 = v2.replace(/^v/i, '').split('.').map((n) => parseInt(n, 10) || 0);
+  for (let i = 0; i < Math.max(p1.length, p2.length); i++) {
+    const num1 = p1[i] || 0;
+    const num2 = p2[i] || 0;
+    if (num1 > num2) return 1;
+    if (num1 < num2) return -1;
+  }
+  return 0;
+}
 
 export default function AppUpdateNotifier() {
   const { lang, t, isRTL } = useLanguage();
@@ -14,7 +26,7 @@ export default function AppUpdateNotifier() {
   );
 
   useEffect(() => {
-    // 1. Fetch latest settings to see if version was bumped dynamically
+    // 1. Fetch latest settings from server to get dynamically configured app version
     fetch('/api/settings')
       .then((r) => r.json())
       .then((d) => {
@@ -30,30 +42,68 @@ export default function AppUpdateNotifier() {
           );
         }
 
-        // 2. Check if user already saw this specific version
-        const lastSeen = localStorage.getItem('autocash_seen_app_version');
-        if (lastSeen !== latestVer) {
-          // Display update notice gracefully after 1.8s
-          const timer = setTimeout(() => {
-            setIsVisible(true);
-          }, 1800);
-          return () => clearTimeout(timer);
-        }
+        checkAndNotify(latestVer);
       })
       .catch(() => {
-        // Fallback to static version
-        const lastSeen = localStorage.getItem('autocash_seen_app_version');
-        if (lastSeen !== APP_VERSION_CONFIG.version) {
-          const timer = setTimeout(() => {
-            setIsVisible(true);
-          }, 1800);
-          return () => clearTimeout(timer);
-        }
+        checkAndNotify(APP_VERSION_CONFIG.version);
       });
   }, [lang]);
 
+  const checkAndNotify = (latestVer: string) => {
+    try {
+      if (typeof window === 'undefined') return;
+
+      // 1. Check if customer was ALREADY notified for this specific version
+      const notifiedVer =
+        localStorage.getItem('autocash_notified_version') ||
+        localStorage.getItem('autocash_seen_app_version');
+
+      if (notifiedVer === latestVer) {
+        // Strictly ONCE: customer already received this version's notification -> Do not show again!
+        return;
+      }
+
+      const sessionFlag = sessionStorage.getItem(`autocash_notified_${latestVer}`);
+      if (sessionFlag === 'true') {
+        return;
+      }
+
+      // 2. If customer is running inside the native Android App:
+      // Check if installed app is already on this version or newer
+      if (typeof navigator !== 'undefined') {
+        const ua = navigator.userAgent || '';
+        const match = ua.match(/AutoCashApp\/([0-9.]+)/i);
+        if (match && match[1]) {
+          const installedVer = match[1];
+          if (compareVersions(installedVer, latestVer) >= 0) {
+            // Already installed with latest or higher version -> mark seen and do not notify
+            localStorage.setItem('autocash_notified_version', latestVer);
+            localStorage.setItem('autocash_seen_app_version', latestVer);
+            return;
+          }
+        }
+      }
+
+      // 3. Customer has NOT been notified for this version yet!
+      // Immediately mark as notified so subsequent reloads/page changes will NOT double notify!
+      localStorage.setItem('autocash_notified_version', latestVer);
+      localStorage.setItem('autocash_seen_app_version', latestVer);
+      sessionStorage.setItem(`autocash_notified_${latestVer}`, 'true');
+
+      // Gracefully present the royal update card after 1.8 seconds
+      const timer = setTimeout(() => {
+        setIsVisible(true);
+      }, 1800);
+
+      return () => clearTimeout(timer);
+    } catch {
+      // Storage error fallback
+    }
+  };
+
   const handleDismiss = () => {
     try {
+      localStorage.setItem('autocash_notified_version', currentVersion);
       localStorage.setItem('autocash_seen_app_version', currentVersion);
     } catch {}
     setIsVisible(false);
@@ -61,11 +111,12 @@ export default function AppUpdateNotifier() {
 
   const handleDownload = () => {
     try {
+      localStorage.setItem('autocash_notified_version', currentVersion);
       localStorage.setItem('autocash_seen_app_version', currentVersion);
     } catch {}
     setIsVisible(false);
 
-    // Trigger direct download
+    // Trigger direct download of latest APK
     const link = document.createElement('a');
     link.href = '/download/autocash.apk';
     link.download = `autocash_v${currentVersion}.apk`;
