@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "build:apk": "node scripts/build-and-package-apk.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.3",
