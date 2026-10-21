@@ -90,5 +90,7 @@ node scripts/mock-syria4game.mjs  # پۇل خەجلىمەي سىناش ئۈچۈ�
 - **رەسمىي تېلېگرام دۇكان بوتى:** [@Autocash_store_bot](https://t.me/Autocash_store_bot)
 - **رەسمىي تېلېگرام قانىلى:** [@autocash_cannel](https://t.me/autocash_cannel)
 - **تېلېگرام خېرىدارلار مۇلازىمىتى:** [@autocash_UYGHUR](https://t.me/autocash_UYGHUR)
-- **باشقۇرغۇچى تېلېگرام ھېسابى:** [@nasrulla0996](https://t.me/nasrulla0996) (ID: `7575664493`)
+- **باشقۇرغۇچى تېلېگرام ھېسابلىرى (Admins):** 
+  - [@nasrulla0996](https://t.me/nasrulla0996) (ID: `7575664493`)
+  - [@autochah_UYGHUR](https://t.me/autochah_UYGHUR) (ۋە [@autocash_UYGHUR](https://t.me/autocash_UYGHUR))
 - **سەپلىمە ھۆججىتى:** `src/lib/telegram.ts` ۋە `.env.local` (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_ADMIN_CHAT_ID`)

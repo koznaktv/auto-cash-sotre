@@ -25,8 +25,46 @@ export const TELEGRAM_CONFIG = {
   supportUsername: 'autocash_UYGHUR',
   adminChatId: process.env.TELEGRAM_ADMIN_CHAT_ID || '7575664493',
   adminUsername: 'nasrulla0996',
+  // Designated Admin Telegram accounts (@nasrulla0996 and @autochah_UYGHUR / @autocash_UYGHUR)
+  adminUsernames: ['nasrulla0996', 'autochah_uyghur', 'autocash_uyghur'],
+  adminChatIds: ['7575664493'],
   storeUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://auto-cash-sotre.vercel.app',
 };
+
+// Set of active admin chat IDs that receive instant alerts
+const activeAdminChatIds = new Set<string | number>(['7575664493', 7575664493]);
+
+/**
+ * Check if a given Telegram user ID or username is a platform administrator
+ */
+export function isTelegramAdmin(fromId?: number | string, fromUsername?: string): boolean {
+  if (fromId) {
+    const sId = String(fromId);
+    const nId = Number(fromId);
+    if (activeAdminChatIds.has(sId) || activeAdminChatIds.has(nId)) {
+      return true;
+    }
+  }
+  if (fromUsername) {
+    const cleanUser = fromUsername.toLowerCase().replace(/^@/, '');
+    if (TELEGRAM_CONFIG.adminUsernames.includes(cleanUser)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Auto-register admin chat ID so all alerts are delivered to both admins
+ */
+export function registerAdminChatId(fromId?: number | string, fromUsername?: string): void {
+  if (!fromId) return;
+  if (isTelegramAdmin(fromId, fromUsername)) {
+    activeAdminChatIds.add(fromId);
+    activeAdminChatIds.add(String(fromId));
+    activeAdminChatIds.add(Number(fromId));
+  }
+}
 
 export function getBotToken(): string {
   return process.env.TELEGRAM_BOT_TOKEN || '8896726108:AAEpcnmK5Chmu5RxXLWoK0M34bkIHjQbeck';
@@ -222,14 +260,23 @@ export async function answerCallbackQuery(
 }
 
 /**
- * Send instant alert to the Admin Telegram account (@nasrulla0996)
+ * Send instant alert to all registered Admin Telegram accounts (@nasrulla0996, @autochah_UYGHUR)
  */
 export async function sendAdminAlert(htmlMessage: string, replyMarkup?: any): Promise<boolean> {
-  const res = await sendTelegramMessage(TELEGRAM_CONFIG.adminChatId, htmlMessage, {
-    parse_mode: 'HTML',
-    reply_markup: replyMarkup,
-  });
-  return res.ok;
+  const adminIds = Array.from(new Set(Array.from(activeAdminChatIds).map(String)));
+  if (!adminIds.includes('7575664493')) adminIds.push('7575664493');
+
+  let anySuccess = false;
+  for (const chatId of adminIds) {
+    try {
+      const res = await sendTelegramMessage(chatId, htmlMessage, {
+        parse_mode: 'HTML',
+        reply_markup: replyMarkup,
+      });
+      if (res.ok) anySuccess = true;
+    } catch {}
+  }
+  return anySuccess;
 }
 
 /**
@@ -591,10 +638,9 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     const chatId = message?.chat?.id;
     const messageId = message?.message_id;
 
-    // Security check: Only the designated Admin can approve/reject/refund
-    const isAdmin =
-      fromId === adminChatIdNum ||
-      fromUser.toLowerCase() === TELEGRAM_CONFIG.adminUsername.toLowerCase();
+    // Security check: Only designated Admins (@nasrulla0996, @autochah_UYGHUR) can approve/reject/refund
+    registerAdminChatId(fromId, fromUser);
+    const isAdmin = isTelegramAdmin(fromId, fromUser);
 
     if (!isAdmin) {
       await answerCallbackQuery(cqId, '⚠️ كەچۈرۈڭ، بۇ مەشغۇلاتنى پەقەت مەسئۇل باشقۇرغۇچىلا قىلالايدۇ!', true);
@@ -754,10 +800,11 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
   // Record subscriber
   if (from) recordSubscriber(from);
 
-  const isAdmin =
-    Number(chatId) === adminChatIdNum ||
-    Number(from?.id) === adminChatIdNum ||
-    from?.username?.toLowerCase() === TELEGRAM_CONFIG.adminUsername.toLowerCase();
+  // Register admin chat ID if from an authorized admin account
+  registerAdminChatId(from?.id, from?.username);
+  registerAdminChatId(chatId, from?.username);
+
+  const isAdmin = isTelegramAdmin(from?.id, from?.username) || isTelegramAdmin(chatId);
 
   // 1. Command /start
   if (text.startsWith('/start')) {
