@@ -6,6 +6,8 @@ export async function GET() {
   try {
     const settings = await getSystemSettingsAsync();
     const appVersion = (settings as any).appVersion || APP_VERSION_CONFIG.version;
+    const minRequiredVersion = (settings as any).minRequiredVersion || APP_VERSION_CONFIG.minRequiredVersion;
+    const forceUpdate = (settings as any).forceUpdate !== undefined ? Boolean((settings as any).forceUpdate) : APP_VERSION_CONFIG.forceUpdate;
     return NextResponse.json({
       success: true,
       settings: {
@@ -15,9 +17,13 @@ export async function GET() {
         whatsappNumber: settings.whatsappNumber || '+963 984 373 459',
         appDownloadUrl: (settings as any).appDownloadUrl || '/download/autocash.apk',
         appVersion,
+        minRequiredVersion,
+        forceUpdate,
         appVersionConfig: {
           ...APP_VERSION_CONFIG,
           version: appVersion,
+          minRequiredVersion,
+          forceUpdate,
         },
       },
     });

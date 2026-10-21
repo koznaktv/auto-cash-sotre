@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { APP_VERSION_CONFIG } from '@/lib/appVersion';
-import { Download, Sparkles, X, Smartphone } from 'lucide-react';
+import { Download, Sparkles, X, Smartphone, ShieldAlert, AlertTriangle, ExternalLink } from 'lucide-react';
 
 function compareVersions(v1: string, v2: string): number {
   const p1 = v1.replace(/^v/i, '').split('.').map((n) => parseInt(n, 10) || 0);
@@ -20,18 +20,25 @@ function compareVersions(v1: string, v2: string): number {
 export default function AppUpdateNotifier() {
   const { lang, t, isRTL } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
+  const [isForceLocked, setIsForceLocked] = useState(false);
+  const [installedVersion, setInstalledVersion] = useState('');
   const [currentVersion, setCurrentVersion] = useState(APP_VERSION_CONFIG.version);
+  const [minRequiredVersion, setMinRequiredVersion] = useState(APP_VERSION_CONFIG.minRequiredVersion);
   const [releaseNote, setReleaseNote] = useState(
     APP_VERSION_CONFIG.releaseNotes[lang] || APP_VERSION_CONFIG.releaseNotes.ug
   );
 
   useEffect(() => {
-    // 1. Fetch latest settings from server to get dynamically configured app version
+    // 1. Fetch latest system settings to get active version and requirements
     fetch('/api/settings')
       .then((r) => r.json())
       .then((d) => {
         const latestVer = d?.settings?.appVersion || APP_VERSION_CONFIG.version;
+        const minReq = d?.settings?.minRequiredVersion || APP_VERSION_CONFIG.minRequiredVersion || latestVer;
+        const forceUpdate = d?.settings?.forceUpdate !== undefined ? Boolean(d?.settings?.forceUpdate) : APP_VERSION_CONFIG.forceUpdate;
+        
         setCurrentVersion(latestVer);
+        setMinRequiredVersion(minReq);
 
         const customNote = d?.settings?.appVersionConfig?.releaseNotes?.[lang];
         if (customNote) {
@@ -42,63 +49,100 @@ export default function AppUpdateNotifier() {
           );
         }
 
-        checkAndNotify(latestVer);
+        evaluateVersionStatus(latestVer, minReq, forceUpdate);
       })
       .catch(() => {
-        checkAndNotify(APP_VERSION_CONFIG.version);
+        evaluateVersionStatus(
+          APP_VERSION_CONFIG.version,
+          APP_VERSION_CONFIG.minRequiredVersion,
+          APP_VERSION_CONFIG.forceUpdate
+        );
       });
   }, [lang]);
 
-  const checkAndNotify = (latestVer: string) => {
+  // Lock scroll when Force Update is active
+  useEffect(() => {
+    if (isForceLocked) {
+      const origOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = origOverflow;
+      };
+    }
+  }, [isForceLocked]);
+
+  const evaluateVersionStatus = (latestVer: string, minReq: string, forceUpdate: boolean) => {
+    if (typeof window === 'undefined') return;
+
+    const ua = navigator.userAgent || '';
+    const match = ua.match(/AutoCashApp\/([0-9.]+)/i);
+
+    // ==============================================================
+    // CASE A: User is inside the native Android App
+    // ==============================================================
+    if (match && match[1]) {
+      const installed = match[1];
+      setInstalledVersion(installed);
+
+      // Check if installed version is lower than minimum required version
+      const isOutdated = compareVersions(installed, minReq) < 0;
+
+      if (isOutdated && forceUpdate) {
+        // MANDATORY FORCE UPDATE: The old app version is completely disabled!
+        setIsForceLocked(true);
+        setIsVisible(false);
+        return;
+      }
+
+      if (compareVersions(installed, latestVer) >= 0) {
+        // Up to date! Nothing to show or warn
+        setIsForceLocked(false);
+        setIsVisible(false);
+        return;
+      }
+    }
+
+    // Ancient Android WebView without custom UA header
+    const isOldAndroidWrapper = ua.includes('; wv') && ua.includes('Android') && !ua.includes('AutoCashApp');
+    if (isOldAndroidWrapper && forceUpdate) {
+      setInstalledVersion('1.0.0');
+      setIsForceLocked(true);
+      setIsVisible(false);
+      return;
+    }
+
+    // ==============================================================
+    // CASE B: Regular Web Visitors (Mobile / Desktop Browsers)
+    // ==============================================================
+    // Check if customer was ALREADY notified for this specific version
+    const notifiedVer =
+      localStorage.getItem('autocash_notified_version') ||
+      localStorage.getItem('autocash_seen_app_version');
+
+    if (notifiedVer === latestVer) {
+      // Strictly ONCE: customer already received this version's notification -> Do not show again!
+      return;
+    }
+
+    const sessionFlag = sessionStorage.getItem(`autocash_notified_${latestVer}`);
+    if (sessionFlag === 'true') {
+      return;
+    }
+
+    // Customer has NOT been notified for this version yet!
+    // Immediately lock storage so subsequent reloads/page changes will NOT double notify!
     try {
-      if (typeof window === 'undefined') return;
-
-      // 1. Check if customer was ALREADY notified for this specific version
-      const notifiedVer =
-        localStorage.getItem('autocash_notified_version') ||
-        localStorage.getItem('autocash_seen_app_version');
-
-      if (notifiedVer === latestVer) {
-        // Strictly ONCE: customer already received this version's notification -> Do not show again!
-        return;
-      }
-
-      const sessionFlag = sessionStorage.getItem(`autocash_notified_${latestVer}`);
-      if (sessionFlag === 'true') {
-        return;
-      }
-
-      // 2. If customer is running inside the native Android App:
-      // Check if installed app is already on this version or newer
-      if (typeof navigator !== 'undefined') {
-        const ua = navigator.userAgent || '';
-        const match = ua.match(/AutoCashApp\/([0-9.]+)/i);
-        if (match && match[1]) {
-          const installedVer = match[1];
-          if (compareVersions(installedVer, latestVer) >= 0) {
-            // Already installed with latest or higher version -> mark seen and do not notify
-            localStorage.setItem('autocash_notified_version', latestVer);
-            localStorage.setItem('autocash_seen_app_version', latestVer);
-            return;
-          }
-        }
-      }
-
-      // 3. Customer has NOT been notified for this version yet!
-      // Immediately mark as notified so subsequent reloads/page changes will NOT double notify!
       localStorage.setItem('autocash_notified_version', latestVer);
       localStorage.setItem('autocash_seen_app_version', latestVer);
       sessionStorage.setItem(`autocash_notified_${latestVer}`, 'true');
+    } catch {}
 
-      // Gracefully present the royal update card after 1.8 seconds
-      const timer = setTimeout(() => {
-        setIsVisible(true);
-      }, 1800);
+    // Gracefully present the royal update card after 1.8 seconds
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 1800);
 
-      return () => clearTimeout(timer);
-    } catch {
-      // Storage error fallback
-    }
+    return () => clearTimeout(timer);
   };
 
   const handleDismiss = () => {
@@ -125,6 +169,87 @@ export default function AppUpdateNotifier() {
     document.body.removeChild(link);
   };
 
+  // ==============================================================
+  // 1. FULL-SCREEN UN-DISMISSIBLE FORCE UPDATE SCREEN
+  // ==============================================================
+  if (isForceLocked) {
+    const forceMsgs = APP_VERSION_CONFIG.forceUpdateMessages[lang] || APP_VERSION_CONFIG.forceUpdateMessages.ug;
+
+    return (
+      <div
+        className="fixed inset-0 z-[999999] bg-[#030a16] flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+        dir={isRTL ? 'rtl' : 'ltr'}
+      >
+        {/* Ambient Warning Glows */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-rose-600/15 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-80 h-80 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none" />
+
+        <div className="relative w-full max-w-md my-auto rounded-3xl bg-gradient-to-b from-[#0b172a] via-[#071120] to-[#040914] border-2 border-rose-500/60 p-6 sm:p-8 shadow-2xl shadow-rose-950/60 text-white text-center font-alkatip">
+          {/* Animated Warning Shield */}
+          <div className="relative mx-auto w-20 h-20 mb-5 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-3xl bg-rose-500/20 animate-ping opacity-75" />
+            <div className="relative w-20 h-20 rounded-3xl bg-gradient-to-tr from-rose-600 via-rose-500 to-amber-500 flex items-center justify-center shadow-xl shadow-rose-600/40">
+              <ShieldAlert className="w-10 h-10 text-white" />
+            </div>
+          </div>
+
+          {/* Badge */}
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-950/80 border border-rose-500/50 text-rose-300 text-xs font-bold mb-3 font-mono">
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+            <span>نەشر ۋاقتى ئۆتتى · ئىشلىتىش توختىتىلدى</span>
+          </div>
+
+          {/* Title */}
+          <h2 className="font-ukij text-lg sm:text-xl font-black text-white mb-3">
+            {forceMsgs.title}
+          </h2>
+
+          {/* Version Comparison Pills */}
+          <div className="flex items-center justify-center gap-2 mb-4 text-xs font-mono">
+            <span className="px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-800 text-slate-400">
+              ھازىرقى: <strong className="text-rose-400">v{installedVersion || '1.1.0'}</strong>
+            </span>
+            <span className="text-slate-500">➔</span>
+            <span className="px-2.5 py-1 rounded-xl bg-emerald-950/70 border border-emerald-500/50 text-emerald-300 font-bold">
+              يېڭىسى: <strong>v{currentVersion}</strong>
+            </span>
+          </div>
+
+          {/* Message */}
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6 bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80">
+            {forceMsgs.message}
+          </p>
+
+          {/* Big Action Button (Direct APK Download) */}
+          <a
+            href="/download/autocash.apk"
+            download={`autocash_v${currentVersion}.apk`}
+            className="w-full py-4 px-5 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-2xl shadow-amber-500/30 transition transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+          >
+            <Download className="w-5 h-5 stroke-[2.5]" />
+            <span>{forceMsgs.button}</span>
+          </a>
+
+          {/* Alternative Link for External Browser */}
+          <div className="mt-4 pt-4 border-t border-slate-800/80 flex items-center justify-center gap-4 text-xs text-slate-400">
+            <a
+              href="https://auto-cash-sotre.vercel.app/download"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 hover:text-amber-400 transition underline underline-offset-4"
+            >
+              <span>توركۆرگۈچتە ئېچىپ چۈشۈرۈش</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ==============================================================
+  // 2. NORMAL ONE-TIME NOTIFICATION CARD FOR WEBSITE VISITORS
+  // ==============================================================
   if (!isVisible) return null;
 
   const titleMap: Record<string, string> = {

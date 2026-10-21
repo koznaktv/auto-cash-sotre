@@ -58,6 +58,9 @@ export async function PATCH(req: Request) {
     if (siteName !== undefined) updates.siteName = String(siteName).trim();
     if (siteLogo !== undefined) updates.siteLogo = String(siteLogo).trim();
     if (appDownloadUrl !== undefined) updates.appDownloadUrl = String(appDownloadUrl).trim();
+    if (body.appVersion !== undefined) updates.appVersion = String(body.appVersion).trim();
+    if (body.minRequiredVersion !== undefined) updates.minRequiredVersion = String(body.minRequiredVersion).trim();
+    if (body.forceUpdate !== undefined) updates.forceUpdate = Boolean(body.forceUpdate);
 
     if (providerApiUrl !== undefined && String(providerApiUrl).trim() !== '') {
       updates.providerApiUrl = String(providerApiUrl).trim();
