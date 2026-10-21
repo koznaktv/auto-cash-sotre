@@ -19,6 +19,7 @@ import { SERVICE_PREFIX } from '@/lib/catalog/storefront';
 import { placeProviderOrder } from '@/lib/provider/purchase';
 import { pollProviderOrders } from '@/lib/provider/orderPoller';
 import { generateUUIDv4, syria4GameProvider } from '@/lib/providers/syria4game';
+import { notifyNewOrder } from '@/lib/telegram';
 
 // Provider calls (live price check + newOrder) can take a while
 export const maxDuration = 60;
@@ -84,6 +85,22 @@ export async function POST(req: Request) {
         expectedTotal,
         idempotencyKey,
       });
+      if (result.status === 200 || result.status === 202) {
+        const orderData = (result.body as any)?.order;
+        if (orderData) {
+          notifyNewOrder({
+            id: orderData.id || 'ORD',
+            serviceName: orderData.serviceName || serviceId,
+            packageTitle: orderData.packageTitle || packageId,
+            amount: orderData.amount || expectedTotal || 0,
+            userName: user.name,
+            userEmail: user.email,
+            targetAccount: typeof targetAccount === 'string' ? targetAccount : JSON.stringify(fields || {}),
+            status: orderData.status || 'processing',
+            fields: fields,
+          }).catch(() => {});
+        }
+      }
       return NextResponse.json(result.body, { status: result.status });
     }
 
@@ -170,6 +187,17 @@ export async function POST(req: Request) {
         console.warn('Sahl cash fulfillment notice:', provErr?.message);
       }
     }
+    notifyNewOrder({
+      id: order.id,
+      serviceName: order.serviceName,
+      packageTitle: order.packageTitle,
+      amount: order.amount,
+      userName: user.name,
+      userEmail: order.userEmail || user.email,
+      targetAccount: (order as any).targetAccount || rawTarget,
+      status: order.status,
+      fields: fields,
+    }).catch(() => {});
     return NextResponse.json({ success: true, order: toBuyerOrder(order), newBalance: atomicRes.newBalance });
   } catch (err: any) {
     return NextResponse.json(

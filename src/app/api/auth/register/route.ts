@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createUserAsync, getUserByEmailAsync } from '@/lib/db';
 import { setSessionCookie, toSafeUser } from '@/lib/session';
+import { notifyNewUser } from '@/lib/telegram';
 
 export async function POST(req: Request) {
   try {
@@ -35,6 +36,8 @@ export async function POST(req: Request) {
       password,
       phone: typeof phone === 'string' ? phone : undefined,
     });
+
+    notifyNewUser({ id: newUser.id, name: newUser.name, email: newUser.email }).catch(() => {});
 
     const response = NextResponse.json({ success: true, user: toSafeUser(newUser) });
     setSessionCookie(response, newUser.id);

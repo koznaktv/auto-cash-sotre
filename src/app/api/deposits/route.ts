@@ -14,6 +14,7 @@ import {
   normalizeTxId,
   verifyShamcashTransaction,
 } from '@/lib/providers/tsaShamcash';
+import { notifyNewDeposit } from '@/lib/telegram';
 
 const MAX_DEPOSIT_AMOUNT = 10000;
 
@@ -119,6 +120,16 @@ export async function POST(req: Request) {
           // Atomically approve and credit user wallet
           const completedDeposit = await updateDepositStatusAsync(created.id, 'completed');
 
+          notifyNewDeposit({
+            id: created.id,
+            amount: finalCreditAmount,
+            method: 'ShamCash (ئاپتوماتىك دەلىللەندى)',
+            txId: tx.tranId,
+            userName: user.name,
+            userEmail: user.email,
+            status: 'completed',
+          }).catch(() => {});
+
           return NextResponse.json({
             success: true,
             autoApproved: true,
@@ -143,6 +154,16 @@ export async function POST(req: Request) {
       amount: parsedAmount,
       txId: cleanTxId,
     });
+
+    notifyNewDeposit({
+      id: newDeposit.id,
+      amount: parsedAmount,
+      method: depositMethod,
+      txId: cleanTxId,
+      userName: user.name,
+      userEmail: user.email,
+      status: 'pending (تەكشۈرۈلمەكتە)',
+    }).catch(() => {});
 
     return NextResponse.json({
       success: true,
