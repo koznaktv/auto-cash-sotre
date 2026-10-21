@@ -304,6 +304,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
       >
         {/* Close Button */}
         <button
+          id="autocash-checkout-modal-close"
           onClick={onClose}
           data-modal-close="true"
           title={t('close')}

@@ -68,10 +68,15 @@ export default function HomePage() {
     return null;
   });
 
-  // Home page root anchor: ensure home page is the base and pressing back doesn't escape back into /account or previous tabs
+  // Home page root anchor & smart modal/product back navigation
+  const selectedCatRef = useRef(selectedCat);
   const activeModalServiceRef = useRef(activeModalService);
   const isAuthOpenRef = useRef(isAuthOpen);
   const isDrawerOpenRef = useRef(isDrawerOpen);
+
+  useEffect(() => {
+    selectedCatRef.current = selectedCat;
+  }, [selectedCat]);
 
   useEffect(() => {
     activeModalServiceRef.current = activeModalService;
@@ -85,17 +90,85 @@ export default function HomePage() {
     isDrawerOpenRef.current = isDrawerOpen;
   }, [isDrawerOpen]);
 
+  const handleOpenProduct = (service: ServiceItem) => {
+    try {
+      window.history.pushState({ modal: 'checkout', serviceId: service.id }, '', window.location.pathname);
+    } catch {}
+    setActiveModalService(service);
+  };
+
+  const handleCloseProduct = () => {
+    setActiveModalService(null);
+  };
+
+  const handleOpenAuth = () => {
+    try {
+      window.history.pushState({ modal: 'auth' }, '', window.location.pathname);
+    } catch {}
+    setIsAuthOpen(true);
+  };
+
+  const handleOpenDrawer = () => {
+    try {
+      window.history.pushState({ modal: 'drawer' }, '', window.location.pathname);
+    } catch {}
+    setIsDrawerOpen(true);
+  };
+
   useEffect(() => {
     try {
       window.history.replaceState({ rootPage: 'home' }, '', '/');
     } catch {}
 
+    // Expose global bridge function for Android Native gesture & back button
+    (window as any).handleAutoCashBack = () => {
+      // 1. If product checkout modal is open, CLOSE IT and return true!
+      if (activeModalServiceRef.current) {
+        setActiveModalService(null);
+        return true;
+      }
+      // 2. If Auth modal is open, CLOSE IT and return true!
+      if (isAuthOpenRef.current) {
+        setIsAuthOpen(false);
+        return true;
+      }
+      // 3. If Drawer is open, CLOSE IT and return true!
+      if (isDrawerOpenRef.current) {
+        setIsDrawerOpen(false);
+        return true;
+      }
+      // 4. If a Category is selected, return to all categories
+      if (selectedCatRef.current !== null) {
+        setSelectedCat(null);
+        setSearchQuery('');
+        return true;
+      }
+      return false;
+    };
+
     const handlePopState = () => {
-      // If a modal or drawer is open, its own popstate listener will close it
-      if (activeModalServiceRef.current || isAuthOpenRef.current || isDrawerOpenRef.current) {
+      // 1. If product modal is open, closing it satisfies the back gesture!
+      if (activeModalServiceRef.current) {
+        setActiveModalService(null);
         return;
       }
-      // On the home page without any modal open, lock home as the base!
+      // 2. If auth modal is open, close it!
+      if (isAuthOpenRef.current) {
+        setIsAuthOpen(false);
+        return;
+      }
+      // 3. If drawer is open, close it!
+      if (isDrawerOpenRef.current) {
+        setIsDrawerOpen(false);
+        return;
+      }
+      // 4. If viewing inside a category, step back to all categories
+      if (selectedCatRef.current !== null) {
+        setSelectedCat(null);
+        setSearchQuery('');
+        return;
+      }
+      // 5. On the home page with no modal open, keep home page anchored as base
       try {
         window.history.pushState({ rootPage: 'home' }, '', '/');
       } catch {}
@@ -103,6 +176,7 @@ export default function HomePage() {
 
     window.addEventListener('popstate', handlePopState);
     return () => {
+      delete (window as any).handleAutoCashBack;
       window.removeEventListener('popstate', handlePopState);
     };
   }, []);
@@ -822,11 +896,12 @@ export default function HomePage() {
 
                   {/* Buy Button */}
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       if (!currentUser || !currentUser.email) {
-                        setIsAuthOpen(true);
+                        handleOpenAuth();
                       } else {
-                        setActiveModalService(service);
+                        handleOpenProduct(service);
                       }
                     }}
                     className="w-full py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500 hover:opacity-95 text-slate-950 font-black text-[10px] sm:text-xs transition cursor-pointer font-alkatip active:scale-95 flex items-center justify-center gap-1 shadow-sm hover:shadow-amber-500/20"
@@ -890,9 +965,9 @@ export default function HomePage() {
         <CheckoutModal
           service={activeModalService}
           user={currentUser}
-          onClose={() => setActiveModalService(null)}
+          onClose={handleCloseProduct}
           onSuccess={handleOrderSuccess}
-          onOpenAuth={() => setIsAuthOpen(true)}
+          onOpenAuth={handleOpenAuth}
         />
       )}
     </div>
