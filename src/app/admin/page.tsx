@@ -261,7 +261,7 @@ export default function AdminPage() {
     whatsappNumber: '+963 984 373 459',
     telegramUsername: 'autocash_UYGHUR',
     siteName: 'AUTO CASH',
-    siteLogo: '/logo.png',
+    siteLogo: '/brand_logo.png?v=1.3.0',
     appDownloadUrl: '',
     tsaApiKey: '',
     tsaAutoDepositEnabled: true,
@@ -4669,10 +4669,10 @@ export default function AdminPage() {
                             <span>تېلېفون ياكى كومپيۇتېردىن رەسىم يۈكلەش</span>
                           </button>
 
-                          {settings.siteLogo && settings.siteLogo !== '/logo.png' && (
+                          {settings.siteLogo && settings.siteLogo !== '/brand_logo.png?v=1.3.0' && settings.siteLogo !== '/logo.png' && (
                             <button
                               type="button"
-                              onClick={() => setSettings({ ...settings, siteLogo: '/logo.png' })}
+                              onClick={() => setSettings({ ...settings, siteLogo: '/brand_logo.png?v=1.3.0' })}
                               className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition cursor-pointer flex items-center gap-1"
                             >
                               <RotateCcw className="w-3.5 h-3.5" />

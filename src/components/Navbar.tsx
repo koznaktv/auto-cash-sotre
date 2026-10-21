@@ -1,6 +1,7 @@
 'use client';
 
 import { clearLocalAuth, logout, getCachedBalance, getCachedUser, storeLocalAuth, formatCurrencyAmount } from '@/lib/clientAuth';
+import { getBrandLogo, BRAND_LOGO_URL } from '@/lib/brand';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import SideDrawer from '@/components/SideDrawer';
@@ -47,9 +48,10 @@ export default function Navbar({
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
   const [siteLogo, setSiteLogo] = useState<string>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('autocash_site_logo') || '/logo.png';
+      const cached = localStorage.getItem('autocash_site_logo');
+      return getBrandLogo(cached);
     }
-    return '/logo.png';
+    return BRAND_LOGO_URL;
   });
 
   useEffect(() => {
@@ -94,15 +96,20 @@ export default function Navbar({
   useEffect(() => {
     const loadLogo = () => {
       const cached = localStorage.getItem('autocash_site_logo');
-      if (cached) setSiteLogo(cached);
+      const resolved = getBrandLogo(cached);
+      setSiteLogo(resolved);
+      if (cached !== resolved) {
+        localStorage.setItem('autocash_site_logo', resolved);
+      }
     };
     loadLogo();
     fetch('/api/settings')
       .then((r) => r.json())
       .then((d) => {
         if (d.success && d.settings?.siteLogo) {
-          setSiteLogo(d.settings.siteLogo);
-          localStorage.setItem('autocash_site_logo', d.settings.siteLogo);
+          const fresh = getBrandLogo(d.settings.siteLogo);
+          setSiteLogo(fresh);
+          localStorage.setItem('autocash_site_logo', fresh);
         }
       })
       .catch(() => {});
@@ -162,13 +169,14 @@ export default function Navbar({
             <button
               type="button"
               onClick={handleOpenDrawer}
-              className="w-9 h-9 sm:w-11 sm:h-11 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/30 ring-1 ring-amber-400/60 hover:scale-105 transition-transform duration-200 bg-[#04101e] shrink-0 flex items-center justify-center cursor-pointer"
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl p-[2px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/35 ring-1 ring-amber-400/60 hover:scale-105 active:scale-95 transition-transform duration-200 bg-[#04101e] shrink-0 flex items-center justify-center cursor-pointer overflow-hidden"
               title={t('menuTitle')}
             >
               <img
-                src={siteLogo || '/logo.png'}
+                src={getBrandLogo(siteLogo)}
                 alt="AUTO CASH Logo"
-                className="w-full h-full rounded-full object-cover brightness-110 contrast-105"
+                className="w-full h-full rounded-[14px] object-cover drop-shadow"
+                style={{ imageRendering: '-webkit-optimize-contrast' }}
               />
             </button>
 
@@ -369,11 +377,12 @@ export default function Navbar({
                 className="flex items-center gap-2 p-0.5 sm:px-2.5 sm:py-1 rounded-full sm:rounded-2xl bg-slate-900 border border-amber-500/35 hover:border-amber-400 text-amber-300 text-xs font-bold font-alkatip transition cursor-pointer shadow-md group shrink-0"
                 title={t('loginRegister')}
               >
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 via-amber-200 to-amber-600 shadow-md shadow-amber-500/30 ring-1 ring-amber-400/50 shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl p-[2px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/35 ring-1 ring-amber-400/50 shrink-0 group-hover:scale-105 transition-transform overflow-hidden">
                   <img
-                    src="/logo.png"
+                    src={getBrandLogo(siteLogo)}
                     alt="Guest Logo"
-                    className="w-full h-full rounded-full object-cover bg-[#04101e] brightness-110"
+                    className="w-full h-full rounded-[14px] object-cover bg-[#04101e]"
+                    style={{ imageRendering: '-webkit-optimize-contrast' }}
                   />
                 </div>
               </button>

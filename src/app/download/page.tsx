@@ -70,7 +70,7 @@ export default function AppDownloadPage() {
             <div className="relative shrink-0">
               <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-3xl p-1 bg-gradient-to-tr from-amber-400 via-amber-200 to-amber-600 shadow-2xl shadow-amber-500/30 transform hover:scale-105 transition duration-300">
                 <img
-                  src="/logo.png"
+                  src="/brand_logo.png?v=1.3.0"
                   alt="AUTO CASH App Icon"
                   className="w-full h-full rounded-[22px] object-cover bg-[#04101e]"
                 />

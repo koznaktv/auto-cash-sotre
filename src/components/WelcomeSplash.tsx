@@ -95,7 +95,7 @@ export default function WelcomeSplash({ onEnter }: { onEnter: () => void }) {
           <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-3xl p-[2.5px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-cyan-400 shadow-[0_0_40px_rgba(245,158,11,0.5)]">
             <div className="w-full h-full rounded-[22px] overflow-hidden bg-[#030c18] flex items-center justify-center shadow-inner">
               <img
-                src="/logo.png"
+                src="/brand_logo.png?v=1.3.0"
                 alt="AUTO CASH Official Logo"
                 className="w-full h-full object-contain select-none drop-shadow-2xl"
                 style={{ imageRendering: '-webkit-optimize-contrast' }}

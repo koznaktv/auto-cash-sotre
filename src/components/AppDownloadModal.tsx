@@ -102,7 +102,7 @@ export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalPr
             <div className="relative shrink-0">
               <div className="w-16 h-16 rounded-2xl p-0.5 bg-gradient-to-tr from-amber-400 via-amber-200 to-amber-600 shadow-lg shadow-amber-500/30">
                 <img
-                  src="/logo.png"
+                  src="/brand_logo.png?v=1.3.0"
                   alt="AUTO CASH Logo"
                   className="w-full h-full rounded-[14px] object-cover bg-[#04101e]"
                 />

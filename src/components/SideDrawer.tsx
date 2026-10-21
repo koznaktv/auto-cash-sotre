@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { getBrandLogo, BRAND_LOGO_URL } from '@/lib/brand';
 import Link from 'next/link';
 import LanguageFlag from '@/components/LanguageFlag';
 import { useLanguage } from '@/context/LanguageContext';
@@ -118,16 +119,21 @@ export default function SideDrawer({
   const [avatarSrc, setAvatarSrc] = useState<string>('');
   const [siteLogo, setSiteLogo] = useState<string>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('autocash_site_logo') || '/logo.png';
+      const cached = localStorage.getItem('autocash_site_logo');
+      return getBrandLogo(cached);
     }
-    return '/logo.png';
+    return BRAND_LOGO_URL;
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const loadLogo = () => {
       const cached = localStorage.getItem('autocash_site_logo');
-      if (cached) setSiteLogo(cached);
+      const resolved = getBrandLogo(cached);
+      setSiteLogo(resolved);
+      if (cached !== resolved) {
+        localStorage.setItem('autocash_site_logo', resolved);
+      }
     };
     loadLogo();
     window.addEventListener('autocash-logo-changed', loadLogo);
@@ -284,11 +290,12 @@ export default function SideDrawer({
           {/* Header */}
           <div className="flex items-center justify-between pb-4 border-b border-amber-500/20 mb-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full border border-amber-400 overflow-hidden bg-[#04101e] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl p-[1.5px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-sm overflow-hidden bg-[#04101e] flex items-center justify-center shrink-0">
                 <img
-                  src={siteLogo || '/logo.png'}
+                  src={getBrandLogo(siteLogo)}
                   alt="AUTO CASH"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full rounded-[9px] object-cover"
+                  style={{ imageRendering: '-webkit-optimize-contrast' }}
                 />
               </div>
               <span className="font-ukij font-bold text-base text-white gold-text-glow">
@@ -442,11 +449,12 @@ export default function SideDrawer({
                 <div className="flex items-center gap-3">
                   {/* Site Logo with Amber Glow */}
                   <div className="relative shrink-0">
-                    <div className="w-13 h-13 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 via-amber-200 to-amber-600 shadow-md shadow-amber-500/30">
+                    <div className="w-13 h-13 rounded-2xl p-[2px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/35 overflow-hidden">
                       <img
-                        src="/logo.png"
+                        src={getBrandLogo(siteLogo)}
                         alt="AUTO CASH Logo"
-                        className="w-12 h-12 rounded-full object-cover bg-[#04101e] border border-slate-950"
+                        className="w-full h-full rounded-[14px] object-cover bg-[#04101e]"
+                        style={{ imageRendering: '-webkit-optimize-contrast' }}
                       />
                     </div>
                     <span

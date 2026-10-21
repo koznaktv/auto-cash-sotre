@@ -456,11 +456,12 @@ export default function AccountPage() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3.5 w-full sm:w-auto">
                 <div className="relative shrink-0">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 via-amber-200 to-amber-600 shadow-lg shadow-amber-500/25">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl p-[2px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-lg shadow-amber-500/25 overflow-hidden">
                     <img
-                      src="/logo.png"
+                      src="/brand_logo.png?v=1.3.0"
                       alt="Logo"
-                      className="w-full h-full rounded-full object-cover bg-[#04101e] border border-slate-950"
+                      className="w-full h-full rounded-[14px] object-cover bg-[#04101e]"
+                      style={{ imageRendering: '-webkit-optimize-contrast' }}
                     />
                   </div>
                   <span
