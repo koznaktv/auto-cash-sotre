@@ -11,6 +11,7 @@ export async function GET() {
         siteLogo: settings.siteLogo || '/logo.png',
         telegramUsername: settings.telegramUsername || 'autocash_UYGHUR',
         whatsappNumber: settings.whatsappNumber || '+963 984 373 459',
+        appDownloadUrl: (settings as any).appDownloadUrl || '',
       },
     });
   } catch (err: any) {

@@ -30,6 +30,7 @@ export async function PATCH(req: Request) {
       telegramUsername,
       siteName,
       siteLogo,
+      appDownloadUrl,
       providerApiUrl,
       providerApiKey,
       providerApiType,
@@ -56,6 +57,7 @@ export async function PATCH(req: Request) {
     if (telegramUsername !== undefined) updates.telegramUsername = String(telegramUsername).trim();
     if (siteName !== undefined) updates.siteName = String(siteName).trim();
     if (siteLogo !== undefined) updates.siteLogo = String(siteLogo).trim();
+    if (appDownloadUrl !== undefined) updates.appDownloadUrl = String(appDownloadUrl).trim();
 
     if (providerApiUrl !== undefined && String(providerApiUrl).trim() !== '') {
       updates.providerApiUrl = String(providerApiUrl).trim();

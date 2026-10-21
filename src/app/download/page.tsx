@@ -105,18 +105,27 @@ export default function AppDownloadPage() {
                 </span>
               </div>
 
-              {/* Download Action */}
+              {/* Download Actions */}
               <div className="pt-4 flex flex-col sm:flex-row items-center gap-3">
                 <a
                   href="/api/download/app"
                   download="autocash.apk"
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm flex items-center justify-center gap-3 shadow-xl shadow-amber-500/25 transition transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm flex items-center justify-center gap-2.5 shadow-xl shadow-amber-500/25 transition transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                 >
                   <Download className="w-5 h-5" />
                   <span>{t('downloadApkBtn')}</span>
                 </a>
-                <span className="text-xs text-slate-400">{t('appInstalledHelp')}</span>
+                <a
+                  href="https://t.me/autocash_UYGHUR"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-600 via-blue-600 to-cyan-500 hover:from-cyan-500 hover:to-blue-400 text-white font-black text-sm flex items-center justify-center gap-2.5 shadow-xl shadow-cyan-500/20 transition transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                >
+                  <Send className="w-5 h-5" />
+                  <span>Telegram ئارقىلىق دەرھال چۈشۈرۈش</span>
+                </a>
               </div>
+              <p className="text-xs text-slate-400 mt-2">{t('appInstalledHelp')}</p>
             </div>
           </div>
         </section>

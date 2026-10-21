@@ -156,6 +156,7 @@ interface SystemSettingsState {
   telegramUsername: string;
   siteName: string;
   siteLogo?: string;
+  appDownloadUrl?: string;
   providerApiUrl?: string;
   providerApiKey?: string;
   providerApiType?: 'syria4game' | 'smm' | 'custom_rest';
@@ -261,6 +262,7 @@ export default function AdminPage() {
     telegramUsername: 'autocash_UYGHUR',
     siteName: 'AUTO CASH',
     siteLogo: '/logo.png',
+    appDownloadUrl: '',
     tsaApiKey: '',
     tsaAutoDepositEnabled: true,
     shamcashExchangeRate: 15000,
@@ -2590,6 +2592,7 @@ export default function AdminPage() {
           telegramUsername: settings.telegramUsername,
           siteName: settings.siteName,
           siteLogo: settings.siteLogo,
+          appDownloadUrl: settings.appDownloadUrl,
           tsaApiKey: settings.tsaApiKey,
           tsaAutoDepositEnabled: settings.tsaAutoDepositEnabled,
           shamcashExchangeRate: settings.shamcashExchangeRate,
@@ -4834,6 +4837,23 @@ export default function AdminPage() {
                       className={`w-full px-3.5 py-2.5 rounded-xl font-mono ${themeClasses.input} focus:outline-none focus:border-amber-400`}
                       dir="ltr"
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 font-bold mb-1.5">
+                      رەسمىي ئەپ (APK) چۈشۈرۈش ئۇلانمىسى (App Download URL):
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="https://t.me/autocash_UYGHUR ياكى Google Drive ئۇلانمىسى..."
+                      value={settings.appDownloadUrl || ''}
+                      onChange={(e) => setSettings({ ...settings, appDownloadUrl: e.target.value })}
+                      className={`w-full px-3.5 py-2.5 rounded-xl font-mono ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                      dir="ltr"
+                    />
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      ئەگەر بوش قالدۇرۇلسا، ئاپتوماتىك ھالدا رەسمىي Telegram مەركىزىگە ئۇلىنىپ ئەپ تارقىتىلىدۇ.
+                    </p>
                   </div>
 
                   <div className="pt-2 border-t border-slate-800">
