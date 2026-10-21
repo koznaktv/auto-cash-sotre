@@ -19,6 +19,7 @@ import { validateOrderFields, validateQty } from '../catalog/fieldValidation';
 import { computeSellPrice } from '../catalog/pricing';
 import { invalidateCatalogCache, resolveOrderableProduct } from '../catalog/storefront';
 import { getProviderSettings, updateProviderSettings, updateStoredProduct } from '../catalog/store';
+import { notifyInvalidAccountId } from '../telegram';
 
 export interface PurchaseInput {
   serviceId: string;
@@ -227,6 +228,16 @@ export async function placeProviderOrder(user: UserRecord, input: PurchaseInput)
     await updateProviderSettings({ ordersPaused: true, ordersPausedReason: response.error.message }).catch(() => {});
   }
   const reason = response.message || 'تاشقى تەمىنلىگۈچى رەت قىلدى';
+  notifyInvalidAccountId({
+    orderId,
+    serviceName: item.serviceName,
+    packageTitle,
+    targetAccount: fields.summary || 'نامەلۇم',
+    userName: user.name,
+    userEmail: user.email,
+    amount: total,
+    errorMessage: reason,
+  }).catch(() => {});
   const refund = await refundOrderBalanceAtomicAsync(orderId, reason);
   if (!refund.success) {
     console.error(`Refund failed for order ${orderId}:`, refund.message);

@@ -14,7 +14,7 @@ import {
   normalizeTxId,
   verifyShamcashTransaction,
 } from '@/lib/providers/tsaShamcash';
-import { notifyNewDeposit } from '@/lib/telegram';
+import { notifyNewDeposit, notifyFraudulentDeposit } from '@/lib/telegram';
 
 const MAX_DEPOSIT_AMOUNT = 10000;
 
@@ -71,6 +71,14 @@ export async function POST(req: Request) {
     // Anti-replay / anti-fraud: check if this transaction ID has already been credited!
     const alreadyCompleted = await isTxIdAlreadyCompletedAsync(cleanTxId);
     if (alreadyCompleted) {
+      notifyFraudulentDeposit({
+        userName: user.name,
+        userEmail: user.email,
+        txId: cleanTxId,
+        amount: parsedAmount,
+        reason: 'بۇ تالون بۇرۇن ئاللىقاچان سانداندا تەستىقلانغان (تەكرار تالون كىرگۈزۈش ھەرىكىتى)',
+      }).catch(() => {});
+
       return NextResponse.json(
         {
           success: false,

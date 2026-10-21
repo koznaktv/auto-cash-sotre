@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getSystemSettingsAsync } from '@/lib/db';
 import { APP_VERSION_CONFIG } from '@/lib/appVersion';
+import { recordSiteVisit } from '@/lib/telegram';
 
 export async function GET() {
   try {
+    recordSiteVisit();
     const settings = await getSystemSettingsAsync();
     const appVersion = (settings as any).appVersion || APP_VERSION_CONFIG.version;
     const minRequiredVersion = (settings as any).minRequiredVersion || APP_VERSION_CONFIG.minRequiredVersion;

@@ -11,6 +11,7 @@ import {
   normalizeTxId,
   verifyShamcashTransaction,
 } from '@/lib/providers/tsaShamcash';
+import { notifyFraudulentDeposit } from '@/lib/telegram';
 
 export async function POST(req: Request) {
   try {
@@ -58,6 +59,14 @@ export async function POST(req: Request) {
     // Anti-replay check
     const alreadyCompleted = await isTxIdAlreadyCompletedAsync(cleanTxId);
     if (alreadyCompleted) {
+      notifyFraudulentDeposit({
+        userName: deposit.userName,
+        userEmail: deposit.userEmail,
+        txId: cleanTxId,
+        amount: deposit.amount,
+        reason: 'دەلىللەش جەريانىدا بۇرۇن ئىشلىتىلگەن تەكرار تالون قايتا كىرگۈزۈلگەنلىكى بايقالدى',
+      }).catch(() => {});
+
       return NextResponse.json({
         success: false,
         message: 'بۇ تالون نومۇرى بۇرۇن باشقا بىر خاتىرىدە ئاللىقاچان ئىشلىتىلگەن!',
