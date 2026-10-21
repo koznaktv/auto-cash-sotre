@@ -10,19 +10,19 @@ export interface AppVersionInfo {
 }
 
 export const APP_VERSION_CONFIG: AppVersionInfo = {
-  version: '1.2.2',
-  code: 5,
-  minRequiredVersion: '1.2.2', // Any installed app version lower than 1.2.2 is strictly disabled
+  version: '1.2.3',
+  code: 6,
+  minRequiredVersion: '1.2.3', // Any installed app version lower than 1.2.3 is strictly disabled
   forceUpdate: true,
   releaseDate: '2026-10-21',
   downloadUrl: '/download/autocash.apk',
   releaseNotes: {
-    ug: 'AUTO CASH v1.2.2: ئەپ سىنبەلگىسى (App Launcher Icon) تولۇق سۈزۈك، يۇقىرى ئېنىقلىقتىكى Adaptive ھالەتكە يېڭىلاندى. قارشى ئېلىش بېتىدىكى رەسىم ۋە ئالتۇن بەلگە تولۇق سۈزۈكلەشتۈرۈلدى.',
-    en: 'AUTO CASH v1.2.2: Launcher icon upgraded to ultra-sharp high-DPI Adaptive Icon. Welcome splash screen graphics and golden brand emblem enhanced with crystal-clear rendering.',
-    ar: 'AUTO CASH v1.2.2: ترقية أيقونة التطبيق بدقة فائقة بتقنية Adaptive Icon وشاشة ترحيبية فائقة الوضوح.',
-    tr: 'AUTO CASH v1.2.2: Uygulama simgesi ultra net Adaptive Icon formatına yükseltildi ve karşılama ekranı görseli kristal netliğine kavuşturuldu.',
-    uz: 'AUTO CASH v1.2.2: Ilova belgisi ultra aniq Adaptive Icon formatiga yangilandi va kutib olish ekrani rasmi to‘liq tiniqlashtirildi.',
-    ru: 'AUTO CASH v1.2.2: Иконка приложения обновлена до сверхчеткого Adaptive Icon, графика приветственного экрана улучшена.',
+    ug: 'AUTO CASH v1.2.3: ئاندروئىد تېلېفون سىستېمىسىنىڭ ئېچىلىش قارشى ئېلىش بېتى (Android Native Splash Screen API v31+) تولۇق يېڭىلاندى. كونا سىستېمىلىق قارا كۋادرات چىقىۋېلىش مەسىلىسى تۈپتىن تۈگىتىلىپ، ئالتۇن بەلگە تولۇق سۈزۈكلەشتۈرۈلدى.',
+    en: 'AUTO CASH v1.2.3: Fully configured Android 12+ Native Splash Screen API (windowSplashScreenAnimatedIcon) with crystal-clear vector/high-DPI gold emblem, removing squircle container blur.',
+    ar: 'AUTO CASH v1.2.3: ترقية شاشة البداية الأصلية في أندرويد 12+ بدقة فائقة وإزالة الحواف الباهتة.',
+    tr: 'AUTO CASH v1.2.3: Android 12+ sistem başlangıç ekranı (Splash Screen) ultra net altın amblem ile güncellendi, bulanıklık giderildi.',
+    uz: 'AUTO CASH v1.2.3: Android 12+ tizim ochilish ekrani (Splash Screen) tiniq oltin emblem bilan yangilandi.',
+    ru: 'AUTO CASH v1.2.3: Нативный сплэш-скрин Android 12+ обновлен четким золотым логотипом высокого разрешения.',
   },
   forceUpdateMessages: {
     ug: {
