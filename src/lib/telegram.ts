@@ -6,6 +6,10 @@
 
 export const TELEGRAM_CONFIG = {
   botUsername: 'Autocash_store_bot',
+  channelUrl: 'https://t.me/autocash_cannel',
+  channelUsername: 'autocash_cannel',
+  supportUrl: 'https://t.me/autocash_UYGHUR',
+  supportUsername: 'autocash_UYGHUR',
   adminChatId: process.env.TELEGRAM_ADMIN_CHAT_ID || '7575664493',
   adminUsername: 'nasrulla0996',
   storeUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://auto-cash-sotre.vercel.app',
@@ -214,12 +218,18 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
           ],
           [
             {
-              text: '📲 تېلېفون ئەپنى چۈشۈرۈش',
-              url: `${TELEGRAM_CONFIG.storeUrl}/download`,
+              text: '📢 رەسمىي قانال',
+              url: TELEGRAM_CONFIG.channelUrl,
             },
             {
               text: '💬 خېرىدارلار مۇلازىمىتى',
-              url: 'https://t.me/autocash_UYGHUR',
+              url: TELEGRAM_CONFIG.supportUrl,
+            },
+          ],
+          [
+            {
+              text: '📲 تېلېفون ئەپنى چۈشۈرۈش',
+              url: `${TELEGRAM_CONFIG.storeUrl}/download`,
             },
           ],
         ],
@@ -234,11 +244,12 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 ℹ️ <b>AUTO CASH مۇلازىمەت ياردەم مەركىزى</b>
 
 • سۇپا ئادرېسى: ${TELEGRAM_CONFIG.storeUrl}
-• خېرىدارلار مۇلازىمىتى: @autocash_UYGHUR
-• مەسئۇل باشقۇرغۇچى: @${TELEGRAM_CONFIG.adminUsername}
+• 📢 رەسمىي قانال: @${TELEGRAM_CONFIG.channelUsername}
+• 💬 خېرىدارلار مۇلازىمىتى: @${TELEGRAM_CONFIG.supportUsername}
+• 👑 مەسئۇل باشقۇرغۇچى: @${TELEGRAM_CONFIG.adminUsername}
 
 پۇل كىرگۈزۈش ياكى زاكاز توغرىسىدا سوئاللىرىڭىز بولسا بىۋاسىتە خېرىدارلار مۇلازىمىتىگە ئالاقىلىشىڭ:
-👉 @autocash_UYGHUR
+👉 @${TELEGRAM_CONFIG.supportUsername}
 `.trim();
 
     await sendTelegramMessage(chatId, helpText, {
@@ -251,8 +262,14 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
               web_app: { url: TELEGRAM_CONFIG.storeUrl },
             },
             {
+              text: '📢 رەسمىي قانال',
+              url: TELEGRAM_CONFIG.channelUrl,
+            },
+          ],
+          [
+            {
               text: '💬 خېرىدارلار مۇلازىمىتى',
-              url: 'https://t.me/autocash_UYGHUR',
+              url: TELEGRAM_CONFIG.supportUrl,
             },
           ],
         ],

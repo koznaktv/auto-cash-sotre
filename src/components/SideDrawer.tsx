@@ -28,6 +28,7 @@ import {
   LayoutDashboard,
   Camera,
   Smartphone,
+  Megaphone,
 } from 'lucide-react';
 
 interface SideDrawerProps {
@@ -591,6 +592,26 @@ export default function SideDrawer({
           {/* Support section */}
           <div className="pt-4 mt-4 border-t border-slate-800/80 space-y-2 text-xs">
             <span className="text-[10px] text-slate-400 block mb-1">{t('contactSupport')}</span>
+            
+            {/* Telegram Official Channel */}
+            <div className="flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-sky-500/10 to-blue-600/5 border border-sky-500/25">
+              <span className="text-slate-200 flex items-center gap-1.5 font-medium">
+                <span className="animate-soft-float">
+                  <Megaphone className="w-3.5 h-3.5 text-sky-400" />
+                </span>
+                <span>{t('telegramChannel')}</span>
+              </span>
+              <a
+                href="https://t.me/autocash_cannel"
+                target="_blank"
+                rel="noreferrer"
+                className="text-sky-400 hover:text-sky-300 text-[11px] hover:underline font-bold"
+              >
+                {t('connect')}
+              </a>
+            </div>
+
+            {/* Telegram Customer Support */}
             <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
               <span className="text-slate-300 flex items-center gap-1.5">
                 <span className="animate-soft-float">

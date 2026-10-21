@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { Send, MessageCircle } from 'lucide-react';
+import { Send, MessageCircle, Megaphone } from 'lucide-react';
 
 export default function TelegramFloat() {
   const { t, isRTL } = useLanguage();
@@ -14,7 +14,21 @@ export default function TelegramFloat() {
         isRTL ? 'left-4' : 'right-4'
       } z-40 flex items-center gap-2`}
     >
-      {/* Telegram Button */}
+      {/* Telegram Official Channel Button */}
+      <a
+        href="https://t.me/autocash_cannel"
+        target="_blank"
+        rel="noreferrer"
+        className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-sky-500/35 border border-sky-300/40 hover:scale-105 active:scale-95 transition-all group font-alkatip"
+        title={t('telegramChannel')}
+      >
+        <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+          <Megaphone className="w-3 h-3 text-white" />
+        </span>
+        <span className="hidden sm:inline">{t('telegramChannel')}</span>
+      </a>
+
+      {/* Telegram Support Button */}
       <a
         href="https://t.me/autocash_UYGHUR"
         target="_blank"

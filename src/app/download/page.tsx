@@ -21,6 +21,7 @@ import {
   Sparkles,
   Send,
   HelpCircle,
+  Megaphone,
 } from 'lucide-react';
 
 export default function AppDownloadPage() {
@@ -211,26 +212,50 @@ export default function AppDownloadPage() {
           </div>
         </section>
 
-        {/* Telegram & WhatsApp Support Box */}
-        <section className="p-5 rounded-2xl bg-gradient-to-r from-[#081c33] to-[#04101e] border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-              <Send className="w-5 h-5" />
+        {/* Telegram Channel & Support Boxes */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Official Channel */}
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-sky-950/40 to-[#04101e] border border-sky-500/20 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 shrink-0">
+                <Megaphone className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-bold text-sm text-white">{t('telegramChannel')}</p>
+                <p className="text-xs text-slate-400">@autocash_cannel</p>
+              </div>
             </div>
-            <div>
-              <p className="font-bold text-sm text-white">{t('contactSupport')}</p>
-              <p className="text-xs text-slate-400">{t('telegramSupport')}</p>
-            </div>
+            <a
+              href="https://t.me/autocash_cannel"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold text-xs flex items-center gap-1.5 transition shrink-0"
+            >
+              <span>{t('connect')}</span>
+            </a>
           </div>
-          <a
-            href="https://t.me/autocash_UYGHUR"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs flex items-center gap-2 transition"
-          >
-            <Send className="w-4 h-4" />
-            <span>{t('connect')}</span>
-          </a>
+
+          {/* Customer Support */}
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-[#081c33] to-[#04101e] border border-slate-800 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+                <Send className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-bold text-sm text-white">{t('contactSupport')}</p>
+                <p className="text-xs text-slate-400">@autocash_UYGHUR</p>
+              </div>
+            </div>
+            <a
+              href="https://t.me/autocash_UYGHUR"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs flex items-center gap-1.5 transition shrink-0"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>{t('connect')}</span>
+            </a>
+          </div>
         </section>
       </main>
 

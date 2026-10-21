@@ -25,7 +25,8 @@ import {
   Send,
   MessageCircle,
   RefreshCw,
-  ExternalLink
+  ExternalLink,
+  Megaphone
 } from 'lucide-react';
 
 interface DepositRecord {
@@ -795,6 +796,16 @@ export default function DepositPage() {
                   </button>
 
                   <div className="pt-2 flex flex-wrap items-center justify-center gap-3 text-center">
+                    <a
+                      href="https://t.me/autocash_cannel"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 text-[11px] text-sky-400 hover:text-sky-300 font-bold font-alkatip hover:underline"
+                    >
+                      <Megaphone className="w-3.5 h-3.5 text-sky-400" />
+                      <span>{t('telegramChannel')}</span>
+                    </a>
+                    <span className="text-slate-600 hidden sm:inline">•</span>
                     <a
                       href="https://t.me/autocash_UYGHUR"
                       target="_blank"
