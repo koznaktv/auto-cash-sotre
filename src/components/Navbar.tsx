@@ -150,15 +150,15 @@ export default function Navbar({
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-[#040d1a] border-b border-amber-500/25 shadow-lg shadow-black/30 pt-[max(env(safe-area-inset-top,0px),10px)] sm:pt-0 transition-all">
-        <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 min-h-[58px] sm:h-16 py-1.5 sm:py-0 flex items-center justify-between gap-2 sm:gap-4">
+      <header className="sticky top-0 z-50 bg-[#040d1a] border-b border-amber-500/25 shadow-lg shadow-black/30 pt-[max(env(safe-area-inset-top,0px),10px)] sm:pt-0 transition-all w-full">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-h-[58px] sm:h-16 py-1.5 sm:py-0 flex items-center justify-between gap-1.5 sm:gap-4">
           {/* Start Group: Logo -> Menu -> Language Button -> AUTO CASH Name (-> Desktop Nav) */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {/* 1. Logo image button */}
             <button
               type="button"
               onClick={handleOpenDrawer}
-              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/30 ring-1 ring-amber-400/60 hover:scale-105 transition-transform duration-200 bg-[#04101e] shrink-0 flex items-center justify-center cursor-pointer"
+              className="w-9 h-9 sm:w-11 sm:h-11 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/30 ring-1 ring-amber-400/60 hover:scale-105 transition-transform duration-200 bg-[#04101e] shrink-0 flex items-center justify-center cursor-pointer"
               title={t('menuTitle')}
             >
               <img
@@ -172,10 +172,10 @@ export default function Navbar({
             <button
               type="button"
               onClick={handleOpenDrawer}
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-900/90 border border-amber-500/35 hover:border-amber-400 flex items-center justify-center text-amber-300 hover:text-white transition shadow-sm cursor-pointer active:scale-95 shrink-0"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-slate-900/90 border border-amber-500/35 hover:border-amber-400 flex items-center justify-center text-amber-300 hover:text-white transition shadow-sm cursor-pointer active:scale-95 shrink-0"
               title={t('menuTitle')}
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
             {/* 3. Language Selector Toggle next to Menu */}
@@ -183,7 +183,7 @@ export default function Navbar({
               <button
                 type="button"
                 onClick={() => setLangMenuOpen(!langMenuOpen)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900/90 border border-amber-500/35 hover:border-amber-400 text-amber-300 hover:text-white transition text-xs font-bold cursor-pointer active:scale-95 shrink-0 shadow-sm"
+                className="flex items-center gap-1.5 px-2 py-1.5 sm:px-2.5 rounded-xl bg-slate-900/90 border border-amber-500/35 hover:border-amber-400 text-amber-300 hover:text-white transition text-xs font-bold cursor-pointer active:scale-95 shrink-0 shadow-sm"
                 title={t('selectLanguage')}
               >
                 <LanguageFlag code={lang} className="w-4 h-2.5 rounded-[2px] object-cover shrink-0 shadow-sm" />
@@ -248,10 +248,10 @@ export default function Navbar({
               )}
             </div>
 
-            {/* 4. Brand Name */}
+            {/* 4. Brand Name - Displayed on md+ screens so logos have generous room on mobile */}
             <Link
               href="/"
-              className="flex items-center gap-1 group cursor-pointer shrink-0"
+              className="hidden md:flex items-center gap-1 group cursor-pointer shrink-0"
             >
               <span className="font-ukij font-black text-sm sm:text-base md:text-lg tracking-wider autocash-shimmer whitespace-nowrap">
                 AUTO CASH
@@ -281,8 +281,8 @@ export default function Navbar({
             </nav>
           </div>
 
-          {/* End Group: Deposit button -> Wallet -> Avatar */}
-          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+          {/* End Group: Deposit button -> Admin -> Wallet -> Avatar */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             <Link
               href="/deposit"
               className="hidden md:inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold gold-shimmer-btn animate-normal-float transition-all font-alkatip shrink-0 hover:scale-105 active:scale-95"
@@ -297,18 +297,18 @@ export default function Navbar({
             {isAdmin && (
               <a
                 href="/admin"
-                className="xl:hidden inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-bold font-alkatip transition active:scale-95 shrink-0 shadow-sm"
+                className="xl:hidden inline-flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-bold font-alkatip transition active:scale-95 shrink-0 shadow-sm"
                 title={t('adminPanel')}
               >
-                <LayoutDashboard className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span className="text-[11px] font-bold">{t('admin')}</span>
+                <LayoutDashboard className="w-4 h-4 text-amber-400 shrink-0" />
+                <span className="text-[11px] font-bold hidden sm:inline">{t('admin')}</span>
               </a>
             )}
 
             {/* Wallet pill */}
             <Link
               href="/deposit"
-              className="flex items-center gap-1.5 bg-slate-900/90 hover:bg-slate-800 border border-amber-500/30 px-2 sm:px-2.5 py-1.5 rounded-xl text-xs shadow-inner transition shrink-0"
+              className="flex items-center gap-1 sm:gap-1.5 bg-slate-900/90 hover:bg-slate-800 border border-amber-500/30 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-xs shadow-inner transition shrink-0"
               title={t('balance')}
             >
               <span className="animate-floating-icon shrink-0">
@@ -333,7 +333,7 @@ export default function Navbar({
                 className="flex items-center gap-2 p-0.5 sm:px-2 sm:py-1 rounded-full sm:rounded-2xl bg-amber-950/40 border border-amber-500/40 text-amber-300 text-xs font-bold font-alkatip hover:bg-amber-900/50 transition cursor-pointer shadow-md shadow-amber-500/20 group shrink-0"
                 title={t('myAccountDrawer')}
               >
-                <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/30 ring-1 ring-amber-400/60 shrink-0 group-hover:scale-105 transition-transform duration-200">
+                <div className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/30 ring-1 ring-amber-400/60 shrink-0 group-hover:scale-105 transition-transform duration-200">
                   <img
                     src={(activeUser as any)?.avatarUrl || (activeUser as any)?.avatar || "/avatar.png"}
                     alt={activeUser.name}
@@ -343,7 +343,7 @@ export default function Navbar({
                     className="w-full h-full rounded-full object-cover bg-slate-900 brightness-110 contrast-105"
                   />
                   <span
-                    className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-[#051120] rounded-full shadow-sm"
+                    className="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-emerald-500 border-2 border-[#051120] rounded-full shadow-sm"
                     title={t('online')}
                   />
                 </div>
