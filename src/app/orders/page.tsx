@@ -176,11 +176,11 @@ export default function OrdersPage() {
           <div className="grid grid-cols-2 gap-2.5 text-[11px]">
             <div>
               <span className="block text-slate-400 text-[10px] mb-1 font-alkatip">
-                {isRTL ? 'تارىختىن:' : 'From:'}
+                {t('fromDate')}
               </span>
               <div className="relative flex items-center justify-between bg-[#051120] border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs hover:border-cyan-500/50 transition">
                 <span className={`select-none ${startDate ? 'text-cyan-300 font-mono font-bold' : 'text-slate-400 font-alkatip'}`}>
-                  {startDate ? startDate : (isRTL ? 'يىل / ئاي / كۈن' : 'YYYY / MM / DD')}
+                  {startDate ? startDate : t('datePlaceholder')}
                 </span>
                 <div className="flex items-center gap-1 text-slate-400">
                   {startDate && (
@@ -191,7 +191,7 @@ export default function OrdersPage() {
                         setStartDate('');
                       }}
                       className="relative z-20 text-slate-400 hover:text-rose-400 p-0.5 rounded cursor-pointer transition"
-                      title={isRTL ? 'تازىلاش' : 'Clear'}
+                      title={t('clear')}
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -214,11 +214,11 @@ export default function OrdersPage() {
 
             <div>
               <span className="block text-slate-400 text-[10px] mb-1 font-alkatip">
-                {isRTL ? 'بۈگۈنگە قەدەر:' : 'To:'}
+                {t('toDate')}
               </span>
               <div className="relative flex items-center justify-between bg-[#051120] border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs hover:border-cyan-500/50 transition">
                 <span className={`select-none ${endDate ? 'text-cyan-300 font-mono font-bold' : 'text-slate-400 font-alkatip'}`}>
-                  {endDate ? endDate : (isRTL ? 'يىل / ئاي / كۈن' : 'YYYY / MM / DD')}
+                  {endDate ? endDate : t('datePlaceholder')}
                 </span>
                 <div className="flex items-center gap-1 text-slate-400">
                   {endDate && (
@@ -229,7 +229,7 @@ export default function OrdersPage() {
                         setEndDate('');
                       }}
                       className="relative z-20 text-slate-400 hover:text-rose-400 p-0.5 rounded cursor-pointer transition"
-                      title={isRTL ? 'تازىلاش' : 'Clear'}
+                      title={t('clear')}
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -305,7 +305,7 @@ export default function OrdersPage() {
         {/* Results Counter */}
         <div className="flex items-center justify-between text-xs text-slate-400 px-1 pt-1">
           <div className="flex items-center gap-2">
-            <span>{isRTL ? 'نەتىجىلەر:' : 'Results:'}</span>
+            <span>{t('results')}</span>
             <span className="font-mono font-bold text-cyan-400">{filteredOrders.length}</span>
           </div>
 
@@ -314,7 +314,7 @@ export default function OrdersPage() {
             className="flex items-center gap-1 text-[11px] text-amber-400 hover:text-amber-300 transition cursor-pointer"
           >
             <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
-            <span>{isRTL ? 'يېڭىلاش' : 'Refresh'}</span>
+            <span>{t('refresh')}</span>
           </button>
         </div>
 
@@ -345,7 +345,7 @@ export default function OrdersPage() {
                       <button
                         onClick={() => copyText(order.id, `id-${order.id}`)}
                         className="text-slate-500 hover:text-white p-1 cursor-pointer"
-                        title={isRTL ? 'نومۇرنى كۆچۈرۈش' : 'Copy Order ID'}
+                        title={t('copyOrderId')}
                       >
                         {copiedId === `id-${order.id}` ? (
                           <Check className="w-3.5 h-3.5 text-emerald-400" />
@@ -383,10 +383,10 @@ export default function OrdersPage() {
                         {translatePackageTitle(order.serviceName)}
                       </h3>
                       <div className="text-[11px] text-slate-400 mt-0.5">
-                        <span>{isRTL ? 'بولاق:' : 'Package:'} </span>
+                        <span>{t('packageLabel')} </span>
                         <span className="text-amber-200">{translatePackageTitle(order.packageTitle)}</span>
                         <span className="mx-1.5">•</span>
-                        <span>{isRTL ? 'ئابۇنىت:' : 'Account:'} </span>
+                        <span>{t('accountLabel')} </span>
                         <span className="text-cyan-300 font-mono" dir="ltr">{order.targetAccount}</span>
                       </div>
                     </div>
@@ -412,7 +412,7 @@ export default function OrdersPage() {
                     <div className="mt-2 pt-2 border-t border-slate-800/80 bg-slate-950/60 p-2.5 rounded-xl text-xs space-y-1.5 font-alkatip">
                       {order.details.delivery?.codes?.map((code, idx) => (
                         <div key={idx} className="flex items-center justify-between gap-2">
-                          <span className="text-slate-400 text-[11px] shrink-0">{isRTL ? 'كود:' : 'Code:'}</span>
+                          <span className="text-slate-400 text-[11px] shrink-0">{t('codeLabel')}</span>
                           <div className="flex items-center gap-1.5 min-w-0">
                             <span className="text-emerald-300 font-bold font-mono break-all" dir="ltr">
                               {code}
@@ -428,14 +428,14 @@ export default function OrdersPage() {
                       ))}
                       {order.details.refundReason && (
                         <div className="text-[11px] text-rose-300">
-                          {isRTL ? 'پۇل قايتۇرۇلدى: ' : 'Refunded: '}
+                          {t('refunded')}
                           {order.details.refundReason}
                         </div>
                       )}
                       {order.details.accountCredentials && (
                         <div className="flex items-center justify-between">
                           <span className="text-slate-400 text-[11px]">
-                            {isRTL ? 'ھېسابات ئۇچۇرى:' : 'Credentials:'}
+                            {t('credentialsLabel')}
                           </span>
                           <div className="flex items-center gap-1.5">
                             <span className="text-emerald-300 font-bold font-mono" dir="ltr">
@@ -453,7 +453,7 @@ export default function OrdersPage() {
                       {order.details.cardDetails && (
                         <div className="flex items-center justify-between">
                           <span className="text-slate-400 text-[11px]">
-                            {isRTL ? 'كارتا نومۇرى:' : 'Card Number:'}
+                            {t('cardNumberLabel')}
                           </span>
                           <span className="text-amber-300 font-bold font-mono" dir="ltr">
                             {order.details.cardDetails.number}
@@ -463,7 +463,7 @@ export default function OrdersPage() {
                       {order.details.virtualNumber && (
                         <div className="flex items-center justify-between">
                           <span className="text-slate-400 text-[11px]">
-                            {isRTL ? 'مەۋھۇم نومۇر:' : 'Number:'}
+                            {t('virtualNumberLabel')}
                           </span>
                           <span className="text-cyan-300 font-bold font-mono" dir="ltr">
                             {order.details.virtualNumber}
@@ -473,7 +473,7 @@ export default function OrdersPage() {
                       {order.details.smsCode && (
                         <div className="flex items-center justify-between">
                           <span className="text-slate-400 text-[11px]">
-                            {isRTL ? 'SMS كود:' : 'SMS Code:'}
+                            {t('smsCodeLabel')}
                           </span>
                           <span className="text-amber-300 font-bold font-mono text-sm bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/40" dir="ltr">
                             {order.details.smsCode}

@@ -519,7 +519,7 @@ export default function AccountPage() {
             </div>
             <div>
               <span className="text-xs text-slate-400 block mb-1">
-                {lang === 'ug' ? 'ئومۇمىي كىرگۈزۈلگەن پۇل' : lang === 'ar' ? 'إجمالي المبالغ المودعة' : 'Total Deposited'}
+                {t('totalDepositedAmount')}
               </span>
               <div
                 className={`text-2xl sm:text-3xl font-black text-white font-mono tracking-tight flex items-center gap-1.5 ${

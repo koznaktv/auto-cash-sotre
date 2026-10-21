@@ -177,6 +177,25 @@ export default function MembershipVipPage() {
     );
   };
 
+  const formatRequirement = (minSpend: number) => {
+    if (lang === 'ug') {
+      return <>ئومۇمىي سېتىۋېلىش <span className="font-mono text-slate-300 font-bold">${minSpend.toFixed(2)}</span> غا يەتكەندە ئېچىلىدۇ</>;
+    }
+    if (lang === 'ar') {
+      return <>يفتح عند بلوغ المشتريات <span className="font-mono text-slate-300 font-bold">${minSpend.toFixed(2)}</span></>;
+    }
+    if (lang === 'tr') {
+      return <>Toplam harcama <span className="font-mono text-slate-300 font-bold">${minSpend.toFixed(2)}</span> olunca açılır</>;
+    }
+    if (lang === 'uz') {
+      return <>Jami xarid <span className="font-mono text-slate-300 font-bold">${minSpend.toFixed(2)}</span> ga yetganda ochiladi</>;
+    }
+    if (lang === 'ru') {
+      return <>Открывается при сумме покупок <span className="font-mono text-slate-300 font-bold">${minSpend.toFixed(2)}</span></>;
+    }
+    return <>Unlocks at <span className="font-mono text-slate-300 font-bold">${minSpend.toFixed(2)}</span> total spend</>;
+  };
+
   return (
     <div
       className={`min-h-screen bg-[#040e1d] text-slate-100 flex flex-col pb-24 md:pb-8 selection:bg-cyan-500 selection:text-white font-alkatip ${
@@ -230,11 +249,7 @@ export default function MembershipVipPage() {
                 <span>{currentTier.name}</span>
               </h2>
               <p className="text-xs text-slate-300/90 leading-relaxed pt-1">
-                {lang === 'ug'
-                  ? 'ئومۇمىي سېتىۋېلىش سوممىڭىزغا ئاساسەن ئاپتوماتىك دەرىجە ئۆرلەيدۇ، كېرەكلىك دەرىجىگە يەتكەندە ئېتىبار بىۋاسىتە ئىناۋەتكە ئېلىنىدۇ.'
-                  : lang === 'ar'
-                  ? 'ترقية المستوى تتم تلقائياً بناءً على إجمالي المشتريات، وتطبق الخصومات فوراً على كل طلب.'
-                  : 'Your level upgrades automatically based on total spending, unlocking instant discounts.'}
+                {t('autoTierUpgradeDesc')}
               </p>
             </div>
 
@@ -247,7 +262,7 @@ export default function MembershipVipPage() {
           <div className="grid grid-cols-3 gap-2.5 sm:gap-3 pt-3 relative z-10">
             <div className={`p-3 sm:p-3.5 rounded-2xl bg-[#06172a]/90 border border-slate-800 ${isRTL ? 'text-right' : 'text-left'}`}>
               <span className="text-[10px] sm:text-xs text-slate-400 block mb-1 font-alkatip">
-                {lang === 'ug' ? 'ھازىرقى ئېتىبارىڭىز' : lang === 'ar' ? 'خصمك الحالي' : 'Current Discount'}
+                {t('currentDiscount')}
               </span>
               <span className="text-base sm:text-xl font-black text-cyan-400 font-mono">
                 {currentTier.discount}%
@@ -256,7 +271,7 @@ export default function MembershipVipPage() {
 
             <div className={`p-3 sm:p-3.5 rounded-2xl bg-[#06172a]/90 border border-slate-800 ${isRTL ? 'text-right' : 'text-left'}`}>
               <span className="text-[10px] sm:text-xs text-slate-400 block mb-1 font-alkatip">
-                {lang === 'ug' ? 'ئومۇمىي سېتىۋېلىشىڭىز' : lang === 'ar' ? 'إجمالي المشتريات' : 'Total Spent'}
+                {t('totalSpent')}
               </span>
               <span className="text-base sm:text-xl font-black text-white font-mono flex items-center gap-1" dir="ltr">
                 <span className="animate-dollar-float text-cyan-400">$</span>
@@ -266,7 +281,7 @@ export default function MembershipVipPage() {
 
             <div className={`p-3 sm:p-3.5 rounded-2xl bg-[#06172a]/90 border border-slate-800 ${isRTL ? 'text-right' : 'text-left'}`}>
               <span className="text-[10px] sm:text-xs text-slate-400 block mb-1 font-alkatip">
-                {lang === 'ug' ? 'دەرىجە تەرتىپى' : lang === 'ar' ? 'المستوى' : 'Level Rank'}
+                {t('levelRank')}
               </span>
               <span className="text-base sm:text-xl font-black text-white font-mono">
                 {safeTierIndex + 1} / 5
@@ -278,12 +293,12 @@ export default function MembershipVipPage() {
           <div className="p-4 rounded-2xl bg-[#041324]/80 border border-slate-800/90 space-y-2.5 relative z-10">
             <div className="flex items-center justify-between text-xs">
               <span className="text-slate-300 font-bold font-alkatip">
-                {lang === 'ug' ? 'كېيىنكى دەرىجىگە ئىلگىرىلەش' : lang === 'ar' ? 'التقدم نحو المستوى التالي' : 'Next Tier Progress'}
+                {t('nextTierProgress')}
               </span>
               <span className="text-cyan-400 font-alkatip text-[11px] font-bold">
                 {nextTier
-                  ? (lang === 'ug' ? `${nextTier.name} گە قاراپ` : lang === 'ar' ? `نحو ${nextTier.name}` : `Toward ${nextTier.name}`)
-                  : (lang === 'ug' ? 'ئەڭ يۇقىرى دەرىجە' : lang === 'ar' ? 'أعلى مستوى' : 'Top Level Reached')}
+                  ? `${t('towardTier')} ${nextTier.name}`
+                  : t('topLevelReached')}
               </span>
             </div>
 
@@ -296,7 +311,7 @@ export default function MembershipVipPage() {
 
             <div className="flex flex-wrap items-center justify-between gap-1 text-[11px] font-alkatip text-slate-400">
               <span className="flex items-center gap-1">
-                <span>{lang === 'ug' ? 'خەجلىگىنىڭىز:' : lang === 'ar' ? 'المبلغ المنفق:' : 'Spent:'}</span>
+                <span>{t('spentLabel')}</span>
                 <span className="font-mono font-bold text-cyan-400 flex items-center gap-0.5" dir="ltr">
                   <span className="animate-dollar-float text-cyan-400">$</span>
                   <span>{userSpent.toFixed(2)}</span>
@@ -304,7 +319,7 @@ export default function MembershipVipPage() {
               </span>
               {nextTier ? (
                 <span className="text-cyan-300 font-bold flex items-center gap-1">
-                  <span>{lang === 'ug' ? `${nextTier.name} گە ئۆرلەشكە يەنە` : lang === 'ar' ? `المتبقي لترقية ${nextTier.name}:` : `Remaining for ${nextTier.name}:`}</span>
+                  <span>{`${nextTier.name} ${t('remainingForTier')}`}</span>
                   <span className="font-mono font-extrabold text-cyan-400 flex items-center gap-0.5" dir="ltr">
                     <span className="animate-dollar-float text-cyan-400">$</span>
                     <span>{remainingForNext.toFixed(2)}</span>
@@ -312,7 +327,7 @@ export default function MembershipVipPage() {
                 </span>
               ) : (
                 <span className="text-amber-400 font-bold">
-                  {lang === 'ug' ? '★ سىز ئەڭ يۇقىرى VIP ئەزا!' : '★ Top VIP Member!'}
+                  {t('topVipMember')}
                 </span>
               )}
             </div>
@@ -328,14 +343,10 @@ export default function MembershipVipPage() {
               </div>
             </div>
             <h3 className="font-bold text-xs sm:text-sm text-white">
-              {lang === 'ug' ? 'ئاپتوماتىك دەرىجە ئۆرلەش' : lang === 'ar' ? 'ترقية تلقائية' : 'Auto Tier Upgrade'}
+              {t('autoTierUpgradeTitle')}
             </h3>
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              {lang === 'ug'
-                ? 'قولدا تەلەپ قىلىش ھاجەتسىز: سېتىۋېلىش سوممىڭىزغا ئاساسەن دەرىجە ئۆسىدۇ.'
-                : lang === 'ar'
-                ? 'تتم الترقية تلقائياً فور وصولك للحد المطلوب من المشتريات.'
-                : 'No manual request needed: level updates automatically based on spending.'}
+              {t('autoTierUpgradeDesc')}
             </p>
           </div>
 
@@ -346,14 +357,10 @@ export default function MembershipVipPage() {
               </div>
             </div>
             <h3 className="font-bold text-xs sm:text-sm text-white">
-              {lang === 'ug' ? 'بىۋاسىتە نەق ئېتىبار' : lang === 'ar' ? 'خصم فوري مباشر' : 'Instant Direct Discounts'}
+              {t('instantDiscountTitle')}
             </h3>
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              {lang === 'ug'
-                ? 'ئەزالىق ئېتىبارىڭىز سېتىۋېلىشتا دەرھال ئاپتوماتىك كېمەيتىپ ھېسابلىنىدۇ.'
-                : lang === 'ar'
-                ? 'يتم تطبيق الخصم فوراً وبشكل تلقائي عند إتمام أي طلب.'
-                : 'Your membership discount is deducted automatically during checkout.'}
+              {t('instantDiscountDesc')}
             </p>
           </div>
 
@@ -364,14 +371,10 @@ export default function MembershipVipPage() {
               </div>
             </div>
             <h3 className="font-bold text-xs sm:text-sm text-white">
-              {lang === 'ug' ? 'ئۈزلۈكسىز ئاشىدىغان ئىمتىياز' : lang === 'ar' ? 'مزايا متزايدة' : 'Growing Privileges'}
+              {t('growingPrivilegesTitle')}
             </h3>
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              {lang === 'ug'
-                ? 'ھەر بىر يۇقىرى دەرىجە دۇكان ئىچىدە تېخىمۇ كۆپ قىممەت ۋە پەۋقۇلئاددە باھا ئېلىپ كېلىدۇ.'
-                : lang === 'ar'
-                ? 'كل مستوى أعلى يمنحك مزايا وأسعاراً استثنائية في المتجر.'
-                : 'Every higher tier brings bigger value and exclusive member pricing.'}
+              {t('growingPrivilegesDesc')}
             </p>
           </div>
         </div>
@@ -380,14 +383,10 @@ export default function MembershipVipPage() {
         <div className="pt-2 flex items-center justify-between pb-1">
           <div className={isRTL ? 'text-right' : 'text-left'}>
             <h2 className="font-ukij text-lg sm:text-xl font-bold text-white">
-              {lang === 'ug' ? 'ئەزالىق دەرىجىلىرى' : lang === 'ar' ? 'مستويات العضوية' : 'Membership Tiers'}
+              {t('membershipTiersTitle')}
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              {lang === 'ug'
-                ? 'ئومۇمىي سېتىۋېلىش سوممىڭىزغا ئاساسەن ئېچىلغان دەرىجىلەر'
-                : lang === 'ar'
-                ? 'المستويات المتاحة حسب إجمالي مبالغ المشتريات'
-                : 'Available tiers unlocked based on total spend'}
+              {t('membershipTiersSubtitle')}
             </p>
           </div>
         </div>
@@ -432,17 +431,11 @@ export default function MembershipVipPage() {
                     </div>
 
                     <span className="text-[11px] text-slate-400 block font-alkatip">
-                      {lang === 'ug' ? (
-                        <>ئومۇمىي سېتىۋېلىش <span className="font-mono text-slate-300 font-bold">${tier.minSpend.toFixed(2)}</span> غا يەتكەندە ئېچىلىدۇ</>
-                      ) : lang === 'ar' ? (
-                        <>يفتح عند بلوغ المشتريات <span className="font-mono text-slate-300 font-bold">${tier.minSpend.toFixed(2)}</span></>
-                      ) : (
-                        <>Unlocks at <span className="font-mono text-slate-300 font-bold">${tier.minSpend.toFixed(2)}</span> total spend</>
-                      )}
+                      {formatRequirement(tier.minSpend)}
                     </span>
 
                     <span className="text-xs font-bold text-cyan-400 font-alkatip block mt-1" dir="ltr">
-                      {tier.discount}% {lang === 'ug' ? 'ئېتىبار' : lang === 'ar' ? 'خصم' : 'Discount'}
+                      {tier.discount}% {t('tierDiscount')}
                     </span>
                   </div>
 

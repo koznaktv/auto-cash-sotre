@@ -124,6 +124,45 @@ body.lang-en .font-alkatip {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, Arial, sans-serif;
 }
 
+html[lang="tr"] body,
+body.lang-tr,
+html[lang="tr"] .font-alkatip,
+body.lang-tr .font-alkatip {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, Arial, sans-serif;
+}
+
+html[lang="tr"] .font-ukij,
+body.lang-tr .font-ukij {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, Arial, sans-serif;
+  font-weight: 800;
+}
+
+html[lang="uz"] body,
+body.lang-uz,
+html[lang="uz"] .font-alkatip,
+body.lang-uz .font-alkatip {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, Arial, sans-serif;
+}
+
+html[lang="uz"] .font-ukij,
+body.lang-uz .font-ukij {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, Arial, sans-serif;
+  font-weight: 800;
+}
+
+html[lang="ru"] body,
+body.lang-ru,
+html[lang="ru"] .font-alkatip,
+body.lang-ru .font-alkatip {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Arial', sans-serif;
+}
+
+html[lang="ru"] .font-ukij,
+body.lang-ru .font-ukij {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Arial', sans-serif;
+  font-weight: 800;
+}
+
 /* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;

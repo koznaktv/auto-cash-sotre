@@ -211,13 +211,13 @@ export default function DepositPage() {
     if (amount <= 0 || isSubmitting) return;
 
     if (!currentUser || !currentUser.email) {
-      setFormError('ھەميانغا پۇل كىرگۈزۈش ئۈچۈن ئالدى بىلەن ھېساباتىڭىزغا كىرىشىڭىز كېرەك!');
+      setFormError(t('loginToDepositAlert'));
       setIsAuthOpen(true);
       return;
     }
 
     if (!txNote.trim()) {
-      setFormError('شامكەش تالون نومۇرىنى (رقم العملية) كىرگۈزۈڭ');
+      setFormError(t('proofRequiredError'));
       return;
     }
 
@@ -311,7 +311,7 @@ export default function DepositPage() {
               {autoDepositEnabled && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-950/70 border border-emerald-500/50 text-emerald-400 text-[10px] font-black shadow-sm">
                   <Zap className="w-3 h-3 fill-current text-emerald-400" />
-                  <span>ئاپتوماتىك پۇل كىرگۈزۈش (Auto API)</span>
+                  <span>{t('autoDepositTitle')}</span>
                 </span>
               )}
               <h1 className="font-ukij text-2xl sm:text-3xl font-black text-white gold-text-glow leading-snug">
@@ -319,11 +319,7 @@ export default function DepositPage() {
               </h1>
             </div>
             <p className="text-xs text-slate-400 mt-1">
-              {lang === 'ug'
-                ? 'شامكەش ئارقىلىق پۇل ئەۋەتىپ تالون نومۇرىنى كىرگۈزسىڭىز، سېكۇنت ئىچىدە ئاپتوماتىك قاچىلىنىدۇ.'
-                : lang === 'ar'
-                ? 'أرسل عبر شام كاش ثم أدخل رقم العملية، وسيتم شحن الرصيد تلقائياً خلال ثوانٍ.'
-                : 'Send via Sham Cash, enter the transaction ID, and your balance updates automatically.'}
+              {t('autoDepositDesc')}
             </p>
           </div>
         </div>
@@ -334,11 +330,7 @@ export default function DepositPage() {
             <div className="flex items-center gap-2.5">
               <AlertCircle className="w-5 h-5 shrink-0 text-amber-400" />
               <span>
-                {lang === 'ug'
-                  ? 'ھەميانغا پۇل كىرگۈزۈش ئۈچۈن ئالدى بىلەن ھېساباتىڭىزغا كىرىشىڭىز كېرەك.'
-                  : lang === 'ar'
-                  ? 'يرجى تسجيل الدخول أولاً لشحن المحفظة برصيد جديد.'
-                  : 'Please sign in to your account first to top up your wallet balance.'}
+                {t('loginToDepositAlert')}
               </span>
             </div>
             <button
@@ -346,11 +338,7 @@ export default function DepositPage() {
               onClick={() => setIsAuthOpen(true)}
               className="shrink-0 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:opacity-95 text-slate-950 font-bold text-xs shadow-md transition cursor-pointer w-full sm:w-auto"
             >
-              {lang === 'ug'
-                ? 'ھېساباتقا كىرىش / تىزىملىتىش (Gmail)'
-                : lang === 'ar'
-                ? 'تسجيل الدخول / إنشاء حساب (Gmail)'
-                : 'Sign In / Register (Gmail)'}
+              {t('loginRequiredBtn')}
             </button>
           </div>
         )}
@@ -380,7 +368,7 @@ export default function DepositPage() {
               className="flex items-center justify-center gap-2 px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:opacity-95 text-slate-950 text-xs sm:text-sm font-black transition shadow-lg shadow-amber-500/20 cursor-pointer active:scale-95 font-alkatip shrink-0 w-full sm:w-auto"
             >
               <Zap className="w-4 h-4 fill-current text-slate-950 stroke-[2.5]" />
-              <span>{t('newDepositBtn')} (شامكەش ئاپتوماتىك)</span>
+              <span>{t('newDepositBtn')}</span>
             </button>
           </div>
 
@@ -388,7 +376,7 @@ export default function DepositPage() {
           <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-800/80">
             <div className={`p-3 rounded-xl bg-slate-950/60 border border-slate-800/90 ${isRTL ? 'text-right' : 'text-left'}`}>
               <span className="text-[11px] text-slate-400 block mb-1">
-                {lang === 'ug' ? 'ئومۇمىي كىرگۈزۈلگەن سومما' : lang === 'ar' ? 'إجمالي المبالغ المودعة' : 'Total Deposited'}
+                {t('totalDepositedAmount')}
               </span>
               <span
                 className={`font-mono text-base font-extrabold text-cyan-400 flex items-center gap-0.5 ${
@@ -403,7 +391,7 @@ export default function DepositPage() {
 
             <div className={`p-3 rounded-xl bg-slate-950/60 border border-slate-800/90 ${isRTL ? 'text-right' : 'text-left'}`}>
               <span className="text-[11px] text-slate-400 block mb-1">
-                {lang === 'ug' ? 'ئۇتۇقلۇق كىرگۈزۈش قېتىم سانى' : lang === 'ar' ? 'عدد عمليات الإيداع الناجحة' : 'Successful Deposits'}
+                {t('successfulDepositsCount')}
               </span>
               <span className="font-mono text-base font-extrabold text-white">
                 {successfulCount}
@@ -424,18 +412,14 @@ export default function DepositPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-amber-300 text-sm">
-                      {lang === 'ug' ? 'تالونىڭىز تاپشۇرۇلدى (تەكشۈرۈلمەكتە)' : lang === 'ar' ? 'تم استلام طلبك (قيد المراجعة)' : 'Deposit Submitted (Under Review)'}
+                      {t('depositUnderReviewTitle')}
                     </span>
                     <span className="px-2 py-0.5 rounded-md bg-amber-400 text-slate-950 font-black text-[10px]">
                       #{submittedDeposit.id}
                     </span>
                   </div>
                   <p className="text-[11px] text-slate-300 mt-1 leading-relaxed font-alkatip">
-                    {lang === 'ug'
-                      ? 'شامكەش تورىدا 10-30 سېكۇنت كېچىكىش بولۇشى مۇمكىن. بىر ئازدىن كېيىن تۆۋەندىكى «دەلىللەش» كۇنۇپكىسىنى باسسىڭىز ئاپتوماتىك قاچىلىنىدۇ.'
-                      : lang === 'ar'
-                      ? 'قد يستغرق تزامن شبكة شام كاش بضع ثوانٍ. يمكنك الضغط على زر "تحقق الآن" بالأسفل لتأكيدها فوراً.'
-                      : 'Sham Cash network may take 10-30s. Click "Verify Now" below to check status.'}
+                    {t('depositPendingNotice')}
                   </p>
                 </div>
               </div>
@@ -446,7 +430,7 @@ export default function DepositPage() {
                 className="shrink-0 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:opacity-90 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md cursor-pointer transition active:scale-95 font-alkatip"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${verifyingId === submittedDeposit.id ? 'animate-spin' : ''}`} />
-                <span>{verifyingId === submittedDeposit.id ? 'تەكشۈرۈلمەكتە...' : 'ھازىر دەلىللەش (Verify)'}</span>
+                <span>{verifyingId === submittedDeposit.id ? t('verifying') : t('verifyNow')}</span>
               </button>
             </div>
           )}
@@ -478,7 +462,7 @@ export default function DepositPage() {
             <h3 className="font-bold text-sm text-white flex items-center gap-2">
               <Clock className="w-4 h-4 text-cyan-400" />
               <span>
-                {lang === 'ug' ? 'ھەميان كىرگۈزۈش خاتىرىسى' : lang === 'ar' ? 'سجل عمليات الإيداع' : 'Deposit History'}
+                {t('depositHistoryTitle')}
               </span>
             </h3>
             <span className="text-xs text-slate-500 font-mono">
@@ -493,7 +477,7 @@ export default function DepositPage() {
                   <Wallet className="w-6 h-6" />
                 </div>
                 <p className="text-xs text-slate-400 font-alkatip">
-                  {lang === 'ug' ? 'تېخى ھەميان كىرگۈزۈش خاتىرىسى يوق.' : lang === 'ar' ? 'لا يوجد سجل إيداع حتى الآن.' : 'No deposit history yet.'}
+                  {t('noDepositHistory')}
                 </p>
                 <button
                   type="button"
@@ -541,17 +525,17 @@ export default function DepositPage() {
                           </h4>
                           {isPending && (
                             <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/40 shrink-0 font-alkatip">
-                              {lang === 'ug' ? 'تەكشۈرۈلمەكتە' : lang === 'ar' ? 'قيد المراجعة' : 'Under Review'}
+                              {t('underReview')}
                             </span>
                           )}
                           {isCompleted && (
                             <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/40 shrink-0 font-alkatip">
-                              {lang === 'ug' ? 'ئاپتوماتىك قاچىلاندى' : lang === 'ar' ? 'مكتمل' : 'Completed'}
+                              {t('autoCredited')}
                             </span>
                           )}
                           {isRejected && (
                             <span className="px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-400 text-[10px] font-bold border border-rose-500/40 shrink-0 font-alkatip">
-                              {lang === 'ug' ? 'رەت قىلىندى' : lang === 'ar' ? 'مرفوض' : 'Rejected'}
+                              {t('rejected')}
                             </span>
                           )}
                         </div>
@@ -568,10 +552,10 @@ export default function DepositPage() {
                           onClick={() => handleVerifyPending(item.id)}
                           disabled={verifyingId === item.id}
                           className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 text-[11px] font-bold flex items-center gap-1 transition cursor-pointer shrink-0 font-alkatip"
-                          title="TSA ئارقىلىق تەكشۈرۈپ تەستىقلاش"
+                          title={t('verifyNow')}
                         >
                           <RefreshCw className={`w-3 h-3 ${verifyingId === item.id ? 'animate-spin' : ''}`} />
-                          <span>{verifyingId === item.id ? '...' : 'دەلىللەش'}</span>
+                          <span>{verifyingId === item.id ? '...' : t('verifyNow')}</span>
                         </button>
                       )}
 
@@ -599,8 +583,8 @@ export default function DepositPage() {
                           {isCompleted
                             ? t('statusCompleted')
                             : isRejected
-                            ? (lang === 'ug' ? 'رەت قىلىندى' : lang === 'ar' ? 'مرفوض' : 'Rejected')
-                            : (lang === 'ug' ? 'تەكشۈرۈلمەكتە...' : lang === 'ar' ? 'قيد المراجعة...' : 'Under review...')}
+                            ? t('rejected')
+                            : t('underReview')}
                         </span>
                       </div>
                     </div>
@@ -659,11 +643,11 @@ export default function DepositPage() {
                         <h4 className="font-extrabold text-sm text-white">{t('shamcashName')}</h4>
                         <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/40 flex items-center gap-1">
                           <Zap className="w-2.5 h-2.5 fill-current text-emerald-400" />
-                          <span>ئاپتوماتىك دەلىللەش</span>
+                          <span>{t('autoVerification')}</span>
                         </span>
                       </div>
                       <p className="text-[11px] text-amber-200/80 mt-0.5 font-alkatip">
-                        {lang === 'ug' ? 'شامكەش ئارقىلىق سېكۇنت ئىچىدە ئاپتوماتىك قاچىلىنىدۇ' : lang === 'ar' ? 'شحن فوري وتلقائي عبر شام كاش' : 'Instant automatic recharge via Sham Cash'}
+                        {t('instantAutoViaShamCash')}
                       </p>
                     </div>
                   </div>
@@ -676,7 +660,7 @@ export default function DepositPage() {
               {/* Step 2: Instructions and Address Copy */}
               <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/90 space-y-2 mb-4 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-300 font-bold">شامكەش (Sham Cash) ھېساباتىمىز:</span>
+                  <span className="text-slate-300 font-bold">{t('ourShamCashAccount')}</span>
                   <span className="text-[11px] text-amber-300 font-mono font-bold bg-amber-950/40 border border-amber-500/30 px-2.5 py-0.5 rounded-lg shadow-sm" dir="ltr">
                     1 USD = {exchangeRate.toLocaleString()} SYP
                   </span>
@@ -708,16 +692,16 @@ export default function DepositPage() {
                 </div>
 
                 <div className="text-[11px] text-slate-400 space-y-1 pt-1 font-alkatip leading-relaxed">
-                  <p>1. شامكەش دېتالىڭىزنى ئېچىپ، يۇقىرىدىكى ئادرېسقا پۇل ئەۋەتىڭ (USD ياكى سورىيە لىراسىدا).</p>
-                  <p>2. پۇل ئەۋەتىپ بولغاندىن كېيىن، چىققان تالوندىكى «رقم العملية» (تالون نومۇرى) نى تۆۋەنگە كىرگۈزۈڭ.</p>
-                  <p>3. سىستېما تالوننى ئاپتوماتىك دەلىللەپ سېكۇنت ئىچىدە ھەميان قالدۇقىڭىزغا قوشىدۇ!</p>
+                  <p>{t('step1Instructions')}</p>
+                  <p>{t('step2Instructions')}</p>
+                  <p>{t('step3Instructions')}</p>
                 </div>
               </div>
 
               {/* Step 3: Amount Preset Selection (Optional helper) */}
               <div className="space-y-1.5 mb-3">
                 <label className="text-xs text-slate-300 font-bold block">
-                  ئەۋەتكەن سوممىڭىز (USD):
+                  {t('sentAmountUsd')}
                 </label>
                 <div className="grid grid-cols-4 gap-1.5">
                   {[10, 25, 50, 100].map((amt) => (
@@ -740,7 +724,7 @@ export default function DepositPage() {
                   min="1"
                   value={amount || ''}
                   onChange={(e) => setAmount(Number(e.target.value))}
-                  placeholder="مىقدارىنى يېزىڭ (USD)"
+                  placeholder={t('amountPlaceholder')}
                   className={`w-full bg-[#051120] border border-slate-700/80 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition font-mono ${
                     isRTL ? 'text-right' : 'text-left'
                   }`}
@@ -748,7 +732,7 @@ export default function DepositPage() {
                 />
                 {amount > 0 && (
                   <div className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-amber-950/20 border border-amber-500/20 text-[11px] text-amber-300/90 font-mono">
-                    <span>تەڭ كېلىدىغان شامكەش لىراسى:</span>
+                    <span>{t('equivalentInSyp')}</span>
                     <span className="font-bold text-amber-300 font-mono" dir="ltr">
                       {(amount * exchangeRate).toLocaleString()} SYP
                     </span>
@@ -759,9 +743,9 @@ export default function DepositPage() {
               {/* Step 4: Transaction ID Input (رقم العملية) */}
               <div className="space-y-1.5 mb-4">
                 <label className="text-xs text-amber-300 font-bold flex items-center justify-between">
-                  <span>شامكەش تالون نومۇرى (رقم العملية) *</span>
+                  <span>{t('txIdLabel')}</span>
                   <span className="text-[10px] text-slate-400 font-normal">
-                    (مەسىلەن: 288100001)
+                    {t('txIdExample')}
                   </span>
                 </label>
                 <div className="relative">
@@ -772,7 +756,7 @@ export default function DepositPage() {
                       setTxNote(e.target.value);
                       if (formError) setFormError('');
                     }}
-                    placeholder="رقم العملية / تالون نومۇرىنى بۇ يەرگە چاپلاڭ..."
+                    placeholder={t('pasteTxIdPlaceholder')}
                     className={`w-full bg-[#051120] border ${
                       formError ? 'border-rose-500 ring-1 ring-rose-500/40' : 'border-slate-700/80 focus:border-amber-400'
                     } rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none transition font-mono ${
@@ -800,12 +784,12 @@ export default function DepositPage() {
                     {isSubmitting ? (
                       <span className="flex items-center gap-2">
                         <RefreshCw className="w-4 h-4 animate-spin" />
-                        <span>شامكەش تەكشۈرۈلمەكتە (دەلىللەش)...</span>
+                        <span>{t('verifyingShamCash')}</span>
                       </span>
                     ) : (
                       <span className="flex items-center gap-1.5">
                         <Zap className="w-4 h-4 fill-current text-slate-950" />
-                        <span>دەلىللەپ قاچىلاش (سېكۇنتتا ئاپتوماتىك)</span>
+                        <span>{t('verifyAndCreditAuto')}</span>
                       </span>
                     )}
                   </button>
@@ -840,29 +824,29 @@ export default function DepositPage() {
                         <CheckCircle2 className="w-7 h-7" />
                       </div>
                       <h4 className="font-bold text-sm text-emerald-300">
-                        پۇل مۇۋەپپەقىيەتلىك دەلىللەندى ۋە قاچىلاندى!
+                        {t('depositSuccessTitle')}
                       </h4>
                       <p className="text-base font-extrabold text-white font-mono">
                         +${formatCurrencyAmount(successInfo.amount)} USD
                       </p>
                       <p className="text-[11px] text-emerald-300/80 leading-relaxed font-alkatip">
-                        تالون نومۇرى: <span className="font-mono font-bold text-white">{successInfo.txId}</span>
+                        {t('receiptNumber')} <span className="font-mono font-bold text-white">{successInfo.txId}</span>
                         <br />
-                        ھەميان قالدۇقىڭىز دەرھال يېڭىلاندى. دۇكاندىن مال سېتىۋالالايسىز.
+                        {t('depositSuccessDesc')}
                       </p>
                     </div>
                   ) : (
                     <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-xs space-y-2">
                       <div className="flex items-center gap-2 text-amber-300 font-bold text-sm">
                         <Clock className="w-4 h-4 text-amber-400 shrink-0 animate-pulse" />
-                        <span>تالونىڭىز قوبۇل قىلىندى (تەكشۈرۈلمەكتە)</span>
+                        <span>{t('depositUnderReviewTitle')}</span>
                       </div>
                       <p className="text-[11px] text-slate-300 leading-relaxed font-alkatip">
-                        تالون نومۇرىڭىز: <span className="font-mono font-bold text-cyan-300">{submittedDeposit?.id}</span>
+                        {t('receiptNumber')} <span className="font-mono font-bold text-cyan-300">{submittedDeposit?.id}</span>
                         <br />
-                        ئىسپات نومۇرى: <span className="font-mono font-bold text-amber-300">{successInfo?.txId}</span>
+                        Tx: <span className="font-mono font-bold text-amber-300">{successInfo?.txId}</span>
                         <br />
-                        شامكەش تورىدا تالون يېڭىلىنىش كېچىكىۋاتىدۇ. 10-30 سېكۇنتتىن كېيىن كىرىم خاتىرىسىدىكى «دەلىللەش» كۇنۇپكىسىنى باسسىڭىز، ئاپتوماتىك قاچىلىنىدۇ.
+                        {t('depositPendingNotice')}
                       </p>
                     </div>
                   )}
@@ -871,7 +855,7 @@ export default function DepositPage() {
                     onClick={handleCloseModal}
                     className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition cursor-pointer"
                   >
-                    جەزملەش ۋە تاقاش
+                    {t('confirmAndClose')}
                   </button>
                 </div>
               )}

@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import SideDrawer from '@/components/SideDrawer';
 import AuthModal from '@/components/AuthModal';
+import LanguageFlag from '@/components/LanguageFlag';
 import { useLanguage } from '@/context/LanguageContext';
 import {
   Zap,
@@ -182,9 +183,19 @@ export default function Navbar({
                 className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900/90 border border-amber-500/35 hover:border-amber-400 text-amber-300 hover:text-white transition text-xs font-bold cursor-pointer active:scale-95 shrink-0 shadow-sm"
                 title={t('selectLanguage')}
               >
-                <Globe2 className="w-4 h-4 text-amber-400" />
+                <LanguageFlag code={lang} className="w-4 h-2.5 rounded-[2px] object-cover shrink-0 shadow-sm" />
                 <span className="text-[11px] font-semibold hidden sm:inline">
-                  {lang === 'ug' ? 'ئۇيغۇرچە' : lang === 'ar' ? 'العربية' : 'English'}
+                  {lang === 'ug'
+                    ? 'ئۇيغۇرچە'
+                    : lang === 'en'
+                    ? 'English'
+                    : lang === 'ar'
+                    ? 'العربية'
+                    : lang === 'tr'
+                    ? 'Türkçe'
+                    : lang === 'uz'
+                    ? "O'zbekcha"
+                    : 'Русский'}
                 </span>
               </button>
 
@@ -197,59 +208,38 @@ export default function Navbar({
                   <div
                     className={`absolute ${
                       isRTL ? 'right-0' : 'left-0'
-                    } top-full mt-2 z-50 w-36 bg-[#071628] border border-amber-500/40 rounded-2xl shadow-2xl p-1.5 space-y-1 backdrop-blur-xl animate-in fade-in zoom-in-95`}
+                    } top-full mt-2 z-50 w-48 bg-[#071628] border border-amber-500/40 rounded-2xl shadow-2xl p-2 space-y-1 backdrop-blur-xl animate-in fade-in zoom-in-95`}
                   >
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setLang('ug');
-                        setLangMenuOpen(false);
-                      }}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition ${
-                        isRTL ? 'text-right' : 'text-left'
-                      } ${
-                        lang === 'ug'
-                          ? 'bg-amber-500/25 text-amber-300 border border-amber-500/40'
-                          : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                      }`}
-                    >
-                      <span>ئۇيغۇرچە</span>
-                      <span className="text-sm">🌙</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setLang('ar');
-                        setLangMenuOpen(false);
-                      }}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition ${
-                        isRTL ? 'text-right' : 'text-left'
-                      } ${
-                        lang === 'ar'
-                          ? 'bg-amber-500/25 text-amber-300 border border-amber-500/40'
-                          : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                      }`}
-                    >
-                      <span>العربية</span>
-                      <span className="text-sm">🇸🇦</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setLang('en');
-                        setLangMenuOpen(false);
-                      }}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition ${
-                        isRTL ? 'text-right' : 'text-left'
-                      } ${
-                        lang === 'en'
-                          ? 'bg-amber-500/25 text-amber-300 border border-amber-500/40'
-                          : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                      }`}
-                    >
-                      <span>English</span>
-                      <span className="text-sm">🇬🇧</span>
-                    </button>
+                    {[
+                      { code: 'ug', label: 'ئۇيغۇرچە' },
+                      { code: 'en', label: 'English' },
+                      { code: 'ar', label: 'العربية' },
+                      { code: 'tr', label: 'Türkçe' },
+                      { code: 'uz', label: "O'zbekcha" },
+                      { code: 'ru', label: 'Русский' },
+                    ].map((item) => (
+                      <button
+                        key={item.code}
+                        type="button"
+                        onClick={() => {
+                          setLang(item.code as any);
+                          setLangMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition ${
+                          isRTL ? 'text-right' : 'text-left'
+                        } ${
+                          lang === item.code
+                            ? 'bg-amber-500/25 text-amber-300 border border-amber-500/40'
+                            : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <LanguageFlag code={item.code} className="w-5 h-3.5 rounded-[2px] object-cover shrink-0 shadow-sm" />
+                          <span>{item.label}</span>
+                        </span>
+                        {lang === item.code && <span className="text-amber-400 text-xs font-black">✓</span>}
+                      </button>
+                    ))}
                   </div>
                 </>
               )}
@@ -308,7 +298,7 @@ export default function Navbar({
                 title={t('adminPanel')}
               >
                 <LayoutDashboard className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span className="text-[11px] font-bold">باشقۇرۇش</span>
+                <span className="text-[11px] font-bold">{t('admin')}</span>
               </a>
             )}
 

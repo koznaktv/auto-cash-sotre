@@ -12,6 +12,10 @@ interface BioEntry {
   ug: string;
   ar: string;
   en: string;
+  tr?: string;
+  uz?: string;
+  ru?: string;
+  [key: string]: any;
 }
 
 const BIOS_DATABASE: BioEntry[] = [
@@ -510,7 +514,7 @@ export function getProductBio(
     if (isMatch) {
       return {
         title: pkgTitle || serviceName,
-        content: entry[lang] || entry.ug,
+        content: entry[lang] || (lang === 'tr' || lang === 'uz' || lang === 'ru' ? (entry.en || entry.ug) : entry.ug),
       };
     }
   }
@@ -527,6 +531,36 @@ export function getProductBio(
 • التنفيذ: تسليم فوري ومباشر بعد تأكيد الطلب.
 • الأمان: معالجة آمنة ومضمونة 100%.
 • يرجى التأكد من كتابة البيانات المطلوبة بشكل صحيح قبل إتمام عملية الدفع.`,
+    };
+  }
+
+  if (lang === 'tr') {
+    return {
+      title: pkgTitle || serviceName,
+      content: `${serviceName} - Resmi ve otomatik dijital yükleme servisi.
+• Teslimat: Sipariş onaylandıktan hemen sonra anında teslimat.
+• Güvenlik: %100 güvenli ve garantili işlem.
+• Lütfen ödemeyi tamamlamadan önce gerekli bilgileri doğru girdiğinizden emin olun.`,
+    };
+  }
+
+  if (lang === 'uz') {
+    return {
+      title: pkgTitle || serviceName,
+      content: `${serviceName} - Rasmiy va avtomatlashtirilgan raqamli xizmat.
+• Yetkazib berish: Buyurtma tasdiqlangach darhol avtomatik bajariladi.
+• Xavfsizlik: 100% xavfsiz va kafolatlangan tizim.
+• To‘lovni amalga oshirishdan oldin kiritilgan ma’lumotlarni qayta tekshirib oling.`,
+    };
+  }
+
+  if (lang === 'ru') {
+    return {
+      title: pkgTitle || serviceName,
+      content: `${serviceName} - Официальный и автоматизированный сервис.
+• Доставка: Мгновенное выполнение сразу после подтверждения заказа.
+• Безопасность: 100% безопасная и защищенная обработка.
+• Пожалуйста, внимательно проверьте введенные данные перед совершением оплаты.`,
     };
   }
 

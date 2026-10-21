@@ -1,16 +1,19 @@
 /**
  * Smart automatic translation dictionary for provider products, packages, and input fields.
  * Handles English and Arabic technical/gaming/telecom terms and translates them into
- * natural Uyghur, Arabic, and English.
+ * natural Uyghur, English, Arabic, Turkish, Uzbek, and Russian.
  */
 
-export type SupportedLang = 'ug' | 'ar' | 'en';
+export type SupportedLang = 'ug' | 'en' | 'ar' | 'tr' | 'uz' | 'ru';
 
 interface TranslationRule {
   regex: RegExp;
   ug: string | ((match: string, ...groups: string[]) => string);
-  ar: string | ((match: string, ...groups: string[]) => string);
   en?: string | ((match: string, ...groups: string[]) => string);
+  ar?: string | ((match: string, ...groups: string[]) => string);
+  tr?: string | ((match: string, ...groups: string[]) => string);
+  uz?: string | ((match: string, ...groups: string[]) => string);
+  ru?: string | ((match: string, ...groups: string[]) => string);
 }
 
 const RULES: TranslationRule[] = [
@@ -18,410 +21,608 @@ const RULES: TranslationRule[] = [
   {
     regex: /[-–—]?\s*\bno\s+refunds?\b/gi,
     ug: ' (قايتۇرۇلمايدۇ)',
-    ar: ' (غير قابل للاسترداد)',
     en: ' (No Refund)',
+    ar: ' (غير قابل للاسترداد)',
+    tr: ' (İade Edilmez)',
+    uz: ' (Qaytarilmaydi)',
+    ru: ' (Без возврата)',
   },
   {
     regex: /\bnon[-–\s]refundable\b/gi,
     ug: ' (قايتۇرۇلمايدۇ)',
-    ar: ' (غير قابل للاسترداد)',
     en: ' (Non-refundable)',
+    ar: ' (غير قابل للاسترداد)',
+    tr: ' (İade Edilemez)',
+    uz: ' (Qaytarilmaydi)',
+    ru: ' (Невозвратный)',
   },
   {
     regex: /[-–—]?\s*(?:بدون\s+استرجاع|لا\s+يسترد|غير\s+قابل\s+للاسترداد)/gi,
     ug: ' (قايتۇرۇلمايدۇ)',
-    ar: ' (غير قابل للاسترداد)',
     en: ' (No Refund)',
+    ar: ' (غير قابل للاسترداد)',
+    tr: ' (İade Edilmez)',
+    uz: ' (Qaytarilmaydi)',
+    ru: ' (Без возврата)',
   },
   {
     regex: /\bno\s+ban\b|\bsafe\b/gi,
     ug: 'بىخەتەر',
-    ar: 'آمن بدون حظر',
     en: 'Safe / No Ban',
+    ar: 'آمن بدون حظر',
+    tr: 'Güvenli / Bansız',
+    uz: 'Xavfsiz / Bansiz',
+    ru: 'Безопасно / Без бана',
   },
 
   // 2. Working hours & connectivity
   {
     regex: /\b24[x/×]7\s+online\b/gi,
     ug: '24 سائەت توردا',
-    ar: 'متاح 24/7 أونلاين',
     en: '24/7 Online',
+    ar: 'متاح 24/7 أونلاين',
+    tr: '7/24 Çevrim içi',
+    uz: '24/7 Onlayn',
+    ru: '24/7 Онлайн',
   },
   {
     regex: /\b24[x/×]7\b/gi,
     ug: '24 سائەت',
-    ar: '24/7',
     en: '24/7',
+    ar: '24/7',
+    tr: '7/24',
+    uz: '24/7',
+    ru: '24/7',
   },
   {
     regex: /\binstant\s+delivery\b/gi,
     ug: 'دەرھال يەتكۈزۈش',
-    ar: 'تسليم فوري',
     en: 'Instant Delivery',
+    ar: 'تسليم فوري',
+    tr: 'Anında Teslimat',
+    uz: 'Tezkor yetkazib berish',
+    ru: 'Мгновенная доставка',
   },
   {
     regex: /\bfast\s+delivery\b/gi,
     ug: 'تېز يەتكۈزۈش',
-    ar: 'تسليم سريع',
     en: 'Fast Delivery',
+    ar: 'تسليم سريع',
+    tr: 'Hızlı Teslimat',
+    uz: 'Tez yetkazib berish',
+    ru: 'Быстрая доставка',
   },
   {
     regex: /\binstant\b/gi,
     ug: 'دەرھال',
-    ar: 'فوري',
     en: 'Instant',
+    ar: 'فوري',
+    tr: 'Anında',
+    uz: 'Tezkor',
+    ru: 'Мгновенно',
   },
 
-  // 3. Login & Automation actions (Matches user's exact screenshot!)
+  // 3. Login & Automation actions
   {
     regex: /\bsupport\s+auto\s+login\b/gi,
     ug: 'ئاپتوماتىك كىرىشنى قوللايدۇ',
-    ar: 'يدعم تسجيل الدخول التلقائي',
     en: 'Supports Auto Login',
+    ar: 'يدعم تسجيل الدخول التلقائي',
+    tr: 'Otomatik Girişi Destekler',
+    uz: 'Avtomatik kirishni qo‘llab-quvvatlaydi',
+    ru: 'Поддерживает авто-вход',
   },
   {
     regex: /\bauto\s+login\s+tool\b/gi,
     ug: 'ئاپتوماتىك كىرىش قورالى',
-    ar: 'أداة تسجيل دخول تلقائي',
     en: 'Auto Login Tool',
+    ar: 'أداة تسجيل دخول تلقائي',
+    tr: 'Otomatik Giriş Aracı',
+    uz: 'Avtomatik kirish vositasi',
+    ru: 'Инструмент авто-входа',
   },
   {
     regex: /\bauto\s+login\b/gi,
     ug: 'ئاپتوماتىك كىرىش',
-    ar: 'تسجيل دخول تلقائي',
     en: 'Auto Login',
+    ar: 'تسجيل دخول تلقائي',
+    tr: 'Otomatik Giriş',
+    uz: 'Avtomatik kirish',
+    ru: 'Авто-вход',
   },
   {
     regex: /\bqc\s+auth\b/gi,
     ug: 'Qc دەلىللەش',
-    ar: 'توثيق Qc',
     en: 'Qc Auth',
+    ar: 'توثيق Qc',
+    tr: 'Qc Doğrulama',
+    uz: 'Qc Tasdiqlash',
+    ru: 'Аутентификация Qc',
   },
   {
     regex: /\bauth\b|\bauthentication\b/gi,
     ug: 'دەلىللەش',
-    ar: 'توثيق',
     en: 'Auth',
+    ar: 'توثيق',
+    tr: 'Doğrulama',
+    uz: 'Tasdiqlash',
+    ru: 'Аутентификация',
   },
 
   // 4. Durations & periods
   {
     regex: /\b1\s*(?:year|yr)\b/gi,
     ug: '1 يىللىق',
-    ar: 'سنة واحدة',
     en: '1 Year',
+    ar: 'سنة واحدة',
+    tr: '1 Yıllık',
+    uz: '1 Yillik',
+    ru: '1 Год',
   },
   {
     regex: /(\d+)\s*(?:years|yrs)\b/gi,
     ug: (_m, d) => `${d} يىللىق`,
-    ar: (_m, d) => `${d} سنوات`,
     en: (_m, d) => `${d} Years`,
+    ar: (_m, d) => `${d} سنوات`,
+    tr: (_m, d) => `${d} Yıllık`,
+    uz: (_m, d) => `${d} Yillik`,
+    ru: (_m, d) => `${d} Лет`,
   },
   {
     regex: /\b1\s*(?:month|mo)\b/gi,
     ug: '1 ئايلىق',
-    ar: 'شهر واحد',
     en: '1 Month',
+    ar: 'شهر واحد',
+    tr: '1 Aylık',
+    uz: '1 Oylik',
+    ru: '1 Месяц',
   },
   {
     regex: /(\d+)\s*(?:months|mo)\b/gi,
     ug: (_m, d) => `${d} ئايلىق`,
-    ar: (_m, d) => `${d} أشهر`,
     en: (_m, d) => `${d} Months`,
+    ar: (_m, d) => `${d} أشهر`,
+    tr: (_m, d) => `${d} Aylık`,
+    uz: (_m, d) => `${d} Oylik`,
+    ru: (_m, d) => `${d} Мес.`,
   },
   {
     regex: /\b1\s*week\b/gi,
     ug: '1 ھەپتىلىك',
-    ar: 'أسبوع واحد',
     en: '1 Week',
+    ar: 'أسبوع واحد',
+    tr: '1 Haftalık',
+    uz: '1 Haftalik',
+    ru: '1 Неделя',
   },
   {
     regex: /(\d+)\s*weeks\b/gi,
     ug: (_m, d) => `${d} ھەپتىلىك`,
-    ar: (_m, d) => `${d} أسابيع`,
     en: (_m, d) => `${d} Weeks`,
+    ar: (_m, d) => `${d} أسابيع`,
+    tr: (_m, d) => `${d} Haftalık`,
+    uz: (_m, d) => `${d} Haftalik`,
+    ru: (_m, d) => `${d} Нед.`,
   },
   {
     regex: /\b1\s*day\b/gi,
     ug: '1 كۈنلۈك',
-    ar: 'يوم واحد',
     en: '1 Day',
+    ar: 'يوم واحد',
+    tr: '1 Günlük',
+    uz: '1 Kunlik',
+    ru: '1 День',
   },
   {
     regex: /(\d+)\s*days\b/gi,
     ug: (_m, d) => `${d} كۈنلۈك`,
-    ar: (_m, d) => `${d} أيام`,
     en: (_m, d) => `${d} Days`,
+    ar: (_m, d) => `${d} أيام`,
+    tr: (_m, d) => `${d} Günlük`,
+    uz: (_m, d) => `${d} Kunlik`,
+    ru: (_m, d) => `${d} Дней`,
   },
   {
     regex: /\blifetime\b/gi,
     ug: 'مەڭگۈلۈك',
-    ar: 'مدى الحياة',
     en: 'Lifetime',
+    ar: 'مدى الحياة',
+    tr: 'Ömür Boyu',
+    uz: 'Umrbod',
+    ru: 'Бессрочно',
   },
   {
     regex: /لمدة\s*سنة/gi,
     ug: '1 يىللىق',
-    ar: 'لمدة سنة',
     en: 'For 1 Year',
+    ar: 'لمدة سنة',
+    tr: '1 Yıllık',
+    uz: '1 Yillik',
+    ru: 'На 1 Год',
   },
   {
     regex: /لمدة\s*شهر/gi,
     ug: '1 ئايلىق',
-    ar: 'لمدة شهر',
     en: 'For 1 Month',
+    ar: 'لمدة شهر',
+    tr: '1 Aylık',
+    uz: '1 Oylik',
+    ru: 'На 1 Месяц',
   },
   {
     regex: /لمدة\s*(\d+)\s*أشهر/gi,
     ug: (_m, d) => `${d} ئايلىق`,
-    ar: (_m, d) => `لمدة ${d} أشهر`,
     en: (_m, d) => `For ${d} Months`,
+    ar: (_m, d) => `لمدة ${d} أشهر`,
+    tr: (_m, d) => `${d} Aylık`,
+    uz: (_m, d) => `${d} Oylik`,
+    ru: (_m, d) => `На ${d} Мес.`,
   },
   {
     regex: /لمدة\s*(\d+)\s*يوم/gi,
     ug: (_m, d) => `${d} كۈنلۈك`,
-    ar: (_m, d) => `لمدة ${d} أيام`,
     en: (_m, d) => `For ${d} Days`,
+    ar: (_m, d) => `لمدة ${d} أيام`,
+    tr: (_m, d) => `${d} Günlük`,
+    uz: (_m, d) => `${d} Kunlik`,
+    ru: (_m, d) => `На ${d} Дней`,
   },
 
   // 5. Licenses, Tools & Hardware
   {
     regex: /without\s+box\s*-\s*بدون\s+بوكس|without\s+box|بدون\s+بوكس/gi,
     ug: 'Box سىز',
-    ar: 'بدون بوكس',
     en: 'Without Box',
+    ar: 'بدون بوكس',
+    tr: 'Kutusuz',
+    uz: 'Qutisiz',
+    ru: 'Без бокса',
   },
   {
     regex: /\bdigital\s+licens[e]?\b/gi,
     ug: 'رەقەملىك ئىجازەتنامە',
-    ar: 'ترخيص رقمي',
     en: 'Digital License',
+    ar: 'ترخيص رقمي',
+    tr: 'Dijital Lisans',
+    uz: 'Raqamli litsenziya',
+    ru: 'Цифровая лицензия',
   },
   {
     regex: /\bonline\s+account\s+activation\b/gi,
     ug: 'توردىكى ھېسابات ئاكتىپلاش',
-    ar: 'تفعيل حساب أونلاين',
     en: 'Online Account Activation',
+    ar: 'تفعيل حساب أونلاين',
+    tr: 'Çevrim içi Hesap Aktivasyonu',
+    uz: 'Onlayn hisob faollashtirish',
+    ru: 'Онлайн активация аккаунта',
   },
   {
     regex: /\bactivation\s+renew(?:al)?\b/gi,
     ug: 'ئاكتىپلاش ۋە ئۇزارتىش',
-    ar: 'تفعيل وتجديد',
     en: 'Activation Renewal',
+    ar: 'تفعيل وتجديد',
+    tr: 'Aktivasyon Yenileme',
+    uz: 'Faollashtirish va yangilash',
+    ru: 'Продление активации',
   },
   {
     regex: /\bactivation\b/gi,
     ug: 'ئاكتىپلاش',
-    ar: 'تفعيل',
     en: 'Activation',
+    ar: 'تفعيل',
+    tr: 'Aktivasyon',
+    uz: 'Faollashtirish',
+    ru: 'Активация',
   },
   {
     regex: /\brenewal\b|\brenew\b/gi,
     ug: 'ۋاقتىنى ئۇزارتىش',
-    ar: 'تجديد',
     en: 'Renewal',
+    ar: 'تجديد',
+    tr: 'Yenileme',
+    uz: 'Muddatini uzaytirish',
+    ru: 'Продление',
   },
   {
     regex: /\bonline\s+tool\b/gi,
     ug: 'تور قورالى',
-    ar: 'أداة أونلاين',
     en: 'Online Tool',
+    ar: 'أداة أونلاين',
+    tr: 'Çevrim içi Araç',
+    uz: 'Onlayn vosita',
+    ru: 'Онлайн инструмент',
   },
   {
     regex: /\bonline\b/gi,
     ug: 'توردا',
-    ar: 'أونلاين',
     en: 'Online',
+    ar: 'أونلاين',
+    tr: 'Çevrim içi',
+    uz: 'Onlayn',
+    ru: 'Онлайн',
   },
   {
     regex: /(?<![-a-zA-Z0-9])tools?\b/gi,
     ug: 'قورالى',
-    ar: 'أداة',
     en: 'Tool',
+    ar: 'أداة',
+    tr: 'Aracı',
+    uz: 'Vositasi',
+    ru: 'Инструмент',
   },
   {
     regex: /\blicense\b|\blicens\b/gi,
     ug: 'ئىجازەتنامە',
-    ar: 'ترخيص',
     en: 'License',
+    ar: 'ترخيص',
+    tr: 'Lisans',
+    uz: 'Litsenziya',
+    ru: 'Лицензия',
   },
   {
     regex: /\bschematics?\b/gi,
     ug: 'سىزما',
-    ar: 'مخططات',
     en: 'Schematics',
+    ar: 'مخططات',
+    tr: 'Şemalar',
+    uz: 'Sxemalar',
+    ru: 'Схемы',
   },
   {
     regex: /\bexisting\s+user\b/gi,
     ug: 'كونا ئابۇنىت',
-    ar: 'مستخدم حالي',
     en: 'Existing User',
+    ar: 'مستخدم حالي',
+    tr: 'Mevcut Kullanıcı',
+    uz: 'Mavjud foydalanuvchi',
+    ru: 'Действующий пользователь',
   },
   {
     regex: /\bnew\s+user\b/gi,
     ug: 'يېڭى ئابۇنىت',
-    ar: 'مستخدم جديد',
     en: 'New User',
+    ar: 'مستخدم جديد',
+    tr: 'Yeni Kullanıcı',
+    uz: 'Yangi foydalanuvchi',
+    ru: 'Новый пользователь',
   },
 
   // 6. Charging, Currencies, Packages
   {
     regex: /\bdirect\s+(?:topup|recharge)\b/gi,
     ug: 'بىۋاسىتە قاچىلاش',
-    ar: 'شحن مباشر',
     en: 'Direct Top-up',
+    ar: 'شحن مباشر',
+    tr: 'Doğrudan Yükleme',
+    uz: 'To‘g‘ridan-to‘g‘ri to‘ldirish',
+    ru: 'Прямое пополнение',
   },
   {
     regex: /\btopup\b|\brecharge\b/gi,
     ug: 'قاچىلاش',
-    ar: 'شحن',
     en: 'Top-up',
+    ar: 'شحن',
+    tr: 'Yükleme',
+    uz: 'To‘ldirish',
+    ru: 'Пополнение',
   },
   {
     regex: /\bcredits?\b/gi,
     ug: 'كىرېدىت',
-    ar: 'كريديت',
     en: 'Credits',
+    ar: 'كريديت',
+    tr: 'Kredi',
+    uz: 'Kredit',
+    ru: 'Кредиты',
   },
   {
     regex: /\bdiamonds?\b/gi,
     ug: 'ئالماس',
-    ar: 'ألماس',
     en: 'Diamonds',
+    ar: 'ألماس',
+    tr: 'Elmas',
+    uz: 'Olmos',
+    ru: 'Алмазы',
   },
   {
     regex: /\bgems?\b/gi,
     ug: 'ياقۇت',
-    ar: 'جواهر',
     en: 'Gems',
+    ar: 'جواهر',
+    tr: 'Mücevher',
+    uz: 'Yoqut',
+    ru: 'Кристаллы',
   },
   {
     regex: /\bcoins?\b|\bgold\b/gi,
     ug: 'تەڭگە',
-    ar: 'عملات',
     en: 'Coins',
+    ar: 'عملات',
+    tr: 'Jeton',
+    uz: 'Tanga',
+    ru: 'Монеты',
   },
   {
     regex: /\bgift\s+cards?\b/gi,
     ug: 'سوۋغات كارتىسى',
-    ar: 'بطاقة هدايا',
     en: 'Gift Card',
+    ar: 'بطاقة هدايا',
+    tr: 'Hediye Kartı',
+    uz: 'Sovg‘a kartasi',
+    ru: 'Подарочная карта',
   },
   {
     regex: /\bvouchers?\b/gi,
     ug: 'تالون',
-    ar: 'قسيمة',
     en: 'Voucher',
+    ar: 'قسيمة',
+    tr: 'Kupon',
+    uz: 'Voucher',
+    ru: 'Ваучер',
   },
   {
     regex: /\bpackages?\b|\bpacks?\b/gi,
     ug: 'بولاق',
-    ar: 'باقة',
     en: 'Pack',
+    ar: 'باقة',
+    tr: 'Paket',
+    uz: 'Paket',
+    ru: 'Пакет',
   },
   {
     regex: /\bunlimited\b/gi,
     ug: 'چەكسىز',
-    ar: 'غير محدود',
     en: 'Unlimited',
+    ar: 'غير محدود',
+    tr: 'Sınırsız',
+    uz: 'Cheksiz',
+    ru: 'Безлимитный',
   },
   {
     regex: /\bserver\b/gi,
     ug: 'مۇلازىمېتىر',
-    ar: 'سيرفر',
     en: 'Server',
+    ar: 'سيرفر',
+    tr: 'Sunucu',
+    uz: 'Server',
+    ru: 'Сервер',
   },
   {
     regex: /\bglobal\b/gi,
     ug: 'دۇنياۋى',
-    ar: 'عالمي',
     en: 'Global',
+    ar: 'عالمي',
+    tr: 'Global',
+    uz: 'Global',
+    ru: 'Глобальный',
   },
 
   // 7. Arabic phrases
   {
     regex: /شحن\s+فوري/gi,
     ug: 'دەرھال قاچىلاش',
+    en: 'Instant Top-up',
     ar: 'شحن فوري',
-    en: 'Instant Topup',
+    tr: 'Anında Yükleme',
+    uz: 'Tezkor to‘ldirish',
+    ru: 'Мгновенное пополнение',
   },
   {
     regex: /شحن\s+مباشر/gi,
     ug: 'بىۋاسىتە قاچىلاش',
+    en: 'Direct Top-up',
     ar: 'شحن مباشر',
-    en: 'Direct Topup',
+    tr: 'Doğrudan Yükleme',
+    uz: 'To‘g‘ridan-to‘g‘ri to‘ldirish',
+    ru: 'Прямое пополнение',
   },
   {
     regex: /حساب\s+جاهز/gi,
     ug: 'تەييار ھېسابات',
-    ar: 'حساب جاهز',
     en: 'Ready Account',
+    ar: 'حساب جاهز',
+    tr: 'Hazır Hesap',
+    uz: 'Tayyor hisob',
+    ru: 'Готовый аккаунт',
   },
   {
     regex: /حساب\s+شخصي/gi,
     ug: 'شەخسىي ھېسابات',
-    ar: 'حساب شخصي',
     en: 'Personal Account',
+    ar: 'حساب شخصي',
+    tr: 'Kişisel Hesap',
+    uz: 'Shaxsiy hisob',
+    ru: 'Личный аккаунт',
   },
   {
     regex: /اشتراك|أشتراك/gi,
     ug: 'ئەزالىق',
-    ar: 'اشتراك',
     en: 'Subscription',
+    ar: 'اشتراك',
+    tr: 'Abonelik',
+    uz: 'Obuna',
+    ru: 'Подписка',
   },
   {
     regex: /تفعيل/gi,
     ug: 'ئاكتىپلاش',
-    ar: 'تفعيل',
     en: 'Activation',
+    ar: 'تفعيل',
+    tr: 'Aktivasyon',
+    uz: 'Faollashtirish',
+    ru: 'Активация',
   },
   {
     regex: /تجديد/gi,
     ug: 'ئۇزارتىش',
-    ar: 'تجديد',
     en: 'Renewal',
+    ar: 'تجديد',
+    tr: 'Yenileme',
+    uz: 'Yangilash',
+    ru: 'Продление',
   },
   {
     regex: /سيرفر/gi,
     ug: 'مۇلازىمېتىر',
-    ar: 'سيرفر',
     en: 'Server',
+    ar: 'سيرفر',
+    tr: 'Sunucu',
+    uz: 'Server',
+    ru: 'Сервер',
   },
   {
     regex: /باقة/gi,
     ug: 'بولاق',
-    ar: 'باقة',
     en: 'Package',
+    ar: 'باقة',
+    tr: 'Paket',
+    uz: 'Paket',
+    ru: 'Пакет',
   },
   {
     regex: /شدات|شدة/gi,
     ug: 'UC (ئوق)',
-    ar: 'شدات',
     en: 'UC',
+    ar: 'شدات',
+    tr: 'UC',
+    uz: 'UC',
+    ru: 'UC',
   },
   {
     regex: /جواهر/gi,
     ug: 'ياقۇت',
-    ar: 'جواهر',
     en: 'Gems',
+    ar: 'جواهر',
+    tr: 'Mücevher',
+    uz: 'Yoqut',
+    ru: 'Кристаллы',
   },
   {
     regex: /عملات|نقاط/gi,
     ug: 'ئۇپا / تەڭگە',
-    ar: 'نقاط',
     en: 'Points / Coins',
+    ar: 'نقاط',
+    tr: 'Puan / Jeton',
+    uz: 'Ochko / Tanga',
+    ru: 'Очки / Монеты',
   },
   {
     regex: /رسالة/gi,
     ug: 'ئۇچۇر',
-    ar: 'رسالة',
     en: 'SMS / Message',
+    ar: 'رسالة',
+    tr: 'SMS / Mesaj',
+    uz: 'SMS / Xabar',
+    ru: 'СМС / Сообщение',
   },
   {
     regex: /دقيقة/gi,
     ug: 'مىنۇت',
-    ar: 'دقيقة',
     en: 'Minutes',
+    ar: 'دقيقة',
+    tr: 'Dakika',
+    uz: 'Daqiqa',
+    ru: 'Минут',
   },
 ];
 
@@ -432,35 +633,51 @@ export function smartTranslateTitle(title: string | null | undefined, lang: Supp
   if (!title) return '';
   let text = String(title).trim();
 
-  // If already pure Uyghur and target is Uyghur, return directly
-  const hasLatin = /[a-zA-Z]/.test(text);
-  const hasArabic = /[\u0600-\u06FF]/.test(text);
-
-  // If text is Uyghur and user wants Arabic or English:
-  if (lang === 'ar' || lang === 'en') {
-    if (text.includes('ئاساسىي')) text = text.replace(/ئاساسىي\s*بولاق/g, lang === 'ar' ? 'الباقة الأساسية' : 'Basic Pack');
-    if (text.includes('ئوتتۇرا')) text = text.replace(/ئوتتۇرا\s*بولاق/g, lang === 'ar' ? 'الباقة المتوسطة' : 'Medium Pack');
-    if (text.includes('VIP')) text = text.replace(/VIP\s*بولاق/g, lang === 'ar' ? 'باقة VIP' : 'VIP Pack');
-    if (text.includes('Ultra')) text = text.replace(/Ultra\s*بولاق/g, lang === 'ar' ? 'باقة ألترا' : 'Ultra Pack');
-    if (text.includes('بولاق')) text = text.replace(/بولاق/g, lang === 'ar' ? 'باقة' : 'Pack');
-    if (text.includes('ئايلىق')) text = text.replace(/ئايلىق/g, lang === 'ar' ? 'شهري' : 'Monthly');
-    if (text.includes('يىللىق')) text = text.replace(/يىللىق/g, lang === 'ar' ? 'سنوي' : 'Yearly');
+  // If text is pure Uyghur and user wants another language:
+  if (lang !== 'ug') {
+    if (text.includes('ئاساسىي')) {
+      const rep = lang === 'ar' ? 'الباقة الأساسية' : lang === 'tr' ? 'Temel Paket' : lang === 'uz' ? 'Asosiy Paket' : lang === 'ru' ? 'Базовый пакет' : 'Basic Pack';
+      text = text.replace(/ئاساسىي\s*بولاق/g, rep);
+    }
+    if (text.includes('ئوتتۇرا')) {
+      const rep = lang === 'ar' ? 'الباقة المتوسطة' : lang === 'tr' ? 'Orta Paket' : lang === 'uz' ? 'O‘rta Paket' : lang === 'ru' ? 'Средний пакет' : 'Medium Pack';
+      text = text.replace(/ئوتتۇرا\s*بولاق/g, rep);
+    }
+    if (text.includes('VIP')) {
+      const rep = lang === 'ar' ? 'باقة VIP' : lang === 'tr' ? 'VIP Paket' : lang === 'uz' ? 'VIP Paket' : lang === 'ru' ? 'VIP Пакет' : 'VIP Pack';
+      text = text.replace(/VIP\s*بولاق/g, rep);
+    }
+    if (text.includes('Ultra')) {
+      const rep = lang === 'ar' ? 'باقة ألترا' : lang === 'tr' ? 'Ultra Paket' : lang === 'uz' ? 'Ultra Paket' : lang === 'ru' ? 'Ультра Пакет' : 'Ultra Pack';
+      text = text.replace(/Ultra\s*بولاق/g, rep);
+    }
+    if (text.includes('بولاق')) {
+      const rep = lang === 'ar' ? 'باقة' : lang === 'tr' ? 'Paket' : lang === 'uz' ? 'Paket' : lang === 'ru' ? 'Пакет' : 'Pack';
+      text = text.replace(/بولاق/g, rep);
+    }
+    if (text.includes('ئايلىق')) {
+      const rep = lang === 'ar' ? 'شهري' : lang === 'tr' ? 'Aylık' : lang === 'uz' ? 'Oylik' : lang === 'ru' ? 'Ежемесячно' : 'Monthly';
+      text = text.replace(/ئايلىق/g, rep);
+    }
+    if (text.includes('يىللىق')) {
+      const rep = lang === 'ar' ? 'سنوي' : lang === 'tr' ? 'Yıllık' : lang === 'uz' ? 'Yillik' : lang === 'ru' ? 'Годовой' : 'Yearly';
+      text = text.replace(/يىللىق/g, rep);
+    }
   }
 
   // Apply dictionary rules
   for (const rule of RULES) {
     if (!rule.regex.test(text)) continue;
     rule.regex.lastIndex = 0; // reset state for global regex
-    const replacement = rule[lang] || rule.ug;
+    const replacement = rule[lang] || rule.en || rule.ug;
     if (typeof replacement === 'function') {
       text = text.replace(rule.regex, replacement as any);
-    } else {
+    } else if (replacement) {
       text = text.replace(rule.regex, replacement);
     }
   }
 
   // Clean up duplicated parentheses and extra spaces:
-  // e.g. "((قايتۇرۇلمايدۇ))" -> "(قايتۇرۇلمايدۇ)"
   text = text
     .replace(/\)\s*\(/g, ') (')
     .replace(/\(\s*\(/g, '(')
@@ -479,51 +696,75 @@ export function smartTranslateFieldLabel(label: string | null | undefined, lang:
   const trimmed = label.trim();
   const lower = trimmed.toLowerCase();
 
-  if (lower === 'user id' || lower === 'player id' || lower === 'player_id' || lower === 'userid') {
+  if (lower === 'user id' || lower === 'player id' || lower === 'player_id' || lower === 'userid' || lower.includes('ئويۇنچى كىملىكى')) {
     if (lang === 'ug') return 'ئويۇنچى كىملىكى (Player ID)';
     if (lang === 'ar') return 'معرف اللاعب (Player ID)';
+    if (lang === 'tr') return 'Oyuncu ID (Player ID)';
+    if (lang === 'uz') return 'O‘yinchi ID (Player ID)';
+    if (lang === 'ru') return 'ID игрока (Player ID)';
     return 'Player ID';
   }
 
-  if (lower === 'user name' || lower === 'username' || lower === 'اسم المستخدم') {
+  if (lower === 'user name' || lower === 'username' || lower === 'اسم المستخدم' || lower.includes('ئىشلەتكۈچى نامى')) {
     if (lang === 'ug') return 'ئىشلەتكۈچى نامى (Username)';
     if (lang === 'ar') return 'اسم المستخدم';
+    if (lang === 'tr') return 'Kullanıcı Adı';
+    if (lang === 'uz') return 'Foydalanuvchi nomi';
+    if (lang === 'ru') return 'Имя пользователя';
     return 'Username';
   }
 
-  if (lower === 'password' || lower === 'pass' || lower === 'كلمة سر' || lower === 'كلمة السر') {
+  if (lower === 'password' || lower === 'pass' || lower === 'كلمة سر' || lower === 'كلمة السر' || lower.includes('مەخپىي نومۇر')) {
     if (lang === 'ug') return 'مەخپىي نومۇر (Password)';
     if (lang === 'ar') return 'كلمة السر';
+    if (lang === 'tr') return 'Şifre';
+    if (lang === 'uz') return 'Parol';
+    if (lang === 'ru') return 'Пароль';
     return 'Password';
   }
 
   if (lower === 'imei' || lower === 'imei number') {
     if (lang === 'ug') return 'IMEI نومۇرى';
     if (lang === 'ar') return 'رقم IMEI';
+    if (lang === 'tr') return 'IMEI Numarası';
+    if (lang === 'uz') return 'IMEI raqami';
+    if (lang === 'ru') return 'Номер IMEI';
     return 'IMEI Number';
   }
 
-  if (lower === 'email' || lower === 'account email') {
+  if (lower === 'email' || lower === 'account email' || lower.includes('ئېلخەت')) {
     if (lang === 'ug') return 'ئېلخەت ئادرېسى';
     if (lang === 'ar') return 'البريد الإلكتروني';
+    if (lang === 'tr') return 'E-posta Adresi';
+    if (lang === 'uz') return 'Elektron pochta';
+    if (lang === 'ru') return 'Электронная почта';
     return 'Email Address';
   }
 
-  if (lower === 'phone' || lower === 'phone number' || lower === 'mobile') {
+  if (lower === 'phone' || lower === 'phone number' || lower === 'mobile' || lower.includes('تېلېفون')) {
     if (lang === 'ug') return 'تېلېفون نومۇرى';
     if (lang === 'ar') return 'رقم الهاتف';
+    if (lang === 'tr') return 'Telefon Numarası';
+    if (lang === 'uz') return 'Telefon raqami';
+    if (lang === 'ru') return 'Номер телефона';
     return 'Phone Number';
   }
 
-  if (lower === 'link' || lower === 'url' || lower === 'profile link') {
+  if (lower === 'link' || lower === 'url' || lower === 'profile link' || lower.includes('ئۇلىنىش')) {
     if (lang === 'ug') return 'ئۇلىنىش (Link / URL)';
     if (lang === 'ar') return 'الرابط (Link)';
+    if (lang === 'tr') return 'Profil / Hesap Bağlantısı';
+    if (lang === 'uz') return 'Profil / Hisob havolasi';
+    if (lang === 'ru') return 'Ссылка на профиль';
     return 'Profile / Account Link';
   }
 
-  if (lower === 'note' || lower === 'notes') {
+  if (lower === 'note' || lower === 'notes' || lower.includes('ئەسكەرتىش')) {
     if (lang === 'ug') return 'ئەسكەرتىش (ئىختىيارىي)';
     if (lang === 'ar') return 'ملاحظات (اختياري)';
+    if (lang === 'tr') return 'Notlar (İsteğe bağlı)';
+    if (lang === 'uz') return 'Izoh (ixtiyoriy)';
+    if (lang === 'ru') return 'Примечание (необязательно)';
     return 'Notes (Optional)';
   }
 

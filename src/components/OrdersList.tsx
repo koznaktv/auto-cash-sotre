@@ -75,7 +75,7 @@ export default function OrdersList({ orders }: OrdersListProps) {
               <div>
                 <h4 className="font-bold text-white text-base">{translatePackageTitle(order.serviceName)}</h4>
                 <p className="text-xs text-slate-400">
-                  {isRTL ? 'تۈر:' : 'Package:'} <span className="text-slate-200">{translatePackageTitle(order.packageTitle)}</span> | {isRTL ? 'ئابۇنىت:' : 'Account:'}{' '}
+                  {t('packageLabel')} <span className="text-slate-200">{translatePackageTitle(order.packageTitle)}</span> | {t('accountLabel')}{' '}
                   <span className="text-cyan-400 font-mono" dir="ltr">{order.targetAccount}</span>
                 </p>
               </div>
@@ -95,7 +95,7 @@ export default function OrdersList({ orders }: OrdersListProps) {
               <div className="mt-3 pt-3 border-t border-slate-800/80 bg-slate-950/50 p-3 rounded-xl flex flex-col gap-2">
                 {order.details.delivery?.codes?.map((code, idx) => (
                   <div key={idx} className="flex items-center justify-between gap-2 text-xs">
-                    <span className="text-slate-400 shrink-0">{isRTL ? 'كود:' : 'Code:'}</span>
+                    <span className="text-slate-400 shrink-0">{t('codeLabel')}</span>
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="font-mono text-emerald-300 font-bold break-all" dir="ltr">
                         {code}
@@ -108,7 +108,7 @@ export default function OrdersList({ orders }: OrdersListProps) {
                 ))}
                 {order.details.virtualNumber && (
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-400">{isRTL ? 'مەۋھۇم تېلېفون نومۇرى:' : 'Virtual Number:'}</span>
+                    <span className="text-slate-400">{t('virtualNumberLabel')}</span>
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-cyan-300 font-bold" dir="ltr">
                         {order.details.virtualNumber}
@@ -125,7 +125,7 @@ export default function OrdersList({ orders }: OrdersListProps) {
 
                 {order.details.smsCode && (
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-400">{isRTL ? 'قىسقا ئۇچۇر دەلىللەش كودى:' : 'SMS Code:'}</span>
+                    <span className="text-slate-400">{t('smsCodeLabel')}</span>
                     <span className="font-mono bg-cyan-950 text-cyan-400 px-2 py-0.5 rounded border border-cyan-800/60 font-semibold" dir="ltr">
                       {order.details.smsCode}
                     </span>
@@ -136,7 +136,7 @@ export default function OrdersList({ orders }: OrdersListProps) {
                   <div className="flex flex-col gap-1 text-xs bg-slate-900 border border-slate-800 p-2.5 rounded-lg">
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400 flex items-center gap-1">
-                        <CreditCard className="w-3.5 h-3.5 text-purple-400" /> {isRTL ? 'مەۋھۇم كارتا:' : 'Virtual Card:'}
+                        <CreditCard className="w-3.5 h-3.5 text-purple-400" /> {t('cardNumberLabel')}
                       </span>
                       <span className="font-mono text-purple-300" dir="ltr">
                         {order.details.cardDetails.number}

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import LanguageFlag from '@/components/LanguageFlag';
 import { useLanguage } from '@/context/LanguageContext';
 import {
   X,
@@ -38,7 +39,7 @@ interface SideDrawerProps {
 const VIP_TIER_CONFIG: Record<
   string,
   {
-    name: { ug: string; ar: string; en: string };
+    name: Record<string, string>;
     badgeClass: string;
     iconClass: string;
   }
@@ -46,8 +47,11 @@ const VIP_TIER_CONFIG: Record<
   vip1: {
     name: {
       ug: 'VIP 1 (ئاددىي ئەزا)',
-      ar: 'VIP 1 (عضو عادي)',
       en: 'VIP 1 (Standard Member)',
+      ar: 'VIP 1 (عضو عادي)',
+      tr: 'VIP 1 (Standart Üye)',
+      uz: 'VIP 1 (Oddiy a’zo)',
+      ru: 'VIP 1 (Стандартный)',
     },
     badgeClass: 'text-slate-300 bg-slate-900/80 border-slate-600/50',
     iconClass: 'text-slate-400',
@@ -55,8 +59,11 @@ const VIP_TIER_CONFIG: Record<
   vip2: {
     name: {
       ug: 'VIP 2 (كۈمۈش ئەزا)',
-      ar: 'VIP 2 (عضو فضي)',
       en: 'VIP 2 (Silver Member)',
+      ar: 'VIP 2 (عضو فضي)',
+      tr: 'VIP 2 (Gümüş Üye)',
+      uz: 'VIP 2 (Kumush a’zo)',
+      ru: 'VIP 2 (Серебряный)',
     },
     badgeClass: 'text-amber-300 bg-amber-950/70 border-amber-500/40',
     iconClass: 'text-amber-400',
@@ -64,8 +71,11 @@ const VIP_TIER_CONFIG: Record<
   vip3: {
     name: {
       ug: 'VIP 3 (ئالتۇن ئەزا)',
-      ar: 'VIP 3 (عضو ذهبي)',
       en: 'VIP 3 (Gold Member)',
+      ar: 'VIP 3 (عضو ذهبي)',
+      tr: 'VIP 3 (Altın Üye)',
+      uz: 'VIP 3 (Oltin a’zo)',
+      ru: 'VIP 3 (Золотой)',
     },
     badgeClass: 'text-cyan-300 bg-cyan-950/70 border-cyan-500/40',
     iconClass: 'text-cyan-400',
@@ -73,8 +83,11 @@ const VIP_TIER_CONFIG: Record<
   vip4: {
     name: {
       ug: 'VIP 4 (پىلاتىنا ئەزا)',
-      ar: 'VIP 4 (عضو بلاتيني)',
       en: 'VIP 4 (Platinum Member)',
+      ar: 'VIP 4 (عضو بلاتيني)',
+      tr: 'VIP 4 (Platin Üye)',
+      uz: 'VIP 4 (Platina a’zo)',
+      ru: 'VIP 4 (Платиновый)',
     },
     badgeClass: 'text-yellow-300 bg-yellow-950/70 border-yellow-500/40',
     iconClass: 'text-yellow-400',
@@ -82,8 +95,11 @@ const VIP_TIER_CONFIG: Record<
   vip5: {
     name: {
       ug: 'VIP 5 (ئالماس ئەزا)',
-      ar: 'VIP 5 (عضو ماسي)',
       en: 'VIP 5 (Diamond Member)',
+      ar: 'VIP 5 (عضو ماسي)',
+      tr: 'VIP 5 (Elmas Üye)',
+      uz: 'VIP 5 (Olmos a’zo)',
+      ru: 'VIP 5 (Бриллиантовый)',
     },
     badgeClass: 'text-emerald-300 bg-emerald-950/70 border-emerald-500/40',
     iconClass: 'text-emerald-400',
@@ -128,7 +144,7 @@ export default function SideDrawer({
     .replace(/[\s-_]/g, '');
   const activeTierConfig = VIP_TIER_CONFIG[normalizedTier] || VIP_TIER_CONFIG.vip1;
   const vipTierLabel =
-    activeTierConfig.name[lang as 'ug' | 'ar' | 'en'] || activeTierConfig.name.ug;
+    activeTierConfig.name[lang] || activeTierConfig.name.ug;
 
   useEffect(() => {
     if (!user) {
@@ -294,52 +310,43 @@ export default function SideDrawer({
                 <span>{t('selectLanguage')}</span>
               </span>
               <span className="text-[10px] text-amber-200/70 font-semibold">
-                {lang === 'ug' ? 'ئۇيغۇرچە' : lang === 'ar' ? 'العربية' : 'English'}
+                {lang === 'ug'
+                  ? 'ئۇيغۇرچە'
+                  : lang === 'en'
+                  ? 'English'
+                  : lang === 'ar'
+                  ? 'العربية'
+                  : lang === 'tr'
+                  ? 'Türkçe'
+                  : lang === 'uz'
+                  ? "O'zbekcha"
+                  : 'Русский'}
               </span>
             </div>
 
             <div className="grid grid-cols-3 gap-1.5">
-              {/* Uyghur button */}
-              <button
-                type="button"
-                onClick={() => setLang('ug')}
-                className={`py-2 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                  lang === 'ug'
-                    ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black shadow-md ring-2 ring-amber-300/80 scale-[1.02]'
-                    : 'bg-slate-900/80 border border-slate-700/60 text-slate-300 hover:border-amber-400/40 hover:text-white'
-                }`}
-              >
-                <span>🌙</span>
-                <span>ئۇيغۇرچە</span>
-              </button>
-
-              {/* Arabic button */}
-              <button
-                type="button"
-                onClick={() => setLang('ar')}
-                className={`py-2 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                  lang === 'ar'
-                    ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black shadow-md ring-2 ring-amber-300/80 scale-[1.02]'
-                    : 'bg-slate-900/80 border border-slate-700/60 text-slate-300 hover:border-amber-400/40 hover:text-white'
-                }`}
-              >
-                <span>🇸🇦</span>
-                <span>العربية</span>
-              </button>
-
-              {/* English button */}
-              <button
-                type="button"
-                onClick={() => setLang('en')}
-                className={`py-2 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                  lang === 'en'
-                    ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black shadow-md ring-2 ring-amber-300/80 scale-[1.02]'
-                    : 'bg-slate-900/80 border border-slate-700/60 text-slate-300 hover:border-amber-400/40 hover:text-white'
-                }`}
-              >
-                <span>🇬🇧</span>
-                <span>English</span>
-              </button>
+              {[
+                { code: 'ug', label: 'ئۇيغۇرچە' },
+                { code: 'en', label: 'English' },
+                { code: 'ar', label: 'العربية' },
+                { code: 'tr', label: 'Türkçe' },
+                { code: 'uz', label: "O'zbekcha" },
+                { code: 'ru', label: 'Русский' },
+              ].map((item) => (
+                <button
+                  key={item.code}
+                  type="button"
+                  onClick={() => setLang(item.code as any)}
+                  className={`py-2 px-1.5 rounded-xl text-[11px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                    lang === item.code
+                      ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black shadow-md ring-2 ring-amber-300/80 scale-[1.02]'
+                      : 'bg-slate-900/80 border border-slate-700/60 text-slate-300 hover:border-amber-400/40 hover:text-white'
+                  }`}
+                >
+                  <LanguageFlag code={item.code} className="w-4 h-2.5 rounded-[2px] object-cover shrink-0 shadow-sm" />
+                  <span className="truncate">{item.label}</span>
+                </button>
+              ))}
             </div>
           </div>
 
@@ -360,7 +367,7 @@ export default function SideDrawer({
                         }}
                         onClick={() => fileInputRef.current?.click()}
                         className="w-12 h-12 rounded-full object-cover bg-slate-900 border border-slate-950 cursor-pointer hover:opacity-90 transition"
-                        title="رەسىم ئالماشتۇرۇش"
+                        title={t('changePhoto')}
                       />
                     </div>
                     <span
@@ -371,7 +378,7 @@ export default function SideDrawer({
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       className="absolute -bottom-1 -left-1 w-5 h-5 rounded-full bg-amber-400 hover:bg-yellow-300 text-slate-950 flex items-center justify-center shadow-md border border-[#081c33] transition cursor-pointer hover:scale-110 active:scale-95"
-                      title="رەسىم ئالماشتۇرۇش"
+                      title={t('changePhoto')}
                     >
                       <Camera className="w-3 h-3" />
                     </button>

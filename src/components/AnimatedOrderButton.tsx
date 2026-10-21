@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ShoppingCart, Check, Package } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface AnimatedOrderButtonProps {
   status: 'idle' | 'loading' | 'success';
@@ -16,10 +17,12 @@ export default function AnimatedOrderButton({
   status,
   disabled = false,
   label,
-  isRTL = true,
+  isRTL: propIsRTL,
   onClick,
   type = 'submit',
 }: AnimatedOrderButtonProps) {
+  const { t, isRTL: contextIsRTL } = useLanguage();
+  const isRTL = propIsRTL !== undefined ? propIsRTL : contextIsRTL;
   const isLoading = status === 'loading';
   const isSuccess = status === 'success';
 
@@ -154,7 +157,7 @@ export default function AnimatedOrderButton({
             </div>
 
             <span className={`${isRTL ? 'mr-3' : 'ml-3'} text-xs font-bold text-cyan-100`}>
-              {isRTL ? 'بىر تەرەپ قىلىنماقتا...' : 'Processing...'}
+              {t('processing')}
             </span>
           </div>
         )}
@@ -166,7 +169,7 @@ export default function AnimatedOrderButton({
               <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
             </div>
             <span className="anim-check-pop font-bold text-sm tracking-wide">
-              {isRTL ? 'زاكاز مۇۋەپپەقىيەتلىك تاپشۇرۇلدى!' : 'Order Placed Successfully!'}
+              {t('orderSuccess')}
             </span>
           </div>
         )}

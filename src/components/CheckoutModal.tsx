@@ -81,9 +81,9 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
       .then((d) => {
         if (cancelled) return;
         if (d.success && d.service) setDetail(d.service);
-        else setDetailError(d.message || 'مەھسۇلات ئۇچۇرى يۈكلەنمىدى');
+        else setDetailError(d.message || t('productLoadFailed'));
       })
-      .catch(() => !cancelled && setDetailError('مەھسۇلات ئۇچۇرى يۈكلەنمىدى'));
+      .catch(() => !cancelled && setDetailError(t('productLoadFailed')));
     return () => {
       cancelled = true;
     };
@@ -175,16 +175,16 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
 
       if (res.status === 409 && data.priceChanged && typeof data.newTotal === 'number') {
         setConfirmTotal(data.newTotal);
-        setErrorMsg(data.message || 'باھا ئۆزگەردى');
+        setErrorMsg(data.message || t('priceChanged'));
         setButtonState('idle');
         return;
       }
-      if (!data.success) throw new Error(data.message || 'زاكاز قوبۇل قىلىنمىدى');
+      if (!data.success) throw new Error(data.message || t('orderFailed'));
 
       if (res.status === 202) {
         // Accepted but the provider's answer was unclear: the order is being verified
         setButtonState('success');
-        setInfoMsg(data.message || 'زاكازىڭىز تەكشۈرۈلۈۋاتىدۇ');
+        setInfoMsg(data.message || t('orderUnderReview'));
         setTimeout(() => {
           onSuccess(data.order, data.newBalance);
           onClose();
@@ -202,7 +202,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
       }, 1200);
     } catch (err: any) {
       setButtonState('idle');
-      setErrorMsg(err.message || 'خاتالىق كۆرۈلدى');
+      setErrorMsg(err.message || t('errorOccurred'));
     } finally {
       isSubmittingRef.current = false;
       setLoading(false);
@@ -228,18 +228,18 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
     // For services requiring Zone ID
     if (requiresZoneId) {
       if (!accountInput.trim()) {
-        setErrorMsg('ئويۇنچى كىملىكى (UID) نى كىرگۈزۈش شەرت!');
+        setErrorMsg(t('uidRequired'));
         return;
       }
       if (!zoneInput.trim()) {
-        setErrorMsg('رايون كودى (Zone ID) نى كىرگۈزۈش شەرت! (مەسىلەن: 1234)');
+        setErrorMsg(t('zoneIdRequired'));
         return;
       }
     }
 
     if (isProvider) {
       if (selectedPkg.available === false) {
-        setErrorMsg('بۇ تۈر ھازىر يوق');
+        setErrorMsg(t('itemUnavailable'));
         return;
       }
       const updatedFields = {
@@ -249,12 +249,12 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
       };
       const fieldCheck = validateOrderFields(updatedFields, selectedPkg.fields || []);
       if (!fieldCheck.ok) {
-        setErrorMsg(fieldCheck.message || 'ئۇچۇر خاتا');
+        setErrorMsg(fieldCheck.message || t('invalidIdFormat'));
         return;
       }
       const qtyCheck = validateQty(qty, selectedPkg.qty);
       if (!qtyCheck.ok) {
-        setErrorMsg(qtyCheck.message || 'سانى خاتا');
+        setErrorMsg(qtyCheck.message || t('quantity'));
         return;
       }
       const combined = requiresZoneId && zoneInput.trim()
@@ -269,13 +269,13 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
       : accountInput.trim();
 
     if (service.inputLabel && !combinedAccount) {
-      setErrorMsg(`${translateInputLabel(service.inputLabel) || 'ID'} نى كىرگۈزۈڭ`);
+      setErrorMsg(`${translateInputLabel(service.inputLabel) || 'ID'} ${t('accountInputFallbackPlaceholder')}`);
       return;
     }
     if (service.category === 'games' || service.inputLabel || requiresZoneId) {
       const val = validateGameAccount(service.id, combinedAccount);
       if (!val.isValid) {
-        setErrorMsg(val.message || 'كىملىك فورماتى خاتا!');
+        setErrorMsg(val.message || t('invalidIdFormat'));
         return;
       }
     }
@@ -337,7 +337,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
               {service.description && service.description !== service.name
                 ? translatePackageTitle(service.description)
                 : isProvider
-                ? (lang === 'ar' ? 'خدمة شحن فورية ومباشرة' : lang === 'en' ? 'Instant digital delivery' : 'دەرھال ۋە ئاپتوماتىك قاچىلاش مۇلازىمىتى')
+                ? t('instantDigitalDelivery')
                 : service.description}
             </p>
           </div>
@@ -368,7 +368,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
         {!detail && !detailError && (
           <div className="py-10 flex items-center justify-center gap-2 text-slate-400 text-sm">
             <Loader2 className="w-4 h-4 animate-spin" />
-            <span>يۈكلىنىۋاتىدۇ...</span>
+            <span>{t('loading')}</span>
           </div>
         )}
         {detailError && (
@@ -390,7 +390,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                     type="text"
                     value={packageQuery}
                     onChange={(e) => setPackageQuery(e.target.value)}
-                    placeholder="ئىزدەش..."
+                    placeholder={t('search')}
                     className={`${inputClass} py-2 text-xs ${isRTL ? 'pr-9' : 'pl-9'}`}
                   />
                 </div>
@@ -425,7 +425,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                         </div>
                         <span className="font-medium">{translatePackageTitle(pkg.title)}</span>
                         {unavailable ? (
-                          <span className="text-[11px] bg-slate-800 px-2 py-0.5 rounded text-slate-400">يوق</span>
+                          <span className="text-[11px] bg-slate-800 px-2 py-0.5 rounded text-slate-400">{t('outOfStock')}</span>
                         ) : (
                           pkg.duration && (
                             <span className="text-[11px] bg-slate-800 px-2 py-0.5 rounded text-slate-400">{t('instant')}</span>
@@ -433,19 +433,19 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                         )}
                       </div>
                       <div className="font-bold text-cyan-400 font-mono shrink-0" dir="ltr">
-                        {pkg.productType === 'amount' ? `${isRTL ? 'دىن' : 'from'} ` : ''}${formatSmartPrice(pkg.price)}
+                        {pkg.productType === 'amount' ? `${t('fromPrice')} ` : ''}${formatSmartPrice(pkg.price)}
                       </div>
                     </button>
                   );
                 })}
-                {visiblePackages.length === 0 && <p className="text-xs text-slate-500 py-3 text-center">تېپىلمىدى</p>}
+                {visiblePackages.length === 0 && <p className="text-xs text-slate-500 py-3 text-center">{t('itemNotFound')}</p>}
               </div>
             </div>
 
             {/* Quantity (per-unit "amount" products) */}
             {isProvider && selectedPkg?.qty && selectedPkg.qty.kind !== 'fixed' && (
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">سانى</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">{t('quantity')}</label>
                 {selectedPkg.qty.kind === 'list' ? (
                   <select value={qtyInput} onChange={(e) => setQtyInput(e.target.value)} className={inputClass}>
                     {selectedPkg.qty.values.map((v) => (
@@ -569,7 +569,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                       </div>
                     </div>
                     <p className="mt-1 text-[11px] text-amber-300/90 flex items-center gap-1 font-alkatip">
-                      <span>💡 ئەسكەرتىش: كىملىك (UID) بىلەن تىرناق ئىچىدىكى 4 ياكى 5 خانىلىق رايون كودى (Zone ID) نى ئايرىم كىرگۈزۈڭ.</span>
+                      <span>{t('mlbbNotice')}</span>
                     </p>
                   </div>
                 ) : (
@@ -588,12 +588,12 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                     />
                     {service.id.toLowerCase().includes('pubg') && (
                       <p className="mt-1.5 text-[11px] text-amber-300/80">
-                        💡 ئەسكەرتىش: پەقەت 8 دىن 12 خانىغىچە رەقەملىك UID كىرگۈزۈڭ (مەسىلەن: 5123456789).
+                        {t('pubgUidNotice')}
                       </p>
                     )}
                     {service.id.toLowerCase().includes('free-fire') && (
                       <p className="mt-1.5 text-[11px] text-amber-300/80">
-                        💡 ئەسكەرتىش: پەقەت ئويۇندىكى Player ID نى كىرگۈزۈڭ.
+                        {t('freefireUidNotice')}
                       </p>
                     )}
                   </div>
@@ -640,7 +640,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                   onClick={onClose}
                   className="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition cursor-pointer"
                 >
-                  {isRTL ? 'تامام' : 'Done'}
+                  {t('done')}
                 </button>
               ) : (
                 <AnimatedOrderButton
@@ -648,11 +648,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                   disabled={loading || isSubmittingRef.current || !selectedPkg || selectedPkg.available === false}
                   label={
                     confirmTotal !== null
-                      ? (lang === 'ar'
-                          ? `تأكيد السعر الجديد $${formatSmartPrice(confirmTotal)}`
-                          : lang === 'en'
-                          ? `Confirm New Price $${formatSmartPrice(confirmTotal)}`
-                          : `يېڭى باھا $${formatSmartPrice(confirmTotal)} نى جەزملەش`)
+                      ? `${t('confirmNewPrice')} ($${formatSmartPrice(confirmTotal)})`
                       : t('confirmAndPay')
                   }
                   isRTL={isRTL}

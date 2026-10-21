@@ -26,7 +26,7 @@ interface AuthModalProps {
 
 export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, isRTL, lang } = useLanguage();
 
   // Mode: false = login (front), true = register (back)
   const [isFlipped, setIsFlipped] = useState(false);
@@ -565,7 +565,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     try {
       const supabase = getBrowserSupabase();
       if (!supabase) {
-        setErrorMsg('Google بىلەن كىرىش تەڭشىكى تېخى تولۇقلانمىغان (Supabase URL / Key كىرگۈزۈلمىگەن).');
+        setErrorMsg(t('loginFailed'));
         setGoogleLoading(false);
         return;
       }
@@ -583,7 +583,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
       if (error) throw error;
     } catch (err: any) {
       console.error('Google OAuth error:', err);
-      setErrorMsg(err?.message || 'Google بىلەن كىرىش مەغلۇپ بولدى');
+      setErrorMsg(err?.message || t('loginFailed'));
       setGoogleLoading(false);
     }
   };
@@ -594,7 +594,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     setErrorMsg('');
 
     if (!loginEmail || !loginPassword) {
-      setErrorMsg('ئېلخەت ۋە مەخپىي نومۇرنى تولۇق كىرگۈزۈڭ');
+      setErrorMsg(t('fillAllFields'));
       return;
     }
 
@@ -613,11 +613,11 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
       });
       const data = await res.json();
       if (!data.success) {
-        throw new Error(data.message || 'ئېلخەت ياكى مەخپىي نومۇر خاتا');
+        throw new Error(data.message || t('loginFailed'));
       }
 
-      setSuccessTitle('مۇۋەپپەقىيەتلىك كىردىڭىز!');
-      setSuccessSubtitle(`ھۆرمەتلىك ${data.user?.name || loginEmail}، خۇش كەپسىز! كىرىۋاتىسىز...`);
+      setSuccessTitle(t('loginSuccessToast'));
+      setSuccessSubtitle(`${t('welcomeUser')} ${data.user?.name || loginEmail}`);
       setShowSuccess(true);
       playSuccessChime();
 
@@ -629,7 +629,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         }
       }, 1600);
     } catch (err: any) {
-      setErrorMsg(err?.message || 'كىرىش مەغلۇپ بولدى');
+      setErrorMsg(err?.message || t('loginFailed'));
     } finally {
       setLoginArrowFlying(false);
       setLoginLoading(false);
@@ -642,17 +642,17 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     setErrorMsg('');
 
     if (!signupName || !signupEmail || !signupPassword) {
-      setErrorMsg('بارلىق بۆلەكلەرنى تولۇق كىرگۈزۈڭ');
+      setErrorMsg(t('fillAllFields'));
       return;
     }
 
     if (signupPassword !== signupConfirmPassword) {
-      setErrorMsg('مەخپىي نومۇرنى جەزملەش ئوخشاش بولمىدى! قايتا كىرگۈزۈڭ.');
+      setErrorMsg(t('passwordsDoNotMatch'));
       return;
     }
 
     if (signupPassword.length < 6) {
-      setErrorMsg('مەخپىي نومۇر كەم دېگەندە 6 خانىلىق بولسۇن');
+      setErrorMsg(t('passwordMinLength'));
       return;
     }
 
@@ -675,11 +675,11 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
       });
       const data = await res.json();
       if (!data.success) {
-        throw new Error(data.message || 'تىزىملىتىش مەغلۇپ بولدى');
+        throw new Error(data.message || t('registerFailed'));
       }
 
-      setSuccessTitle('ھېساباتىڭىز مۇۋەپپەقىيەتلىك قۇرۇلدى!');
-      setSuccessSubtitle(`تەبرىكلەيمىز ${signupName}! سىستېمىغا ئاپتوماتىك كىرىۋاتىسىز...`);
+      setSuccessTitle(t('registerSuccessToast'));
+      setSuccessSubtitle(`${t('welcomeUser')} ${signupName}`);
       setShowSuccess(true);
       playSuccessChime();
 
@@ -691,7 +691,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         }
       }, 1600);
     } catch (err: any) {
-      setErrorMsg(err?.message || 'تىزىملىتىش مەغلۇپ بولدى');
+      setErrorMsg(err?.message || t('registerFailed'));
     } finally {
       setSignupArrowFlying(false);
       setSignupLoading(false);
@@ -700,8 +700,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
   return (
     <div
-      className={`nasrulla-modal-root ${isLampOn ? 'lamp-on' : ''}`}
-      dir="rtl"
+      className={`nasrulla-modal-root ${isLampOn ? 'lamp-on' : ''} lang-${lang}`}
+      dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Dynamic Scoped Styles */}
       <style dangerouslySetInnerHTML={{ __html: `
@@ -722,6 +722,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           --text-muted: #8e9bb0;
           --text-dim: #546075;
           --font-uyghur: "ALKATIP Tor Tom", "ALKATIP Tor", "ALKATIP Basma Tom", "UKIJ Tor Tom", "UKIJ Tuz", "Microsoft Uighur", "IBM Plex Sans Arabic", "Noto Sans Arabic", Tahoma, sans-serif;
+          --font-ltr: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
           
           position: fixed;
           inset: 0;
@@ -733,7 +734,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           overflow-y: auto;
           -webkit-overflow-scrolling: touch;
           background-color: var(--bg-dark);
-          font-family: var(--font-uyghur);
+          font-family: ${isRTL ? 'var(--font-uyghur)' : 'var(--font-ltr)'};
           color: var(--text-main);
           display: flex;
           justify-content: center;
@@ -2177,10 +2178,10 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         type="button"
         className="btn-close-modal"
         onClick={onClose}
-        title="يېپىش"
+        title={t('close')}
       >
         <X className="w-4 h-4 text-amber-400" />
-        <span>يېپىش</span>
+        <span>{t('close')}</span>
       </button>
 
       {/* Firefly particles canvas */}
@@ -2222,7 +2223,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           <div
             ref={cordHandleRef}
             className="pull-cord-wrapper"
-            title="ئارغامچىنى تارتىپ چىراغنى ياندۇرۇڭ ياكى ئۆچۈرۈڭ"
+            title={t('cordPullPrompt')}
           >
             <svg className="pull-cord-svg" viewBox="0 0 100 240">
               <defs>
@@ -2246,10 +2247,10 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           <div
             className={`cord-hint ${isLampOn ? 'hidden' : ''}`}
             onClick={handleToggleLamp}
-            title="چىراغنى ياندۇرۇش ياكى ئۆچۈرۈش ئۈچۈن بېسىڭ"
+            title={t('lampTooltip')}
           >
             <span>👆</span>
-            <span>كىرىش ياكى تىزىملىتىش ئۈچۈن چىراقنى ياندۇرۇڭ</span>
+            <span>{t('pullLampHint')}</span>
           </div>
         </div>
 
@@ -2273,14 +2274,14 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                   className={`tab-btn ${!isFlipped ? 'active' : ''}`}
                   onClick={() => switchTab(false)}
                 >
-                  <span>كىرىش</span>
+                  <span>{t('loginTab')}</span>
                 </button>
                 <button
                   type="button"
                   className={`tab-btn ${isFlipped ? 'active' : ''}`}
                   onClick={() => switchTab(true)}
                 >
-                  <span>تىزىملىتىش</span>
+                  <span>{t('registerTab')}</span>
                 </button>
               </div>
 
@@ -2291,8 +2292,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                     <path d="M12 2C7.58 2 4 5.58 4 10c0 2.61 1.25 4.93 3.19 6.4L7 18c0 .55.45 1 1 1h8c.55 0 1-.45 1-1l-.19-1.6C18.75 14.93 20 12.61 20 10c0-4.42-3.58-8-8-8zm-2 19c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-1h-4v1zm2-17c3.31 0 6 2.69 6 6 0 1.96-.94 3.69-2.4 4.79l-.6.45.27.76.73 2H8l.73-2 .27-.76-.6-.45C6.94 13.69 6 11.96 6 10c0-3.31 2.69-6 6-6z" />
                   </svg>
                 </div>
-                <h1 className="card-title">تور بېتىمىزگە كەلگىنىڭىزنى قارشى ئالىمىز</h1>
-                <p className="card-subtitle">داۋاملاشتۇرۇش ئۈچۈن ھېساباتىڭىزغا كىرىڭ</p>
+                <h1 className="card-title">{t('welcomeCardTitle')}</h1>
+                <p className="card-subtitle">{t('welcomeCardSubtitle')}</p>
               </div>
 
               {/* Login Form */}
@@ -2306,7 +2307,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
                 {/* Email / Username */}
                 <div className="form-group">
-                  <label className="field-label">ئىشلەتكۈچى نامى ياكى ئېلخەت</label>
+                  <label className="field-label">{t('usernameOrEmail')}</label>
                   <div className="input-wrapper">
                     <div className="input-border-beam" />
                     <input
@@ -2314,7 +2315,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                       className="custom-input"
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
-                      placeholder="ئېلخەت ياكى نامىڭىزنى كىرگۈزۈڭ..."
+                      placeholder={t('usernamePlaceholder')}
                       required
                       autoComplete="username"
                     />
@@ -2326,7 +2327,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
                 {/* Password */}
                 <div className="form-group">
-                  <label className="field-label">مەخپىي نومۇر</label>
+                  <label className="field-label">{t('password')}</label>
                   <div className="input-wrapper">
                     <div className="input-border-beam" />
                     <input
@@ -2345,7 +2346,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                       type="button"
                       className="toggle-password"
                       onClick={() => setShowLoginPassword(!showLoginPassword)}
-                      aria-label="مەخپىي نومۇرنى كۆرسىتىش"
+                      aria-label={t('showPassword')}
                     >
                       <svg viewBox="0 0 24 24">
                         <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
@@ -2358,17 +2359,17 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                 <div className="form-options">
                   <label className="remember-me">
                     <input type="checkbox" className="checkbox-custom" defaultChecked />
-                    <span>ئېسىمدە تۇتۇلسۇن</span>
+                    <span>{t('rememberMe')}</span>
                   </label>
                   <a
                     href="#"
                     className="forgot-pass"
                     onClick={(e) => {
                       e.preventDefault();
-                      alert('مەخپىي نومۇرنى ئەسلىگە كەلتۈرۈش ئۈچۈن باشقۇرغۇچى ياكى تېلېگرام بىلەن ئالاقىلىشىڭ');
+                      alert(t('forgotPasswordAlert'));
                     }}
                   >
-                    مەخپىي نومۇرنى ئۇنتۇدىڭىزمۇ؟
+                    {t('forgotPassword')}
                   </a>
                 </div>
 
@@ -2378,7 +2379,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                   disabled={loginLoading}
                   className={`btn-submit ${loginArrowFlying ? 'arrow-flying' : ''} ${loginLoading ? 'loading' : ''}`}
                 >
-                  <span className="btn-text">{loginLoading ? 'كىرىۋاتىدۇ...' : 'كىرىش'}</span>
+                  <span className="btn-text">{loginLoading ? t('loggingIn') : t('loginTab')}</span>
                   <svg className="btn-arrow" viewBox="0 0 24 24">
                     <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
                   </svg>
@@ -2399,13 +2400,13 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                       <path fill="#FBBC05" d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.6 7.2C.6 9.2 0 11.5 0 14s.6 4.8 1.6 6.8l3.7-3.1z" />
                       <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.2 0-5.8-2.2-6.7-5.3L1.6 16C3.5 19.9 7.4 23 12 23z" />
                     </svg>
-                    <span>{googleLoading ? 'Google بىلەن كىرىۋاتىدۇ...' : 'Google ئارقىلىق كىرىش'}</span>
+                    <span>{googleLoading ? t('googleSigningIn') : t('googleSignIn')}</span>
                   </button>
                 </div>
 
                 {/* Footer Switch */}
                 <div className="card-footer">
-                  <span>تېخى ھېساباتىڭىز يوقمۇ؟</span>
+                  <span>{t('dontHaveAccount')}</span>
                   <a
                     href="#"
                     className="register-link"
@@ -2414,7 +2415,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                       switchTab(true);
                     }}
                   >
-                    تىزىملىتىڭ
+                    {t('registerNow')}
                   </a>
                 </div>
               </form>
@@ -2431,14 +2432,14 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                   className={`tab-btn ${!isFlipped ? 'active' : ''}`}
                   onClick={() => switchTab(false)}
                 >
-                  <span>كىرىش</span>
+                  <span>{t('loginTab')}</span>
                 </button>
                 <button
                   type="button"
                   className={`tab-btn ${isFlipped ? 'active' : ''}`}
                   onClick={() => switchTab(true)}
                 >
-                  <span>تىزىملىتىش</span>
+                  <span>{t('registerTab')}</span>
                 </button>
               </div>
 
@@ -2449,8 +2450,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                     <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                   </svg>
                 </div>
-                <h1 className="card-title">يېڭى ھېسابات قۇرۇش</h1>
-                <p className="card-subtitle">بىزگە قوشۇلۇپ يېڭى مۇساپىڭىزنى باشلاڭ</p>
+                <h1 className="card-title">{t('createAccountTitle')}</h1>
+                <p className="card-subtitle">{t('createAccountSubtitle')}</p>
               </div>
 
               {/* Signup Form */}
@@ -2464,7 +2465,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
                 {/* Name */}
                 <div className="form-group">
-                  <label className="field-label">ئىشلەتكۈچى نامى ياكى ئىسمىڭىز</label>
+                  <label className="field-label">{t('nameLabel')}</label>
                   <div className="input-wrapper">
                     <div className="input-border-beam" />
                     <input
@@ -2472,7 +2473,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                       className="custom-input"
                       value={signupName}
                       onChange={(e) => setSignupName(e.target.value)}
-                      placeholder="ئىسمىڭىزنى كىرگۈزۈڭ..."
+                      placeholder={t('namePlaceholder')}
                       required
                       autoComplete="name"
                     />
@@ -2484,7 +2485,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
                 {/* Email */}
                 <div className="form-group">
-                  <label className="field-label">ئېلخەت ئادرېسى</label>
+                  <label className="field-label">{t('emailLabel')}</label>
                   <div className="input-wrapper">
                     <div className="input-border-beam" />
                     <input
@@ -2504,7 +2505,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
                 {/* Password */}
                 <div className="form-group">
-                  <label className="field-label">مەخپىي نومۇر</label>
+                  <label className="field-label">{t('password')}</label>
                   <div className="input-wrapper">
                     <div className="input-border-beam" />
                     <input
@@ -2512,7 +2513,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                       className="custom-input"
                       value={signupPassword}
                       onChange={(e) => setSignupPassword(e.target.value)}
-                      placeholder="كەم دېگەندە 6 خانىلىق بولسۇن..."
+                      placeholder={t('passwordMinLengthPlaceholder')}
                       required
                       autoComplete="new-password"
                     />
@@ -2523,7 +2524,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                       type="button"
                       className="toggle-password"
                       onClick={() => setShowSignupPassword(!showSignupPassword)}
-                      aria-label="مەخپىي نومۇرنى كۆرسىتىش"
+                      aria-label={t('showPassword')}
                     >
                       <svg viewBox="0 0 24 24">
                         <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
@@ -2534,7 +2535,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
                 {/* Confirm Password */}
                 <div className="form-group">
-                  <label className="field-label">مەخپىي نومۇرنى جەزملەش</label>
+                  <label className="field-label">{t('confirmPassword')}</label>
                   <div className="input-wrapper">
                     <div className="input-border-beam" />
                     <input
@@ -2542,7 +2543,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                       className="custom-input"
                       value={signupConfirmPassword}
                       onChange={(e) => setSignupConfirmPassword(e.target.value)}
-                      placeholder="مەخپىي نومۇرنى قايتا كىرگۈزۈڭ..."
+                      placeholder={t('confirmPasswordPlaceholder')}
                       required
                       autoComplete="new-password"
                     />
@@ -2553,7 +2554,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                       type="button"
                       className="toggle-password"
                       onClick={() => setShowSignupConfirmPassword(!showSignupConfirmPassword)}
-                      aria-label="مەخپىي نومۇرنى كۆرسىتىش"
+                      aria-label={t('showPassword')}
                     >
                       <svg viewBox="0 0 24 24">
                         <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
@@ -2572,7 +2573,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                       onChange={(e) => setAgreeTerms(e.target.checked)}
                       required
                     />
-                    <span>مەن مۇلازىمەت كېلىشىمى ۋە مەخپىيەتلىك تۈزۈمىگە قوشۇلىمەن</span>
+                    <span>{t('agreeTermsText')}</span>
                   </label>
                 </div>
 
@@ -2582,7 +2583,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                   disabled={signupLoading}
                   className={`btn-submit ${signupArrowFlying ? 'arrow-flying' : ''} ${signupLoading ? 'loading' : ''}`}
                 >
-                  <span className="btn-text">{signupLoading ? 'ھېسابات قۇرۇلىۋاتىدۇ...' : 'ھېسابات قۇرۇش'}</span>
+                  <span className="btn-text">{signupLoading ? t('registering') : t('createAccountBtn')}</span>
                   <svg className="btn-arrow" viewBox="0 0 24 24">
                     <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
                   </svg>
@@ -2603,13 +2604,13 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                       <path fill="#FBBC05" d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.6 7.2C.6 9.2 0 11.5 0 14s.6 4.8 1.6 6.8l3.7-3.1z" />
                       <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.2 0-5.8-2.2-6.7-5.3L1.6 16C3.5 19.9 7.4 23 12 23z" />
                     </svg>
-                    <span>{googleLoading ? 'Google بىلەن كىرىۋاتىدۇ...' : 'Google ئارقىلىق تىزىملىتىش'}</span>
+                    <span>{googleLoading ? t('googleSigningIn') : t('googleSignUp')}</span>
                   </button>
                 </div>
 
                 {/* Footer Switch */}
                 <div className="card-footer">
-                  <span>ئاللىقاچان ھېساباتىڭىز بارمۇ؟</span>
+                  <span>{t('alreadyHaveAccount')}</span>
                   <a
                     href="#"
                     className="register-link"
@@ -2618,7 +2619,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                       switchTab(false);
                     }}
                   >
-                    كىرىڭ
+                    {t('signInNow')}
                   </a>
                 </div>
               </form>
@@ -2660,7 +2661,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             className="success-btn-close"
             onClick={() => setShowSuccess(false)}
           >
-            <span>چۈشەندىم / يېپىش</span>
+            <span>{t('gotItClose')}</span>
           </button>
         </div>
       </div>
