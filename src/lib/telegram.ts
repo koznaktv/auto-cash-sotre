@@ -563,13 +563,14 @@ export async function broadcastAnnouncement(
   if (!token) return { channelSuccess: false, usersSent: 0, error: 'Bot token missing' };
 
   const formattedMessage = `
-📢 <b>AUTO CASH رەسمىي ئېلانى | Official Announcement</b>
+🔥 <b>AUTO CASH | ئالاھىدە تەشۋىقات ۋە ئېتىبار خەۋىرى</b> 🔥
 ━━━━━━━━━━━━━━━━━━
 ${content}
 ━━━━━━━━━━━━━━━━━━
-⚡️ <b>ئەڭ ئەرزان باھادا ئويۇن ۋە ئەپلەرگە پۇل قاچىلاشنى باشلاڭ:</b>
-🛒 دۇكان: ${TELEGRAM_CONFIG.storeUrl}
-💬 مۇلازىمەت: @${TELEGRAM_CONFIG.supportUsername}
+⚡️ <b>ئەڭ ئەرزان باھا • 24/7 شۇئان قاچىلاش • بىخەتەر كاپالەت</b>
+🛒 <b>رەسمىي دۇكان:</b> ${TELEGRAM_CONFIG.storeUrl}
+📢 <b>تېلېگرام قانىلىمىز:</b> @${TELEGRAM_CONFIG.channelUsername}
+💬 <b>خېرىدارلار مۇلازىمىتى:</b> @${TELEGRAM_CONFIG.supportUsername}
 `.trim();
 
   const keyboard = {
@@ -784,6 +785,73 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       return;
     }
 
+    // 5. Quick ShamCash Deposit
+    if (data === 'quick_deposit') {
+      await answerCallbackQuery(cqId);
+      const shamcashText = `
+💳 <b>شامكەش (Sham Cash) ئارقىلىق پۇل سېلىش</b>
+━━━━━━━━━━━━━━━━━━
+📌 <b>رەسمىي شامكەش ھېسابات ئادرېسىمىز:</b>
+<code>efe8a2b200d66411c7c7e296369cbba8</code>
+<i>(ئۈستىدىكى ئادرېسنى باسسىڭىز شۇئان كۆچۈرۈلىدۇ)</i>
+
+🚀 پۇلنى يوللاپ بولۇپ، تالون نومۇرى (TxID) بىلەن دۇكاننىڭ «ھەميانغا پۇل كىرگۈزۈش» بېتىدىن دەلىللىسىڭىز، سېكۇنت ئىچىدە كىرىدۇ!
+`.trim();
+      await sendTelegramMessage(chatId, shamcashText, {
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '💳 ھەميانغا پۇل كىرگۈزۈش', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` } }],
+          ],
+        },
+      });
+      return;
+    }
+
+    // 6. Quick Popular Catalog
+    if (data === 'quick_catalog') {
+      await answerCallbackQuery(cqId);
+      const catalogText = `
+🎮 <b>ئالقىشلىق تۈرلەر:</b>
+• 🔫 <b>PUBG Mobile UC:</b> 60 UC ~ 8100 UC
+• 🔥 <b>Free Fire:</b> بارلىق ئالماس كارتىلىرى
+• 🎵 <b>TikTok Coins:</b> ئەڭ تېز قاچىلاش
+• 🤖 <b>ChatGPT & Claude:</b> سۈنئىي ئەقىل ئابۇنىتلىرى
+`.trim();
+      await sendTelegramMessage(chatId, catalogText, {
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '🛒 دۇكاننى ئېچىش | Open Store', web_app: { url: TELEGRAM_CONFIG.storeUrl } }],
+          ],
+        },
+      });
+      return;
+    }
+
+    // 7. Refresh Stats (Admin)
+    if (data === 'refresh_stats') {
+      if (!isAdmin) {
+        await answerCallbackQuery(cqId, 'رۇخسەت يوق', true);
+        return;
+      }
+      await answerCallbackQuery(cqId, 'دوكلات يېڭىلاندى!');
+      const report = await getDailyFinancialStats();
+      if (chatId && messageId) {
+        await editTelegramMessage(chatId, messageId, report, {
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: '🔄 دوكلاتنى قايتا يېڭىلاش', callback_data: 'refresh_stats' },
+                { text: '📊 باشقۇرۇش كۆزنىكى', url: `${TELEGRAM_CONFIG.storeUrl}/admin` },
+              ],
+            ],
+          },
+        });
+      }
+      return;
+    }
+
     return;
   }
 
@@ -809,11 +877,20 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
   // 1. Command /start
   if (text.startsWith('/start')) {
     const welcomeText = `
-👋 <b>ھۆرمەتلىك ${from?.first_name || 'خېرىدار'}، AUTO CASH سۇپىسىغا خۇش كەپسىز!</b>
+👑 <b>AUTO CASH — رەسمىي رەقەملىك پۇل قاچىلاش دۇكىنى</b> 👑
+━━━━━━━━━━━━━━━━━━
+👋 سالام، ھۆرمەتلىك <b>${from?.first_name || 'خېرىدار'}</b>!
+<b>AUTO CASH</b> سۇپىسىنىڭ رەسمىي تېلېگرام دۇكىنىغا خۇش كەپسىز!
 
-🎮 <b>AUTO CASH</b> — بارلىق تور ئويۇنلىرى (PUBG, Free Fire)، ئەپلەر، رەقەملىك سوۋغات كارتىلىرى، سۈنئىي ئەقىل (AI) ئابۇنىتلىقى ۋە مەۋھۇم نومۇرلارغا پۇل قاچىلاشنىڭ ئەڭ ئەرزان ۋە ئىشەنچلىك رەسمىي سۇپىسى.
+⚡️ <b>ئەڭ ئەرزان، ئەڭ تېز ۋە 24/7 ئاپتوماتىك قاچىلاش:</b>
+• 🔫 <b>PUBG Mobile:</b> بارلىق UC بولاقلىرى شۇئان قاچىلىنىدۇ
+• 🔥 <b>Free Fire:</b> بارلىق ئالماس (Diamonds) تۈرلىرى
+• 🎵 <b>TikTok Coins:</b> ئەڭ يۇقىرى ئېتىبار باھادا
+• 🤖 <b>AI ئابۇنىتلىرى:</b> ChatGPT Plus، Claude Pro، Midjourney
+• 📱 <b>مەۋھۇم نومۇرلار:</b> Telegram، WhatsApp تىزىملىتىش كودى
+• 💳 <b>پۇل سېلىش:</b> شامكەش (Sham Cash) ئارقىلىق ئاپتوماتىك
 
-🚀 تۆۋەندىكى <b>«🛒 دۇكاننى ئېچىش»</b> كۇنۇپكىسىنى بېسىپ، تېلېگرام ئىچىدىن چىقمايلا دەرھال مال سېتىۋېلىڭ ۋە پۇل قاچىلاڭ!
+👇 <b>سېتىۋېلىش ئۈچۈن تۆۋەندىكى كۇنۇپكىنى بېسىپ دۇكاننى ئېچىڭ:</b>
 `.trim();
 
     await sendTelegramMessage(chatId, welcomeText, {
@@ -828,6 +905,16 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
           ],
           [
             {
+              text: '💳 شامكەشتىن پۇل سېلىش',
+              callback_data: 'quick_deposit',
+            },
+            {
+              text: '🎮 ئالقىشلىق ئويۇنلار',
+              callback_data: 'quick_catalog',
+            },
+          ],
+          [
+            {
               text: '📢 رەسمىي قانال',
               url: TELEGRAM_CONFIG.channelUrl,
             },
@@ -838,7 +925,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
           ],
           [
             {
-              text: '📲 تېلېفون ئەپنى چۈشۈرۈش',
+              text: '📲 تېلېفون ئەپنى چۈشۈرۈش (APK)',
               url: `${TELEGRAM_CONFIG.storeUrl}/download`,
             },
           ],
