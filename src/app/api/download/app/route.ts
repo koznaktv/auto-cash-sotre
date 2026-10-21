@@ -1,29 +1,18 @@
 import { NextResponse } from 'next/server';
 import { getSystemSettingsAsync } from '@/lib/db';
-import fs from 'fs';
-import path from 'path';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const settings = await getSystemSettingsAsync();
-    const downloadUrl = (settings as any)?.appDownloadUrl?.trim();
-    if (downloadUrl && downloadUrl.startsWith('http')) {
-      return NextResponse.redirect(downloadUrl, { status: 302 });
-    }
-  } catch {
-    // fallback
-  }
-
-  // Check if local autocash.apk file exists
-  try {
-    const localApkPath = path.join(process.cwd(), 'public', 'download', 'autocash.apk');
-    if (fs.existsSync(localApkPath)) {
-      return NextResponse.redirect(new URL('/download/autocash.apk', 'https://auto-cash-sotre.vercel.app'), { status: 302 });
+    const customDownloadUrl = (settings as any)?.appDownloadUrl?.trim();
+    if (customDownloadUrl && customDownloadUrl.startsWith('http')) {
+      return NextResponse.redirect(customDownloadUrl, { status: 302 });
     }
   } catch {}
 
-  // Fallback to official Telegram channel so users NEVER get a 404 error
-  return NextResponse.redirect('https://t.me/autocash_UYGHUR', { status: 302 });
+  const host = request.headers.get('host') || 'auto-cash-sotre.vercel.app';
+  const protocol = host.includes('localhost') ? 'http' : 'https';
+  return NextResponse.redirect(`${protocol}://${host}/download/autocash.apk`, { status: 302 });
 }

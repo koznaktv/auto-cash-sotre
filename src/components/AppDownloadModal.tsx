@@ -26,7 +26,7 @@ interface AppDownloadModalProps {
 export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalProps) {
   const { t, isRTL } = useLanguage();
   const [showSteps, setShowSteps] = useState(false);
-  const [downloadUrl, setDownloadUrl] = useState('/api/download/app');
+  const [downloadUrl, setDownloadUrl] = useState('/download/autocash.apk');
   const [currentOrigin, setCurrentOrigin] = useState('https://auto-cash-sotre.vercel.app');
 
   useEffect(() => {
@@ -131,21 +131,12 @@ export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalPr
             <a
               href={downloadUrl}
               download="autocash.apk"
-              className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm flex items-center justify-center gap-2.5 shadow-xl shadow-amber-500/25 transition-all transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-base flex items-center justify-center gap-2.5 shadow-xl shadow-amber-500/25 transition-all transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               <Download className="w-5 h-5" />
               <span>{t('downloadApkBtn')}</span>
             </a>
-            <a
-              href="https://t.me/autocash_UYGHUR"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-cyan-600 via-blue-600 to-cyan-500 hover:from-cyan-500 hover:to-blue-400 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 transition-all transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-            >
-              <Send className="w-4 h-4" />
-              <span>Telegram ئارقىلىق دەرھال چۈشۈرۈش</span>
-            </a>
-            <p className="text-[11px] text-center text-slate-400">
+            <p className="text-[11px] text-center text-slate-400 pt-1">
               {t('appInstalledHelp')}
             </p>
           </div>
