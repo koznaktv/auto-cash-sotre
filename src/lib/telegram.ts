@@ -621,6 +621,72 @@ ${content}
 }
 
 /**
+ * Helper to build rich interactive store inline keyboard
+ */
+function getStoreInlineKeyboard() {
+  return {
+    inline_keyboard: [
+      [
+        {
+          text: '🛒 دۇكاننى ئېچىش | Open Store',
+          web_app: { url: TELEGRAM_CONFIG.storeUrl },
+        },
+      ],
+      [
+        {
+          text: '💳 شامكەشتىن پۇل سېلىش',
+          callback_data: 'quick_deposit',
+        },
+        {
+          text: '🎮 ئالقىشلىق مەھسۇلاتلار',
+          callback_data: 'quick_catalog',
+        },
+      ],
+      [
+        {
+          text: '📢 رەسمىي قانال',
+          url: TELEGRAM_CONFIG.channelUrl,
+        },
+        {
+          text: '💬 خېرىدارلار مۇلازىمىتى',
+          url: TELEGRAM_CONFIG.supportUrl,
+        },
+      ],
+      [
+        {
+          text: '📲 تېلېفون ئەپنى چۈشۈرۈش (APK)',
+          url: `${TELEGRAM_CONFIG.storeUrl}/download`,
+        },
+      ],
+    ],
+  };
+}
+
+/**
+ * Build prestigious welcome card for new and returning visitors
+ */
+function getWelcomeMessage(firstName?: string): string {
+  const customerName = firstName ? `<b>${firstName}</b>` : 'ھۆرمەتلىك خېرىدارىمىز';
+  return `
+👑 <b>AUTO CASH — رەسمىي رەقەملىك دۇكانغا خۇش كەپسىز!</b> 👑
+━━━━━━━━━━━━━━━━━━
+👋 سالام، ${customerName}!
+
+🎮 <b>AUTO CASH</b> — بارلىق تور ئويۇنلىرى (PUBG, Free Fire)، ئەپلەر، سوۋغات كارتىلىرى، سۈنئىي ئەقىل (AI) ئابۇنىتلىرى ۋە مەۋھۇم نومۇرلارغا پۇل قاچىلاشنىڭ ئەڭ ئەرزان، ئەڭ تېز ۋە 24/7 ئاپتوماتلاشقان رەسمىي دۇكىنى.
+
+⚡️ <b>ئاساسلىق ئەۋزەللىكلىرىمىز:</b>
+• 🔫 <b>PUBG Mobile UC:</b> 60 UC تىن 8100 UC غىچە سېكۇنتتا قاچىلاش
+• 🔥 <b>Free Fire:</b> بارلىق ئالماس (Diamonds) تۈرلىرى شۇئان كىرىدۇ
+• 🎵 <b>TikTok Coins:</b> ئەڭ يۇقىرى ئېتىبار باھادا
+• 🤖 <b>AI ئابۇنىتلىرى:</b> ChatGPT Plus، Claude Pro، Midjourney
+• 📱 <b>مەۋھۇم نومۇرلار:</b> Telegram، WhatsApp دەلىللەش كودلىرى
+• 💳 <b>شامكەش (Sham Cash):</b> 24/7 سائەت ئاپتوماتىك سېكۇنتتا كىرىش
+
+👇 <b>سېتىۋېلىش ياكى باھا كۆرۈش ئۈچۈن تۆۋەندىكى كۇنۇپكىنى بېسىپ دۇكاننى ئېچىڭ:</b>
+`.trim();
+}
+
+/**
  * Handle incoming Telegram Webhook Updates (Messages & Interactive Inline Buttons)
  */
 export async function handleTelegramWebhook(update: any): Promise<void> {
@@ -876,61 +942,10 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 
   // 1. Command /start
   if (text.startsWith('/start')) {
-    const welcomeText = `
-👑 <b>AUTO CASH — رەسمىي رەقەملىك پۇل قاچىلاش دۇكىنى</b> 👑
-━━━━━━━━━━━━━━━━━━
-👋 سالام، ھۆرمەتلىك <b>${from?.first_name || 'خېرىدار'}</b>!
-<b>AUTO CASH</b> سۇپىسىنىڭ رەسمىي تېلېگرام دۇكىنىغا خۇش كەپسىز!
-
-⚡️ <b>ئەڭ ئەرزان، ئەڭ تېز ۋە 24/7 ئاپتوماتىك قاچىلاش:</b>
-• 🔫 <b>PUBG Mobile:</b> بارلىق UC بولاقلىرى شۇئان قاچىلىنىدۇ
-• 🔥 <b>Free Fire:</b> بارلىق ئالماس (Diamonds) تۈرلىرى
-• 🎵 <b>TikTok Coins:</b> ئەڭ يۇقىرى ئېتىبار باھادا
-• 🤖 <b>AI ئابۇنىتلىرى:</b> ChatGPT Plus، Claude Pro، Midjourney
-• 📱 <b>مەۋھۇم نومۇرلار:</b> Telegram، WhatsApp تىزىملىتىش كودى
-• 💳 <b>پۇل سېلىش:</b> شامكەش (Sham Cash) ئارقىلىق ئاپتوماتىك
-
-👇 <b>سېتىۋېلىش ئۈچۈن تۆۋەندىكى كۇنۇپكىنى بېسىپ دۇكاننى ئېچىڭ:</b>
-`.trim();
-
+    const welcomeText = getWelcomeMessage(from?.first_name);
     await sendTelegramMessage(chatId, welcomeText, {
       parse_mode: 'HTML',
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: '🛒 دۇكاننى ئېچىش | Open Store',
-              web_app: { url: TELEGRAM_CONFIG.storeUrl },
-            },
-          ],
-          [
-            {
-              text: '💳 شامكەشتىن پۇل سېلىش',
-              callback_data: 'quick_deposit',
-            },
-            {
-              text: '🎮 ئالقىشلىق ئويۇنلار',
-              callback_data: 'quick_catalog',
-            },
-          ],
-          [
-            {
-              text: '📢 رەسمىي قانال',
-              url: TELEGRAM_CONFIG.channelUrl,
-            },
-            {
-              text: '💬 خېرىدارلار مۇلازىمىتى',
-              url: TELEGRAM_CONFIG.supportUrl,
-            },
-          ],
-          [
-            {
-              text: '📲 تېلېفون ئەپنى چۈشۈرۈش (APK)',
-              url: `${TELEGRAM_CONFIG.storeUrl}/download`,
-            },
-          ],
-        ],
-      },
+      reply_markup: getStoreInlineKeyboard(),
     });
     return;
   }
@@ -1082,26 +1097,112 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
     return;
   }
 
-  // 7. General fallback for direct messages
-  const defaultReply = `
-سالام ھۆرمەتلىك خېرىدار!
-AUTO CASH ئاپتوماتىك دۇكىنىنى ئېچىش ئۈچۈن تۆۋەندىكى <b>«🛒 دۇكاننى ئېچىش»</b> كۇنۇپكىسىنى بېسىڭ.
+  // 7. Smart Assistant & Warm Greeting for all incoming customer messages
+  const lowerText = text.toLowerCase();
 
-سۇئال ياكى ياردەم لازىم بولسا خېرىدارلار مۇلازىمىتىگە ئالاقىلىشىڭ:
-👉 @${TELEGRAM_CONFIG.supportUsername}
+  // If customer asks about ShamCash deposit
+  if (
+    lowerText.includes('شامكەش') ||
+    lowerText.includes('پۇل') ||
+    lowerText.includes('deposit') ||
+    lowerText.includes('ھەميان') ||
+    lowerText.includes('cash')
+  ) {
+    const shamcashText = `
+💳 <b>شامكەش (Sham Cash) ئارقىلىق پۇل سېلىش</b>
+━━━━━━━━━━━━━━━━━━
+📌 <b>رەسمىي شامكەش ھېسابات ئادرېسىمىز:</b>
+<code>efe8a2b200d66411c7c7e296369cbba8</code>
+<i>(ئۈستىدىكى ئادرېسنى باسسىڭىز شۇئان كۆچۈرۈلىدۇ)</i>
+
+🚀 پۇلنى يوللاپ بولۇپ، تالون نومۇرى (TxID) بىلەن دۇكاننىڭ «ھەميانغا پۇل كىرگۈزۈش» بېتىدىن دەلىللىسىڭىز، سېكۇنت ئىچىدە كىرىدۇ!
 `.trim();
 
-  await sendTelegramMessage(chatId, defaultReply, {
+    await sendTelegramMessage(chatId, shamcashText, {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '💳 ھەميانغا پۇل كىرگۈزۈش', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` } }],
+          [{ text: '💬 مۇلازىمەت بىلەن كۆرۈشۈش', url: TELEGRAM_CONFIG.supportUrl }],
+        ],
+      },
+    });
+    return;
+  }
+
+  // If customer asks about popular games
+  if (
+    lowerText.includes('pubg') ||
+    lowerText.includes('uc') ||
+    lowerText.includes('free fire') ||
+    lowerText.includes('tiktok') ||
+    lowerText.includes('ئويۇن')
+  ) {
+    const catalogText = `
+🎮 <b>ئالقىشلىق مەھسۇلاتلىرىمىز:</b>
+• 🔫 <b>PUBG Mobile UC:</b> 60 UC تىن 8100 UC غىچە ئەڭ ئەرزان باھادا
+• 🔥 <b>Free Fire:</b> بارلىق ئالماس (Diamonds) كارتىلىرى
+• 🎵 <b>TikTok Coins:</b> شۇئان قاچىلاش
+• 🤖 <b>AI ئابۇنىتلىرى:</b> ChatGPT Plus، Claude Pro
+
+تۆۋەندىكى كۇنۇپكىنى بېسىپ دەرھال سېتىۋېلىڭ:
+`.trim();
+
+    await sendTelegramMessage(chatId, catalogText, {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '🛒 دۇكاننى ئېچىش | Open Store', web_app: { url: TELEGRAM_CONFIG.storeUrl } }],
+        ],
+      },
+    });
+    return;
+  }
+
+  // If customer asks about support / contact
+  if (
+    lowerText.includes('مۇلازىمەت') ||
+    lowerText.includes('ئالاقە') ||
+    lowerText.includes('سۇئال') ||
+    lowerText.includes('support') ||
+    lowerText.includes('ياردەم') ||
+    lowerText.includes('باشقۇرغۇچى')
+  ) {
+    const supportReply = `
+💬 <b>AUTO CASH خېرىدارلار مۇلازىمەت مەركىزى</b>
+━━━━━━━━━━━━━━━━━━
+سوئالىڭىز ياكى بىر تەرەپ قىلىشقا تېگىشلىك زاكازلىرىڭىز بولسا، رەسمىي خېرىدارلار مۇلازىمىتىمىزگە دەرھال يېزىڭ:
+👉 @${TELEGRAM_CONFIG.supportUsername}
+
+شۇنداقلا رەسمىي تېلېگرام قانىلىمىزغا قوشۇلۇپ ئەڭ يېڭى ئېتىبار باھالاردىن خەۋەردار بولۇڭ:
+📢 @${TELEGRAM_CONFIG.channelUsername}
+`.trim();
+
+    await sendTelegramMessage(chatId, supportReply, {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '💬 خېرىدارلار مۇلازىمىتىگە ئۇلىنىش', url: TELEGRAM_CONFIG.supportUrl }],
+          [{ text: '📢 رەسمىي قانال', url: TELEGRAM_CONFIG.channelUrl }],
+        ],
+      },
+    });
+    return;
+  }
+
+  // General Warm & Prestigious Greeting for ANY message
+  const personalizedGreeting = `
+👋 ئەسسالامۇ ئەلەيكۇم ھۆرمەتلىك <b>${from?.first_name || 'خېرىدار'}</b>!
+<b>AUTO CASH</b> رەسمىي سۇپىسىغا كەلگىنىڭىزنى قىزغىن قارشى ئالىمىز!
+
+🎮 تېلېگرام ئىچىدىن چىقمايلا بارلىق ئويۇن ۋە ئەپلەرگە ئەڭ ئەرزان باھادا پۇل قاچىلىيالايسىز.
+پۇل كىرگۈزۈش شامكەش (Sham Cash) ئارقىلىق 24/7 سائەت ئاپتوماتىك سېكۇنتتا كىرىدۇ.
+
+👇 <b>دۇكاننى ئېچىش ياكى مال سېتىۋېلىش ئۈچۈن تۆۋەندىكى كۇنۇپكىنى بېسىڭ:</b>
+`.trim();
+
+  await sendTelegramMessage(chatId, personalizedGreeting, {
     parse_mode: 'HTML',
-    reply_markup: {
-      inline_keyboard: [
-        [
-          { text: '🛒 دۇكاننى ئېچىش | Open Store', web_app: { url: TELEGRAM_CONFIG.storeUrl } },
-        ],
-        [
-          { text: '💬 خېرىدارلار مۇلازىمىتى', url: TELEGRAM_CONFIG.supportUrl },
-        ],
-      ],
-    },
+    reply_markup: getStoreInlineKeyboard(),
   });
 }
