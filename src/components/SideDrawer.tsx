@@ -26,6 +26,7 @@ import {
   Zap,
   LayoutDashboard,
   Camera,
+  Smartphone,
 } from 'lucide-react';
 
 interface SideDrawerProps {
@@ -531,6 +532,22 @@ export default function SideDrawer({
                 <Crown className="w-4 h-4 text-purple-400 group-hover:scale-110 transition" />
               </span>
               <span className="font-semibold">{t('vipPerksDrawer')}</span>
+            </Link>
+
+            <Link
+              href="/download"
+              onClick={handleNavigate('/download')}
+              className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-amber-500/15 via-cyan-500/10 to-transparent hover:from-amber-500/25 hover:via-cyan-500/20 border border-amber-500/30 transition group"
+            >
+              <div className="flex items-center gap-3">
+                <span className="animate-soft-float">
+                  <Smartphone className="w-4 h-4 text-amber-400 group-hover:scale-110 transition" />
+                </span>
+                <span className="font-bold text-amber-200 group-hover:text-amber-100">{t('downloadApp')}</span>
+              </div>
+              <span className="px-2 py-0.5 rounded-md bg-amber-950/80 border border-amber-500/40 text-[10px] text-amber-300 font-mono font-bold">
+                APK
+              </span>
             </Link>
 
             {isAdmin && (

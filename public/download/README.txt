@@ -1,0 +1,1 @@
+Place your signed APK here named autocash.apk
