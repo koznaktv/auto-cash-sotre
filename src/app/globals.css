@@ -973,3 +973,102 @@ body.lang-ru .font-ukij {
 .animate-moving-icon-delay-4 {
   animation-delay: 1s;
 }
+
+/* --- Royal VIP Membership Luxury Floating & Gentle Sway Animations --- */
+@keyframes vipBadgeGracefulFloat {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate3d(0, -4px, 0) rotate(-2deg);
+  }
+  50% {
+    transform: translate3d(0, -1px, 0) rotate(1.5deg);
+  }
+  75% {
+    transform: translate3d(0, -5px, 0) rotate(-1deg);
+  }
+}
+
+@keyframes vipCrownGentleSway {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translate3d(0, -2px, 0) rotate(-4deg) scale(1.08);
+  }
+  50% {
+    transform: translate3d(0, 0.5px, 0) rotate(3deg) scale(1.03);
+  }
+  75% {
+    transform: translate3d(0, -2.5px, 0) rotate(-2deg) scale(1.09);
+  }
+}
+
+@keyframes vipAuraPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.85;
+  }
+}
+
+@keyframes vipCardBorderGlow {
+  0%, 100% {
+    border-color: rgba(234, 179, 8, 0.4);
+    box-shadow: 0 0 20px rgba(234, 179, 8, 0.2), inset 0 0 15px rgba(234, 179, 8, 0.08);
+  }
+  50% {
+    border-color: rgba(250, 204, 21, 0.75);
+    box-shadow: 0 0 35px rgba(250, 204, 21, 0.4), inset 0 0 25px rgba(234, 179, 8, 0.15);
+  }
+}
+
+@keyframes vipShimmerSweep {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.animate-vip-float {
+  display: inline-flex !important;
+  animation: vipBadgeGracefulFloat 4s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  will-change: transform;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.animate-vip-crown {
+  display: inline-block !important;
+  animation: vipCrownGentleSway 3.4s infinite ease-in-out;
+  transform-origin: center bottom;
+  will-change: transform;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.animate-vip-aura {
+  animation: vipAuraPulse 3.5s infinite ease-in-out;
+  will-change: transform, opacity;
+}
+
+.animate-vip-card-glow {
+  animation: vipCardBorderGlow 3.8s infinite ease-in-out;
+}
+
+.animate-vip-shimmer {
+  background-size: 200% auto;
+  animation: vipShimmerSweep 3s linear infinite;
+}
+
+.vip-delay-1 { animation-delay: 0.3s !important; }
+.vip-delay-2 { animation-delay: 0.6s !important; }
+.vip-delay-3 { animation-delay: 0.9s !important; }
+.vip-delay-4 { animation-delay: 1.2s !important; }
+.vip-delay-5 { animation-delay: 1.5s !important; }
