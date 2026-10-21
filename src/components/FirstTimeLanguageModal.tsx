@@ -167,7 +167,7 @@ export default function FirstTimeLanguageModal() {
         <div className="text-center mb-5 relative z-10">
           <div className="w-16 h-16 rounded-2xl p-[2px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-xl shadow-amber-500/30 mx-auto mb-3 overflow-hidden">
             <img
-              src="/brand_logo.png?v=1.3.0"
+              src="/brand_logo.png?v=2.0.0"
               alt="AUTO CASH"
               className="w-full h-full rounded-[14px] object-cover"
               style={{ imageRendering: '-webkit-optimize-contrast' }}

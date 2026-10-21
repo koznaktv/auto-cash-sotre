@@ -436,7 +436,7 @@ export default function HomePage() {
           name: s.category,
           icon: 'Package',
           count: 'مەھسۇلاتلار',
-          image: '/brand_logo.png?v=1.3.0',
+          image: '/brand_logo.png?v=2.0.0',
         });
       }
     }
@@ -793,7 +793,7 @@ export default function HomePage() {
                           isTransitioning ? 'opacity-100 scale-105' : 'opacity-80 group-hover:opacity-100 group-hover:scale-105'
                         }`}
                         onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).src = '/brand_logo.png?v=1.3.0';
+                          (e.currentTarget as HTMLImageElement).src = '/brand_logo.png?v=2.0.0';
                         }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#030a14]/90 via-[#030a14]/40 to-transparent" />
@@ -899,7 +899,7 @@ export default function HomePage() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
                         onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).src = '/brand_logo.png?v=1.3.0';
+                          (e.currentTarget as HTMLImageElement).src = '/brand_logo.png?v=2.0.0';
                         }}
                       />
                       {service.badge && (

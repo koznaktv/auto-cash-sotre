@@ -458,7 +458,7 @@ export default function AccountPage() {
                 <div className="relative shrink-0">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl p-[2px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-lg shadow-amber-500/25 overflow-hidden">
                     <img
-                      src="/brand_logo.png?v=1.3.0"
+                      src="/brand_logo.png?v=2.0.0"
                       alt="Logo"
                       className="w-full h-full rounded-[14px] object-cover bg-[#04101e]"
                       style={{ imageRendering: '-webkit-optimize-contrast' }}

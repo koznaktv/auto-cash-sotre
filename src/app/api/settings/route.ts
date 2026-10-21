@@ -14,7 +14,7 @@ export async function GET() {
       success: true,
       settings: {
         siteName: settings.siteName || 'AUTO CASH',
-        siteLogo: (settings.siteLogo && settings.siteLogo !== '/logo.png') ? settings.siteLogo : '/brand_logo.png?v=1.3.0',
+        siteLogo: (settings.siteLogo && settings.siteLogo !== '/logo.png') ? settings.siteLogo : '/brand_logo.png?v=2.0.0',
         telegramUsername: settings.telegramUsername || 'autocash_UYGHUR',
         whatsappNumber: settings.whatsappNumber || '+963 984 373 459',
         appDownloadUrl: (settings as any).appDownloadUrl || '/download/autocash.apk',
@@ -34,7 +34,7 @@ export async function GET() {
       success: true,
       settings: {
         siteName: 'AUTO CASH',
-        siteLogo: '/brand_logo.png?v=1.3.0',
+        siteLogo: '/brand_logo.png?v=2.0.0',
         telegramUsername: 'autocash_UYGHUR',
         whatsappNumber: '+963 984 373 459',
         appDownloadUrl: '/download/autocash.apk',

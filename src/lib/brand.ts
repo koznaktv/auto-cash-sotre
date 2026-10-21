@@ -1,4 +1,4 @@
-export const BRAND_LOGO_URL = '/brand_logo.png?v=1.3.0';
+export const BRAND_LOGO_URL = '/brand_logo.png?v=2.0.0';
 
 /**
  * Ensures brand new luxury 3D squircle logo is always returned,

@@ -131,7 +131,7 @@ const initialDefaultData: DatabaseSchema = {
     whatsappNumber: '+963 984 373 459',
     telegramUsername: 'autocash_UYGHUR',
     siteName: 'AUTO CASH',
-    siteLogo: '/brand_logo.png?v=1.3.0',
+    siteLogo: '/brand_logo.png?v=2.0.0',
     providerApiUrl: process.env.SAHL_CASH_BASE_URL || process.env.SYRIA4GAME_BASE_URL || 'https://api.sahl-cash.com',
     providerApiKey: process.env.SAHL_CASH_API_TOKEN || process.env.SAHL_CASH_API_KEY || process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '',
     providerApiType: 'syria4game',
@@ -1037,7 +1037,7 @@ export async function getSystemSettingsAsync(): Promise<SystemSettings> {
             ? sbSettings.siteLogo
             : (parsedMeta.siteLogo && parsedMeta.siteLogo !== '/logo.png')
               ? parsedMeta.siteLogo
-              : '/brand_logo.png?v=1.3.0',
+              : '/brand_logo.png?v=2.0.0',
           shamcashAddress: sbSettings.shamcashAddress || parsedMeta.shamcashAddress || localSettings.shamcashAddress,
           // Preserve local provider config if Supabase doesn't have these columns
           providerApiUrl: sbSettings.providerApiUrl || localSettings.providerApiUrl,
