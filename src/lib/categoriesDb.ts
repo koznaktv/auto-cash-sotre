@@ -147,12 +147,17 @@ export async function getCategoriesListAsync(): Promise<CategoryItem[]> {
               }
               return c;
             });
-          if (updated) {
-            saveCategoriesList(clean);
+          const gamesItem = clean.find((c) => c.id === 'games');
+          const cleanSorted = gamesItem
+            ? [...clean.filter((c) => c.id !== 'games'), gamesItem]
+            : clean;
+
+          if (updated || (clean.length > 0 && clean[0]?.id === 'games')) {
+            saveCategoriesList(cleanSorted);
           }
-          cachedCategories = clean;
+          cachedCategories = cleanSorted;
           lastCategoriesFetch = Date.now();
-          return [...clean];
+          return [...cleanSorted];
         }
       }
     } catch (e: any) {

@@ -140,11 +140,18 @@ export async function getServicesListAsync(): Promise<ServiceItem[]> {
           const clean = parsed
             .filter((s: ServiceItem) => !deleted.has(s.id))
             .map((s: ServiceItem) => {
+              let item = s;
               if (s.published === false && parsed.length === 1) {
                 needsUpdate = true;
-                return { ...s, published: true };
+                item = { ...item, published: true };
+              } else {
+                item = { ...item, published: item.published !== false };
               }
-              return { ...s, published: s.published !== false };
+              if (item.name.toLowerCase().includes('canva') && item.category !== 'apps') {
+                needsUpdate = true;
+                item = { ...item, category: 'apps' as any };
+              }
+              return item;
             });
           if (needsUpdate) {
             saveServicesList(clean);

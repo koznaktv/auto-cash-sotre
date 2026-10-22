@@ -1,12 +1,5 @@
 [
   {
-    "id": "games",
-    "name": "ئويۇنلار تۈرى ",
-    "icon": "Gamepad2",
-    "count": "تىلىفۇن ئۇيۇنلىرى",
-    "image": "https://i.ibb.co/4wrS5VzC/db12ed260d1bf838012f592cc6704d8f-1.jpg"
-  },
-  {
     "id": "apps",
     "name": "ئەپلەر",
     "icon": "Smartphone",
@@ -33,6 +26,13 @@
     "icon": "CreditCard",
     "count": "Turkcell, Turk Telecom",
     "image": "/images/services/turkcell.jpg"
+  },
+  {
+    "id": "games",
+    "name": "ئويۇنلار تۈرى ",
+    "icon": "Gamepad2",
+    "count": "تىلىفۇن ئۇيۇنلىرى",
+    "image": "https://i.ibb.co/4wrS5VzC/db12ed260d1bf838012f592cc6704d8f-1.jpg"
   },
   {
     "id": "accounts",

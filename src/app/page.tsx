@@ -347,6 +347,13 @@ export default function HomePage() {
   };
 
   // Storefront catalog: Sahl Cash synced provider catalog (with instant 0ms preloaded fallback)
+  const normalizeServiceItem = (s: ServiceItem): ServiceItem => {
+    if (s.name && s.name.toLowerCase().includes('canva') && s.category !== 'apps') {
+      return { ...s, category: 'apps' };
+    }
+    return s;
+  };
+
   const [services, setServices] = useState<ServiceItem[]>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -355,12 +362,12 @@ export default function HomePage() {
         if (cachedCat) {
           const parsed = JSON.parse(cachedCat);
           if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
-            return parsed.services;
+            return parsed.services.map(normalizeServiceItem);
           }
         }
       } catch {}
     }
-    return SERVICES_DATA;
+    return SERVICES_DATA.map(normalizeServiceItem);
   });
 
   const [categories, setCategories] = useState<any[]>(() => {
@@ -400,14 +407,15 @@ export default function HomePage() {
     ])
       .then(([dCat, dCats]) => {
         if (dCat && dCat.success && Array.isArray(dCat.services) && dCat.services.length > 0) {
-          setServices(dCat.services);
+          const normServices = dCat.services.map(normalizeServiceItem);
+          setServices(normServices);
           setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
           try {
-            localStorage.setItem('autocash_cached_catalog_v2', JSON.stringify({ services: dCat.services, source: dCat.source }));
+            localStorage.setItem('autocash_cached_catalog_v2', JSON.stringify({ services: normServices, source: dCat.source }));
             localStorage.removeItem('autocash_cached_catalog');
           } catch {}
         } else if (dCat && Array.isArray(dCat.services) && dCat.services.length > 0) {
-          setServices(dCat.services);
+          setServices(dCat.services.map(normalizeServiceItem));
         }
 
         if (dCats && dCats.success && Array.isArray(dCats.categories) && dCats.categories.length > 0) {
@@ -445,14 +453,15 @@ export default function HomePage() {
       .then(([dCat, dCats]) => {
         clearTimeout(timeoutId);
         if (dCat && dCat.success && Array.isArray(dCat.services) && dCat.services.length > 0) {
-          setServices(dCat.services);
+          const normServices = dCat.services.map(normalizeServiceItem);
+          setServices(normServices);
           setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
           try {
-            localStorage.setItem('autocash_cached_catalog_v2', JSON.stringify({ services: dCat.services, source: dCat.source }));
+            localStorage.setItem('autocash_cached_catalog_v2', JSON.stringify({ services: normServices, source: dCat.source }));
             localStorage.removeItem('autocash_cached_catalog');
           } catch {}
         } else if (dCat && Array.isArray(dCat.services) && dCat.services.length > 0) {
-          setServices(dCat.services);
+          setServices(dCat.services.map(normalizeServiceItem));
         }
 
         if (dCats && dCats.success && Array.isArray(dCats.categories) && dCats.categories.length > 0) {
@@ -538,8 +547,14 @@ export default function HomePage() {
   }, [services]);
 
   // Only show categories that have at least one active published product
+  // In RTL, items render right-to-left. Putting 'games' at the end places it on the far-left!
   const visibleCategories = useMemo(() => {
-    return effectiveCategories.filter((c) => (serviceCountByCategory[c.id] || 0) > 0);
+    const list = effectiveCategories.filter((c) => (serviceCountByCategory[c.id] || 0) > 0);
+    const gamesItem = list.find((c) => c.id === 'games');
+    if (gamesItem) {
+      return [...list.filter((c) => c.id !== 'games'), gamesItem];
+    }
+    return list;
   }, [effectiveCategories, serviceCountByCategory]);
 
   // Only open products when a category is explicitly clicked, or searching
