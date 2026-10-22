@@ -105,8 +105,8 @@ function CallbackHandler() {
   return (
     <div className="min-h-screen bg-[#020b14] flex items-center justify-center p-4 font-alkatip text-right" dir="rtl">
       <div className="w-full max-w-md bg-gradient-to-b from-[#07182c] to-[#040e1d] border border-amber-500/30 rounded-3xl p-8 text-center shadow-2xl shadow-black/80">
-        <div className="w-16 h-16 rounded-full bg-[#04101e] border-2 border-amber-400/60 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-amber-500/20 overflow-hidden p-1">
-          <img src="/brand_logo.png?v=2.0.0" alt="AUTO CASH" className="w-12 h-12 object-contain" />
+        <div className="w-20 h-20 rounded-full bg-[#04101e] border-2 border-amber-400/60 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-amber-500/20 overflow-hidden p-1">
+          <img src="/brand_logo.png?v=2.1.0" alt="AUTO CASH" className="w-full h-full object-cover rounded-full" />
         </div>
 
         <h2 className="font-ukij text-xl font-bold text-white mb-2 gold-text-glow">

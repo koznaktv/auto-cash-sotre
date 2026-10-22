@@ -291,7 +291,7 @@ export default function SideDrawer({
           {/* Header */}
           <div className="flex items-center justify-between pb-4 border-b border-amber-500/20 mb-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full p-[1.5px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-sm overflow-hidden bg-[#04101e] flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-full p-[2px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/30 overflow-hidden bg-[#04101e] flex items-center justify-center shrink-0">
                 <img
                   src={getBrandLogo(siteLogo)}
                   alt="AUTO CASH"
@@ -454,8 +454,8 @@ export default function SideDrawer({
                   {/* Site Logo with Amber Glow */}
                   <div className="relative shrink-0">
                     <div
-                      className="w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/35 overflow-hidden shrink-0 flex items-center justify-center bg-[#04101e]"
-                      style={{ width: '48px', height: '48px' }}
+                      className="w-14 h-14 rounded-full p-[2px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/35 overflow-hidden shrink-0 flex items-center justify-center bg-[#04101e]"
+                      style={{ width: '56px', height: '56px' }}
                     >
                       <img
                         src={getBrandLogo(siteLogo)}

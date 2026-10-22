@@ -69,9 +69,9 @@ export default function AppDownloadPage() {
           <div className="relative flex flex-col md:flex-row items-center gap-8">
             {/* App Icon Mockup */}
             <div className="relative shrink-0">
-              <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full p-1 bg-gradient-to-tr from-amber-400 via-amber-200 to-amber-600 shadow-2xl shadow-amber-500/30 transform hover:scale-105 transition duration-300">
+              <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-full p-1 bg-gradient-to-tr from-amber-400 via-amber-200 to-amber-600 shadow-2xl shadow-amber-500/30 transform hover:scale-105 transition duration-300">
                 <img
-                  src="/brand_logo.png?v=2.0.0"
+                  src="/brand_logo.png?v=2.1.0"
                   alt="AUTO CASH App Icon"
                   className="w-full h-full rounded-full object-cover bg-[#04101e]"
                 />

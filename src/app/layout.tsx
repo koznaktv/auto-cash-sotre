@@ -15,9 +15,9 @@ export const metadata: Metadata = {
   title: 'AUTO CASH - ئەپلەرگە، ئويۇنلارغا پۇل قاچىلاش ۋە رەقەملىك كارتىلار سۇپىسى',
   description: 'AUTO CASH رەقەملىك ماللار، ئويۇنلار، كارتىلار، مەۋھۇم نومۇرلار ۋە سۈنئىي ئەقىل مۇلازىمەت مەركىزى. ئىشەنچلىك، ئەرزان ۋە دەرھال يەتكۈزۈش.',
   icons: {
-    icon: '/brand_logo.png?v=2.0.0',
-    shortcut: '/brand_logo.png?v=2.0.0',
-    apple: '/brand_logo.png?v=2.0.0',
+    icon: '/brand_logo.png?v=2.1.0',
+    shortcut: '/brand_logo.png?v=2.1.0',
+    apple: '/brand_logo.png?v=2.1.0',
   },
   openGraph: {
     title: 'AUTO CASH - ئەپلەرگە، ئويۇنلارغا پۇل قاچىلاش سۇپىسى',
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     siteName: 'AUTO CASH',
     images: [
       {
-        url: '/brand_logo.png?v=2.0.0',
+        url: '/brand_logo.png?v=2.1.0',
         width: 1024,
         height: 1024,
         alt: 'AUTO CASH Logo',

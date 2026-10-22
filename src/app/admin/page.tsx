@@ -261,7 +261,7 @@ export default function AdminPage() {
     whatsappNumber: '+963 984 373 459',
     telegramUsername: 'autocash_UYGHUR',
     siteName: 'AUTO CASH',
-    siteLogo: '/brand_logo.png?v=2.0.0',
+    siteLogo: '/brand_logo.png?v=2.1.0',
     appDownloadUrl: '',
     tsaApiKey: '',
     tsaAutoDepositEnabled: true,
@@ -2841,9 +2841,9 @@ export default function AdminPage() {
           {/* Logo / Brand */}
           <div className="p-5 border-b border-slate-800/60 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full p-[1.5px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/20 shrink-0 overflow-hidden bg-[#04101e] flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/20 shrink-0 overflow-hidden bg-[#04101e] flex items-center justify-center">
                 <img
-                  src={settings.siteLogo || '/brand_logo.png?v=2.0.0'}
+                  src={settings.siteLogo || '/brand_logo.png?v=2.1.0'}
                   alt="AUTO CASH"
                   className="w-full h-full object-cover rounded-full"
                 />
@@ -4644,7 +4644,7 @@ export default function AdminPage() {
 
                     <div className="flex flex-col sm:flex-row items-center gap-4">
                       {/* Logo Preview */}
-                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full p-1 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-lg shadow-amber-500/30 ring-2 ring-amber-400/60 flex items-center justify-center bg-[#04101e] shrink-0 overflow-hidden">
+                      <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-lg shadow-amber-500/30 ring-2 ring-amber-400/60 flex items-center justify-center bg-[#04101e] shrink-0 overflow-hidden">
                         <img
                           src={settings.siteLogo || '/logo.png'}
                           alt="Logo Preview"
@@ -4673,10 +4673,10 @@ export default function AdminPage() {
                             <span>تېلېفون ياكى كومپيۇتېردىن رەسىم يۈكلەش</span>
                           </button>
 
-                          {settings.siteLogo && settings.siteLogo !== '/brand_logo.png?v=2.0.0' && settings.siteLogo !== '/logo.png' && (
+                          {settings.siteLogo && settings.siteLogo !== '/brand_logo.png?v=2.1.0' && settings.siteLogo !== '/logo.png' && (
                             <button
                               type="button"
-                              onClick={() => setSettings({ ...settings, siteLogo: '/brand_logo.png?v=2.0.0' })}
+                              onClick={() => setSettings({ ...settings, siteLogo: '/brand_logo.png?v=2.1.0' })}
                               className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition cursor-pointer flex items-center gap-1"
                             >
                               <RotateCcw className="w-3.5 h-3.5" />

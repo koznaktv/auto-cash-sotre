@@ -108,10 +108,10 @@ export default function WelcomeSplash({ onEnter }: { onEnter: () => void }) {
           <div className="absolute -inset-6 rounded-full bg-gradient-to-tr from-amber-500/30 via-cyan-400/25 to-amber-400/20 blur-2xl pointer-events-none animate-pulse" />
 
           {/* Luxury Rim Container */}
-          <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full p-[3px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-[0_0_50px_rgba(245,158,11,0.55)]">
+          <div className="relative w-44 h-44 sm:w-52 sm:h-52 rounded-full p-[3px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-[0_0_55px_rgba(245,158,11,0.6)]">
             <div className="w-full h-full rounded-full overflow-hidden bg-[#030c18] flex items-center justify-center shadow-inner">
               <img
-                src="/brand_logo.png?v=2.0.0"
+                src="/brand_logo.png?v=2.1.0"
                 alt="AUTO CASH Official Logo"
                 className="w-full h-full object-cover select-none drop-shadow-2xl"
                 style={{ imageRendering: '-webkit-optimize-contrast' }}

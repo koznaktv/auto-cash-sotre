@@ -169,7 +169,7 @@ export default function Navbar({
             <button
               type="button"
               onClick={handleOpenDrawer}
-              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full p-[2px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/35 ring-2 ring-amber-400/60 hover:scale-105 active:scale-95 transition-transform duration-200 bg-[#04101e] shrink-0 flex items-center justify-center cursor-pointer overflow-hidden"
+              className="w-11 h-11 sm:w-13 sm:h-13 rounded-full p-[2px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/35 ring-2 ring-amber-400/60 hover:scale-105 active:scale-95 transition-transform duration-200 bg-[#04101e] shrink-0 flex items-center justify-center cursor-pointer overflow-hidden"
               title={t('menuTitle')}
             >
               <img
