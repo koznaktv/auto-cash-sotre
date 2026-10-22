@@ -100,11 +100,11 @@ export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalPr
           {/* App Card Info */}
           <div className="p-4 rounded-2xl bg-[#04101e]/80 border border-slate-800/90 flex items-center gap-4">
             <div className="relative shrink-0">
-              <div className="w-16 h-16 rounded-2xl p-0.5 bg-gradient-to-tr from-amber-400 via-amber-200 to-amber-600 shadow-lg shadow-amber-500/30">
+              <div className="w-16 h-16 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 via-amber-200 to-amber-600 shadow-lg shadow-amber-500/30">
                 <img
                   src="/brand_logo.png?v=2.0.0"
                   alt="AUTO CASH Logo"
-                  className="w-full h-full rounded-[14px] object-cover bg-[#04101e]"
+                  className="w-full h-full rounded-full object-cover bg-[#04101e]"
                 />
               </div>
             </div>

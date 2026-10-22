@@ -105,15 +105,15 @@ export default function WelcomeSplash({ onEnter }: { onEnter: () => void }) {
         {/* Crisp High-Definition AUTO CASH Master 3D Emblem */}
         <div className={`relative mb-6 transition-transform duration-500 ${launching ? 'scale-110' : 'hover:scale-105'}`}>
           {/* Subtle Ambient Glowing Energy Halo */}
-          <div className="absolute -inset-6 rounded-3xl bg-gradient-to-tr from-amber-500/25 via-cyan-400/25 to-transparent blur-2xl pointer-events-none animate-pulse" />
+          <div className="absolute -inset-6 rounded-full bg-gradient-to-tr from-amber-500/30 via-cyan-400/25 to-amber-400/20 blur-2xl pointer-events-none animate-pulse" />
 
           {/* Luxury Rim Container */}
-          <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-3xl p-[2.5px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-cyan-400 shadow-[0_0_40px_rgba(245,158,11,0.5)]">
-            <div className="w-full h-full rounded-[22px] overflow-hidden bg-[#030c18] flex items-center justify-center shadow-inner">
+          <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full p-[3px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-[0_0_50px_rgba(245,158,11,0.55)]">
+            <div className="w-full h-full rounded-full overflow-hidden bg-[#030c18] flex items-center justify-center shadow-inner">
               <img
                 src="/brand_logo.png?v=2.0.0"
                 alt="AUTO CASH Official Logo"
-                className="w-full h-full object-contain select-none drop-shadow-2xl"
+                className="w-full h-full object-cover select-none drop-shadow-2xl"
                 style={{ imageRendering: '-webkit-optimize-contrast' }}
                 loading="eager"
               />

@@ -2841,8 +2841,12 @@ export default function AdminPage() {
           {/* Logo / Brand */}
           <div className="p-5 border-b border-slate-800/60 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-400 to-yellow-500 flex items-center justify-center text-slate-950 font-black text-lg shadow-md shadow-amber-500/20">
-                ⚡
+              <div className="w-10 h-10 rounded-full p-[1.5px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/20 shrink-0 overflow-hidden bg-[#04101e] flex items-center justify-center">
+                <img
+                  src={settings.siteLogo || '/brand_logo.png?v=2.0.0'}
+                  alt="AUTO CASH"
+                  className="w-full h-full object-cover rounded-full"
+                />
               </div>
               <div>
                 <h1 className="font-ukij font-bold text-sm leading-tight text-white">
@@ -4640,11 +4644,11 @@ export default function AdminPage() {
 
                     <div className="flex flex-col sm:flex-row items-center gap-4">
                       {/* Logo Preview */}
-                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl p-1 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-lg shadow-amber-500/30 ring-2 ring-amber-400/60 flex items-center justify-center bg-[#04101e] shrink-0">
+                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full p-1 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-lg shadow-amber-500/30 ring-2 ring-amber-400/60 flex items-center justify-center bg-[#04101e] shrink-0 overflow-hidden">
                         <img
                           src={settings.siteLogo || '/logo.png'}
                           alt="Logo Preview"
-                          className="w-full h-full object-contain rounded-xl"
+                          className="w-full h-full object-cover rounded-full"
                           onError={(e) => {
                             (e.currentTarget as HTMLImageElement).src = '/logo.png';
                           }}

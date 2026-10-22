@@ -165,11 +165,11 @@ export default function FirstTimeLanguageModal() {
 
         {/* Center Header with Master 3D Logo */}
         <div className="text-center mb-5 relative z-10">
-          <div className="w-16 h-16 rounded-2xl p-[2px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-xl shadow-amber-500/30 mx-auto mb-3 overflow-hidden">
+          <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-xl shadow-amber-500/30 mx-auto mb-3 overflow-hidden">
             <img
               src="/brand_logo.png?v=2.0.0"
               alt="AUTO CASH"
-              className="w-full h-full rounded-[14px] object-cover"
+              className="w-full h-full rounded-full object-cover"
               style={{ imageRendering: '-webkit-optimize-contrast' }}
             />
           </div>
