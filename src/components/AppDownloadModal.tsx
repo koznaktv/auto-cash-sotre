@@ -27,7 +27,7 @@ export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalPr
   const { t, isRTL } = useLanguage();
   const [showSteps, setShowSteps] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState('/download/autocash.apk');
-  const [currentOrigin, setCurrentOrigin] = useState('https://auto-cash-sotre.vercel.app');
+  const [currentOrigin, setCurrentOrigin] = useState('https://www.auto-cash.app');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {

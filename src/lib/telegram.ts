@@ -32,7 +32,7 @@ export const TELEGRAM_CONFIG = {
   // Designated Admin Telegram accounts (@nasrulla0996 and @autochah_UYGHUR / @autocash_UYGHUR)
   adminUsernames: ['nasrulla0996', 'autochah_uyghur', 'autocash_uyghur'],
   adminChatIds: ['7575664493'],
-  storeUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://auto-cash-sotre.vercel.app',
+  storeUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.auto-cash.app',
 };
 
 // Set of active admin chat IDs that receive instant alerts

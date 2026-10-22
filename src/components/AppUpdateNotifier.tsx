@@ -147,14 +147,14 @@ export default function AppUpdateNotifier() {
   const [downloadStarted, setDownloadStarted] = useState(false);
 
   const getDirectDownloadUrl = () => {
-    const host = typeof window !== 'undefined' ? window.location.host : 'auto-cash-sotre.vercel.app';
+    const host = typeof window !== 'undefined' ? window.location.host : 'www.auto-cash.app';
     const protocol = typeof window !== 'undefined' ? window.location.protocol : 'https:';
     // ?ref=t.me triggers Android Intent.ACTION_VIEW in older APKs (v1.0.0, v1.1.0)
     return `${protocol}//${host}/download/autocash.apk?ref=t.me&v=${currentVersion}`;
   };
 
   const getWebDownloadPageUrl = () => {
-    const host = typeof window !== 'undefined' ? window.location.host : 'auto-cash-sotre.vercel.app';
+    const host = typeof window !== 'undefined' ? window.location.host : 'www.auto-cash.app';
     const protocol = typeof window !== 'undefined' ? window.location.protocol : 'https:';
     return `${protocol}//${host}/download?ref=t.me`;
   };
