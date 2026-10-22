@@ -1130,6 +1130,9 @@ export default function AdminPage() {
     try {
       localStorage.removeItem('autocash_cached_catalog');
       localStorage.removeItem('autocash_cached_categories');
+      const bc = new BroadcastChannel('autocash_catalog_channel');
+      bc.postMessage({ type: 'CATALOG_UPDATED' });
+      bc.close();
     } catch {}
   };
 
@@ -1957,6 +1960,76 @@ export default function AdminPage() {
     }
   };
 
+  const handleTogglePublishService = async (srv: ServiceItem, publish: boolean) => {
+    const token = sessionStorage.getItem('autocash_admin_token');
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+    try {
+      if (!savedServiceIds.has(srv.id)) {
+        const sahlKey = srv.id.replace('sahl_', '');
+        const sahlItem = groupedSahlServices.find((g) => g.key === sahlKey);
+        const payload = {
+          id: srv.id,
+          name: srv.name || sahlItem?.name || 'مەھسۇلات',
+          category: srv.category || sahlItem?.category || 'games',
+          icon: getCategoryIcon(srv.category || sahlItem?.category || 'games'),
+          image: sahlItem?.image || srv.image || '/logo.png',
+          description: srv.description || `${srv.name} ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى`,
+          badge: srv.badge || '⚡ ئاپتوماتىك',
+          inputLabel: sahlItem?.inputLabel,
+          inputPlaceholder: sahlItem?.inputPlaceholder,
+          requiresZoneId: sahlItem?.requiresZoneId,
+          zoneIdLabel: sahlItem?.zoneIdLabel,
+          zoneIdPlaceholder: sahlItem?.zoneIdPlaceholder,
+          bioContent: sahlItem?.bioContent,
+          published: publish,
+          source: 'provider',
+          packages: sahlItem?.packages?.map((p) => ({
+            id: `pkg-${sahlItem.key}-${p.id}`,
+            title: p.title || p.originalName,
+            price: Number(p.sellPrice) || 1,
+            originalPrice: Number(p.originalPrice) || Math.round((Number(p.sellPrice) || 1) * 1.2 * 100) / 100,
+            duration: 'دەرھال',
+            providerProductId: p.id,
+            productType: p.productType === 'amount' ? 'amount' : 'fixed',
+            available: true,
+          })) || srv.packages || [],
+        };
+
+        const res = await fetch('/api/admin/services', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (data.success && data.service) {
+          clearStorefrontCache();
+          setServices((prev) => [data.service, ...prev.filter((s) => s.id !== data.service.id && s.id !== srv.id)]);
+        }
+        return;
+      }
+
+      // Existing service
+      const res = await fetch('/api/admin/services', {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ id: srv.id, published: publish }),
+      });
+      const data = await res.json();
+      if (data.success && data.service) {
+        clearStorefrontCache();
+        setServices((prev) =>
+          prev.map((s) => (s.id === srv.id ? { ...s, published: publish } : s))
+        );
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert('ئۇلىنىش خاتالىقى كۆرۈلدى');
+    }
+  };
+
   // Sahl Cash Importer & Customizer Helper Dictionaries & Functions
   const UYGHUR_SERVICE_NAMES: Record<string, string> = {
     'PUBG Mobile': 'پابجى كۆچمە (PUBG Mobile)',
@@ -2212,7 +2285,7 @@ export default function AdminPage() {
           zoneIdLabel: sahl.zoneIdLabel,
           zoneIdPlaceholder: sahl.zoneIdPlaceholder,
           bioContent: sahl.bioContent,
-          published: false,
+          published: true,
           source: 'provider',
           packages: sahl.packages.map((p) => ({
             id: `pkg-${sahl.key}-${p.id}`,
@@ -2723,8 +2796,8 @@ export default function AdminPage() {
       const isCustomSaved = savedServiceIds.has(s.id);
       const matchSource =
         productSourceFilter === 'all' ||
-        (productSourceFilter === 'published' && isCustomSaved) ||
-        (productSourceFilter === 'sahl' && !isCustomSaved);
+        (productSourceFilter === 'published' && s.published !== false) ||
+        (productSourceFilter === 'sahl' && (s.source === 'provider' || s.id.startsWith('sahl_') || s.id.startsWith('s4g-')));
       return matchCat && matchSearch && matchSource;
     });
   }, [unifiedServicesList, searchQuery, categoryFilter, productSourceFilter, savedServiceIds]);
@@ -3967,51 +4040,49 @@ export default function AdminPage() {
                           </button>
                         </div>
 
-                        {/* Direct Save & Show on Homepage Action Button */}
+                        {/* Direct 1-Click Visibility Toggle for Storefront */}
                         <div>
-                          {isSavedCustom ? (
-                            srv.published !== false ? (
-                              <div className="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-emerald-950/50 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold">
-                                <span className="flex items-center gap-1.5">
-                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                                  <span>باشبەتتە نەق كۆرۈنۈۋاتىدۇ</span>
-                                </span>
+                          {srv.published !== false ? (
+                            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-emerald-950/50 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold">
+                              <span className="flex items-center gap-1.5">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                                <span>باشبەتتە ئوچۇق</span>
+                              </span>
+                              <div className="flex items-center gap-2">
                                 <a
-                                  href="/"
+                                  href={`/service/${srv.id}`}
                                   target="_blank"
                                   rel="noreferrer"
                                   className="text-[10px] text-cyan-300 hover:text-cyan-200 underline font-mono flex items-center gap-0.5"
-                                  title="دەرھال باشبەتتىن كۆرۈش"
+                                  title="دەرھال كۆرۈش"
                                 >
                                   <span>كۆرۈش ↗</span>
                                 </a>
-                              </div>
-                            ) : (
-                              <div className="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-amber-950/50 border border-amber-500/40 text-amber-300 text-[11px] font-bold">
-                                <span className="flex items-center gap-1.5">
-                                  <span>⚠️ باشبەتتە يوشۇرۇنغان</span>
-                                </span>
                                 <button
                                   type="button"
-                                  onClick={() => handlePublishServiceToHomepage(srv)}
-                                  className="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[11px] transition cursor-pointer flex items-center gap-1 shadow-sm"
-                                  title="بۇ مەھسۇلاتنى دەرھال باشبەتتە ئېچىش"
+                                  onClick={() => handleTogglePublishService(srv, false)}
+                                  className="px-2 py-0.5 rounded-lg bg-rose-950/70 hover:bg-rose-900 border border-rose-500/40 text-rose-300 text-[10px] transition cursor-pointer"
+                                  title="باشبەتتىن يوشۇرۇش"
                                 >
-                                  <CheckCircle2 className="w-3 h-3" />
-                                  <span>باشبەتكە چىقىرىش</span>
+                                  يوشۇرۇش
                                 </button>
                               </div>
-                            )
+                            </div>
                           ) : (
-                            <button
-                              type="button"
-                              onClick={() => handlePublishServiceToHomepage(srv)}
-                              className="w-full py-1.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
-                              title="بۇ مەھسۇلاتنى دەرھال ساقلاش ۋە باشبەتكە چىقىرىش"
-                            >
-                              <CheckCircle2 className="w-3.5 h-3.5" />
-                              <span>💾 ساقلاش ۋە دەرھال باشبەتكە چىقىرىش</span>
-                            </button>
+                            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-amber-950/50 border border-amber-500/40 text-amber-300 text-[11px] font-bold">
+                              <span className="flex items-center gap-1.5">
+                                <span>⚠️ باشبەتتە يوشۇرۇنغان</span>
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleTogglePublishService(srv, true)}
+                                className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-[11px] transition cursor-pointer flex items-center gap-1 shadow-sm"
+                                title="بۇ مەھسۇلاتنى دەرھال باشبەتتە ئېچىش"
+                              >
+                                <CheckCircle2 className="w-3 h-3" />
+                                <span>باشبەتتە ئېچىش</span>
+                              </button>
+                            </div>
                           )}
                         </div>
                       </div>
