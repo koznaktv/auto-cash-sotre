@@ -6,7 +6,7 @@
  * Admin overrides (catalog_overrides) win over provider data and over the keyword mapping.
  */
 import type { ServiceItem, ServicePackage } from '../data';
-import { getServicesList } from '../servicesDb';
+import { getServicesList, getServicesListAsync } from '../servicesDb';
 import { normalizeFields, normalizeQtyRule } from '../providers/syria4gameNormalize';
 import { guessStorefrontCategory, resolveServiceArtwork, STOREFRONT_ICONS } from './categoryMapping';
 import { computeSellPrice, resolveMarkup, unitSellPrice } from './pricing';
@@ -308,7 +308,6 @@ export async function getCatalogServices(options: { source?: 'legacy' | 'provide
     return providerCatalog.services || [];
   }
 
-  const { getServicesListAsync } = await import('../servicesDb');
   const customServices = (await getServicesListAsync()) || [];
 
   // Strictly only services that are saved and not hidden (published !== false)

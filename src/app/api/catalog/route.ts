@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getCatalogServices } from '@/lib/catalog/storefront';
+import { getServicesListAsync } from '@/lib/servicesDb';
 import { getProviderSettings } from '@/lib/catalog/store';
 import { hasAdminBearer } from '@/lib/adminAuth';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 /** Public storefront catalog (slim). Admins may preview the other source with ?source=provider|legacy. */
 export async function GET(req: Request) {
@@ -23,24 +24,28 @@ export async function GET(req: Request) {
     }
 
     // Storefront: ONLY products chosen, edited, and published by the admin
-    const services = (await getCatalogServices()).map((service) => ({
-      ...service,
-      packages: (service.packages || []).map((p) => ({
-        id: p.id,
-        title: p.title,
-        price: p.price,
-        originalPrice: p.originalPrice,
-        duration: p.duration,
-        productType: p.productType,
-        unitPrice: p.unitPrice,
-        available: p.available,
-      })),
-    }));
+    const allServices = await getServicesListAsync();
+    const services = (allServices || [])
+      .filter((service) => service.published !== false)
+      .map((service) => ({
+        ...service,
+        published: true,
+        packages: (service.packages || []).map((p) => ({
+          id: p.id,
+          title: p.title,
+          price: p.price,
+          originalPrice: p.originalPrice,
+          duration: p.duration,
+          productType: p.productType,
+          unitPrice: p.unitPrice,
+          available: p.available,
+        })),
+      }));
 
     const cacheHeader = 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
 
     return NextResponse.json(
-      { success: true, source: 'legacy', minOrderUsd: settings.minOrderUsd, services },
+      { success: true, source: 'legacy', minOrderUsd: settings?.minOrderUsd ?? 0.1, services },
       {
         headers: {
           'Cache-Control': cacheHeader,
