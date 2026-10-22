@@ -370,11 +370,15 @@ export default function HomePage() {
         if (cachedCats) {
           const parsedCats = JSON.parse(cachedCats);
           if (Array.isArray(parsedCats) && parsedCats.length > 0) {
-            return parsedCats.map((c: any) =>
-              c.id === 'numbers' && (c.name === 'مەۋھۇم نومۇر' || !c.name.includes('ئەزالىق'))
-                ? { ...c, name: 'تېلېگرام ئەزالىق', count: 'Telegram Premium', image: '/images/services/telegram.jpg' }
-                : c
-            );
+            return parsedCats.map((c: any) => {
+              if (c.id === 'numbers' && (c.name === 'مەۋھۇم نومۇر' || !c.name.includes('ئەزالىق'))) {
+                return { ...c, name: 'تېلېگرام ئەزالىق', count: 'Telegram Premium', image: '/images/services/telegram.jpg' };
+              }
+              if (c.id === 'cards' && (c.name === 'كارتىلار ۋە VCC' || c.name === 'كارتىلار' || !c.name.includes('تىلفۇن'))) {
+                return { ...c, name: 'تىلفۇن كارتىلىرىغا پۇل قاچىلاش', count: 'Turkcell, Turk Telecom', image: '/images/services/turkcell.jpg' };
+              }
+              return c;
+            });
           }
         }
       } catch {}
@@ -407,11 +411,15 @@ export default function HomePage() {
         }
 
         if (dCats && dCats.success && Array.isArray(dCats.categories) && dCats.categories.length > 0) {
-          const mappedCats = dCats.categories.map((c: any) =>
-            c.id === 'numbers' && (c.name === 'مەۋھۇم نومۇر' || !c.name.includes('ئەزالىق'))
-              ? { ...c, name: 'تېلېگرام ئەزالىق', count: 'Telegram Premium', image: '/images/services/telegram.jpg' }
-              : c
-          );
+          const mappedCats = dCats.categories.map((c: any) => {
+            if (c.id === 'numbers' && (c.name === 'مەۋھۇم نومۇر' || !c.name.includes('ئەزالىق'))) {
+              return { ...c, name: 'تېلېگرام ئەزالىق', count: 'Telegram Premium', image: '/images/services/telegram.jpg' };
+            }
+            if (c.id === 'cards' && (c.name === 'كارتىلار ۋە VCC' || c.name === 'كارتىلار' || !c.name.includes('تىلفۇن'))) {
+              return { ...c, name: 'تىلفۇن كارتىلىرىغا پۇل قاچىلاش', count: 'Turkcell, Turk Telecom', image: '/images/services/turkcell.jpg' };
+            }
+            return c;
+          });
           setCategories(mappedCats);
           try {
             localStorage.setItem('autocash_cached_categories', JSON.stringify(mappedCats));
@@ -448,11 +456,15 @@ export default function HomePage() {
         }
 
         if (dCats && dCats.success && Array.isArray(dCats.categories) && dCats.categories.length > 0) {
-          const mappedCats = dCats.categories.map((c: any) =>
-            c.id === 'numbers' && (c.name === 'مەۋھۇم نومۇر' || !c.name.includes('ئەزالىق'))
-              ? { ...c, name: 'تېلېگرام ئەزالىق', count: 'Telegram Premium', image: '/images/services/telegram.jpg' }
-              : c
-          );
+          const mappedCats = dCats.categories.map((c: any) => {
+            if (c.id === 'numbers' && (c.name === 'مەۋھۇم نومۇر' || !c.name.includes('ئەزالىق'))) {
+              return { ...c, name: 'تېلېگرام ئەزالىق', count: 'Telegram Premium', image: '/images/services/telegram.jpg' };
+            }
+            if (c.id === 'cards' && (c.name === 'كارتىلار ۋە VCC' || c.name === 'كارتىلار' || !c.name.includes('تىلفۇن'))) {
+              return { ...c, name: 'تىلفۇن كارتىلىرىغا پۇل قاچىلاش', count: 'Turkcell, Turk Telecom', image: '/images/services/turkcell.jpg' };
+            }
+            return c;
+          });
           setCategories(mappedCats);
           try {
             localStorage.setItem('autocash_cached_categories', JSON.stringify(mappedCats));

@@ -29,10 +29,10 @@
   },
   {
     "id": "cards",
-    "name": "كارتىلار ۋە VCC",
+    "name": "تىلفۇن كارتىلىرىغا پۇل قاچىلاش",
     "icon": "CreditCard",
-    "count": "كارتىلار",
-    "image": "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=150&auto=format&fit=crop&q=80"
+    "count": "Turkcell, Turk Telecom",
+    "image": "/images/services/turkcell.jpg"
   },
   {
     "id": "accounts",

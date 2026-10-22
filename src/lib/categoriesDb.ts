@@ -136,6 +136,15 @@ export async function getCategoriesListAsync(): Promise<CategoryItem[]> {
                   image: '/images/services/telegram.jpg',
                 };
               }
+              if (c.id === 'cards' && (c.name === 'كارتىلار ۋە VCC' || c.name === 'كارتىلار' || !c.name.includes('تىلفۇن'))) {
+                updated = true;
+                return {
+                  ...c,
+                  name: 'تىلفۇن كارتىلىرىغا پۇل قاچىلاش',
+                  count: 'Turkcell, Turk Telecom',
+                  image: '/images/services/turkcell.jpg',
+                };
+              }
               return c;
             });
           if (updated) {
