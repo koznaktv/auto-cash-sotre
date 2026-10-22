@@ -1,7 +1,7 @@
 'use client';
 
 import { clearLocalAuth, logout, syncSupabaseSession, getCachedBalance, getCachedUser, storeLocalAuth, ClientUser, formatSmartPrice } from '@/lib/clientAuth';
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
@@ -379,16 +379,47 @@ export default function HomePage() {
 
   const [catalogSource, setCatalogSource] = useState<'legacy' | 'provider'>('legacy');
   const [catalogLoading, setCatalogLoading] = useState(false);
+
+  const fetchFreshCatalog = useCallback(() => {
+    Promise.all([
+      fetch(`/api/catalog?_t=${Date.now()}`, { cache: 'no-store' })
+        .then((r) => r.json())
+        .catch(() => null),
+      fetch(`/api/categories?_t=${Date.now()}`, { cache: 'no-store' })
+        .then((r) => r.json())
+        .catch(() => null),
+    ])
+      .then(([dCat, dCats]) => {
+        if (dCat && dCat.success && Array.isArray(dCat.services) && dCat.services.length > 0) {
+          setServices(dCat.services);
+          setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
+          try {
+            localStorage.setItem('autocash_cached_catalog', JSON.stringify({ services: dCat.services, source: dCat.source }));
+          } catch {}
+        } else if (dCat && Array.isArray(dCat.services) && dCat.services.length > 0) {
+          setServices(dCat.services);
+        }
+
+        if (dCats && dCats.success && Array.isArray(dCats.categories) && dCats.categories.length > 0) {
+          setCategories(dCats.categories);
+          try {
+            localStorage.setItem('autocash_cached_categories', JSON.stringify(dCats.categories));
+          } catch {}
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
-    // Background revalidation: fetch latest updates without blocking initial render
+    // 1. Initial fresh background fetch without stale cache
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 7000);
 
     Promise.all([
-      fetch('/api/catalog', { signal: controller.signal, next: { revalidate: 30 } as any })
+      fetch(`/api/catalog?_t=${Date.now()}`, { signal: controller.signal, cache: 'no-store' })
         .then((r) => r.json())
         .catch(() => null),
-      fetch('/api/categories', { signal: controller.signal, next: { revalidate: 30 } as any })
+      fetch(`/api/categories?_t=${Date.now()}`, { signal: controller.signal, cache: 'no-store' })
         .then((r) => r.json())
         .catch(() => null),
     ])
@@ -417,11 +448,38 @@ export default function HomePage() {
         setCatalogLoading(false);
       });
 
+    // 2. Real-time sync listener across tabs (when admin publishes from Sahl Cash)
+    let bc: BroadcastChannel | null = null;
+    try {
+      bc = new BroadcastChannel('autocash_catalog_channel');
+      bc.onmessage = (event) => {
+        if (event.data?.type === 'CATALOG_UPDATED') {
+          fetchFreshCatalog();
+        }
+      };
+    } catch {}
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'autocash_cached_catalog' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
+            setServices(parsed.services);
+          }
+        } catch {}
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+
     return () => {
       controller.abort();
       clearTimeout(timeoutId);
+      try {
+        bc?.close();
+      } catch {}
+      window.removeEventListener('storage', handleStorageChange);
     };
-  }, []);
+  }, [fetchFreshCatalog]);
 
   // Combine official categories with any categories present in loaded services
   const effectiveCategories = useMemo(() => {

@@ -1,1 +1,952 @@
-[]
+[
+  {
+    "id": "sahl_PUBG Mobile",
+    "name": "PUBG Mobile UC",
+    "category": "games",
+    "icon": "Gamepad2",
+    "image": "/images/services/pubg_mobile.jpg",
+    "description": "PUBG Mobile رەسمىي ئورگان ئوقى (UC) سېكۇنتتا قاچىلاش مۇلازىمىتى",
+    "badge": "🔥 ئەڭ ئالقىشلىق",
+    "inputLabel": "ئويۇنچى كىملىكى UID (Player ID)",
+    "inputPlaceholder": "مەسىلەن: 5123456789 (8-12 خانىلىق سان)",
+    "requiresZoneId": false,
+    "bioContent": "PUBG Mobile رەسمىي ئورگان ئوقى (UC) تولۇقلاش مۇلازىمىتى. پەقەت ئويۇنچى كىملىكى (Player ID) كىرگۈزۈلسىلا كۇپايە، مەخپىي نومۇر تەلەپ قىلىنمايدۇ. سىستېما سېكۇنتتا يەتكۈزۈپ بېرىدۇ.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-PUBG Mobile-6",
+        "title": "60 UC Server 1",
+        "price": 1.04,
+        "originalPrice": 1.25,
+        "duration": "دەرھال",
+        "providerProductId": 6,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-PUBG Mobile-1431",
+        "title": "Pubg 60 UC Serever 2",
+        "price": 1.04,
+        "originalPrice": 1.25,
+        "duration": "دەرھال",
+        "providerProductId": 1431,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-PUBG Mobile-2614",
+        "title": "60 شدة روبوت فوري",
+        "price": 1.04,
+        "originalPrice": 1.25,
+        "duration": "دەرھال",
+        "providerProductId": 2614,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-PUBG Mobile-18",
+        "title": "300 + 25 UC Server 1",
+        "price": 5.16,
+        "originalPrice": 6.19,
+        "duration": "دەرھال",
+        "providerProductId": 18,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-PUBG Mobile-1388",
+        "title": "300 + 25 UC Server 2",
+        "price": 5.2,
+        "originalPrice": 6.24,
+        "duration": "دەرھال",
+        "providerProductId": 1388,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-PUBG Mobile-32",
+        "title": "600 + 60 UC Server 1",
+        "price": 10.28,
+        "originalPrice": 12.34,
+        "duration": "دەرھال",
+        "providerProductId": 32,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-PUBG Mobile-1389",
+        "title": "600 + 60 UC Server 2",
+        "price": 10.4,
+        "originalPrice": 12.48,
+        "duration": "دەرھال",
+        "providerProductId": 1389,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-PUBG Mobile-46",
+        "title": "1500+300 UC Server 1",
+        "price": 25.47,
+        "originalPrice": 30.56,
+        "duration": "دەرھال",
+        "providerProductId": 46,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-PUBG Mobile-1390",
+        "title": "1500+300 UC Server 2",
+        "price": 25.99,
+        "originalPrice": 31.19,
+        "duration": "دەرھال",
+        "providerProductId": 1390,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-PUBG Mobile-60",
+        "title": "3000+850 UC Server 1",
+        "price": 50.6,
+        "originalPrice": 60.72,
+        "duration": "دەرھال",
+        "providerProductId": 60,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-PUBG Mobile-1391",
+        "title": "3000+850 UC Server 2",
+        "price": 52.18,
+        "originalPrice": 62.62,
+        "duration": "دەرھال",
+        "providerProductId": 1391,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-PUBG Mobile-1392",
+        "title": "6000+2100 UC Server 2",
+        "price": 100.7,
+        "originalPrice": 120.84,
+        "duration": "دەرھال",
+        "providerProductId": 1392,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-PUBG Mobile-74",
+        "title": "6000+2100 UC Server 1",
+        "price": 101.68,
+        "originalPrice": 122.02,
+        "duration": "دەرھال",
+        "providerProductId": 74,
+        "productType": "fixed",
+        "available": true
+      }
+    ]
+  },
+  {
+    "name": "Free Fire",
+    "category": "games",
+    "icon": "Gamepad2",
+    "image": "/images/services/free_fire.jpg",
+    "description": "Free Fire ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "🔥 ئەڭ قىزىق",
+    "inputLabel": "ئويۇنچى كىملىكى UID (Player ID)",
+    "inputPlaceholder": "مەسىلەن: 1234567890 (8-12 خانىلىق سان)",
+    "requiresZoneId": false,
+    "bioContent": "Free Fire ئالماس قاچىلاش مۇلازىمىتى. پەقەت ئويۇنچى Player ID نومۇرىڭىزنى كىرگۈزسىڭىزلا دەرھال ئويۇن ھېساباتىڭىزغا قاچىلىنىدۇ. بىخەتەر ۋە تېز.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Free Fire-2719",
+        "title": "Level 6 upgrade packs",
+        "price": 0.48,
+        "originalPrice": 0.58,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-Free Fire-2720",
+        "title": "Level 10 upgrade packs",
+        "price": 0.7,
+        "originalPrice": 0.84,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-Free Fire-2721",
+        "title": "Level 15 upgrade packs",
+        "price": 0.7,
+        "originalPrice": 0.84,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-Free Fire-2722",
+        "title": "Level 20 upgrade packs",
+        "price": 0.7,
+        "originalPrice": 0.84,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-Free Fire-2723",
+        "title": "Level 25 upgrade packs",
+        "price": 0.7,
+        "originalPrice": 0.84,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-Free Fire-2",
+        "title": "100 Diamonds",
+        "price": 0.99,
+        "originalPrice": 1.19,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-Free Fire-2724",
+        "title": "Level 30 upgrade packs",
+        "price": 1.08,
+        "originalPrice": 1.3,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-Free Fire-70",
+        "title": "210 Diamonds",
+        "price": 1.99,
+        "originalPrice": 2.39,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-Free Fire-1375",
+        "title": "Weekly membership",
+        "price": 2.17,
+        "originalPrice": 2.6,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-Free Fire-1377",
+        "title": "Booyah Pass",
+        "price": 3.19,
+        "originalPrice": 3.83,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-Free Fire-28",
+        "title": "530 Diamonds",
+        "price": 4.91,
+        "originalPrice": 5.89,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-Free Fire-42",
+        "title": "1080 Diamonds",
+        "price": 9.86,
+        "originalPrice": 11.83,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-Free Fire-2748",
+        "title": "1060 Diamonds",
+        "price": 9.88,
+        "originalPrice": 11.86,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-Free Fire-1376",
+        "title": "Monthy membership",
+        "price": 10.26,
+        "originalPrice": 12.31,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-Free Fire-56",
+        "title": "2180 Diamonds",
+        "price": 19.56,
+        "originalPrice": 23.47,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-Free Fire-2749",
+        "title": "2200 Diamonds",
+        "price": 19.67,
+        "originalPrice": 23.6,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-Free Fire-2742",
+        "title": "5600 Diamonds",
+        "price": 48.08,
+        "originalPrice": 57.7,
+        "duration": "دەرھال"
+      }
+    ],
+    "id": "srv-1792535877322"
+  },
+  {
+    "name": "PUBG additions",
+    "category": "games",
+    "icon": "Gamepad2",
+    "image": "/images/services/pubg_mobile.jpg",
+    "description": "PUBG additions ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "⚡ ئاپتوماتىك",
+    "inputLabel": "ئويۇنچى كىملىكى UID (Player ID)",
+    "inputPlaceholder": "مەسىلەن: 5123456789 (8-12 خانىلىق سان)",
+    "requiresZoneId": false,
+    "bioContent": "PUBG Mobile رەسمىي ئورگان ئوقى (UC) تولۇقلاش مۇلازىمىتى. پەقەت ئويۇنچى كىملىكى (Player ID) كىرگۈزۈلسىلا كۇپايە، مەخپىي نومۇر تەلەپ قىلىنمايدۇ. زاكاز تەستىقلانغاندىن كېيىن 1 مىنۇتتىن 5 مىنۇتقىچە ئويۇن ھېساباتىڭىزغا بىۋاسىتە قاچىلىنىدۇ. 100% بىخەتەر ۋە كاپالەتلىك.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-PUBG additions-2839",
+        "title": "PM Prime 1 month",
+        "price": 0.96,
+        "originalPrice": 1.15,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-PUBG additions-2833",
+        "title": "PM First Purchase Pack",
+        "price": 0.96,
+        "originalPrice": 1.15,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-PUBG additions-2836",
+        "title": "PM Weekly Deal Pack 1",
+        "price": 0.96,
+        "originalPrice": 1.15,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-PUBG additions-2840",
+        "title": "PM Prime 3 month",
+        "price": 2.86,
+        "originalPrice": 3.43,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-PUBG additions-2835",
+        "title": "PM Ubgradable Firearm Materials Pack",
+        "price": 2.86,
+        "originalPrice": 3.43,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-PUBG additions-2837",
+        "title": "PM Weekly Deal Pack 2",
+        "price": 2.87,
+        "originalPrice": 3.44,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-PUBG additions-2838",
+        "title": "PM Weekly Mythic Emblem Value Pack",
+        "price": 2.87,
+        "originalPrice": 3.44,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-PUBG additions-1669",
+        "title": "red crystal",
+        "price": 4.16,
+        "originalPrice": 4.99,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-PUBG additions-2834",
+        "title": "PM Mythic Emblem Pack",
+        "price": 4.76,
+        "originalPrice": 5.71,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-PUBG additions-2841",
+        "title": "PM Prime 6 month",
+        "price": 5.7,
+        "originalPrice": 6.84,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-PUBG additions-2830",
+        "title": "PM Elite Pass (lv1-50)",
+        "price": 5.7,
+        "originalPrice": 6.84,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-PUBG additions-2826",
+        "title": "PM Prime Plus 1 month",
+        "price": 9.5,
+        "originalPrice": 11.4,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-PUBG additions-2842",
+        "title": "PM Prime 12 month",
+        "price": 11.42,
+        "originalPrice": 13.7,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-PUBG additions-2831",
+        "title": "PM Elite Pass (lv1-100)",
+        "price": 11.42,
+        "originalPrice": 13.7,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-PUBG additions-2827",
+        "title": "PM Prime Plus 3 month",
+        "price": 28.52,
+        "originalPrice": 34.22,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-PUBG additions-2832",
+        "title": "PM Elite Pass Plus (lv1-100)",
+        "price": 28.52,
+        "originalPrice": 34.22,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-PUBG additions-2828",
+        "title": "PM Prime Plus 6 month",
+        "price": 57.07,
+        "originalPrice": 68.48,
+        "duration": "دەرھال"
+      },
+      {
+        "id": "pkg-PUBG additions-2829",
+        "title": "PM Prime Plus 12 month",
+        "price": 114.13,
+        "originalPrice": 136.96,
+        "duration": "دەرھال"
+      }
+    ],
+    "id": "srv-1792535853222"
+  },
+  {
+    "id": "sahl_Blood strike",
+    "name": "Blood Strike",
+    "category": "games",
+    "icon": "Gamepad2",
+    "image": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=80",
+    "description": "Blood Strike ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "⚡ ئاپتوماتىك",
+    "inputLabel": "ئويۇنچى كىملىكى UID (Player ID)",
+    "inputPlaceholder": "ئويۇن ID نومۇرىڭىزنى كىرگۈزۈڭ",
+    "requiresZoneId": false,
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Blood strike-2366",
+        "title": "Ultra Skin Lucky Chest",
+        "price": 0.48,
+        "originalPrice": 0.58,
+        "duration": "دەرھال",
+        "providerProductId": 2366,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Blood strike-2367",
+        "title": "Lucky Bag Week",
+        "price": 1.01,
+        "originalPrice": 1.21,
+        "duration": "دەرھال",
+        "providerProductId": 2367,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Blood strike-2369",
+        "title": "Annual Pass",
+        "price": 1.01,
+        "originalPrice": 1.21,
+        "duration": "دەرھال",
+        "providerProductId": 2369,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Blood strike-2358",
+        "title": "100+5 Gold",
+        "price": 1.08,
+        "originalPrice": 1.3,
+        "duration": "دەرھال",
+        "providerProductId": 2358,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Blood strike-2365",
+        "title": "Level Up Pass",
+        "price": 1.85,
+        "originalPrice": 2.22,
+        "duration": "دەرھال",
+        "providerProductId": 2365,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Blood strike-2368",
+        "title": "Pre-Order item",
+        "price": 1.85,
+        "originalPrice": 2.22,
+        "duration": "دەرھال",
+        "providerProductId": 2368,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Blood strike-2359",
+        "title": "300+20 Gold",
+        "price": 3.35,
+        "originalPrice": 4.02,
+        "duration": "دەرھال",
+        "providerProductId": 2359,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Blood strike-2364",
+        "title": "Elite Pass",
+        "price": 3.71,
+        "originalPrice": 4.45,
+        "duration": "دەرھال",
+        "providerProductId": 2364,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Blood strike-2356",
+        "title": "500+40 Gold",
+        "price": 5.25,
+        "originalPrice": 6.3,
+        "duration": "دەرھال",
+        "providerProductId": 2356,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Blood strike-2363",
+        "title": "Premium Pass",
+        "price": 8.38,
+        "originalPrice": 10.06,
+        "duration": "دەرھال",
+        "providerProductId": 2363,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Blood strike-2360",
+        "title": "1000+100 Gold",
+        "price": 10.47,
+        "originalPrice": 12.56,
+        "duration": "دەرھال",
+        "providerProductId": 2360,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Blood strike-2361",
+        "title": "2000+260 Gold",
+        "price": 20.95,
+        "originalPrice": 25.14,
+        "duration": "دەرھال",
+        "providerProductId": 2361,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Blood strike-2362",
+        "title": "5000+800 Gold",
+        "price": 52.36,
+        "originalPrice": 62.83,
+        "duration": "دەرھال",
+        "providerProductId": 2362,
+        "productType": "fixed",
+        "available": true
+      }
+    ]
+  },
+  {
+    "id": "sahl_Brawl Stars",
+    "name": "Brawl Stars",
+    "category": "games",
+    "icon": "Gamepad2",
+    "image": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=500&auto=format&fit=crop&q=80",
+    "description": "Brawl Stars ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "🔥 قىزىق",
+    "inputLabel": "ئويۇنچى كىملىكى UID (Player ID)",
+    "inputPlaceholder": "ئويۇن ID نومۇرىڭىزنى كىرگۈزۈڭ",
+    "requiresZoneId": false,
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Brawl Stars-2592",
+        "title": "Code",
+        "price": 0.1,
+        "originalPrice": 0,
+        "duration": "دەرھال",
+        "providerProductId": 2592,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Brawl Stars-2399",
+        "title": "Hero Skin 1 - Brawl",
+        "price": 1.2,
+        "originalPrice": 1.44,
+        "duration": "دەرھال",
+        "providerProductId": 2399,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Brawl Stars-2400",
+        "title": "Hero Skin 2 - Brawl",
+        "price": 1.2,
+        "originalPrice": 1.44,
+        "duration": "دەرھال",
+        "providerProductId": 2400,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Brawl Stars-2349",
+        "title": "Brawl - 30 Gems",
+        "price": 2.4,
+        "originalPrice": 2.88,
+        "duration": "دەرھال",
+        "providerProductId": 2349,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Brawl Stars-2350",
+        "title": "Brawl - 80 Gems",
+        "price": 6.01,
+        "originalPrice": 7.21,
+        "duration": "دەرھال",
+        "providerProductId": 2350,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Brawl Stars-2354",
+        "title": "Brawl Pass",
+        "price": 11.79,
+        "originalPrice": 14.15,
+        "duration": "دەرھال",
+        "providerProductId": 2354,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Brawl Stars-2351",
+        "title": "Brawl - 170 Gems",
+        "price": 12.02,
+        "originalPrice": 14.42,
+        "duration": "دەرھال",
+        "providerProductId": 2351,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Brawl Stars-2355",
+        "title": "Brawl Pass Plus",
+        "price": 17.68,
+        "originalPrice": 21.22,
+        "duration": "دەرھال",
+        "providerProductId": 2355,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Brawl Stars-2352",
+        "title": "Brawl - 360 Gems",
+        "price": 24.05,
+        "originalPrice": 28.86,
+        "duration": "دەرھال",
+        "providerProductId": 2352,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Brawl Stars-2398",
+        "title": "Brawl Pro Pass",
+        "price": 29.47,
+        "originalPrice": 35.36,
+        "duration": "دەرھال",
+        "providerProductId": 2398,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Brawl Stars-2353",
+        "title": "Brawl - 950 Gems",
+        "price": 60.12,
+        "originalPrice": 72.14,
+        "duration": "دەرھال",
+        "providerProductId": 2353,
+        "productType": "fixed",
+        "available": true
+      }
+    ]
+  },
+  {
+    "id": "sahl_Ball Pool 8",
+    "name": "8 Ball Pool",
+    "category": "games",
+    "icon": "Gamepad2",
+    "image": "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=500&auto=format&fit=crop&q=80",
+    "description": "8 Ball Pool ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "⚡ ئاپتوماتىك",
+    "inputLabel": "ئويۇنچى كىملىكى UID (Player ID)",
+    "inputPlaceholder": "ئويۇن ID نومۇرىڭىزنى كىرگۈزۈڭ",
+    "requiresZoneId": false,
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Ball Pool 8-378",
+        "title": "Ball Coins 20K",
+        "price": 0.33,
+        "originalPrice": 0.4,
+        "duration": "دەرھال",
+        "providerProductId": 378,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Ball Pool 8-421",
+        "title": "Ball 20 Cash",
+        "price": 0.77,
+        "originalPrice": 0.92,
+        "duration": "دەرھال",
+        "providerProductId": 421,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Ball Pool 8-379",
+        "title": "Ball Coins 52K",
+        "price": 1.78,
+        "originalPrice": 2.14,
+        "duration": "دەرھال",
+        "providerProductId": 379,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Ball Pool 8-422",
+        "title": "Ball 50 Cash",
+        "price": 1.91,
+        "originalPrice": 2.29,
+        "duration": "دەرھال",
+        "providerProductId": 422,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Ball Pool 8-380",
+        "title": "Ball Coins 112K",
+        "price": 2.37,
+        "originalPrice": 2.84,
+        "duration": "دەرھال",
+        "providerProductId": 380,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Ball Pool 8-423",
+        "title": "Ball 110 Cash",
+        "price": 3.86,
+        "originalPrice": 4.63,
+        "duration": "دەرھال",
+        "providerProductId": 423,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Ball Pool 8-381",
+        "title": "Ball Coins 256K",
+        "price": 4.72,
+        "originalPrice": 5.66,
+        "duration": "دەرھال",
+        "providerProductId": 381,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Ball Pool 8-424",
+        "title": "Ball 250 Cash",
+        "price": 4.74,
+        "originalPrice": 5.69,
+        "duration": "دەرھال",
+        "providerProductId": 424,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Ball Pool 8-382",
+        "title": "Ball Coins 800K",
+        "price": 11.8,
+        "originalPrice": 14.16,
+        "duration": "دەرھال",
+        "providerProductId": 382,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Ball Pool 8-425",
+        "title": "Ball 800 Cash",
+        "price": 11.86,
+        "originalPrice": 14.23,
+        "duration": "دەرھال",
+        "providerProductId": 425,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Ball Pool 8-383",
+        "title": "Ball Coins 2M",
+        "price": 23.72,
+        "originalPrice": 28.46,
+        "duration": "دەرھال",
+        "providerProductId": 383,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Ball Pool 8-426",
+        "title": "Ball 2000 Cash",
+        "price": 38.14,
+        "originalPrice": 45.77,
+        "duration": "دەرھال",
+        "providerProductId": 426,
+        "productType": "fixed",
+        "available": true
+      }
+    ]
+  },
+  {
+    "id": "sahl_Jawaker",
+    "name": "Jawaker (جواكر)",
+    "category": "games",
+    "icon": "Gamepad2",
+    "image": "https://images.unsplash.com/photo-1563089145-599997674d42?w=500&auto=format&fit=crop&q=80",
+    "description": "Jawaker (جواكر) ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "⚡ ئاپتوماتىك",
+    "inputLabel": "ئويۇنچى كىملىكى UID (Player ID)",
+    "inputPlaceholder": "ئويۇن ID نومۇرىڭىزنى كىرگۈزۈڭ",
+    "requiresZoneId": false,
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Jawaker-7",
+        "title": "Token Jawaker",
+        "price": 0.1,
+        "originalPrice": 0,
+        "duration": "دەرھال",
+        "providerProductId": 7,
+        "productType": "amount",
+        "available": true
+      },
+      {
+        "id": "pkg-Jawaker-1253",
+        "title": "Red Accelerator",
+        "price": 1.79,
+        "originalPrice": 2.15,
+        "duration": "دەرھال",
+        "providerProductId": 1253,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Jawaker-2798",
+        "title": "Jawaker Premium Silver",
+        "price": 6.7,
+        "originalPrice": 8.04,
+        "duration": "دەرھال",
+        "providerProductId": 2798,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Jawaker-1254",
+        "title": "Blue Accelerator",
+        "price": 8.95,
+        "originalPrice": 10.74,
+        "duration": "دەرھال",
+        "providerProductId": 1254,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Jawaker-1255",
+        "title": "Black Accelerator",
+        "price": 16.21,
+        "originalPrice": 19.45,
+        "duration": "دەرھال",
+        "providerProductId": 1255,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Jawaker-2794",
+        "title": "GOLD BOOSTER",
+        "price": 29.48,
+        "originalPrice": 35.38,
+        "duration": "دەرھال",
+        "providerProductId": 2794,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Jawaker-2797",
+        "title": "Jawaker Premium Plus Red",
+        "price": 30.06,
+        "originalPrice": 36.07,
+        "duration": "دەرھال",
+        "providerProductId": 2797,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Jawaker-120",
+        "title": "400،000 Token",
+        "price": 49.28,
+        "originalPrice": 59.14,
+        "duration": "دەرھال",
+        "providerProductId": 120,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Jawaker-126",
+        "title": "Jawaker 525,000 Token",
+        "price": 64.68,
+        "originalPrice": 77.62,
+        "duration": "دەرھال",
+        "providerProductId": 126,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Jawaker-130",
+        "title": "805000 tokens",
+        "price": 104.35,
+        "originalPrice": 125.22,
+        "duration": "دەرھال",
+        "providerProductId": 130,
+        "productType": "fixed",
+        "available": true
+      }
+    ]
+  }
+]

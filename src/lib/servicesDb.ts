@@ -65,7 +65,7 @@ function saveDeletedServiceIds(set: Set<string>): void {
 export function getServicesList(): ServiceItem[] {
   const deleted = getDeletedServiceIds();
 
-  if (cachedServices) {
+  if (cachedServices && cachedServices.length > 0) {
     return cachedServices.filter((s) => !deleted.has(s.id));
   }
 
@@ -74,23 +74,40 @@ export function getServicesList(): ServiceItem[] {
       fs.mkdirSync(DATA_DIR, { recursive: true });
     }
 
-    if (!fs.existsSync(SERVICES_FILE)) {
-      const initial = SERVICES_DATA.filter((s) => !deleted.has(s.id));
-      const temp = `${SERVICES_FILE}.${Date.now()}.tmp`;
-      fs.writeFileSync(temp, JSON.stringify(initial, null, 2), 'utf-8');
-      fs.renameSync(temp, SERVICES_FILE);
-      cachedServices = initial;
-      return [...initial];
+    // 1. Try reading the active services file (/tmp on serverless or data/ locally)
+    if (fs.existsSync(SERVICES_FILE)) {
+      try {
+        const content = fs.readFileSync(SERVICES_FILE, 'utf-8');
+        const parsed = JSON.parse(content);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const filtered = parsed.filter((s) => !deleted.has(s.id));
+          cachedServices = filtered;
+          return [...filtered];
+        }
+      } catch (e) {
+        console.warn('Error reading SERVICES_FILE:', e);
+      }
     }
 
-    const content = fs.readFileSync(SERVICES_FILE, 'utf-8');
-    const parsed = JSON.parse(content);
-    if (Array.isArray(parsed)) {
-      const filtered = parsed.filter((s) => !deleted.has(s.id));
-      cachedServices = filtered;
-      return [...filtered];
+    // 2. Try reading bundled services file (committed in data/autocash_services.json)
+    if (fs.existsSync(BUNDLED_SERVICES_FILE)) {
+      try {
+        const content = fs.readFileSync(BUNDLED_SERVICES_FILE, 'utf-8');
+        const parsed = JSON.parse(content);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const filtered = parsed.filter((s) => !deleted.has(s.id));
+          cachedServices = filtered;
+          try {
+            fs.writeFileSync(SERVICES_FILE, JSON.stringify(filtered, null, 2), 'utf-8');
+          } catch {}
+          return [...filtered];
+        }
+      } catch (e) {
+        console.warn('Error reading BUNDLED_SERVICES_FILE:', e);
+      }
     }
 
+    // 3. Fallback to hardcoded SERVICES_DATA
     const fallback = SERVICES_DATA.filter((s) => !deleted.has(s.id));
     cachedServices = fallback;
     return [...fallback];
@@ -167,6 +184,15 @@ export async function saveServicesListAsync(services: ServiceItem[]): Promise<vo
     fs.renameSync(temp, SERVICES_FILE);
   } catch (err) {
     console.error('Error saving services file:', err);
+  }
+
+  // Also write to bundled file if directory exists and is writable
+  try {
+    if (BUNDLED_SERVICES_FILE !== SERVICES_FILE && fs.existsSync(BUNDLED_DATA_DIR)) {
+      fs.writeFileSync(BUNDLED_SERVICES_FILE, JSON.stringify(cleanList, null, 2), 'utf-8');
+    }
+  } catch (err) {
+    // Non-fatal on read-only serverless filesystems
   }
 
   const sb = getSupabase();

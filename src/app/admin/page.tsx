@@ -1871,6 +1871,7 @@ export default function AdminPage() {
         const sahlItem = groupedSahlServices.find((g) => g.key === sahlKey);
         if (sahlItem) {
           const payload = {
+            id: srv.id,
             name: srv.name || sahlItem.name,
             category: srv.category || sahlItem.category,
             icon: getCategoryIcon(srv.category || sahlItem.category),
@@ -1904,8 +1905,19 @@ export default function AdminPage() {
           });
           const data = await res.json();
           if (data.success && data.service) {
-            clearStorefrontCache();
-            setServices((prev) => [data.service, ...prev.filter((s) => s.id !== data.service.id)]);
+            setServices((prev) => {
+              const next = [data.service, ...prev.filter((s) => s.id !== data.service.id && s.id !== srv.id)];
+              try {
+                localStorage.setItem('autocash_cached_catalog', JSON.stringify({
+                  services: next.filter((s) => s.published !== false),
+                  source: 'legacy',
+                }));
+                const bc = new BroadcastChannel('autocash_catalog_channel');
+                bc.postMessage({ type: 'CATALOG_UPDATED', service: data.service });
+                bc.close();
+              } catch {}
+              return next;
+            });
             alert(`«${data.service.name}» مۇۋەپپەقىيەتلىك ساقلاندى ھەمدە دەرھال باشبەتكە چىقىرىلدى!`);
           } else {
             alert(data.message || 'ساقلاش مەغلۇپ بولدى');
@@ -1922,10 +1934,19 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.success && data.service) {
-        clearStorefrontCache();
-        setServices((prev) =>
-          prev.map((s) => (s.id === srv.id ? { ...s, published: true } : s))
-        );
+        setServices((prev) => {
+          const next = prev.map((s) => (s.id === srv.id ? { ...s, published: true } : s));
+          try {
+            localStorage.setItem('autocash_cached_catalog', JSON.stringify({
+              services: next.filter((s) => s.published !== false),
+              source: 'legacy',
+            }));
+            const bc = new BroadcastChannel('autocash_catalog_channel');
+            bc.postMessage({ type: 'CATALOG_UPDATED', service: data.service });
+            bc.close();
+          } catch {}
+          return next;
+        });
         alert(`«${srv.name}» باشبەتتە نەق چىقىرىلدى!`);
       } else {
         alert(data.message || 'ساقلاش مەغلۇپ بولدى');
@@ -2227,6 +2248,7 @@ export default function AdminPage() {
     for (const item of unaddedInCat) {
       try {
         const payload = {
+          id: item.id,
           name: item.name,
           category: item.category,
           icon: item.icon || getCategoryIcon(item.category),
@@ -2242,14 +2264,18 @@ export default function AdminPage() {
         const res = await fetch('/api/admin/services', { method: 'POST', headers, body: JSON.stringify(payload) });
         const d = await res.json();
         if (d.success && d.service) {
-          setServices((prev) => [d.service, ...prev.filter((s) => s.id !== d.service.id)]);
+          setServices((prev) => [d.service, ...prev.filter((s) => s.id !== d.service.id && s.id !== item.id)]);
           successCount++;
         }
       } catch {}
     }
-    clearStorefrontCache();
     setLoadingProducts(false);
-    alert(`${successCount} دانە مەھسۇلات مۇۋەپپەقىيەتلىك دۇكانغا قوشۇلدى!`);
+    try {
+      const bc = new BroadcastChannel('autocash_catalog_channel');
+      bc.postMessage({ type: 'CATALOG_UPDATED' });
+      bc.close();
+    } catch {}
+    alert(`${successCount} دانە مەھسۇلات مۇۋەپپەقىيەتلىك دۇكانغا قوشۇلدى ۋە باشبەتكە چىقىرىلدى!`);
   };
 
   // Filter grouped services by Category Tab & Search query
@@ -2429,6 +2455,7 @@ export default function AdminPage() {
         'Content-Type': 'application/json',
       };
       const payload = {
+        id: selectedSahlGroup ? `sahl_${selectedSahlGroup.key}` : undefined,
         name: sahlForm.name.trim(),
         category: sahlForm.category,
         icon: getCategoryIcon(sahlForm.category),
@@ -2462,8 +2489,19 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.success && data.service) {
-        clearStorefrontCache();
-        setServices((prev) => [data.service, ...prev.filter((s) => s.id !== data.service.id)]);
+        setServices((prev) => {
+          const next = [data.service, ...prev.filter((s) => s.id !== data.service.id)];
+          try {
+            localStorage.setItem('autocash_cached_catalog', JSON.stringify({
+              services: next.filter((s) => s.published !== false),
+              source: 'legacy',
+            }));
+            const bc = new BroadcastChannel('autocash_catalog_channel');
+            bc.postMessage({ type: 'CATALOG_UPDATED', service: data.service });
+            bc.close();
+          } catch {}
+          return next;
+        });
         setSahlCashModalOpen(false);
         setSelectedSahlGroup(null);
         alert(`«${sahlForm.name}» ناملىق مەھسۇلات ${selectedPackages.length} دانە بولىقى بىلەن مۇۋەپپەقىيەتلىك باشبەتكە چىقىرىلدى!`);

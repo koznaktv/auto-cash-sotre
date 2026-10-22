@@ -48,4 +48,6 @@ export const CATEGORIES_9 = [
   { id: 'balance', name: 'يەرلىك ھەميان', icon: 'Wallet', count: 'تولۇقلاش', image: 'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=150&auto=format&fit=crop&q=80' },
 ] as const;
 
-export const SERVICES_DATA: ServiceItem[] = [];
+import preloadedServices from '../../data/autocash_services.json';
+
+export const SERVICES_DATA: ServiceItem[] = (preloadedServices as any) || [];
