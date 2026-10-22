@@ -786,30 +786,50 @@ ${content}
 💬 <b>خېرىدارلار مۇلازىمىتى:</b> @${TELEGRAM_CONFIG.supportUsername}
 `.trim();
 
+  // In Telegram Channels, inline keyboard buttons CANNOT be web_app; they MUST be standard url buttons!
   const keyboard = {
     inline_keyboard: [
       [
-        { text: '⚡️🛍️ دۇكاننى ئېچىش | Open Store ➔', web_app: { url: TELEGRAM_CONFIG.storeUrl } },
+        { text: '⚡️🛍️ دۇكاننى ئېچىش ➔', url: `https://t.me/${TELEGRAM_CONFIG.botUsername}?start=chan` },
+        { text: '🌐 توربەت دۇكىنى 🛒', url: TELEGRAM_CONFIG.storeUrl },
       ],
       [
-        { text: '🤖 قاچىلاش بوتى', url: `https://t.me/${TELEGRAM_CONFIG.botUsername}` },
-        { text: '💬 خېرىدارلار مۇلازىمىتى', url: TELEGRAM_CONFIG.supportUrl },
+        { text: '🤖 قاچىلاش بوتى ⚡️', url: `https://t.me/${TELEGRAM_CONFIG.botUsername}` },
+        { text: '💬 خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl },
       ],
     ],
   };
 
+  const targetChannel = TELEGRAM_CONFIG.channelId || `@${TELEGRAM_CONFIG.channelUsername}`;
+
   try {
-    const chanRes = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    let chanRes = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        chat_id: `@${TELEGRAM_CONFIG.channelUsername}`,
+        chat_id: targetChannel,
         text: formattedMessage,
         parse_mode: 'HTML',
         reply_markup: keyboard,
       }),
     });
-    const chanData = await chanRes.json();
+    let chanData = await chanRes.json();
+
+    // If channelId failed, try fallback with @channelUsername
+    if (!chanData.ok && targetChannel !== `@${TELEGRAM_CONFIG.channelUsername}`) {
+      chanRes = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: `@${TELEGRAM_CONFIG.channelUsername}`,
+          text: formattedMessage,
+          parse_mode: 'HTML',
+          reply_markup: keyboard,
+        }),
+      });
+      chanData = await chanRes.json();
+    }
+
     if (chanData.ok) {
       return { success: true, messageId: chanData.result?.message_id };
     }
