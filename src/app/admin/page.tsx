@@ -3936,8 +3936,40 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Services Grid (All products directly from Sahl Cash & Custom) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+              {/* Services Grid (Store Products / Sahl Cash Warehouse) */}
+              {paginatedServices.length === 0 ? (
+                <div className={`p-8 rounded-3xl ${themeClasses.card} text-center space-y-4 my-4`}>
+                  <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mx-auto">
+                    <ShoppingBag className="w-8 h-8" />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="font-bold text-base text-white">
+                      {productSourceFilter === 'published'
+                        ? 'دۇكىنىڭىزدا تېخى مەھسۇلات يوق'
+                        : 'بۇ بۆلەكتە مەھسۇلات تېپىلمىدى'}
+                    </h3>
+                    <p className={`text-xs ${themeClasses.subtext} max-w-md mx-auto`}>
+                      {productSourceFilter === 'published'
+                        ? 'Sahl Cash مەھسۇلات ئامبىرىدىن ئۆزىڭىز خالىغان ئويۇن ياكى ئەپلەرنى تاللاپ، باھاسىنى خالىغانچە تەھرىرلەپ دۇكىنىڭىزغا ئاسانلا قوشالايسىز.'
+                        : 'ئىزدەش شەرتىنى ئۆزگەرتىپ كۆرۈڭ ياكى سەھىپىنى قايتا تاللاڭ.'}
+                    </p>
+                  </div>
+                  {productSourceFilter === 'published' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProductSourceFilter('sahl');
+                        setCurrentPage(1);
+                      }}
+                      className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs transition cursor-pointer shadow-lg inline-flex items-center gap-2"
+                    >
+                      <Zap className="w-4 h-4 fill-slate-950" />
+                      <span>⚡ Sahl Cash ئامبىرىدىن مەھسۇلات تاللاپ قوشۇش</span>
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
                 {paginatedServices.map((srv) => {
                   const isSavedCustom = savedServiceIds.has(srv.id);
                   const catObj = categoriesList.find((c) => c.id === srv.category);
@@ -4119,6 +4151,7 @@ export default function AdminPage() {
                   );
                 })}
               </div>
+              )}
 
               {/* Pagination Controls */}
               {totalPages > 1 && (
