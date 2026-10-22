@@ -1129,6 +1129,7 @@ export default function AdminPage() {
   const clearStorefrontCache = () => {
     try {
       localStorage.removeItem('autocash_cached_catalog');
+      localStorage.removeItem('autocash_cached_catalog_v2');
       localStorage.removeItem('autocash_cached_categories');
       const bc = new BroadcastChannel('autocash_catalog_channel');
       bc.postMessage({ type: 'CATALOG_UPDATED' });
@@ -1917,10 +1918,12 @@ export default function AdminPage() {
             setServices((prev) => {
               const next = [data.service, ...prev.filter((s) => s.id !== data.service.id && s.id !== srv.id)];
               try {
-                localStorage.setItem('autocash_cached_catalog', JSON.stringify({
+                const payload = JSON.stringify({
                   services: next.filter((s) => s.published !== false),
                   source: 'legacy',
-                }));
+                });
+                localStorage.setItem('autocash_cached_catalog_v2', payload);
+                localStorage.removeItem('autocash_cached_catalog');
                 const bc = new BroadcastChannel('autocash_catalog_channel');
                 bc.postMessage({ type: 'CATALOG_UPDATED', service: data.service });
                 bc.close();
@@ -1946,10 +1949,12 @@ export default function AdminPage() {
         setServices((prev) => {
           const next = prev.map((s) => (s.id === srv.id ? { ...s, published: true } : s));
           try {
-            localStorage.setItem('autocash_cached_catalog', JSON.stringify({
+            const payload = JSON.stringify({
               services: next.filter((s) => s.published !== false),
               source: 'legacy',
-            }));
+            });
+            localStorage.setItem('autocash_cached_catalog_v2', payload);
+            localStorage.removeItem('autocash_cached_catalog');
             const bc = new BroadcastChannel('autocash_catalog_channel');
             bc.postMessage({ type: 'CATALOG_UPDATED', service: data.service });
             bc.close();
@@ -2571,10 +2576,12 @@ export default function AdminPage() {
         setServices((prev) => {
           const next = [data.service, ...prev.filter((s) => s.id !== data.service.id)];
           try {
-            localStorage.setItem('autocash_cached_catalog', JSON.stringify({
+            const payload = JSON.stringify({
               services: next.filter((s) => s.published !== false),
               source: 'legacy',
-            }));
+            });
+            localStorage.setItem('autocash_cached_catalog_v2', payload);
+            localStorage.removeItem('autocash_cached_catalog');
             const bc = new BroadcastChannel('autocash_catalog_channel');
             bc.postMessage({ type: 'CATALOG_UPDATED', service: data.service });
             bc.close();

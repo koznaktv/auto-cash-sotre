@@ -350,7 +350,8 @@ export default function HomePage() {
   const [services, setServices] = useState<ServiceItem[]>(() => {
     if (typeof window !== 'undefined') {
       try {
-        const cachedCat = localStorage.getItem('autocash_cached_catalog');
+        localStorage.removeItem('autocash_cached_catalog'); // Clean old legacy cache
+        const cachedCat = localStorage.getItem('autocash_cached_catalog_v2');
         if (cachedCat) {
           const parsed = JSON.parse(cachedCat);
           if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
@@ -394,7 +395,8 @@ export default function HomePage() {
           setServices(dCat.services);
           setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
           try {
-            localStorage.setItem('autocash_cached_catalog', JSON.stringify({ services: dCat.services, source: dCat.source }));
+            localStorage.setItem('autocash_cached_catalog_v2', JSON.stringify({ services: dCat.services, source: dCat.source }));
+            localStorage.removeItem('autocash_cached_catalog');
           } catch {}
         } else if (dCat && Array.isArray(dCat.services) && dCat.services.length > 0) {
           setServices(dCat.services);
@@ -429,7 +431,8 @@ export default function HomePage() {
           setServices(dCat.services);
           setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
           try {
-            localStorage.setItem('autocash_cached_catalog', JSON.stringify({ services: dCat.services, source: dCat.source }));
+            localStorage.setItem('autocash_cached_catalog_v2', JSON.stringify({ services: dCat.services, source: dCat.source }));
+            localStorage.removeItem('autocash_cached_catalog');
           } catch {}
         } else if (dCat && Array.isArray(dCat.services) && dCat.services.length > 0) {
           setServices(dCat.services);
@@ -460,7 +463,7 @@ export default function HomePage() {
     } catch {}
 
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'autocash_cached_catalog' && e.newValue) {
+      if ((e.key === 'autocash_cached_catalog_v2' || e.key === 'autocash_cached_catalog') && e.newValue) {
         try {
           const parsed = JSON.parse(e.newValue);
           if (Array.isArray(parsed?.services) && parsed.services.length > 0) {

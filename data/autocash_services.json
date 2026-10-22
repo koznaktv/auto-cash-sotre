@@ -1,24 +1,1604 @@
 [
   {
-    "id": "sahl_PUBG Mobile",
-    "name": "PUBG Mobile UC",
+    "name": "Proton VPN",
+    "category": "apps",
+    "icon": "Smartphone",
+    "image": "https://i.ibb.co/4nv6ZKWv/fcf70ed3354e36e513306d98a213c4bf.jpg",
+    "description": "Proton VPN ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "⚡ Sahl Cash",
+    "inputLabel": "ھېسابات نومۇرى / ئېلخەت / كىملىك",
+    "inputPlaceholder": "ئۇچۇرىڭىزنى كىرگۈزۈڭ",
+    "requiresZoneId": false,
+    "bioContent": "Proton VPN - رەسمىي ۋە ئاپتوماتىك مۇلازىمەت.\n• يەتكۈزۈش: سېتىۋېلىش تەستىقلانغاندىن كېيىن سىستېما ئارقىلىق دەرھال بىر تەرەپ قىلىنىدۇ.\n• بىخەتەرلىك: 100% بىخەتەر، ئورگان تەرەپ كاپالىتىگە ئىگە.\n• مەشغۇلات ئەسكەرتىشى: پۇل تۆلەشتىن بۇرۇن كىرگۈزگەن ئۇچۇر ياكى نومۇرلارنىڭ توغرىلىقىنى قايتا بىر قۇر تەكشۈرۈۋېلىڭ.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Proton VPN-1624",
+        "title": "Activate 1 month account",
+        "price": 4.97,
+        "costPrice": 4.14,
+        "originalPrice": 5.96,
+        "duration": "دەرھال",
+        "providerProductId": 1624,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Proton VPN-1625",
+        "title": "Activate 1 year account",
+        "price": 52.81,
+        "costPrice": 44.01,
+        "originalPrice": 63.37,
+        "duration": "دەرھال",
+        "providerProductId": 1625,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792698449357"
+  },
+  {
+    "name": "Canva Pro",
+    "category": "ai",
+    "icon": "MessageSquareShare",
+    "image": "https://i.ibb.co/nN7n34KD/b4685cfbae45a4ac853f662aa1452e12.jpg",
+    "description": "Canva Pro ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "⭐ تەۋسىيە",
+    "inputLabel": "ھېسابات نومۇرى / ئېلخەت / كىملىك",
+    "inputPlaceholder": "ئۇچۇرىڭىزنى كىرگۈزۈڭ",
+    "requiresZoneId": false,
+    "zoneIdLabel": "",
+    "zoneIdPlaceholder": "",
+    "bioContent": "Canva Pro - رەسمىي ۋە ئاپتوماتىك مۇلازىمەت.\n• يەتكۈزۈش: سېتىۋېلىش تەستىقلانغاندىن كېيىن سىستېما ئارقىلىق دەرھال بىر تەرەپ قىلىنىدۇ.\n• بىخەتەرلىك: 100% بىخەتەر، ئورگان تەرەپ كاپالىتىگە ئىگە.\n• مەشغۇلات ئەسكەرتىشى: پۇل تۆلەشتىن بۇرۇن كىرگۈزگەن ئۇچۇر ياكى نومۇرلارنىڭ توغرىلىقىنى قايتا بىر قۇر تەكشۈرۈۋېلىڭ.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Canva Pro-1415",
+        "title": "1 Year",
+        "price": 2.3,
+        "costPrice": 1.92,
+        "originalPrice": 2.76,
+        "duration": "دەرھال",
+        "providerProductId": 1415,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Canva Pro-1416",
+        "title": "2 Year",
+        "price": 4.03,
+        "costPrice": 3.36,
+        "originalPrice": 4.84,
+        "duration": "دەرھال",
+        "providerProductId": 1416,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792698358766"
+  },
+  {
+    "name": "Nord VPN",
+    "category": "apps",
+    "icon": "MessageSquareShare",
+    "image": "https://i.ibb.co/jZ1WkN9R/012b63a6d974b478638753c1e6bf6ac5.jpg",
+    "description": "Nord VPN ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "👑 VIP مۇلازىمەت",
+    "inputLabel": "ھېسابات نومۇرى / ئېلخەت / كىملىك",
+    "inputPlaceholder": "ئۇچۇرىڭىزنى كىرگۈزۈڭ",
+    "requiresZoneId": false,
+    "zoneIdLabel": "",
+    "zoneIdPlaceholder": "",
+    "bioContent": "Nord VPN - رەسمىي ۋە ئاپتوماتىك مۇلازىمەت.\n• يەتكۈزۈش: سېتىۋېلىش تەستىقلانغاندىن كېيىن سىستېما ئارقىلىق دەرھال بىر تەرەپ قىلىنىدۇ.\n• بىخەتەرلىك: 100% بىخەتەر، ئورگان تەرەپ كاپالىتىگە ئىگە.\n• مەشغۇلات ئەسكەرتىشى: پۇل تۆلەشتىن بۇرۇن كىرگۈزگەن ئۇچۇر ياكى نومۇرلارنىڭ توغرىلىقىنى قايتا بىر قۇر تەكشۈرۈۋېلىڭ.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Nord VPN-1538",
+        "title": "Nord 3 month",
+        "price": 12.92,
+        "costPrice": 10.77,
+        "originalPrice": 15.5,
+        "duration": "دەرھال",
+        "providerProductId": 1538,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Nord VPN-1539",
+        "title": "Nord 1 Year",
+        "price": 34.45,
+        "costPrice": 28.71,
+        "originalPrice": 41.34,
+        "duration": "دەرھال",
+        "providerProductId": 1539,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792698350356"
+  },
+  {
+    "name": "ادوبي - Adobe",
+    "category": "apps",
+    "icon": "Smartphone",
+    "image": "https://i.ibb.co/8hRwjXQ/6f71a127a890f4c3092d67bb717eb7ba.jpg",
+    "description": "ادوبي - Adobe ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "🔒 100% كاپالەتلىك",
+    "inputLabel": "ھېسابات نومۇرى / ئېلخەت / كىملىك",
+    "inputPlaceholder": "ئۇچۇرىڭىزنى كىرگۈزۈڭ",
+    "requiresZoneId": false,
+    "bioContent": "ادوبي - Adobe - رەسمىي ۋە ئاپتوماتىك مۇلازىمەت.\n• يەتكۈزۈش: سېتىۋېلىش تەستىقلانغاندىن كېيىن سىستېما ئارقىلىق دەرھال بىر تەرەپ قىلىنىدۇ.\n• بىخەتەرلىك: 100% بىخەتەر، ئورگان تەرەپ كاپالىتىگە ئىگە.\n• مەشغۇلات ئەسكەرتىشى: پۇل تۆلەشتىن بۇرۇن كىرگۈزگەن ئۇچۇر ياكى نومۇرلارنىڭ توغرىلىقىنى قايتا بىر قۇر تەكشۈرۈۋېلىڭ.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-ادوبي - Adobe-2729",
+        "title": "Adobe Creative Cloud \\ أشتراك لمدة شهر واحد",
+        "price": 17.09,
+        "costPrice": 14.24,
+        "originalPrice": 20.51,
+        "duration": "دەرھال",
+        "providerProductId": 2729,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-ادوبي - Adobe-2730",
+        "title": "Adobe Creative Cloud \\ أشتراك لمدة 4 أشهر",
+        "price": 41.26,
+        "costPrice": 34.38,
+        "originalPrice": 49.51,
+        "duration": "دەرھال",
+        "providerProductId": 2730,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-ادوبي - Adobe-2731",
+        "title": "Adobe Creative Cloud \\ أشتراك لمدة 12 شهر",
+        "price": 85.11,
+        "costPrice": 70.93,
+        "originalPrice": 102.13,
+        "duration": "دەرھال",
+        "providerProductId": 2731,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792698342505"
+  },
+  {
+    "name": "NetFlix",
+    "category": "apps",
+    "icon": "MessageSquareShare",
+    "image": "https://i.ibb.co/qY3cb7KX/f031261224c21f684a0abe77b7e57179.jpg",
+    "description": "NetFlix ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "⚡ ئاپتوماتىك",
+    "inputLabel": "تاپشۇرۇۋالغۇچى ئېلخەت / تېلېفون (تاللاشچان)",
+    "inputPlaceholder": "مەسىلەن: your@email.com (بوش قالدۇرسىڭىزمۇ بولىدۇ)",
+    "requiresZoneId": false,
+    "zoneIdLabel": "",
+    "zoneIdPlaceholder": "",
+    "bioContent": "NetFlix - رەسمىي ۋە ئاپتوماتىك مۇلازىمەت.\n• يەتكۈزۈش: سېتىۋېلىش تەستىقلانغاندىن كېيىن سىستېما ئارقىلىق دەرھال بىر تەرەپ قىلىنىدۇ.\n• بىخەتەرلىك: 100% بىخەتەر، ئورگان تەرەپ كاپالىتىگە ئىگە.\n• مەشغۇلات ئەسكەرتىشى: پۇل تۆلەشتىن بۇرۇن كىرگۈزگەن ئۇچۇر ياكى نومۇرلارنىڭ توغرىلىقىنى قايتا بىر قۇر تەكشۈرۈۋېلىڭ.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-NetFlix-1679",
+        "title": "حساب جاهز 1 شهر 1 مستخدم",
+        "price": 4.41,
+        "costPrice": 3.68,
+        "originalPrice": 5.29,
+        "duration": "دەرھال",
+        "providerProductId": 1679,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-NetFlix-1682",
+        "title": "حساب جاهز 1 شهر 5 مستخدم",
+        "price": 10.78,
+        "costPrice": 8.98,
+        "originalPrice": 12.94,
+        "duration": "دەرھال",
+        "providerProductId": 1682,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-NetFlix-1680",
+        "title": "حساب جاهز 3 شهر 1 مستخدم",
+        "price": 11.21,
+        "costPrice": 9.34,
+        "originalPrice": 13.45,
+        "duration": "دەرھال",
+        "providerProductId": 1680,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-NetFlix-1681",
+        "title": "حساب جاهز 12 شهر 1 مستخدم",
+        "price": 35.94,
+        "costPrice": 29.95,
+        "originalPrice": 43.13,
+        "duration": "دەرھال",
+        "providerProductId": 1681,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792698255134"
+  },
+  {
+    "name": "CapCut Pro",
+    "category": "apps",
+    "icon": "MessageSquareShare",
+    "image": "https://i.ibb.co/4wvShBkh/cb5458d57135136cb747a39392248e41.jpg",
+    "description": "CapCut Pro ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "🔒 100% كاپالەتلىك",
+    "inputLabel": "ھېسابات نومۇرى / ئېلخەت / كىملىك",
+    "inputPlaceholder": "ئۇچۇرىڭىزنى كىرگۈزۈڭ",
+    "requiresZoneId": false,
+    "zoneIdLabel": "",
+    "zoneIdPlaceholder": "",
+    "bioContent": "CapCut Pro - رەسمىي ۋە ئاپتوماتىك مۇلازىمەت.\n• يەتكۈزۈش: سېتىۋېلىش تەستىقلانغاندىن كېيىن سىستېما ئارقىلىق دەرھال بىر تەرەپ قىلىنىدۇ.\n• بىخەتەرلىك: 100% بىخەتەر، ئورگان تەرەپ كاپالىتىگە ئىگە.\n• مەشغۇلات ئەسكەرتىشى: پۇل تۆلەشتىن بۇرۇن كىرگۈزگەن ئۇچۇر ياكى نومۇرلارنىڭ توغرىلىقىنى قايتا بىر قۇر تەكشۈرۈۋېلىڭ.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-CapCut Pro-1628",
+        "title": "CapCut Ready-to-Use Account 1 ئاي",
+        "price": 3.9,
+        "costPrice": 3.25,
+        "originalPrice": 4.68,
+        "duration": "دەرھال",
+        "providerProductId": 1628,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-CapCut Pro-1629",
+        "title": "Ready Account 2 ئاي",
+        "price": 24.84,
+        "costPrice": 20.7,
+        "originalPrice": 29.81,
+        "duration": "دەرھال",
+        "providerProductId": 1629,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-CapCut Pro-1630",
+        "title": "Ready Account 3 ئاي",
+        "price": 32.91,
+        "costPrice": 27.42,
+        "originalPrice": 39.49,
+        "duration": "دەرھال",
+        "providerProductId": 1630,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-CapCut Pro-1631",
+        "title": "Your Account 12 ئاي",
+        "price": 93.15,
+        "costPrice": 77.63,
+        "originalPrice": 111.78,
+        "duration": "دەرھال",
+        "providerProductId": 1631,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792698247920"
+  },
+  {
+    "name": "Express VPN",
+    "category": "apps",
+    "icon": "MessageSquareShare",
+    "image": "https://i.ibb.co/v6b9J8RC/3f656dcbd6cdf0f8d49adb49d28a7993.jpg",
+    "description": "Express VPN ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "🔒 100% كاپالەتلىك",
+    "inputLabel": "ھېسابات نومۇرى / ئېلخەت / كىملىك",
+    "inputPlaceholder": "ئۇچۇرىڭىزنى كىرگۈزۈڭ",
+    "requiresZoneId": false,
+    "zoneIdLabel": "",
+    "zoneIdPlaceholder": "",
+    "bioContent": "Express VPN - رەسمىي ۋە ئاپتوماتىك مۇلازىمەت.\n• يەتكۈزۈش: سېتىۋېلىش تەستىقلانغاندىن كېيىن سىستېما ئارقىلىق دەرھال بىر تەرەپ قىلىنىدۇ.\n• بىخەتەرلىك: 100% بىخەتەر، ئورگان تەرەپ كاپالىتىگە ئىگە.\n• مەشغۇلات ئەسكەرتىشى: پۇل تۆلەشتىن بۇرۇن كىرگۈزگەن ئۇچۇر ياكى نومۇرلارنىڭ توغرىلىقىنى قايتا بىر قۇر تەكشۈرۈۋېلىڭ.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Express VPN-1544",
+        "title": "1 months Mac/Windows",
+        "price": 3.69,
+        "costPrice": 3.08,
+        "originalPrice": 4.43,
+        "duration": "دەرھال",
+        "providerProductId": 1544,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Express VPN-1541",
+        "title": "1 month",
+        "price": 4.92,
+        "costPrice": 4.1,
+        "originalPrice": 5.9,
+        "duration": "دەرھال",
+        "providerProductId": 1541,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Express VPN-1542",
+        "title": "3 months",
+        "price": 8.61,
+        "costPrice": 7.18,
+        "originalPrice": 10.33,
+        "duration": "دەرھال",
+        "providerProductId": 1542,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Express VPN-1543",
+        "title": "6 months",
+        "price": 16,
+        "costPrice": 13.33,
+        "originalPrice": 19.2,
+        "duration": "دەرھال",
+        "providerProductId": 1543,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792698240640"
+  },
+  {
+    "name": "نېتفلىكىس تۈركىيە (Netflix TR)",
+    "category": "apps",
+    "icon": "MessageSquareShare",
+    "image": "https://i.ibb.co/qY3cb7KX/f031261224c21f684a0abe77b7e57179.jpg",
+    "description": "نېتفلىكىس تۈركىيە (Netflix TR) ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "⚡ ئاپتوماتىك",
+    "inputLabel": "تاپشۇرۇۋالغۇچى ئېلخەت / تېلېفون (تاللاشچان)",
+    "inputPlaceholder": "مەسىلەن: your@email.com (بوش قالدۇرسىڭىزمۇ بولىدۇ)",
+    "requiresZoneId": false,
+    "zoneIdLabel": "",
+    "zoneIdPlaceholder": "",
+    "bioContent": "Netflix Turkey - رەسمىي ۋە ئاپتوماتىك مۇلازىمەت.\n• يەتكۈزۈش: سېتىۋېلىش تەستىقلانغاندىن كېيىن سىستېما ئارقىلىق دەرھال بىر تەرەپ قىلىنىدۇ.\n• بىخەتەرلىك: 100% بىخەتەر، ئورگان تەرەپ كاپالىتىگە ئىگە.\n• مەشغۇلات ئەسكەرتىشى: پۇل تۆلەشتىن بۇرۇن كىرگۈزگەن ئۇچۇر ياكى نومۇرلارنىڭ توغرىلىقىنى قايتا بىر قۇر تەكشۈرۈۋېلىڭ.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Netflix Turkey-1137",
+        "title": "بطاقة 250 تركي",
+        "price": 6.06,
+        "costPrice": 5.05,
+        "originalPrice": 7.27,
+        "duration": "دەرھال",
+        "providerProductId": 1137,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Netflix Turkey-1571",
+        "title": "code 300TL",
+        "price": 7.27,
+        "costPrice": 6.06,
+        "originalPrice": 8.72,
+        "duration": "دەرھال",
+        "providerProductId": 1571,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Netflix Turkey-1138",
+        "title": "كود 500 تركي",
+        "price": 12.13,
+        "costPrice": 10.11,
+        "originalPrice": 14.56,
+        "duration": "دەرھال",
+        "providerProductId": 1138,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Netflix Turkey-1139",
+        "title": "كود 1000 تركي",
+        "price": 24.25,
+        "costPrice": 20.21,
+        "originalPrice": 29.1,
+        "duration": "دەرھال",
+        "providerProductId": 1139,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792698215347"
+  },
+  {
+    "name": "Telegram Premium",
+    "category": "numbers",
+    "icon": "Share2",
+    "image": "https://i.ibb.co/DHQBPqH8/344dca0089eea27c1291323d269f3cf5.jpg",
+    "description": "Telegram Premium ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "🏆 ئەڭ كۆپ سېتىلغان",
+    "inputLabel": "تېلېگرام ئاتى (@username ياكى تېلېفون نومۇرى)",
+    "inputPlaceholder": "مەسىلەن: @username ياكى +905...",
+    "requiresZoneId": false,
+    "bioContent": "تېلېگرام ئالىي ئەزالىقى (Telegram Premium). ئەزالىققا ئېرىشكەندىن كېيىن تېز سۈرئەتتە ھۆججەت چۈشۈرۈش، 4GB چوڭ ھۆججەت يوللاش، ئاۋازلىق ئۇچۇرلارنى يېزىققا ئايلاندۇرۇش ۋە ئالاھىدە VIP بەلگىسى ئېچىلىدۇ.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Telegram Premium-1530",
+        "title": "3_ئاي",
+        "price": 15.53,
+        "costPrice": 14.79,
+        "originalPrice": 18.64,
+        "duration": "دەرھال",
+        "providerProductId": 1530,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Telegram Premium-1531",
+        "title": "6_ئاي",
+        "price": 20.08,
+        "costPrice": 19.12,
+        "originalPrice": 24.1,
+        "duration": "دەرھال",
+        "providerProductId": 1531,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Telegram Premium-1532",
+        "title": "12_ئاي",
+        "price": 33.81,
+        "costPrice": 32.2,
+        "originalPrice": 40.57,
+        "duration": "دەرھال",
+        "providerProductId": 1532,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792697981040"
+  },
+  {
+    "name": "Gemini Pro",
+    "category": "ai",
+    "icon": "Bot",
+    "image": "https://i.ibb.co/rGkVbzCY/680148b29e03c20591a399f91fb9bf7c.jpg",
+    "description": "Gemini Pro ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "🎉 ئېتىبار باھا",
+    "inputLabel": "ھېسابات نومۇرى / ئېلخەت / كىملىك",
+    "inputPlaceholder": "ئۇچۇرىڭىزنى كىرگۈزۈڭ",
+    "requiresZoneId": false,
+    "bioContent": "سىزنىڭ ئۆزىڭىزنىڭ ھېساباتىغا / ئېلخېتىگە تەكلىپ ئەۋەتىش ئارقىلىق ئېچىپ بېرىش \nچۈشەندۈرۈلۈشى: يېڭىدىن ھېسابات ئاچمايسىز؛ ساتقۇچى سىزنىڭ شەخسىي ئېلخەت (Google) ئادرېسىڭىزغا ئائىلە گۇرۇپپىسى (Family Group) ياكى تەشكىلات تەكلىپنامىسى ئەۋەتىدۇ. سىز قوشۇلغاندىن كېيىن، ئۆزىڭىزنىڭ ھېساباتىدىلا Gemini نىڭ ھەقلىق ئىقتىدارلىرىدىن بەھرىمەن بولالايسىز (پارولىڭىزنى بېرىش ھاجەتسىز).\n مەخسۇس يېڭى شەخسىي ھېسابات.\nچۈشەندۈرۈلۈشى: سىزگە بارلىق ئۇچۇرلىرى (ئېلخەت ئادرېسى ۋە پارولى) تەييار بولغان، پۈتۈنلەي مۇستەقىل بىر ھېساباتنى بېرىدۇ. باشقىلار بىلەن ئورتاقلاشمايدىغان، پەقەت سىزلا ئىشلىتىدىغان ھېسابات بولىدۇ.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Gemini Pro-2632",
+        "title": "سىزنىڭ ئۆزىڭىزنىڭ ھېساباتىغا / ئېلخېتىگە تەكلىپ ئەۋەتىش ئارقىلىق ئېچىپ بېرىش - 1 ئاي",
+        "price": 3.61,
+        "costPrice": 3.44,
+        "originalPrice": 4.33,
+        "duration": "دەرھال",
+        "providerProductId": 2632,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Gemini Pro-2635",
+        "title": "مەخسۇس يېڭى شەخسىي ھېسابات. - 1 ئاي",
+        "price": 5.37,
+        "costPrice": 5.11,
+        "originalPrice": 6.44,
+        "duration": "دەرھال",
+        "providerProductId": 2635,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Gemini Pro-2633",
+        "title": "سىزنىڭ ئۆزىڭىزنىڭ ھېساباتىغا / ئېلخېتىگە تەكلىپ ئەۋەتىش ئارقىلىق ئېچىپ بېرىش - 3 ئاي",
+        "price": 6.7,
+        "costPrice": 6.38,
+        "originalPrice": 8.04,
+        "duration": "دەرھال",
+        "providerProductId": 2633,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Gemini Pro-2634",
+        "title": "سىزنىڭ ئۆزىڭىزنىڭ ھېساباتىغا / ئېلخېتىگە تەكلىپ ئەۋەتىش ئارقىلىق ئېچىپ بېرىش - 6 ئاي",
+        "price": 9.8,
+        "costPrice": 9.33,
+        "originalPrice": 11.76,
+        "duration": "دەرھال",
+        "providerProductId": 2634,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Gemini Pro-1558",
+        "title": "سىزنىڭ ئۆزىڭىزنىڭ ھېساباتىغا / ئېلخېتىگە تەكلىپ ئەۋەتىش ئارقىلىق ئېچىپ بېرىش - 12 ئاي",
+        "price": 14.65,
+        "costPrice": 13.95,
+        "originalPrice": 17.58,
+        "duration": "دەرھال",
+        "providerProductId": 1558,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792697532724"
+  },
+  {
+    "name": "Honor of Kings",
     "category": "games",
     "icon": "Gamepad2",
-    "image": "/images/services/pubg_mobile.jpg",
-    "description": "PUBG Mobile رەسمىي ئورگان ئوقى (UC) سېكۇنتتا قاچىلاش مۇلازىمىتى",
-    "badge": "🔥 ئەڭ ئالقىشلىق",
+    "image": "https://i.ibb.co/DHZ1jkNW/afc1ed2994a23926acdda91713b83e51-1.jpg",
+    "description": "Honor of Kings ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "👑 VIP مۇلازىمەت",
+    "inputLabel": "ئويۇنچى كىملىكى (Player ID / OpenID)",
+    "inputPlaceholder": "ئويۇن كىملىكى ياكى OpenID نى كىرگۈزۈڭ",
+    "requiresZoneId": false,
+    "bioContent": "Honor of Kings رەسمىي ئالماس / قەھرىمان ئوقى قاچىلاش مۇلازىمىتى.\n• تەلەپ: ئويۇن ئىچىدىكى Player ID كىرگۈزۈلسە كۇپايە، مەخپىي نومۇر ھاجەتسىز.\n• يەتكۈزۈش: سىستېمىمىز ئارقىلىق دەرھال ئويۇن ھېساباتىغا ئاپتوماتىك ئۇلىنىدۇ.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Honor of Kings-1351",
+        "title": "Weekly Card Honor",
+        "price": 0.36,
+        "costPrice": 0.33,
+        "originalPrice": 0.43,
+        "duration": "دەرھال",
+        "providerProductId": 1351,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Honor of Kings-1353",
+        "title": "80 Honor",
+        "price": 0.92,
+        "costPrice": 0.84,
+        "originalPrice": 1.1,
+        "duration": "دەرھال",
+        "providerProductId": 1353,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Honor of Kings-1354",
+        "title": "240 Honor",
+        "price": 2.81,
+        "costPrice": 2.55,
+        "originalPrice": 3.37,
+        "duration": "دەرھال",
+        "providerProductId": 1354,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Honor of Kings-1352",
+        "title": "Weekly Card plus Honor",
+        "price": 2.83,
+        "costPrice": 2.57,
+        "originalPrice": 3.4,
+        "duration": "دەرھال",
+        "providerProductId": 1352,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Honor of Kings-1355",
+        "title": "400 Honor",
+        "price": 4.7,
+        "costPrice": 4.27,
+        "originalPrice": 5.64,
+        "duration": "دەرھال",
+        "providerProductId": 1355,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Honor of Kings-1356",
+        "title": "560 Honor",
+        "price": 6.55,
+        "costPrice": 5.95,
+        "originalPrice": 7.86,
+        "duration": "دەرھال",
+        "providerProductId": 1356,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Honor of Kings-1357",
+        "title": "800+30 Honor",
+        "price": 9.34,
+        "costPrice": 8.49,
+        "originalPrice": 11.21,
+        "duration": "دەرھال",
+        "providerProductId": 1357,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Honor of Kings-1359",
+        "title": "2400+108 Honor",
+        "price": 28.05,
+        "costPrice": 25.5,
+        "originalPrice": 33.66,
+        "duration": "دەرھال",
+        "providerProductId": 1359,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Honor of Kings-1360",
+        "title": "4000+180 Honor",
+        "price": 46.75,
+        "costPrice": 42.5,
+        "originalPrice": 56.1,
+        "duration": "دەرھال",
+        "providerProductId": 1360,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Honor of Kings-1361",
+        "title": "8000+1160 Honor",
+        "price": 92.98,
+        "costPrice": 84.53,
+        "originalPrice": 111.58,
+        "duration": "دەرھال",
+        "providerProductId": 1361,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792696984599"
+  },
+  {
+    "name": "Turk Telecom",
+    "category": "cards",
+    "icon": "Wallet",
+    "image": "https://i.ibb.co/WNdhzWgc/92d20ed012e1028ac445023198a7e4b8.jpg",
+    "description": "Turk Telecom ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "⚡ Sahl Cash",
+    "inputLabel": "تېلېفون نومۇرى",
+    "inputPlaceholder": "قالدۇق تولۇقلىنىدىغان نومۇرنى كىرگۈزۈڭ",
+    "requiresZoneId": false,
+    "bioContent": "Turk Telecom - رەسمىي ۋە ئاپتوماتىك مۇلازىمەت.\n• يەتكۈزۈش: سېتىۋېلىش تەستىقلانغاندىن كېيىن سىستېما ئارقىلىق دەرھال بىر تەرەپ قىلىنىدۇ.\n• بىخەتەرلىك: 100% بىخەتەر، ئورگان تەرەپ كاپالىتىگە ئىگە.\n• مەشغۇلات ئەسكەرتىشى: پۇل تۆلەشتىن بۇرۇن كىرگۈزگەن ئۇچۇر ياكى نومۇرلارنىڭ توغرىلىقىنى قايتا بىر قۇر تەكشۈرۈۋېلىڭ.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Turk Telecom-2702",
+        "title": "تورك تيليكوم كسر - Turk telecom TL",
+        "price": 0.05,
+        "costPrice": 0.04,
+        "originalPrice": 0.06,
+        "duration": "دەرھال",
+        "providerProductId": 2702,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turk Telecom-1153",
+        "title": "3 غيغا + 1000 دقيقة + 750 رسالة",
+        "price": 12.61,
+        "costPrice": 10.51,
+        "originalPrice": 15.13,
+        "duration": "دەرھال",
+        "providerProductId": 1153,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turk Telecom-1154",
+        "title": "5 غيغا + 1000 دقيقة + 750 رسالة",
+        "price": 13.85,
+        "costPrice": 11.54,
+        "originalPrice": 16.62,
+        "duration": "دەرھال",
+        "providerProductId": 1154,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turk Telecom-1162",
+        "title": "20 غيغا + 3000 دقيقة + 250 رسالة (12 اشهر)",
+        "price": 25.97,
+        "costPrice": 21.64,
+        "originalPrice": 31.16,
+        "duration": "دەرھال",
+        "providerProductId": 1162,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turk Telecom-1155",
+        "title": "9 غيغا + 750 دقيقة + 100 رسالة",
+        "price": 434.56,
+        "costPrice": 362.13,
+        "originalPrice": 521.47,
+        "duration": "دەرھال",
+        "providerProductId": 1155,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turk Telecom-1156",
+        "title": "12 غيغا + 750 دقيقة + 100 رسالة",
+        "price": 470.26,
+        "costPrice": 391.88,
+        "originalPrice": 564.31,
+        "duration": "دەرھال",
+        "providerProductId": 1156,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turk Telecom-1158",
+        "title": "20 غيغا + 750 دقيقة + 100 رسالة",
+        "price": 471.46,
+        "costPrice": 392.88,
+        "originalPrice": 565.75,
+        "duration": "دەرھال",
+        "providerProductId": 1158,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turk Telecom-1160",
+        "title": "30 غيغا + 750 دقيقة + 100 رسالة",
+        "price": 619.08,
+        "costPrice": 515.9,
+        "originalPrice": 742.9,
+        "duration": "دەرھال",
+        "providerProductId": 1160,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turk Telecom-1161",
+        "title": "40 غيغا + 750 دقيقة + 100 رسالة",
+        "price": 672.65,
+        "costPrice": 560.54,
+        "originalPrice": 807.18,
+        "duration": "دەرھال",
+        "providerProductId": 1161,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turk Telecom-1163",
+        "title": "30 غيغا + 6000 دقيقة + 500 رسالة (3 اشهر)",
+        "price": 770.41,
+        "costPrice": 642.01,
+        "originalPrice": 924.49,
+        "duration": "دەرھال",
+        "providerProductId": 1163,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turk Telecom-1164",
+        "title": "50 غيغا + 6000 دقيقة + 500 رسالة (6 اشهر)",
+        "price": 1220.8,
+        "costPrice": 1017.33,
+        "originalPrice": 1464.96,
+        "duration": "دەرھال",
+        "providerProductId": 1164,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792696947336"
+  },
+  {
+    "name": "Turkcell",
+    "category": "cards",
+    "icon": "Wallet",
+    "image": "https://i.ibb.co/7J4nL3QN/2ef82bf2dc83bcd1cbbfa7b17f86cc34.jpg",
+    "description": "Turkcell ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "🔒 100% كاپالەتلىك",
+    "inputLabel": "تېلېفون نومۇرى",
+    "inputPlaceholder": "قالدۇق تولۇقلىنىدىغان نومۇرنى كىرگۈزۈڭ",
+    "requiresZoneId": false,
+    "bioContent": "Turkcell - رەسمىي ۋە ئاپتوماتىك مۇلازىمەت.\n• يەتكۈزۈش: سېتىۋېلىش تەستىقلانغاندىن كېيىن سىستېما ئارقىلىق دەرھال بىر تەرەپ قىلىنىدۇ.\n• بىخەتەرلىك: 100% بىخەتەر، ئورگان تەرەپ كاپالىتىگە ئىگە.\n• مەشغۇلات ئەسكەرتىشى: پۇل تۆلەشتىن بۇرۇن كىرگۈزگەن ئۇچۇر ياكى نومۇرلارنىڭ توغرىلىقىنى قايتا بىر قۇر تەكشۈرۈۋېلىڭ.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Turkcell-2701",
+        "title": "توركسل كسر - Turkcell TL",
+        "price": 0.05,
+        "costPrice": 0.04,
+        "originalPrice": 0.06,
+        "duration": "دەرھال",
+        "providerProductId": 2701,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turkcell-2041",
+        "title": "Top-up Turkcell Lira Break",
+        "price": 0.05,
+        "costPrice": 0.04,
+        "originalPrice": 0.06,
+        "duration": "دەرھال",
+        "providerProductId": 2041,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turkcell-1140",
+        "title": "1000دەقىيقە سۆزلىشىش + 2 جىگابايىت تور",
+        "price": 11.38,
+        "costPrice": 9.48,
+        "originalPrice": 13.66,
+        "duration": "دەرھال",
+        "providerProductId": 1140,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turkcell-1141",
+        "title": "1000دەقىيقە سۆزلىشىش + 5 جىگابايىت تور",
+        "price": 13.78,
+        "costPrice": 11.48,
+        "originalPrice": 16.54,
+        "duration": "دەرھال",
+        "providerProductId": 1141,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turkcell-1142",
+        "title": "1000دەقىيقە سۆزلىشىش + 10 جىگابايىت تور",
+        "price": 14.74,
+        "costPrice": 12.28,
+        "originalPrice": 17.69,
+        "duration": "دەرھال",
+        "providerProductId": 1142,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turkcell-1144",
+        "title": "1000دەقىيقە سۆزلىشىش + 20 جىگابايىت تور",
+        "price": 20.95,
+        "costPrice": 17.46,
+        "originalPrice": 25.14,
+        "duration": "دەرھال",
+        "providerProductId": 1144,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turkcell-1145",
+        "title": "1000دەقىيقە سۆزلىشىش + 25 جىگابايىت تور",
+        "price": 21.34,
+        "costPrice": 17.78,
+        "originalPrice": 25.61,
+        "duration": "دەرھال",
+        "providerProductId": 1145,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turkcell-1147",
+        "title": "1000دەقىيقە سۆزلىشىش+ 40 غيغا +جىگابايىت تور",
+        "price": 31.4,
+        "costPrice": 26.17,
+        "originalPrice": 37.68,
+        "duration": "دەرھال",
+        "providerProductId": 1147,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turkcell-1148",
+        "title": "1000دەقىيقە سۆزلىشىش + 50 جىگابايىت تور+100 رسالة",
+        "price": 32.3,
+        "costPrice": 26.92,
+        "originalPrice": 38.76,
+        "duration": "دەرھال",
+        "providerProductId": 1148,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turkcell-1149",
+        "title": "1000دەقىيقە سۆزلىشىش + جىگابايىت تور +100 رسالة",
+        "price": 41.81,
+        "costPrice": 34.84,
+        "originalPrice": 50.17,
+        "duration": "دەرھال",
+        "providerProductId": 1149,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Turkcell-1143",
+        "title": "1000دەقىيقە سۆزلىشىش + جىگابايىت تور",
+        "price": 55.04,
+        "costPrice": 45.87,
+        "originalPrice": 66.05,
+        "duration": "دەرھال",
+        "providerProductId": 1143,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792696854152"
+  },
+  {
+    "name": "Delta Force",
+    "category": "games",
+    "icon": "Smartphone",
+    "image": "https://i.ibb.co/wN7s01Th/d9196b61370ef93da738f040929f77d0.jpg",
+    "description": "Delta Force ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "⚡ Sahl Cash",
+    "inputLabel": "ھېسابات نومۇرى / ئېلخەت / كىملىك",
+    "inputPlaceholder": "ئۇچۇرىڭىزنى كىرگۈزۈڭ",
+    "requiresZoneId": false,
+    "bioContent": "Delta Force - رەسمىي ۋە ئاپتوماتىك مۇلازىمەت.\n• يەتكۈزۈش: سېتىۋېلىش تەستىقلانغاندىن كېيىن سىستېما ئارقىلىق دەرھال بىر تەرەپ قىلىنىدۇ.\n• بىخەتەرلىك: 100% بىخەتەر، ئورگان تەرەپ كاپالىتىگە ئىگە.\n• مەشغۇلات ئەسكەرتىشى: پۇل تۆلەشتىن بۇرۇن كىرگۈزگەن ئۇچۇر ياكى نومۇرلارنىڭ توغرىلىقىنى قايتا بىر قۇر تەكشۈرۈۋېلىڭ.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Delta Force-2328",
+        "title": "Delta Global 18 Coins",
+        "price": 0.26,
+        "costPrice": 0.22,
+        "originalPrice": 0.31,
+        "duration": "دەرھال",
+        "providerProductId": 2328,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Delta Force-2327",
+        "title": "Delta Global 30 Coins",
+        "price": 0.44,
+        "costPrice": 0.37,
+        "originalPrice": 0.53,
+        "duration": "دەرھال",
+        "providerProductId": 2327,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Delta Force-2335",
+        "title": "Delta Global Silent Sentinel Supplies",
+        "price": 0.7,
+        "costPrice": 0.58,
+        "originalPrice": 0.84,
+        "duration": "دەرھال",
+        "providerProductId": 2335,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Delta Force-2326",
+        "title": "Delta Global 60 Coins",
+        "price": 0.97,
+        "costPrice": 0.81,
+        "originalPrice": 1.16,
+        "duration": "دەرھال",
+        "providerProductId": 2326,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Delta Force-2336",
+        "title": "Delta Global Silent Sentine Supplies Advanced",
+        "price": 2.1,
+        "costPrice": 1.75,
+        "originalPrice": 2.52,
+        "duration": "دەرھال",
+        "providerProductId": 2336,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Delta Force-2337",
+        "title": "Delta Global BHD-Genesis",
+        "price": 2.1,
+        "costPrice": 1.75,
+        "originalPrice": 2.52,
+        "duration": "دەرھال",
+        "providerProductId": 2337,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Delta Force-2334",
+        "title": "Delta Global BHD - Redefine",
+        "price": 4.19,
+        "costPrice": 3.49,
+        "originalPrice": 5.03,
+        "duration": "دەرھال",
+        "providerProductId": 2334,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Delta Force-2325",
+        "title": "Delta Global 300+20 Coins",
+        "price": 4.9,
+        "costPrice": 4.08,
+        "originalPrice": 5.88,
+        "duration": "دەرھال",
+        "providerProductId": 2325,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Delta Force-2332",
+        "title": "Delta Global 420+40 Coins",
+        "price": 7.12,
+        "costPrice": 5.93,
+        "originalPrice": 8.54,
+        "duration": "دەرھال",
+        "providerProductId": 2332,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Delta Force-2331",
+        "title": "Delta Global 680+70 Coins",
+        "price": 9.8,
+        "costPrice": 8.17,
+        "originalPrice": 11.76,
+        "duration": "دەرھال",
+        "providerProductId": 2331,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Delta Force-2330",
+        "title": "Delta Global 1280+200 Coins",
+        "price": 19.58,
+        "costPrice": 16.32,
+        "originalPrice": 23.5,
+        "duration": "دەرھال",
+        "providerProductId": 2330,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Delta Force-2329",
+        "title": "Delta Global 1680+300 Coins",
+        "price": 24.47,
+        "costPrice": 20.39,
+        "originalPrice": 29.36,
+        "duration": "دەرھال",
+        "providerProductId": 2329,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Delta Force-2333",
+        "title": "Delta Global 3280+670 Coins",
+        "price": 48.95,
+        "costPrice": 40.79,
+        "originalPrice": 58.74,
+        "duration": "دەرھال",
+        "providerProductId": 2333,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792696527118"
+  },
+  {
+    "name": "Legend Mobile",
+    "category": "games",
+    "icon": "Gamepad2",
+    "image": "https://i.ibb.co/Q7BXGLmN/c51479a765a17b8f9a9aade1359a4a27.jpg",
+    "description": "Legend Mobile ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "🔒 100% كاپالەتلىك",
+    "inputLabel": "ئويۇنچى كىملىكى (UID / Player ID)",
+    "inputPlaceholder": "مەسىلەن: 12345678",
+    "requiresZoneId": true,
+    "zoneIdLabel": "رايون كودى (Zone ID)",
+    "zoneIdPlaceholder": "مەسىلەن: 1234",
+    "bioContent": "Mobile Legends: Bang Bang رەسمىي ئالماس (Diamonds) ۋە ھەپتىلىك ئۆتۈشمە (Weekly Diamond Pass) قاچىلاش مۇلازىمىتى.\n• تەلەپ قىلىنىدىغان ئۇچۇر: ئويۇندىكى ئۆزىڭىزنىڭ UID (ئويۇنچى كىملىكى) ۋە يۇمىلاق تىرناق ئىچىدىكى 4 ياكى 5 خانىلىق رايون كودى (Zone ID) نى كىرگۈزۈڭ.\n• يەتكۈزۈش: زاكاز تەستىقلانغاندىن كېيىن سېكۇنت ئىچىدە ئاپتوماتىك ئويۇن ھېساباتىڭىزغا قاچىلىنىدۇ. 100% بىخەتەر.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Legend Mobile-2597",
+        "title": "Weekly Elite Bundle ML",
+        "price": 1.03,
+        "costPrice": 0.98,
+        "originalPrice": 1.24,
+        "duration": "دەرھال",
+        "providerProductId": 2597,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Legend Mobile-2595",
+        "title": "Weekly Diamond Pass",
+        "price": 1.54,
+        "costPrice": 1.47,
+        "originalPrice": 1.85,
+        "duration": "دەرھال",
+        "providerProductId": 2595,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Legend Mobile-2617",
+        "title": "Mobile Legends 140 Diamonds",
+        "price": 2.52,
+        "costPrice": 2.4,
+        "originalPrice": 3.02,
+        "duration": "دەرھال",
+        "providerProductId": 2617,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Legend Mobile-2618",
+        "title": "Mobile Legends 284 Diamonds",
+        "price": 5.03,
+        "costPrice": 4.79,
+        "originalPrice": 6.04,
+        "duration": "دەرھال",
+        "providerProductId": 2618,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Legend Mobile-2598",
+        "title": "Monthly Elite Bundle ML",
+        "price": 5.16,
+        "costPrice": 4.91,
+        "originalPrice": 6.19,
+        "duration": "دەرھال",
+        "providerProductId": 2598,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Legend Mobile-2619",
+        "title": "Mobile Legends 355 Diamonds",
+        "price": 6.3,
+        "costPrice": 6,
+        "originalPrice": 7.56,
+        "duration": "دەرھال",
+        "providerProductId": 2619,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Legend Mobile-2596",
+        "title": "Mobile Legends Twilight Pass",
+        "price": 8.52,
+        "costPrice": 8.11,
+        "originalPrice": 10.22,
+        "duration": "دەرھال",
+        "providerProductId": 2596,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Legend Mobile-2621",
+        "title": "Mobile Legends 716 Diamonds",
+        "price": 12.59,
+        "costPrice": 11.99,
+        "originalPrice": 15.11,
+        "duration": "دەرھال",
+        "providerProductId": 2621,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Legend Mobile-2623",
+        "title": "Mobile Legends 2976 Diamonds",
+        "price": 50.39,
+        "costPrice": 47.99,
+        "originalPrice": 60.47,
+        "duration": "دەرھال",
+        "providerProductId": 2623,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Legend Mobile-2624",
+        "title": "Mobile Legends 7502 Diamonds",
+        "price": 125.74,
+        "costPrice": 119.75,
+        "originalPrice": 150.89,
+        "duration": "دەرھال",
+        "providerProductId": 2624,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792696404391"
+  },
+  {
+    "name": "Chat GPT",
+    "category": "ai",
+    "icon": "Smartphone",
+    "image": "https://i.ibb.co/7dnsmKGs/7ddfdc707caa84d53bfbb3bbe31342ee.jpg",
+    "description": "Chat GPT ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "🚀 تېز يەتكۈزۈش",
+    "inputLabel": "ھېسابات نومۇرى / ئېلخەت / كىملىك",
+    "inputPlaceholder": "ئۇچۇرىڭىزنى كىرگۈزۈڭ",
+    "requiresZoneId": false,
+    "bioContent": "Chat GPT - رەسمىي ۋە ئاپتوماتىك مۇلازىمەت.\n• يەتكۈزۈش: سېتىۋېلىش تەستىقلانغاندىن كېيىن سىستېما ئارقىلىق دەرھال بىر تەرەپ قىلىنىدۇ.\n• بىخەتەرلىك: 100% بىخەتەر، ئورگان تەرەپ كاپالىتىگە ئىگە.\n• مەشغۇلات ئەسكەرتىشى: پۇل تۆلەشتىن بۇرۇن كىرگۈزگەن ئۇچۇر ياكى نومۇرلارنىڭ توغرىلىقىنى قايتا بىر قۇر تەكشۈرۈۋېلىڭ.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Chat GPT-2682",
+        "title": "Invatation work space",
+        "price": 5.68,
+        "costPrice": 5.16,
+        "originalPrice": 6.82,
+        "duration": "دەرھال",
+        "providerProductId": 2682,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Chat GPT-1562",
+        "title": "ChatGPT Plus - invite Business - 1 Month",
+        "price": 7.69,
+        "costPrice": 6.99,
+        "originalPrice": 9.23,
+        "duration": "دەرھال",
+        "providerProductId": 1562,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Chat GPT-1563",
+        "title": "ChatGPT Go - Private Account - 1 Month",
+        "price": 11.1,
+        "costPrice": 10.09,
+        "originalPrice": 13.32,
+        "duration": "دەرھال",
+        "providerProductId": 1563,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Chat GPT-1565",
+        "title": "ChatGPT Go - on your account - 12 Month",
+        "price": 12.61,
+        "costPrice": 11.46,
+        "originalPrice": 15.13,
+        "duration": "دەرھال",
+        "providerProductId": 1565,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Chat GPT-1564",
+        "title": "ChatGPT Go - Private Account - 12 Months",
+        "price": 12.86,
+        "costPrice": 11.69,
+        "originalPrice": 15.43,
+        "duration": "دەرھال",
+        "providerProductId": 1564,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Chat GPT-1566",
+        "title": "12 month your account",
+        "price": 26.37,
+        "costPrice": 23.97,
+        "originalPrice": 31.64,
+        "duration": "دەرھال",
+        "providerProductId": 1566,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Chat GPT-1663",
+        "title": "1 month Your Email",
+        "price": 27.64,
+        "costPrice": 25.13,
+        "originalPrice": 33.17,
+        "duration": "دەرھال",
+        "providerProductId": 1663,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792696220627"
+  },
+  {
+    "name": "PUBG New State",
+    "category": "games",
+    "icon": "Gamepad2",
+    "image": "https://i.ibb.co/HLz8MwH9/400f5684e2fa846452e342ab0408924c.jpg",
+    "description": "PUBG New State ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "💎 ئالىي دەرىجىلىك",
     "inputLabel": "ئويۇنچى كىملىكى UID (Player ID)",
     "inputPlaceholder": "مەسىلەن: 5123456789 (8-12 خانىلىق سان)",
     "requiresZoneId": false,
-    "bioContent": "PUBG Mobile رەسمىي ئورگان ئوقى (UC) تولۇقلاش مۇلازىمىتى. پەقەت ئويۇنچى كىملىكى (Player ID) كىرگۈزۈلسىلا كۇپايە، مەخپىي نومۇر تەلەپ قىلىنمايدۇ. سىستېما سېكۇنتتا يەتكۈزۈپ بېرىدۇ.",
+    "bioContent": "PUBG Mobile رەسمىي ئورگان ئوقى (UC) تولۇقلاش مۇلازىمىتى. پەقەت ئويۇنچى كىملىكى (Player ID) كىرگۈزۈلسىلا كۇپايە، مەخپىي نومۇر تەلەپ قىلىنمايدۇ. زاكاز تەستىقلانغاندىن كېيىن 1 مىنۇتتىن 5 مىنۇتقىچە ئويۇن ھېساباتىڭىزغا بىۋاسىتە قاچىلىنىدۇ. 100% بىخەتەر ۋە كاپالەتلىك.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-PUBG New State-1134",
+        "title": "نيو ستايت 1580 شدة",
+        "price": 5.66,
+        "costPrice": 4.72,
+        "originalPrice": 6.79,
+        "duration": "دەرھال",
+        "providerProductId": 1134,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-PUBG New State-1135",
+        "title": "نيو ستايت 3850 شدة",
+        "price": 13.45,
+        "costPrice": 11.21,
+        "originalPrice": 16.14,
+        "duration": "دەرھال",
+        "providerProductId": 1135,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-PUBG New State-1136",
+        "title": "نيو ستايت 10230 شدة",
+        "price": 34.64,
+        "costPrice": 28.87,
+        "originalPrice": 41.57,
+        "duration": "دەرھال",
+        "providerProductId": 1136,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792696135335"
+  },
+  {
+    "name": "Pubg Global Codes",
+    "category": "games",
+    "icon": "Gamepad2",
+    "image": "/images/services/pubg_mobile.jpg",
+    "description": "Pubg Global Codes ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "🔒 100% كاپالەتلىك",
+    "inputLabel": "ئويۇنچى كىملىكى UID (Player ID)",
+    "inputPlaceholder": "مەسىلەن: 5123456789 (8-12 خانىلىق سان)",
+    "requiresZoneId": false,
+    "bioContent": "PUBG Mobile رەسمىي ئورگان ئوقى (UC) تولۇقلاش مۇلازىمىتى. پەقەت ئويۇنچى كىملىكى (Player ID) كىرگۈزۈلسىلا كۇپايە، مەخپىي نومۇر تەلەپ قىلىنمايدۇ. زاكاز تەستىقلانغاندىن كېيىن 1 مىنۇتتىن 5 مىنۇتقىچە ئويۇن ھېساباتىڭىزغا بىۋاسىتە قاچىلىنىدۇ. 100% بىخەتەر ۋە كاپالەتلىك.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Pubg Global Codes-1656",
+        "title": "PM 60 UC Code",
+        "price": 0.97,
+        "costPrice": 0.88,
+        "originalPrice": 1.16,
+        "duration": "دەرھال",
+        "providerProductId": 1656,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Pubg Global Codes-1657",
+        "title": "PM 325 UC Code",
+        "price": 4.83,
+        "costPrice": 4.39,
+        "originalPrice": 5.8,
+        "duration": "دەرھال",
+        "providerProductId": 1657,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Pubg Global Codes-1658",
+        "title": "PM 660 UC Code",
+        "price": 9.66,
+        "costPrice": 8.78,
+        "originalPrice": 11.59,
+        "duration": "دەرھال",
+        "providerProductId": 1658,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Pubg Global Codes-1659",
+        "title": "PM 1800 UC Code",
+        "price": 24.12,
+        "costPrice": 21.93,
+        "originalPrice": 28.94,
+        "duration": "دەرھال",
+        "providerProductId": 1659,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Pubg Global Codes-1660",
+        "title": "PM 3850 UC Code",
+        "price": 48.26,
+        "costPrice": 43.87,
+        "originalPrice": 57.91,
+        "duration": "دەرھال",
+        "providerProductId": 1660,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Pubg Global Codes-1661",
+        "title": "PM 8100 UC Code",
+        "price": 95.43,
+        "costPrice": 86.75,
+        "originalPrice": 114.52,
+        "duration": "دەرھال",
+        "providerProductId": 1661,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792695906669"
+  },
+  {
+    "name": "Clash of Clans",
+    "category": "games",
+    "icon": "Gamepad2",
+    "image": "https://i.ibb.co/hFYMfGWC/431e9b6902da24f8a2d0d0efe09db24d.jpg",
+    "description": "Clash of Clans ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "✨ يېڭى چىققان",
+    "inputLabel": "ئويۇنچى بەلگىسى (Player Tag)",
+    "inputPlaceholder": "مەسىلەن: #P90UY298",
+    "requiresZoneId": false,
+    "bioContent": "Supercell ئويۇنلىرى (Brawl Stars, Clash of Clans, Clash Royale) رەسمىي گۆھەر قاچىلاش مۇلازىمىتى.\n• تەلەپ: ئويۇندىكى # بىلەن باشلىنىدىغان ئويۇنچى بەلگىسىنى (Player Tag) كىرگۈزۈڭ (مەسىلەن: #P90UY298).\n• يەتكۈزۈش: ئورگان كاپالىتى ئاستىدا دەرھال قاچىلىنىدۇ.",
+    "published": true,
+    "source": "provider",
+    "packages": [
+      {
+        "id": "pkg-Clash of Clans-2593",
+        "title": "Code",
+        "price": 0.09,
+        "costPrice": 0.08,
+        "originalPrice": 0.11,
+        "duration": "دەرھال",
+        "providerProductId": 2593,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Clash of Clans-2594",
+        "title": "Clash Royal Code",
+        "price": 0.09,
+        "costPrice": 0.08,
+        "originalPrice": 0.11,
+        "duration": "دەرھال",
+        "providerProductId": 2594,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Clash of Clans-502",
+        "title": "80+16 Diamonds",
+        "price": 0.92,
+        "costPrice": 0.84,
+        "originalPrice": 1.1,
+        "duration": "دەرھال",
+        "providerProductId": 502,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Clash of Clans-503",
+        "title": "500 + 100 Diamonds",
+        "price": 4.71,
+        "costPrice": 4.28,
+        "originalPrice": 5.65,
+        "duration": "دەرھال",
+        "providerProductId": 503,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Clash of Clans-508",
+        "title": "Gold Pass",
+        "price": 7.57,
+        "costPrice": 6.88,
+        "originalPrice": 9.08,
+        "duration": "دەرھال",
+        "providerProductId": 508,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Clash of Clans-504",
+        "title": "1200 + 240 Diamonds",
+        "price": 9.44,
+        "costPrice": 8.58,
+        "originalPrice": 11.33,
+        "duration": "دەرھال",
+        "providerProductId": 504,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Clash of Clans-505",
+        "title": "2500 + 500 Diamonds",
+        "price": 18.86,
+        "costPrice": 17.15,
+        "originalPrice": 22.63,
+        "duration": "دەرھال",
+        "providerProductId": 505,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Clash of Clans-506",
+        "title": "6500 + 1300 Diamonds",
+        "price": 47.19,
+        "costPrice": 42.9,
+        "originalPrice": 56.63,
+        "duration": "دەرھال",
+        "providerProductId": 506,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg-Clash of Clans-507",
+        "title": "14000 + 2800 Diamonds",
+        "price": 117.17,
+        "costPrice": 106.52,
+        "originalPrice": 140.6,
+        "duration": "دەرھال",
+        "providerProductId": 507,
+        "productType": "fixed",
+        "available": true
+      }
+    ],
+    "id": "srv-1792695890139"
+  },
+  {
+    "name": "PUBG Mobile",
+    "category": "games",
+    "icon": "Gamepad2",
+    "image": "/images/services/pubg_mobile.jpg",
+    "description": "PUBG Mobile ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
+    "badge": "🎉 ئېتىبار باھا",
+    "inputLabel": "ئويۇنچى كىملىكى UID (Player ID)",
+    "inputPlaceholder": "مەسىلەن: 5123456789 (8-12 خانىلىق سان)",
+    "requiresZoneId": false,
+    "bioContent": "PUBG Mobile رەسمىي ئورگان ئوقى (UC) تولۇقلاش مۇلازىمىتى. پەقەت ئويۇنچى كىملىكى (Player ID) كىرگۈزۈلسىلا كۇپايە، مەخپىي نومۇر تەلەپ قىلىنمايدۇ. زاكاز تەستىقلانغاندىن كېيىن 1 مىنۇتتىن 5 مىنۇتقىچە ئويۇن ھېساباتىڭىزغا بىۋاسىتە قاچىلىنىدۇ. 100% بىخەتەر ۋە كاپالەتلىك.",
     "published": true,
     "source": "provider",
     "packages": [
       {
         "id": "pkg-PUBG Mobile-6",
         "title": "60 UC Server 1",
-        "price": 1.04,
-        "originalPrice": 1.25,
+        "price": 0.91,
+        "costPrice": 0.87,
+        "originalPrice": 1.09,
         "duration": "دەرھال",
         "providerProductId": 6,
         "productType": "fixed",
@@ -27,8 +1607,9 @@
       {
         "id": "pkg-PUBG Mobile-1431",
         "title": "Pubg 60 UC Serever 2",
-        "price": 1.04,
-        "originalPrice": 1.25,
+        "price": 0.91,
+        "costPrice": 0.87,
+        "originalPrice": 1.09,
         "duration": "دەرھال",
         "providerProductId": 1431,
         "productType": "fixed",
@@ -37,8 +1618,9 @@
       {
         "id": "pkg-PUBG Mobile-2614",
         "title": "60 شدة روبوت فوري",
-        "price": 1.04,
-        "originalPrice": 1.25,
+        "price": 0.91,
+        "costPrice": 0.87,
+        "originalPrice": 1.09,
         "duration": "دەرھال",
         "providerProductId": 2614,
         "productType": "fixed",
@@ -46,9 +1628,10 @@
       },
       {
         "id": "pkg-PUBG Mobile-18",
-        "title": "300 + 25 UC Server 1",
-        "price": 5.16,
-        "originalPrice": 6.19,
+        "title": "PM 300 + 25 UC Server 1",
+        "price": 4.51,
+        "costPrice": 4.3,
+        "originalPrice": 5.41,
         "duration": "دەرھال",
         "providerProductId": 18,
         "productType": "fixed",
@@ -56,9 +1639,10 @@
       },
       {
         "id": "pkg-PUBG Mobile-1388",
-        "title": "300 + 25 UC Server 2",
-        "price": 5.2,
-        "originalPrice": 6.24,
+        "title": "PM 300 + 25 UC Server 2",
+        "price": 4.55,
+        "costPrice": 4.33,
+        "originalPrice": 5.46,
         "duration": "دەرھال",
         "providerProductId": 1388,
         "productType": "fixed",
@@ -66,9 +1650,10 @@
       },
       {
         "id": "pkg-PUBG Mobile-32",
-        "title": "600 + 60 UC Server 1",
-        "price": 10.28,
-        "originalPrice": 12.34,
+        "title": "PM 600 + 60 UC Server 1",
+        "price": 9,
+        "costPrice": 8.57,
+        "originalPrice": 10.8,
         "duration": "دەرھال",
         "providerProductId": 32,
         "productType": "fixed",
@@ -76,9 +1661,10 @@
       },
       {
         "id": "pkg-PUBG Mobile-1389",
-        "title": "600 + 60 UC Server 2",
-        "price": 10.4,
-        "originalPrice": 12.48,
+        "title": "PM  600 + 60 UC Server 2",
+        "price": 9.1,
+        "costPrice": 8.67,
+        "originalPrice": 10.92,
         "duration": "دەرھال",
         "providerProductId": 1389,
         "productType": "fixed",
@@ -86,9 +1672,10 @@
       },
       {
         "id": "pkg-PUBG Mobile-46",
-        "title": "1500+300 UC Server 1",
-        "price": 25.47,
-        "originalPrice": 30.56,
+        "title": "PM 1500+300 UC Server 1",
+        "price": 22.29,
+        "costPrice": 21.23,
+        "originalPrice": 26.75,
         "duration": "دەرھال",
         "providerProductId": 46,
         "productType": "fixed",
@@ -96,9 +1683,10 @@
       },
       {
         "id": "pkg-PUBG Mobile-1390",
-        "title": "1500+300 UC Server 2",
-        "price": 25.99,
-        "originalPrice": 31.19,
+        "title": "PM  1500+300 UC Server 2",
+        "price": 22.74,
+        "costPrice": 21.66,
+        "originalPrice": 27.29,
         "duration": "دەرھال",
         "providerProductId": 1390,
         "productType": "fixed",
@@ -106,9 +1694,10 @@
       },
       {
         "id": "pkg-PUBG Mobile-60",
-        "title": "3000+850 UC Server 1",
-        "price": 50.6,
-        "originalPrice": 60.72,
+        "title": "PM 3000+850 UC Server 1",
+        "price": 44.28,
+        "costPrice": 42.17,
+        "originalPrice": 53.14,
         "duration": "دەرھال",
         "providerProductId": 60,
         "productType": "fixed",
@@ -116,9 +1705,10 @@
       },
       {
         "id": "pkg-PUBG Mobile-1391",
-        "title": "3000+850 UC Server 2",
-        "price": 52.18,
-        "originalPrice": 62.62,
+        "title": "PM  3000+850 UC Server 2",
+        "price": 45.65,
+        "costPrice": 43.48,
+        "originalPrice": 54.78,
         "duration": "دەرھال",
         "providerProductId": 1391,
         "productType": "fixed",
@@ -126,9 +1716,10 @@
       },
       {
         "id": "pkg-PUBG Mobile-1392",
-        "title": "6000+2100 UC Server 2",
-        "price": 100.7,
-        "originalPrice": 120.84,
+        "title": "PM  6000+2100 UC Server 2",
+        "price": 87.08,
+        "costPrice": 82.93,
+        "originalPrice": 104.5,
         "duration": "دەرھال",
         "providerProductId": 1392,
         "productType": "fixed",
@@ -136,15 +1727,17 @@
       },
       {
         "id": "pkg-PUBG Mobile-74",
-        "title": "6000+2100 UC Server 1",
-        "price": 101.68,
-        "originalPrice": 122.02,
+        "title": "PM 6000+2100 UC Server 1",
+        "price": 87.92,
+        "costPrice": 83.73,
+        "originalPrice": 105.5,
         "duration": "دەرھال",
         "providerProductId": 74,
         "productType": "fixed",
         "available": true
       }
-    ]
+    ],
+    "id": "srv-1792695845977"
   },
   {
     "name": "Free Fire",
@@ -164,123 +1757,191 @@
         "id": "pkg-Free Fire-2719",
         "title": "Level 6 upgrade packs",
         "price": 0.48,
+        "costPrice": 0.44,
         "originalPrice": 0.58,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2719,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-Free Fire-2720",
         "title": "Level 10 upgrade packs",
         "price": 0.7,
+        "costPrice": 0.64,
         "originalPrice": 0.84,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2720,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-Free Fire-2721",
         "title": "Level 15 upgrade packs",
         "price": 0.7,
+        "costPrice": 0.64,
         "originalPrice": 0.84,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2721,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-Free Fire-2722",
         "title": "Level 20 upgrade packs",
         "price": 0.7,
+        "costPrice": 0.64,
         "originalPrice": 0.84,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2722,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-Free Fire-2723",
         "title": "Level 25 upgrade packs",
         "price": 0.7,
+        "costPrice": 0.64,
         "originalPrice": 0.84,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2723,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-Free Fire-2",
         "title": "100 Diamonds",
         "price": 0.99,
+        "costPrice": 0.9,
         "originalPrice": 1.19,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-Free Fire-2724",
         "title": "Level 30 upgrade packs",
         "price": 1.08,
+        "costPrice": 0.98,
         "originalPrice": 1.3,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2724,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-Free Fire-70",
         "title": "210 Diamonds",
         "price": 1.99,
+        "costPrice": 1.81,
         "originalPrice": 2.39,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 70,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-Free Fire-1375",
         "title": "Weekly membership",
         "price": 2.17,
+        "costPrice": 1.97,
         "originalPrice": 2.6,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 1375,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-Free Fire-1377",
         "title": "Booyah Pass",
         "price": 3.19,
+        "costPrice": 2.9,
         "originalPrice": 3.83,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 1377,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-Free Fire-28",
         "title": "530 Diamonds",
         "price": 4.91,
+        "costPrice": 4.46,
         "originalPrice": 5.89,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 28,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-Free Fire-42",
         "title": "1080 Diamonds",
         "price": 9.86,
+        "costPrice": 8.96,
         "originalPrice": 11.83,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 42,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-Free Fire-2748",
         "title": "1060 Diamonds",
         "price": 9.88,
+        "costPrice": 8.98,
         "originalPrice": 11.86,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2748,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-Free Fire-1376",
         "title": "Monthy membership",
         "price": 10.26,
+        "costPrice": 9.33,
         "originalPrice": 12.31,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 1376,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-Free Fire-56",
         "title": "2180 Diamonds",
         "price": 19.56,
+        "costPrice": 17.78,
         "originalPrice": 23.47,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 56,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-Free Fire-2749",
         "title": "2200 Diamonds",
         "price": 19.67,
+        "costPrice": 17.88,
         "originalPrice": 23.6,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2749,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-Free Fire-2742",
         "title": "5600 Diamonds",
         "price": 48.08,
+        "costPrice": 43.71,
         "originalPrice": 57.7,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2742,
+        "productType": "fixed",
+        "available": true
       }
     ],
-    "id": "srv-1792535877322"
+    "id": "srv-1792695814375"
   },
   {
     "name": "PUBG additions",
@@ -300,653 +1961,201 @@
         "id": "pkg-PUBG additions-2839",
         "title": "PM Prime 1 month",
         "price": 0.96,
+        "costPrice": 0.87,
         "originalPrice": 1.15,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2839,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-PUBG additions-2833",
         "title": "PM First Purchase Pack",
         "price": 0.96,
+        "costPrice": 0.87,
         "originalPrice": 1.15,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2833,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-PUBG additions-2836",
         "title": "PM Weekly Deal Pack 1",
         "price": 0.96,
+        "costPrice": 0.87,
         "originalPrice": 1.15,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2836,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-PUBG additions-2840",
         "title": "PM Prime 3 month",
         "price": 2.86,
+        "costPrice": 2.6,
         "originalPrice": 3.43,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2840,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-PUBG additions-2835",
         "title": "PM Ubgradable Firearm Materials Pack",
         "price": 2.86,
+        "costPrice": 2.6,
         "originalPrice": 3.43,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2835,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-PUBG additions-2837",
         "title": "PM Weekly Deal Pack 2",
         "price": 2.87,
+        "costPrice": 2.61,
         "originalPrice": 3.44,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2837,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-PUBG additions-2838",
         "title": "PM Weekly Mythic Emblem Value Pack",
         "price": 2.87,
+        "costPrice": 2.61,
         "originalPrice": 3.44,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2838,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-PUBG additions-1669",
         "title": "red crystal",
         "price": 4.16,
+        "costPrice": 3.78,
         "originalPrice": 4.99,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 1669,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-PUBG additions-2834",
         "title": "PM Mythic Emblem Pack",
         "price": 4.76,
+        "costPrice": 4.33,
         "originalPrice": 5.71,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2834,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-PUBG additions-2841",
         "title": "PM Prime 6 month",
         "price": 5.7,
+        "costPrice": 5.18,
         "originalPrice": 6.84,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2841,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-PUBG additions-2830",
         "title": "PM Elite Pass (lv1-50)",
         "price": 5.7,
+        "costPrice": 5.18,
         "originalPrice": 6.84,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2830,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-PUBG additions-2826",
         "title": "PM Prime Plus 1 month",
         "price": 9.5,
+        "costPrice": 8.64,
         "originalPrice": 11.4,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2826,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-PUBG additions-2842",
         "title": "PM Prime 12 month",
         "price": 11.42,
+        "costPrice": 10.38,
         "originalPrice": 13.7,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2842,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-PUBG additions-2831",
         "title": "PM Elite Pass (lv1-100)",
         "price": 11.42,
+        "costPrice": 10.38,
         "originalPrice": 13.7,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2831,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-PUBG additions-2827",
         "title": "PM Prime Plus 3 month",
         "price": 28.52,
+        "costPrice": 25.93,
         "originalPrice": 34.22,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2827,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-PUBG additions-2832",
         "title": "PM Elite Pass Plus (lv1-100)",
         "price": 28.52,
+        "costPrice": 25.93,
         "originalPrice": 34.22,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2832,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-PUBG additions-2828",
         "title": "PM Prime Plus 6 month",
         "price": 57.07,
+        "costPrice": 51.88,
         "originalPrice": 68.48,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2828,
+        "productType": "fixed",
+        "available": true
       },
       {
         "id": "pkg-PUBG additions-2829",
         "title": "PM Prime Plus 12 month",
         "price": 114.13,
+        "costPrice": 103.75,
         "originalPrice": 136.96,
-        "duration": "دەرھال"
+        "duration": "دەرھال",
+        "providerProductId": 2829,
+        "productType": "fixed",
+        "available": true
       }
     ],
-    "id": "srv-1792535853222"
-  },
-  {
-    "id": "sahl_Blood strike",
-    "name": "Blood Strike",
-    "category": "games",
-    "icon": "Gamepad2",
-    "image": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=80",
-    "description": "Blood Strike ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
-    "badge": "⚡ ئاپتوماتىك",
-    "inputLabel": "ئويۇنچى كىملىكى UID (Player ID)",
-    "inputPlaceholder": "ئويۇن ID نومۇرىڭىزنى كىرگۈزۈڭ",
-    "requiresZoneId": false,
-    "published": true,
-    "source": "provider",
-    "packages": [
-      {
-        "id": "pkg-Blood strike-2366",
-        "title": "Ultra Skin Lucky Chest",
-        "price": 0.48,
-        "originalPrice": 0.58,
-        "duration": "دەرھال",
-        "providerProductId": 2366,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Blood strike-2367",
-        "title": "Lucky Bag Week",
-        "price": 1.01,
-        "originalPrice": 1.21,
-        "duration": "دەرھال",
-        "providerProductId": 2367,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Blood strike-2369",
-        "title": "Annual Pass",
-        "price": 1.01,
-        "originalPrice": 1.21,
-        "duration": "دەرھال",
-        "providerProductId": 2369,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Blood strike-2358",
-        "title": "100+5 Gold",
-        "price": 1.08,
-        "originalPrice": 1.3,
-        "duration": "دەرھال",
-        "providerProductId": 2358,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Blood strike-2365",
-        "title": "Level Up Pass",
-        "price": 1.85,
-        "originalPrice": 2.22,
-        "duration": "دەرھال",
-        "providerProductId": 2365,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Blood strike-2368",
-        "title": "Pre-Order item",
-        "price": 1.85,
-        "originalPrice": 2.22,
-        "duration": "دەرھال",
-        "providerProductId": 2368,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Blood strike-2359",
-        "title": "300+20 Gold",
-        "price": 3.35,
-        "originalPrice": 4.02,
-        "duration": "دەرھال",
-        "providerProductId": 2359,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Blood strike-2364",
-        "title": "Elite Pass",
-        "price": 3.71,
-        "originalPrice": 4.45,
-        "duration": "دەرھال",
-        "providerProductId": 2364,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Blood strike-2356",
-        "title": "500+40 Gold",
-        "price": 5.25,
-        "originalPrice": 6.3,
-        "duration": "دەرھال",
-        "providerProductId": 2356,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Blood strike-2363",
-        "title": "Premium Pass",
-        "price": 8.38,
-        "originalPrice": 10.06,
-        "duration": "دەرھال",
-        "providerProductId": 2363,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Blood strike-2360",
-        "title": "1000+100 Gold",
-        "price": 10.47,
-        "originalPrice": 12.56,
-        "duration": "دەرھال",
-        "providerProductId": 2360,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Blood strike-2361",
-        "title": "2000+260 Gold",
-        "price": 20.95,
-        "originalPrice": 25.14,
-        "duration": "دەرھال",
-        "providerProductId": 2361,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Blood strike-2362",
-        "title": "5000+800 Gold",
-        "price": 52.36,
-        "originalPrice": 62.83,
-        "duration": "دەرھال",
-        "providerProductId": 2362,
-        "productType": "fixed",
-        "available": true
-      }
-    ]
-  },
-  {
-    "id": "sahl_Brawl Stars",
-    "name": "Brawl Stars",
-    "category": "games",
-    "icon": "Gamepad2",
-    "image": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=500&auto=format&fit=crop&q=80",
-    "description": "Brawl Stars ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
-    "badge": "🔥 قىزىق",
-    "inputLabel": "ئويۇنچى كىملىكى UID (Player ID)",
-    "inputPlaceholder": "ئويۇن ID نومۇرىڭىزنى كىرگۈزۈڭ",
-    "requiresZoneId": false,
-    "published": true,
-    "source": "provider",
-    "packages": [
-      {
-        "id": "pkg-Brawl Stars-2592",
-        "title": "Code",
-        "price": 0.1,
-        "originalPrice": 0,
-        "duration": "دەرھال",
-        "providerProductId": 2592,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Brawl Stars-2399",
-        "title": "Hero Skin 1 - Brawl",
-        "price": 1.2,
-        "originalPrice": 1.44,
-        "duration": "دەرھال",
-        "providerProductId": 2399,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Brawl Stars-2400",
-        "title": "Hero Skin 2 - Brawl",
-        "price": 1.2,
-        "originalPrice": 1.44,
-        "duration": "دەرھال",
-        "providerProductId": 2400,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Brawl Stars-2349",
-        "title": "Brawl - 30 Gems",
-        "price": 2.4,
-        "originalPrice": 2.88,
-        "duration": "دەرھال",
-        "providerProductId": 2349,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Brawl Stars-2350",
-        "title": "Brawl - 80 Gems",
-        "price": 6.01,
-        "originalPrice": 7.21,
-        "duration": "دەرھال",
-        "providerProductId": 2350,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Brawl Stars-2354",
-        "title": "Brawl Pass",
-        "price": 11.79,
-        "originalPrice": 14.15,
-        "duration": "دەرھال",
-        "providerProductId": 2354,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Brawl Stars-2351",
-        "title": "Brawl - 170 Gems",
-        "price": 12.02,
-        "originalPrice": 14.42,
-        "duration": "دەرھال",
-        "providerProductId": 2351,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Brawl Stars-2355",
-        "title": "Brawl Pass Plus",
-        "price": 17.68,
-        "originalPrice": 21.22,
-        "duration": "دەرھال",
-        "providerProductId": 2355,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Brawl Stars-2352",
-        "title": "Brawl - 360 Gems",
-        "price": 24.05,
-        "originalPrice": 28.86,
-        "duration": "دەرھال",
-        "providerProductId": 2352,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Brawl Stars-2398",
-        "title": "Brawl Pro Pass",
-        "price": 29.47,
-        "originalPrice": 35.36,
-        "duration": "دەرھال",
-        "providerProductId": 2398,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Brawl Stars-2353",
-        "title": "Brawl - 950 Gems",
-        "price": 60.12,
-        "originalPrice": 72.14,
-        "duration": "دەرھال",
-        "providerProductId": 2353,
-        "productType": "fixed",
-        "available": true
-      }
-    ]
-  },
-  {
-    "id": "sahl_Ball Pool 8",
-    "name": "8 Ball Pool",
-    "category": "games",
-    "icon": "Gamepad2",
-    "image": "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=500&auto=format&fit=crop&q=80",
-    "description": "8 Ball Pool ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
-    "badge": "⚡ ئاپتوماتىك",
-    "inputLabel": "ئويۇنچى كىملىكى UID (Player ID)",
-    "inputPlaceholder": "ئويۇن ID نومۇرىڭىزنى كىرگۈزۈڭ",
-    "requiresZoneId": false,
-    "published": true,
-    "source": "provider",
-    "packages": [
-      {
-        "id": "pkg-Ball Pool 8-378",
-        "title": "Ball Coins 20K",
-        "price": 0.33,
-        "originalPrice": 0.4,
-        "duration": "دەرھال",
-        "providerProductId": 378,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Ball Pool 8-421",
-        "title": "Ball 20 Cash",
-        "price": 0.77,
-        "originalPrice": 0.92,
-        "duration": "دەرھال",
-        "providerProductId": 421,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Ball Pool 8-379",
-        "title": "Ball Coins 52K",
-        "price": 1.78,
-        "originalPrice": 2.14,
-        "duration": "دەرھال",
-        "providerProductId": 379,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Ball Pool 8-422",
-        "title": "Ball 50 Cash",
-        "price": 1.91,
-        "originalPrice": 2.29,
-        "duration": "دەرھال",
-        "providerProductId": 422,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Ball Pool 8-380",
-        "title": "Ball Coins 112K",
-        "price": 2.37,
-        "originalPrice": 2.84,
-        "duration": "دەرھال",
-        "providerProductId": 380,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Ball Pool 8-423",
-        "title": "Ball 110 Cash",
-        "price": 3.86,
-        "originalPrice": 4.63,
-        "duration": "دەرھال",
-        "providerProductId": 423,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Ball Pool 8-381",
-        "title": "Ball Coins 256K",
-        "price": 4.72,
-        "originalPrice": 5.66,
-        "duration": "دەرھال",
-        "providerProductId": 381,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Ball Pool 8-424",
-        "title": "Ball 250 Cash",
-        "price": 4.74,
-        "originalPrice": 5.69,
-        "duration": "دەرھال",
-        "providerProductId": 424,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Ball Pool 8-382",
-        "title": "Ball Coins 800K",
-        "price": 11.8,
-        "originalPrice": 14.16,
-        "duration": "دەرھال",
-        "providerProductId": 382,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Ball Pool 8-425",
-        "title": "Ball 800 Cash",
-        "price": 11.86,
-        "originalPrice": 14.23,
-        "duration": "دەرھال",
-        "providerProductId": 425,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Ball Pool 8-383",
-        "title": "Ball Coins 2M",
-        "price": 23.72,
-        "originalPrice": 28.46,
-        "duration": "دەرھال",
-        "providerProductId": 383,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Ball Pool 8-426",
-        "title": "Ball 2000 Cash",
-        "price": 38.14,
-        "originalPrice": 45.77,
-        "duration": "دەرھال",
-        "providerProductId": 426,
-        "productType": "fixed",
-        "available": true
-      }
-    ]
-  },
-  {
-    "id": "sahl_Jawaker",
-    "name": "Jawaker (جواكر)",
-    "category": "games",
-    "icon": "Gamepad2",
-    "image": "https://images.unsplash.com/photo-1563089145-599997674d42?w=500&auto=format&fit=crop&q=80",
-    "description": "Jawaker (جواكر) ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
-    "badge": "⚡ ئاپتوماتىك",
-    "inputLabel": "ئويۇنچى كىملىكى UID (Player ID)",
-    "inputPlaceholder": "ئويۇن ID نومۇرىڭىزنى كىرگۈزۈڭ",
-    "requiresZoneId": false,
-    "published": true,
-    "source": "provider",
-    "packages": [
-      {
-        "id": "pkg-Jawaker-7",
-        "title": "Token Jawaker",
-        "price": 0.1,
-        "originalPrice": 0,
-        "duration": "دەرھال",
-        "providerProductId": 7,
-        "productType": "amount",
-        "available": true
-      },
-      {
-        "id": "pkg-Jawaker-1253",
-        "title": "Red Accelerator",
-        "price": 1.79,
-        "originalPrice": 2.15,
-        "duration": "دەرھال",
-        "providerProductId": 1253,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Jawaker-2798",
-        "title": "Jawaker Premium Silver",
-        "price": 6.7,
-        "originalPrice": 8.04,
-        "duration": "دەرھال",
-        "providerProductId": 2798,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Jawaker-1254",
-        "title": "Blue Accelerator",
-        "price": 8.95,
-        "originalPrice": 10.74,
-        "duration": "دەرھال",
-        "providerProductId": 1254,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Jawaker-1255",
-        "title": "Black Accelerator",
-        "price": 16.21,
-        "originalPrice": 19.45,
-        "duration": "دەرھال",
-        "providerProductId": 1255,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Jawaker-2794",
-        "title": "GOLD BOOSTER",
-        "price": 29.48,
-        "originalPrice": 35.38,
-        "duration": "دەرھال",
-        "providerProductId": 2794,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Jawaker-2797",
-        "title": "Jawaker Premium Plus Red",
-        "price": 30.06,
-        "originalPrice": 36.07,
-        "duration": "دەرھال",
-        "providerProductId": 2797,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Jawaker-120",
-        "title": "400،000 Token",
-        "price": 49.28,
-        "originalPrice": 59.14,
-        "duration": "دەرھال",
-        "providerProductId": 120,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Jawaker-126",
-        "title": "Jawaker 525,000 Token",
-        "price": 64.68,
-        "originalPrice": 77.62,
-        "duration": "دەرھال",
-        "providerProductId": 126,
-        "productType": "fixed",
-        "available": true
-      },
-      {
-        "id": "pkg-Jawaker-130",
-        "title": "805000 tokens",
-        "price": 104.35,
-        "originalPrice": 125.22,
-        "duration": "دەرھال",
-        "providerProductId": 130,
-        "productType": "fixed",
-        "available": true
-      }
-    ]
+    "id": "srv-1792695757816"
   }
 ]
