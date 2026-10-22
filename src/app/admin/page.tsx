@@ -5605,9 +5605,9 @@ export default function AdminPage() {
 
       {/* ================= 3. PRODUCT / SERVICE ADD/EDIT MODAL ================= */}
       {serviceModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-xs">
           <div
-            className={`w-full max-w-lg ${themeClasses.card} rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto font-alkatip`}
+            className={`w-full max-w-2xl md:max-w-3xl lg:max-w-4xl ${themeClasses.card} rounded-3xl p-5 sm:p-7 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto font-alkatip`}
           >
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <h3 className="font-ukij font-bold text-sm text-white">
@@ -5968,15 +5968,15 @@ export default function AdminPage() {
                 </div>
 
                 {/* Column Headers */}
-                <div className="hidden sm:flex items-center gap-2 px-3 text-[10px] font-bold text-slate-400">
+                <div className="hidden sm:flex items-center gap-2 px-3 text-[11px] font-bold text-slate-400">
                   <div className="flex-1">بولاق نامى (Package Title)</div>
-                  <div className="w-24 text-center">ئەسلى باھا $ (Base)</div>
-                  <div className="w-24 text-center text-amber-400 font-black">سېتىش باھاسى $ (Sell)</div>
+                  <div className="w-20 text-center">ئەسلى $</div>
+                  <div className="w-20 text-center text-amber-400 font-black">سېتىش $</div>
                   <div className="w-14 text-center text-emerald-400">پايدا %</div>
-                  <div className="w-7 text-center"></div>
+                  <div className="w-8 text-center"></div>
                 </div>
 
-                <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                <div className="space-y-2 max-h-80 sm:max-h-96 overflow-y-auto pr-1">
                   {serviceForm.packages.map((pkg, pIdx) => {
                     const baseCost = Number(pkg.costPrice) || Number(pkg.price) || 0;
                     const sellPrice = Number(pkg.price) || 0;
@@ -5985,22 +5985,24 @@ export default function AdminPage() {
                     return (
                       <div
                         key={pkg.id || pIdx}
-                        className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center gap-2"
+                        className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 hover:border-slate-700 transition"
                       >
                         <div className="flex-1 min-w-0">
                           <input
                             type="text"
                             required
+                            dir="auto"
+                            title={pkg.title}
                             value={pkg.title}
                             onChange={(e) => handleUpdatePackageRow(pIdx, 'title', e.target.value)}
                             placeholder="مەسىلەن: 60 UC ياكى 1 ئايلىق..."
-                            className={`w-full px-2.5 py-1.5 rounded-lg text-xs ${themeClasses.input} focus:outline-none focus:border-amber-400`}
+                            className={`w-full px-3 py-2 rounded-lg text-xs font-semibold ${themeClasses.input} focus:outline-none focus:border-amber-400 text-slate-100 placeholder:text-slate-500`}
                           />
                         </div>
 
                         <div className="flex items-center gap-2 shrink-0">
                           {/* Base / Cost Price Input */}
-                          <div className="relative w-24" title="ئەسلى تەننەرخ ياكى بازا باھا">
+                          <div className="relative w-20" title="ئەسلى تەننەرخ ياكى بازا باھا">
                             <input
                               type="number"
                               step="0.01"
@@ -6013,7 +6015,7 @@ export default function AdminPage() {
                           </div>
 
                           {/* Final Selling Price Input (Marked up) */}
-                          <div className="relative w-24" title="دۇكاندا خېرىدارلار كۆرىدىغان ۋە تۆلەيدىغان ئاخىرقى سېتىلىش باھاسى">
+                          <div className="relative w-20" title="دۇكاندا خېرىدارلار كۆرىدىغان ۋە تۆلەيدىغان ئاخىرقى سېتىلىش باھاسى">
                             <input
                               type="number"
                               step="0.01"
@@ -6044,7 +6046,7 @@ export default function AdminPage() {
                           <button
                             type="button"
                             onClick={() => handleRemovePackageRow(pIdx)}
-                            className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-950/60 transition cursor-pointer"
+                            className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-950/60 transition cursor-pointer w-8 flex items-center justify-center"
                             title="بۇ بولاقنى ئۆچۈرۈش"
                           >
                             <Trash2 className="w-4 h-4" />
