@@ -109,6 +109,17 @@ export function getDailySiteVisits(): number {
 /**
  * Persistent helper for bot subscribers
  */
+export interface SubscriberRecord {
+  id: number;
+  username?: string;
+  firstName?: string;
+  date?: string;
+}
+
+const memorySubscriberDetails = new Map<number, SubscriberRecord>([
+  [7575664493, { id: 7575664493, username: 'nasrulla0996', firstName: 'Nasrulla', date: new Date().toISOString() }],
+]);
+
 function getSubscribersFilePath(): string {
   return path.join(process.cwd(), 'data', 'telegram_subscribers.json');
 }
@@ -117,21 +128,29 @@ export function recordSubscriber(from: { id: number; first_name?: string; userna
   if (!from || !from.id) return;
   memorySubscribers.add(from.id);
 
+  const info: SubscriberRecord = {
+    id: from.id,
+    username: from.username,
+    firstName: from.first_name,
+    date: new Date().toISOString(),
+  };
+  memorySubscriberDetails.set(from.id, info);
+
   try {
     const filePath = getSubscribersFilePath();
-    let subscribers: Array<{ id: number; username?: string; firstName?: string; date: string }> = [];
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) {
+      try {
+        fs.mkdirSync(dir, { recursive: true });
+      } catch {}
+    }
+    let subscribers: SubscriberRecord[] = [];
     if (fs.existsSync(filePath)) {
       try {
         subscribers = JSON.parse(fs.readFileSync(filePath, 'utf8'));
       } catch {}
     }
     const existingIndex = subscribers.findIndex((s) => s.id === from.id);
-    const info = {
-      id: from.id,
-      username: from.username,
-      firstName: from.first_name,
-      date: new Date().toISOString(),
-    };
     if (existingIndex >= 0) {
       subscribers[existingIndex] = info;
     } else {
@@ -141,6 +160,47 @@ export function recordSubscriber(from: { id: number; first_name?: string; userna
   } catch (e) {
     // Non-fatal on serverless
   }
+}
+
+export function getAllSubscribersDetails(): SubscriberRecord[] {
+  try {
+    const filePath = getSubscribersFilePath();
+    if (fs.existsSync(filePath)) {
+      const subscribers = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      if (Array.isArray(subscribers)) {
+        subscribers.forEach((s) => {
+          if (s.id) {
+            memorySubscribers.add(Number(s.id));
+            if (!memorySubscriberDetails.has(Number(s.id))) {
+              memorySubscriberDetails.set(Number(s.id), s);
+            }
+          }
+        });
+      }
+    }
+  } catch {}
+  return Array.from(memorySubscriberDetails.values());
+}
+
+export function resolveSubscriberTarget(target: string | number): SubscriberRecord | null {
+  const sTarget = String(target).trim();
+  if (!sTarget) return null;
+
+  const all = getAllSubscribersDetails();
+
+  // If numeric ID
+  if (/^-?\d+$/.test(sTarget)) {
+    const numId = Number(sTarget);
+    const found = all.find((s) => s.id === numId);
+    return found || { id: numId };
+  }
+
+  // If Username (with or without @)
+  const cleanUsername = sTarget.replace(/^@/, '').toLowerCase();
+  const found = all.find((s) => s.username && s.username.toLowerCase() === cleanUsername);
+  if (found) return found;
+
+  return null;
 }
 
 export function getAllSubscribers(): number[] {
@@ -709,15 +769,14 @@ export async function getDailyFinancialStats(): Promise<string> {
 /**
  * 7. Broadcast promotional announcement to Channel (@autocash_cannel) and Bot Subscribers
  */
-export async function broadcastAnnouncement(
-  content: string,
-  fromUser: { id: number; username?: string }
-): Promise<{ channelSuccess: boolean; usersSent: number; error?: string }> {
+export async function sendChannelBroadcast(
+  content: string
+): Promise<{ success: boolean; messageId?: number; error?: string }> {
   const token = getBotToken();
-  if (!token) return { channelSuccess: false, usersSent: 0, error: 'Bot token missing' };
+  if (!token) return { success: false, error: 'Bot token missing' };
 
   const formattedMessage = `
-🔥 <b>AUTO CASH | ئالاھىدە تەشۋىقات ۋە ئېتىبار خەۋىرى</b> 🔥
+🔥 <b>AUTO CASH | ئالاھىدە خەۋەر & تەشۋىقات</b> 🔥
 ━━━━━━━━━━━━━━━━━━
 ${content}
 ━━━━━━━━━━━━━━━━━━
@@ -730,17 +789,15 @@ ${content}
   const keyboard = {
     inline_keyboard: [
       [
-        { text: '🛒 دۇكاننى ئېچىش | Open Store', web_app: { url: TELEGRAM_CONFIG.storeUrl } },
+        { text: '⚡️🛍️ دۇكاننى ئېچىش | Open Store ➔', web_app: { url: TELEGRAM_CONFIG.storeUrl } },
       ],
       [
-        { text: '📢 رەسمىي قانال', url: TELEGRAM_CONFIG.channelUrl },
+        { text: '🤖 قاچىلاش بوتى', url: `https://t.me/${TELEGRAM_CONFIG.botUsername}` },
         { text: '💬 خېرىدارلار مۇلازىمىتى', url: TELEGRAM_CONFIG.supportUrl },
       ],
     ],
   };
 
-  let channelSuccess = false;
-  // 1. Send to Official Channel (@autocash_cannel)
   try {
     const chanRes = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
@@ -753,25 +810,135 @@ ${content}
       }),
     });
     const chanData = await chanRes.json();
-    channelSuccess = Boolean(chanData.ok);
-  } catch (err) {
-    console.warn('[Telegram Broadcast] Channel error:', err);
+    if (chanData.ok) {
+      return { success: true, messageId: chanData.result?.message_id };
+    }
+    return { success: false, error: chanData.description || 'Channel send error' };
+  } catch (err: any) {
+    return { success: false, error: err?.message || String(err) };
   }
+}
 
-  // 2. Broadcast to all known bot subscribers
+/**
+ * 7.1 Broadcast exclusively to all known bot subscribers (customers)
+ */
+export async function sendUsersBroadcast(
+  content: string
+): Promise<{ total: number; sent: number; failed: number }> {
   const subscriberIds = getAllSubscribers();
-  let usersSent = 0;
+  const formattedMessage = `
+📢 <b>AUTO CASH | خېرىدارلارغا مەخسۇس ئۇچۇر</b>
+━━━━━━━━━━━━━━━━━━
+${content}
+━━━━━━━━━━━━━━━━━━
+⚡️ <b>ئەڭ ئەرزان باھا • 24/7 سېكۇنتتا يەتكۈزۈش كاپالىتى</b>
+🛒 <b>رەسمىي دۇكان:</b> ${TELEGRAM_CONFIG.storeUrl}
+`.trim();
+
+  const keyboard = {
+    inline_keyboard: [
+      [
+        { text: '⚡️🛍️ دۇكاننى ئېچىش | Open Store ➔', web_app: { url: TELEGRAM_CONFIG.storeUrl } },
+      ],
+      [
+        { text: '📢 رەسمىي قانال', url: TELEGRAM_CONFIG.channelUrl },
+        { text: '💬 خېرىدارلار مۇلازىمىتى', url: TELEGRAM_CONFIG.supportUrl },
+      ],
+    ],
+  };
+
+  let sent = 0;
+  let failed = 0;
+
   for (const sId of subscriberIds) {
     try {
       const res = await sendTelegramMessage(sId, formattedMessage, {
         parse_mode: 'HTML',
         reply_markup: keyboard,
       });
-      if (res.ok) usersSent++;
-    } catch {}
+      if (res.ok) sent++;
+      else failed++;
+    } catch {
+      failed++;
+    }
   }
 
-  return { channelSuccess, usersSent };
+  return { total: subscriberIds.length, sent, failed };
+}
+
+/**
+ * 7.2 Send direct 1-to-1 message to a specific customer by ID or Username
+ */
+export async function sendDirectMessageToUser(
+  target: string | number,
+  content: string
+): Promise<{ success: boolean; recipient?: { id: number; username?: string; firstName?: string }; error?: string }> {
+  const recipient = resolveSubscriberTarget(target);
+  const targetChatId = recipient
+    ? recipient.id
+    : typeof target === 'number' || /^-?\d+$/.test(String(target))
+    ? Number(target)
+    : null;
+
+  if (!targetChatId) {
+    return {
+      success: false,
+      error: `خېرىدار تېپىلمىدى: "${target}". خېرىدارنىڭ بوت بىلەن ئالاقە قىلغانلىقى ياكى توغرا ID نى يازغانلىقىڭىزنى تەكشۈرۈڭ.`,
+    };
+  }
+
+  const formattedMessage = `
+╭━━━ 💌 <b>AUTO CASH | خېرىدارلار مۇلازىمىتىدىن مەخسۇس ئۇچۇر</b> ━━━╮
+      👨‍💻 <i>سىزنىڭ تەلىپىڭىز ۋە زاكازىڭىز بويىچە يېزىلغان ئۇچۇر</i> 👨‍💻
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+${content}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 <i>سوئالىڭىز ياكى پىكرىڭىز بولسا بىۋاستە بۇ بوتقا يازسىڭىز، مۇلازىمەت خادىملىرىمىزغا بارىدۇ.</i>
+`.trim();
+
+  const keyboard = {
+    inline_keyboard: [
+      [
+        { text: '⚡️🛍️ دۇكاننى ئېچىش | Open Store ➔', web_app: { url: TELEGRAM_CONFIG.storeUrl } },
+      ],
+      [
+        { text: '💬 خېرىدارلار مۇلازىمىتى (ئادەم)', url: TELEGRAM_CONFIG.supportUrl },
+      ],
+    ],
+  };
+
+  const res = await sendTelegramMessage(targetChatId, formattedMessage, {
+    parse_mode: 'HTML',
+    reply_markup: keyboard,
+  });
+
+  if (res.ok) {
+    return {
+      success: true,
+      recipient: recipient || { id: targetChatId },
+    };
+  }
+
+  return {
+    success: false,
+    recipient: recipient || { id: targetChatId },
+    error: res.description || 'Telegram API error',
+  };
+}
+
+export async function broadcastAnnouncement(
+  content: string,
+  fromUser?: { id: number; username?: string }
+): Promise<{ channelSuccess: boolean; usersSent: number; error?: string }> {
+  const chanRes = await sendChannelBroadcast(content);
+  const usersRes = await sendUsersBroadcast(content);
+  return {
+    channelSuccess: chanRes.success,
+    usersSent: usersRes.sent,
+    error: chanRes.error,
+  };
 }
 
 /**
@@ -1136,9 +1303,10 @@ function getAdminWelcomeMessage(adminName?: string): string {
 👋 <b>ھۆرمەتلىك باشقۇرغۇچى ${name}!</b> سۇپىنىڭ ئاپتوماتىك باشقۇرۇش مەركىزىگە خۇش كەپسىز!
 
 ⚡️ <b>سىستېما خىزمەت ھالىتى:</b> %100 پۈتۈنلەي تىرىك ۋە نورمال 🟢
-🔔 <b>ئاپتوماتىك سىگنال:</b> يېڭى كەلگەن زاكازلار، شامكەش تالونلىرى ۋە ساختا تالونلار شۇئان سىزگە يەتكۈزۈلىدۇ.
+🔔 <b>ئاپتوماتىك سىگنال:</b> يېڭى كەلگەن زاكازلار، پۇل كىرگۈزۈش تالونلىرى ۋە ساختا ئۇچۇرلار شۇئان سىزگە يەتكۈزۈلىدۇ.
+📢 <b>ئۇچۇر يېزىش:</b> سىز بۇ يەردىن بىۋاستە قانالغا، بارلىق خېرىدارلارغا ياكى يەككە خېرىدارغا خەت يازالايسىز.
 
-👇 <b>سودا دوكلاتى ۋە دۇكاننى تۆۋەندىكى كۇنۇپكىلاردىن باشقۇرۇڭ:</b>
+👇 <b>سودا دوكلاتى، ئۇچۇر يوللاش ۋە دۇكاننى تۆۋەندىكى كۇنۇپكىلاردىن باشقۇرۇڭ:</b>
 `.trim();
 }
 
@@ -1147,8 +1315,28 @@ function getAdminInlineKeyboard() {
     inline_keyboard: [
       [
         {
-          text: '📊💰 بۈگۈنكى كۈنلۈك سودا دوكلاتى (/stats) 📈',
+          text: '📢 قانالغا ئۇچۇر يوللاش (@autocash_cannel) 🚀',
+          callback_data: 'admin_help_chan',
+        },
+      ],
+      [
+        {
+          text: '👥 بارلىق خېرىدارلارغا تارقىتىش ⚡️',
+          callback_data: 'admin_help_sendall',
+        },
+        {
+          text: '👤 يەككە خېرىدارغا يېزىش 💌',
+          callback_data: 'admin_help_sendto',
+        },
+      ],
+      [
+        {
+          text: '📊 بۈگۈنكى كۈنلۈك سودا دوكلاتى (/stats) 📈',
           callback_data: 'refresh_stats',
+        },
+        {
+          text: '💎 شامكەش ئادرېسى ⚡️',
+          callback_data: 'quick_deposit',
         },
       ],
       [
@@ -1157,15 +1345,11 @@ function getAdminInlineKeyboard() {
           web_app: { url: TELEGRAM_CONFIG.storeUrl },
         },
         {
-          text: '💎💳 شامكەش ئادرېسى كۆرۈش ⚡️',
-          callback_data: 'quick_deposit',
+          text: '🌐🖥️ تور باشقۇرۇش كۆزنىكى 🔐',
+          url: `${TELEGRAM_CONFIG.storeUrl}/admin`,
         },
       ],
       [
-        {
-          text: '🌐🖥️ باشقۇرۇش كۆزنىكى تورى (Admin) 🔐',
-          url: `${TELEGRAM_CONFIG.storeUrl}/admin`,
-        },
         {
           text: '📢🔥 رەسمىي تېلېگرام قانال 🪐',
           url: TELEGRAM_CONFIG.channelUrl,
@@ -1695,6 +1879,94 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       return;
     }
 
+    // 7.1 Admin Channel Help Guide
+    if (data === 'admin_help_chan') {
+      if (!isAdmin) {
+        await answerCallbackQuery(cqId, 'رۇخسەت يوق', true);
+        return;
+      }
+      await answerCallbackQuery(cqId);
+      const chanGuide = `
+╭━━━ 📢🔥 <b>قانالغا بىۋاستە ئېلان/ئۇچۇر يوللاش</b> 🔥📢 ━━━╮
+      ⚡️ <i>@autocash_cannel قانىلىغا ئاپتوماتىك تارقىتىش</i> ⚡️
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+💡 <b>ئىشلىتىش ئۇسۇلى:</b>
+تۆۋەندىكى بويىچە بۇيرۇقنى يېزىپ بېسىڭ (قانالغا ئاپتوماتىك دۇكان كۇنۇپكىسى قوشۇپ چىقىرىلىدۇ):
+<code>/chan بۇ يەرگە قانالغا چىقىرىدىغان مەزمۇننى يېزىڭ</code>
+
+📌 <b>مەسىلەن (چەكسىڭىز كۆچۈرۈلىدۇ):</b>
+<code>/chan 🔥 ھۆرمەتلىك خېرىدارلار، بۈگۈنكى PUBG UC ۋە بارلىق مەھسۇلاتلارغا ئالاھىدە ئېتىبار قوشۇلدى! سېتىۋېلىشقا مەرھەمەت!</code>
+`.trim();
+
+      await showOrEditMessage(chatId, messageId, chanGuide, {
+        inline_keyboard: [
+          [{ text: '🔙🏠 باشقۇرۇش باش بېتىگە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      });
+      return;
+    }
+
+    // 7.2 Admin Sendall Help Guide
+    if (data === 'admin_help_sendall') {
+      if (!isAdmin) {
+        await answerCallbackQuery(cqId, 'رۇخسەت يوق', true);
+        return;
+      }
+      await answerCallbackQuery(cqId);
+      const sendallGuide = `
+╭━━━ 👥⚡️ <b>بارلىق خېرىدارلارغا ئومۇمىي ئۇچۇر تارقىتىش</b> ⚡️👥 ━━━╮
+      📢 <i>بارلىق بوت ئابۇنىتلىرىغا شەخسىي ئۇچۇر قىلىپ ئەۋەتىش</i> 📢
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+💡 <b>ئىشلىتىش ئۇسۇلى:</b>
+بۇ ئۇچۇر پەقەت بوتنى قوزغاتقان بارلىق خېرىدارلارغا ئايرىم-ئايرىم بارىدۇ (قانالغا چىقمايدۇ):
+<code>/sendall بۇ يەرگە خېرىدارلارغا ئەۋەتىدىغان ئۇچۇرنى يېزىڭ</code>
+
+📌 <b>مەسىلەن (چەكسىڭىز كۆچۈرۈلىدۇ):</b>
+<code>/sendall ھۆرمەتلىك خېرىدارىمىز، بۈگۈن سىستېمىمىز 24/7 سائەت پۇل كىرگۈزۈش ۋە سېكۇنتتا قاچىلاشنى داۋاملاشتۇرۇۋاتىدۇ!</code>
+`.trim();
+
+      await showOrEditMessage(chatId, messageId, sendallGuide, {
+        inline_keyboard: [
+          [{ text: '🔙🏠 باشقۇرۇش باش بېتىگە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      });
+      return;
+    }
+
+    // 7.3 Admin Direct Message Help Guide
+    if (data === 'admin_help_sendto') {
+      if (!isAdmin) {
+        await answerCallbackQuery(cqId, 'رۇخسەت يوق', true);
+        return;
+      }
+      await answerCallbackQuery(cqId);
+      const sendtoGuide = `
+╭━━━ 👤💌 <b>يەككە خېرىدارغا بىۋاستە ئۇچۇر يېزىش</b> 💌👤 ━━━╮
+      ⚡️ <i>خېرىدار بىلەن 1-گە-1 شەخسىي ئالاقىلىشىش</i> ⚡️
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+💡 <b>ئىشلىتىش ئۇسۇلى:</b>
+خېرىدارنىڭ تېلېگرام ID نومۇرى ياكى @username بويىچە خەت يېزىڭ:
+<code>/sendto &lt;ID ياكى @username&gt; &lt;ئۇچۇرىڭىز&gt;</code>
+
+📌 <b>مەسىلەن (چەكسىڭىز كۆچۈرۈلىدۇ):</b>
+<code>/sendto 7575664493 ئەسسالامۇ ئەلەيكۇم، سىزنىڭ تەلەپ قىلغان زاكازىڭىز مۇۋەپپەقىيەتلىك بىر تەرەپ قىلىندى!</code>
+ياكى:
+<code>/sendto @nasrulla0996 سالام، مەسىلىڭىز تەكشۈرۈپ ھەل قىلىپ بېرىلدى!</code>
+
+✨ <i>خېرىدار سىزنىڭ ئۇچۇرىڭىزغا بوت ئارقىلىق جاۋاب يازسا، سىزگە دەرھال ئۇقتۇرۇش كېلىدۇ.</i>
+`.trim();
+
+      await showOrEditMessage(chatId, messageId, sendtoGuide, {
+        inline_keyboard: [
+          [{ text: '🔙🏠 باشقۇرۇش باش بېتىگە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      });
+      return;
+    }
+
     // 8. Refresh Stats (Admin)
     if (data === 'refresh_stats') {
       if (!isAdmin) {
@@ -1808,6 +2080,122 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
         ],
       },
     });
+    return;
+  }
+
+  // 2.1 Admin Command: /chan or /channel or /kanal (Publish to Telegram Channel ONLY)
+  if (text.startsWith('/chan') || text.startsWith('/channel') || text.startsWith('/kanal')) {
+    if (!isAdmin) {
+      await sendTelegramMessage(chatId, '⚠️ كەچۈرۈڭ، پەقەت دۇكان باشقۇرغۇچىسىلا قانالغا ئېلان ياكى ئۇچۇر يوللىيالايدۇ.');
+      return;
+    }
+
+    const content = text
+      .replace(/^\/(channel|chan|kanal)/, '')
+      .trim();
+
+    if (!content) {
+      await sendTelegramMessage(
+        chatId,
+        `📢 <b>قانالغا ئۇچۇر چىقىرىش ئۇسۇلى:</b>\n\n<code>/chan قانالغا چىقىرىدىغان مەزمۇننى يېزىڭ</code>\n\n📌 مەسىلەن:\n<code>/chan 🔥 ھۆرمەتلىك خېرىدارلار، بۈگۈن بارلىق مەھسۇلاتلارغا ئالاھىدە ئېتىبار قوشۇلدى! دۇكاننى ئېچىپ شۇئان قاچىلاۋېلىڭ.</code>`,
+        { parse_mode: 'HTML' }
+      );
+      return;
+    }
+
+    await sendTelegramMessage(chatId, '⏳ ئۇچۇر @autocash_cannel قانىلىغا يوللىنىۋاتىدۇ...');
+    const res = await sendChannelBroadcast(content);
+
+    if (res.success) {
+      await sendTelegramMessage(
+        chatId,
+        `✅ <b>@${TELEGRAM_CONFIG.channelUsername} قانىلىغا ئۇچۇر مۇۋەپپەقىيەتلىك تارقىتىلدى!</b> 📢\n━━━━━━━━━━━━━━━━━━\n<i>ئۇچۇر ئاستىغا دۇكان ئېچىش كۇنۇپكىسى بىلەن بىللە چىقتى.</i>`,
+        { parse_mode: 'HTML' }
+      );
+    } else {
+      await sendTelegramMessage(
+        chatId,
+        `⚠️ <b>قانالغا يوللاش مەغلۇپ بولدى:</b> ${res.error || 'خاتالىق كۆرۈلدى'}\n(ئەسكەرتىش: بوتنىڭ قانالدا ئۇچۇر يوللاش ھوقۇقى بار-يوقلۇقىنى تەكشۈرۈڭ).`,
+        { parse_mode: 'HTML' }
+      );
+    }
+    return;
+  }
+
+  // 2.2 Admin Command: /sendall or /users (Broadcast to Bot Customers ONLY)
+  if (text.startsWith('/sendall') || text.startsWith('/users') || text.startsWith('/xaridar')) {
+    if (!isAdmin) {
+      await sendTelegramMessage(chatId, '⚠️ كەچۈرۈڭ، پەقەت دۇكان باشقۇرغۇچىسىلا بارلىق خېرىدارلارغا ئومۇمىي ئۇچۇر تارقىتالايدۇ.');
+      return;
+    }
+
+    const content = text
+      .replace(/^\/(sendall|users|xaridar)/, '')
+      .trim();
+
+    if (!content) {
+      await sendTelegramMessage(
+        chatId,
+        `👥 <b>بارلىق خېرىدارلارغا ئۇچۇر تارقىتىش ئۇسۇلى:</b>\n\n<code>/sendall خېرىدارلارغا ئەۋەتىدىغان ئۇچۇر مەزمۇنى</code>\n\n📌 مەسىلەن:\n<code>/sendall ھۆرمەتلىك خېرىدارىمىز، بۈگۈن سىستېمىمىز 24/7 سائەت پۇل كىرگۈزۈش ۋە ئاپتوماتىك قاچىلاشنى داۋاملاشتۇرۇۋاتىدۇ. ھەر قانداق سوئالىڭىز بولسا بىۋاستە يېزىڭ!</code>`,
+        { parse_mode: 'HTML' }
+      );
+      return;
+    }
+
+    await sendTelegramMessage(chatId, '⏳ بارلىق بوت ئابۇنىتلىرىغا ئۇچۇر تارقىتىلىۋاتىدۇ...');
+    const res = await sendUsersBroadcast(content);
+
+    await sendTelegramMessage(
+      chatId,
+      `👥 <b>خېرىدارلارغا ئۇچۇر يوللاش تامام Rome:</b>\n━━━━━━━━━━━━━━━━━━\n✅ مۇۋەپپەقىيەتلىك ئەۋەتىلگىنى: <b>${res.sent}</b> كىشى\n⚠️ يەتكۈزۈلمىگىنى: <b>${res.failed}</b>\n📊 جەمئىي تىزىملىكتىكى ئابۇنىت: <b>${res.total}</b>`,
+      { parse_mode: 'HTML' }
+    );
+    return;
+  }
+
+  // 2.3 Admin Command: /sendto or /msg or /xet (Direct 1-to-1 Message to a Specific Customer)
+  if (
+    text.startsWith('/sendto') ||
+    text.startsWith('/msg') ||
+    text.startsWith('/xet') ||
+    text.startsWith('/direct')
+  ) {
+    if (!isAdmin) {
+      await sendTelegramMessage(chatId, '⚠️ كەچۈرۈڭ، پەقەت دۇكان باشقۇرغۇچىسىلا خېرىدارغا بىۋاستە خەت يازالايدۇ.');
+      return;
+    }
+
+    const raw = text.replace(/^\/(sendto|msg|xet|direct)/, '').trim();
+    const spaceIdx = raw.search(/\s/);
+    const target = spaceIdx > 0 ? raw.slice(0, spaceIdx).trim() : raw;
+    const msgContent = spaceIdx > 0 ? raw.slice(spaceIdx).trim() : '';
+
+    if (!target || !msgContent) {
+      await sendTelegramMessage(
+        chatId,
+        `👤 <b>يەككە خېرىدارغا خەت يېزىش ئۇسۇلى:</b>\n\n<code>/sendto &lt;ID ياكى @username&gt; &lt;ئۇچۇر مەزمۇنى&gt;</code>\n\n📌 مەسىلەن:\n<code>/sendto 7575664493 ئەسسالامۇ ئەلەيكۇم، زاكازىڭىز تەستىقلاندى!</code>\nياكى:\n<code>/sendto @nasrulla0996 سالام، مەسىلىڭىز ھەل قىلىندى!</code>`,
+        { parse_mode: 'HTML' }
+      );
+      return;
+    }
+
+    await sendTelegramMessage(chatId, `⏳ <b>${target}</b> غا ئۇچۇر ئەۋەتىلىۋاتىدۇ...`, { parse_mode: 'HTML' });
+    const res = await sendDirectMessageToUser(target, msgContent);
+
+    if (res.success) {
+      const recName = res.recipient?.firstName || res.recipient?.username || target;
+      await sendTelegramMessage(
+        chatId,
+        `✅ <b>خېرىدارغا خەت مۇۋەپپەقىيەتلىك يەتكۈزۈلدى!</b>\n━━━━━━━━━━━━━━━━━━\n👤 <b>قوبۇل قىلغۇچى:</b> ${recName} (<code>${res.recipient?.id || target}</code>)\n📝 <b>ئۇچۇر مەزمۇنى:</b>\n${msgContent}`,
+        { parse_mode: 'HTML' }
+      );
+    } else {
+      await sendTelegramMessage(
+        chatId,
+        `⚠️ <b>خەت يەتكۈزۈلمىدى:</b> ${res.error || 'سەۋەب ئېنىقلانمىدى'}\n(ئەسكەرتىش: خېرىدارنىڭ بوتنى قوزغاتقانلىقى ۋە توغرا ID نى يازغانلىقىڭىزنى جەزملەڭ).`,
+        { parse_mode: 'HTML' }
+      );
+    }
     return;
   }
 
@@ -2329,12 +2717,15 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 👋 <b>ھۆرمەتلىك باشقۇرغۇچى @${from?.username || from?.first_name}!</b>
-سىز سىستېمىغا بۇيرۇق ياكى ئېلان يوللىيالايسىز:
+سىز تۆۋەندىكى بۇيرۇقلار بىلەن قانال، بارلىق خېرىدار ياكى يەككە خېرىدارغا بىۋاستە خەت يازالايسىز:
 
+📢 <b>/chan &lt;مەزمۇن&gt;</b> — قانالغا (@autocash_cannel) ئېلان/ئۇچۇر يوللاش
+👥 <b>/sendall &lt;مەزمۇن&gt;</b> — بارلىق بوت خېرىدارلىرىغا ئومۇمىي ئۇچۇر تارقىتىش
+👤 <b>/sendto &lt;ID/@username&gt; &lt;ئۇچۇر&gt;</b> — يەككە خېرىدارغا بىۋاستە خەت يېزىش
+📢 <b>/post &lt;مەزمۇن&gt;</b> — بىرلا ۋاقىتتا قانالغا ۋە خېرىدارلارغا تەڭ تارقىتىش
 📊 <b>/stats</b> — كۈنلۈك كىرىم، ساپ پايدا ۋە زاكاز دوكلاتىنى كۆرۈش
-📢 <b>/post &lt;ئېلان مەزمۇنى&gt;</b> — تېلېگرام قانىلى ۋە بارلىق خېرىدارلارغا ئېلان تارقىتىش
 📌 <b>/pinchannel</b> — قانالغا رەسمىي دۇكان يېتەكچىسىنى چىقىرىش ۋە مىخلاش (Pin)
-🛒 <b>/start</b> — باشقۇرغۇچى باش بەت كۆزنىكىنى ئېچىش
+🛒 <b>/start</b> — باشقۇرغۇچى ئاساسىي كۆزنىكىنى ئېچىش
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👇 ياكى تۆۋەندىكى كۇنۇپكىلار ئارقىلىق تېز باشقۇرۇڭ:
 `.trim();
@@ -2346,7 +2737,29 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
     return;
   }
 
-  // 10. If Customer types ANY other text or question, switch to the interactive 4-step tutorial guide ("قانداق قىلىشنى ئۆگىتىش ھالىتى")
+  // 10. Forward customer message to Admin for direct response
+  if (!isAdmin && text) {
+    try {
+      const adminNotice = `
+📩 <b>خېرىداردىن يېڭى ئۇچۇر كەلدى:</b>
+━━━━━━━━━━━━━━━━━━
+👤 <b>خېرىدار:</b> ${from?.first_name || ''} ${from?.last_name || ''} (@${from?.username || 'نامسىز'})
+🆔 <b>User ID:</b> <code>${chatId}</code>
+📝 <b>مەزمۇنى:</b>
+${text}
+━━━━━━━━━━━━━━━━━━
+👇 <b>جاۋاب قايتۇرۇش ئۈچۈن چېكىپ كۆچۈرۈڭ:</b>
+<code>/sendto ${chatId} بۇ يەرگە جاۋابىڭىزنى يېزىڭ</code>
+`.trim();
+
+      const adminChat = TELEGRAM_CONFIG.adminChatId || 7575664493;
+      await sendTelegramMessage(adminChat, adminNotice, { parse_mode: 'HTML' });
+    } catch (err) {
+      console.warn('[Telegram] Failed to notify admin of customer message:', err);
+    }
+  }
+
+  // 11. If Customer types ANY other text or question, switch to the interactive 4-step tutorial guide ("قانداق قىلىشنى ئۆگىتىش ھالىتى")
   const teachingGuideMessage = getTutorialGuideMessage(from?.first_name);
 
   await sendTelegramMessage(chatId, teachingGuideMessage, {
