@@ -352,25 +352,11 @@ export default function HomePage() {
     if (item.name && item.name.toLowerCase().includes('canva') && item.category !== 'apps') {
       item = { ...item, category: 'apps' };
     }
-    if (item.name && item.name.toLowerCase().includes('turkcell') && Array.isArray(item.packages)) {
-      item = {
-        ...item,
-        packages: item.packages.map((p) => {
-          if ((p.providerProductId === 1149 || p.title.includes('جىگابايىت تور +100') || p.title.includes('جىگابايىت تور + 100')) && !p.title.includes('80')) {
-            return { ...p, title: '1000 دەقىقە سۆزلىشىش + 80 جىگابايىت تور + 100 ئۇچۇر' };
-          }
-          if ((p.providerProductId === 1143 || p.title.includes('سۆزلىشىش + جىگابايىت تور')) && !p.title.includes('15')) {
-            return { ...p, title: '1000 دەقىقە سۆزلىشىش + 15 جىگابايىت تور' };
-          }
-          if (p.providerProductId === 1147 || p.title.includes('غيغا')) {
-            return { ...p, title: '1000 دەقىقە سۆزلىشىش + 40 جىگابايىت تور + 100 ئۇچۇر' };
-          }
-          if (p.providerProductId === 1148 || p.title.includes('رسالة')) {
-            return { ...p, title: '1000 دەقىقە سۆزلىشىش + 50 جىگابايىت تور + 100 ئۇچۇر' };
-          }
-          return p;
-        }),
-      };
+    if (item.name && (item.name.toLowerCase().includes('turkcell') || item.name.toLowerCase().includes('telecom'))) {
+      const match = SERVICES_DATA.find((b) => b.id === item.id || b.name === item.name);
+      if (match && Array.isArray(match.packages)) {
+        item = { ...item, packages: match.packages };
+      }
     }
     return item;
   };

@@ -151,26 +151,12 @@ export async function getServicesListAsync(): Promise<ServiceItem[]> {
                 needsUpdate = true;
                 item = { ...item, category: 'apps' as any };
               }
-              if (item.name.toLowerCase().includes('turkcell') && Array.isArray(item.packages)) {
-                item.packages = item.packages.map((p) => {
-                  if ((p.providerProductId === 1149 || p.title.includes('جىگابايىت تور +100') || p.title.includes('جىگابايىت تور + 100')) && !p.title.includes('80')) {
-                    needsUpdate = true;
-                    return { ...p, title: '1000 دەقىقە سۆزلىشىش + 80 جىگابايىت تور + 100 ئۇچۇر' };
-                  }
-                  if ((p.providerProductId === 1143 || p.title.includes('سۆزلىشىش + جىگابايىت تور')) && !p.title.includes('15')) {
-                    needsUpdate = true;
-                    return { ...p, title: '1000 دەقىقە سۆزلىشىش + 15 جىگابايىت تور' };
-                  }
-                  if (p.providerProductId === 1147 || p.title.includes('غيغا')) {
-                    needsUpdate = true;
-                    return { ...p, title: '1000 دەقىقە سۆزلىشىش + 40 جىگابايىت تور + 100 ئۇچۇر' };
-                  }
-                  if (p.providerProductId === 1148 || p.title.includes('رسالة')) {
-                    needsUpdate = true;
-                    return { ...p, title: '1000 دەقىقە سۆزلىشىش + 50 جىگابايىت تور + 100 ئۇچۇر' };
-                  }
-                  return p;
-                });
+              if ((item.name.toLowerCase().includes('turkcell') || item.name.toLowerCase().includes('telecom')) && Array.isArray(item.packages)) {
+                const bundledMatch = SERVICES_DATA.find((b) => b.id === item.id || b.name === item.name);
+                if (bundledMatch && Array.isArray(bundledMatch.packages)) {
+                  needsUpdate = true;
+                  item = { ...item, packages: bundledMatch.packages };
+                }
               }
               return item;
             });
