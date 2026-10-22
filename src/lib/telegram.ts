@@ -1276,6 +1276,43 @@ export async function pinChannelMasterGuide(): Promise<{ ok: boolean; messageId?
 }
 
 /**
+ * Synchronize official bot description and short bio with Telegram Bot API
+ */
+export async function syncBotDescriptions(): Promise<{ ok: boolean; description?: string }> {
+  const token = getBotToken();
+  if (!token) return { ok: false };
+
+  const description = `🌟 AUTO CASH — خەلقئارالىق رەقەملىك مۇلازىمەتلەر، ئەپلەر، سۈنئىي ئەقىل (AI) ئابۇنىتلىرى، مەۋھۇم نومۇرلار ۋە تور بايلىقلىرىنىڭ رەسمىي تېز سۈرئەتلىك دۇكىنى.
+
+⚡️ 24/7 سائەت سېكۇنتتا ئاپتوماتىك قاچىلاش
+💳 شامكەش (Sham Cash) دەقىقىدە ھەميانغا كىرىش
+🛡️ %100 رەسمىي بىخەتەرلىك ۋە سۈپەت كاپالىتى
+👑 VIP ئەزالىق ۋە كەش بەك (Cashback) ئېتىبارى
+
+🛒 رەسمىي دۇكان: ${TELEGRAM_CONFIG.storeUrl}
+📢 رەسمىي قانال: @${TELEGRAM_CONFIG.channelUsername}
+💬 24/7 مۇلازىمەت: @${TELEGRAM_CONFIG.supportUsername}`.trim();
+
+  const shortDescription = `💎 AUTO CASH — خەلقئارالىق رەقەملىك ئەپلەر، AI، مەۋھۇم نومۇرلار ۋە 24/7 ئاپتوماتىك قاچىلاش سۇپىسى.`.trim();
+
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/setMyDescription`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description }),
+    });
+    await fetch(`https://api.telegram.org/bot${token}/setMyShortDescription`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ short_description: shortDescription }),
+    });
+    return { ok: true, description };
+  } catch (err: any) {
+    return { ok: false, description: err?.message };
+  }
+}
+
+/**
  * Helper to build rich interactive store inline keyboard with vibrant animated-feel badges
  */
 function getStoreInlineKeyboard() {
