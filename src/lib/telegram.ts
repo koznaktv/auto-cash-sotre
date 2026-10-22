@@ -510,7 +510,7 @@ export async function postOrderCompletedToChannel(order: {
             [
               {
                 text: '⚡️🛍️ زاكاز بېرىش | دۇكاننى ئېچىش ➔',
-                url: `https://t.me/${TELEGRAM_CONFIG.botUsername}?start=channel`,
+                url: `https://t.me/${TELEGRAM_CONFIG.botUsername}?startapp=order`,
               },
             ],
             [
@@ -840,7 +840,7 @@ ${content}
   const keyboard = {
     inline_keyboard: [
       [
-        { text: '⚡️🛍️ دۇكاننى ئېچىش ➔', url: `https://t.me/${TELEGRAM_CONFIG.botUsername}?start=chan` },
+        { text: '⚡️🛍️ دۇكاننى ئېچىش ➔', url: `https://t.me/${TELEGRAM_CONFIG.botUsername}?startapp=store` },
         { text: '🌐 توربەت دۇكىنى 🛒', url: TELEGRAM_CONFIG.storeUrl },
       ],
       [
@@ -1224,7 +1224,7 @@ export async function pinChannelMasterGuide(): Promise<{ ok: boolean; messageId?
   const keyboard = {
     inline_keyboard: [
       [
-        { text: '⚡️🛍️ دۇكاننى ئېچىش | Open Store ➔', url: `https://t.me/${TELEGRAM_CONFIG.botUsername}?start=channel` },
+        { text: '⚡️🛍️ دۇكاننى ئېچىش | Open Store ➔', url: `https://t.me/${TELEGRAM_CONFIG.botUsername}?startapp=channel` },
         { text: '🤖 تېلېگرام بوتىغا كىرىش ➔', url: `https://t.me/${TELEGRAM_CONFIG.botUsername}` },
       ],
       [
