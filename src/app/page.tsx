@@ -348,10 +348,31 @@ export default function HomePage() {
 
   // Storefront catalog: Sahl Cash synced provider catalog (with instant 0ms preloaded fallback)
   const normalizeServiceItem = (s: ServiceItem): ServiceItem => {
-    if (s.name && s.name.toLowerCase().includes('canva') && s.category !== 'apps') {
-      return { ...s, category: 'apps' };
+    let item = s;
+    if (item.name && item.name.toLowerCase().includes('canva') && item.category !== 'apps') {
+      item = { ...item, category: 'apps' };
     }
-    return s;
+    if (item.name && item.name.toLowerCase().includes('turkcell') && Array.isArray(item.packages)) {
+      item = {
+        ...item,
+        packages: item.packages.map((p) => {
+          if ((p.providerProductId === 1149 || p.title.includes('جىگابايىت تور +100') || p.title.includes('جىگابايىت تور + 100')) && !p.title.includes('80')) {
+            return { ...p, title: '1000 دەقىقە سۆزلىشىش + 80 جىگابايىت تور + 100 ئۇچۇر' };
+          }
+          if ((p.providerProductId === 1143 || p.title.includes('سۆزلىشىش + جىگابايىت تور')) && !p.title.includes('15')) {
+            return { ...p, title: '1000 دەقىقە سۆزلىشىش + 15 جىگابايىت تور' };
+          }
+          if (p.providerProductId === 1147 || p.title.includes('غيغا')) {
+            return { ...p, title: '1000 دەقىقە سۆزلىشىش + 40 جىگابايىت تور + 100 ئۇچۇر' };
+          }
+          if (p.providerProductId === 1148 || p.title.includes('رسالة')) {
+            return { ...p, title: '1000 دەقىقە سۆزلىشىش + 50 جىگابايىت تور + 100 ئۇچۇر' };
+          }
+          return p;
+        }),
+      };
+    }
+    return item;
   };
 
   const [services, setServices] = useState<ServiceItem[]>(() => {
