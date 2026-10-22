@@ -5592,52 +5592,6 @@ export default function AdminPage() {
                   </table>
                 </div>
               </div>
-
-              {/* Syria4game Live Products List (if fetched) */}
-              {providerProducts.length > 0 && (
-                <div className={`p-5 rounded-2xl ${themeClasses.card} space-y-4`}>
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                      <Package className="w-4 h-4 text-cyan-400" />
-                      <span>Sahl Cash مەھسۇلات تىزىملىكى ({providerProducts.length} تال)</span>
-                    </h3>
-                  </div>
-
-                  <div className="max-h-96 overflow-y-auto">
-                    <table className="w-full text-xs text-right">
-                      <thead>
-                        <tr className={`border-b ${themeClasses.tableHead}`}>
-                          <th className="p-3">Product ID</th>
-                          <th className="p-3">مەھسۇلات نامى</th>
-                          <th className="p-3">باھاسى</th>
-                          <th className="p-3">سەھىپە</th>
-                          <th className="p-3 text-center">باشبەتكە چىقىرىش</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-800">
-                        {providerProducts.map((p, idx) => (
-                          <tr key={idx} className="hover:bg-slate-800/40">
-                            <td className="p-3 font-mono text-amber-400 font-bold" dir="ltr">#{p.id}</td>
-                            <td className="p-3 font-bold text-white">{p.name}</td>
-                            <td className="p-3 font-mono text-cyan-400" dir="ltr">${Number(p.costPrice ?? p.price ?? 0)}</td>
-                            <td className="p-3 text-slate-400">{p.categoryName || p.category || '—'}</td>
-                            <td className="p-3 text-center">
-                              <button
-                                type="button"
-                                onClick={() => handleImportSpecificProduct(p)}
-                                className="px-3 py-1.5 rounded-xl gold-shimmer-btn text-slate-950 text-xs font-black transition cursor-pointer shadow hover:scale-105 inline-flex items-center gap-1"
-                              >
-                                <Plus className="w-3.5 h-3.5" />
-                                <span>باشبەتكە چىقىرىش</span>
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </main>
