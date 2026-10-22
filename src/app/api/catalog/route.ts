@@ -9,13 +9,23 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: Request) {
   try {
     const requested = new URL(req.url).searchParams.get('source');
-    const isAdminPreview = (requested === 'provider' || requested === 'legacy') && hasAdminBearer(req);
+    const isAdminPreview = requested === 'provider' && hasAdminBearer(req);
     const settings = await getProviderSettings();
-    const source = isAdminPreview ? (requested as 'provider' | 'legacy') : settings.catalogSource;
 
-    const services = (await getCatalogServices({ source })).map((service) => ({
+    if (isAdminPreview) {
+      const { getProviderCatalog } = await import('@/lib/catalog/storefront');
+      const providerCatalog = await getProviderCatalog();
+      return NextResponse.json({
+        success: true,
+        source: 'provider',
+        services: providerCatalog?.services || [],
+      });
+    }
+
+    // Storefront: ONLY products chosen, edited, and published by the admin
+    const services = (await getCatalogServices()).map((service) => ({
       ...service,
-      packages: service.packages.map((p) => ({
+      packages: (service.packages || []).map((p) => ({
         id: p.id,
         title: p.title,
         price: p.price,
@@ -30,7 +40,7 @@ export async function GET(req: Request) {
     const cacheHeader = 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
 
     return NextResponse.json(
-      { success: true, source, minOrderUsd: settings.minOrderUsd, services },
+      { success: true, source: 'legacy', minOrderUsd: settings.minOrderUsd, services },
       {
         headers: {
           'Cache-Control': cacheHeader,
