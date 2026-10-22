@@ -33,7 +33,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
   const { lang, t, isRTL, translatePackageTitle, translateInputLabel, translateInputPlaceholder } = useLanguage();
 
   const isProvider = Boolean(service && (service.source === 'provider' || service.id.startsWith('s4g-')));
-  const [detail, setDetail] = useState<ServiceItem | null>(isProvider ? null : service);
+  const [detail, setDetail] = useState<ServiceItem | null>(service || null);
   const [detailError, setDetailError] = useState('');
   const [selectedPkgId, setSelectedPkgId] = useState('');
   const [packageQuery, setPackageQuery] = useState('');
@@ -66,27 +66,41 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
     };
   }, [onClose]);
 
-  // Provider services: the slim catalog has no fields / qty rules, load the full service
+  // Provider services: if package details or field rules need full load
   useEffect(() => {
     if (!service) return;
-    if (!isProvider) {
+
+    // If service already has packages loaded, immediately populate detail
+    if (service.packages && service.packages.length > 0) {
       setDetail(service);
-      return;
+      setDetailError('');
     }
-    let cancelled = false;
-    setDetail(null);
-    setDetailError('');
-    fetch(`/api/catalog/${encodeURIComponent(service.id)}`)
-      .then((r) => r.json())
-      .then((d) => {
-        if (cancelled) return;
-        if (d.success && d.service) setDetail(d.service);
-        else setDetailError(d.message || t('productLoadFailed'));
-      })
-      .catch(() => !cancelled && setDetailError(t('productLoadFailed')));
-    return () => {
-      cancelled = true;
-    };
+
+    if (isProvider) {
+      let cancelled = false;
+      fetch(`/api/catalog/${encodeURIComponent(service.id)}`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (cancelled) return;
+          if (d.success && d.service) {
+            setDetail(d.service);
+            setDetailError('');
+          } else {
+            // Only show error if we don't have any packages at all
+            if (!service.packages || service.packages.length === 0) {
+              setDetailError(d.message || t('productLoadFailed'));
+            }
+          }
+        })
+        .catch(() => {
+          if (!cancelled && (!service.packages || service.packages.length === 0)) {
+            setDetailError(t('productLoadFailed'));
+          }
+        });
+      return () => {
+        cancelled = true;
+      };
+    }
   }, [service, isProvider]);
 
   const packages: ServicePackage[] = detail?.packages || [];

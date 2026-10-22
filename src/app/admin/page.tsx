@@ -1519,6 +1519,9 @@ export default function AdminPage() {
             price: sell,
             originalPrice: orig,
             duration: p.duration || 'دەرھال',
+            providerProductId: (p as any).providerProductId || (p.id?.match(/-(\d+)$/)?.[1] ? Number(p.id.match(/-(\d+)$/)![1]) : undefined),
+            productType: (p as any).productType || 'fixed',
+            available: p.available !== false,
           };
         })
       : [{ id: `p-${Date.now()}-1`, title: 'ئاساسىي بولاق', costPrice: 1.0, price: 1.20, originalPrice: 1.44, duration: 'دەرھال' }];
@@ -1702,6 +1705,9 @@ export default function AdminPage() {
         costPrice: baseCost,
         originalPrice: origPrice,
         duration: pkg.duration?.trim() || 'دەرھال',
+        providerProductId: (pkg as any).providerProductId || (pkg.id?.match(/-(\d+)$/)?.[1] ? Number(pkg.id.match(/-(\d+)$/)![1]) : undefined),
+        productType: (pkg as any).productType || 'fixed',
+        available: (pkg as any).available !== false,
       };
     });
 

@@ -15,7 +15,7 @@ import { getSessionUser, unauthorizedResponse } from '@/lib/session';
 import { validateGameAccount } from '@/lib/validation/gameAccountValidator';
 import { isOrderInProgress, toBuyerOrder } from '@/lib/orders';
 import { getProviderSettings } from '@/lib/catalog/store';
-import { SERVICE_PREFIX } from '@/lib/catalog/storefront';
+import { SERVICE_PREFIX, getCatalogServices } from '@/lib/catalog/storefront';
 import { placeProviderOrder } from '@/lib/provider/purchase';
 import { pollProviderOrders } from '@/lib/provider/orderPoller';
 import { generateUUIDv4, syria4GameProvider } from '@/lib/providers/syria4game';
@@ -112,11 +112,29 @@ export async function POST(req: Request) {
       );
     }
 
-    const service = getServicesList().find((s) => s.id === serviceId);
+    const services = await getCatalogServices();
+    let service = services.find((s) => s.id === serviceId);
+    if (!service && serviceId.startsWith('sahl_')) {
+      const sahlKey = serviceId.replace('sahl_', '').toLowerCase().trim();
+      service = services.find((s) => (s.name || '').toLowerCase().trim() === sahlKey);
+    }
+    if (!service) {
+      const lowId = serviceId.toLowerCase().trim();
+      service = services.find((s) => (s.name || '').toLowerCase().trim() === lowId);
+    }
+    if (!service) {
+      const { getServicesListAsync } = await import('@/lib/servicesDb');
+      const customServices = (await getServicesListAsync()) || [];
+      service = customServices.find(
+        (s) =>
+          s.id === serviceId ||
+          (s.name || '').toLowerCase().trim() === serviceId.toLowerCase().trim()
+      );
+    }
     if (!service) {
       return NextResponse.json({ success: false, message: 'مۇلازىمەت تېپىلمىدى' }, { status: 404 });
     }
-    const pkg = service.packages.find((p) => p.id === packageId);
+    const pkg = service.packages.find((p) => p.id === packageId) || service.packages.find((p) => p.title === packageId);
     if (!pkg) {
       return NextResponse.json({ success: false, message: 'تاللانغان تۈر تېپىلمىدى' }, { status: 404 });
     }
