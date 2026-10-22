@@ -123,7 +123,24 @@ export async function getCategoriesListAsync(): Promise<CategoryItem[]> {
       if (!error && data?.site_name) {
         const parsed = JSON.parse(data.site_name);
         if (Array.isArray(parsed)) {
-          const clean = parsed.filter((c: CategoryItem) => !deleted.has(c.id));
+          let updated = false;
+          const clean = parsed
+            .filter((c: CategoryItem) => !deleted.has(c.id))
+            .map((c: CategoryItem) => {
+              if (c.id === 'numbers' && (c.name === 'مەۋھۇم نومۇر' || !c.name.includes('ئەزالىق'))) {
+                updated = true;
+                return {
+                  ...c,
+                  name: 'تېلېگرام ئەزالىق',
+                  count: 'Telegram Premium',
+                  image: '/images/services/telegram.jpg',
+                };
+              }
+              return c;
+            });
+          if (updated) {
+            saveCategoriesList(clean);
+          }
           cachedCategories = clean;
           lastCategoriesFetch = Date.now();
           return [...clean];

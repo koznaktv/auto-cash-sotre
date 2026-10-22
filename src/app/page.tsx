@@ -370,7 +370,11 @@ export default function HomePage() {
         if (cachedCats) {
           const parsedCats = JSON.parse(cachedCats);
           if (Array.isArray(parsedCats) && parsedCats.length > 0) {
-            return parsedCats;
+            return parsedCats.map((c: any) =>
+              c.id === 'numbers' && (c.name === 'مەۋھۇم نومۇر' || !c.name.includes('ئەزالىق'))
+                ? { ...c, name: 'تېلېگرام ئەزالىق', count: 'Telegram Premium', image: '/images/services/telegram.jpg' }
+                : c
+            );
           }
         }
       } catch {}
@@ -403,9 +407,14 @@ export default function HomePage() {
         }
 
         if (dCats && dCats.success && Array.isArray(dCats.categories) && dCats.categories.length > 0) {
-          setCategories(dCats.categories);
+          const mappedCats = dCats.categories.map((c: any) =>
+            c.id === 'numbers' && (c.name === 'مەۋھۇم نومۇر' || !c.name.includes('ئەزالىق'))
+              ? { ...c, name: 'تېلېگرام ئەزالىق', count: 'Telegram Premium', image: '/images/services/telegram.jpg' }
+              : c
+          );
+          setCategories(mappedCats);
           try {
-            localStorage.setItem('autocash_cached_categories', JSON.stringify(dCats.categories));
+            localStorage.setItem('autocash_cached_categories', JSON.stringify(mappedCats));
           } catch {}
         }
       })
@@ -439,9 +448,14 @@ export default function HomePage() {
         }
 
         if (dCats && dCats.success && Array.isArray(dCats.categories) && dCats.categories.length > 0) {
-          setCategories(dCats.categories);
+          const mappedCats = dCats.categories.map((c: any) =>
+            c.id === 'numbers' && (c.name === 'مەۋھۇم نومۇر' || !c.name.includes('ئەزالىق'))
+              ? { ...c, name: 'تېلېگرام ئەزالىق', count: 'Telegram Premium', image: '/images/services/telegram.jpg' }
+              : c
+          );
+          setCategories(mappedCats);
           try {
-            localStorage.setItem('autocash_cached_categories', JSON.stringify(dCats.categories));
+            localStorage.setItem('autocash_cached_categories', JSON.stringify(mappedCats));
           } catch {}
         }
       })
