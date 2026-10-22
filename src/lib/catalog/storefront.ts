@@ -300,58 +300,27 @@ export async function getProviderCatalog(options: { fresh?: boolean } = {}): Pro
   return catalog;
 }
 
-/** The storefront buyers see: Admin custom services + Sahl Cash provider catalog (excluding hidden). */
+/** The storefront buyers see: ONLY products chosen, edited, and published by the admin. */
 export async function getCatalogServices(options: { source?: 'legacy' | 'provider' } = {}): Promise<ServiceItem[]> {
+  // Only if an admin preview explicitly asks for ?source=provider do we show raw provider catalog
+  if (options.source === 'provider') {
+    const providerCatalog = await getProviderCatalog();
+    return providerCatalog.services || [];
+  }
+
   const { getServicesListAsync } = await import('../servicesDb');
   const customServices = (await getServicesListAsync()) || [];
 
-  // 1. Explicit admin custom services that are published
+  // Strictly only services that are saved and not hidden (published !== false)
   const publishedCustom: ServiceItem[] = customServices
     .filter((s) => s.published !== false)
     .map((s) => ({
       ...s,
       published: true,
-      source: (s.source || 'legacy') as 'legacy' | 'provider',
+      source: (s.source || 'provider') as 'legacy' | 'provider',
     }));
 
-  // Services explicitly hidden/unpublished by the admin
-  const hiddenCustomIds = new Set(customServices.filter((s) => s.published === false).map((s) => s.id));
-  const hiddenCustomNames = new Set(
-    customServices.filter((s) => s.published === false).map((s) => (s.name || '').toLowerCase().trim())
-  );
-
-  // 2. All Sahl Cash provider services automatically available
-  let providerServices: ServiceItem[] = [];
-  try {
-    const providerCatalog = await getProviderCatalog();
-    if (providerCatalog && Array.isArray(providerCatalog.services)) {
-      providerServices = providerCatalog.services;
-    }
-  } catch (err) {
-    console.warn('Error loading providerCatalog in getCatalogServices:', err);
-  }
-
-  // Deduplicate: custom services take precedence
-  const customNames = new Set(publishedCustom.map((s) => (s.name || '').toLowerCase().trim()));
-  const customIds = new Set(publishedCustom.map((s) => s.id));
-
-  const merged: ServiceItem[] = [...publishedCustom];
-
-  for (const ps of providerServices) {
-    const pNameLow = (ps.name || '').toLowerCase().trim();
-    // Skip if admin explicitly hid it
-    if (hiddenCustomIds.has(ps.id) || hiddenCustomNames.has(pNameLow)) continue;
-    // Skip if already covered by admin custom service
-    if (customIds.has(ps.id) || customNames.has(pNameLow)) continue;
-
-    merged.push({
-      ...ps,
-      published: true,
-      source: 'provider',
-    });
-  }
-
-  return merged;
+  return publishedCustom;
 }
 
 export type ResolveResult =
