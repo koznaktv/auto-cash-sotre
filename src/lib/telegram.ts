@@ -767,7 +767,57 @@ export async function getDailyFinancialStats(): Promise<string> {
 }
 
 /**
- * 7. Broadcast promotional announcement to Channel (@autocash_cannel) and Bot Subscribers
+ * 7. Send pure/plain text ONLY to Channel (@autocash_cannel)
+ * (قانالغا ئايرىم خەتنىلا ھېچقانداق ئارتۇق قېلىپ، ماۋزۇ ياكى كۇنۇپكىسىز يەتكۈزۈش)
+ */
+export async function sendChannelRawText(
+  content: string
+): Promise<{ success: boolean; messageId?: number; error?: string }> {
+  const token = getBotToken();
+  if (!token) return { success: false, error: 'Bot token missing' };
+
+  const targetChannel = TELEGRAM_CONFIG.channelId || `@${TELEGRAM_CONFIG.channelUsername}`;
+
+  try {
+    let chanRes = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: targetChannel,
+        text: content,
+        parse_mode: 'HTML',
+        disable_web_page_preview: true,
+      }),
+    });
+    let chanData = await chanRes.json();
+
+    // If channelId failed, try fallback with @channelUsername
+    if (!chanData.ok && targetChannel !== `@${TELEGRAM_CONFIG.channelUsername}`) {
+      chanRes = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: `@${TELEGRAM_CONFIG.channelUsername}`,
+          text: content,
+          parse_mode: 'HTML',
+          disable_web_page_preview: true,
+        }),
+      });
+      chanData = await chanRes.json();
+    }
+
+    if (chanData.ok) {
+      return { success: true, messageId: chanData.result?.message_id };
+    }
+    return { success: false, error: chanData.description || 'Channel send error' };
+  } catch (err: any) {
+    return { success: false, error: err?.message || String(err) };
+  }
+}
+
+/**
+ * 7.1 Broadcast promotional announcement to Channel (@autocash_cannel) and Bot Subscribers
+ * (قانالغا ئېلان خېتىنى رەسمىي ماۋزۇ، ئۇلىنىش ۋە دۇكان كۇنۇپكىلىرى بىلەن تەڭ چىقىرىش)
  */
 export async function sendChannelBroadcast(
   content: string
@@ -810,6 +860,7 @@ ${content}
         chat_id: targetChannel,
         text: formattedMessage,
         parse_mode: 'HTML',
+        disable_web_page_preview: true,
         reply_markup: keyboard,
       }),
     });
@@ -824,6 +875,7 @@ ${content}
           chat_id: `@${TELEGRAM_CONFIG.channelUsername}`,
           text: formattedMessage,
           parse_mode: 'HTML',
+          disable_web_page_preview: true,
           reply_markup: keyboard,
         }),
       });
@@ -1335,8 +1387,12 @@ function getAdminInlineKeyboard() {
     inline_keyboard: [
       [
         {
-          text: '📢 قانالغا ئۇچۇر يوللاش (@autocash_cannel) 🚀',
+          text: '💬 قانالغا ئايرىم خەت يوللاش (/chan) ✍️',
           callback_data: 'admin_help_chan',
+        },
+        {
+          text: '📢 قانالغا ئېلان خېتى چىقىرىش (/ad) 🔥',
+          callback_data: 'admin_help_ad',
         },
       ],
       [
@@ -1899,7 +1955,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       return;
     }
 
-    // 7.1 Admin Channel Help Guide
+    // 7.1 Admin Channel Raw Text Help Guide
     if (data === 'admin_help_chan') {
       if (!isAdmin) {
         await answerCallbackQuery(cqId, 'رۇخسەت يوق', true);
@@ -1907,19 +1963,51 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       }
       await answerCallbackQuery(cqId);
       const chanGuide = `
-╭━━━ 📢🔥 <b>قانالغا بىۋاستە ئېلان/ئۇچۇر يوللاش</b> 🔥📢 ━━━╮
-      ⚡️ <i>@autocash_cannel قانىلىغا ئاپتوماتىك تارقىتىش</i> ⚡️
+╭━━━ 💬✍️ <b>قانالغا ئايرىم خەتنىلا چىقىرىش</b> ✍️💬 ━━━╮
+      ⚡️ <i>پەقەت يازغان خېتىڭىزلا چىقىدۇ، باشقا قېلىپ قوشۇلمىغان</i> ⚡️
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 💡 <b>ئىشلىتىش ئۇسۇلى:</b>
-تۆۋەندىكى بويىچە بۇيرۇقنى يېزىپ بېسىڭ (قانالغا ئاپتوماتىك دۇكان كۇنۇپكىسى قوشۇپ چىقىرىلىدۇ):
-<code>/chan بۇ يەرگە قانالغا چىقىرىدىغان مەزمۇننى يېزىڭ</code>
+تۆۋەندىكىدەك يېزىپ بېسىڭ:
+<code>/chan بۇ يەرگە قانالغا چىقىرىدىغان خېتىڭىزنى يېزىڭ</code>
 
 📌 <b>مەسىلەن (چەكسىڭىز كۆچۈرۈلىدۇ):</b>
-<code>/chan 🔥 ھۆرمەتلىك خېرىدارلار، بۈگۈنكى PUBG UC ۋە بارلىق مەھسۇلاتلارغا ئالاھىدە ئېتىبار قوشۇلدى! سېتىۋېلىشقا مەرھەمەت!</code>
+<code>/chan ئەسسالامۇ ئەلەيكۈم ۋەرەھمەتۇللاھى ۋەبەرەكاتۇھۇ</code>
+
+✨ <i>بۇنىڭدا ھېچقانداق دۇكان ئېلان قېلىپى، ماۋزۇ ياكى كۇنۇپكا قوشۇلمايدۇ، پەقەت سىز يازغان ئايرىم خەتلا چىقىدۇ.</i>
 `.trim();
 
       await showOrEditMessage(chatId, messageId, chanGuide, {
+        inline_keyboard: [
+          [{ text: '🔙🏠 باشقۇرۇش باش بېتىگە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      });
+      return;
+    }
+
+    // 7.1.1 Admin Channel Ad Help Guide
+    if (data === 'admin_help_ad') {
+      if (!isAdmin) {
+        await answerCallbackQuery(cqId, 'رۇخسەت يوق', true);
+        return;
+      }
+      await answerCallbackQuery(cqId);
+      const adGuide = `
+╭━━━ 📢🔥 <b>قانالغا ئېلان خېتى يوللاش (دۇكان كۇنۇپكىسى بىلەن)</b> 🔥📢 ━━━╮
+      ⚡️ <i>رەسمىي ماۋزۇ، ئۇلىنىش ۋە دۇكان كۇنۇپكىلىرى بىلەن</i> ⚡️
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+💡 <b>ئىشلىتىش ئۇسۇلى:</b>
+تۆۋەندىكىدەك يېزىپ بېسىڭ:
+<code>/ad سىزنىڭ ئېلان مەزمۇنىڭىز</code>
+
+📌 <b>مەسىلەن (چەكسىڭىز كۆچۈرۈلىدۇ):</b>
+<code>/ad 🔥 بۈگۈن PUBG UC ۋە بارلىق تۈرلەرگە يېڭى ئېتىبار قوشۇلدى! ھەميانغا پۇل سېلىپ، سېكۇنتتا قاچىلاۋېلىڭ.</code>
+
+✨ <i>ئۇچۇر ئاستىغا «دۇكاننى ئېچىش» ۋە «مۇلازىمەت» كۇنۇپكىلىرى ئاپتوماتىك قوشۇلۇپ چىقىدۇ.</i>
+`.trim();
+
+      await showOrEditMessage(chatId, messageId, adGuide, {
         inline_keyboard: [
           [{ text: '🔙🏠 باشقۇرۇش باش بېتىگە قايتىش ↩️', callback_data: 'back_to_main' }],
         ],
@@ -2103,39 +2191,78 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     return;
   }
 
-  // 2.1 Admin Command: /chan or /channel or /kanal (Publish to Telegram Channel ONLY)
-  if (text.startsWith('/chan') || text.startsWith('/channel') || text.startsWith('/kanal')) {
+  // 2.1 Admin Command: /chan or /say or /chmsg (Publish PURE TEXT ONLY to Channel - ئايرىم خەتنىلا چىقىرىش)
+  if ((text.startsWith('/chan') && !text.startsWith('/chanad')) || text.startsWith('/say') || text.startsWith('/chmsg')) {
     if (!isAdmin) {
-      await sendTelegramMessage(chatId, '⚠️ كەچۈرۈڭ، پەقەت دۇكان باشقۇرغۇچىسىلا قانالغا ئېلان ياكى ئۇچۇر يوللىيالايدۇ.');
+      await sendTelegramMessage(chatId, '⚠️ كەچۈرۈڭ، پەقەت دۇكان باشقۇرغۇچىسىلا قانالغا خەت يوللىيالايدۇ.');
       return;
     }
 
     const content = text
-      .replace(/^\/(channel|chan|kanal)/, '')
+      .replace(/^\/(chansay|chmsg|channel|chan|say)/, '')
       .trim();
 
     if (!content) {
       await sendTelegramMessage(
         chatId,
-        `📢 <b>قانالغا ئۇچۇر چىقىرىش ئۇسۇلى:</b>\n\n<code>/chan قانالغا چىقىرىدىغان مەزمۇننى يېزىڭ</code>\n\n📌 مەسىلەن:\n<code>/chan 🔥 ھۆرمەتلىك خېرىدارلار، بۈگۈن بارلىق مەھسۇلاتلارغا ئالاھىدە ئېتىبار قوشۇلدى! دۇكاننى ئېچىپ شۇئان قاچىلاۋېلىڭ.</code>`,
+        `💬 <b>قانالغا ئايرىم خەت يوللاش ئۇسۇلى:</b>\n\n<code>/chan سىزنىڭ خېتىڭىز</code>\n\n📌 مەسىلەن:\n<code>/chan ئەسسالامۇ ئەلەيكۈم ۋەرەھمەتۇللاھى ۋەبەرەكاتۇھۇ</code>\n\n✨ <i>بۇ پەقەت سىز يازغان خەتنىلا ئايرىم چىقىرىدۇ (ئارتۇق بەلگە، ماۋزۇ ياكى ئېلان قېلىپى قوشۇلمايدۇ).</i>`,
         { parse_mode: 'HTML' }
       );
       return;
     }
 
-    await sendTelegramMessage(chatId, '⏳ ئۇچۇر @autocash_cannel قانىلىغا يوللىنىۋاتىدۇ...');
-    const res = await sendChannelBroadcast(content);
+    await sendTelegramMessage(chatId, '⏳ خەت @autocash_cannel قانىلىغا چىقىرىلىۋاتىدۇ...');
+    const res = await sendChannelRawText(content);
 
     if (res.success) {
       await sendTelegramMessage(
         chatId,
-        `✅ <b>@${TELEGRAM_CONFIG.channelUsername} قانىلىغا ئۇچۇر مۇۋەپپەقىيەتلىك تارقىتىلدى!</b> 📢\n━━━━━━━━━━━━━━━━━━\n<i>ئۇچۇر ئاستىغا دۇكان ئېچىش كۇنۇپكىسى بىلەن بىللە چىقتى.</i>`,
+        `✅ <b>@${TELEGRAM_CONFIG.channelUsername} قانىلىغا خېتىڭىز مۇۋەپپەقىيەتلىك چىقتى!</b> 💬\n━━━━━━━━━━━━━━━━━━\n<i>ئۇچۇر: «${content.slice(0, 80)}${content.length > 80 ? '...' : ''}»</i>`,
         { parse_mode: 'HTML' }
       );
     } else {
       await sendTelegramMessage(
         chatId,
         `⚠️ <b>قانالغا يوللاش مەغلۇپ بولدى:</b> ${res.error || 'خاتالىق كۆرۈلدى'}\n(ئەسكەرتىش: بوتنىڭ قانالدا ئۇچۇر يوللاش ھوقۇقى بار-يوقلۇقىنى تەكشۈرۈڭ).`,
+        { parse_mode: 'HTML' }
+      );
+    }
+    return;
+  }
+
+  // 2.1.1 Admin Command: /ad or /chanad or /elan (Publish PROMOTIONAL AD with Header & Store Buttons to Channel - ئېلان خېتى يوللاش)
+  if (text.startsWith('/ad') || text.startsWith('/chanad') || text.startsWith('/elan')) {
+    if (!isAdmin) {
+      await sendTelegramMessage(chatId, '⚠️ كەچۈرۈڭ، پەقەت دۇكان باشقۇرغۇچىسىلا ئېلان يوللىيالايدۇ.');
+      return;
+    }
+
+    const content = text
+      .replace(/^\/(chanad|elan|ad)/, '')
+      .trim();
+
+    if (!content) {
+      await sendTelegramMessage(
+        chatId,
+        `📢 <b>قانالغا ئېلان خېتى چىقىرىش ئۇسۇلى:</b>\n\n<code>/ad سىزنىڭ ئېلان مەزمۇنىڭىز</code>\n\n📌 مەسىلەن:\n<code>/ad 🔥 بۈگۈن PUBG UC ۋە بارلىق تۈرلەرگە يېڭى ئېتىبار قوشۇلدى! سېتىۋېلىشقا مەرھەمەت!</code>\n\n✨ <i>بۇ رەسمىي ماۋزۇ، دۇكان ئۇلىنىشى ۋە ئېچىش كۇنۇپكىلىرى بىلەن تەڭ چىقىدۇ.</i>`,
+        { parse_mode: 'HTML' }
+      );
+      return;
+    }
+
+    await sendTelegramMessage(chatId, '⏳ تەشۋىقات ئېلانى @autocash_cannel قانىلىغا يوللىنىۋاتىدۇ...');
+    const res = await sendChannelBroadcast(content);
+
+    if (res.success) {
+      await sendTelegramMessage(
+        chatId,
+        `✅ <b>@${TELEGRAM_CONFIG.channelUsername} قانىلىغا ئېلان خېتى مۇۋەپپەقىيەتلىك تارقىتىلدى!</b> 📢\n━━━━━━━━━━━━━━━━━━\n<i>دۇكان كۇنۇپكىسى بىلەن بىللە چىقتى.</i>`,
+        { parse_mode: 'HTML' }
+      );
+    } else {
+      await sendTelegramMessage(
+        chatId,
+        `⚠️ <b>قانالغا ئېلان يوللاش مەغلۇپ بولدى:</b> ${res.error || 'خاتالىق كۆرۈلدى'}\n(ئەسكەرتىش: بوتنىڭ قانالدا ئۇچۇر يوللاش ھوقۇقى بار-يوقلۇقىنى تەكشۈرۈڭ).`,
         { parse_mode: 'HTML' }
       );
     }
@@ -2739,7 +2866,8 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
 👋 <b>ھۆرمەتلىك باشقۇرغۇچى @${from?.username || from?.first_name}!</b>
 سىز تۆۋەندىكى بۇيرۇقلار بىلەن قانال، بارلىق خېرىدار ياكى يەككە خېرىدارغا بىۋاستە خەت يازالايسىز:
 
-📢 <b>/chan &lt;مەزمۇن&gt;</b> — قانالغا (@autocash_cannel) ئېلان/ئۇچۇر يوللاش
+💬 <b>/chan &lt;خەت&gt;</b> — قانالغا ئايرىم خەتنىلا چىقىرىش (قېلىپسىز، پەقەت يازغان خەتلا بارىدۇ)
+📢 <b>/ad &lt;ئېلان&gt;</b> — قانالغا ئېلان خېتى يوللاش (دۇكان كۇنۇپكىسى ۋە رەسمىي ماۋزۇ بىلەن)
 👥 <b>/sendall &lt;مەزمۇن&gt;</b> — بارلىق بوت خېرىدارلىرىغا ئومۇمىي ئۇچۇر تارقىتىش
 👤 <b>/sendto &lt;ID/@username&gt; &lt;ئۇچۇر&gt;</b> — يەككە خېرىدارغا بىۋاستە خەت يېزىش
 📢 <b>/post &lt;مەزمۇن&gt;</b> — بىرلا ۋاقىتتا قانالغا ۋە خېرىدارلارغا تەڭ تارقىتىش
