@@ -15,6 +15,9 @@ import {
   updateDepositStatusAsync,
   refundOrderBalanceAtomicAsync,
   getDepositByIdAsync,
+  getOrderByIdAsync,
+  getSystemSettingsAsync,
+  OrderRecord,
 } from './db';
 
 export const TELEGRAM_CONFIG = {
@@ -772,6 +775,262 @@ ${content}
 }
 
 /**
+ * Find order safely by exact ID, ID without prefix, or prefix search
+ */
+async function findOrderSafely(query: string): Promise<OrderRecord | null> {
+  const clean = query.replace(/^#/, '').trim();
+  if (!clean) return null;
+  let order = await getOrderByIdAsync(clean);
+  if (order) return order;
+  if (!clean.startsWith('ord_')) {
+    order = await getOrderByIdAsync(`ord_${clean}`);
+    if (order) return order;
+  }
+  const all = await getAllOrdersAsync();
+  const matched = all.find(
+    (o) =>
+      o.id.toLowerCase() === clean.toLowerCase() ||
+      o.id.toLowerCase().startsWith(clean.toLowerCase()) ||
+      o.id.toLowerCase().replace('ord_', '').startsWith(clean.toLowerCase())
+  );
+  return matched || null;
+}
+
+/**
+ * Format real-time luxury order tracking card
+ */
+function formatOrderTrackingCard(order: OrderRecord) {
+  const cleanId = order.id.replace('ord_', '');
+  const amountStr = Number(order.amount || 0).toFixed(2);
+  const target = order.targetAccount || '—';
+  const timeStr = order.createdAt
+    ? new Date(order.createdAt).toLocaleString('ug-CN', { timeZone: 'Asia/Urumqi' })
+    : '—';
+
+  let statusBadge = '';
+  if (order.status === 'completed') {
+    statusBadge = '✅ <b>تاماملاندى (مۇۋەپپەقىيەتلىك كىردى)</b> 🚀\n<i>⚡️ پۇل ھېساباتىڭىزغا كىرگۈزۈلدى، AUTO CASH نى تاللىغىنىڭىزغا رەھمەت!</i>';
+  } else if (order.status === 'processing') {
+    statusBadge = '⏳ <b>بىر تەرەپ قىلىنىۋاتىدۇ (قاچىلىنىۋاتىدۇ)</b> ⚡️\n<i>ئادەتتە 1-3 مىنۇتتا پۈتىدۇ، تېز پۈتۈشىگە ئاز قالدى.</i>';
+  } else if (order.status === 'failed') {
+    statusBadge = '❌ <b>مەغلۇپ بولدى (پۇل ھەميانغا تولۇق قايتۇرۇلدى)</b> 💰\n<i>خاتا ئويۇن ID ياكى مەھسۇلات پۈتمىگەنلىكى سەۋەبىدىن پۇل ھەميىنىڭىزگە چۈشتى.</i>';
+  } else if (order.status === 'refunded') {
+    statusBadge = '💰 <b>پۇل قايتۇرۇلدى (ھەميان قالدۇقىغا كىردى)</b>';
+  } else {
+    statusBadge = `ℹ️ <b>ھالىتى:</b> <code>${order.status}</code>`;
+  }
+
+  const text = `
+╭━━━ 📦🔍 <b>AUTO CASH زاكاز تەپسىلاتى</b> 🔍📦 ━━━╮
+      ⚡️ <i>24/7 نەق مەيدان جانلىق تەكشۈرۈش مەركىزى</i> ⚡️
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+🆔 <b>زاكاز نومۇرى:</b> <code>#${cleanId}</code>
+🎮 <b>مەھسۇلات:</b> <b>${order.serviceName || 'رەقەملىك مەھسۇلات'}</b> - ${order.packageTitle || ''}
+💎 <b>سوممىسى:</b> <b>$${amountStr} USD</b>
+🎯 <b>قاچىلانغان ID:</b> <code>${target}</code>
+⏰ <b>زاكاز ۋاقتى:</b> ${timeStr}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${statusBadge}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👇 يەنە باشقا زاكاز نومۇرىڭىزنى يېزىپ ئەۋەتسىڭىزمۇ دەرھال سۈرۈشتۈرۈپ بېرىدۇ.
+`.trim();
+
+  const keyboard = {
+    inline_keyboard: [
+      [
+        { text: '🔄 زاكازنى قايتا تەكشۈرۈش ⚡️', callback_data: `recheck_ord:${order.id}` },
+        { text: '💬 خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl },
+      ],
+      [
+        { text: '📦 بارلىق زاكازلىرىم (توربەت) ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/orders` } },
+        { text: '🔙 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' },
+      ],
+    ],
+  };
+
+  return { text, keyboard };
+}
+
+/**
+ * Live Exchange Rates Message
+ */
+function getExchangeRatesMessage(effectiveRate: number): string {
+  const sypRate = Math.round(effectiveRate || 15000);
+  return `
+╭━━━ 💱📊 <b>AUTO CASH — نەق مەيدان پېرېۋوت باھاسى</b> 📊💱 ━━━╮
+      ⚡️ <i>24/7 ئاپتوماتىك سېكۇنتتا ھەميانغا پۇل كىرىش كاپالىتى</i> ⚡️
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+💵 <b>1.00 USD (دوللار)</b> = <b>${sypRate.toLocaleString()} SYP (شامكەش لىراسى)</b>
+
+📊 <b>كۆپ ئۇچرايدىغان شامكەش تالون مىساللىرى:</b>
+• <b>75,000 SYP</b> ➔ <b>$5.00 USD</b> (325 PUBG UC ياكى 530 Free Fire Diamonds)
+• <b>150,000 SYP</b> ➔ <b>$10.00 USD</b> (660 PUBG UC ياكى 1080 Free Fire Diamonds)
+• <b>375,000 SYP</b> ➔ <b>$25.00 USD</b> (1800 PUBG UC + ئارتۇقچە قالدۇق)
+• <b>750,000 SYP</b> ➔ <b>$50.00 USD</b> (3850 PUBG UC + VIP كەش بەك)
+
+🚀 <b>قانداق سالىسىز؟</b>
+Sham Cash ئەپى ئارقىلىق پۇل ئەۋەتىپ، تالون نومۇرىنى (TxID) دۇكاننىڭ «پۇل كىرگۈزۈش» بېتىدىن كىرگۈزسىڭىز، سېكۇنتتا ھەميىنىڭىزگە چۈشىدۇ!
+`.trim();
+}
+
+/**
+ * Customer FAQ Message
+ */
+function getFaqMessage(): string {
+  return `
+╭━━━ ❓💡 <b>AUTO CASH — كۆپ سورىلىدىغان سوئاللار (FAQ)</b> 💡❓ ━━━╮
+      💎 <i>قەدىرلىك خېرىدارلار ئەڭ كۆپ سورايدىغان مەسىلىلەر</i> 💎
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+<b>1. شامكەشتىن پۇل سالسام قاچان كىرىدۇ؟</b>
+✅ تالون نومۇرى (TxID) نى دۇكاننىڭ «ھەميانغا پۇل كىرگۈزۈش» بېتىگە كىرگۈزۈپ «دەلىللەش» كۇنۇپكىسىنى باسسىڭىز، سېكۇنت ئىچىدە ئاپتوماتىك تەستىقلىنىپ كىرىدۇ!
+
+<b>2. زاكاز بەرگەندىن كېيىن قانچىلىك ۋاقىتتا پۈتىدۇ؟</b>
+⚡️ سىستېمىمىز پۈتۈنلەي ئاپتوماتلاشقان! زاكازلارنىڭ %95 ى 1-3 مىنۇتتا بىۋاسىتە ئويۇن ياكى ئەپ ھېساباتىڭىزغا قاچىلىنىدۇ.
+
+<b>3. ئەگەر مەھسۇلات مەغلۇپ بولسا پۇلۇم كۆيۈپ كېتەمدۇ؟</b>
+💰 ھەرگىز كۆيمەيدۇ! زاكاز مەغلۇپ بولسا ياكى ئويۇن ID خاتا بولسا، پۇل دەرھال AUTO CASH ھەميان قالدۇقىڭىزغا سېكۇنتتا تولۇق قايتۇرۇلىدۇ. سىز قايتا زاكاز بېرەلەيسىز ياكى باشقا مەھسۇلات ئالالايسىز.
+
+<b>4. قايسى خىل تۆلەش ئۇسۇللىرىنى قوللايدۇ؟</b>
+💳 سۈرىيە شامكەش (Sham Cash)، تۈركىيە لىراسى، كرىپتو (USDT) ۋە خەلقئارالىق قولايلىق ئۇسۇللار تەمىنلەنگەن.
+
+<b>5. سۈرۈشتۈرۈش ياكى باغلانماقچى بولسامچۇ؟</b>
+👨‍💻 24/7 خېرىدارلار مۇلازىمەت مەسئۇلىمىز سىزگە ياردەم بېرىشكە تەييار: @${TELEGRAM_CONFIG.supportUsername}
+`.trim();
+}
+
+/**
+ * VIP Membership System Message
+ */
+function getVipMembershipMessage(): string {
+  return `
+╭━━━ 👑💎 <b>AUTO CASH VIP ئەزالىق ۋە ئېتىبار تۈزۈمى</b> 💎👑 ━━━╮
+      🌟 <i>قانداق قىلىپ تېخىمۇ كۆپ ئېتىبار ۋە قايتۇرما پۇلغا ئېرىشىسىز؟</i> 🌟
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+🥇 <b>VIP 1 ئەزالىق:</b>
+• مەبلەغ ئومۇمىي مىقدارى: $50+
+• ئېتىبار: ھەر بىر زاكازدىن %1.0 كەش بەك (Cashback) ھەميانغا قايتىدۇ
+• ئالاھىدىلىكى: 24/7 تېز يول ئارقىلىق بىر تەرەپ قىلىش
+
+🥈 <b>VIP 2 ئالتۇن ئەزالىق:</b>
+• مەبلەغ ئومۇمىي مىقدارى: $200+
+• ئېتىبار: بارلىق زاكازلاردىن %2.5 كەش بەك
+• ئالاھىدىلىكى: مەخسۇس ئېتىبار باھالار ۋە كۈندىلىك سوۋغات پائالىيەتلىرى
+
+💎 <b>VIP 3 ئالماس ئەزالىق:</b>
+• مەبلەغ ئومۇمىي مىقدارى: $500+
+• ئېتىبار: ئەڭ يۇقىرى %5.0 كەش بەك
+• ئالاھىدىلىكى: 1 گە 1 مەخسۇس تېز مۇلازىمەت، يېڭى مەھسۇلاتلارنى ئالدىن سېتىۋېلىش
+
+👇 تۆۋەندىكى كۇنۇپكىنى بېسىپ ئەزالىق ئەھۋالىڭىزنى كۆرۈڭ:
+`.trim();
+}
+
+/**
+ * App Download Message
+ */
+function getAppDownloadMessage(): string {
+  return `
+╭━━━ 📲⚡️ <b>AUTO CASH رەسمىي يانفون ئەپى (Android APK)</b> ⚡️📲 ━━━╮
+      🚀 <i>تېلېفوندا تېخىمۇ راۋان، تېز ۋە قولايلىق سېتىۋېلىش</i> 🚀
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+📱 <b>ئەپ ئۇچۇرى:</b>
+• ئەڭ يېڭى نەشرى: <b>v1.4.0 (سەرخىل يۇمىلاق ھەشەمەتلىك لوگولۇق)</b>
+• سىستېما تەلىپى: Android 7.0+
+• سىغىمى: ~8.06 MB
+• ئالاھىدىلىكى: سېكۇنتتا ئېچىلىش، تېز پۇل كىرگۈزۈش، زاكاز ئاپتوماتىك ئۇقتۇرۇشى.
+
+👇 <b>تۆۋەندىكى كۇنۇپكىنى بېسىپ ئەپنى بىۋاسىتە تېلېفونىڭىزغا چۈشۈرۈۋېلىڭ:</b>
+`.trim();
+}
+
+/**
+ * Publish & Pin Master Guide to Channel (@autocash_cannel)
+ */
+export async function pinChannelMasterGuide(): Promise<{ ok: boolean; messageId?: number; error?: string }> {
+  const token = getBotToken();
+  if (!token) return { ok: false, error: 'Token missing' };
+  const targetChannel = TELEGRAM_CONFIG.channelId || `@${TELEGRAM_CONFIG.channelUsername}`;
+
+  const pinText = `
+╭━━━ 🌟👑 <b>AUTO CASH | رەسمىي تېز سۈرئەتلىك دۇكان</b> 👑🌟 ━━━╮
+      💎 <i>ئويۇن، ئەپ ۋە رەقەملىك دۇنياغا پۇل قاچىلاش سۇپىسى</i> 💎
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+👋 <b>ھۆرمەتلىك قەدىرلىك قېرىنداشلار ۋە دوستلار!</b>
+<b>AUTO CASH</b> رەسمىي تېلېگرام قانىلىمىزغا خۇش كەپسىز!
+
+⚡️ <b>بىزنىڭ كاپالىتىمىز ۋە ئەۋزەللىكلىرىمىز:</b>
+• 🚀 <b>24/7 سېكۇنتتا ئاپتوماتىك قاچىلاش:</b> زاكاز بەرگەن ھامان سېكۇنتتا يېتىپ كېلىدۇ!
+• 💰 <b>شامكەش (Sham Cash) ئاپتوماتىك كىرىش:</b> 24 سائەت تالون نومۇرى بىلەن سېكۇنتتا ھەميانغا پۇل كىرىدۇ!
+• 🎮 <b>بارلىق دۇنياۋى ئويۇن ۋە ئەپلەر:</b> PUBG UC، Free Fire، TikTok Coins، Telegram Premium، ChatGPT Plus ۋە مەۋھۇم نومۇرلار.
+• 🛡️ <b>%100 كاپالەتلىك:</b> مەھسۇلات پۈتمىسە ياكى خاتا كىرسە پۇلىڭىز سېكۇنتتا ھەميانغا تولۇق قايتىدۇ.
+• 📱 <b>رەسمىي ئەپ نۇسخىسى:</b> تېلېفوندا قولايلىق ئىشلىتىش ئۈچۈن Android APK تەمىنلەندى.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 <b>رەسمىي ئادرېسلىرىمىز:</b>
+• 🛍️ <b>توربەت دۇكىنى:</b> ${TELEGRAM_CONFIG.storeUrl}
+• 🤖 <b>تېلېگرام بوتى:</b> @${TELEGRAM_CONFIG.botUsername}
+• 💬 <b>24/7 خېرىدارلار مۇلازىمىتى:</b> @${TELEGRAM_CONFIG.supportUsername}
+• 📥 <b>ئەپ چۈشۈرۈش:</b> ${TELEGRAM_CONFIG.storeUrl}/download
+
+👇 <b>سېتىۋېلىش، باھا كۆرۈش ياكى پۇل كىرگۈزۈش ئۈچۈن تۆۋەندىكى كۇنۇپكىلارنى بېسىڭ:</b>
+`.trim();
+
+  const keyboard = {
+    inline_keyboard: [
+      [
+        { text: '⚡️🛍️ دۇكاننى ئېچىش | Open Store ➔', url: `https://t.me/${TELEGRAM_CONFIG.botUsername}?start=channel` },
+        { text: '🤖 تېلېگرام بوتىغا كىرىش ➔', url: `https://t.me/${TELEGRAM_CONFIG.botUsername}` },
+      ],
+      [
+        { text: '💎💳 شامكەشتىن پۇل سېلىش ⚡️', url: `https://t.me/${TELEGRAM_CONFIG.botUsername}?start=deposit` },
+        { text: '📲 يانفون ئەپىنى چۈشۈرۈش (APK) 📥', url: `${TELEGRAM_CONFIG.storeUrl}/download` },
+      ],
+      [
+        { text: '💬✨ خېرىدارلار مۇلازىمىتى (24/7) 👨‍💻', url: TELEGRAM_CONFIG.supportUrl },
+      ],
+    ],
+  };
+
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({
+        chat_id: targetChannel,
+        text: pinText,
+        parse_mode: 'HTML',
+        disable_web_page_preview: true,
+        reply_markup: keyboard,
+      }),
+    });
+    const data = await res.json();
+    if (!data.ok) return { ok: false, error: data.description };
+
+    const messageId = data.result?.message_id;
+    await fetch(`https://api.telegram.org/bot${token}/pinChatMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({
+        chat_id: targetChannel,
+        message_id: messageId,
+        disable_notification: false,
+      }),
+    });
+
+    return { ok: true, messageId };
+  } catch (err: any) {
+    return { ok: false, error: err.message };
+  }
+}
+
+/**
  * Helper to build rich interactive store inline keyboard with vibrant animated-feel badges
  */
 function getStoreInlineKeyboard() {
@@ -789,18 +1048,38 @@ function getStoreInlineKeyboard() {
           callback_data: 'quick_deposit',
         },
         {
-          text: '🔥🎮 ئالقىشلىق تۈرلەر & باھالار 🚀',
-          callback_data: 'quick_catalog',
+          text: '🔍 زاكاز سۈرۈشتۈرۈش 📦',
+          callback_data: 'quick_track',
         },
       ],
       [
         {
-          text: '🌟💡 قانداق ئىشلىتىدۇ؟ (قوللانما) 📖',
+          text: '🔥🎮 تۈرلەر ۋە باھالار 💎',
+          callback_data: 'quick_catalog',
+        },
+        {
+          text: '💱 پۇل پېرېۋوت باھاسى 📊',
+          callback_data: 'quick_rates',
+        },
+      ],
+      [
+        {
+          text: '❓ كۆپ سورىلىدىغان سوئاللار 💡',
+          callback_data: 'quick_faq',
+        },
+        {
+          text: '👑 VIP ئەزالىق تۈزۈمى 🌟',
+          callback_data: 'quick_vip',
+        },
+      ],
+      [
+        {
+          text: '🌟💡 ئىشلىتىش قوللانمىسى 📖',
           callback_data: 'quick_guide',
         },
         {
-          text: '💬✨ خېرىدارلار مۇلازىمىتى (24/7) 👨‍💻',
-          url: TELEGRAM_CONFIG.supportUrl,
+          text: '📲 ئەپ نۇسخىسى (APK) 📥',
+          callback_data: 'quick_download',
         },
       ],
       [
@@ -809,8 +1088,8 @@ function getStoreInlineKeyboard() {
           url: TELEGRAM_CONFIG.channelUrl,
         },
         {
-          text: '📲⚡️ يانفون ئەپىنى قاچىلاش (APK) 📥',
-          url: `${TELEGRAM_CONFIG.storeUrl}/download`,
+          text: '💬✨ خېرىدارلار مۇلازىمىتى (24/7) 👨‍💻',
+          url: TELEGRAM_CONFIG.supportUrl,
         },
       ],
     ],
@@ -1166,25 +1445,242 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       return;
     }
 
-    // 6. Quick Popular Catalog
+    // 6. Quick Popular Catalog (Interactive Sub-Categories)
     if (data === 'quick_catalog') {
       await answerCallbackQuery(cqId);
       const catalogText = `
-╭━━━ 🔥🎮 <b>AUTO CASH — ئالقىشلىق مەھسۇلاتلار</b> 🎮🔥 ━━━╮
-      💎 <i>ئەڭ ئەرزان توپ ۋە پارچە باھالار تىزىملىكى</i> 💎
+╭━━━ 🔥🎮 <b>AUTO CASH — مەھسۇلات ۋە باھالار</b> 🎮🔥 ━━━╮
+      💎 <i>تۆۋەندىكى تۈرلەرنى بېسىپ تەپسىلىي باھالارنى كۆرۈڭ</i> 💎
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-• 🔫 <b>PUBG Mobile UC:</b> 60 UC تىن 8100 UC غىچە سېكۇنتتا ⚡️
+• 🔫 <b>PUBG Mobile UC:</b> 60 تىن 8100 UC غىچە سېكۇنتتا ⚡️
 • 🔥 <b>Free Fire:</b> بارلىق ئالماس (Diamonds) تۈرلىرى 💎
 • 🎵 <b>TikTok Coins:</b> ئەڭ يۇقىرى باھا ئېتىبارى 💫
-• 🤖 <b>ChatGPT Plus & Claude Pro:</b> سۈنئىي ئەقىل ئابۇنىتلىرى 🧠
+• 🤖 <b>ChatGPT Plus & Claude Pro:</b> سۈنئىي ئەقىل كارتىلىرى 🧠
 • 📱 <b>مەۋھۇم نومۇرلار:</b> Telegram، WhatsApp شۇئان دەلىللەش 📲
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-👇 <b>سېتىۋېلىش ياكى قاچىلاش ئۈچۈن دۇكاننى ئېچىڭ:</b>
+👇 <b>ئۆزىڭىز قىزىققان ئويۇن ياكى ئەپنى تاللاڭ:</b>
 `.trim();
       await showOrEditMessage(chatId, messageId, catalogText, {
         inline_keyboard: [
-          [{ text: '⚡️🛍️ دۇكاننى ئېچىش | Open Store ➔', web_app: { url: TELEGRAM_CONFIG.storeUrl } }],
+          [
+            { text: '🔫 PUBG Mobile UC باھالىرى ➔', callback_data: 'cat_pubg' },
+            { text: '🔥 Free Fire ئالماس باھالىرى ➔', callback_data: 'cat_freefire' },
+          ],
+          [
+            { text: '🎵 TikTok تەڭگە باھالىرى ➔', callback_data: 'cat_tiktok' },
+            { text: '🤖 ChatGPT & AI كارتىلىرى ➔', callback_data: 'cat_ai' },
+          ],
+          [
+            { text: '⚡️🛍️ بارلىق دۇكاننى ئېچىش | WebApp ➔', web_app: { url: TELEGRAM_CONFIG.storeUrl } },
+          ],
+          [
+            { text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' },
+          ],
+        ],
+      });
+      return;
+    }
+
+    // 6.1 Category: PUBG Mobile UC
+    if (data === 'cat_pubg') {
+      await answerCallbackQuery(cqId);
+      const pubgText = `
+╭━━━ 🔫🔥 <b>PUBG Mobile UC تېز قاچىلاش باھالىرى</b> 🔥🔫 ━━━╮
+      ⚡️ <i>ID نومۇرىڭىزغا سېكۇنتتا ئاپتوماتىك كىرىدۇ</i> ⚡️
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+• 📦 <b>60 UC:</b> <b>$0.98 USD</b>
+• 📦 <b>325 UC:</b> <b>$4.85 USD</b> (ئالقىشلىق 🔥)
+• 📦 <b>660 UC:</b> <b>$9.60 USD</b> (Royale Pass ئۈچۈن 👑)
+• 📦 <b>1800 UC:</b> <b>$23.80 USD</b>
+• 📦 <b>3850 UC:</b> <b>$47.50 USD</b>
+• 📦 <b>8100 UC:</b> <b>$95.00 USD</b> (چوڭ يۇقىرى دەرىجە 💎)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👇 سېتىۋېلىش ئۈچۈن تۆۋەندىكى كۇنۇپكىنى بېسىڭ:
+`.trim();
+      await showOrEditMessage(chatId, messageId, pubgText, {
+        inline_keyboard: [
+          [{ text: '🔫 دۇكاندىن PUBG UC ئېلىش ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/?category=games` } }],
+          [{ text: '🔙🎮 بارلىق تۈرلەرگە قايتىش ↩️', callback_data: 'quick_catalog' }],
+        ],
+      });
+      return;
+    }
+
+    // 6.2 Category: Free Fire Diamonds
+    if (data === 'cat_freefire') {
+      await answerCallbackQuery(cqId);
+      const ffText = `
+╭━━━ 🔥💎 <b>Free Fire ئالماس (Diamonds) باھالىرى</b> 💎🔥 ━━━╮
+      ⚡️ <i>Player ID ئارقىلىق شۇئان قاچىلاش</i> ⚡️
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+• 💎 <b>100 + 10 ئالماس:</b> <b>$1.00 USD</b>
+• 💎 <b>210 + 21 ئالماس:</b> <b>$1.95 USD</b>
+• 💎 <b>530 + 53 ئالماس:</b> <b>$4.80 USD</b>
+• 💎 <b>1080 + 108 ئالماس:</b> <b>$9.50 USD</b> (ئەڭ كۆپ سېتىلغان 🚀)
+• 💎 <b>2200 + 220 ئالماس:</b> <b>$19.00 USD</b>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👇 سېتىۋېلىش ئۈچۈن تۆۋەندىكى كۇنۇپكىنى بېسىڭ:
+`.trim();
+      await showOrEditMessage(chatId, messageId, ffText, {
+        inline_keyboard: [
+          [{ text: '🔥 Free Fire ئالماس سېتىۋېلىش ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/?category=games` } }],
+          [{ text: '🔙🎮 بارلىق تۈرلەرگە قايتىش ↩️', callback_data: 'quick_catalog' }],
+        ],
+      });
+      return;
+    }
+
+    // 6.3 Category: TikTok Coins
+    if (data === 'cat_tiktok') {
+      await answerCallbackQuery(cqId);
+      const ttText = `
+╭━━━ 🎵💫 <b>TikTok تەڭگە (Coins) باھالىرى</b> 💫🎵 ━━━╮
+      ⚡️ <i>شەخسىي ھېساباتقا شۇئان بىخەتەر قاچىلاش</i> ⚡️
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+• 🪙 <b>70 Coins:</b> <b>$0.90 USD</b>
+• 🪙 <b>350 Coins:</b> <b>$4.40 USD</b>
+• 🪙 <b>700 Coins:</b> <b>$8.75 USD</b>
+• 🪙 <b>1400 Coins:</b> <b>$17.50 USD</b>
+• 🪙 <b>3500 Coins:</b> <b>$43.50 USD</b>
+• 🪙 <b>7000 Coins:</b> <b>$87.00 USD</b>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👇 سېتىۋېلىش ئۈچۈن تۆۋەندىكى كۇنۇپكىنى بېسىڭ:
+`.trim();
+      await showOrEditMessage(chatId, messageId, ttText, {
+        inline_keyboard: [
+          [{ text: '🎵 TikTok تەڭگە سېتىۋېلىش ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/?category=apps` } }],
+          [{ text: '🔙🎮 بارلىق تۈرلەرگە قايتىش ↩️', callback_data: 'quick_catalog' }],
+        ],
+      });
+      return;
+    }
+
+    // 6.4 Category: ChatGPT & AI
+    if (data === 'cat_ai') {
+      await answerCallbackQuery(cqId);
+      const aiText = `
+╭━━━ 🤖🧠 <b>سۈنئىي ئەقىل (AI) & رەقەملىك كارتىلار</b> 🧠🤖 ━━━╮
+      ⚡️ <i>رەسمىي، تەستىقلانغان يۇقىرى سۈرئەتلىك مۇلازىمەت</i> ⚡️
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+• 🧠 <b>ChatGPT Plus (1 ئايلىق):</b> <b>$22.50 USD</b>
+• 💡 <b>Claude Pro (1 ئايلىق):</b> <b>$22.50 USD</b>
+• ✈️ <b>Telegram Premium (3 ئايلىق):</b> <b>$14.50 USD</b>
+• ✈️ <b>Telegram Premium (1 يىللىق):</b> <b>$38.00 USD</b>
+• 📱 <b>مەۋھۇم نومۇرلار (Telegram/WhatsApp):</b> <b>$0.50 - $2.00 USD</b>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👇 سېتىۋېلىش ئۈچۈن تۆۋەندىكى كۇنۇپكىنى بېسىڭ:
+`.trim();
+      await showOrEditMessage(chatId, messageId, aiText, {
+        inline_keyboard: [
+          [{ text: '🤖 AI ۋە مۇشتەرىلىكلەرنى ئېچىش ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/?category=subscriptions` } }],
+          [{ text: '🔙🎮 بارلىق تۈرلەرگە قايتىش ↩️', callback_data: 'quick_catalog' }],
+        ],
+      });
+      return;
+    }
+
+    // 6.5 Quick Order Tracking (Customer click)
+    if (data === 'quick_track') {
+      await answerCallbackQuery(cqId);
+      const trackPrompt = `
+╭━━━ 🔍📦 <b>AUTO CASH — زاكاز سۈرۈشتۈرۈش مەركىزى</b> 📦🔍 ━━━╮
+      ⚡️ <i>24/7 نەق مەيدان جانلىق زاكاز تەكشۈرۈش</i> ⚡️
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+📌 <b>زاكاز ھالىتىڭىزنى بىلمەكچىمۇسىز؟</b>
+بۇ يەرگە زاكاز نومۇرىڭىزنى بىۋاسىتە يېزىپ ئەۋەتىڭ!
+
+مەسىلەن:
+<code>ord_1729000000000</code> ياكى <code>#12345678</code>
+
+💡 <i>زاكاز نومۇرىنى توربەتتىكى «زاكازلىرىم» بېتىدىن ياكى سېتىۋالغاندىكى تالوندىن كۆچۈرۈۋالسىڭىز بولىدۇ. سىستېما سېكۇنتتا نەتىجىسىنى چىقىرىپ بېرىدۇ.</i>
+`.trim();
+      await showOrEditMessage(chatId, messageId, trackPrompt, {
+        inline_keyboard: [
+          [{ text: '📦 بارلىق زاكازلىرىم (توربەت) ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/orders` } }],
+          [{ text: '💬 خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl }],
+          [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      });
+      return;
+    }
+
+    // 6.6 Recheck specific order
+    if (data.startsWith('recheck_ord:')) {
+      const ordId = data.replace('recheck_ord:', '').trim();
+      await answerCallbackQuery(cqId, 'زاكاز تەكشۈرۈلۈۋاتىدۇ...');
+      const order = await findOrderSafely(ordId);
+      if (order) {
+        const card = formatOrderTrackingCard(order);
+        await showOrEditMessage(chatId, messageId, card.text, card.keyboard);
+      } else {
+        await answerCallbackQuery(cqId, '❌ زاكاز تېپىلمىدى', true);
+      }
+      return;
+    }
+
+    // 6.7 Quick Exchange Rates
+    if (data === 'quick_rates') {
+      await answerCallbackQuery(cqId);
+      let rate = 15000;
+      try {
+        const s = await getSystemSettingsAsync();
+        if (s?.shamcashExchangeRate) rate = s.shamcashExchangeRate;
+      } catch {}
+      const rateText = getExchangeRatesMessage(rate);
+      await showOrEditMessage(chatId, messageId, rateText, {
+        inline_keyboard: [
+          [{ text: '💎💳 ھەميانغا پۇل سېلىش كۆزنىكى ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` } }],
+          [{ text: '⚡️🛍️ دۇكاننى ئېچىش ➔', web_app: { url: TELEGRAM_CONFIG.storeUrl } }],
+          [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      });
+      return;
+    }
+
+    // 6.8 Customer FAQ
+    if (data === 'quick_faq') {
+      await answerCallbackQuery(cqId);
+      const faqText = getFaqMessage();
+      await showOrEditMessage(chatId, messageId, faqText, {
+        inline_keyboard: [
+          [{ text: '💬✨ خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl }],
+          [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      });
+      return;
+    }
+
+    // 6.9 VIP Membership Perks
+    if (data === 'quick_vip') {
+      await answerCallbackQuery(cqId);
+      const vipText = getVipMembershipMessage();
+      await showOrEditMessage(chatId, messageId, vipText, {
+        inline_keyboard: [
+          [{ text: '👑💎 VIP ئەزالىق كۆزنىكى ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/membership` } }],
+          [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      });
+      return;
+    }
+
+    // 6.10 App Download
+    if (data === 'quick_download') {
+      await answerCallbackQuery(cqId);
+      const appText = getAppDownloadMessage();
+      await showOrEditMessage(chatId, messageId, appText, {
+        inline_keyboard: [
+          [{ text: '📥 توربەتتىن APK نى بىۋاسىتە چۈشۈرۈش ➔', url: `${TELEGRAM_CONFIG.storeUrl}/download/autocash.apk` }],
+          [{ text: '📲 چۈشۈرۈش مەركىزىنى ئېچىش ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/download` } }],
           [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
         ],
       });
@@ -1424,11 +1920,16 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 • 🛍️ <b>/start</b> — دۇكاننى ئېچىش & قارشى ئېلىش كۆزنىكى
+• 🔍 <b>/track &lt;زاكاز نومۇرى&gt;</b> — زاكاز ھالىتىنى جانلىق سۈرۈشتۈرۈش
+• 💱 <b>/rates</b> — نەق مەيدان پېرېۋوت باھاسى (شامكەش / دوللار)
 • 💡 <b>/guide</b> — 4 باسقۇچلۇق ئىشلىتىش قوللانمىسى
 • 💳 <b>/deposit</b> — شامكەش ئادرېسى ۋە پۇل كىرگۈزۈش
-• 🎮 <b>/catalog</b> — ئالقىشلىق ئويۇن ۋە ئەپلەر تىزىملىكى
+• 🎮 <b>/catalog</b> — ئالقىشلىق ئويۇن ۋە ئەپلەر باھاسى
+• 👑 <b>/vip</b> — VIP ئەزالىق ۋە كەش بەك ئېتىبارلىرى
+• 📲 <b>/app</b> — Android ئەپ نۇسخىسىنى چۈشۈرۈش
+• ❓ <b>/faq</b> — كۆپ سورىلىدىغان سوئاللار
 • 💬 <b>/support</b> — خېرىدارلار مۇلازىمىتى بىلەن ئۇلىنىش
-${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</b>\n• <b>/stats</b> — كۈنلۈك سودا، ساپ پايدا ۋە زاكاز دوكلاتى\n• <b>/post &lt;ئېلان&gt;</b> — قانال ۋە بارلىق خېرىدارلارغا ئېلان تارقىتىش\n` : ''}
+${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</b>\n• <b>/stats</b> — كۈنلۈك سودا، ساپ پايدا ۋە زاكاز دوكلاتى\n• <b>/post &lt;ئېلان&gt;</b> — قانال ۋە بارلىق خېرىدارلارغا ئېلان تارقىتىش\n• <b>/pinchannel</b> — قانالغا رەسمىي يېتەكچى ئېلاننى مىخلاش (Pin)\n` : ''}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 • 📢 رەسمىي قانال: @${TELEGRAM_CONFIG.channelUsername}
 • 💬 خېرىدارلار مۇلازىمىتى: @${TELEGRAM_CONFIG.supportUsername}
@@ -1452,8 +1953,261 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
     return;
   }
 
-  // 7. Smart Assistant & Warm Greeting for all incoming customer messages
+  // 6.1 Command /track or /order (Live Order Status Tracking)
+  if (text.startsWith('/track') || text.startsWith('/order') || text.startsWith('/status')) {
+    const query = text.replace(/^\/(track|order|status)/, '').trim();
+    if (!query) {
+      await sendTelegramMessage(
+        chatId,
+        `🔍 <b>زاكاز سۈرۈشتۈرۈش ئۇسۇلى:</b>\n\n<code>/track زاكاز_نومۇرى</code>\n\nمەسىلەن:\n<code>/track ord_1729000000000</code> ياكى پەقەت زاكاز نومۇرىڭىزنى بۇ يەرگە بىۋاسىتە يېزىپ ئەۋەتسىڭىزمۇ بولىدۇ.`,
+        {
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: '📦 بارلىق زاكازلىرىم (توربەت) ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/orders` } }],
+              [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+            ],
+          },
+        }
+      );
+      return;
+    }
+
+    const order = await findOrderSafely(query);
+    if (order) {
+      const card = formatOrderTrackingCard(order);
+      await sendTelegramMessage(chatId, card.text, {
+        parse_mode: 'HTML',
+        reply_markup: card.keyboard,
+      });
+      return;
+    } else {
+      await sendTelegramMessage(
+        chatId,
+        `❌ <b>بۇنداق زاكاز نومۇرى تېپىلمىدى:</b> <code>#${query}</code>\n\nئەگەر زاكازنى يېڭىلا بەرگەن بولسىڭىز، سىستېما تەكشۈرۈشى ئۈچۈن بىر نەچچە سېكۇنت ساقلاپ قايتا سىناڭ ياكى خېرىدارلار مۇلازىمىتىمىزگە ئەۋەتىپ بېرىڭ: @${TELEGRAM_CONFIG.supportUsername}`,
+        {
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: '📦 بارلىق زاكازلىرىم (توربەت) ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/orders` } }],
+              [{ text: '💬 خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl }],
+              [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+            ],
+          },
+        }
+      );
+      return;
+    }
+  }
+
+  // 6.2 Command /rates or /kurs (Live Exchange Rates)
+  if (text.startsWith('/rates') || text.startsWith('/kurs') || text.startsWith('/rate') || text.startsWith('/perewot')) {
+    let rate = 15000;
+    try {
+      const s = await getSystemSettingsAsync();
+      if (s?.shamcashExchangeRate) rate = s.shamcashExchangeRate;
+    } catch {}
+    const rateMsg = getExchangeRatesMessage(rate);
+    await sendTelegramMessage(chatId, rateMsg, {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '💎💳 ھەميانغا پۇل سېلىش كۆزنىكى ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` } }],
+          [{ text: '⚡️🛍️ دۇكاننى ئېچىش ➔', web_app: { url: TELEGRAM_CONFIG.storeUrl } }],
+          [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      },
+    });
+    return;
+  }
+
+  // 6.3 Command /faq or /sorak
+  if (text.startsWith('/faq') || text.startsWith('/sorak') || text.startsWith('/suallar')) {
+    const faqMsg = getFaqMessage();
+    await sendTelegramMessage(chatId, faqMsg, {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '💬✨ خېرىدارلار مۇلازىمىتى بىلەن كۆرۈشۈش 👨‍💻', url: TELEGRAM_CONFIG.supportUrl }],
+          [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      },
+    });
+    return;
+  }
+
+  // 6.4 Command /vip or /ezaliq
+  if (text.startsWith('/vip') || text.startsWith('/ezaliq') || text.startsWith('/membership')) {
+    const vipMsg = getVipMembershipMessage();
+    await sendTelegramMessage(chatId, vipMsg, {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '👑💎 VIP ئەزالىق كۆزنىكى ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/membership` } }],
+          [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      },
+    });
+    return;
+  }
+
+  // 6.5 Command /app or /apk or /download
+  if (text.startsWith('/app') || text.startsWith('/apk') || text.startsWith('/download') || text.startsWith('/yanfon')) {
+    const appMsg = getAppDownloadMessage();
+    await sendTelegramMessage(chatId, appMsg, {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '📥 توربەتتىن APK نى بىۋاسىتە چۈشۈرۈش ➔', url: `${TELEGRAM_CONFIG.storeUrl}/download/autocash.apk` }],
+          [{ text: '📲 چۈشۈرۈش مەركىزىنى ئېچىش ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/download` } }],
+          [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      },
+    });
+    return;
+  }
+
+  // 6.6 Admin Command: /pinchannel (Publish and Pin Official Store Guide in Channel)
+  if (text.startsWith('/pinchannel') || text.startsWith('/channelguide')) {
+    if (!isAdmin) {
+      await sendTelegramMessage(chatId, '⚠️ كەچۈرۈڭ، بۇ مەشغۇلات پەقەت باشقۇرغۇچىغىلا ئېچىۋېتىلگەن.');
+      return;
+    }
+    await sendTelegramMessage(chatId, '⏳ @autocash_cannel قانىلىغا رەسمىي ئېلان يوللىنىپ، مىخلاندۇرۇلىۋاتىدۇ...');
+    const pinRes = await pinChannelMasterGuide();
+    if (pinRes.ok) {
+      await sendTelegramMessage(
+        chatId,
+        `✅ <b>@${TELEGRAM_CONFIG.channelUsername} قانىلىغا رەسمىي يېتەكچى ئېلان مۇۋەپپەقىيەتلىك چىقىرىلدى ھەم مىخلاندى (Pinned)!</b>\n\n🆔 ئۇچۇر ID: <code>${pinRes.messageId}</code>`,
+        { parse_mode: 'HTML' }
+      );
+    } else {
+      await sendTelegramMessage(chatId, `⚠️ قانالغا مىخلاش مەغلۇپ بولدى: ${pinRes.error}`, { parse_mode: 'HTML' });
+    }
+    return;
+  }
+
+  // 7. Automatic Order ID Detection
+  // If customer simply pastes an Order ID (like ord_..., #ord_..., or 10-36 chars alphanumeric)
+  const cleanPotentialId = text.replace(/^#/, '').trim();
+  if (
+    cleanPotentialId.startsWith('ord_') ||
+    (/^[a-zA-Z0-9_-]{8,36}$/.test(cleanPotentialId) && !text.startsWith('/'))
+  ) {
+    const detectedOrder = await findOrderSafely(cleanPotentialId);
+    if (detectedOrder) {
+      const card = formatOrderTrackingCard(detectedOrder);
+      await sendTelegramMessage(chatId, card.text, {
+        parse_mode: 'HTML',
+        reply_markup: card.keyboard,
+      });
+      return;
+    }
+  }
+
+  // 8. Smart Keyword Assistant for Natural Customer Messages
   const lowerText = text.toLowerCase();
+
+  // If customer asks about exchange rate / currency / kurs
+  if (
+    lowerText.includes('كۇرس') ||
+    lowerText.includes('پېرېۋوت') ||
+    lowerText.includes('rates') ||
+    lowerText.includes('kurs') ||
+    lowerText.includes('لىرا')
+  ) {
+    let rate = 15000;
+    try {
+      const s = await getSystemSettingsAsync();
+      if (s?.shamcashExchangeRate) rate = s.shamcashExchangeRate;
+    } catch {}
+    const rateMsg = getExchangeRatesMessage(rate);
+    await sendTelegramMessage(chatId, rateMsg, {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '💎💳 ھەميانغا پۇل سېلىش كۆزنىكى ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` } }],
+          [{ text: '⚡️🛍️ دۇكاننى ئېچىش ➔', web_app: { url: TELEGRAM_CONFIG.storeUrl } }],
+          [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      },
+    });
+    return;
+  }
+
+  // If customer asks about order tracking / check
+  if (
+    lowerText.includes('زاكاز') ||
+    lowerText.includes('سۈرۈشتۈرۈش') ||
+    lowerText.includes('تەكشۈرۈش') ||
+    lowerText.includes('سۈرۈشتە') ||
+    lowerText.includes('نومۇر')
+  ) {
+    const trackPrompt = `
+╭━━━ 🔍📦 <b>AUTO CASH — زاكاز سۈرۈشتۈرۈش مەركىزى</b> 📦🔍 ━━━╮
+      ⚡️ <i>24/7 نەق مەيدان جانلىق زاكاز تەكشۈرۈش</i> ⚡️
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+📌 <b>زاكازىڭىزنىڭ ھالىتىنى كۆرمەكچىمۇسىز؟</b>
+زاكاز نومۇرىڭىزنى بۇ يەرگە بىۋاسىتە يېزىپ ئەۋەتسىڭىزلا، سىستېمىمىز سېكۇنتتا تەكشۈرۈپ تەپسىلاتىنى چىقىرىپ بېرىدۇ!
+
+مەسىلەن:
+<code>ord_1729000000000</code> ياكى <code>#12345678</code>
+`.trim();
+    await sendTelegramMessage(chatId, trackPrompt, {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '📦 بارلىق زاكازلىرىم (توربەت) ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/orders` } }],
+          [{ text: '💬 خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl }],
+          [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      },
+    });
+    return;
+  }
+
+  // If customer asks about mobile app / apk
+  if (
+    lowerText.includes('ئەپ') ||
+    lowerText.includes('apk') ||
+    lowerText.includes('app') ||
+    lowerText.includes('يانفون') ||
+    lowerText.includes('چۈشۈر')
+  ) {
+    const appMsg = getAppDownloadMessage();
+    await sendTelegramMessage(chatId, appMsg, {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '📥 توربەتتىن APK نى بىۋاسىتە چۈشۈرۈش ➔', url: `${TELEGRAM_CONFIG.storeUrl}/download/autocash.apk` }],
+          [{ text: '📲 چۈشۈرۈش مەركىزىنى ئېچىش ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/download` } }],
+          [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      },
+    });
+    return;
+  }
+
+  // If customer asks about VIP membership
+  if (
+    lowerText.includes('vip') ||
+    lowerText.includes('ئەزالىق') ||
+    lowerText.includes('كەش بەك') ||
+    lowerText.includes('قايتۇرما')
+  ) {
+    const vipMsg = getVipMembershipMessage();
+    await sendTelegramMessage(chatId, vipMsg, {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '👑💎 VIP ئەزالىق كۆزنىكى ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/membership` } }],
+          [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      },
+    });
+    return;
+  }
 
   // If customer asks about ShamCash deposit
   if (
@@ -1495,7 +2249,8 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
     lowerText.includes('uc') ||
     lowerText.includes('free fire') ||
     lowerText.includes('tiktok') ||
-    lowerText.includes('ئويۇن')
+    lowerText.includes('ئويۇن') ||
+    lowerText.includes('باھا')
   ) {
     const catalogText = `
 ╭━━━ 🔥🎮 <b>AUTO CASH — ئالقىشلىق مەھسۇلاتلىرىمىز</b> 🎮🔥 ━━━╮
@@ -1507,13 +2262,21 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
 • 🎵 <b>TikTok Coins:</b> شۇئان قاچىلاش 💫
 • 🤖 <b>AI ئابۇنىتلىرى:</b> ChatGPT Plus، Claude Pro 🧠
 
-👇 تۆۋەندىكى كۇنۇپكىنى بېسىپ دەرھال سېتىۋېلىڭ:
+👇 تۆۋەندىكى كۇنۇپكىلارنى بېسىپ باھالارنى تاللاڭ ياكى دۇكاننى ئېچىڭ:
 `.trim();
 
     await sendTelegramMessage(chatId, catalogText, {
       parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [
+          [
+            { text: '🔫 PUBG UC باھالىرى ➔', callback_data: 'cat_pubg' },
+            { text: '🔥 Free Fire باھالىرى ➔', callback_data: 'cat_freefire' },
+          ],
+          [
+            { text: '🎵 TikTok باھالىرى ➔', callback_data: 'cat_tiktok' },
+            { text: '🤖 AI كارتىلىرى ➔', callback_data: 'cat_ai' },
+          ],
           [{ text: '⚡️🛍️ دۇكاننى ئېچىش | Open Store ➔', web_app: { url: TELEGRAM_CONFIG.storeUrl } }],
           [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
         ],
@@ -1558,9 +2321,8 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
     return;
   }
 
-  // 8. Dynamic Teaching & How-To Guide for ANY other text / random message
+  // 9. Admin Quick Help Menu
   if (isAdmin) {
-    // If Admin types random text, show Admin Quick Help & Control Menu
     const adminHelpReply = `
 ╭━━━ 👑🛡️ <b>AUTO CASH — باشقۇرغۇچى قولايلىق ياردەمچىسى</b> 🛡️👑 ━━━╮
       ⚡️ <i>سىستېما تېز بۇيرۇقلىرى ۋە تەڭشەكلەر</i> ⚡️
@@ -1571,6 +2333,7 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
 
 📊 <b>/stats</b> — كۈنلۈك كىرىم، ساپ پايدا ۋە زاكاز دوكلاتىنى كۆرۈش
 📢 <b>/post &lt;ئېلان مەزمۇنى&gt;</b> — تېلېگرام قانىلى ۋە بارلىق خېرىدارلارغا ئېلان تارقىتىش
+📌 <b>/pinchannel</b> — قانالغا رەسمىي دۇكان يېتەكچىسىنى چىقىرىش ۋە مىخلاش (Pin)
 🛒 <b>/start</b> — باشقۇرغۇچى باش بەت كۆزنىكىنى ئېچىش
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👇 ياكى تۆۋەندىكى كۇنۇپكىلار ئارقىلىق تېز باشقۇرۇڭ:
@@ -1583,7 +2346,7 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
     return;
   }
 
-  // If Customer types ANY text or word, switch to the interactive 4-step tutorial guide ("قانداق قىلىشنى ئۆگىتىش ھالىتى")
+  // 10. If Customer types ANY other text or question, switch to the interactive 4-step tutorial guide ("قانداق قىلىشنى ئۆگىتىش ھالىتى")
   const teachingGuideMessage = getTutorialGuideMessage(from?.first_name);
 
   await sendTelegramMessage(chatId, teachingGuideMessage, {
