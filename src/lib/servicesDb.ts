@@ -137,8 +137,11 @@ export async function getServicesListAsync(): Promise<ServiceItem[]> {
         const parsed = JSON.parse(data.site_name);
         if (Array.isArray(parsed)) {
           let needsUpdate = false;
+          if (parsed.some((s: ServiceItem) => s.id === 'srv-1792696947336' || s.name.toLowerCase().includes('telecom'))) {
+            needsUpdate = true;
+          }
           const clean = parsed
-            .filter((s: ServiceItem) => !deleted.has(s.id))
+            .filter((s: ServiceItem) => !deleted.has(s.id) && s.id !== 'srv-1792696947336' && !s.name.toLowerCase().includes('telecom'))
             .map((s: ServiceItem) => {
               let item = s;
               if (s.published === false && parsed.length === 1) {
