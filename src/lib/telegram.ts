@@ -1379,6 +1379,81 @@ function getStoreInlineKeyboard() {
 }
 
 /**
+ * Check if a user is a member of the official channel (@autocash_cannel)
+ */
+export async function isUserSubscribedToChannel(userId: number | string): Promise<boolean> {
+  const token = getBotToken();
+  if (!token) return true;
+
+  const targetChannel = TELEGRAM_CONFIG.channelId || `@${TELEGRAM_CONFIG.channelUsername}`;
+
+  try {
+    const res = await fetch(
+      `https://api.telegram.org/bot${token}/getChatMember?chat_id=${encodeURIComponent(targetChannel)}&user_id=${encodeURIComponent(String(userId))}`
+    );
+    const data = await res.json();
+    if (data.ok && data.result) {
+      const status = data.result.status;
+      if (['creator', 'administrator', 'member'].includes(status)) {
+        return true;
+      }
+      if (status === 'restricted' && data.result.is_member !== false) {
+        return true;
+      }
+      return false;
+    }
+    return false;
+  } catch (err) {
+    console.warn('[Telegram] isUserSubscribedToChannel error:', err);
+    return true; // Fail safe fallback on network errors
+  }
+}
+
+/**
+ * Build mandatory channel subscription gate message
+ */
+function getSubscriptionGateMessage(firstName?: string): string {
+  const name = firstName ? `<b>${firstName}</b>` : 'ھۆرمەتلىك خېرىدارىمىز';
+  return `
+╭━━━ 📢🔒 <b>AUTO CASH | ئەزالىقنى دەلىللەش كۆزنىكى</b> 🔒📢 ━━━╮
+      ⚡️ <i>داۋاملاشتۇرۇش ئۈچۈن رەسمىي قانىلىمىزغا ئەزا بولۇڭ</i> ⚡️
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+👋 <b>ھۆرمەتلىك ${name}!</b>
+AUTO CASH نىڭ ئەڭ يېڭى ئېتىبار باھالىرى، ھەميان مۇلازىمەتلىرى ۋە 24/7 سېكۇنتتا قاچىلاش ئىقتىدارلىرىدىن پايدىلىنىش ئۈچۈن، ئالدى بىلەن رەسمىي تېلېگرام قانىلىمىزغا ئەزا بولۇشىڭىز كېرەك.
+
+📢 <b>رەسمىي قانىلىمىز:</b> @${TELEGRAM_CONFIG.channelUsername}
+
+👇 <b>ئالدى بىلەن 1-كۇنۇپكىنى بېسىپ قانالغا ئەزا بولۇڭ، ئاندىن 2-كۇنۇپكىنى بېسىپ دەلىللەڭ:</b>
+`.trim();
+}
+
+function getSubscriptionGateInlineKeyboard() {
+  return {
+    inline_keyboard: [
+      [
+        {
+          text: '📢 1. تېلېگرام قانىلىغا قوشۇلۇش ➔',
+          url: TELEGRAM_CONFIG.channelUrl,
+        },
+      ],
+      [
+        {
+          text: '✅ 2. قوشۇلدۇم، دەلىللەش 🔄',
+          callback_data: 'check_subscription',
+        },
+      ],
+      [
+        {
+          text: '💬 خېرىدارلار مۇلازىمىتى (ئالاقىلىشىش) 👨‍💻',
+          url: TELEGRAM_CONFIG.supportUrl,
+        },
+      ],
+    ],
+  };
+}
+
+/**
  * Build prestigious welcome card for new and returning visitors
  */
 function getWelcomeMessage(firstName?: string): string {
@@ -1571,6 +1646,38 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     // Security check: register admin chat ID if from an authorized admin account
     registerAdminChatId(fromId, fromUser);
     const isAdmin = isTelegramAdmin(fromId, fromUser);
+
+    // 0. Force Channel Subscription Check (check_subscription)
+    if (data === 'check_subscription') {
+      const isSub = await isUserSubscribedToChannel(fromId);
+      if (isSub) {
+        await answerCallbackQuery(cqId, '🎉 تەبرىكلەيمىز! قانال ئەزالىقىڭىز مۇۋەپپەقىيەتلىك دەلىللەندى.');
+        const welcomeText = getWelcomeMessage(cq.from?.first_name);
+        await showOrEditMessage(chatId, messageId, welcomeText, getStoreInlineKeyboard());
+      } else {
+        await answerCallbackQuery(
+          cqId,
+          '⚠️ كەچۈرۈڭ، سىز تېخى قانالغا ئەزا بولمىدىڭىز! ئالدى بىلەن «1. تېلېگرام قانىلىغا قوشۇلۇش» نى بېسىپ قانالغا قوشۇلۇڭ.',
+          true
+        );
+      }
+      return;
+    }
+
+    // If not admin, verify channel subscription before allowing other customer callbacks
+    if (!isAdmin && fromId) {
+      const isSub = await isUserSubscribedToChannel(fromId);
+      if (!isSub) {
+        await answerCallbackQuery(
+          cqId,
+          '⚠️ داۋاملاشتۇرۇش ئۈچۈن ئالدى بىلەن رەسمىي قانىلىمىزغا ئەزا بولۇشىڭىز كېرەك!',
+          true
+        );
+        const gateText = getSubscriptionGateMessage(cq.from?.first_name);
+        await showOrEditMessage(chatId, messageId, gateText, getSubscriptionGateInlineKeyboard());
+        return;
+      }
+    }
 
     // 1. Approve Deposit (dep_approve:<depositId>) [ADMIN ONLY]
     if (data.startsWith('dep_approve:')) {
@@ -2177,6 +2284,19 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
   registerAdminChatId(chatId, from?.username);
 
   const isAdmin = isTelegramAdmin(from?.id, from?.username) || isTelegramAdmin(chatId);
+
+  // Mandatory Channel Subscription Check for all non-admin users
+  if (!isAdmin && from?.id) {
+    const isSub = await isUserSubscribedToChannel(from.id);
+    if (!isSub) {
+      const gateText = getSubscriptionGateMessage(from?.first_name);
+      await sendTelegramMessage(chatId, gateText, {
+        parse_mode: 'HTML',
+        reply_markup: getSubscriptionGateInlineKeyboard(),
+      });
+      return;
+    }
+  }
 
   // 1. Command /start
   if (text.startsWith('/start')) {
