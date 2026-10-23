@@ -29,6 +29,7 @@ export interface BotOrderSession {
   pkgTitle: string;
   price: number;
   providerProductId?: number;
+  providerQty?: number;
   requiresZoneId?: boolean;
   targetAccount?: string;
   zoneId?: string;
@@ -245,6 +246,7 @@ export function getCategoryProductsKeyboard(catKey: string, page = 0, lang: BotL
 export function getServicePackagesKeyboard(
   service: ServiceItem,
   activeSubCatId?: string,
+  page = 0,
   lang: BotLanguage = 'ug'
 ) {
   const inline_keyboard: any[][] = [];
@@ -257,7 +259,7 @@ export function getServicePackagesKeyboard(
       const subLabel = lang === 'ug' ? sc.label : smartTranslateTitle(sc.label, lang as any);
       subRows.push({
         text: `${isSelected ? '🔘 ' : '⚪ '}${subLabel}`,
-        callback_data: `tgserv:${service.id}:${sc.id}`,
+        callback_data: `tgserv:${service.id}:${sc.id}:0`,
       });
     }
     for (let r = 0; r < subRows.length; r += 2) {
@@ -273,15 +275,42 @@ export function getServicePackagesKeyboard(
     return true;
   });
 
-  for (const pkg of packages.slice(0, 16)) {
+  const pageSize = 10;
+  const totalPages = Math.ceil(packages.length / pageSize) || 1;
+  const currentPage = Math.min(Math.max(0, page), totalPages - 1);
+  const slice = packages.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+
+  for (const pkg of slice) {
     const rawTitle = pkg.title;
     const translatedTitle = lang === 'ug' ? rawTitle : smartTranslateTitle(rawTitle, lang as any);
     inline_keyboard.push([
       {
-        text: `📦 ${translatedTitle} — $${Number(pkg.price).toFixed(2)} USD`,
+        text: `📦 ${translatedTitle} — ${Number(pkg.price).toFixed(2)} USD`,
         callback_data: `tgpkg:${service.id}:${pkg.id}`,
       },
     ]);
+  }
+
+  if (totalPages > 1) {
+    const navRow: any[] = [];
+    const subParam = effectiveSubId || 'all';
+    if (currentPage > 0) {
+      navRow.push({
+        text: BOT_I18N.categories.prevPage[lang] || '⬅️ ئالدىنقى',
+        callback_data: `tgserv:${service.id}:${subParam}:${currentPage - 1}`,
+      });
+    }
+    navRow.push({
+      text: `📄 ${currentPage + 1}/${totalPages}`,
+      callback_data: `tgserv:${service.id}:${subParam}:${currentPage}`,
+    });
+    if (currentPage < totalPages - 1) {
+      navRow.push({
+        text: BOT_I18N.categories.nextPage[lang] || 'كېيىنكى ➡️',
+        callback_data: `tgserv:${service.id}:${subParam}:${currentPage + 1}`,
+      });
+    }
+    inline_keyboard.push(navRow);
   }
 
   const backTarget = service.id === 'othman_visa_cards' ? 'tg_shop_categories' : `tgcat:${service.category || 'games'}`;
@@ -366,7 +395,9 @@ ${isEmpty ? emptyNotice : `📌 <b>${choosePrompt}</b>\n<i>${countPrompt}</i>`}
     await answerCallbackQuery(cqId);
     const parts = data.split(':');
     const serviceId = parts[1];
-    const subCatId = parts[2] || undefined;
+    let subCatId = parts[2] || undefined;
+    if (subCatId === 'all') subCatId = undefined;
+    const page = parts[3] ? parseInt(parts[3], 10) || 0 : 0;
     const service = getServicesList().find((s) => s.id === serviceId);
     if (!service) {
       const notFoundAlert = lang === 'ar' ? '❌ المنتج غير موجود' :
@@ -395,7 +426,7 @@ ${isEmpty ? emptyNotice : `📌 <b>${choosePrompt}</b>\n<i>${countPrompt}</i>`}
 ${selectPrompt}
 ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `.trim();
-    await showOrEditMessage(chatId, messageId, servText, getServicePackagesKeyboard(service, subCatId, lang));
+    await showOrEditMessage(chatId, messageId, servText, getServicePackagesKeyboard(service, subCatId, page, lang));
     return true;
   }
 
@@ -427,6 +458,7 @@ ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━�
       pkgTitle: pkg.title,
       price: Number(pkg.price),
       providerProductId: pkg.providerProductId,
+      providerQty: (pkg as any).providerQty,
       requiresZoneId: requiresZone,
       timestamp: Date.now(),
     });
@@ -555,12 +587,15 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
         const activeProvider = isOthman ? othmanStoreProvider : syria4GameProvider;
         const providerConfig = await activeProvider.getResolvedConfig();
         if (providerConfig.enabled && providerConfig.apiToken) {
+          const targetQty = session.providerQty ?? 1;
           const providerRes = await activeProvider.createOrder({
             productId: session.providerProductId,
             orderUuid: generateUUIDv4(),
-            qty: 1,
+            qty: targetQty,
             params: {
               playerId: session.targetAccount || '',
+              phone: session.targetAccount || '',
+              'ادخل رقم الهاتف بدون النداء': session.targetAccount || '',
               ...(session.zoneId ? { zoneId: session.zoneId } : {}),
             },
             orderId: order.id,
