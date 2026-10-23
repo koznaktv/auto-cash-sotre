@@ -185,14 +185,19 @@ export async function POST(req: Request) {
         const activeProvider = isOthman ? othmanStoreProvider : syria4GameProvider;
         const providerConfig = await activeProvider.getResolvedConfig();
         if (providerConfig.enabled && providerConfig.apiToken) {
+          const targetQty = (pkg as any).providerQty ?? (pkg as any).qty ?? (qty ? Number(qty) : 1);
+          const targetParams: Record<string, string> = {
+            playerId: parsedGameAccount.userId || rawTarget,
+            phone: parsedGameAccount.userId || rawTarget,
+            'ادخل رقم الهاتف بدون النداء': parsedGameAccount.userId || rawTarget,
+            ...(parsedGameAccount.zoneId ? { zoneId: parsedGameAccount.zoneId } : {}),
+            ...(fields && typeof fields === 'object' ? fields : {}),
+          };
           const providerRes = await activeProvider.createOrder({
             productId: pkg.providerProductId,
             orderUuid: generateUUIDv4(),
-            qty: 1,
-            params: {
-              playerId: parsedGameAccount.userId || rawTarget,
-              ...(parsedGameAccount.zoneId ? { zoneId: parsedGameAccount.zoneId } : {}),
-            },
+            qty: targetQty,
+            params: targetParams,
             orderId: order.id,
           });
           if (providerRes.outcome === 'accepted' || providerRes.status === 'COMPLETED' || providerRes.status === 'PENDING') {

@@ -407,7 +407,7 @@ export default function HomePage() {
         localStorage.removeItem('autocash_cached_catalog'); // Clean old legacy cache
         localStorage.removeItem('autocash_cached_catalog_v2'); // Clean v2 cache
         localStorage.removeItem('autocash_cached_catalog_v3'); // Clean v3 cache
-        const cachedCat = localStorage.getItem('autocash_cached_catalog_v14');
+        const cachedCat = localStorage.getItem('autocash_cached_catalog_v15');
         if (cachedCat) {
           const parsed = JSON.parse(cachedCat);
           if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
@@ -460,7 +460,7 @@ export default function HomePage() {
           setServices(normServices);
           setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
           try {
-            localStorage.setItem('autocash_cached_catalog_v14', JSON.stringify({ services: normServices, source: dCat.source }));
+            localStorage.setItem('autocash_cached_catalog_v15', JSON.stringify({ services: normServices, source: dCat.source }));
             localStorage.removeItem('autocash_cached_catalog');
             localStorage.removeItem('autocash_cached_catalog_v2');
             localStorage.removeItem('autocash_cached_catalog_v3');
@@ -508,7 +508,7 @@ export default function HomePage() {
           setServices(normServices);
           setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
           try {
-            localStorage.setItem('autocash_cached_catalog_v14', JSON.stringify({ services: normServices, source: dCat.source }));
+            localStorage.setItem('autocash_cached_catalog_v15', JSON.stringify({ services: normServices, source: dCat.source }));
             localStorage.removeItem('autocash_cached_catalog');
             localStorage.removeItem('autocash_cached_catalog_v2');
             localStorage.removeItem('autocash_cached_catalog_v3');
@@ -551,7 +551,7 @@ export default function HomePage() {
     } catch {}
 
     const handleStorageChange = (e: StorageEvent) => {
-      if ((e.key === 'autocash_cached_catalog_v14' || e.key === 'autocash_cached_catalog_v3') && e.newValue) {
+      if ((e.key === 'autocash_cached_catalog_v15' || e.key === 'autocash_cached_catalog_v3') && e.newValue) {
         try {
           const parsed = JSON.parse(e.newValue);
           if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
