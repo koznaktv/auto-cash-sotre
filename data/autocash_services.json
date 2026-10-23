@@ -1324,11 +1324,11 @@
   },
   {
     "id": "othman_mtn",
-    "name": "MTN (سۈرىيە ئېم-تى-ئېن تېلېكوم ۋە كاش)",
+    "name": "MTN سۈرىيە (وحدات MTN)",
     "category": "cards",
     "icon": "Smartphone",
     "image": "/images/services/mtn_v2.jpg",
-    "description": "سۈرىيە MTN تېلېفون پۇلى (وحدات)، MTN Cash ۋە تالون تۆلەش مۇلازىمەتلىرى.",
+    "description": "سۈرىيە MTN تېلېفون پۇلى (وحدات MTN) بىۋاسىتە نەق قاچىلاش.",
     "badge": "⚡ نەق تولۇقلاش",
     "inputLabel": "MTN تېلېفون نومۇرى (Phone Number)",
     "inputPlaceholder": "09xxxxxxxx (مەسىلەن: 094, 095, 096)",
@@ -1341,8 +1341,7 @@
         "providerProductId": 1024,
         "productType": "fixed",
         "available": true,
-        "providerKey": "othman",
-        "subCategoryId": "mtn_units"
+        "providerKey": "othman"
       },
       {
         "id": "pkg-othman-1024-200",
@@ -1352,8 +1351,7 @@
         "providerProductId": 1024,
         "productType": "fixed",
         "available": true,
-        "providerKey": "othman",
-        "subCategoryId": "mtn_units"
+        "providerKey": "othman"
       },
       {
         "id": "pkg-othman-1024-300",
@@ -1363,8 +1361,7 @@
         "providerProductId": 1024,
         "productType": "fixed",
         "available": true,
-        "providerKey": "othman",
-        "subCategoryId": "mtn_units"
+        "providerKey": "othman"
       },
       {
         "id": "pkg-othman-1024-500",
@@ -1374,8 +1371,7 @@
         "providerProductId": 1024,
         "productType": "fixed",
         "available": true,
-        "providerKey": "othman",
-        "subCategoryId": "mtn_units"
+        "providerKey": "othman"
       },
       {
         "id": "pkg-othman-1024-1000",
@@ -1385,8 +1381,7 @@
         "providerProductId": 1024,
         "productType": "fixed",
         "available": true,
-        "providerKey": "othman",
-        "subCategoryId": "mtn_units"
+        "providerKey": "othman"
       },
       {
         "id": "pkg-othman-1024-1500",
@@ -1396,8 +1391,7 @@
         "providerProductId": 1024,
         "productType": "fixed",
         "available": true,
-        "providerKey": "othman",
-        "subCategoryId": "mtn_units"
+        "providerKey": "othman"
       },
       {
         "id": "pkg-othman-1024-2000",
@@ -1407,8 +1401,17 @@
         "providerProductId": 1024,
         "productType": "fixed",
         "available": true,
-        "providerKey": "othman",
-        "subCategoryId": "mtn_units"
+        "providerKey": "othman"
+      },
+      {
+        "id": "pkg-othman-1024-2500",
+        "title": "2500 بىرلىك (وحدة)",
+        "price": 20.77,
+        "originalPrice": 23.89,
+        "providerProductId": 1024,
+        "productType": "fixed",
+        "available": true,
+        "providerKey": "othman"
       },
       {
         "id": "pkg-othman-1024-3000",
@@ -1418,8 +1421,37 @@
         "providerProductId": 1024,
         "productType": "fixed",
         "available": true,
-        "providerKey": "othman",
-        "subCategoryId": "mtn_units"
+        "providerKey": "othman"
+      },
+      {
+        "id": "pkg-othman-1024-3600",
+        "title": "3600 بىرلىك (وحدة)",
+        "price": 29.91,
+        "originalPrice": 34.4,
+        "providerProductId": 1024,
+        "productType": "fixed",
+        "available": true,
+        "providerKey": "othman"
+      },
+      {
+        "id": "pkg-othman-1024-4500",
+        "title": "4500 بىرلىك (وحدة)",
+        "price": 37.39,
+        "originalPrice": 43,
+        "providerProductId": 1024,
+        "productType": "fixed",
+        "available": true,
+        "providerKey": "othman"
+      },
+      {
+        "id": "pkg-othman-1024-4800",
+        "title": "4800 بىرلىك (وحدة)",
+        "price": 39.88,
+        "originalPrice": 45.86,
+        "providerProductId": 1024,
+        "productType": "fixed",
+        "available": true,
+        "providerKey": "othman"
       },
       {
         "id": "pkg-othman-1024-5000",
@@ -1429,127 +1461,23 @@
         "providerProductId": 1024,
         "productType": "fixed",
         "available": true,
-        "providerKey": "othman",
-        "subCategoryId": "mtn_units"
+        "providerKey": "othman"
       },
       {
-        "id": "pkg-othman-1276-10k",
-        "title": "10,000 كاش (MTN Cash)",
-        "price": 0.76,
-        "originalPrice": 0.85,
-        "providerProductId": 1276,
+        "id": "pkg-othman-1024-5500",
+        "title": "5500 بىرلىك (وحدة)",
+        "price": 45.7,
+        "originalPrice": 52.55,
+        "providerProductId": 1024,
         "productType": "fixed",
         "available": true,
-        "providerKey": "othman",
-        "subCategoryId": "mtn_cash"
-      },
-      {
-        "id": "pkg-othman-1276-25k",
-        "title": "25,000 كاش (MTN Cash)",
-        "price": 1.89,
-        "originalPrice": 2.1,
-        "providerProductId": 1276,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman",
-        "subCategoryId": "mtn_cash"
-      },
-      {
-        "id": "pkg-othman-1276-50k",
-        "title": "50,000 كاش (MTN Cash)",
-        "price": 3.78,
-        "originalPrice": 4.2,
-        "providerProductId": 1276,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman",
-        "subCategoryId": "mtn_cash"
-      },
-      {
-        "id": "pkg-othman-1276-100k",
-        "title": "100,000 كاش (MTN Cash)",
-        "price": 7.57,
-        "originalPrice": 8.4,
-        "providerProductId": 1276,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman",
-        "subCategoryId": "mtn_cash"
-      },
-      {
-        "id": "pkg-othman-1276-250k",
-        "title": "250,000 كاش (MTN Cash)",
-        "price": 18.92,
-        "originalPrice": 21,
-        "providerProductId": 1276,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman",
-        "subCategoryId": "mtn_cash"
-      },
-      {
-        "id": "pkg-othman-1371-10k",
-        "title": "10,000 لىرا تالون (فواتير MTN)",
-        "price": 0.75,
-        "originalPrice": 0.85,
-        "providerProductId": 1371,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman",
-        "subCategoryId": "mtn_bills"
-      },
-      {
-        "id": "pkg-othman-1371-25k",
-        "title": "25,000 لىرا تالون (فواتير MTN)",
-        "price": 1.88,
-        "originalPrice": 2.1,
-        "providerProductId": 1371,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman",
-        "subCategoryId": "mtn_bills"
-      },
-      {
-        "id": "pkg-othman-1371-50k",
-        "title": "50,000 لىرا تالون (فواتير MTN)",
-        "price": 3.76,
-        "originalPrice": 4.2,
-        "providerProductId": 1371,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman",
-        "subCategoryId": "mtn_bills"
-      },
-      {
-        "id": "pkg-othman-1371-100k",
-        "title": "100,000 لىرا تالون (فواتير MTN)",
-        "price": 7.46,
-        "originalPrice": 8.3,
-        "providerProductId": 1371,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman",
-        "subCategoryId": "mtn_bills"
+        "providerKey": "othman"
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "inputHint": "ارقام MTN تبدأ بـ 094 / 095 / 096 • يرجى إدخال رقم الهاتف بدون نداء مثال: 09xxxxxxxx",
-    "subCategories": [
-      {
-        "id": "mtn_units",
-        "label": "وحدات MTN (تېلېفون پۇلى)"
-      },
-      {
-        "id": "mtn_cash",
-        "label": "MTN Cash (ئېم-تى-ئېن كاش)"
-      },
-      {
-        "id": "mtn_bills",
-        "label": "فواتير MTN (تالون تۆلەش)"
-      }
-    ]
+    "inputHint": "ارقام MTN تبدأ بـ 094 / 095 / 096 • يرجى إدخال رقم الهاتف بدون نداء مثال: 09xxxxxxxx"
   },
   {
     "id": "othman_syriatel",
