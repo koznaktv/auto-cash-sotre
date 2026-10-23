@@ -1778,8 +1778,8 @@
       {
         "id": "pkg-othman-787",
         "title": "29999 جوهرة النجاة في الصقيع",
-        "price": 344.57,
-        "originalPrice": 396.26,
+        "price": 345,
+        "originalPrice": 396.75,
         "providerProductId": 787,
         "productType": "fixed",
         "available": true,
@@ -1997,7 +1997,7 @@
     "packages": [
       {
         "id": "pkg-othman-761",
-        "title": "ChatGPT Plus - حسا�� جاهز مدة شهر",
+        "title": "ChatGPT Plus - تەييار ھېسابات مدة شهر",
         "price": 26.51,
         "originalPrice": 30.49,
         "providerProductId": 761,
@@ -2300,21 +2300,21 @@
     "inputPlaceholder": "ئويۇن كىملىك (ID) نومۇرىڭىزنى كىرگۈزۈڭ",
     "packages": [
       {
-        "id": "pkg-othman-720",
-        "title": "ھەپتىلىك ئالاھىدە بوغچا 1",
-        "price": 0.97,
-        "originalPrice": 1.12,
-        "providerProductId": 720,
+        "id": "pkg-othman-346",
+        "title": "60 UC (شەدەن) - ئاپتوماتىك",
+        "price": 0.95,
+        "originalPrice": 1.09,
+        "providerProductId": 346,
         "productType": "fixed",
         "available": true,
         "providerKey": "othman"
       },
       {
-        "id": "pkg-othman-346",
-        "title": "60 UC (شەدەن) - ئاپتوماتىك",
-        "price": 0.97,
-        "originalPrice": 1.12,
-        "providerProductId": 346,
+        "id": "pkg-othman-720",
+        "title": "ھەپتىلىك ئالاھىدە بوغچا 1",
+        "price": 0.96,
+        "originalPrice": 1.1,
+        "providerProductId": 720,
         "productType": "fixed",
         "available": true,
         "providerKey": "othman"
@@ -2382,8 +2382,8 @@
       {
         "id": "pkg-othman-350",
         "title": "325 UC (شەدەن) - ئاپتوماتىك",
-        "price": 4.79,
-        "originalPrice": 5.51,
+        "price": 4.75,
+        "originalPrice": 5.46,
         "providerProductId": 350,
         "productType": "fixed",
         "available": true,
@@ -2422,8 +2422,8 @@
       {
         "id": "pkg-othman-347",
         "title": "60 UC (شەدەن) - ئاپتوماتىك",
-        "price": 9.57,
-        "originalPrice": 11.01,
+        "price": 9.5,
+        "originalPrice": 10.93,
         "providerProductId": 347,
         "productType": "fixed",
         "available": true,
@@ -2455,6 +2455,16 @@
         "price": 11.91,
         "originalPrice": 13.7,
         "providerProductId": 718,
+        "productType": "fixed",
+        "available": true,
+        "providerKey": "othman"
+      },
+      {
+        "id": "pkg-othman-348",
+        "title": "1800 UC (شەدەن) - ئاپتوماتىك",
+        "price": 24.11,
+        "originalPrice": 27.73,
+        "providerProductId": 348,
         "productType": "fixed",
         "available": true,
         "providerKey": "othman"
@@ -4321,6 +4331,16 @@
         "providerKey": "othman"
       },
       {
+        "id": "pkg-othman-520",
+        "title": "مشاهدات?قصة انستغرام لجميع القصص VIP رخيص?",
+        "price": 0.0006,
+        "originalPrice": 0,
+        "providerProductId": 520,
+        "productType": "amount",
+        "available": true,
+        "providerKey": "othman"
+      },
+      {
         "id": "pkg-othman-517",
         "title": "اعجابات?بوست - ريلز انستغرام حقيقي الأرخص VIP ⚡",
         "price": 0.0007,
@@ -4406,32 +4426,6 @@
         "price": 0.0052,
         "originalPrice": 0.01,
         "providerProductId": 523,
-        "productType": "amount",
-        "available": true,
-        "providerKey": "othman"
-      }
-    ],
-    "providerKey": "othman",
-    "published": true,
-    "source": "provider"
-  },
-  {
-    "id": "othman_group______________",
-    "name": "رشق انست��رام",
-    "category": "apps",
-    "icon": "Package",
-    "image": "/logo.png",
-    "description": "رشق انست��رام ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى",
-    "badge": "⚡ تېز تولۇقلاش",
-    "inputLabel": "الرابط",
-    "inputPlaceholder": "ئۇچۇرىڭىزنى كىرگۈزۈڭ",
-    "packages": [
-      {
-        "id": "pkg-othman-520",
-        "title": "مشاهدات?قصة انستغرام لجميع القصص VIP رخيص?",
-        "price": 0.0006,
-        "originalPrice": 0,
-        "providerProductId": 520,
         "productType": "amount",
         "available": true,
         "providerKey": "othman"
@@ -4685,6 +4679,16 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman"
+      },
+      {
+        "id": "pkg-othman-500",
+        "title": "تفعيل IP TV مدة سنة",
+        "price": 11.52,
+        "originalPrice": 13.25,
+        "providerProductId": 500,
+        "productType": "fixed",
+        "available": true,
+        "providerKey": "othman"
       }
     ],
     "providerKey": "othman",
@@ -4703,18 +4707,8 @@
     "inputPlaceholder": "ھېسابات ئۇچۇرى ئەۋەتىلىدىغان ئېلخەت ياكى تېلېفون",
     "packages": [
       {
-        "id": "pkg-othman-494",
-        "title": "حساب نتفلكس كامل - 3 ئاي 4K",
-        "price": 31.77,
-        "originalPrice": 36.54,
-        "providerProductId": 494,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
         "id": "pkg-othman-495",
-        "title": "حساب نتف��كس كامل - 6 ئاي 4K",
+        "title": "حساب نتفلكس كامل - 6 ئاي 4K",
         "price": 62.66,
         "originalPrice": 72.06,
         "providerProductId": 495,
@@ -5224,22 +5218,22 @@
     "source": "provider"
   },
   {
-    "id": "othman_mobile_legends",
-    "name": "Mobile Legends Bang Bang (موبايىل لەجەند)",
+    "id": "othman_mobile_legends_turkish",
+    "name": "Mobile Legends Turkish (تۈركىيە مۇلازىمېتىرى)",
     "category": "games",
     "icon": "Swords",
     "image": "/images/services/mobile_legends.jpg",
-    "description": "Mobile Legends ئويۇنىغا ئالماس، Weekly Diamond Pass ۋە Twilight Pass تېز تولۇقلاش.",
-    "badge": "⚡ ئاپتوماتىك",
+    "description": "Mobile Legends تۈركىيە (TR Server) مۇلازىمېتىرىغا ئالماس، Weekly Pass TR ۋە پەسىللىك كارتىلارنى ئاپتوماتىك تولۇقلاش.",
+    "badge": "🇹🇷 تۈركىيە (TR)",
     "inputLabel": "ئويۇنچى ID (User ID)",
     "inputPlaceholder": "User ID نى كىرگۈزۈڭ",
     "requiresZoneId": true,
-    "zoneIdLabel": "رايون نومۇرى (Zone ID)",
+    "zoneIdLabel": "رايون كودى (Zone ID / Server)",
     "zoneIdPlaceholder": "مەسىلەن: 1234",
     "packages": [
       {
         "id": "pkg-othman-434",
-        "title": "Limited-Time Value Pack",
+        "title": "ۋاقىتلىق قىممەتلىك ئېتىبار بوغچىسى (Value Pack)",
         "price": 0.22,
         "originalPrice": 0.25,
         "providerProductId": 434,
@@ -5248,18 +5242,8 @@
         "providerKey": "othman"
       },
       {
-        "id": "pkg-othman-423",
-        "title": "Weekly Elite ھەپتىلىك ئالىي بوغچا",
-        "price": 0.86,
-        "originalPrice": 0.99,
-        "providerProductId": 423,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
         "id": "pkg-othman-437",
-        "title": "Weekly Elite ھەپتىلىك ئالىي بوغچا",
+        "title": "Weekly Elite Pack (ھەپتىلىك بوغچا) - تۈركىيە",
         "price": 0.91,
         "originalPrice": 1.05,
         "providerProductId": 437,
@@ -5268,18 +5252,8 @@
         "providerKey": "othman"
       },
       {
-        "id": "pkg-othman-415",
-        "title": "(Diamonds 78+ 8 Bonus (Global",
-        "price": 1.33,
-        "originalPrice": 1.53,
-        "providerProductId": 415,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
         "id": "pkg-othman-428",
-        "title": "88 جوهرة موبايل ليجند",
+        "title": "88 ئالماس (Diamonds) - تۈركىيە",
         "price": 1.39,
         "originalPrice": 1.6,
         "providerProductId": 428,
@@ -5288,18 +5262,8 @@
         "providerKey": "othman"
       },
       {
-        "id": "pkg-othman-425",
-        "title": "Weekly Diamond Pass ھەپتىلىك ئالماس كارتىسى",
-        "price": 1.65,
-        "originalPrice": 1.9,
-        "providerProductId": 425,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
         "id": "pkg-othman-438",
-        "title": "Weekly Diamond Pass ھەپتىلىك ئالماس كارتىسى",
+        "title": "Weekly Diamond Pass (ھەپتىلىك كارت) - تۈركىيە",
         "price": 2.09,
         "originalPrice": 2.4,
         "providerProductId": 438,
@@ -5309,7 +5273,7 @@
       },
       {
         "id": "pkg-othman-429",
-        "title": "133 جوهرة موبايل ليجند",
+        "title": "133 ئالماس (Diamonds) - تۈركىيە",
         "price": 2.09,
         "originalPrice": 2.4,
         "providerProductId": 429,
@@ -5318,18 +5282,8 @@
         "providerKey": "othman"
       },
       {
-        "id": "pkg-othman-416",
-        "title": "(Diamonds 156+ 16 Bonus (Global",
-        "price": 2.63,
-        "originalPrice": 3.02,
-        "providerProductId": 416,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
         "id": "pkg-othman-430",
-        "title": "221 جوهرة موبايل ليجند",
+        "title": "221 ئالماس (Diamonds) - تۈركىيە",
         "price": 3.49,
         "originalPrice": 4.01,
         "providerProductId": 430,
@@ -5338,28 +5292,8 @@
         "providerKey": "othman"
       },
       {
-        "id": "pkg-othman-417",
-        "title": "(Diamonds 234+ 23 Bonus (Global",
-        "price": 3.81,
-        "originalPrice": 4.38,
-        "providerProductId": 417,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-424",
-        "title": "Monthly Elite ئايلىق ئەزالىق بوغچىسى",
-        "price": 4.29,
-        "originalPrice": 4.93,
-        "providerProductId": 424,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
         "id": "pkg-othman-435",
-        "title": "Monthly Elite ئايلىق ئەزالىق بوغچىسى",
+        "title": "Monthly Elite Pack (ئايلىق بوغچا) - تۈركىيە",
         "price": 4.49,
         "originalPrice": 5.16,
         "providerProductId": 435,
@@ -5369,7 +5303,7 @@
       },
       {
         "id": "pkg-othman-431",
-        "title": "494 جوهرة موبايل ليجند",
+        "title": "494 ئالماس (Diamonds) - تۈركىيە",
         "price": 7.74,
         "originalPrice": 8.9,
         "providerProductId": 431,
@@ -5379,7 +5313,7 @@
       },
       {
         "id": "pkg-othman-436",
-        "title": "Twilight Pass رەسمىي پەسىللىك كارتىسى",
+        "title": "Twilight Pass (پەسىللىك كارت) - تۈركىيە",
         "price": 8.63,
         "originalPrice": 9.92,
         "providerProductId": 436,
@@ -5388,8 +5322,107 @@
         "providerKey": "othman"
       },
       {
+        "id": "pkg-othman-432",
+        "title": "1041 ئالماس (Diamonds) - تۈركىيە",
+        "price": 15.51,
+        "originalPrice": 17.84,
+        "providerProductId": 432,
+        "productType": "fixed",
+        "available": true,
+        "providerKey": "othman"
+      },
+      {
+        "id": "pkg-othman-433",
+        "title": "2645 ئالماس (Diamonds) - تۈركىيە",
+        "price": 38.73,
+        "originalPrice": 44.54,
+        "providerProductId": 433,
+        "productType": "fixed",
+        "available": true,
+        "providerKey": "othman"
+      }
+    ],
+    "providerKey": "othman",
+    "published": true,
+    "source": "provider"
+  },
+  {
+    "id": "othman_mobile_legends_global",
+    "name": "Mobile Legends Global (گىلوبال پۈتۈن دۇنيا)",
+    "category": "games",
+    "icon": "Swords",
+    "image": "/images/services/mobile_legends.jpg",
+    "description": "Mobile Legends Bang Bang پۈتۈن دۇنيا (Global) مۇلازىمېتىرىغا بىۋاسىتە ئالماس، Weekly Diamond Pass ۋە Twilight Pass تېز تولۇقلاش.",
+    "badge": "⚡ گىلوبال (Global)",
+    "inputLabel": "ئويۇنچى ID (User ID)",
+    "inputPlaceholder": "User ID نى كىرگۈزۈڭ",
+    "requiresZoneId": true,
+    "zoneIdLabel": "رايون كودى (Zone ID / Server)",
+    "zoneIdPlaceholder": "مەسىلەن: 1234",
+    "packages": [
+      {
+        "id": "pkg-othman-423",
+        "title": "Weekly Elite Bundle (ھەپتىلىك بوغچا) - گىلوبال",
+        "price": 0.86,
+        "originalPrice": 0.99,
+        "providerProductId": 423,
+        "productType": "fixed",
+        "available": true,
+        "providerKey": "othman"
+      },
+      {
+        "id": "pkg-othman-415",
+        "title": "78 + 8 سوۋغات ئالماس (Diamonds) - گىلوبال",
+        "price": 1.33,
+        "originalPrice": 1.53,
+        "providerProductId": 415,
+        "productType": "fixed",
+        "available": true,
+        "providerKey": "othman"
+      },
+      {
+        "id": "pkg-othman-425",
+        "title": "Weekly Diamond Pass (ھەپتىلىك كارت) - گىلوبال",
+        "price": 1.65,
+        "originalPrice": 1.9,
+        "providerProductId": 425,
+        "productType": "fixed",
+        "available": true,
+        "providerKey": "othman"
+      },
+      {
+        "id": "pkg-othman-416",
+        "title": "156 + 16 سوۋغات ئالماس (Diamonds) - گىلوبال",
+        "price": 2.63,
+        "originalPrice": 3.02,
+        "providerProductId": 416,
+        "productType": "fixed",
+        "available": true,
+        "providerKey": "othman"
+      },
+      {
+        "id": "pkg-othman-417",
+        "title": "234 + 23 سوۋغات ئالماس (Diamonds) - گىلوبال",
+        "price": 3.81,
+        "originalPrice": 4.38,
+        "providerProductId": 417,
+        "productType": "fixed",
+        "available": true,
+        "providerKey": "othman"
+      },
+      {
+        "id": "pkg-othman-424",
+        "title": "Monthly Elite Bundle (ئايلىق بوغچا) - گىلوبال",
+        "price": 4.29,
+        "originalPrice": 4.93,
+        "providerProductId": 424,
+        "productType": "fixed",
+        "available": true,
+        "providerKey": "othman"
+      },
+      {
         "id": "pkg-othman-426",
-        "title": "Twilight Pass رەسمىي پەسىللىك كارتىسى",
+        "title": "Twilight Pass (پەسىللىك كارت) - گىلوبال",
         "price": 8.79,
         "originalPrice": 10.11,
         "providerProductId": 426,
@@ -5399,7 +5432,7 @@
       },
       {
         "id": "pkg-othman-418",
-        "title": "(Diamonds 625+ 81 Bonus (Global",
+        "title": "625 + 81 سوۋغات ئالماس (Diamonds) - گىلوبال",
         "price": 10.36,
         "originalPrice": 11.91,
         "providerProductId": 418,
@@ -5408,18 +5441,8 @@
         "providerKey": "othman"
       },
       {
-        "id": "pkg-othman-432",
-        "title": "1041 جوهرة موبايل ليجند",
-        "price": 15.51,
-        "originalPrice": 17.84,
-        "providerProductId": 432,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
         "id": "pkg-othman-419",
-        "title": "(Diamonds 1860+ 335 Bonus (Global",
+        "title": "1860 + 335 سوۋغات ئالماس (Diamonds) - گىلوبال",
         "price": 31.36,
         "originalPrice": 36.06,
         "providerProductId": 419,
@@ -5428,18 +5451,8 @@
         "providerKey": "othman"
       },
       {
-        "id": "pkg-othman-433",
-        "title": "2645 جوهرة موبايل ليجند",
-        "price": 38.73,
-        "originalPrice": 44.54,
-        "providerProductId": 433,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
         "id": "pkg-othman-420",
-        "title": "(Diamonds 3099+ 589 Bonus (Global",
+        "title": "3099 + 589 سوۋغات ئالماس (Diamonds) - گىلوبال",
         "price": 52.28,
         "originalPrice": 60.12,
         "providerProductId": 420,
@@ -5449,7 +5462,7 @@
       },
       {
         "id": "pkg-othman-421",
-        "title": "(Diamonds 4649+ 883 Bonus (Global",
+        "title": "4649 + 883 سوۋغات ئالماس (Diamonds) - گىلوبال",
         "price": 78.94,
         "originalPrice": 90.78,
         "providerProductId": 421,
@@ -5459,7 +5472,7 @@
       },
       {
         "id": "pkg-othman-422",
-        "title": "(Diamonds 7740+ 1548 Bonus (Global",
+        "title": "7740 + 1548 سوۋغات ئالماس (Diamonds) - گىلوبال",
         "price": 131.11,
         "originalPrice": 150.78,
         "providerProductId": 422,
