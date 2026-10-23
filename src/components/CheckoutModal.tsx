@@ -124,7 +124,32 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
     }
   }, [service, isProvider]);
 
-  const packages: ServicePackage[] = detail?.packages || [];
+  const subCategories = detail?.subCategories || service?.subCategories || [];
+  const [activeSubCatId, setActiveSubCatId] = useState<string>(() => {
+    const subs = service?.subCategories || [];
+    return subs[0]?.id || '';
+  });
+
+  useEffect(() => {
+    const subs = detail?.subCategories || service?.subCategories || [];
+    if (subs.length > 0 && !subs.some(sc => sc.id === activeSubCatId)) {
+      setActiveSubCatId(subs[0].id);
+    }
+  }, [detail, service, activeSubCatId]);
+
+  const activeSubCat = useMemo(() => {
+    const subs = detail?.subCategories || service?.subCategories || [];
+    if (!subs.length) return null;
+    return subs.find(s => s.id === activeSubCatId) || subs[0];
+  }, [detail, service, activeSubCatId]);
+
+  const allPackages: ServicePackage[] = detail?.packages || service?.packages || [];
+
+  const packages: ServicePackage[] = useMemo(() => {
+    if (!activeSubCat) return allPackages;
+    const filtered = allPackages.filter(p => p.subCategoryId === activeSubCat.id);
+    return filtered.length > 0 ? filtered : allPackages;
+  }, [allPackages, activeSubCat]);
 
   useEffect(() => {
     if (!packages.length) return;
@@ -163,13 +188,22 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
   }, [service, detail]);
 
   const requiresZoneId = Boolean(
-    service?.requiresZoneId ||
-    detail?.requiresZoneId ||
-    isMlbb ||
-    Boolean(service?.zoneIdLabel) ||
-    Boolean(detail?.zoneIdLabel) ||
-    (selectedPkg?.fields || []).some((f) => /zone\s*id|zoneid|zone_id|server/i.test(f.key) || /zone\s*id|رايون/i.test(f.label))
+    activeSubCat?.requiresZoneId !== undefined
+      ? activeSubCat.requiresZoneId
+      : (
+          service?.requiresZoneId ||
+          detail?.requiresZoneId ||
+          isMlbb ||
+          Boolean(service?.zoneIdLabel) ||
+          Boolean(detail?.zoneIdLabel) ||
+          (selectedPkg?.fields || []).some((f) => /zone\s*id|zoneid|zone_id|server/i.test(f.key) || /zone\s*id|رايون/i.test(f.label))
+        )
   );
+
+  const effectiveInputLabel = activeSubCat?.inputLabel || service?.inputLabel || detail?.inputLabel || 'ئويۇنچى كىملىكى (UID)';
+  const effectiveInputPlaceholder = activeSubCat?.inputPlaceholder || service?.inputPlaceholder || detail?.inputPlaceholder || 'مەسىلەن: 12345678';
+  const effectiveZoneIdLabel = activeSubCat?.zoneIdLabel || service?.zoneIdLabel || detail?.zoneIdLabel || 'رايون كودى (Zone ID)';
+  const effectiveZoneIdPlaceholder = activeSubCat?.zoneIdPlaceholder || service?.zoneIdPlaceholder || detail?.zoneIdPlaceholder || 'مەسىلەن: 1234';
 
   const productBio = useMemo(() => {
     if (!service) return null;
@@ -420,6 +454,42 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
 
         {detail && (
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Sub-category / Server Tabs Selector */}
+            {subCategories && subCategories.length > 1 && (
+              <div className="p-2.5 rounded-xl bg-slate-950/80 border border-amber-500/30 space-y-2 shadow-inner">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
+                  <span className="flex items-center gap-1.5 font-alkatip">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                    <span>{isRTL ? 'مۇلازىمەت تۈرى ياكى سېرۋېرنى تاللاڭ:' : 'Select Server / Option:'}</span>
+                  </span>
+                  <span className="text-[10px] text-amber-300 font-bold bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-500/40">
+                    {activeSubCat?.label}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                  {subCategories.map((sc) => {
+                    const isSelected = sc.id === activeSubCatId;
+                    return (
+                      <button
+                        key={sc.id}
+                        type="button"
+                        onClick={() => {
+                          setActiveSubCatId(sc.id);
+                        }}
+                        className={`py-2 px-2 rounded-lg text-xs font-bold font-alkatip transition-all text-center border cursor-pointer leading-tight ${
+                          isSelected
+                            ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 border-amber-300 shadow-md shadow-amber-500/25 scale-[1.02]'
+                            : 'bg-slate-900/90 hover:bg-slate-800 text-slate-300 border-slate-800 hover:border-slate-700'
+                        }`}
+                      >
+                        {sc.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Package Selection */}
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-2">{t('selectPackageLabel')}</label>
@@ -571,7 +641,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
-                          <span>{translateInputLabel(service.inputLabel || detail?.inputLabel || 'ئويۇنچى كىملىكى (UID)')}</span>
+                          <span>{translateInputLabel(effectiveInputLabel)}</span>
                           <span className="text-rose-400 font-bold">*</span>
                         </label>
                         <input
@@ -588,21 +658,21 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                               setAccountInput(val);
                             }
                           }}
-                          placeholder={translateInputPlaceholder(service.inputPlaceholder || detail?.inputPlaceholder || 'مەسىلەن: 12345678')}
+                          placeholder={translateInputPlaceholder(effectiveInputPlaceholder)}
                           className={inputClass}
                           dir="ltr"
                         />
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
-                          <span>{translateInputLabel(service.zoneIdLabel || detail?.zoneIdLabel || 'رايون كودى (Zone ID)')}</span>
+                          <span>{translateInputLabel(effectiveZoneIdLabel)}</span>
                           <span className="text-rose-400 font-bold">*</span>
                         </label>
                         <input
                           type="text"
                           value={zoneInput}
                           onChange={(e) => setZoneInput(e.target.value)}
-                          placeholder={translateInputPlaceholder(service.zoneIdPlaceholder || detail?.zoneIdPlaceholder || 'مەسىلەن: 1234')}
+                          placeholder={translateInputPlaceholder(effectiveZoneIdPlaceholder)}
                           className={inputClass}
                           dir="ltr"
                         />
@@ -615,14 +685,14 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                 ) : (
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
-                      <span>{translateInputLabel(service.inputLabel || detail?.inputLabel || 'ھېسابات / ئويۇنچى ID')}</span>
+                      <span>{translateInputLabel(effectiveInputLabel || 'ھېسابات / ئويۇنچى ID')}</span>
                       {service.category !== 'cards' && <span className="text-rose-400 font-bold">*</span>}
                     </label>
                     <input
                       type="text"
                       value={accountInput}
                       onChange={(e) => setAccountInput(e.target.value)}
-                      placeholder={translateInputPlaceholder(service.inputPlaceholder || detail?.inputPlaceholder || 'ئۇچۇرىڭىزنى كىرگۈزۈڭ')}
+                      placeholder={translateInputPlaceholder(effectiveInputPlaceholder || 'ئۇچۇرىڭىزنى كىرگۈزۈڭ')}
                       className={inputClass}
                       dir="ltr"
                     />

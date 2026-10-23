@@ -1,5 +1,17 @@
 import type { CheckoutField, QtyRule } from './catalog/types';
 
+export interface ServiceSubCategory {
+  id: string;
+  label: string;
+  icon?: string;
+  badge?: string;
+  requiresZoneId?: boolean;
+  zoneIdLabel?: string;
+  zoneIdPlaceholder?: string;
+  inputLabel?: string;
+  inputPlaceholder?: string;
+}
+
 export interface ServicePackage {
   id: string;
   title: string;
@@ -7,9 +19,10 @@ export interface ServicePackage {
   price: number;
   originalPrice?: number;
   duration?: string;
+  subCategoryId?: string;
   // Present on packages that come from the provider catalog
   providerProductId?: number;
-  productType?: 'amount' | 'fixed';
+  productType?: 'amount' | 'fixed' | 'package';
   /** Sell price per unit for 'amount' products. */
   unitPrice?: number;
   qty?: QtyRule;
@@ -25,6 +38,7 @@ export interface ServiceItem {
   image?: string;
   description: string;
   badge?: string;
+  subCategories?: ServiceSubCategory[];
   packages: ServicePackage[];
   inputPlaceholder?: string;
   inputLabel?: string;
