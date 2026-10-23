@@ -600,11 +600,36 @@ export class Syria4GameProvider {
 
 export const sahlCashProvider = new Syria4GameProvider({ providerKey: 'sahl' });
 export const othmanStoreProvider = new Syria4GameProvider({ providerKey: 'othman' });
-export const syria4GameProvider = sahlCashProvider;
+
+export function getActiveProvider(): Syria4GameProvider {
+  try {
+    const config = loadStoredProviderConfig();
+    if (config.activeProvider === 'sahl') {
+      return sahlCashProvider;
+    }
+    return othmanStoreProvider;
+  } catch {
+    return othmanStoreProvider;
+  }
+}
 
 export function getProviderInstance(providerKey?: string): Syria4GameProvider {
   if (providerKey === 'othman' || providerKey === 'othman_store') {
     return othmanStoreProvider;
   }
-  return sahlCashProvider;
+  if (providerKey === 'sahl') {
+    return sahlCashProvider;
+  }
+  return getActiveProvider();
 }
+
+export const syria4GameProvider: Syria4GameProvider = new Proxy({} as any, {
+  get(_target, prop) {
+    const instance = getActiveProvider();
+    const value = (instance as any)[prop];
+    if (typeof value === 'function') {
+      return value.bind(instance);
+    }
+    return value;
+  },
+});

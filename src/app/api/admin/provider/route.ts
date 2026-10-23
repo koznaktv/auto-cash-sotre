@@ -4,7 +4,7 @@ import { syria4GameProvider, sahlCashProvider, othmanStoreProvider } from '@/lib
 import { listProviderCalls } from '@/lib/provider/callLog';
 import { getProviderSettings, updateProviderSettings } from '@/lib/catalog/store';
 import { getSystemSettingsAsync, updateSystemSettingsAsync } from '@/lib/db';
-import { saveStoredProviderConfig } from '@/lib/provider/providerConfigStore';
+import { saveStoredProviderConfig, loadStoredProviderConfig } from '@/lib/provider/providerConfigStore';
 
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
@@ -127,7 +127,9 @@ export async function GET(req: Request) {
         ? catalogSettings.lastBalance
         : undefined;
 
+    const storedCfg = loadStoredProviderConfig();
     return NextResponse.json({
+      activeProvider: storedCfg.activeProvider || 'othman',
       success: profile.success,
       isConfigured: await syria4GameProvider.hasLiveConfig(),
       balance: effectiveBalance,
@@ -180,9 +182,10 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { providerApiUrl, providerApiKey, providerApiType, providerApiSecret, providerEnabled, othmanApiUrl, othmanApiKey, othmanApiType, othmanApiSecret, othmanEnabled } = body;
+    const { activeProvider, providerApiUrl, providerApiKey, providerApiType, providerApiSecret, providerEnabled, othmanApiUrl, othmanApiKey, othmanApiType, othmanApiSecret, othmanEnabled } = body;
 
     const updates: any = {};
+    if (activeProvider !== undefined) updates.activeProvider = activeProvider;
     if (providerApiUrl !== undefined) updates.providerApiUrl = String(providerApiUrl).trim();
     if (providerApiKey !== undefined) updates.providerApiKey = String(providerApiKey).trim();
     if (providerApiType !== undefined) updates.providerApiType = providerApiType;

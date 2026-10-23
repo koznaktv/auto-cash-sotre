@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 export interface StoredProviderConfig {
+  activeProvider?: 'othman' | 'sahl';
   providerApiUrl: string;
   providerApiKey: string;
   providerApiType: 'syria4game' | 'smm' | 'custom_rest';
@@ -77,12 +78,16 @@ export function loadStoredProviderConfig(): StoredProviderConfig {
         const othmanToken = (parsed.othmanApiKey !== undefined ? parsed.othmanApiKey : defaultOthmanToken).trim();
         const othmanUrl = (parsed.othmanApiUrl || process.env.OTHMAN_STORE_BASE_URL || 'https://api.othman-storee.com').trim();
 
+        const activeProvider: 'othman' | 'sahl' =
+          parsed.activeProvider === 'sahl' ? 'sahl' : 'othman';
+
         memoryCachedConfig = {
+          activeProvider,
           providerApiUrl: url,
           providerApiKey: token,
           providerApiType: parsed.providerApiType || 'syria4game',
           providerApiSecret: parsed.providerApiSecret || '',
-          providerEnabled: parsed.providerEnabled !== false,
+          providerEnabled: parsed.providerEnabled === true,
           othmanApiUrl: othmanUrl,
           othmanApiKey: othmanToken,
           othmanApiType: parsed.othmanApiType || 'syria4game',
@@ -98,11 +103,12 @@ export function loadStoredProviderConfig(): StoredProviderConfig {
 
   // Fallback to environment variables
   const initialConfig: StoredProviderConfig = {
+    activeProvider: 'othman',
     providerApiUrl: normalizeUrl(DEFAULT_URL),
     providerApiKey: DEFAULT_TOKEN,
     providerApiType: 'syria4game',
     providerApiSecret: '',
-    providerEnabled: true,
+    providerEnabled: false,
     othmanApiUrl: (process.env.OTHMAN_STORE_BASE_URL || 'https://api.othman-storee.com').trim(),
     othmanApiKey: (process.env.OTHMAN_STORE_API_TOKEN || '').trim(),
     othmanApiType: 'syria4game',
@@ -175,7 +181,12 @@ export function saveStoredProviderConfig(updates: Partial<StoredProviderConfig>)
     ? Boolean(updates.othmanEnabled)
     : (current.othmanEnabled !== false);
 
+  const nextActive = updates.activeProvider !== undefined
+    ? updates.activeProvider
+    : (current.activeProvider || 'othman');
+
   const newConfig: StoredProviderConfig = {
+    activeProvider: nextActive,
     providerApiUrl: nextUrl,
     providerApiKey: nextToken,
     providerApiType: nextType,

@@ -170,6 +170,7 @@ interface SystemSettingsState {
 }
 
 interface ProviderStatus {
+  activeProvider?: 'othman' | 'sahl';
   success: boolean;
   isConfigured: boolean;
   balance: number;
@@ -437,6 +438,7 @@ export default function AdminPage() {
 
   // Provider Dynamic Setup State
   const [providerForm, setProviderForm] = useState<{
+    activeProvider: 'othman' | 'sahl';
     apiUrl: string;
     apiKey: string;
     apiType: 'syria4game' | 'smm' | 'custom_rest';
@@ -446,11 +448,12 @@ export default function AdminPage() {
     othmanApiKey: string;
     othmanEnabled: boolean;
   }>({
+    activeProvider: 'othman',
     apiUrl: 'https://api.sahl-cash.com',
     apiKey: '',
     apiType: 'syria4game',
     apiSecret: '',
-    enabled: true,
+    enabled: false,
     othmanApiUrl: 'https://api.othman-storee.com',
     othmanApiKey: '',
     othmanEnabled: true,
@@ -702,10 +705,11 @@ export default function AdminPage() {
         if (data.config) {
           setProviderForm((prev) => ({
             ...prev,
+            activeProvider: data.activeProvider || prev.activeProvider || 'othman',
             apiUrl: data.config.providerApiUrl || prev.apiUrl,
             apiType: data.config.providerApiType || prev.apiType,
             apiSecret: data.config.providerApiSecret || '',
-            enabled: data.config.providerEnabled !== undefined ? data.config.providerEnabled : true,
+            enabled: data.config.providerEnabled !== undefined ? data.config.providerEnabled : false,
             othmanApiUrl: data.othman?.config?.apiUrl || prev.othmanApiUrl,
             othmanEnabled: data.othman?.config?.enabled !== undefined ? data.othman.config.enabled : true,
           }));
@@ -725,6 +729,7 @@ export default function AdminPage() {
     try {
       const token = sessionStorage.getItem('autocash_admin_token');
       const payload: any = {
+        activeProvider: providerForm.activeProvider,
         providerApiUrl: providerForm.apiUrl.trim(),
         providerApiType: providerForm.apiType,
         providerApiSecret: providerForm.apiSecret.trim(),
@@ -5543,6 +5548,148 @@ export default function AdminPage() {
                 )}
 
                 <form onSubmit={handleSaveProviderConfig} className="space-y-4 pt-1">
+                  {/* Primary Active Provider Selection Card */}
+                  <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-950 border-2 border-indigo-500/60 shadow-xl space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                          <h4 className="text-sm font-black text-white font-alkatip">نۆۋەتتىكى ئاساسىي تەمىنلىگۈچى (Active API Provider):</h4>
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-0.5 font-alkatip">
+                          بۇ يەردىن بىرىنى توختىتىپ، يەنە بىرىنى ئاساسىي ئورۇنغا بىرلا چېكىپ تاللىيالايسىز.
+                        </p>
+                      </div>
+                      <span className="text-xs px-3 py-1 rounded-full bg-indigo-950 text-indigo-300 font-bold border border-indigo-700/60 self-start sm:self-auto">
+                        {providerForm.activeProvider === 'othman' ? '🔷 Othman Store نۆۋەتتە ئاكتىپ' : '⚡ Sahl Cash نۆۋەتتە ئاكتىپ'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                      {/* Option 1: Othman Store */}
+                      <button
+                        type="button"
+                        onClick={() => setProviderForm({ ...providerForm, activeProvider: 'othman', othmanEnabled: true, enabled: false })}
+                        className={`p-3.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between ${
+                          providerForm.activeProvider === 'othman'
+                            ? 'bg-indigo-950/80 border-indigo-400 text-white shadow-lg shadow-indigo-500/20'
+                            : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 text-right">
+                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                            providerForm.activeProvider === 'othman' ? 'border-indigo-400 bg-indigo-500' : 'border-slate-600'
+                          }`}>
+                            {providerForm.activeProvider === 'othman' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                          </div>
+                          <div>
+                            <span className="text-xs font-bold block">🔷 Othman Store (https://api.othman-storee.com)</span>
+                            <span className="text-[10px] text-slate-400 block font-mono">قالدۇق: ${providerStatus?.othman?.balance ?? '0.096'} USD</span>
+                          </div>
+                        </div>
+                        {providerForm.activeProvider === 'othman' && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500 text-slate-950">ئاكتىپ</span>
+                        )}
+                      </button>
+
+                      {/* Option 2: Sahl Cash */}
+                      <button
+                        type="button"
+                        onClick={() => setProviderForm({ ...providerForm, activeProvider: 'sahl', enabled: true, othmanEnabled: false })}
+                        className={`p-3.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between ${
+                          providerForm.activeProvider === 'sahl'
+                            ? 'bg-amber-950/80 border-amber-400 text-white shadow-lg shadow-amber-500/20'
+                            : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 text-right">
+                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                            providerForm.activeProvider === 'sahl' ? 'border-amber-400 bg-amber-500' : 'border-slate-600'
+                          }`}>
+                            {providerForm.activeProvider === 'sahl' && <div className="w-1.5 h-1.5 rounded-full bg-slate-950" />}
+                          </div>
+                          <div>
+                            <span className="text-xs font-bold block">⚡ Sahl Cash (https://api.sahl-cash.com)</span>
+                            <span className="text-[10px] text-slate-400 block font-mono">قالدۇق: ${providerStatus?.balance ?? '19.91'} USD</span>
+                          </div>
+                        </div>
+                        {providerForm.activeProvider === 'sahl' && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500 text-slate-950">ئاكتىپ</span>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  {/* Primary Active Provider Selection Card */}
+                  <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-950 border-2 border-indigo-500/60 shadow-xl space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                          <h4 className="text-sm font-black text-white font-alkatip">نۆۋەتتىكى ئاساسىي تەمىنلىگۈچى (Active API Provider):</h4>
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-0.5 font-alkatip">
+                          بۇ يەردىن بىرىنى توختىتىپ، يەنە بىرىنى ئاساسىي ئورۇنغا بىرلا چېكىپ تاللىيالايسىز.
+                        </p>
+                      </div>
+                      <span className="text-xs px-3 py-1 rounded-full bg-indigo-950 text-indigo-300 font-bold border border-indigo-700/60 self-start sm:self-auto">
+                        {providerForm.activeProvider === 'othman' ? '🔷 Othman Store نۆۋەتتە ئاكتىپ' : '⚡ Sahl Cash نۆۋەتتە ئاكتىپ'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                      {/* Option 1: Othman Store */}
+                      <button
+                        type="button"
+                        onClick={() => setProviderForm({ ...providerForm, activeProvider: 'othman', othmanEnabled: true, enabled: false })}
+                        className={`p-3.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between ${
+                          providerForm.activeProvider === 'othman'
+                            ? 'bg-indigo-950/80 border-indigo-400 text-white shadow-lg shadow-indigo-500/20'
+                            : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 text-right">
+                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                            providerForm.activeProvider === 'othman' ? 'border-indigo-400 bg-indigo-500' : 'border-slate-600'
+                          }`}>
+                            {providerForm.activeProvider === 'othman' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                          </div>
+                          <div>
+                            <span className="text-xs font-bold block">🔷 Othman Store (https://api.othman-storee.com)</span>
+                            <span className="text-[10px] text-slate-400 block font-mono">قالدۇق: ${providerStatus?.othman?.balance ?? '0.096'} USD</span>
+                          </div>
+                        </div>
+                        {providerForm.activeProvider === 'othman' && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500 text-slate-950">ئاكتىپ</span>
+                        )}
+                      </button>
+
+                      {/* Option 2: Sahl Cash */}
+                      <button
+                        type="button"
+                        onClick={() => setProviderForm({ ...providerForm, activeProvider: 'sahl', enabled: true, othmanEnabled: false })}
+                        className={`p-3.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between ${
+                          providerForm.activeProvider === 'sahl'
+                            ? 'bg-amber-950/80 border-amber-400 text-white shadow-lg shadow-amber-500/20'
+                            : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 text-right">
+                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                            providerForm.activeProvider === 'sahl' ? 'border-amber-400 bg-amber-500' : 'border-slate-600'
+                          }`}>
+                            {providerForm.activeProvider === 'sahl' && <div className="w-1.5 h-1.5 rounded-full bg-slate-950" />}
+                          </div>
+                          <div>
+                            <span className="text-xs font-bold block">⚡ Sahl Cash (https://api.sahl-cash.com)</span>
+                            <span className="text-[10px] text-slate-400 block font-mono">قالدۇق: ${providerStatus?.balance ?? '19.91'} USD</span>
+                          </div>
+                        </div>
+                        {providerForm.activeProvider === 'sahl' && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500 text-slate-950">ئاكتىپ</span>
+                        )}
+                      </button>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Provider Type */}
                     <div>
