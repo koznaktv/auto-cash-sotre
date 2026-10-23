@@ -262,8 +262,8 @@ export function getServicePackagesKeyboard(
         callback_data: `tgserv:${service.id}:${sc.id}:0`,
       });
     }
-    for (let r = 0; r < subRows.length; r += 2) {
-      inline_keyboard.push(subRows.slice(r, r + 2));
+    for (const btn of subRows) {
+      inline_keyboard.push([btn]);
     }
   }
 
