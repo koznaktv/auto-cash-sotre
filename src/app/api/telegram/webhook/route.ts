@@ -54,7 +54,7 @@ export async function GET(req: Request) {
       );
       const data = await res.json();
 
-      // Configure Chat Menu Button (WebApp Store)
+      // Configure Chat Menu Button (Default clean input box without overlapping pill)
       let menuButtonOk = false;
       try {
         const menuRes = await fetch(`https://api.telegram.org/bot${token}/setChatMenuButton`, {
@@ -62,9 +62,7 @@ export async function GET(req: Request) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             menu_button: {
-              type: 'web_app',
-              text: '⚡️ دۇكاننى ئېچىش 🛍️',
-              web_app: { url: TELEGRAM_CONFIG.storeUrl },
+              type: 'default',
             },
           }),
         });

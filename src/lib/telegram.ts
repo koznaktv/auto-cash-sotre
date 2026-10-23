@@ -1389,6 +1389,23 @@ function getStoreInlineKeyboard() {
 }
 
 /**
+ * Reset Chat Menu Button to default (removes overlapping WebApp pill from message bar)
+ */
+export async function resetChatMenuButtonToDefault(chatId?: number | string): Promise<void> {
+  const token = getBotToken();
+  if (!token) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/setChatMenuButton`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...(chatId ? { chat_id: chatId } : {}),
+        menu_button: { type: 'default' },
+      }),
+    });
+  } catch {}
+}
+/**
  * Check if a user is a member of the official channel (@autocash_cannel)
  */
 export async function isUserSubscribedToChannel(userId: number | string): Promise<boolean> {
@@ -2334,6 +2351,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 
   // 1. Command /start
   if (text.startsWith('/start')) {
+    resetChatMenuButtonToDefault(chatId);
     if (isAdmin) {
       const adminWelcome = getAdminWelcomeMessage(from?.username || from?.first_name);
       await sendTelegramMessage(chatId, adminWelcome, {
