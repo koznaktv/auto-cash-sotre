@@ -55,6 +55,9 @@ export default function Navbar({
   });
 
   useEffect(() => {
+    // If parent component (such as page.tsx) manages and passes externalUser, skip duplicate network fetch
+    if (externalUser !== undefined) return;
+
     const refreshUser = () => {
       const cached = getCachedUser();
       if (cached) {

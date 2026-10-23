@@ -369,23 +369,19 @@ export default function HomePage() {
   };
 
   const handleSelectCategory = (catId: string) => {
-    if (transitioningCatId) return;
-    setTransitioningCatId(catId);
-    setTimeout(() => {
-      setSelectedCat(catId);
-      setTransitioningCatId(null);
-      try {
-        window.history.pushState({ view: 'category', catId }, '', '#cat=' + catId);
-      } catch {}
-      setTimeout(() => {
-        const catSection = document.getElementById('category-products-view');
-        if (catSection) {
-          catSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        } else {
-          window.scrollTo({ top: 380, behavior: 'smooth' });
-        }
-      }, 50);
-    }, 450);
+    setSelectedCat(catId);
+    setSearchQuery('');
+    try {
+      window.history.pushState({ view: 'category', catId }, '', '#cat=' + catId);
+    } catch {}
+    requestAnimationFrame(() => {
+      const catSection = document.getElementById('category-products-view');
+      if (catSection) {
+        catSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 380, behavior: 'smooth' });
+      }
+    });
   };
 
   // Storefront catalog: Sahl Cash synced provider catalog (with instant 0ms preloaded fallback)
@@ -411,7 +407,7 @@ export default function HomePage() {
         localStorage.removeItem('autocash_cached_catalog'); // Clean old legacy cache
         localStorage.removeItem('autocash_cached_catalog_v2'); // Clean v2 cache
         localStorage.removeItem('autocash_cached_catalog_v3'); // Clean v3 cache
-        const cachedCat = localStorage.getItem('autocash_cached_catalog_v11');
+        const cachedCat = localStorage.getItem('autocash_cached_catalog_v12');
         if (cachedCat) {
           const parsed = JSON.parse(cachedCat);
           if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
@@ -464,7 +460,7 @@ export default function HomePage() {
           setServices(normServices);
           setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
           try {
-            localStorage.setItem('autocash_cached_catalog_v11', JSON.stringify({ services: normServices, source: dCat.source }));
+            localStorage.setItem('autocash_cached_catalog_v12', JSON.stringify({ services: normServices, source: dCat.source }));
             localStorage.removeItem('autocash_cached_catalog');
             localStorage.removeItem('autocash_cached_catalog_v2');
             localStorage.removeItem('autocash_cached_catalog_v3');
@@ -512,7 +508,7 @@ export default function HomePage() {
           setServices(normServices);
           setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
           try {
-            localStorage.setItem('autocash_cached_catalog_v11', JSON.stringify({ services: normServices, source: dCat.source }));
+            localStorage.setItem('autocash_cached_catalog_v12', JSON.stringify({ services: normServices, source: dCat.source }));
             localStorage.removeItem('autocash_cached_catalog');
             localStorage.removeItem('autocash_cached_catalog_v2');
             localStorage.removeItem('autocash_cached_catalog_v3');
@@ -555,7 +551,7 @@ export default function HomePage() {
     } catch {}
 
     const handleStorageChange = (e: StorageEvent) => {
-      if ((e.key === 'autocash_cached_catalog_v11' || e.key === 'autocash_cached_catalog_v3') && e.newValue) {
+      if ((e.key === 'autocash_cached_catalog_v12' || e.key === 'autocash_cached_catalog_v3') && e.newValue) {
         try {
           const parsed = JSON.parse(e.newValue);
           if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
@@ -1058,6 +1054,10 @@ export default function HomePage() {
                   className={`gold-card-normal rounded-2xl p-2 sm:p-3 flex flex-col justify-between transition-all duration-200 group relative overflow-hidden cursor-pointer ${
                     isRTL ? 'text-right' : 'text-left'
                   }`}
+                  style={{
+                    contentVisibility: 'auto',
+                    containIntrinsicSize: '0 200px',
+                  }}
                 >
                   <div>
                     {/* Enlarged Image thumbnail */}

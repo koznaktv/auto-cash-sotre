@@ -47,7 +47,7 @@ export default function BottomNav() {
   return (
     <div className="md:hidden fixed bottom-[max(env(safe-area-inset-bottom,0px),12px)] left-3.5 right-3.5 z-50 pointer-events-auto">
       <nav
-        className="relative bg-[#061426]/95 backdrop-blur-xl border border-cyan-500/25 rounded-2xl sm:rounded-full h-[64px] shadow-[0_12px_40px_rgba(0,0,0,0.85),0_0_20px_rgba(6,182,212,0.15)] flex items-center justify-around font-alkatip select-none"
+        className="relative bg-[#061426]/95 backdrop-blur-md border border-cyan-500/25 rounded-2xl sm:rounded-full h-[64px] shadow-[0_12px_40px_rgba(0,0,0,0.85),0_0_20px_rgba(6,182,212,0.15)] flex items-center justify-around font-alkatip select-none transform-gpu"
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         {/* Animated Sliding Lamp Indicator (100% GPU Hardware Accelerated) */}

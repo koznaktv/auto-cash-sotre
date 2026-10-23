@@ -133,21 +133,23 @@ export async function getServicesListAsync(): Promise<ServiceItem[]> {
   // 1. Read bundled catalog from data/autocash_services.json (Git source of truth)
   const bundledList = getServicesList();
 
-  // 2. Always sync bundledList to Supabase so Supabase matches the repository
+  // 2. Sync bundledList to Supabase in non-blocking background so catalog response is instant
   const sb = getSupabase();
   if (sb && bundledList.length > 0) {
-    try {
-      await sb.from('system_settings').upsert({
-        id: 'custom_services',
-        site_name: JSON.stringify(bundledList),
-        admin_pin: 'SERVICES_BACKUP',
-        shamcash_address: 'META',
-        whatsapp_number: 'META',
-        telegram_username: 'META',
-      });
-    } catch (e: any) {
-      console.warn('Supabase getServicesListAsync sync notice:', e?.message);
-    }
+    (async () => {
+      try {
+        await sb.from('system_settings').upsert({
+          id: 'custom_services',
+          site_name: JSON.stringify(bundledList),
+          admin_pin: 'SERVICES_BACKUP',
+          shamcash_address: 'META',
+          whatsapp_number: 'META',
+          telegram_username: 'META',
+        });
+      } catch (e: any) {
+        console.warn('Supabase getServicesListAsync sync notice:', e?.message);
+      }
+    })();
   }
 
   cachedServices = bundledList;
