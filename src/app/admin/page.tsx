@@ -95,6 +95,7 @@ export interface SahlPackageRow {
   originalPrice: number;
   productType?: 'fixed' | 'amount';
   selected: boolean;
+  providerKey?: 'sahl' | 'othman' | string;
 }
 
 interface SahlGroupedService {
@@ -113,6 +114,7 @@ interface SahlGroupedService {
   minCost: number;
   maxCost: number;
   packages: SahlPackageRow[];
+  providerKey?: 'sahl' | 'othman' | string;
 }
 
 const ANIMATED_BADGE_PRESETS = [
@@ -329,7 +331,7 @@ export default function AdminPage() {
     enabled: true,
   });
   const [iconFilterTab, setIconFilterTab] = useState<'all' | 'game' | 'app' | 'pay'>('all');
-  const [productSourceFilter, setProductSourceFilter] = useState<'all' | 'published' | 'sahl'>('published');
+  const [productSourceFilter, setProductSourceFilter] = useState<'all' | 'published' | 'sahl' | 'othman'>('published');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const PAGE_SIZE = 24;
 
@@ -653,7 +655,7 @@ export default function AdminPage() {
         fetch(`/api/admin/services?t=${Date.now()}`, { headers, cache: 'no-store' }).then((r) => r.json()),
         fetch(`/api/admin/categories?t=${Date.now()}`, { headers, cache: 'no-store' }).then((r) => r.json()),
         fetch('/api/admin/settings', { headers }).then((r) => r.json()),
-        fetch('/api/admin/provider?action=products', { headers }).then((r) => r.json()).catch(() => null),
+        fetch('/api/admin/provider?action=products&provider=all', { headers }).then((r) => r.json()).catch(() => null),
         fetch(`/api/admin/banners?t=${Date.now()}`, { headers, cache: 'no-store' }).then((r) => r.json()).catch(() => null),
       ]);
 
@@ -764,14 +766,14 @@ export default function AdminPage() {
     setLoadingProducts(true);
     try {
       const token = sessionStorage.getItem('autocash_admin_token');
-      const res = await fetch('/api/admin/provider?action=products', {
+      const res = await fetch('/api/admin/provider?action=products&provider=all', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (data && data.success && Array.isArray(data.products)) {
         setProviderProducts(data.products);
         if (!silent) {
-          alert(`Sahl Cash تىن ${data.products.length} دانە مەھسۇلات ئۇتۇقلۇق يېڭىلاندى!`);
+          alert(`تەمىنلىگۈچىلەردىن (Sahl Cash & Othman Store) جەمئىي ${data.products.length} دانە مەھسۇلات يېڭىلاندى!`);
         }
       } else if (!silent) {
         alert(data?.errorMessage || 'مەھسۇلاتلارنى ئېلىش مەغلۇپ بولدى');
@@ -2234,6 +2236,7 @@ export default function AdminPage() {
           originalPrice: Math.max(sell, original),
           productType: p.productType === 'amount' ? 'amount' : 'fixed',
           selected: true,
+          providerKey: p.providerKey || (item.packages.some(x => x.providerKey === 'othman') ? 'othman' : 'sahl'),
         };
       });
 
@@ -2833,10 +2836,12 @@ export default function AdminPage() {
         (s.description && s.description.toLowerCase().includes(q)) ||
         (s.packages && s.packages.some((p) => (p.title && p.title.toLowerCase().includes(q))));
       const isCustomSaved = savedServiceIds.has(s.id);
+      const isOthmanService = (s as any).providerKey === 'othman' || (s.packages && s.packages.some((p: any) => p.providerKey === 'othman'));
       const matchSource =
         productSourceFilter === 'all' ||
         (productSourceFilter === 'published' && isCustomSaved) ||
-        (productSourceFilter === 'sahl' && !isCustomSaved);
+        (productSourceFilter === 'sahl' && !isCustomSaved && !isOthmanService) ||
+        (productSourceFilter === 'othman' && !isCustomSaved && isOthmanService);
       return matchCat && matchSearch && matchSource;
     });
   }, [unifiedServicesList, searchQuery, categoryFilter, productSourceFilter, savedServiceIds]);
@@ -3916,7 +3921,21 @@ export default function AdminPage() {
                           : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
                       }`}
                     >
-                      <span>⚡ Sahl Cash ئامبىرى ({groupedSahlServices.length})</span>
+                      <span>⚡ Sahl Cash ({groupedSahlServices.filter(s => s.providerKey !== 'othman').length})</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProductSourceFilter('othman');
+                        setCurrentPage(1);
+                      }}
+                      className={`px-3 py-1.5 rounded-xl transition cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                        productSourceFilter === 'othman'
+                          ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-black shadow-md'
+                          : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                      }`}
+                    >
+                      <span>🔷 Othman Store ({groupedSahlServices.filter(s => s.providerKey === 'othman').length})</span>
                     </button>
                     <button
                       type="button"

@@ -59,6 +59,29 @@ export async function GET(req: Request) {
     }
 
     if (action === 'products') {
+      const providerParam = searchParams.get('provider');
+      if (providerParam === 'othman') {
+        const productsRes = await othmanStoreProvider.getProducts();
+        return NextResponse.json(productsRes);
+      }
+      if (providerParam === 'all') {
+        const [sahlRes, othmanRes] = await Promise.all([
+          syria4GameProvider.getProducts(),
+          othmanStoreProvider.getProducts(),
+        ]);
+        const sahlProds = (sahlRes.success && Array.isArray(sahlRes.products))
+          ? sahlRes.products.map((p: any) => ({ ...p, providerKey: 'sahl' }))
+          : [];
+        const othmanProds = (othmanRes.success && Array.isArray(othmanRes.products))
+          ? othmanRes.products.map((p: any) => ({ ...p, providerKey: 'othman' }))
+          : [];
+        return NextResponse.json({
+          success: true,
+          products: [...sahlProds, ...othmanProds],
+          sahlCount: sahlProds.length,
+          othmanCount: othmanProds.length,
+        });
+      }
       const productsRes = await syria4GameProvider.getProducts();
       return NextResponse.json(productsRes);
     }
