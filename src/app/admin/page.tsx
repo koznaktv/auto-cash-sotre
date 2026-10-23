@@ -259,7 +259,7 @@ export default function AdminPage() {
 
   // Navigation tab
   const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'orders' | 'provider' | 'services' | 'banners' | 'deposits' | 'users' | 'finance' | 'settings'
+    'dashboard' | 'orders' | 'provider' | 'banners' | 'deposits' | 'users' | 'finance' | 'settings'
   >('dashboard');
 
   // Main Data States
@@ -686,11 +686,7 @@ export default function AdminPage() {
     }
   };
 
-  useEffect(() => {
-    if (isAuthenticated && activeTab === 'services' && providerProducts.length === 0 && !loadingProducts) {
-      fetchProviderProducts(true);
-    }
-  }, [isAuthenticated, activeTab, providerProducts.length, loadingProducts]);
+
 
   const checkProviderLive = async () => {
     setCheckingProvider(true);
@@ -3031,8 +3027,7 @@ export default function AdminPage() {
             {[
               { id: 'dashboard', label: 'باش تاختا (Dashboard)', icon: LayoutDashboard },
               { id: 'orders', label: 'زاكازلارنى باشقۇرۇش', icon: ShoppingBag, badge: metrics.processingCount },
-              { id: 'provider', label: 'Sahl Cash API', icon: Zap, badgeColor: 'bg-cyan-500 text-slate-950' },
-              { id: 'services', label: 'مەھسۇلات / مۇلازىمەتلەر', icon: Package, badge: services.length },
+              { id: 'provider', label: 'API تەمىنلىگۈچى تەڭشىكى', icon: Zap, badgeColor: 'bg-cyan-500 text-slate-950' },
               { id: 'banners', label: 'باشبەت ئېلانلىرى (سلايدېر)', icon: ImageIcon, badge: banners.length, badgeColor: 'bg-amber-400 text-slate-950' },
               { id: 'deposits', label: 'ھەميان كىرىملىرى (شامكەش)', icon: Wallet, badge: metrics.pendingDepCount, badgeColor: 'bg-amber-500 text-slate-950' },
               { id: 'users', label: 'ئىشلەتكۈچىلەر (ئەزالار)', icon: Users, badge: metrics.userCount },
@@ -3120,7 +3115,7 @@ export default function AdminPage() {
             <h2 className="font-ukij font-black text-sm sm:text-base text-white">
               {activeTab === 'dashboard' && 'باش تاختا كۆرسەتكۈچلىرى'}
               {activeTab === 'orders' && 'زاكازلارنى باشقۇرۇش مەركىزى'}
-              {activeTab === 'services' && 'مەھسۇلات ۋە مۇلازىمەتلەر تىزىملىكى'}
+              
               {activeTab === 'banners' && 'باشبەت ئېلان تاختىسى ۋە سلايدېر تەڭشىكى'}
               {activeTab === 'deposits' && 'ھەميان كىرىملىرى ۋە تالونلار'}
               {activeTab === 'users' && 'ئەزالار ۋە ئىشلەتكۈچىلەر باشقۇرۇش'}
@@ -3729,7 +3724,7 @@ export default function AdminPage() {
           )}
 
           {/* ================= TAB 3: PRODUCTS & SERVICES (CRUD) ================= */}
-          {activeTab === 'services' && (
+          {false && (
             <div className="space-y-4 animate-in fade-in duration-300">
               {/* Category Management Bar */}
               <div className={`p-4 rounded-2xl ${themeClasses.card} space-y-3`}>
@@ -5855,7 +5850,7 @@ export default function AdminPage() {
                 </form>
               </div>
 
-              <ProviderCatalogPanel themeClasses={themeClasses} />
+              {/* ProviderCatalogPanel removed as requested */}
 
               {/* API Endpoints Status Table */}
               <div className={`p-5 rounded-2xl ${themeClasses.card} space-y-4`}>
