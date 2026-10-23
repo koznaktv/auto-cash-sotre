@@ -17,6 +17,115 @@ interface TranslationRule {
 }
 
 const RULES: TranslationRule[] = [
+  // 0. Arabic Game & Subscriptions Terms
+  {
+    regex: /(\d+)\s*(?:شدة|شدات)/gi,
+    ug: (_m, d) => `${d} UC (شەدەن)`,
+    en: (_m, d) => `${d} UC`,
+    ar: (_m, d) => `${d} شدة`,
+    tr: (_m, d) => `${d} UC`,
+    uz: (_m, d) => `${d} UC`,
+    ru: (_m, d) => `${d} UC`,
+  },
+  {
+    regex: /(\d+)\s*(?:جوهرة|جواهر)/gi,
+    ug: (_m, d) => `${d} ئالماس (Diamonds)`,
+    en: (_m, d) => `${d} Diamonds`,
+    ar: (_m, d) => `${d} جوهرة`,
+    tr: (_m, d) => `${d} Elmas`,
+    uz: (_m, d) => `${d} Olmos`,
+    ru: (_m, d) => `${d} Алмазов`,
+  },
+  {
+    regex: /(\d+)\s*كرستال/gi,
+    ug: (_m, d) => `${d} خرۇستال (Crystals)`,
+    en: (_m, d) => `${d} Crystals`,
+    ar: (_m, d) => `${d} كريستال`,
+    tr: (_m, d) => `${d} Kristal`,
+    uz: (_m, d) => `${d} Kristal`,
+    ru: (_m, d) => `${d} Кристаллов`,
+  },
+  {
+    regex: /عضوية\s*اسبوعية/gi,
+    ug: 'ھەپتىلىك ئەزالىق (Weekly)',
+    en: 'Weekly Membership',
+    ar: 'عضوية أسبوعية',
+    tr: 'Haftalık Üyelik',
+    uz: 'Haftalik a‘zolik',
+    ru: 'Еженедельная подписка',
+  },
+  {
+    regex: /عضوية\s*شهرية/gi,
+    ug: 'ئايلىق ئەزالىق (Monthly)',
+    en: 'Monthly Membership',
+    ar: 'عضوية شهرية',
+    tr: 'Aylık Üyelik',
+    uz: 'Oylik a‘zolik',
+    ru: 'Ежемесячная подписка',
+  },
+  {
+    regex: /حساب\s*جاهز/gi,
+    ug: 'تەييار ھېسابات',
+    en: 'Ready Account',
+    ar: 'حساب جاهز',
+    tr: 'Hazır Hesap',
+    uz: 'Tayyor hisob',
+    ru: 'Готовый аккаунт',
+  },
+  {
+    regex: /حساب\s*شخصي|حساب\s*خاص/gi,
+    ug: 'خاس ھېسابات',
+    en: 'Private Account',
+    ar: 'حساب شخصي',
+    tr: 'Özel Hesap',
+    uz: 'Shaxsiy hisob',
+    ru: 'Личный аккаунт',
+  },
+  {
+    regex: /حساب\s*مشترك/gi,
+    ug: 'ئورتاق ھېسابات',
+    en: 'Shared Account',
+    ar: 'حساب مشترك',
+    tr: 'Ortak Hesap',
+    uz: 'Umumiy hisob',
+    ru: 'Общий аккаунт',
+  },
+  {
+    regex: /ضمان\s*كامل/gi,
+    ug: 'تولۇق كاپالەتلىك',
+    en: 'Full Warranty',
+    ar: 'ضمان كامل',
+    tr: 'Tam Garanti',
+    uz: 'To‘liq kafolat',
+    ru: 'Полная гарантия',
+  },
+  {
+    regex: /(\d+)\s*(?:اشهر|أشهر|شهر)/gi,
+    ug: (_m, d) => `${d} ئايلىق`,
+    en: (_m, d) => `${d} Months`,
+    ar: (_m, d) => `${d} أشهر`,
+    tr: (_m, d) => `${d} Aylık`,
+    uz: (_m, d) => `${d} Oylik`,
+    ru: (_m, d) => `${d} Мес.`,
+  },
+  {
+    regex: /(\d+)\s*(?:سنة|سنوات)/gi,
+    ug: (_m, d) => `${d} يىللىق`,
+    en: (_m, d) => `${d} Years`,
+    ar: (_m, d) => `${d} سنوات`,
+    tr: (_m, d) => `${d} Yıllık`,
+    uz: (_m, d) => `${d} Yillik`,
+    ru: (_m, d) => `${d} Лет`,
+  },
+  {
+    regex: /روبوت/gi,
+    ug: 'ئاپتوماتىك',
+    en: 'Auto Bot',
+    ar: 'تلقائي',
+    tr: 'Otomatik',
+    uz: 'Avtomatik',
+    ru: 'Автобот',
+  },
   // 1. Refund & policies
   {
     regex: /[-–—]?\s*\bno\s+refunds?\b/gi,
@@ -662,6 +771,50 @@ export function smartTranslateTitle(title: string | null | undefined, lang: Supp
     if (text.includes('يىللىق')) {
       const rep = lang === 'ar' ? 'سنوي' : lang === 'tr' ? 'Yıllık' : lang === 'uz' ? 'Yillik' : lang === 'ru' ? 'Годовой' : 'Yearly';
       text = text.replace(/يىللىق/g, rep);
+    }
+    if (text.includes('ھەپتىلىك')) {
+      const rep = lang === 'ar' ? 'أسبوعي' : lang === 'tr' ? 'Haftalık' : lang === 'uz' ? 'Haftalik' : lang === 'ru' ? 'Еженедельно' : 'Weekly';
+      text = text.replace(/ھەپتىلىك/g, rep);
+    }
+    if (text.includes('ئەزالىق')) {
+      const rep = lang === 'ar' ? 'عضوية' : lang === 'tr' ? 'Üyelik' : lang === 'uz' ? 'A‘zolik' : lang === 'ru' ? 'Подписка' : 'Membership';
+      text = text.replace(/ئەزالىق/g, rep);
+    }
+    if (text.includes('ئالماس')) {
+      const rep = lang === 'ar' ? 'جوهرة' : lang === 'tr' ? 'Elmas' : lang === 'uz' ? 'Olmos' : lang === 'ru' ? 'Алмазов' : 'Diamonds';
+      text = text.replace(/ئالماس/g, rep);
+    }
+    if (text.includes('شەدەن')) {
+      const rep = lang === 'ar' ? 'شدة' : 'UC';
+      text = text.replace(/شەدەن/g, rep);
+    }
+    if (text.includes('بىرلىك')) {
+      const rep = lang === 'ar' ? 'وحدة' : lang === 'tr' ? 'Birim' : lang === 'uz' ? 'Birlik' : lang === 'ru' ? 'Единиц' : 'Units';
+      text = text.replace(/بىرلىك/g, rep);
+    }
+    if (text.includes('تەييار ھېسابات')) {
+      const rep = lang === 'ar' ? 'حساب جاهز' : lang === 'tr' ? 'Hazır Hesap' : lang === 'uz' ? 'Tayyor hisob' : lang === 'ru' ? 'Готовый аккаунт' : 'Ready Account';
+      text = text.replace(/تەييار\s*ھېسابات/g, rep);
+    }
+    if (text.includes('خاس ھېسابات')) {
+      const rep = lang === 'ar' ? 'حساب شخصي' : lang === 'tr' ? 'Özel Hesap' : lang === 'uz' ? 'Shaxsiy hisob' : lang === 'ru' ? 'Личный аккауنت' : 'Private Account';
+      text = text.replace(/خاس\s*ھېسابات/g, rep);
+    }
+    if (text.includes('ئورتاق ھېسابات')) {
+      const rep = lang === 'ar' ? 'حساب مشترك' : lang === 'tr' ? 'Ortak Hesap' : lang === 'uz' ? 'Umumiy hisob' : lang === 'ru' ? 'Общий аккаунт' : 'Shared Account';
+      text = text.replace(/ئورتاق\s*ھېسابات/g, rep);
+    }
+    if (text.includes('سوۋغات كارتىسى')) {
+      const rep = lang === 'ar' ? 'بطاقة هدية' : lang === 'tr' ? 'Hediye Kartı' : lang === 'uz' ? 'Sovg‘a kartasi' : lang === 'ru' ? 'Подарочная карта' : 'Gift Card';
+      text = text.replace(/سوۋغات\s*كارتىسى/g, rep);
+    }
+    if (text.includes('ئالتۇن')) {
+      const rep = lang === 'ar' ? 'ذهب' : lang === 'tr' ? 'Altın' : lang === 'uz' ? 'Oltin' : lang === 'ru' ? 'Золото' : 'Gold';
+      text = text.replace(/ئالتۇن/g, rep);
+    }
+    if (text.includes('تەڭگە')) {
+      const rep = lang === 'ar' ? 'عملة' : lang === 'tr' ? 'Jeton' : lang === 'uz' ? 'Tanga' : lang === 'ru' ? 'Монеты' : 'Coins';
+      text = text.replace(/تەڭگە/g, rep);
     }
   }
 
