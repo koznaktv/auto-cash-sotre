@@ -23,6 +23,14 @@ import {
   handleShopCallbackQuery,
   handleShopTextMessage,
 } from './telegramShop';
+import {
+  BotLanguage,
+  getUserLanguage,
+  setUserLanguage,
+  BOT_I18N,
+  getLanguageSelectionKeyboard,
+  LANGUAGE_SELECTION_BANNER,
+} from './telegramI18n';
 
 export const TELEGRAM_CONFIG = {
   botUsername: 'Autocash_24_bot',
@@ -1319,68 +1327,75 @@ export async function syncBotDescriptions(): Promise<{ ok: boolean; description?
 /**
  * Helper to build rich interactive store inline keyboard with vibrant animated-feel badges
  */
-function getStoreInlineKeyboard() {
+export function getStoreInlineKeyboard(lang: BotLanguage = 'ug') {
+  const b = BOT_I18N.storeButtons;
   return {
     inline_keyboard: [
       [
         {
-          text: '🛍️ مەھسۇلاتلار بۆلىكى (دۇكان) 📦',
+          text: b.shopCategories[lang] || b.shopCategories.ug,
           callback_data: 'tg_shop_categories',
         },
       ],
       [
         {
-          text: '⚡️ دۇكاننى توركۆزنەكتە ئېچىش | WebApp ➔',
+          text: b.webApp[lang] || b.webApp.ug,
           web_app: { url: TELEGRAM_CONFIG.storeUrl },
         },
       ],
       [
         {
-          text: '💰 ھېساباتىم & قالدۇق پۇل 💳',
+          text: b.myAccount[lang] || b.myAccount.ug,
           callback_data: 'tg_my_account',
         },
         {
-          text: '💎 پۇل سېلىش (شامكەش) ⚡️',
+          text: b.deposit[lang] || b.deposit.ug,
           callback_data: 'quick_deposit',
         },
       ],
       [
         {
-          text: '🔍 زاكاز سۈرۈشتۈرۈش 📦',
+          text: b.trackOrders[lang] || b.trackOrders.ug,
           callback_data: 'quick_track',
         },
         {
-          text: '💱 پۇل پېرېۋوت باھاسى 📊',
+          text: b.rates[lang] || b.rates.ug,
           callback_data: 'quick_rates',
         },
       ],
       [
         {
-          text: '❓ كۆپ سورىلىدىغان سوئاللار 💡',
+          text: b.faq[lang] || b.faq.ug,
           callback_data: 'quick_faq',
         },
         {
-          text: '👑 VIP ئەزالىق تۈزۈمى 🌟',
+          text: b.vip[lang] || b.vip.ug,
           callback_data: 'quick_vip',
         },
       ],
       [
         {
-          text: '🌟💡 ئىشلىتىش قوللانمىسى 📖',
+          text: b.guide[lang] || b.guide.ug,
           callback_data: 'quick_guide',
         },
         {
-          text: '📲 ئەپ نۇسخىسى (APK) 📥',
+          text: b.download[lang] || b.download.ug,
           callback_data: 'quick_download',
         },
       ],
       [
         {
-          text: '📢🔥 رەسمىي تېلېگرام قانال 🪐',
+          text: b.changeLanguage[lang] || b.changeLanguage.ug,
+          callback_data: 'bot_lang_menu',
+        },
+      ],
+      [
+        {
+          text: b.channel[lang] || b.channel.ug,
           url: TELEGRAM_CONFIG.channelUrl,
         },
         {
-          text: '💬✨ خېرىدارلار مۇلازىمىتى (24/7) 👨‍💻',
+          text: b.support[lang] || b.support.ug,
           url: TELEGRAM_CONFIG.supportUrl,
         },
       ],
@@ -1483,31 +1498,17 @@ function getSubscriptionGateInlineKeyboard() {
 /**
  * Build prestigious welcome card for new and returning visitors
  */
-function getWelcomeMessage(firstName?: string): string {
-  const customerName = firstName ? `<b>${firstName}</b>` : 'ھۆرمەتلىك قەدىرلىك خېرىدارىمىز';
-  return `
-╭━━━ 🌟👑 <b>AUTO CASH | دۇنياۋى تېز سۈرئەتلىك رەقەملىك دۇكان</b> 👑🌟 ━━━╮
-      💎 <i>ئەڭ ئەرزان باھا • 24/7 سېكۇنتتا ئاپتوماتىك قاچىلاش • %100 كاپالەت</i> 💎
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-👋 <b>ئەسسالامۇ ئەلەيكۇم، ${customerName}!</b>
-<b>AUTO CASH</b> رەسمىي سۇپىمىزغا كەلگىنىڭىزنى قىزغىن قارشى ئالىمىز!
-
-⚡️ <b>AUTO CASH</b> — سىزگە خەلقئارالىق ئەڭ ئىلغار، ئىشەنچلىك ۋە سېكۇنتتا يېتىپ كېلىدىغان 24/7 ئاپتوماتلاشقان زامانىۋى رەقەملىك مال سېتىۋېلىش دەرۋازىسىنى ئاچىدۇ!
-
-┏━━━━━━━━━ 💎 <b>سۇپىمىزنىڭ ئاساسىي ئەۋزەللىكلىرى</b> ━━━━━━━━━┓
- ⚡️ <b>24/7 شۇئان قاچىلاش:</b> زاكاز بېرىلگەن ھامان 0.1 سېكۇنتتا ئاپتوماتىك كىرىدۇ!
- 💳 <b>شامكەش (Sham Cash):</b> تالون نومۇرى بىلەن دەقىقىدە ھەميانغا پۇل كىرىش كاپالىتى.
- 🌐 <b>رەقەملىك مۇلازىمەتلەر:</b> بارلىق خەلقئارالىق ئەپلەر، ئالقىش پۇللىرى ۋە سوۋغات كارتىلىرى.
- 🤖 <b>سۈنئىي ئەقىل (AI):</b> ئەڭ ئىلغار سۈنئىي ئەقىل ئابۇنىتلىرى ۋە زامانىۋى قوراللار.
- 📱 <b>مەۋھۇم نومۇرلار:</b> پۈتۈن دۇنيا تېلېگرام، ۋاتسئەپ ۋە تور دەلىللەش نومۇرلىرى.
- 👑 <b>VIP ئەزالىق تۈزۈمى:</b> سېتىۋالغانچە پۇل قايتىدىغان (Cashback) ئالاھىدە ئېتىبارلار.
- 🛡️ <b>%100 بىخەتەر كاپالەت:</b> سۈپەتلىك، كېچىكىشتىن خالىي؛ زاكاز پۈتمىسە پۇلىڭىز تولۇق قايتىدۇ.
- 📲 <b>تېلېگرام مىنى ئەپ:</b> دۇكان تېلېگرام ئىچىدىلا يۇقىرى سۈرئەتتە ئېچىلىدۇ.
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-👇 <b>سېتىۋېلىش ياكى باھالارنى كۆرۈش ئۈچۈن تۆۋەندىكى كۇنۇپكىنى بېسىپ دۇكاننى ئېچىڭ:</b>
-`.trim();
+function getWelcomeMessage(firstName?: string, lang: BotLanguage = 'ug'): string {
+  const customerName = firstName ? `<b>${firstName}</b>` : (
+    lang === 'ar' ? 'عزيزنا العميل' :
+    lang === 'tr' ? 'Değerli Müşterimiz' :
+    lang === 'en' ? 'Valued Customer' :
+    lang === 'uz' ? 'Hurmatli mijoz' :
+    lang === 'ru' ? 'Уважаемый клиент' :
+    'ھۆرمەتلىك قەدىرلىك خېرىدارىمىز'
+  );
+  const fn = BOT_I18N.welcome[lang] || BOT_I18N.welcome.ug;
+  return fn(customerName);
 }
 
 /**
@@ -1674,13 +1675,36 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     registerAdminChatId(fromId, fromUser);
     const isAdmin = isTelegramAdmin(fromId, fromUser);
 
+    // Language Selection Callbacks (Accessible to all users anytime)
+    if (data === 'bot_lang_menu') {
+      await answerCallbackQuery(cqId);
+      await showOrEditMessage(chatId, messageId, LANGUAGE_SELECTION_BANNER, getLanguageSelectionKeyboard());
+      return;
+    }
+
+    if (data.startsWith('bot_set_lang:')) {
+      const selectedLang = data.split(':')[1] as BotLanguage;
+      if (['ug', 'ar', 'tr', 'en', 'uz', 'ru'].includes(selectedLang)) {
+        setUserLanguage(fromId, selectedLang);
+        if (chatId) setUserLanguage(chatId, selectedLang);
+
+        const alertMsg = BOT_I18N.langChangedAlert[selectedLang] || 'Language updated!';
+        await answerCallbackQuery(cqId, alertMsg, false);
+
+        const welcomeText = getWelcomeMessage(cq.from?.first_name, selectedLang);
+        await showOrEditMessage(chatId, messageId, welcomeText, getStoreInlineKeyboard(selectedLang));
+        return;
+      }
+    }
+
     // 0. Force Channel Subscription Check (check_subscription)
     if (data === 'check_subscription') {
       const isSub = await isUserSubscribedToChannel(fromId);
       if (isSub) {
         await answerCallbackQuery(cqId, '🎉 تەبرىكلەيمىز! قانال ئەزالىقىڭىز مۇۋەپپەقىيەتلىك دەلىللەندى.');
-        const welcomeText = getWelcomeMessage(cq.from?.first_name);
-        await showOrEditMessage(chatId, messageId, welcomeText, getStoreInlineKeyboard());
+        const userLang = getUserLanguage(fromId) || 'ug';
+        const welcomeText = getWelcomeMessage(cq.from?.first_name, userLang);
+        await showOrEditMessage(chatId, messageId, welcomeText, getStoreInlineKeyboard(userLang));
       } else {
         await answerCallbackQuery(
           cqId,
@@ -2298,8 +2322,9 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
         const adminWelcome = getAdminWelcomeMessage(fromUser || cq.from?.first_name);
         await showOrEditMessage(chatId, messageId, adminWelcome, getAdminInlineKeyboard());
       } else {
-        const welcomeText = getWelcomeMessage(cq.from?.first_name);
-        await showOrEditMessage(chatId, messageId, welcomeText, getStoreInlineKeyboard());
+        const userLang = getUserLanguage(fromId) || 'ug';
+        const welcomeText = getWelcomeMessage(cq.from?.first_name, userLang);
+        await showOrEditMessage(chatId, messageId, welcomeText, getStoreInlineKeyboard(userLang));
       }
       return;
     }
@@ -2361,10 +2386,36 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       return;
     }
 
-    const welcomeText = getWelcomeMessage(from?.first_name);
+    const userLang = getUserLanguage(from?.id || chatId);
+    if (!userLang) {
+      // First time entering bot -> Prompt language selection first!
+      await sendTelegramMessage(chatId, LANGUAGE_SELECTION_BANNER, {
+        parse_mode: 'HTML',
+        reply_markup: getLanguageSelectionKeyboard(),
+      });
+      return;
+    }
+
+    const welcomeText = getWelcomeMessage(from?.first_name, userLang);
     await sendTelegramMessage(chatId, welcomeText, {
       parse_mode: 'HTML',
-      reply_markup: getStoreInlineKeyboard(),
+      reply_markup: getStoreInlineKeyboard(userLang),
+    });
+    return;
+  }
+
+  // Language switch command (/lang, /language, /til, /dil, /yazyk)
+  if (
+    text === '/lang' ||
+    text === '/language' ||
+    text === '/til' ||
+    text === '/dil' ||
+    text === '/yazyk' ||
+    text.startsWith('/lang ')
+  ) {
+    await sendTelegramMessage(chatId, LANGUAGE_SELECTION_BANNER, {
+      parse_mode: 'HTML',
+      reply_markup: getLanguageSelectionKeyboard(),
     });
     return;
   }

@@ -11,6 +11,15 @@ import { getServicesList } from './servicesDb';
 import { syria4GameProvider, othmanStoreProvider, generateUUIDv4 } from './providers/syria4game';
 import { notifyNewOrder, TELEGRAM_CONFIG } from './telegram';
 import type { ServiceItem, ServicePackage } from './data';
+import {
+  BotLanguage,
+  getUserLanguage,
+  setUserLanguage,
+  BOT_I18N,
+  getLanguageSelectionKeyboard,
+  LANGUAGE_SELECTION_BANNER,
+} from './telegramI18n';
+import { smartTranslateTitle } from './catalog/smartTranslate';
 
 export interface BotOrderSession {
   step: 'awaiting_target_account' | 'awaiting_zone_id' | 'ready_to_confirm';
@@ -62,58 +71,60 @@ export const SHOP_CATEGORIES_BANNER = `
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `.trim();
 
-export function getShopCategoriesKeyboard() {
+export function getShopCategoriesKeyboard(lang: BotLanguage = 'ug') {
+  const c = BOT_I18N.categories;
   return {
     inline_keyboard: [
       [
-        { text: '💳 Tremendous Visa خەلقئارالىق ۋىزا كارتىسى 🛍️', callback_data: 'tgserv:othman_visa_cards' },
+        { text: c.visa[lang] || c.visa.ug, callback_data: 'tgserv:othman_visa_cards' },
       ],
       [
-        { text: '📱 مەۋھۇم نومۇر ✤•', callback_data: 'tgcat:numbers' },
-        { text: '✤• ئەپ دېتاللار •', callback_data: 'tgcat:apps' },
+        { text: c.numbers[lang] || c.numbers.ug, callback_data: 'tgcat:numbers' },
+        { text: c.apps[lang] || c.apps.ug, callback_data: 'tgcat:apps' },
       ],
       [
-        { text: '⭐️ ئەزالىق ئېچىش ✤•', callback_data: 'tgcat:accounts' },
-        { text: '• ئويۇنلار 🎮•', callback_data: 'tgcat:games' },
+        { text: c.accounts[lang] || c.accounts.ug, callback_data: 'tgcat:accounts' },
+        { text: c.games[lang] || c.games.ug, callback_data: 'tgcat:games' },
       ],
       [
-        { text: '📡 تور كارتىسى Wi-Fi 🛍️', callback_data: 'tgcat:balance' },
-        { text: '💲 كارتىغا پۇل قاچىلاش 📊•', callback_data: 'tgcat:cards' },
+        { text: c.balance[lang] || c.balance.ug, callback_data: 'tgcat:balance' },
+        { text: c.cards[lang] || c.cards.ug, callback_data: 'tgcat:cards' },
       ],
       [
-        { text: '🎉 ھەدىيە كارتىسى 🎁•', callback_data: 'tgcat:giftcards' },
-        { text: '🌐 ئىجتىمائىي تاراتقۇ ✤•', callback_data: 'tgcat:social' },
+        { text: c.giftcards[lang] || c.giftcards.ug, callback_data: 'tgcat:giftcards' },
+        { text: c.social[lang] || c.social.ug, callback_data: 'tgcat:social' },
       ],
       [
-        { text: '🏠 ئاساسىي بەتكە قايتىش •', callback_data: 'back_to_main' },
+        { text: c.backToMain[lang] || c.backToMain.ug, callback_data: 'back_to_main' },
       ],
     ],
   };
 }
 
-export function getCategoryDisplayTitle(catKey: string): string {
+export function getCategoryDisplayTitle(catKey: string, lang: BotLanguage = 'ug'): string {
+  const c = BOT_I18N.categories;
   switch (catKey) {
     case 'crypto':
     case 'visa':
-      return '💳 Tremendous Visa خەلقئارالىق ۋىزا كارتىسى';
+      return c.visa[lang] || c.visa.ug;
     case 'numbers':
-      return '📱 مەۋھۇم نومۇر ✤•';
+      return c.numbers[lang] || c.numbers.ug;
     case 'apps':
-      return '✤• ئەپ دېتاللار •';
+      return c.apps[lang] || c.apps.ug;
     case 'accounts':
-      return '⭐️ ئەزالىق ئېچىش ✤•';
+      return c.accounts[lang] || c.accounts.ug;
     case 'games':
-      return '• ئويۇنلار 🎮•';
+      return c.games[lang] || c.games.ug;
     case 'balance':
-      return '📡 تور كارتىسى Wi-Fi 🛍️';
+      return c.balance[lang] || c.balance.ug;
     case 'cards':
-      return '💲 كارتىغا پۇل قاچىلاش 📊•';
+      return c.cards[lang] || c.cards.ug;
     case 'giftcards':
-      return '🎉 ھەدىيە كارتىسى 🎁•';
+      return c.giftcards[lang] || c.giftcards.ug;
     case 'social':
-      return '🌐 ئىجتىمائىي تاراتقۇ ✤•';
+      return c.social[lang] || c.social.ug;
     default:
-      return 'مەھسۇلاتلار دۇكىنى';
+      return BOT_I18N.storeButtons.shopCategories[lang] || 'مەھسۇلاتلار دۇكىنى';
   }
 }
 
@@ -159,7 +170,7 @@ export function getServicesForCategory(catKey: string): ServiceItem[] {
   return all.filter((s) => s.category === catKey);
 }
 
-export function getCategoryProductsKeyboard(catKey: string, page = 0) {
+export function getCategoryProductsKeyboard(catKey: string, page = 0, lang: BotLanguage = 'ug') {
   const services = getServicesForCategory(catKey);
   const pageSize = 8;
   const totalPages = Math.ceil(services.length / pageSize) || 1;
@@ -172,15 +183,23 @@ export function getCategoryProductsKeyboard(catKey: string, page = 0) {
     const row: any[] = [];
     const item1 = slice[i];
     const icon1 = item1.badge ? item1.badge.split(' ')[0] : '⚡';
+    const rawName1 = item1.name;
+    const translatedName1 = lang === 'ug' ? rawName1 : smartTranslateTitle(rawName1, lang as any);
+    const shortName1 = translatedName1.length > 20 ? `${translatedName1.slice(0, 19)}…` : translatedName1;
+
     row.push({
-      text: `${icon1} ${item1.name.slice(0, 18)}`,
+      text: `${icon1} ${shortName1}`,
       callback_data: `tgserv:${item1.id}`,
     });
     if (i + 1 < slice.length) {
       const item2 = slice[i + 1];
       const icon2 = item2.badge ? item2.badge.split(' ')[0] : '⚡';
+      const rawName2 = item2.name;
+      const translatedName2 = lang === 'ug' ? rawName2 : smartTranslateTitle(rawName2, lang as any);
+      const shortName2 = translatedName2.length > 20 ? `${translatedName2.slice(0, 19)}…` : translatedName2;
+
       row.push({
-        text: `${icon2} ${item2.name.slice(0, 18)}`,
+        text: `${icon2} ${shortName2}`,
         callback_data: `tgserv:${item2.id}`,
       });
     }
@@ -191,7 +210,7 @@ export function getCategoryProductsKeyboard(catKey: string, page = 0) {
     const navRow: any[] = [];
     if (currentPage > 0) {
       navRow.push({
-        text: '⬅️ ئالدىنقى',
+        text: BOT_I18N.categories.prevPage[lang] || '⬅️ ئالدىنقى',
         callback_data: `tgcat:${catKey}:${currentPage - 1}`,
       });
     }
@@ -201,7 +220,7 @@ export function getCategoryProductsKeyboard(catKey: string, page = 0) {
     });
     if (currentPage < totalPages - 1) {
       navRow.push({
-        text: 'كېيىنكى ➡️',
+        text: BOT_I18N.categories.nextPage[lang] || 'كېيىنكى ➡️',
         callback_data: `tgcat:${catKey}:${currentPage + 1}`,
       });
     }
@@ -209,13 +228,20 @@ export function getCategoryProductsKeyboard(catKey: string, page = 0) {
   }
 
   inline_keyboard.push([
-    { text: '🔙 دۇكان بۆلۈملىرىگە قايتىش ↩️', callback_data: 'tg_shop_categories' },
+    {
+      text: BOT_I18N.categories.backToCategories[lang] || '🔙 دۇكان بۆلۈملىرىگە قايتىش ↩️',
+      callback_data: 'tg_shop_categories',
+    },
   ]);
 
   return { inline_keyboard };
 }
 
-export function getServicePackagesKeyboard(service: ServiceItem, activeSubCatId?: string) {
+export function getServicePackagesKeyboard(
+  service: ServiceItem,
+  activeSubCatId?: string,
+  lang: BotLanguage = 'ug'
+) {
   const inline_keyboard: any[][] = [];
 
   if (service.subCategories && service.subCategories.length > 1) {
@@ -223,8 +249,9 @@ export function getServicePackagesKeyboard(service: ServiceItem, activeSubCatId?
     const effectiveSub = activeSubCatId || service.subCategories[0].id;
     for (const sc of service.subCategories) {
       const isSelected = sc.id === effectiveSub;
+      const subLabel = lang === 'ug' ? sc.label : smartTranslateTitle(sc.label, lang as any);
       subRows.push({
-        text: `${isSelected ? '🔘 ' : '⚪ '}${sc.label}`,
+        text: `${isSelected ? '🔘 ' : '⚪ '}${subLabel}`,
         callback_data: `tgserv:${service.id}:${sc.id}`,
       });
     }
@@ -242,16 +269,20 @@ export function getServicePackagesKeyboard(service: ServiceItem, activeSubCatId?
   });
 
   for (const pkg of packages.slice(0, 16)) {
+    const rawTitle = pkg.title;
+    const translatedTitle = lang === 'ug' ? rawTitle : smartTranslateTitle(rawTitle, lang as any);
     inline_keyboard.push([
       {
-        text: `📦 ${pkg.title} — $${Number(pkg.price).toFixed(2)} USD`,
+        text: `📦 ${translatedTitle} — $${Number(pkg.price).toFixed(2)} USD`,
         callback_data: `tgpkg:${service.id}:${pkg.id}`,
       },
     ]);
   }
 
   const backTarget = service.id === 'othman_visa_cards' ? 'tg_shop_categories' : `tgcat:${service.category || 'games'}`;
-  const backText = service.id === 'othman_visa_cards' ? '🔙 دۇكان بۆلۈملىرىگە قايتىش ↩️' : '🔙 تۈرگە قايتىش ↩️';
+  const backText = service.id === 'othman_visa_cards'
+    ? (BOT_I18N.categories.backToCategories[lang] || BOT_I18N.categories.backToCategories.ug)
+    : (BOT_I18N.categories.backToCategory[lang] || BOT_I18N.categories.backToCategory.ug);
 
   inline_keyboard.push([
     { text: backText, callback_data: backTarget },
@@ -271,10 +302,13 @@ export async function handleShopCallbackQuery(
   showOrEditMessage: (chatId: any, messageId: any, text: string, replyMarkup?: any) => Promise<any>,
   answerCallbackQuery: (callbackQueryId: string, text?: string, showAlert?: boolean) => Promise<any>
 ): Promise<boolean> {
+  const lang: BotLanguage = getUserLanguage(fromId) || 'ug';
+
   // 1. Categories Menu
   if (data === 'tg_shop_categories' || data === 'quick_catalog') {
     await answerCallbackQuery(cqId);
-    await showOrEditMessage(chatId, messageId, SHOP_CATEGORIES_BANNER, getShopCategoriesKeyboard());
+    const banner = BOT_I18N.shopBanner[lang] || BOT_I18N.shopBanner.ug;
+    await showOrEditMessage(chatId, messageId, banner, getShopCategoriesKeyboard(lang));
     return true;
   }
 
@@ -284,17 +318,33 @@ export async function handleShopCallbackQuery(
     const parts = data.split(':');
     const catKey = parts[1];
     const page = parts[2] ? parseInt(parts[2], 10) || 0 : 0;
-    const catTitle = getCategoryDisplayTitle(catKey);
+    const catTitle = getCategoryDisplayTitle(catKey, lang);
     const services = getServicesForCategory(catKey);
+
+    const choosePrompt =
+      lang === 'ar' ? 'الرجاء اختيار المنتج المطلوب:' :
+      lang === 'tr' ? 'Lütfen istediğiniz ürünü seçin:' :
+      lang === 'en' ? 'Please select a product:' :
+      lang === 'uz' ? 'Kerakli mahsulotni tanlang:' :
+      lang === 'ru' ? 'Выберите нужный товар:' :
+      'كېرەكلىك مەھسۇلاتنى تاللاڭ:';
+
+    const countPrompt =
+      lang === 'ar' ? `(إجمالي المنتجات: ${services.length})` :
+      lang === 'tr' ? `(Toplam: ${services.length} hizmet)` :
+      lang === 'en' ? `(Total: ${services.length} services)` :
+      lang === 'uz' ? `(Jami: ${services.length} ta xizmat)` :
+      lang === 'ru' ? `(Всего: ${services.length} услуг)` :
+      `(جەمئىي: ${services.length} تال مۇلازىمەت بار)`;
 
     const catText = `
 » » ༒•|——( ${catTitle} )——|•༒ « «
 
-📌 <b>كېرەكلىك مەھسۇلاتنى تاللاڭ:</b>
-<i>(جەمئىي: ${services.length} تال مۇلازىمەت بار)</i>
+📌 <b>${choosePrompt}</b>
+<i>${countPrompt}</i>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `.trim();
-    await showOrEditMessage(chatId, messageId, catText, getCategoryProductsKeyboard(catKey, page));
+    await showOrEditMessage(chatId, messageId, catText, getCategoryProductsKeyboard(catKey, page, lang));
     return true;
   }
 
@@ -306,7 +356,13 @@ export async function handleShopCallbackQuery(
     const subCatId = parts[2] || undefined;
     const service = getServicesList().find((s) => s.id === serviceId);
     if (!service) {
-      await answerCallbackQuery(cqId, '❌ مەھسۇلات تېپىلمىدى', true);
+      const notFoundAlert = lang === 'ar' ? '❌ المنتج غير موجود' :
+                            lang === 'tr' ? '❌ Ürün bulunamadı' :
+                            lang === 'en' ? '❌ Product not found' :
+                            lang === 'uz' ? '❌ Mahsulot topilmadi' :
+                            lang === 'ru' ? '❌ Товар не найден' :
+                            '❌ مەھسۇلات تېپىلمىدى';
+      await answerCallbackQuery(cqId, notFoundAlert, true);
       return true;
     }
 
@@ -314,15 +370,19 @@ export async function handleShopCallbackQuery(
     const activeSub = hasSubs
       ? service.subCategories?.find((sc) => sc.id === subCatId) || service.subCategories?.[0]
       : null;
-    const effectiveSubTitle = activeSub ? ` - ${activeSub.label}` : '';
+    const subLabel = activeSub ? (lang === 'ug' ? activeSub.label : smartTranslateTitle(activeSub.label, lang as any)) : '';
+    const effectiveSubTitle = subLabel ? ` - ${subLabel}` : '';
+    const serviceName = lang === 'ug' ? service.name : smartTranslateTitle(service.name, lang as any);
+
+    const selectPrompt = BOT_I18N.order.selectPackagePrompt[lang] || BOT_I18N.order.selectPackagePrompt.ug;
 
     const servText = `
-» » ༒•|——( ${service.name}${effectiveSubTitle} )——|•༒ « «
+» » ༒•|——( ${serviceName}${effectiveSubTitle} )——|•༒ « «
 
-📌 <b>سېتىۋالماقچى بولغان بولاقنى تاللاڭ:</b>
+${selectPrompt}
 ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `.trim();
-    await showOrEditMessage(chatId, messageId, servText, getServicePackagesKeyboard(service, subCatId));
+    await showOrEditMessage(chatId, messageId, servText, getServicePackagesKeyboard(service, subCatId, lang));
     return true;
   }
 
@@ -335,7 +395,7 @@ ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━�
     const service = getServicesList().find((s) => s.id === serviceId);
     const pkg = service?.packages.find((p) => p.id === pkgId);
     if (!service || !pkg) {
-      await answerCallbackQuery(cqId, '❌ تۈر تېپىلمىدى', true);
+      await answerCallbackQuery(cqId, '❌ Package not found', true);
       return true;
     }
 
@@ -359,21 +419,33 @@ ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━�
     });
     if (chatId) botOrderSessions.set(chatId, botOrderSessions.get(fromId)!);
 
-    const promptText = `
-» » ༒•|——( زاكاز ئۇچۇرى كىرگۈزۈش )——|•༒ « «
+    const sName = lang === 'ug' ? service.name : smartTranslateTitle(service.name, lang as any);
+    const pTitle = lang === 'ug' ? pkg.title : smartTranslateTitle(pkg.title, lang as any);
 
-🛍️ <b>مەھسۇلات:</b> ${service.name}
-📦 <b>بولاق:</b> <b>${pkg.title}</b>
-💰 <b>باھاسى:</b> <b>$${Number(pkg.price).toFixed(2)} USD</b>
-💳 <b>سىزنىڭ قالدۇقىڭىز:</b> <b>$${Number(user.balance || 0).toFixed(2)} USD</b>
+    const header = lang === 'ar' ? 'إدخال بيانات الطلب' :
+                   lang === 'tr' ? 'Sipariş Bilgilerini Girin' :
+                   lang === 'en' ? 'Enter Order Details' :
+                   lang === 'uz' ? 'Buyurtma maʼlumotlarini kiriting' :
+                   lang === 'ru' ? 'Ввод данных заказа' :
+                   'زاكاز ئۇچۇرى كىرگۈزۈش';
+
+    const inputMsg = BOT_I18N.order.inputPrompt[lang] || BOT_I18N.order.inputPrompt.ug;
+
+    const promptText = `
+» » ༒•|——( ${header} )——|•༒ « «
+
+${BOT_I18N.order.productLabel[lang] || '🛍️ مەھسۇلات:'} ${sName}
+${BOT_I18N.order.packageLabel[lang] || '📦 بولاق:'} <b>${pTitle}</b>
+${BOT_I18N.order.priceLabel[lang] || '💰 باھاسى:'} <b>$${Number(pkg.price).toFixed(2)} USD</b>
+${BOT_I18N.order.yourBalanceLabel[lang] || '💳 قالدۇقىڭىز:'} <b>$${Number(user.balance || 0).toFixed(2)} USD</b>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✍️ <b>${service.inputLabel || 'ئويۇنچى ID نومۇرىڭىز ياكى تېلېفون نومۇرىڭىزنى بۇ يەرگە يېزىپ ئەۋەتىڭ:'}</b>
-${service.inputPlaceholder ? `<i>(مەسىلەن: ${service.inputPlaceholder})</i>` : ''}
+${inputMsg}
+${service.inputPlaceholder ? `<i>(${service.inputPlaceholder})</i>` : ''}
 `.trim();
 
     await showOrEditMessage(chatId, messageId, promptText, {
       inline_keyboard: [
-        [{ text: '❌ سېتىۋېلىشنى بىكار قىلىش ↩️', callback_data: `tgserv:${service.id}` }],
+        [{ text: BOT_I18N.order.cancelPurchase[lang] || '❌ بىكار قىلىش ↩️', callback_data: `tgserv:${service.id}` }],
       ],
     });
     return true;
@@ -383,28 +455,50 @@ ${service.inputPlaceholder ? `<i>(مەسىلەن: ${service.inputPlaceholder})</
   if (data === 'tg_confirm_buy') {
     const session = botOrderSessions.get(fromId) || (chatId ? botOrderSessions.get(chatId) : null);
     if (!session) {
-      await answerCallbackQuery(cqId, '⚠️ زاكاز ۋاقتى ئۆتۈپ كەتتى، قايتا تاللاڭ.', true);
+      const expiredAlert = lang === 'ar' ? '⚠️ انتهت صلاحية الجلسة، الرجاء الاختيار مجدداً.' :
+                           lang === 'tr' ? '⚠️ Oturum süresi doldu, lütfen tekrar seçin.' :
+                           lang === 'en' ? '⚠️ Session expired, please try again.' :
+                           lang === 'uz' ? '⚠️ Sessiya muddati tugadi, qaytadan tanlang.' :
+                           lang === 'ru' ? '⚠️ Время сессии истекло, выберите заново.' :
+                           '⚠️ زاكاز ۋاقتى ئۆتۈپ كەتتى، قايتا تاللاڭ.';
+      await answerCallbackQuery(cqId, expiredAlert, true);
       return true;
     }
-    await answerCallbackQuery(cqId, '⏳ زاكاز سىستېمىغا بېرىلىۋاتىدۇ...');
+    await answerCallbackQuery(cqId, '⏳ Processing order...');
 
     const user = await getOrCreateTelegramUser(fromId, fromUser, cq.from?.first_name);
     const balance = Number(user.balance || 0);
 
     if (balance < session.price) {
+      const insufficientHeader = lang === 'ar' ? '⚠️ رصيدك الحالي غير كافٍ!' :
+                                 lang === 'tr' ? '⚠️ Bakiyeniz Yetersiz!' :
+                                 lang === 'en' ? '⚠️ Insufficient Balance!' :
+                                 lang === 'uz' ? '⚠️ Balansingiz yetarli emas!' :
+                                 lang === 'ru' ? '⚠️ Недостаточно средств на балансе!' :
+                                 '⚠️ كەچۈرۈڭ، ھەميان قالدۇقىڭىز يەتمىدى!';
+
+      const orderPriceLabel = BOT_I18N.order.priceLabel[lang] || '💰 زاكاز باھاسى:';
+      const balanceLabel = BOT_I18N.order.yourBalanceLabel[lang] || '💳 مەۋجۇت قالدۇقىڭىز:';
+      const missingText = lang === 'ar' ? '⚠️ المبلغ المتبقي:' :
+                          lang === 'tr' ? '⚠️ Eksik Tutar:' :
+                          lang === 'en' ? '⚠️ Required Amount:' :
+                          lang === 'uz' ? '⚠️ Yetishmayotgan summa:' :
+                          lang === 'ru' ? '⚠️ Не хватает:' :
+                          '⚠️ كەم قالغىنى:';
+
       const insufficientText = `
-⚠️ <b>كەچۈرۈڭ، ھەميان قالدۇقىڭىز يەتمىدى!</b>
+<b>${insufficientHeader}</b>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💰 <b>زاكاز باھاسى:</b> $${session.price.toFixed(2)} USD
-💳 <b>مەۋجۇت قالدۇقىڭىز:</b> $${balance.toFixed(2)} USD
-⚠️ <b>كەم قالغىنى:</b> $${(session.price - balance).toFixed(2)} USD
+${orderPriceLabel} $${session.price.toFixed(2)} USD
+${balanceLabel} $${balance.toFixed(2)} USD
+${missingText} $${(session.price - balance).toFixed(2)} USD
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-شامكەش (Sham Cash) ئارقىلىق ئاپتوماتىك پۇل كىرگۈزۈپ، شۇئان قايتا سېتىۋالسىڭىز بولىدۇ:
+${BOT_I18N.order.insufficientBalanceAlert[lang]}
 `.trim();
       await showOrEditMessage(chatId, messageId, insufficientText, {
         inline_keyboard: [
-          [{ text: '💎💳 شامكەشتىن پۇل سېلىش ⚡️', callback_data: 'quick_deposit' }],
-          [{ text: '🔙 دۇكان بۆلۈملىرىگە قايتىش ↩️', callback_data: 'tg_shop_categories' }],
+          [{ text: BOT_I18N.storeButtons.deposit[lang] || '💎💳 شامكەشتىن پۇل سېلىش ⚡️', callback_data: 'quick_deposit' }],
+          [{ text: BOT_I18N.categories.backToCategories[lang] || '🔙 دۇكان بۆلۈملىرىگە قايتىش ↩️', callback_data: 'tg_shop_categories' }],
         ],
       });
       return true;
@@ -421,7 +515,7 @@ ${service.inputPlaceholder ? `<i>(مەسىلەن: ${service.inputPlaceholder})</
       serviceName: session.serviceName,
       packageTitle: session.pkgTitle,
       amount: session.price,
-      targetAccount: targetAccFull || 'تەلەپ قىلىنمىغان',
+      targetAccount: targetAccFull || 'Not provided',
       orderId,
       details: {
         fromTelegram: true,
@@ -434,8 +528,8 @@ ${service.inputPlaceholder ? `<i>(مەسىلەن: ${service.inputPlaceholder})</
     });
 
     if (!atomicRes.success) {
-      await showOrEditMessage(chatId, messageId, `❌ زاكاز مەغلۇپ بولدى: ${atomicRes.message}`, {
-        inline_keyboard: [[{ text: '🔙 دۇكانغا قايتىش', callback_data: 'tg_shop_categories' }]],
+      await showOrEditMessage(chatId, messageId, `❌ Order failed: ${atomicRes.message}`, {
+        inline_keyboard: [[{ text: BOT_I18N.categories.backToCategories[lang] || '🔙 Back', callback_data: 'tg_shop_categories' }]],
       });
       return true;
     }
@@ -494,25 +588,33 @@ ${service.inputPlaceholder ? `<i>(مەسىلەن: ${service.inputPlaceholder})</
     botOrderSessions.delete(fromId);
     if (chatId) botOrderSessions.delete(chatId);
 
+    const succTitle = BOT_I18N.order.orderSuccessTitle[lang];
+    const orderIdTxt = BOT_I18N.order.orderIdLabel[lang];
+    const statusTxt = BOT_I18N.order.orderStatusLabel[lang];
+    const tipTxt = BOT_I18N.order.orderSuccessTip[lang];
+
+    const sName = lang === 'ug' ? session.serviceName : smartTranslateTitle(session.serviceName, lang as any);
+    const pTitle = lang === 'ug' ? session.pkgTitle : smartTranslateTitle(session.pkgTitle, lang as any);
+
     const successReceipt = `
-🎉 <b>تەبرىكلەيمىز! سېتىۋېلىش مۇۋەپپەقىيەتلىك تاماملاندى!</b>
+${succTitle}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🧾 <b>زاكاز نومۇرى:</b> <code>${order.id}</code>
-🛍️ <b>مەھسۇلات:</b> ${session.serviceName}
-📦 <b>بولاق:</b> ${session.pkgTitle}
-🎯 <b>قاچىلانغان ھېسابات:</b> <code>${targetAccFull}</code>
-💰 <b>تۆلەنگەن سومما:</b> <b>$${session.price.toFixed(2)} USD</b>
-💳 <b>يېڭى قالدۇقىڭىز:</b> <b>$${Number(atomicRes.newBalance ?? 0).toFixed(2)} USD</b>
-⚡️ <b>ھالىتى:</b> <b>${order.status === 'completed' ? '✅ پۈتتى (Completed)' : '🚀 يوللاندى / بىر تەرەپ قىلىنماقتا'}</b>
+${orderIdTxt} <code>${order.id}</code>
+${BOT_I18N.order.productLabel[lang]} ${sName}
+${BOT_I18N.order.packageLabel[lang]} ${pTitle}
+${BOT_I18N.order.targetAccountLabel[lang]} <code>${targetAccFull}</code>
+${BOT_I18N.order.priceLabel[lang]} <b>$${session.price.toFixed(2)} USD</b>
+${BOT_I18N.order.yourBalanceLabel[lang]} <b>$${Number(atomicRes.newBalance ?? 0).toFixed(2)} USD</b>
+${statusTxt}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✨ <i>ھېساباتىڭىزغا تېز سۈرئەتتە قاچىلىنىدۇ. زاكاز نومۇرى ئارقىلىق ئەھۋالىنى تەكشۈرەلەيسىز.</i>
+✨ <i>${tipTxt}</i>
 `.trim();
 
     await showOrEditMessage(chatId, messageId, successReceipt, {
       inline_keyboard: [
-        [{ text: '🔍 زاكاز ھالىتىنى تەكشۈرۈش 📦', callback_data: `recheck_ord:${order.id}` }],
-        [{ text: '🛍️ يەنە مال سېتىۋېلىش ➔', callback_data: 'tg_shop_categories' }],
-        [{ text: '🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        [{ text: BOT_I18N.storeButtons.trackOrders[lang] || '🔍 زاكاز ھالىتىنى تەكشۈرۈش 📦', callback_data: `recheck_ord:${order.id}` }],
+        [{ text: BOT_I18N.storeButtons.shopCategories[lang] || '🛍️ يەنە مال سېتىۋېلىش ➔', callback_data: 'tg_shop_categories' }],
+        [{ text: BOT_I18N.categories.backToMain[lang] || '🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
       ],
     });
     return true;
@@ -522,8 +624,9 @@ ${service.inputPlaceholder ? `<i>(مەسىلەن: ${service.inputPlaceholder})</
   if (data === 'tg_cancel_order') {
     botOrderSessions.delete(fromId);
     if (chatId) botOrderSessions.delete(chatId);
-    await answerCallbackQuery(cqId, 'سېتىۋېلىش بىكار قىلىندى');
-    await showOrEditMessage(chatId, messageId, SHOP_CATEGORIES_BANNER, getShopCategoriesKeyboard());
+    await answerCallbackQuery(cqId, 'Cancelled');
+    const banner = BOT_I18N.shopBanner[lang] || BOT_I18N.shopBanner.ug;
+    await showOrEditMessage(chatId, messageId, banner, getShopCategoriesKeyboard(lang));
     return true;
   }
 
@@ -533,23 +636,23 @@ ${service.inputPlaceholder ? `<i>(مەسىلەن: ${service.inputPlaceholder})</
     const user = await getOrCreateTelegramUser(fromId, fromUser, cq.from?.first_name);
     const balance = Number(user.balance || 0);
 
+    const a = BOT_I18N.account;
     const accText = `
-» » ༒•|——( ھېساباتىم & ھەميان )——|•༒ « «
-
-👤 <b>ئىسمىڭىز:</b> ${user.name}
-🆔 <b>تېلېگرام ID:</b> <code>${fromId}</code>
-💰 <b>ھەميان قالدۇقىڭىز:</b> <b>$${balance.toFixed(2)} USD</b>
-👑 <b>ئەزالىق دەرىجىسى:</b> <b>${(user.vipTier || 'VIP1').toUpperCase()}</b>
+${a.title[lang] || a.title.ug}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚡️ <i>سىز شامكەش ئارقىلىق ھەميانغا پۇل كىرگۈزۈپ، توربەتكە كىرمەيمۇ بارلىق ئويۇن ۋە ئەپلەرگە بىۋاسىتە مال سېتىۋالالايسىز!</i>
+👤 <b>Name:</b> ${user.name}
+${a.userId[lang] || a.userId.ug} <code>${fromId}</code>
+${a.balance[lang] || a.balance.ug} <b>$${balance.toFixed(2)} USD</b>
+${a.vipLevel[lang] || a.vipLevel.ug} <b>${(user.vipTier || 'VIP1').toUpperCase()}</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `.trim();
 
     await showOrEditMessage(chatId, messageId, accText, {
       inline_keyboard: [
-        [{ text: '🛍️ مەھسۇلاتلار بۆلىكىگە كىرىش ➔', callback_data: 'tg_shop_categories' }],
-        [{ text: '💎💳 شامكەشتىن پۇل سېلىش ⚡️', callback_data: 'quick_deposit' }],
-        [{ text: '🔍 مېنىڭ زاكازلىرىم 📦', callback_data: 'quick_track' }],
-        [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        [{ text: BOT_I18N.storeButtons.shopCategories[lang] || '🛍️ مەھسۇلاتلار بۆلىكىگە كىرىش ➔', callback_data: 'tg_shop_categories' }],
+        [{ text: BOT_I18N.storeButtons.deposit[lang] || '💎💳 شامكەشتىن پۇل سېلىش ⚡️', callback_data: 'quick_deposit' }],
+        [{ text: BOT_I18N.storeButtons.changeLanguage[lang] || '🌐 تىل ئالماشتۇرۇش | Language 🔄', callback_data: 'bot_lang_menu' }],
+        [{ text: BOT_I18N.categories.backToMain[lang] || '🏠 ئاساسىي بەتكە قايتىش •', callback_data: 'back_to_main' }],
       ],
     });
     return true;
@@ -560,29 +663,32 @@ ${service.inputPlaceholder ? `<i>(مەسىلەن: ${service.inputPlaceholder})</
 
 export async function handleShopTextMessage(
   msg: any,
-  chatId: number | string,
+  chatId: number | string | undefined,
   text: string,
   from: any,
-  sendTelegramMessage: (chatId: any, text: string, options?: any) => Promise<any>
+  sendTelegramMessage: (chatId: any, text: string, extra?: any) => Promise<any>
 ): Promise<boolean> {
-  const activeSession = botOrderSessions.get(chatId) || (from?.id ? botOrderSessions.get(from.id) : null);
-  if (activeSession && !text.startsWith('/')) {
+  const activeSession =
+    (from?.id && botOrderSessions.get(from.id)) ||
+    (chatId && botOrderSessions.get(chatId));
+
+  const lang: BotLanguage = getUserLanguage(from?.id || chatId) || 'ug';
+
+  if (activeSession && activeSession.step !== 'ready_to_confirm') {
     if (activeSession.step === 'awaiting_target_account') {
       activeSession.targetAccount = text;
-      if (activeSession.requiresZoneId) {
+
+      if (activeSession.requiresZoneId && !activeSession.zoneId) {
         activeSession.step = 'awaiting_zone_id';
         const zonePrompt = `
-» » ༒•|——( رايون نومۇرى Zone ID )——|•༒ « «
-
-🎯 <b>كىرگۈزگەن ID:</b> <code>${activeSession.targetAccount}</code>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✍️ <b>ئەمدى ئويۇندىكى رايون نومۇرىڭىزنى (Zone ID) كىرگۈزۈپ ئەۋەتىڭ:</b>
+🎯 <b>سېرۋېر رايون كودى (Server / Zone ID):</b>
+ئويۇن ياكى ئەپنىڭ رايون نومۇرىنى كىرگۈزۈڭ:
 <i>(مەسىلەن: 1234 ياكى 2001)</i>
 `.trim();
         await sendTelegramMessage(chatId, zonePrompt, {
           parse_mode: 'HTML',
           reply_markup: {
-            inline_keyboard: [[{ text: '❌ بىكار قىلىش', callback_data: 'tg_cancel_order' }]],
+            inline_keyboard: [[{ text: BOT_I18N.order.cancelPurchase[lang] || '❌ بىكار قىلىش', callback_data: 'tg_cancel_order' }]],
           },
         });
         return true;
@@ -597,18 +703,37 @@ export async function handleShopTextMessage(
     const remaining = balance - activeSession.price;
     const isEnough = balance >= activeSession.price;
 
-    const confirmCard = `
-» » ༒•|——( زاكازنى جەزملەشتۈرۈش )——|•༒ « «
+    const sName = lang === 'ug' ? activeSession.serviceName : smartTranslateTitle(activeSession.serviceName, lang as any);
+    const pTitle = lang === 'ug' ? activeSession.pkgTitle : smartTranslateTitle(activeSession.pkgTitle, lang as any);
 
-🛍️ <b>مەھسۇلات:</b> ${activeSession.serviceName}
-📦 <b>بولاق:</b> ${activeSession.pkgTitle}
-💰 <b>تۆلەيدىغان باھا:</b> <b>$${activeSession.price.toFixed(2)} USD</b>
-🎯 <b>قاچىلىنىدىغان ھېسابات:</b> <code>${activeSession.targetAccount}${activeSession.zoneId ? ` (${activeSession.zoneId})` : ''}</code>
+    const titleCard = BOT_I18N.order.confirmOrderTitle[lang] || '⚡️ زاكازنى جەزملەشتۈرۈش';
+    const targetFull = `${activeSession.targetAccount}${activeSession.zoneId ? ` (${activeSession.zoneId})` : ''}`;
+
+    const remainingText = isEnough
+      ? (lang === 'ar' ? `المتبقي بعد الشراء: $${remaining.toFixed(2)} USD` :
+         lang === 'tr' ? `Kalan Bakiye: $${remaining.toFixed(2)} USD` :
+         lang === 'en' ? `Remaining Balance: $${remaining.toFixed(2)} USD` :
+         lang === 'uz' ? `Qoladigan balans: $${remaining.toFixed(2)} USD` :
+         lang === 'ru' ? `Остаток после покупки: $${remaining.toFixed(2)} USD` :
+         `كېمەيتىلگەندىن كېيىن قالىدىغىنى: $${remaining.toFixed(2)} USD`)
+      : (lang === 'ar' ? `⚠️ الرصيد غير كافٍ! ينقصك: $${(activeSession.price - balance).toFixed(2)} USD` :
+         lang === 'tr' ? `⚠️ Bakiye yetersiz! Eksik: $${(activeSession.price - balance).toFixed(2)} USD` :
+         lang === 'en' ? `⚠️ Insufficient balance! Needed: $${(activeSession.price - balance).toFixed(2)} USD` :
+         lang === 'uz' ? `⚠️ Balans yetarli emas! Yetishmayapti: $${(activeSession.price - balance).toFixed(2)} USD` :
+         lang === 'ru' ? `⚠️ Не хватает средств! Нужно еще: $${(activeSession.price - balance).toFixed(2)} USD` :
+         `⚠️ قالدۇق يەتمەيدۇ! كەم قالغىنى: $${(activeSession.price - balance).toFixed(2)} USD`);
+
+    const confirmCard = `
+» » ༒•|——( ${titleCard} )——|•༒ « «
+
+${BOT_I18N.order.productLabel[lang]} ${sName}
+${BOT_I18N.order.packageLabel[lang]} ${pTitle}
+${BOT_I18N.order.priceLabel[lang]} <b>$${activeSession.price.toFixed(2)} USD</b>
+${BOT_I18N.order.targetAccountLabel[lang]} <code>${targetFull}</code>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💳 <b>سىزنىڭ ھەميان قالدۇقىڭىز:</b> <b>$${balance.toFixed(2)} USD</b>
-💵 <b>${isEnough ? `كېمەيتىلگەندىن كېيىن قالىدىغىنى: $${remaining.toFixed(2)} USD` : `⚠️ قالدۇق يەتمەيدۇ! كەم قالغىنى: $${(activeSession.price - balance).toFixed(2)} USD`}</b>
+${BOT_I18N.order.yourBalanceLabel[lang]} <b>$${balance.toFixed(2)} USD</b>
+💵 <b>${remainingText}</b>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${isEnough ? '⚡️ سېتىۋېلىشنى جەزملەشتۈرەمسىز؟' : '💡 سېتىۋېلىش ئۈچۈن شامكەش ياكى USDT ئارقىلىق پۇل قاچىلاڭ.'}
 `.trim();
 
     await sendTelegramMessage(chatId, confirmCard, {
@@ -616,12 +741,12 @@ ${isEnough ? '⚡️ سېتىۋېلىشنى جەزملەشتۈرەمسىز؟' : 
       reply_markup: {
         inline_keyboard: isEnough
           ? [
-              [{ text: '⚡️ جەزملەشتۈرۈپ سېتىۋېلىش 🛍️', callback_data: 'tg_confirm_buy' }],
-              [{ text: '❌ بىكار قىلىش ↩️', callback_data: 'tg_cancel_order' }],
+              [{ text: BOT_I18N.order.confirmBtn[lang] || '⚡️ جەزملەشتۈرۈپ سېتىۋېلىش 🛍️', callback_data: 'tg_confirm_buy' }],
+              [{ text: BOT_I18N.order.cancelPurchase[lang] || '❌ بىكار قىلىش ↩️', callback_data: 'tg_cancel_order' }],
             ]
           : [
-              [{ text: '💎💳 شامكەشتىن پۇل سېلىش ⚡️', callback_data: 'quick_deposit' }],
-              [{ text: '🔙 دۇكان بۆلۈملىرىگە قايتىش ↩️', callback_data: 'tg_shop_categories' }],
+              [{ text: BOT_I18N.order.topUpBtn[lang] || '💎💳 شامكەشتىن پۇل سېلىش ⚡️', callback_data: 'quick_deposit' }],
+              [{ text: BOT_I18N.categories.backToCategories[lang] || '🔙 دۇكان بۆلۈملىرىگە قايتىش ↩️', callback_data: 'tg_shop_categories' }],
             ],
       },
     });
@@ -635,9 +760,10 @@ ${isEnough ? '⚡️ سېتىۋېلىشنى جەزملەشتۈرەمسىز؟' : 
     text.startsWith('/store') ||
     text.startsWith('/catalog')
   ) {
-    await sendTelegramMessage(chatId, SHOP_CATEGORIES_BANNER, {
+    const banner = BOT_I18N.shopBanner[lang] || BOT_I18N.shopBanner.ug;
+    await sendTelegramMessage(chatId, banner, {
       parse_mode: 'HTML',
-      reply_markup: getShopCategoriesKeyboard(),
+      reply_markup: getShopCategoriesKeyboard(lang),
     });
     return true;
   }
@@ -645,22 +771,22 @@ ${isEnough ? '⚡️ سېتىۋېلىشنى جەزملەشتۈرەمسىز؟' : 
   if (text.startsWith('/balance') || text.startsWith('/account') || text.startsWith('/wallet')) {
     const user = await getOrCreateTelegramUser(from?.id || chatId, from?.username, from?.first_name);
     const balance = Number(user.balance || 0);
+    const a = BOT_I18N.account;
     const balText = `
-» » ༒•|——( ھېساباتىم & ھەميان )——|•༒ « «
-
-👤 <b>ئىسمىڭىز:</b> ${user.name}
-🆔 <b>تېلېگرام ID:</b> <code>${from?.id || chatId}</code>
-💰 <b>ھەميان قالدۇقىڭىز:</b> <b>$${balance.toFixed(2)} USD</b>
-👑 <b>ئەزالىق دەرىجىسى:</b> <b>${(user.vipTier || 'VIP1').toUpperCase()}</b>
+${a.title[lang] || a.title.ug}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚡️ <i>شامكەش ئارقىلىق پۇل سېلىپ، بوتتىن بىۋاسىتە مال سېتىۋالالايسىز!</i>
+👤 <b>Name:</b> ${user.name}
+${a.userId[lang] || a.userId.ug} <code>${from?.id || chatId}</code>
+${a.balance[lang] || a.balance.ug} <b>$${balance.toFixed(2)} USD</b>
+${a.vipLevel[lang] || a.vipLevel.ug} <b>${(user.vipTier || 'VIP1').toUpperCase()}</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `.trim();
     await sendTelegramMessage(chatId, balText, {
       parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [
-          [{ text: '🛍️ مەھسۇلاتلار بۆلىكىگە كىرىش ➔', callback_data: 'tg_shop_categories' }],
-          [{ text: '💎💳 شامكەشتىن پۇل سېلىش ⚡️', callback_data: 'quick_deposit' }],
+          [{ text: BOT_I18N.storeButtons.shopCategories[lang] || '🛍️ مەھسۇلاتلار بۆلىكىگە كىرىش ➔', callback_data: 'tg_shop_categories' }],
+          [{ text: BOT_I18N.storeButtons.deposit[lang] || '💎💳 شامكەشتىن پۇل سېلىش ⚡️', callback_data: 'quick_deposit' }],
         ],
       },
     });
