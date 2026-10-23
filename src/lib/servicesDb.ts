@@ -79,7 +79,7 @@ export function getServicesList(): ServiceItem[] {
       try {
         const content = fs.readFileSync(SERVICES_FILE, 'utf-8');
         const parsed = JSON.parse(content);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           const filtered = parsed.filter((s) => !deleted.has(s.id));
           cachedServices = filtered;
           return [...filtered];
@@ -94,7 +94,7 @@ export function getServicesList(): ServiceItem[] {
       try {
         const content = fs.readFileSync(BUNDLED_SERVICES_FILE, 'utf-8');
         const parsed = JSON.parse(content);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           const filtered = parsed.filter((s) => !deleted.has(s.id));
           cachedServices = filtered;
           try {
