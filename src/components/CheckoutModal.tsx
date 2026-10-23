@@ -706,6 +706,27 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                         {t('freefireUidNotice')}
                       </p>
                     )}
+                    {(service.id.toLowerCase().includes('syriatel') || service.id.toLowerCase().includes('mtn') || (service as any).inputHint) && (
+                      <div className="mt-2.5 p-3 rounded-xl bg-slate-950/80 border border-emerald-500/30 text-xs space-y-1 shadow-inner">
+                        <p className="text-rose-400 font-bold text-xs" dir="ltr">
+                          {service.id.toLowerCase().includes('syriatel')
+                            ? 'ارقام السيرياتيل تبدأ بـ 099 / 098 / 093'
+                            : service.id.toLowerCase().includes('mtn')
+                            ? 'ارقام MTN تبدأ بـ 094 / 095 / 096'
+                            : ''}
+                        </p>
+                        <p className="text-slate-300 text-[11px] leading-relaxed">
+                          • {isRTL
+                            ? 'تېلېفون نومۇرىنى خەلقئارا كودسىز (09xxxxxxxx) شەكىلدە كىرگۈزۈڭ.'
+                            : 'يرجى إدخال رقم الهاتف بدون نداء مثال: 09xxxxxxxx'}
+                        </p>
+                        <p className="text-emerald-400 text-[11px] font-medium leading-relaxed">
+                          • {isRTL
+                            ? 'ئاندىن يۇقىرىدىن ئۆزىڭىزگە ماس كېلىدىغان بولاقنى تاللاڭ.'
+                            : 'ومن ثم إختيار الباقة التي تناسب طلبك.'}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
