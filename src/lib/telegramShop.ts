@@ -66,7 +66,7 @@ export function getShopCategoriesKeyboard() {
   return {
     inline_keyboard: [
       [
-        { text: '🛍️ سېتىۋېلىش USDT 💵•', callback_data: 'tgcat:crypto' },
+        { text: '💳 Tremendous Visa خەلقئارالىق ۋىزا كارتىسى 🛍️', callback_data: 'tgserv:othman_visa_cards' },
       ],
       [
         { text: '📱 مەۋھۇم نومۇر ✤•', callback_data: 'tgcat:numbers' },
@@ -94,7 +94,8 @@ export function getShopCategoriesKeyboard() {
 export function getCategoryDisplayTitle(catKey: string): string {
   switch (catKey) {
     case 'crypto':
-      return '🛍️ سېتىۋېلىش USDT 💵•';
+    case 'visa':
+      return '💳 Tremendous Visa خەلقئارالىق ۋىزا كارتىسى';
     case 'numbers':
       return '📱 مەۋھۇم نومۇر ✤•';
     case 'apps':
@@ -131,11 +132,13 @@ export function getServicesForCategory(catKey: string): ServiceItem[] {
         s.name.toLowerCase().includes('كارت')
     );
   }
-  if (catKey === 'crypto') {
+  if (catKey === 'crypto' || catKey === 'visa') {
     return all.filter(
       (s) =>
-        s.category === 'crypto' ||
+        s.id === 'othman_visa_cards' ||
         s.id.includes('visa') ||
+        s.category === 'crypto' ||
+        s.name.toLowerCase().includes('visa') ||
         s.name.toLowerCase().includes('usdt') ||
         s.name.toLowerCase().includes('crypto')
     );
@@ -247,8 +250,11 @@ export function getServicePackagesKeyboard(service: ServiceItem, activeSubCatId?
     ]);
   }
 
+  const backTarget = service.id === 'othman_visa_cards' ? 'tg_shop_categories' : `tgcat:${service.category || 'games'}`;
+  const backText = service.id === 'othman_visa_cards' ? '🔙 دۇكان بۆلۈملىرىگە قايتىش ↩️' : '🔙 تۈرگە قايتىش ↩️';
+
   inline_keyboard.push([
-    { text: '🔙 تۈرگە قايتىش ↩️', callback_data: `tgcat:${service.category || 'games'}` },
+    { text: backText, callback_data: backTarget },
   ]);
 
   return { inline_keyboard };
