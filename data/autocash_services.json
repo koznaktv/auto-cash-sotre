@@ -5358,143 +5358,148 @@
     "source": "provider"
   },
   {
-    "id": "othman_mobile_legends_global",
-    "name": "Mobile Legends Global (گىلوبال پۈتۈن دۇنيا)",
+    "id": "othman_mobile_legends_global_diamonds",
+    "name": "Mobile Legends Global Diamonds (گىلوبال ئالماس قاچىلاش)",
     "category": "games",
-    "icon": "Swords",
+    "icon": "Sparkles",
     "image": "/images/services/mobile_legends.jpg",
-    "description": "Mobile Legends Bang Bang پۈتۈن دۇنيا (Global) مۇلازىمېتىرىغا بىۋاسىتە ئالماس، Weekly Diamond Pass ۋە Twilight Pass تېز تولۇقلاش.",
-    "badge": "⚡ گىلوبال (Global)",
-    "inputLabel": "ئويۇنچى ID (User ID)",
-    "inputPlaceholder": "User ID نى كىرگۈزۈڭ",
+    "description": "Mobile Legends خەلقئارا (گىلوبال) سېرۋېر ئالماس تېز قاچىلاش. User ID ۋە Zone ID ئارقىلىق دەرھال يۈكلىنىدۇ.",
+    "badge": "💎 گىلوبال ئالماس",
+    "inputLabel": "ئوينىغۇچى ID نومۇرى (User ID)",
+    "inputPlaceholder": "مەسىلەن: 12345678",
     "requiresZoneId": true,
-    "zoneIdLabel": "رايون كودى (Zone ID / Server)",
+    "zoneIdLabel": "رايون نومۇرى (Zone ID)",
     "zoneIdPlaceholder": "مەسىلەن: 1234",
+    "source": "provider",
+    "published": true,
     "packages": [
       {
-        "id": "pkg-othman-423",
-        "title": "Weekly Elite Bundle (ھەپتىلىك بوغچا) - گىلوبال",
-        "price": 0.86,
-        "originalPrice": 0.99,
-        "providerProductId": 423,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-415",
-        "title": "78 + 8 سوۋغات ئالماس (Diamonds) - گىلوبال",
+        "id": "pkg_mlbb_dia_415",
+        "title": "86 ئالماس (78 + 8 Bonus)",
         "price": 1.33,
         "originalPrice": 1.53,
         "providerProductId": 415,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-425",
-        "title": "Weekly Diamond Pass (ھەپتىلىك كارت) - گىلوبال",
-        "price": 1.65,
-        "originalPrice": 1.9,
-        "providerProductId": 425,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-416",
-        "title": "156 + 16 سوۋغات ئالماس (Diamonds) - گىلوبال",
+        "id": "pkg_mlbb_dia_416",
+        "title": "172 ئالماس (156 + 16 Bonus)",
         "price": 2.63,
         "originalPrice": 3.02,
         "providerProductId": 416,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-417",
-        "title": "234 + 23 سوۋغات ئالماس (Diamonds) - گىلوبال",
+        "id": "pkg_mlbb_dia_417",
+        "title": "257 ئالماس (234 + 23 Bonus)",
         "price": 3.81,
         "originalPrice": 4.38,
         "providerProductId": 417,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-424",
-        "title": "Monthly Elite Bundle (ئايلىق بوغچا) - گىلوبال",
-        "price": 4.29,
-        "originalPrice": 4.93,
-        "providerProductId": 424,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-426",
-        "title": "Twilight Pass (پەسىللىك كارت) - گىلوبال",
-        "price": 8.79,
-        "originalPrice": 10.11,
-        "providerProductId": 426,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-418",
-        "title": "625 + 81 سوۋغات ئالماس (Diamonds) - گىلوبال",
+        "id": "pkg_mlbb_dia_418",
+        "title": "706 ئالماس (625 + 81 Bonus)",
         "price": 10.36,
         "originalPrice": 11.91,
         "providerProductId": 418,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-419",
-        "title": "1860 + 335 سوۋغات ئالماس (Diamonds) - گىلوبال",
+        "id": "pkg_mlbb_dia_419",
+        "title": "2195 ئالماس (1860 + 335 Bonus)",
         "price": 31.36,
         "originalPrice": 36.06,
         "providerProductId": 419,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-420",
-        "title": "3099 + 589 سوۋغات ئالماس (Diamonds) - گىلوبال",
+        "id": "pkg_mlbb_dia_420",
+        "title": "3688 ئالماس (3099 + 589 Bonus)",
         "price": 52.28,
         "originalPrice": 60.12,
         "providerProductId": 420,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-421",
-        "title": "4649 + 883 سوۋغات ئالماس (Diamonds) - گىلوبال",
+        "id": "pkg_mlbb_dia_421",
+        "title": "5532 ئالماس (4649 + 883 Bonus)",
         "price": 78.94,
         "originalPrice": 90.78,
         "providerProductId": 421,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-422",
-        "title": "7740 + 1548 سوۋغات ئالماس (Diamonds) - گىلوبال",
+        "id": "pkg_mlbb_dia_422",
+        "title": "9288 ئالماس (7740 + 1548 Bonus)",
         "price": 131.11,
         "originalPrice": 150.78,
         "providerProductId": 422,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       }
-    ],
-    "providerKey": "othman",
+    ]
+  },
+  {
+    "id": "othman_mobile_legends_global_passes",
+    "name": "Mobile Legends Global Pass (گىلوبال پاس ۋە ئەزالىق)",
+    "category": "games",
+    "icon": "Crown",
+    "image": "/images/services/mobile_legends.jpg",
+    "description": "Mobile Legends خەلقئارا سېرۋېر Weekly Diamond Pass، Twilight Pass ۋە ئېلىت كارتىلىرى.",
+    "badge": "👑 VIP پاس",
+    "inputLabel": "ئوينىغۇچى ID نومۇرى (User ID)",
+    "inputPlaceholder": "مەسىلەن: 12345678",
+    "requiresZoneId": true,
+    "zoneIdLabel": "رايون نومۇرى (Zone ID)",
+    "zoneIdPlaceholder": "مەسىلەن: 1234",
+    "source": "provider",
     "published": true,
-    "source": "provider"
+    "packages": [
+      {
+        "id": "pkg_mlbb_pass_423",
+        "title": "Weekly Elite Bundle (ھەپتىلىك ئېلىت بولاق)",
+        "price": 0.86,
+        "originalPrice": 0.99,
+        "providerProductId": 423,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_mlbb_pass_425",
+        "title": "Weekly Diamond Pass (ھەپتىلىك ئالماس پاس كارتىسى)",
+        "price": 1.65,
+        "originalPrice": 1.9,
+        "providerProductId": 425,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_mlbb_pass_424",
+        "title": "Monthly Elite Bundle (ئايلىق ئېلىت بولاق)",
+        "price": 4.29,
+        "originalPrice": 4.93,
+        "providerProductId": 424,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_mlbb_pass_426",
+        "title": "Twilight Pass (تۋايلايت پاس كارتىسى)",
+        "price": 8.79,
+        "originalPrice": 10.11,
+        "providerProductId": 426,
+        "productType": "package",
+        "available": true
+      }
+    ]
   },
   {
     "id": "othman_free_fire_diamonds",
