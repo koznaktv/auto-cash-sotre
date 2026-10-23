@@ -369,7 +369,7 @@ export default function HomePage() {
         localStorage.removeItem('autocash_cached_catalog'); // Clean old legacy cache
         localStorage.removeItem('autocash_cached_catalog_v2'); // Clean v2 cache
         localStorage.removeItem('autocash_cached_catalog_v3'); // Clean v3 cache
-        const cachedCat = localStorage.getItem('autocash_cached_catalog_v4');
+        const cachedCat = localStorage.getItem('autocash_cached_catalog_v5');
         if (cachedCat) {
           const parsed = JSON.parse(cachedCat);
           if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
@@ -384,7 +384,7 @@ export default function HomePage() {
   const [categories, setCategories] = useState<any[]>(() => {
     if (typeof window !== 'undefined') {
       try {
-        const cachedCats = localStorage.getItem('autocash_cached_categories');
+        const cachedCats = localStorage.getItem('autocash_cached_categories_v2');
         if (cachedCats) {
           const parsedCats = JSON.parse(cachedCats);
           if (Array.isArray(parsedCats) && parsedCats.length > 0) {
@@ -422,7 +422,7 @@ export default function HomePage() {
           setServices(normServices);
           setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
           try {
-            localStorage.setItem('autocash_cached_catalog_v4', JSON.stringify({ services: normServices, source: dCat.source }));
+            localStorage.setItem('autocash_cached_catalog_v5', JSON.stringify({ services: normServices, source: dCat.source }));
             localStorage.removeItem('autocash_cached_catalog');
             localStorage.removeItem('autocash_cached_catalog_v2');
             localStorage.removeItem('autocash_cached_catalog_v3');
@@ -443,7 +443,7 @@ export default function HomePage() {
           });
           setCategories(mappedCats);
           try {
-            localStorage.setItem('autocash_cached_categories', JSON.stringify(mappedCats));
+            localStorage.setItem('autocash_cached_categories_v2', JSON.stringify(mappedCats));
           } catch {}
         }
       })
@@ -470,7 +470,7 @@ export default function HomePage() {
           setServices(normServices);
           setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
           try {
-            localStorage.setItem('autocash_cached_catalog_v4', JSON.stringify({ services: normServices, source: dCat.source }));
+            localStorage.setItem('autocash_cached_catalog_v5', JSON.stringify({ services: normServices, source: dCat.source }));
             localStorage.removeItem('autocash_cached_catalog');
             localStorage.removeItem('autocash_cached_catalog_v2');
             localStorage.removeItem('autocash_cached_catalog_v3');
@@ -491,7 +491,7 @@ export default function HomePage() {
           });
           setCategories(mappedCats);
           try {
-            localStorage.setItem('autocash_cached_categories', JSON.stringify(mappedCats));
+            localStorage.setItem('autocash_cached_categories_v2', JSON.stringify(mappedCats));
           } catch {}
         }
       })
@@ -513,7 +513,7 @@ export default function HomePage() {
     } catch {}
 
     const handleStorageChange = (e: StorageEvent) => {
-      if ((e.key === 'autocash_cached_catalog_v4' || e.key === 'autocash_cached_catalog_v3') && e.newValue) {
+      if ((e.key === 'autocash_cached_catalog_v5' || e.key === 'autocash_cached_catalog_v3') && e.newValue) {
         try {
           const parsed = JSON.parse(e.newValue);
           if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
@@ -902,9 +902,11 @@ export default function HomePage() {
                     {isTransitioning && <div className="border-beam-tracer" />}
 
                     {/* Category Background Image */}
-                    <div className="absolute inset-0 z-0">
+                    <div className="absolute inset-0 z-0 bg-slate-900">
                       <img
                         src={cat.image}
+                        loading="eager"
+                        decoding="async"
                         alt={getCategoryName(cat.id, cat.name)}
                         className={`w-full h-full object-cover transition-all duration-300 brightness-95 contrast-105 ${
                           isTransitioning ? 'opacity-100 scale-105' : 'opacity-80 group-hover:opacity-100 group-hover:scale-105'
@@ -996,7 +998,7 @@ export default function HomePage() {
 
             {/* Product Cards Grid: 3 per row as requested */}
             <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
-              {filteredServices.map((service) => (
+              {filteredServices.map((service, idx) => (
                 <div
                   key={service.id}
                   className={`gold-card-normal rounded-2xl p-2 sm:p-3 flex flex-col justify-between transition-all duration-200 group relative overflow-hidden ${
@@ -1014,7 +1016,8 @@ export default function HomePage() {
                         }
                         alt={service.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
+                        loading={idx < 9 ? "eager" : "lazy"}
+                        decoding="async"
                         onError={(e) => {
                           (e.currentTarget as HTMLImageElement).src = '/brand_logo.png?v=2.1.0';
                         }}

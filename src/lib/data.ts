@@ -37,15 +37,15 @@ export interface ServiceItem {
 }
 
 export const CATEGORIES_9 = [
-  { id: 'apps', name: 'ئەپلەر', icon: 'Smartphone', count: 'ئەپلەر', image: 'https://images.unsplash.com/photo-1616469829941-c7200edec809?w=150&auto=format&fit=crop&q=80' },
-  { id: 'ai', name: 'سۈنئىي ئەقىل', icon: 'Bot', count: 'AI مۇلازىمەت', image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=150&auto=format&fit=crop&q=80' },
+  { id: 'apps', name: 'ئەپلەر', icon: 'Smartphone', count: 'ئەپلەر', image: '/images/services/picsart.jpg' },
+  { id: 'ai', name: 'سۈنئىي ئەقىل', icon: 'Bot', count: 'AI مۇلازىمەت', image: '/images/services/google_gemini.jpg' },
   { id: 'numbers', name: 'تېلېگرام ئەزالىق', icon: 'MessageSquareShare', count: 'Telegram Premium', image: '/images/services/telegram.jpg' },
   { id: 'cards', name: 'تىلفۇن كارتىلىرىغا پۇل قاچىلاش', icon: 'CreditCard', count: 'Turkcell', image: '/images/services/turkcell.jpg' },
-  { id: 'games', name: 'ئويۇنلار تۈرى ', icon: 'Gamepad2', count: 'تىلىفۇن ئۇيۇنلىرى', image: 'https://i.ibb.co/4wrS5VzC/db12ed260d1bf838012f592cc6704d8f-1.jpg' },
-  { id: 'accounts', name: 'تەييار ھېساباتلار', icon: 'KeyRound', count: 'ھېساباتلار', image: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=150&auto=format&fit=crop&q=80' },
-  { id: 'crypto', name: 'شىفىرلىق پۇل (USDT)', icon: 'Coins', count: 'USDT, Crypto', image: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=150&auto=format&fit=crop&q=80' },
-  { id: 'social', name: 'ئىجتىمائىي تاراتقۇ', icon: 'Share2', count: 'Followers, Likes', image: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=150&auto=format&fit=crop&q=80' },
-  { id: 'balance', name: 'يەرلىك ھەميان', icon: 'Wallet', count: 'تولۇقلاش', image: 'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=150&auto=format&fit=crop&q=80' },
+  { id: 'games', name: 'ئويۇنلار تۈرى ', icon: 'Gamepad2', count: 'تىلىفۇن ئۇيۇنلىرى', image: '/images/services/pubg_mobile.jpg' },
+  { id: 'accounts', name: 'تەييار ھېساباتلار', icon: 'KeyRound', count: 'ھېساباتلار', image: '/images/services/cursor_pro.jpg' },
+  { id: 'crypto', name: 'شىفىرلىق پۇل (USDT)', icon: 'Coins', count: 'USDT, Crypto', image: '/images/services/visa_card.jpg' },
+  { id: 'social', name: 'ئىجتىمائىي تاراتقۇ', icon: 'Share2', count: 'Followers, Likes', image: '/images/services/instagram.jpg' },
+  { id: 'balance', name: 'يەرلىك ھەميان', icon: 'Wallet', count: 'تولۇقلاش', image: '/images/services/vodafone_cash.jpg' },
 ] as const;
 
 import preloadedServices from '../../data/autocash_services.json';
