@@ -74,7 +74,27 @@ export function getServicesList(): ServiceItem[] {
       fs.mkdirSync(DATA_DIR, { recursive: true });
     }
 
-    // 1. Try reading the active services file (/tmp on serverless or data/ locally)
+    // 1. Prioritize BUNDLED_SERVICES_FILE (committed in data/autocash_services.json)
+    if (fs.existsSync(BUNDLED_SERVICES_FILE)) {
+      try {
+        const content = fs.readFileSync(BUNDLED_SERVICES_FILE, 'utf-8');
+        const parsed = JSON.parse(content);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const filtered = parsed.filter((s) => !deleted.has(s.id));
+          cachedServices = filtered;
+          try {
+            if (SERVICES_FILE !== BUNDLED_SERVICES_FILE) {
+              fs.writeFileSync(SERVICES_FILE, JSON.stringify(filtered, null, 2), 'utf-8');
+            }
+          } catch {}
+          return [...filtered];
+        }
+      } catch (e) {
+        console.warn('Error reading BUNDLED_SERVICES_FILE:', e);
+      }
+    }
+
+    // 2. Try reading the active services file (/tmp on serverless or data/ locally)
     if (fs.existsSync(SERVICES_FILE)) {
       try {
         const content = fs.readFileSync(SERVICES_FILE, 'utf-8');
@@ -86,24 +106,6 @@ export function getServicesList(): ServiceItem[] {
         }
       } catch (e) {
         console.warn('Error reading SERVICES_FILE:', e);
-      }
-    }
-
-    // 2. Try reading bundled services file (committed in data/autocash_services.json)
-    if (fs.existsSync(BUNDLED_SERVICES_FILE)) {
-      try {
-        const content = fs.readFileSync(BUNDLED_SERVICES_FILE, 'utf-8');
-        const parsed = JSON.parse(content);
-        if (Array.isArray(parsed)) {
-          const filtered = parsed.filter((s) => !deleted.has(s.id));
-          cachedServices = filtered;
-          try {
-            fs.writeFileSync(SERVICES_FILE, JSON.stringify(filtered, null, 2), 'utf-8');
-          } catch {}
-          return [...filtered];
-        }
-      } catch (e) {
-        console.warn('Error reading BUNDLED_SERVICES_FILE:', e);
       }
     }
 
@@ -124,61 +126,55 @@ export async function getServicesListAsync(): Promise<ServiceItem[]> {
   const deleted = getDeletedServiceIds();
 
   // Instant in-memory cache return (<0.1ms) if cached recently
-  if (cachedServices && Date.now() - lastServicesFetch < SERVICES_CACHE_TTL) {
+  if (cachedServices && cachedServices.length > 0 && Date.now() - lastServicesFetch < SERVICES_CACHE_TTL) {
     return cachedServices.filter((s) => !deleted.has(s.id));
   }
 
-  // Try Supabase first if in serverless or cache is empty
+  // 1. Read bundled catalog from data/autocash_services.json (Git source of truth)
+  const bundledList = getServicesList();
+
+  // 2. Check Supabase
   const sb = getSupabase();
   if (sb) {
     try {
       const { data, error } = await sb.from('system_settings').select('site_name').eq('id', 'custom_services').maybeSingle();
       if (!error && data?.site_name) {
         const parsed = JSON.parse(data.site_name);
-        if (Array.isArray(parsed)) {
-          let needsUpdate = false;
-          if (parsed.some((s: ServiceItem) => s.id === 'srv-1792696947336' || s.name.toLowerCase().includes('telecom'))) {
-            needsUpdate = true;
-          }
-          const clean = parsed
-            .filter((s: ServiceItem) => !deleted.has(s.id) && s.id !== 'srv-1792696947336' && !s.name.toLowerCase().includes('telecom'))
-            .map((s: ServiceItem) => {
-              let item = s;
-              if (s.published === false && parsed.length === 1) {
-                needsUpdate = true;
-                item = { ...item, published: true };
-              } else {
-                item = { ...item, published: item.published !== false };
-              }
-              if (item.name.toLowerCase().includes('canva') && item.category !== 'apps') {
-                needsUpdate = true;
-                item = { ...item, category: 'apps' as any };
-              }
-              if ((item.name.toLowerCase().includes('turkcell') || item.name.toLowerCase().includes('telecom')) && Array.isArray(item.packages)) {
-                const bundledMatch = SERVICES_DATA.find((b) => b.id === item.id || b.name === item.name);
-                if (bundledMatch && Array.isArray(bundledMatch.packages)) {
-                  needsUpdate = true;
-                  item = { ...item, packages: bundledMatch.packages };
-                }
-              }
-              return item;
-            });
-          if (needsUpdate) {
-            saveServicesList(clean);
-          }
+        const isUpToDate = Array.isArray(parsed) && parsed.length >= bundledList.length && parsed.some((s: ServiceItem) => s.id?.startsWith('othman_'));
+        if (isUpToDate) {
+          const clean = parsed.filter((s: ServiceItem) => !deleted.has(s.id));
           cachedServices = clean;
           lastServicesFetch = Date.now();
           return [...clean];
+        } else {
+          // Supabase has outdated old catalog (e.g. old 21 services) -> overwrite Supabase with bundledList!
+          await sb.from('system_settings').upsert({
+            id: 'custom_services',
+            site_name: JSON.stringify(bundledList),
+            admin_pin: 'SERVICES_BACKUP',
+            shamcash_address: 'META',
+            whatsapp_number: 'META',
+            telegram_username: 'META',
+          });
         }
+      } else if (!error) {
+        await sb.from('system_settings').upsert({
+          id: 'custom_services',
+          site_name: JSON.stringify(bundledList),
+          admin_pin: 'SERVICES_BACKUP',
+          shamcash_address: 'META',
+          whatsapp_number: 'META',
+          telegram_username: 'META',
+        });
       }
     } catch (e: any) {
       console.warn('Supabase getServicesListAsync notice:', e?.message);
     }
   }
 
-  const list = getServicesList();
+  cachedServices = bundledList;
   lastServicesFetch = Date.now();
-  return list;
+  return bundledList;
 }
 
 export async function saveServicesListAsync(services: ServiceItem[]): Promise<void> {

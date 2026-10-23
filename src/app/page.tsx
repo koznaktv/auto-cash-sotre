@@ -347,7 +347,7 @@ export default function HomePage() {
   };
 
   // Storefront catalog: Sahl Cash synced provider catalog (with instant 0ms preloaded fallback)
-  const isNotTelecom = (s: ServiceItem) => s.id !== 'srv-1792696947336' && !s.name?.toLowerCase().includes('telecom');
+  const isNotTelecom = (s: ServiceItem) => s.id !== 'srv-1792696947336';
 
   const normalizeServiceItem = (s: ServiceItem): ServiceItem => {
     let item = s;
@@ -367,7 +367,8 @@ export default function HomePage() {
     if (typeof window !== 'undefined') {
       try {
         localStorage.removeItem('autocash_cached_catalog'); // Clean old legacy cache
-        const cachedCat = localStorage.getItem('autocash_cached_catalog_v2');
+        localStorage.removeItem('autocash_cached_catalog_v2'); // Clean v2 cache
+        const cachedCat = localStorage.getItem('autocash_cached_catalog_v3');
         if (cachedCat) {
           const parsed = JSON.parse(cachedCat);
           if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
@@ -420,8 +421,9 @@ export default function HomePage() {
           setServices(normServices);
           setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
           try {
-            localStorage.setItem('autocash_cached_catalog_v2', JSON.stringify({ services: normServices, source: dCat.source }));
+            localStorage.setItem('autocash_cached_catalog_v3', JSON.stringify({ services: normServices, source: dCat.source }));
             localStorage.removeItem('autocash_cached_catalog');
+            localStorage.removeItem('autocash_cached_catalog_v2');
           } catch {}
         } else if (dCat && Array.isArray(dCat.services) && dCat.services.length > 0) {
           setServices(dCat.services.filter(isNotTelecom).map(normalizeServiceItem));
@@ -466,8 +468,9 @@ export default function HomePage() {
           setServices(normServices);
           setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
           try {
-            localStorage.setItem('autocash_cached_catalog_v2', JSON.stringify({ services: normServices, source: dCat.source }));
+            localStorage.setItem('autocash_cached_catalog_v3', JSON.stringify({ services: normServices, source: dCat.source }));
             localStorage.removeItem('autocash_cached_catalog');
+            localStorage.removeItem('autocash_cached_catalog_v2');
           } catch {}
         } else if (dCat && Array.isArray(dCat.services) && dCat.services.length > 0) {
           setServices(dCat.services.filter(isNotTelecom).map(normalizeServiceItem));
@@ -507,7 +510,7 @@ export default function HomePage() {
     } catch {}
 
     const handleStorageChange = (e: StorageEvent) => {
-      if ((e.key === 'autocash_cached_catalog_v2' || e.key === 'autocash_cached_catalog') && e.newValue) {
+      if ((e.key === 'autocash_cached_catalog_v3' || e.key === 'autocash_cached_catalog_v2') && e.newValue) {
         try {
           const parsed = JSON.parse(e.newValue);
           if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
