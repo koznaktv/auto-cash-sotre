@@ -1791,110 +1791,117 @@
     "source": "provider"
   },
   {
-    "id": "othman_yalla_ludo",
-    "name": "Yalla Ludo (ياللا لۇدو ئالماس ۋە ئالتۇن)",
+    "id": "othman_yalla_ludo_diamonds",
+    "name": "Yalla Ludo Diamonds (ياللا لۇدو ئالماس)",
     "category": "games",
-    "icon": "Dice5",
+    "icon": "Dices",
     "image": "/images/services/yalla_ludo.jpg",
-    "description": "Yalla Ludo ئويۇنىغا بىۋاسىتە كىملىك (ID) ئارقىلىق ئالماس ۋە ئالتۇن تولۇقلاش.",
-    "badge": "⚡ ئاپتوماتىك",
-    "inputLabel": "ئويۇنچى ID (Player ID)",
-    "inputPlaceholder": "Yalla Ludo ID كىرگۈزۈڭ",
+    "description": "ياللا لۇدو ئالماس تېز قاچىلاش. ئويۇندىكى ID نومۇرىڭىز ئارقىلىق دەرھال ھېساباتقا كىرىدۇ.",
+    "badge": "💎 ئالماس",
+    "inputLabel": "ئوينىغۇچى ID نومۇرى (User ID)",
+    "inputPlaceholder": "مەسىلەن: 12345678",
+    "requiresZoneId": false,
+    "source": "provider",
+    "published": true,
     "packages": [
       {
-        "id": "pkg-othman-773",
+        "id": "pkg_yl_dia_773",
         "title": "2320  لودو الماس",
         "price": 5.03,
         "originalPrice": 5.78,
         "providerProductId": 773,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-769",
-        "title": "223,700 ذهب يلا لودو",
-        "price": 5.19,
-        "originalPrice": 5.97,
-        "providerProductId": 769,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-774",
+        "id": "pkg_yl_dia_774",
         "title": "5150  لودو الماس",
         "price": 10.07,
         "originalPrice": 11.58,
         "providerProductId": 774,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-775",
+        "id": "pkg_yl_dia_775",
         "title": "13580  لودو الماس",
         "price": 25.12,
         "originalPrice": 28.89,
         "providerProductId": 775,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-770",
-        "title": "3,666,470 ذهب يلا لودو",
-        "price": 25.99,
-        "originalPrice": 29.89,
-        "providerProductId": 770,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-776",
+        "id": "pkg_yl_dia_776",
         "title": "27640  لودو الماس",
         "price": 50.35,
         "originalPrice": 57.9,
         "providerProductId": 776,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-771",
-        "title": "9,973,990 ذهب يلا لودو",
-        "price": 51.98,
-        "originalPrice": 59.78,
-        "providerProductId": 771,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-777",
+        "id": "pkg_yl_dia_777",
         "title": "55800  لودو الماس",
         "price": 99.84,
         "originalPrice": 114.82,
         "providerProductId": 777,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
+      }
+    ]
+  },
+  {
+    "id": "othman_yalla_ludo_gold",
+    "name": "Yalla Ludo Gold (ياللا لۇدو ئالتۇن)",
+    "category": "games",
+    "icon": "Coins",
+    "image": "/images/services/yalla_ludo.jpg",
+    "description": "ياللا لۇدو ئالتۇن تەڭگە تولۇقلاش. دەرھال نەق مەيداندا ئاپتوماتىك قاچىلىنىدۇ.",
+    "badge": "🪙 ئالتۇن",
+    "inputLabel": "ئوينىغۇچى ID نومۇرى (User ID)",
+    "inputPlaceholder": "مەسىلەن: 12345678",
+    "requiresZoneId": false,
+    "source": "provider",
+    "published": true,
+    "packages": [
+      {
+        "id": "pkg_yl_gold_769",
+        "title": "223,700 ذهب يلا لودو",
+        "price": 5.19,
+        "originalPrice": 5.97,
+        "providerProductId": 769,
+        "productType": "fixed",
+        "available": true
       },
       {
-        "id": "pkg-othman-772",
+        "id": "pkg_yl_gold_770",
+        "title": "3,666,470 ذهب يلا لودو",
+        "price": 25.99,
+        "originalPrice": 29.89,
+        "providerProductId": 770,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg_yl_gold_771",
+        "title": "9,973,990 ذهب يلا لودو",
+        "price": 51.98,
+        "originalPrice": 59.78,
+        "providerProductId": 771,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg_yl_gold_772",
         "title": "25,236,460 ذهب يلا لودو",
         "price": 103.94,
         "originalPrice": 119.53,
         "providerProductId": 772,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       }
-    ],
-    "providerKey": "othman",
-    "published": true,
-    "source": "provider"
+    ]
   },
   {
     "id": "othman_kimi_ai",
@@ -2011,150 +2018,153 @@
     "source": "provider"
   },
   {
-    "id": "othman_turk_telekom",
-    "name": "Turk Telekom بوغچىلىرى ۋە لىرا",
+    "id": "othman_turk_telekom_lirat",
+    "name": "Turk Telecom لىرا قاچىلاش (Lirat)",
     "category": "cards",
-    "icon": "Wifi",
+    "icon": "Smartphone",
     "image": "/images/services/turk_telekom.jpg",
-    "description": "Turk Telekom كارتىلىرىغا لىرا ۋە تور، مىنۇت، ئۇچۇر بوغچىسى قاچىلاش.",
-    "badge": "⚡ تېز تولۇقلاش",
-    "inputLabel": "تېلېفون نومۇرى (05xxxxxxxxx)",
-    "inputPlaceholder": "05xxxxxxxxx شەكىلدە كىرگۈزۈڭ",
+    "description": "تۈركىيە تۈرك تېلېكوم ئالدىن ھەقلىق لىنىيەلىرىگە TL لىرا قاچىلاش.",
+    "badge": "🇹🇷 لىرا",
+    "inputLabel": "تېلېفون نومۇرى (Phone Number)",
+    "inputPlaceholder": "مەسىلەن: 05551234567",
+    "requiresZoneId": false,
+    "source": "provider",
+    "published": true,
     "packages": [
       {
-        "id": "pkg-othman-748",
-        "title": "250 لىرا تورك تليكوم",
+        "id": "pkg_tt_lira_748",
+        "title": "250 ليرة تورك تليكوم",
         "price": 7.09,
         "originalPrice": 8.15,
         "providerProductId": 748,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-749",
-        "title": "300 لىرا تورك تليكوم",
+        "id": "pkg_tt_lira_749",
+        "title": "300 ليرة تورك تليكوم",
         "price": 7.13,
         "originalPrice": 8.2,
         "providerProductId": 749,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-750",
-        "title": "350 لىرا تورك تليكوم",
+        "id": "pkg_tt_lira_750",
+        "title": "350 ليرة تورك تليكوم",
         "price": 8.28,
         "originalPrice": 9.52,
         "providerProductId": 750,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-751",
-        "title": "400 لىرا تورك تليكوم",
+        "id": "pkg_tt_lira_751",
+        "title": "400 ليرة تورك تليكوم",
         "price": 9.48,
         "originalPrice": 10.9,
         "providerProductId": 751,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-753",
-        "title": "تورك تليكوم - 1000 مىنۇت + 3 جيجا + 750 ئۇچۇر",
-        "price": 11.74,
-        "originalPrice": 13.5,
-        "providerProductId": 753,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-752",
-        "title": "500 لىرا تورك تليكوم",
+        "id": "pkg_tt_lira_752",
+        "title": "500 ليرة تورك تليكوم",
         "price": 11.85,
         "originalPrice": 13.63,
         "providerProductId": 752,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
+      }
+    ]
+  },
+  {
+    "id": "othman_turk_telekom_packages",
+    "name": "Turk Telecom بولاقلىرى (Packages)",
+    "category": "cards",
+    "icon": "Radio",
+    "image": "/images/services/turk_telekom.jpg",
+    "description": "تۈركىيە تۈرك تېلېكوم ئايلىق تور ۋە سۆزلىشىش بولاقلىرىنى قاچىلاش.",
+    "badge": "📦 بولاقلار",
+    "inputLabel": "تېلېفون نومۇرى (Phone Number)",
+    "inputPlaceholder": "مەسىلەن: 05551234567",
+    "requiresZoneId": false,
+    "source": "provider",
+    "published": true,
+    "packages": [
+      {
+        "id": "pkg_tt_pack_753",
+        "title": "تورك تليكوم - 1000 دقيقة + 3 جيجا + 750 رسالة",
+        "price": 11.74,
+        "originalPrice": 13.5,
+        "providerProductId": 753,
+        "productType": "package",
+        "available": true
       },
       {
-        "id": "pkg-othman-754",
-        "title": "تورك تليكوم - 1000 مىنۇت + 5 جيجا + 750 ئۇچۇر",
+        "id": "pkg_tt_pack_754",
+        "title": "تورك تليكوم - 1000 دقيقة + 5 جيجا + 750 رسالة",
         "price": 12.89,
         "originalPrice": 14.82,
         "providerProductId": 754,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "productType": "package",
+        "available": true
       },
       {
-        "id": "pkg-othman-755",
-        "title": "تورك تليكوم - 1000 مىنۇت + 12 جيجا + 750 ئۇچۇر",
+        "id": "pkg_tt_pack_755",
+        "title": "تورك تليكوم - 1000 دقيقة + 12 جيجا + 750 رسالة",
         "price": 16.8,
         "originalPrice": 19.32,
         "providerProductId": 755,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "productType": "package",
+        "available": true
       },
       {
-        "id": "pkg-othman-756",
-        "title": "تورك تليكوم - 1000 مىنۇت + 20 جيجا + 750 ئۇچۇر",
+        "id": "pkg_tt_pack_756",
+        "title": "تورك تليكوم - 1000 دقيقة + 20 جيجا + 750 رسالة",
         "price": 19.33,
         "originalPrice": 22.23,
         "providerProductId": 756,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "productType": "package",
+        "available": true
       },
       {
-        "id": "pkg-othman-757",
-        "title": "تورك تليكوم - 1000 مىنۇت + 30 جيجا + 750 ئۇچۇر",
+        "id": "pkg_tt_pack_757",
+        "title": "تورك تليكوم - 1000 دقيقة + 30 جيجا + 750 رسالة",
         "price": 23.24,
         "originalPrice": 26.73,
         "providerProductId": 757,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "productType": "package",
+        "available": true
       },
       {
-        "id": "pkg-othman-758",
-        "title": "تورك تليكوم - 1000 مىنۇت + 50 جيجا + 750 ئۇچۇر",
+        "id": "pkg_tt_pack_758",
+        "title": "تورك تليكوم - 1000 دقيقة + 50 جيجا + 750 رسالة",
         "price": 26.46,
         "originalPrice": 30.43,
         "providerProductId": 758,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "productType": "package",
+        "available": true
       },
       {
-        "id": "pkg-othman-759",
-        "title": "تورك تليكوم - 6000 مىنۇت + 30 جيجا + 5000 ئۇچۇر (3 ئاي)",
+        "id": "pkg_tt_pack_759",
+        "title": "تورك تليكوم - 6000 دقيقة + 30 جيجا + 5000 رسالة (3 اشهر)",
         "price": 28.19,
         "originalPrice": 32.42,
         "providerProductId": 759,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "productType": "package",
+        "available": true
       },
       {
-        "id": "pkg-othman-760",
-        "title": "تورك تليكوم - 6000 مىنۇت + 50 جيجا + 5000 ئۇچۇر (6 ئاي)",
+        "id": "pkg_tt_pack_760",
+        "title": "تورك تليكوم - 6000 دقيقة + 50 جيجا + 5000 رسالة (6 اشهر)",
         "price": 43.49,
         "originalPrice": 50.01,
         "providerProductId": 760,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "productType": "package",
+        "available": true
       }
-    ],
-    "providerKey": "othman",
-    "published": true,
-    "source": "provider"
+    ]
   },
   {
     "id": "othman_turkcell",
@@ -2289,250 +2299,243 @@
     "source": "provider"
   },
   {
-    "id": "othman_pubg",
-    "name": "PUBG Mobile (پابجى شەن ۋە ئەزالىق)",
+    "id": "othman_pubg_robot",
+    "name": "PUBG Mobile UC (ببجي روبوت - پابجى شەن)",
     "category": "games",
     "icon": "Gamepad2",
-    "image": "/images/services/pubg_mobile.jpg",
-    "description": "PUBG Mobile ئويۇنىغا بىۋاسىتە Player ID ئارقىلىق شەن (UC)، Royal Pass ۋە Prime Plus ئەزالىق تولۇقلاش.",
-    "badge": "⚡ ئاپتوماتىك",
-    "inputLabel": "ئويۇنچى ID (Player ID)",
-    "inputPlaceholder": "ئويۇن كىملىك (ID) نومۇرىڭىزنى كىرگۈزۈڭ",
+    "image": "/images/services/pubg_uc_robot.jpg",
+    "description": "پابجى خەلقئارا سېرۋېر UC تېز قاچىلاش (ببجي روبوت). ID نومۇرىڭىز ئارقىلىق بىۋاسىتە سېكۇنتتا يۈكلىنىدۇ.",
+    "badge": "⚡ نەق شەن",
+    "inputLabel": "ئوينىغۇچى ID نومۇرى (Player ID)",
+    "inputPlaceholder": "مەسىلەن: 5123456789",
+    "requiresZoneId": false,
+    "source": "provider",
+    "published": true,
     "packages": [
       {
-        "id": "pkg-othman-346",
-        "title": "60 UC (شەدەن) - ئاپتوماتىك",
+        "id": "pkg_pubg_robot_346",
+        "title": "60 UC (شەن) - تېز قاچىلاش",
         "price": 0.95,
         "originalPrice": 1.09,
         "providerProductId": 346,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-720",
-        "title": "ھەپتىلىك ئالاھىدە بوغچا 1",
-        "price": 0.96,
-        "originalPrice": 1.1,
-        "providerProductId": 720,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-709",
-        "title": "Prime ئەزالىق (1 ئاي)",
-        "price": 0.98,
-        "originalPrice": 1.13,
-        "providerProductId": 709,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-706",
-        "title": "حزمة الشراء الأول",
-        "price": 0.98,
-        "originalPrice": 1.13,
-        "providerProductId": 706,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-722",
-        "title": "ھەپتىلىك ئالاھىدە شېئار بوغچىسى (قىزىل بىللۇر)",
-        "price": 2.89,
-        "originalPrice": 3.32,
-        "providerProductId": 722,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-721",
-        "title": "ھەپتىلىك ئالاھىدە بوغچا 2",
-        "price": 2.89,
-        "originalPrice": 3.32,
-        "providerProductId": 721,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-707",
-        "title": "حزمة ترقية للأسلحة النارية",
-        "price": 2.89,
-        "originalPrice": 3.32,
-        "providerProductId": 707,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-710",
-        "title": "Prime ئەزالىق (3 ئاي)",
-        "price": 2.94,
-        "originalPrice": 3.38,
-        "providerProductId": 710,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-350",
-        "title": "325 UC (شەدەن) - ئاپتوماتىك",
+        "id": "pkg_pubg_robot_350",
+        "title": "325 UC (شەن) - تېز قاچىلاش",
         "price": 4.75,
         "originalPrice": 5.46,
         "providerProductId": 350,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-708",
-        "title": "ھەپتىلىك ئالاھىدە شېئار بوغچىسى (قىزىل بىللۇر)",
-        "price": 4.82,
-        "originalPrice": 5.54,
-        "providerProductId": 708,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-711",
-        "title": "Prime ئەزالىق (6 ئاي)",
-        "price": 5.88,
-        "originalPrice": 6.76,
-        "providerProductId": 711,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-717",
-        "title": "Elite Pass خانلىق كارتىسى",
-        "price": 5.91,
-        "originalPrice": 6.8,
-        "providerProductId": 717,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-347",
-        "title": "60 UC (شەدەن) - ئاپتوماتىك",
+        "id": "pkg_pubg_robot_347",
+        "title": "660 UC (شەن) - تېز قاچىلاش",
         "price": 9.5,
         "originalPrice": 10.93,
         "providerProductId": 347,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-713",
-        "title": "Prime Plus ئالىي ئەزالىق (1 ئاي)",
-        "price": 9.81,
-        "originalPrice": 11.28,
-        "providerProductId": 713,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-712",
-        "title": "Prime ئەزالىق (12 ئاي / 1 يىل)",
-        "price": 11.77,
-        "originalPrice": 13.54,
-        "providerProductId": 712,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-718",
-        "title": "Elite Pass خانلىق كارتىسى",
-        "price": 11.91,
-        "originalPrice": 13.7,
-        "providerProductId": 718,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-348",
-        "title": "1800 UC (شەدەن) - ئاپتوماتىك",
+        "id": "pkg_pubg_robot_348",
+        "title": "1800 UC (شەن) - تېز قاچىلاش",
         "price": 24.11,
         "originalPrice": 27.73,
         "providerProductId": 348,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-719",
-        "title": "Elite Pass Plus خانلىق كارتىسى پىلۇس",
-        "price": 28.4,
-        "originalPrice": 32.66,
-        "providerProductId": 719,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-714",
-        "title": "Prime Plus ئالىي ئەزالىق (3 ئاي)",
-        "price": 29.42,
-        "originalPrice": 33.83,
-        "providerProductId": 714,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-349",
-        "title": "3850 UC (شەدەن) - ئاپتوماتىك",
+        "id": "pkg_pubg_robot_349",
+        "title": "3850 UC (شەن) - تېز قاچىلاش",
         "price": 47.93,
         "originalPrice": 55.12,
         "providerProductId": 349,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-715",
-        "title": "Prime Plus ئالىي ئەزالىق (6 ئاي)",
-        "price": 57.95,
-        "originalPrice": 66.64,
-        "providerProductId": 715,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-351",
-        "title": "8100 UC (شەدەن) - ئاپتوماتىك",
+        "id": "pkg_pubg_robot_351",
+        "title": "8100 UC (شەن) - تېز قاچىلاش",
         "price": 95.23,
         "originalPrice": 109.51,
         "providerProductId": 351,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
+      }
+    ]
+  },
+  {
+    "id": "othman_pubg_memberships",
+    "name": "PUBG Memberships (پابجى ئەزالىق ۋە كارتىلار)",
+    "category": "games",
+    "icon": "Crown",
+    "image": "/images/services/pubg_memberships.jpg",
+    "description": "پابجى Prime، Prime Plus، ئېلىت كارتىسى (Elite Pass) ۋە ئالاھىدە پائالىيەت بولاقلىرى.",
+    "badge": "👑 ئەزالىق",
+    "inputLabel": "ئوينىغۇچى ID نومۇرى (Player ID)",
+    "inputPlaceholder": "مەسىلەن: 5123456789",
+    "requiresZoneId": false,
+    "source": "provider",
+    "published": true,
+    "packages": [
+      {
+        "id": "pkg_pubg_mem_720",
+        "title": "ھەپتىلىك ئالاھىدە تەمىنات 1 (Weekly Deals 1)",
+        "price": 0.96,
+        "originalPrice": 1.1,
+        "providerProductId": 720,
+        "productType": "package",
+        "available": true
       },
       {
-        "id": "pkg-othman-716",
-        "title": "Prime Plus ئالىي ئەزالىق (12 ئاي / 1 يىل)",
+        "id": "pkg_pubg_mem_709",
+        "title": "Prime 1 ئايلىق ئەزالىق (1 Month)",
+        "price": 0.98,
+        "originalPrice": 1.13,
+        "providerProductId": 709,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_pubg_mem_706",
+        "title": "تۇنجى قېتىملىق سېتىۋېلىش بولىقى (First Purchase)",
+        "price": 0.98,
+        "originalPrice": 1.13,
+        "providerProductId": 706,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_pubg_mem_722",
+        "title": "ھەپتىلىك رىۋايەت نىشان بەلگىسى بولىقى (Legendary Emblem)",
+        "price": 2.89,
+        "originalPrice": 3.32,
+        "providerProductId": 722,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_pubg_mem_721",
+        "title": "ھەپتىلىك ئالاھىدە تەمىنات 2 (Weekly Deals 2)",
+        "price": 2.89,
+        "originalPrice": 3.32,
+        "providerProductId": 721,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_pubg_mem_707",
+        "title": "قورال دەرىجىسىنى ئۆستۈرۈش بولىقى (Firearms Upgrade)",
+        "price": 2.89,
+        "originalPrice": 3.32,
+        "providerProductId": 707,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_pubg_mem_710",
+        "title": "Prime 3 ئايلىق ئەزالىق (3 Months)",
+        "price": 2.94,
+        "originalPrice": 3.38,
+        "providerProductId": 710,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_pubg_mem_708",
+        "title": "ئەپسانىۋى نىشان بەلگىسى بولىقى (Mythic Emblem)",
+        "price": 4.82,
+        "originalPrice": 5.54,
+        "providerProductId": 708,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_pubg_mem_711",
+        "title": "Prime 6 ئايلىق ئەزالىق (6 Months)",
+        "price": 5.88,
+        "originalPrice": 6.76,
+        "providerProductId": 711,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_pubg_mem_717",
+        "title": "Elite Pass ئېلىت كارتىسى (1-50 سەۋىيە)",
+        "price": 5.91,
+        "originalPrice": 6.8,
+        "providerProductId": 717,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_pubg_mem_713",
+        "title": "Prime Plus 1 ئايلىق ئەزالىق (1 Month)",
+        "price": 9.81,
+        "originalPrice": 11.28,
+        "providerProductId": 713,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_pubg_mem_712",
+        "title": "Prime 12 ئايلىق ئەزالىق (12 Months)",
+        "price": 11.77,
+        "originalPrice": 13.54,
+        "providerProductId": 712,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_pubg_mem_718",
+        "title": "Elite Pass ئېلىت كارتىسى (1-100 سەۋىيە)",
+        "price": 11.91,
+        "originalPrice": 13.7,
+        "providerProductId": 718,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_pubg_mem_719",
+        "title": "Elite Pass Plus ئېلىت بىلۇس (1-100 سەۋىيە)",
+        "price": 28.4,
+        "originalPrice": 32.66,
+        "providerProductId": 719,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_pubg_mem_714",
+        "title": "Prime Plus 3 ئايلىق ئەزالىق (3 Months)",
+        "price": 29.42,
+        "originalPrice": 33.83,
+        "providerProductId": 714,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_pubg_mem_715",
+        "title": "Prime Plus 6 ئايلىق ئەزالىق (6 Months)",
+        "price": 57.95,
+        "originalPrice": 66.64,
+        "providerProductId": 715,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_pubg_mem_716",
+        "title": "Prime Plus 12 ئايلىق ئەزالىق (12 Months)",
         "price": 117.01,
         "originalPrice": 134.56,
         "providerProductId": 716,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "productType": "package",
+        "available": true
       }
-    ],
-    "providerKey": "othman",
-    "published": true,
-    "source": "provider"
+    ]
   },
   {
     "id": "othman_genshin_impact",
@@ -5122,100 +5125,108 @@
     "source": "provider"
   },
   {
-    "id": "othman_ball_pool_8",
-    "name": "8 Ball Pool (بىليارت نەق پۇل ۋە تەڭگە)",
+    "id": "othman_ball_pool_coins",
+    "name": "8 Ball Pool Coins (بىليارت تەڭگە)",
     "category": "games",
     "icon": "CircleDot",
     "image": "/images/services/ball_pool_8.jpg",
-    "description": "8 Ball Pool ئويۇنىغا Cash ۋە تەڭگە (Coin Ball) قاچىلاش.",
-    "badge": "⚡ ئاپتوماتىك",
-    "inputLabel": "Unique ID (ئويۇنچى كىملىكى)",
-    "inputPlaceholder": "بىليارت Unique ID كىرگۈزۈڭ",
+    "description": "8 Ball Pool بىليارت ئويۇنى تەڭگە تېز قاچىلاش. Miniclip ID نومۇرى بىلەن سېكۇنتتا يۈكلىنىدۇ.",
+    "badge": "🪙 تەڭگە",
+    "inputLabel": "Miniclip Unique ID",
+    "inputPlaceholder": "مەسىلەن: 123-456-789-0",
+    "requiresZoneId": false,
+    "source": "provider",
+    "published": true,
     "packages": [
       {
-        "id": "pkg-othman-443",
-        "title": "Cash 20",
-        "price": 1.71,
-        "originalPrice": 1.97,
-        "providerProductId": 443,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-439",
-        "title": "20K Coin Ball",
+        "id": "pkg_bp_coin_439",
+        "title": "20K تەڭگە (Coins)",
         "price": 1.71,
         "originalPrice": 1.97,
         "providerProductId": 439,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-444",
-        "title": "Cash 50",
-        "price": 4.28,
-        "originalPrice": 4.92,
-        "providerProductId": 444,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-440",
-        "title": "52K Coin Ball",
+        "id": "pkg_bp_coin_440",
+        "title": "52K تەڭگە (Coins)",
         "price": 4.28,
         "originalPrice": 4.92,
         "providerProductId": 440,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-445",
-        "title": "Cash 110",
-        "price": 8.55,
-        "originalPrice": 9.83,
-        "providerProductId": 445,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-441",
-        "title": "112K Coin Ball",
+        "id": "pkg_bp_coin_441",
+        "title": "112K تەڭگە (Coins)",
         "price": 8.55,
         "originalPrice": 9.83,
         "providerProductId": 441,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-446",
-        "title": "Cash 250",
-        "price": 17.11,
-        "originalPrice": 19.68,
-        "providerProductId": 446,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-442",
-        "title": "256K Coin Ball",
+        "id": "pkg_bp_coin_442",
+        "title": "256K تەڭگە (Coins)",
         "price": 17.11,
         "originalPrice": 19.68,
         "providerProductId": 442,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       }
-    ],
-    "providerKey": "othman",
+    ]
+  },
+  {
+    "id": "othman_ball_pool_cash",
+    "name": "8 Ball Pool Cash (بىليارت نەق پۇل)",
+    "category": "games",
+    "icon": "Banknote",
+    "image": "/images/services/ball_pool_8.jpg",
+    "description": "8 Ball Pool بىليارت نەق پۇل (Cash) قاچىلاش. تېز ۋە بىخەتەر يۈكلىنىدۇ.",
+    "badge": "💵 نەق پۇل",
+    "inputLabel": "Miniclip Unique ID",
+    "inputPlaceholder": "مەسىلەن: 123-456-789-0",
+    "requiresZoneId": false,
+    "source": "provider",
     "published": true,
-    "source": "provider"
+    "packages": [
+      {
+        "id": "pkg_bp_cash_443",
+        "title": "20 نەق پۇل (Cash)",
+        "price": 1.71,
+        "originalPrice": 1.97,
+        "providerProductId": 443,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg_bp_cash_444",
+        "title": "50 نەق پۇل (Cash)",
+        "price": 4.28,
+        "originalPrice": 4.92,
+        "providerProductId": 444,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg_bp_cash_445",
+        "title": "110 نەق پۇل (Cash)",
+        "price": 8.55,
+        "originalPrice": 9.83,
+        "providerProductId": 445,
+        "productType": "fixed",
+        "available": true
+      },
+      {
+        "id": "pkg_bp_cash_446",
+        "title": "250 نەق پۇل (Cash)",
+        "price": 17.11,
+        "originalPrice": 19.68,
+        "providerProductId": 446,
+        "productType": "fixed",
+        "available": true
+      }
+    ]
   },
   {
     "id": "othman_mobile_legends_turkish",
@@ -5486,100 +5497,108 @@
     "source": "provider"
   },
   {
-    "id": "othman_free_fire",
-    "name": "Free Fire (فىرى فاير ئالماس ۋە ئەزالىق)",
+    "id": "othman_free_fire_diamonds",
+    "name": "Free Fire Diamonds (فېرى فاير ئالماس)",
     "category": "games",
     "icon": "Flame",
     "image": "/images/services/free_fire.jpg",
-    "description": "Free Fire ئويۇنىغا بىۋاسىتە Player ID ئارقىلىق ئالماس (Diamonds) ۋە ھەپتىلىك/ئايلىق ئەزالىق تولۇقلاش.",
-    "badge": "⚡ كاپالەتلىك",
-    "inputLabel": "ئويۇنچى ID (Player ID)",
-    "inputPlaceholder": "ئويۇن كىملىك (ID) نومۇرىڭىزنى كىرگۈزۈڭ",
+    "description": "Garena Free Fire ئالماس تېز تولۇقلاش. پەقەت ئوينىغۇچى ID نومۇرى كېرەك، بىۋاسىتە قاچىلىنىدۇ.",
+    "badge": "💎 ئالماس",
+    "inputLabel": "ئوينىغۇچى ID نومۇرى (Player ID)",
+    "inputPlaceholder": "مەسىلەن: 123456789",
+    "requiresZoneId": false,
+    "source": "provider",
+    "published": true,
     "packages": [
       {
-        "id": "pkg-othman-352",
-        "title": "100 + 10 ئالماس (Diamonds) كىملىككە",
+        "id": "pkg_ff_dia_352",
+        "title": "110 ئالماس (100 + 10)",
         "price": 0.99,
         "originalPrice": 1.14,
         "providerProductId": 352,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-353",
-        "title": "210 + 21 ئالماس (Diamonds) كىملىككە",
+        "id": "pkg_ff_dia_353",
+        "title": "231 ئالماس (210 + 21)",
         "price": 2,
         "originalPrice": 2.3,
         "providerProductId": 353,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-949",
-        "title": "ھەپتىلىك ئەزالىق (Weekly Membership)",
-        "price": 2.17,
-        "originalPrice": 2.5,
-        "providerProductId": 949,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-961",
-        "title": "Booyah Pass رەسمىي جەڭ پاس كارتىسى",
-        "price": 3.26,
-        "originalPrice": 3.75,
-        "providerProductId": 961,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-354",
-        "title": "530 + 53 ئالماس (Diamonds) كىملىككە",
+        "id": "pkg_ff_dia_354",
+        "title": "583 ئالماس (530 + 53)",
         "price": 5,
         "originalPrice": 5.75,
         "providerProductId": 354,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-355",
-        "title": "1080 + 108 ئالماس (Diamonds) كىملىككە",
+        "id": "pkg_ff_dia_355",
+        "title": "1188 ئالماس (1080 + 108)",
         "price": 10.01,
         "originalPrice": 11.51,
         "providerProductId": 355,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       },
       {
-        "id": "pkg-othman-950",
-        "title": "ئايلىق ئەزالىق (Monthly Membership)",
-        "price": 10.37,
-        "originalPrice": 11.93,
-        "providerProductId": 950,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-356",
-        "title": "2200 + 220 ئالماس (Diamonds) كىملىككە",
+        "id": "pkg_ff_dia_356",
+        "title": "2420 ئالماس (2200 + 220)",
         "price": 20.02,
         "originalPrice": 23.02,
         "providerProductId": 356,
         "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
+        "available": true
       }
-    ],
-    "providerKey": "othman",
+    ]
+  },
+  {
+    "id": "othman_free_fire_memberships",
+    "name": "Free Fire Memberships (فېرى فاير ئەزالىق)",
+    "category": "games",
+    "icon": "Crown",
+    "image": "/images/services/free_fire.jpg",
+    "description": "Free Fire ھەپتىلىك كارت، ئايلىق كارت ۋە Booyah Pass ئالاھىدە پائالىيەت ئەزالىقى.",
+    "badge": "👑 ئەزالىق",
+    "inputLabel": "ئوينىغۇچى ID نومۇرى (Player ID)",
+    "inputPlaceholder": "مەسىلەن: 123456789",
+    "requiresZoneId": false,
+    "source": "provider",
     "published": true,
-    "source": "provider"
+    "packages": [
+      {
+        "id": "pkg_ff_mem_949",
+        "title": "ھەپتىلىك كارت ئەزالىق (Weekly Membership)",
+        "price": 2.17,
+        "originalPrice": 2.5,
+        "providerProductId": 949,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_ff_mem_961",
+        "title": "Booyah Pass كارتىسى (بۇياھ پاس)",
+        "price": 3.26,
+        "originalPrice": 3.75,
+        "providerProductId": 961,
+        "productType": "package",
+        "available": true
+      },
+      {
+        "id": "pkg_ff_mem_950",
+        "title": "ئايلىق كارت ئەزالىق (Monthly Membership)",
+        "price": 10.37,
+        "originalPrice": 11.93,
+        "providerProductId": 950,
+        "productType": "package",
+        "available": true
+      }
+    ]
   },
   {
     "id": "othman_chat_apps",
