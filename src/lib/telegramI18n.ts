@@ -117,6 +117,7 @@ export const LANGUAGE_SELECTION_BANNER = `
       💎 <i>Please select your preferred language</i> 💎
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
+👋 <b>ئەسسالامۇ ئەلەيكۇم! / Welcome / مرحباً بك</b>
 🌐 <b>تۆۋەندىكى كۇنۇپكىلاردىن بىرىنى تاللاپ داۋاملاشتۇرۇڭ:</b>
 🌐 <b>الرجاء اختيار لغتكم المفضلة للمتابعة:</b>
 🌐 <b>Lütfen devam etmek için tercih ettiğiniz dili seçin:</b>

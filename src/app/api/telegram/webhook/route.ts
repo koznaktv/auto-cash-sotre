@@ -88,7 +88,7 @@ export async function GET(req: Request) {
       const sent = await sendAdminAlert(`
 🤖 <b>AUTO CASH تېلېگرام سىستېمىسى سىناق ئۇچۇرى</b>
 ━━━━━━━━━━━━━━━━━━
-سالام ھۆرمەتلىك باشقۇرغۇچى @${TELEGRAM_CONFIG.adminUsername}!
+ئەسسالامۇ ئەلەيكۇم، ھۆرمەتلىك باشقۇرغۇچى @${TELEGRAM_CONFIG.adminUsername}!
 AUTO CASH تېلېگرام بوتى مۇۋەپپەقىيەتلىك ئۇلاندى.
 ئەمدى يېڭى زاكاز ۋە پۇل كىرگۈزۈش تالونلىرى شۇئان سىزگە يەتكۈزۈلىدۇ.
 ⏰ ${new Date().toLocaleString('ug-CN', { timeZone: 'Asia/Urumqi' })}
