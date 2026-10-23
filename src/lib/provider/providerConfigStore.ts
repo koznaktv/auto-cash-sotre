@@ -7,6 +7,11 @@ export interface StoredProviderConfig {
   providerApiType: 'syria4game' | 'smm' | 'custom_rest';
   providerApiSecret?: string;
   providerEnabled: boolean;
+  othmanApiUrl?: string;
+  othmanApiKey?: string;
+  othmanApiType?: 'syria4game' | 'smm' | 'custom_rest';
+  othmanApiSecret?: string;
+  othmanEnabled?: boolean;
 }
 
 const IS_SERVERLESS = Boolean(
@@ -68,12 +73,21 @@ export function loadStoredProviderConfig(): StoredProviderConfig {
           url = 'https://api.sahl-cash.com';
         }
 
+        const defaultOthmanToken = (process.env.OTHMAN_STORE_API_TOKEN || '').trim();
+        const othmanToken = (parsed.othmanApiKey !== undefined ? parsed.othmanApiKey : defaultOthmanToken).trim();
+        const othmanUrl = (parsed.othmanApiUrl || process.env.OTHMAN_STORE_BASE_URL || 'https://api.othman-storee.com').trim();
+
         memoryCachedConfig = {
           providerApiUrl: url,
           providerApiKey: token,
           providerApiType: parsed.providerApiType || 'syria4game',
           providerApiSecret: parsed.providerApiSecret || '',
           providerEnabled: parsed.providerEnabled !== false,
+          othmanApiUrl: othmanUrl,
+          othmanApiKey: othmanToken,
+          othmanApiType: parsed.othmanApiType || 'syria4game',
+          othmanApiSecret: parsed.othmanApiSecret || '',
+          othmanEnabled: parsed.othmanEnabled !== false,
         };
         return { ...memoryCachedConfig };
       }
@@ -89,6 +103,11 @@ export function loadStoredProviderConfig(): StoredProviderConfig {
     providerApiType: 'syria4game',
     providerApiSecret: '',
     providerEnabled: true,
+    othmanApiUrl: (process.env.OTHMAN_STORE_BASE_URL || 'https://api.othman-storee.com').trim(),
+    othmanApiKey: (process.env.OTHMAN_STORE_API_TOKEN || '').trim(),
+    othmanApiType: 'syria4game',
+    othmanApiSecret: '',
+    othmanEnabled: true,
   };
 
   // Persist the default file immediately so it doesn't get lost
@@ -136,12 +155,37 @@ export function saveStoredProviderConfig(updates: Partial<StoredProviderConfig>)
     ? Boolean(updates.providerEnabled)
     : current.providerEnabled;
 
+  const nextOthmanUrl = updates.othmanApiUrl !== undefined
+    ? normalizeUrl(updates.othmanApiUrl)
+    : (current.othmanApiUrl || 'https://api.othman-storee.com');
+
+  const nextOthmanToken = updates.othmanApiKey !== undefined
+    ? updates.othmanApiKey.trim()
+    : (current.othmanApiKey || '');
+
+  const nextOthmanType = updates.othmanApiType !== undefined
+    ? updates.othmanApiType
+    : (current.othmanApiType || 'syria4game');
+
+  const nextOthmanSecret = updates.othmanApiSecret !== undefined
+    ? updates.othmanApiSecret.trim()
+    : (current.othmanApiSecret || '');
+
+  const nextOthmanEnabled = updates.othmanEnabled !== undefined
+    ? Boolean(updates.othmanEnabled)
+    : (current.othmanEnabled !== false);
+
   const newConfig: StoredProviderConfig = {
     providerApiUrl: nextUrl,
     providerApiKey: nextToken,
     providerApiType: nextType,
     providerApiSecret: nextSecret,
     providerEnabled: nextEnabled,
+    othmanApiUrl: nextOthmanUrl,
+    othmanApiKey: nextOthmanToken,
+    othmanApiType: nextOthmanType,
+    othmanApiSecret: nextOthmanSecret,
+    othmanEnabled: nextOthmanEnabled,
   };
 
   memoryCachedConfig = newConfig;

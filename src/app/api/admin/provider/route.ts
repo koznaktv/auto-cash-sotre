@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { verifyAdminToken } from '@/lib/adminAuth';
-import { syria4GameProvider } from '@/lib/providers/syria4game';
+import { syria4GameProvider, sahlCashProvider, othmanStoreProvider } from '@/lib/providers/syria4game';
 import { listProviderCalls } from '@/lib/provider/callLog';
 import { getProviderSettings, updateProviderSettings } from '@/lib/catalog/store';
 import { getSystemSettingsAsync, updateSystemSettingsAsync } from '@/lib/db';
@@ -69,9 +69,11 @@ export async function GET(req: Request) {
     }
 
     // Default: wholesale balance & connection status + current provider config
-    const [resolvedConfig, profile, serverPublicIp, catalogSettings] = await Promise.all([
+    const [resolvedConfig, profile, othmanConfig, othmanProfile, serverPublicIp, catalogSettings] = await Promise.all([
       syria4GameProvider.getResolvedConfig(),
       syria4GameProvider.getProfile(),
+      othmanStoreProvider.getResolvedConfig(),
+      othmanStoreProvider.getProfile(),
       fetchServerPublicIp(),
       getProviderSettings().catch(() => null),
     ]);
@@ -122,6 +124,19 @@ export async function GET(req: Request) {
         providerEnabled: resolvedConfig.enabled,
         hasRealKey: Boolean(resolvedConfig.apiToken && resolvedConfig.apiToken.length > 5),
       },
+      othman: {
+        success: othmanProfile.success,
+        balance: othmanProfile.balance,
+        currency: othmanProfile.currency,
+        userName: othmanProfile.userName,
+        errorMessage: othmanProfile.error?.message,
+        config: {
+          apiUrl: othmanConfig.baseUrl,
+          apiKey: othmanConfig.apiToken ? `${othmanConfig.apiToken.slice(0, 4)}...${othmanConfig.apiToken.slice(-4)}` : '',
+          enabled: othmanConfig.enabled,
+          hasRealKey: Boolean(othmanConfig.apiToken && othmanConfig.apiToken.length > 5),
+        },
+      },
     });
   } catch (err: any) {
     return NextResponse.json(
@@ -142,7 +157,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { providerApiUrl, providerApiKey, providerApiType, providerApiSecret, providerEnabled } = body;
+    const { providerApiUrl, providerApiKey, providerApiType, providerApiSecret, providerEnabled, othmanApiUrl, othmanApiKey, othmanApiType, othmanApiSecret, othmanEnabled } = body;
 
     const updates: any = {};
     if (providerApiUrl !== undefined) updates.providerApiUrl = String(providerApiUrl).trim();
@@ -150,6 +165,12 @@ export async function POST(req: Request) {
     if (providerApiType !== undefined) updates.providerApiType = providerApiType;
     if (providerApiSecret !== undefined) updates.providerApiSecret = String(providerApiSecret).trim();
     if (providerEnabled !== undefined) updates.providerEnabled = Boolean(providerEnabled);
+
+    if (othmanApiUrl !== undefined) updates.othmanApiUrl = String(othmanApiUrl).trim();
+    if (othmanApiKey !== undefined) updates.othmanApiKey = String(othmanApiKey).trim();
+    if (othmanApiType !== undefined) updates.othmanApiType = othmanApiType;
+    if (othmanApiSecret !== undefined) updates.othmanApiSecret = String(othmanApiSecret).trim();
+    if (othmanEnabled !== undefined) updates.othmanEnabled = Boolean(othmanEnabled);
 
     // 1. Save settings to dedicated persistent store (.env.local + data/provider_config.json)
     saveStoredProviderConfig(updates);

@@ -88,20 +88,41 @@ interface ResolvedProviderConfig {
 export class Syria4GameProvider {
   private defaultBaseUrl: string;
   private defaultApiToken: string;
+  private providerKey: 'sahl' | 'othman' = 'sahl';
   private lastResolvedToken: string = '';
 
-  constructor() {
-    const rawUrl = process.env.SAHL_CASH_BASE_URL || process.env.SYRIA4GAME_BASE_URL || 'https://api.sahl-cash.com';
-    this.defaultBaseUrl = rawUrl.replace(/\/+$/, '');
+  constructor(options?: { providerKey?: 'sahl' | 'othman'; baseUrl?: string; apiToken?: string }) {
+    this.providerKey = options?.providerKey || 'sahl';
+    if (this.providerKey === 'othman') {
+      const rawUrl = options?.baseUrl || process.env.OTHMAN_STORE_BASE_URL || 'https://api.othman-storee.com';
+      this.defaultBaseUrl = rawUrl.replace(/\/+$/, '');
+      const rawToken = (options?.apiToken || process.env.OTHMAN_STORE_API_TOKEN || '').trim();
+      this.defaultApiToken = rawToken.replace(/^["']|["']$/g, '').trim();
+    } else {
+      const rawUrl = options?.baseUrl || process.env.SAHL_CASH_BASE_URL || process.env.SYRIA4GAME_BASE_URL || 'https://api.sahl-cash.com';
+      this.defaultBaseUrl = rawUrl.replace(/\/+$/, '');
+      const rawToken = (options?.apiToken || process.env.SAHL_CASH_API_TOKEN || process.env.SAHL_CASH_API_KEY || process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '').trim();
+      this.defaultApiToken = rawToken.replace(/^["']|["']$/g, '').trim();
+    }
     setAssetBase(this.defaultBaseUrl);
-    const rawToken = (process.env.SAHL_CASH_API_TOKEN || process.env.SAHL_CASH_API_KEY || process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '').trim();
-    this.defaultApiToken = rawToken.replace(/^["']|["']$/g, '').trim();
   }
 
   public async getResolvedConfig(): Promise<ResolvedProviderConfig> {
     try {
       const stored = loadStoredProviderConfig();
       const settings = await getSystemSettingsAsync().catch(() => null);
+
+      if (this.providerKey === 'othman') {
+        let baseUrl = (stored.othmanApiUrl || process.env.OTHMAN_STORE_BASE_URL || 'https://api.othman-storee.com').trim();
+        let apiToken = (stored.othmanApiKey || process.env.OTHMAN_STORE_API_TOKEN || '').trim();
+        let apiType = stored.othmanApiType || 'syria4game';
+        let apiSecret = stored.othmanApiSecret;
+        let enabled = stored.othmanEnabled !== false;
+
+        baseUrl = baseUrl.replace(/\/+$/, '');
+        this.lastResolvedToken = apiToken;
+        return { baseUrl, apiToken, apiType, apiSecret, enabled };
+      }
 
       let baseUrl = stored.providerApiUrl;
       if (!baseUrl || baseUrl.includes('syria4game')) {
@@ -142,6 +163,15 @@ export class Syria4GameProvider {
       return { baseUrl, apiToken, apiType, apiSecret, enabled };
     } catch {
       const stored = loadStoredProviderConfig();
+      if (this.providerKey === 'othman') {
+        return {
+          baseUrl: stored.othmanApiUrl || 'https://api.othman-storee.com',
+          apiToken: stored.othmanApiKey || '',
+          apiType: stored.othmanApiType || 'syria4game',
+          apiSecret: stored.othmanApiSecret,
+          enabled: stored.othmanEnabled !== false,
+        };
+      }
       return {
         baseUrl: stored.providerApiUrl,
         apiToken: stored.providerApiKey,
@@ -568,4 +598,13 @@ export class Syria4GameProvider {
   }
 }
 
-export const syria4GameProvider = new Syria4GameProvider();
+export const sahlCashProvider = new Syria4GameProvider({ providerKey: 'sahl' });
+export const othmanStoreProvider = new Syria4GameProvider({ providerKey: 'othman' });
+export const syria4GameProvider = sahlCashProvider;
+
+export function getProviderInstance(providerKey?: string): Syria4GameProvider {
+  if (providerKey === 'othman' || providerKey === 'othman_store') {
+    return othmanStoreProvider;
+  }
+  return sahlCashProvider;
+}

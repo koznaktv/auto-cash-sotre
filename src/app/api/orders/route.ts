@@ -18,7 +18,7 @@ import { getProviderSettings } from '@/lib/catalog/store';
 import { SERVICE_PREFIX, getCatalogServices } from '@/lib/catalog/storefront';
 import { placeProviderOrder } from '@/lib/provider/purchase';
 import { pollProviderOrders } from '@/lib/provider/orderPoller';
-import { generateUUIDv4, syria4GameProvider } from '@/lib/providers/syria4game';
+import { generateUUIDv4, syria4GameProvider, othmanStoreProvider } from '@/lib/providers/syria4game';
 import { notifyNewOrder, postOrderCompletedToChannel } from '@/lib/telegram';
 
 // Provider calls (live price check + newOrder) can take a while
@@ -181,9 +181,11 @@ export async function POST(req: Request) {
 
     if (pkg.providerProductId && order?.id) {
       try {
-        const providerConfig = await syria4GameProvider.getResolvedConfig();
+        const isOthman = (pkg as any).providerKey === 'othman' || (service as any).providerKey === 'othman' || (pkg as any).id?.includes('othman_');
+        const activeProvider = isOthman ? othmanStoreProvider : syria4GameProvider;
+        const providerConfig = await activeProvider.getResolvedConfig();
         if (providerConfig.enabled && providerConfig.apiToken) {
-          const providerRes = await syria4GameProvider.createOrder({
+          const providerRes = await activeProvider.createOrder({
             productId: pkg.providerProductId,
             orderUuid: generateUUIDv4(),
             qty: 1,

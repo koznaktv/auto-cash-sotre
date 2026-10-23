@@ -186,6 +186,19 @@ interface ProviderStatus {
     providerEnabled: boolean;
     hasRealKey: boolean;
   };
+  othman?: {
+    success: boolean;
+    balance?: number;
+    currency?: string;
+    userName?: string;
+    errorMessage?: string;
+    config?: {
+      apiUrl: string;
+      apiKey: string;
+      enabled: boolean;
+      hasRealKey: boolean;
+    };
+  };
 }
 
 // 🎨 Moving/Lively Game & App Icons for Categories ("مىدىرلاپ تۇرىدىغان بەلگىلەر")
@@ -427,12 +440,18 @@ export default function AdminPage() {
     apiType: 'syria4game' | 'smm' | 'custom_rest';
     apiSecret: string;
     enabled: boolean;
+    othmanApiUrl: string;
+    othmanApiKey: string;
+    othmanEnabled: boolean;
   }>({
     apiUrl: 'https://api.sahl-cash.com',
     apiKey: '',
     apiType: 'syria4game',
     apiSecret: '',
     enabled: true,
+    othmanApiUrl: 'https://api.othman-storee.com',
+    othmanApiKey: '',
+    othmanEnabled: true,
   });
   const [savingProvider, setSavingProvider] = useState<boolean>(false);
   const [providerFeedback, setProviderFeedback] = useState<{ success?: boolean; message?: string } | null>(null);
@@ -685,6 +704,8 @@ export default function AdminPage() {
             apiType: data.config.providerApiType || prev.apiType,
             apiSecret: data.config.providerApiSecret || '',
             enabled: data.config.providerEnabled !== undefined ? data.config.providerEnabled : true,
+            othmanApiUrl: data.othman?.config?.apiUrl || prev.othmanApiUrl,
+            othmanEnabled: data.othman?.config?.enabled !== undefined ? data.othman.config.enabled : true,
           }));
         }
       }
@@ -706,9 +727,14 @@ export default function AdminPage() {
         providerApiType: providerForm.apiType,
         providerApiSecret: providerForm.apiSecret.trim(),
         providerEnabled: providerForm.enabled,
+        othmanApiUrl: providerForm.othmanApiUrl.trim(),
+        othmanEnabled: providerForm.othmanEnabled,
       };
       if (providerForm.apiKey.trim()) {
         payload.providerApiKey = providerForm.apiKey.trim();
+      }
+      if (providerForm.othmanApiKey && providerForm.othmanApiKey.trim()) {
+        payload.othmanApiKey = providerForm.othmanApiKey.trim();
       }
       const res = await fetch('/api/admin/provider', {
         method: 'POST',
@@ -5449,18 +5475,21 @@ export default function AdminPage() {
                   )}
                 </div>
 
-                {/* 4. Account & Protocol Identity */}
-                <div className={`p-5 rounded-2xl ${themeClasses.card}`}>
-                  <span className={`text-xs ${themeClasses.subtext} block mb-1`}>تەمىنلىگۈچى تىپى & ئادرېسى</span>
-                  <div className="text-base font-bold text-white mt-2">
-                    {providerForm.apiType === 'syria4game'
-                      ? 'Sahl Cash API'
-                      : providerForm.apiType === 'smm'
-                      ? 'Standard SMM Panel v2 API'
-                      : 'خاس REST API'}
+                {/* 4. 2-تەمىنلىگۈچى: Othman Store Balance */}
+                <div className={`p-5 rounded-2xl ${themeClasses.card} border ${
+                  providerStatus?.othman?.success ? 'border-indigo-500/40 bg-indigo-950/10' : 'border-slate-800'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className={`text-xs ${themeClasses.subtext} block`}>2-تەمىنلىگۈچى (Othman Store)</span>
+                    <span className={`w-2.5 h-2.5 rounded-full ${providerStatus?.othman?.success ? 'bg-indigo-400 animate-pulse' : 'bg-slate-500'}`} />
                   </div>
-                  <span className="text-[11px] text-cyan-400 mt-1 block font-mono truncate" dir="ltr">
-                    {providerForm.apiUrl || 'https://api.sahl-cash.com'}
+                  <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-2">
+                    {providerStatus?.othman?.success && providerStatus?.othman?.balance !== null && providerStatus?.othman?.balance !== undefined
+                      ? `${Number(providerStatus.othman.balance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}`
+                      : 'ئۇلانمىدى'}
+                  </div>
+                  <span className="text-[11px] text-indigo-300 font-mono mt-1 block truncate">
+                    {providerStatus?.othman?.userName || 'api.othman-storee.com'}
                   </span>
                 </div>
               </div>
@@ -5592,6 +5621,58 @@ export default function AdminPage() {
                       className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-xs ${themeClasses.input} focus:outline-none focus:border-cyan-400`}
                       dir="ltr"
                     />
+                  </div>
+
+                  {/* ========================================== */}
+                  {/* 2-تەمىنلىگۈچى: Othman Store API تەڭشىكى */}
+                  {/* ========================================== */}
+                  <div className="pt-4 border-t border-slate-800/80 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-indigo-400" />
+                        <h4 className="text-xs font-bold text-indigo-300 font-alkatip">2-تەمىنلىگۈچى: Othman Store (https://api.othman-storee.com)</h4>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setProviderForm({ ...providerForm, othmanEnabled: !providerForm.othmanEnabled })}
+                        className={`px-3 py-1 rounded-lg text-[11px] font-bold border transition ${
+                          providerForm.othmanEnabled
+                            ? 'bg-indigo-950/40 text-indigo-300 border-indigo-500/40'
+                            : 'bg-rose-950/40 text-rose-300 border-rose-500/40'
+                        }`}
+                      >
+                        {providerForm.othmanEnabled ? 'Othman Store ئوچۇق' : 'تاقالغان'}
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-300 mb-1 font-alkatip">
+                          Othman Store ئادرېسى (Base URL):
+                        </label>
+                        <input
+                          type="text"
+                          value={providerForm.othmanApiUrl}
+                          onChange={(e) => setProviderForm({ ...providerForm, othmanApiUrl: e.target.value })}
+                          placeholder="https://api.othman-storee.com"
+                          className={`w-full px-3 py-2 rounded-xl font-mono text-xs ${themeClasses.input} focus:outline-none focus:border-indigo-400`}
+                          dir="ltr"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-300 mb-1 font-alkatip">
+                          Othman Store API Token:
+                        </label>
+                        <input
+                          type={showPin ? 'text' : 'password'}
+                          value={providerForm.othmanApiKey}
+                          onChange={(e) => setProviderForm({ ...providerForm, othmanApiKey: e.target.value })}
+                          placeholder={providerStatus?.othman?.config?.hasRealKey ? `ئاچقۇچ ساقلانغان (${providerStatus.othman.config.apiKey})` : 'يېڭى Othman Token چاپلاڭ'}
+                          className={`w-full px-3 py-2 rounded-xl font-mono text-xs ${themeClasses.input} focus:outline-none focus:border-indigo-400`}
+                          dir="ltr"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   {/* Submit Button */}
