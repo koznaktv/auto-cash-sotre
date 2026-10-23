@@ -158,13 +158,18 @@ export function getServicesForCategory(catKey: string): ServiceItem[] {
     return all.filter((s) => s.category === 'accounts' || s.category === 'ai');
   }
   if (catKey === 'balance') {
+    // Wi-Fi category left empty for upcoming additions
+    return all.filter((s) => s.category === 'balance');
+  }
+  if (catKey === 'cards') {
     return all.filter(
       (s) =>
-        s.category === 'balance' ||
+        s.category === 'cards' ||
         s.id.includes('syriatel') ||
         s.id.includes('mtn') ||
         s.id.includes('vodafone') ||
-        s.id.includes('turk_telekom')
+        s.id.includes('turk_telekom') ||
+        s.id.includes('turkcell')
     );
   }
   return all.filter((s) => s.category === catKey);
@@ -337,11 +342,19 @@ export async function handleShopCallbackQuery(
       lang === 'ru' ? `(Всего: ${services.length} услуг)` :
       `(جەمئىي: ${services.length} تال مۇلازىمەت بار)`;
 
+    const isEmpty = services.length === 0;
+    const emptyNotice =
+      lang === 'ar' ? '💡 هذا القسم فارغ حالياً، سيتم إضافة باقات شبكات الإنترنت قريباً...' :
+      lang === 'tr' ? '💡 Bu kategori şu anda boş, yakında yeni Wi-Fi ürünleri eklenecektir...' :
+      lang === 'en' ? '💡 This section is currently empty, new Wi-Fi packages will be added soon...' :
+      lang === 'uz' ? '💡 Bu boʻlim hozircha boʻsh, yaqinda yangi Wi-Fi xizmatlari qoʻshiladi...' :
+      lang === 'ru' ? '💡 Этот раздел пока пуст, скоро будут добавлены услуги Wi-Fi...' :
+      '💡 بۇ بۆلۈم ھازىرچە بوش، پات يېقىندا يېڭى Wi-Fi تور كارتىلىرى قوشۇلىدۇ...';
+
     const catText = `
 ╭━━━ 🌟 <b>${catTitle}</b> ━━━╮
 
-📌 <b>${choosePrompt}</b>
-<i>${countPrompt}</i>
+${isEmpty ? emptyNotice : `📌 <b>${choosePrompt}</b>\n<i>${countPrompt}</i>`}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `.trim();
     await showOrEditMessage(chatId, messageId, catText, getCategoryProductsKeyboard(catKey, page, lang));
