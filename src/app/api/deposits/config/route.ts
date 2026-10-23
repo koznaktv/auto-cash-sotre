@@ -14,7 +14,7 @@ export async function GET() {
   try {
     const settings = await getSystemSettingsAsync();
     const shamcashAddress = (settings.shamcashAddress || process.env.SHAMCASH_ADDRESS || 'efe8a2b200d66411c7c7e296369cbba8').trim();
-    const exchangeRate = Number(settings.shamcashExchangeRate || process.env.SHAMCASH_EXCHANGE_RATE || 15000);
+    const exchangeRate = Number(settings.shamcashExchangeRate || process.env.SHAMCASH_EXCHANGE_RATE || 143);
     const hasTsaKey = Boolean((settings.tsaApiKey || process.env.TSA_API_KEY || '').trim());
     const autoDepositEnabled = hasTsaKey && (settings.tsaAutoDepositEnabled !== false);
 
@@ -22,7 +22,7 @@ export async function GET() {
       {
         success: true,
         shamcashAddress,
-        exchangeRate: exchangeRate > 0 ? exchangeRate : 15000,
+        exchangeRate: exchangeRate > 0 ? exchangeRate : 143,
         autoDepositEnabled,
         hasTsaKey,
       },
@@ -33,7 +33,7 @@ export async function GET() {
       {
         success: false,
         shamcashAddress: 'efe8a2b200d66411c7c7e296369cbba8',
-        exchangeRate: 15000,
+        exchangeRate: 143,
         autoDepositEnabled: false,
       },
       { headers: NO_CACHE_HEADERS }

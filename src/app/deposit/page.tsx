@@ -64,7 +64,7 @@ export default function DepositPage() {
 
   // Dynamic Sham Cash config loaded from server
   const [shamAddress, setShamAddress] = useState<string>('efe8a2b200d66411c7c7e296369cbba8');
-  const [exchangeRate, setExchangeRate] = useState<number>(15000);
+  const [exchangeRate, setExchangeRate] = useState<number>(143);
   const [autoDepositEnabled, setAutoDepositEnabled] = useState<boolean>(true);
 
   const [depositHistory, setDepositHistory] = useState<DepositRecord[]>([]);

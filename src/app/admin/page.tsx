@@ -281,7 +281,7 @@ export default function AdminPage() {
     appDownloadUrl: '',
     tsaApiKey: '',
     tsaAutoDepositEnabled: true,
-    shamcashExchangeRate: 15000,
+    shamcashExchangeRate: 143,
   });
 
   const [tsaTesting, setTsaTesting] = useState<boolean>(false);
@@ -2759,7 +2759,7 @@ export default function AdminPage() {
           window.dispatchEvent(new Event('autocash-logo-changed'));
         }
         setSettingsSaveMsg('تەڭشەكلەر مۇۋەپپەقىيەتلىك ساقلاندى!');
-        alert(`تەڭشەكلەر مۇۋەپپەقىيەتلىك ساقلاندى!\nسورىيە پۇلى نىسبىتى: 1 USD = ${(settings.shamcashExchangeRate || 15000).toLocaleString()} SYP`);
+        alert(`تەڭشەكلەر مۇۋەپپەقىيەتلىك ساقلاندى!\nسورىيە پۇلى نىسبىتى: 1 USD = ${(settings.shamcashExchangeRate || 143).toLocaleString()} SYP`);
         setTimeout(() => setSettingsSaveMsg(''), 3000);
       }
     } catch (err) {
@@ -4379,7 +4379,7 @@ export default function AdminPage() {
                           type="button"
                           onClick={() => setSettings({ ...settings, shamcashExchangeRate: rate })}
                           className={`px-2 py-1 rounded-lg text-[11px] font-mono font-bold transition cursor-pointer ${
-                            (settings.shamcashExchangeRate || 15000) === rate
+                            (settings.shamcashExchangeRate || 143) === rate
                               ? 'bg-amber-400 text-slate-950 font-black shadow'
                               : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                           }`}
@@ -4393,7 +4393,7 @@ export default function AdminPage() {
                         type="number"
                         min="1000"
                         step="100"
-                        value={settings.shamcashExchangeRate || 15000}
+                        value={settings.shamcashExchangeRate || 143}
                         onChange={(e) => setSettings({ ...settings, shamcashExchangeRate: Number(e.target.value) })}
                         className={`w-full px-2.5 py-1.5 rounded-lg font-mono font-black text-xs text-amber-300 ${themeClasses.input} focus:outline-none focus:border-amber-400 text-center`}
                         dir="ltr"
@@ -4997,7 +4997,7 @@ export default function AdminPage() {
                         </label>
                         <input
                           type="number"
-                          value={settings.shamcashExchangeRate || 15000}
+                          value={settings.shamcashExchangeRate || 143}
                           onChange={(e) => setSettings({ ...settings, shamcashExchangeRate: Number(e.target.value) })}
                           className={`w-full px-3.5 py-2 rounded-xl font-mono text-white ${themeClasses.input} focus:outline-none focus:border-amber-400`}
                           dir="ltr"

@@ -139,7 +139,7 @@ const initialDefaultData: DatabaseSchema = {
     providerEnabled: true,
     tsaApiKey: process.env.TSA_API_KEY || '',
     tsaAutoDepositEnabled: true,
-    shamcashExchangeRate: Number(process.env.SHAMCASH_EXCHANGE_RATE || 15000),
+    shamcashExchangeRate: Number(process.env.SHAMCASH_EXCHANGE_RATE || 143),
   },
   users: [],
   orders: [],

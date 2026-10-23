@@ -1108,19 +1108,23 @@ ${statusBadge}
  * Live Exchange Rates Message
  */
 function getExchangeRatesMessage(effectiveRate: number): string {
-  const sypRate = Math.round(effectiveRate || 15000);
+  const sypRate = Math.round(effectiveRate || 143);
+  const ex5 = Math.round(5 * sypRate);
+  const ex10 = Math.round(10 * sypRate);
+  const ex25 = Math.round(25 * sypRate);
+  const ex50 = Math.round(50 * sypRate);
   return `
 ╭━━━ 💱📊 <b>AUTO CASH — نەق مەيدان پېرېۋوت باھاسى</b> 📊💱 ━━━╮
       ⚡️ <i>24/7 ئاپتوماتىك سېكۇنتتا ھەميانغا پۇل كىرىش كاپالىتى</i> ⚡️
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-💵 <b>1.00 USD (دوللار)</b> = <b>${sypRate.toLocaleString()} SYP (شامكەش لىراسى)</b>
+💵 <b>1.00 USD (دوللار)</b> = <b>${sypRate.toLocaleString()} SYP (سۈرىيە لىراسى)</b>
 
 📊 <b>كۆپ ئۇچرايدىغان شامكەش تالون مىساللىرى:</b>
-• <b>75,000 SYP</b> ➔ <b>$5.00 USD</b> (325 PUBG UC ياكى 530 Free Fire Diamonds)
-• <b>150,000 SYP</b> ➔ <b>$10.00 USD</b> (660 PUBG UC ياكى 1080 Free Fire Diamonds)
-• <b>375,000 SYP</b> ➔ <b>$25.00 USD</b> (1800 PUBG UC + ئارتۇقچە قالدۇق)
-• <b>750,000 SYP</b> ➔ <b>$50.00 USD</b> (3850 PUBG UC + VIP كەش بەك)
+• <b>${ex5.toLocaleString()} SYP</b> ➔ <b>$5.00 USD</b> (325 PUBG UC ياكى 530 Free Fire Diamonds)
+• <b>${ex10.toLocaleString()} SYP</b> ➔ <b>$10.00 USD</b> (660 PUBG UC ياكى 1080 Free Fire Diamonds)
+• <b>${ex25.toLocaleString()} SYP</b> ➔ <b>$25.00 USD</b> (1800 PUBG UC + ئارتۇقچە قالدۇق)
+• <b>${ex50.toLocaleString()} SYP</b> ➔ <b>$50.00 USD</b> (3850 PUBG UC + VIP كەش بەك)
 
 🚀 <b>قانداق سالىسىز؟</b>
 Sham Cash ئەپى ئارقىلىق پۇل ئەۋەتىپ، تالون نومۇرىنى (TxID) دۇكاننىڭ «پۇل كىرگۈزۈش» بېتىدىن كىرگۈزسىڭىز، سېكۇنتتا ھەميىنىڭىزگە چۈشىدۇ!
@@ -2109,7 +2113,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     // 6.7 Quick Exchange Rates
     if (data === 'quick_rates') {
       await answerCallbackQuery(cqId);
-      let rate = 15000;
+      let rate = 143;
       try {
         const s = await getSystemSettingsAsync();
         if (s?.shamcashExchangeRate) rate = s.shamcashExchangeRate;
@@ -2806,7 +2810,7 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
 
   // 6.2 Command /rates or /kurs (Live Exchange Rates)
   if (text.startsWith('/rates') || text.startsWith('/kurs') || text.startsWith('/rate') || text.startsWith('/perewot')) {
-    let rate = 15000;
+    let rate = 143;
     try {
       const s = await getSystemSettingsAsync();
       if (s?.shamcashExchangeRate) rate = s.shamcashExchangeRate;
@@ -2920,7 +2924,7 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
     lowerText.includes('kurs') ||
     lowerText.includes('لىرا')
   ) {
-    let rate = 15000;
+    let rate = 143;
     try {
       const s = await getSystemSettingsAsync();
       if (s?.shamcashExchangeRate) rate = s.shamcashExchangeRate;

@@ -62,13 +62,13 @@ export async function getTsaConfig(): Promise<{
     settings.tsaAutoDepositEnabled !== undefined
       ? Boolean(settings.tsaAutoDepositEnabled)
       : process.env.TSA_AUTO_DEPOSIT !== 'false';
-  const exchangeRate = Number(settings.shamcashExchangeRate || process.env.SHAMCASH_EXCHANGE_RATE || 15000);
+  const exchangeRate = Number(settings.shamcashExchangeRate || process.env.SHAMCASH_EXCHANGE_RATE || 143);
 
   return {
     apiKey,
     shamcashAddress,
     autoDepositEnabled,
-    exchangeRate: exchangeRate > 0 ? exchangeRate : 15000,
+    exchangeRate: exchangeRate > 0 ? exchangeRate : 143,
   };
 }
 
