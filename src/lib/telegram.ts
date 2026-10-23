@@ -19,6 +19,10 @@ import {
   getSystemSettingsAsync,
   OrderRecord,
 } from './db';
+import {
+  handleShopCallbackQuery,
+  handleShopTextMessage,
+} from './telegramShop';
 
 export const TELEGRAM_CONFIG = {
   botUsername: 'Autocash_24_bot',
@@ -1320,24 +1324,30 @@ function getStoreInlineKeyboard() {
     inline_keyboard: [
       [
         {
-          text: '⚡️🛍️ دۇكاننى ئېچىش | Open Store ➔',
+          text: '🛍️ مەھسۇلاتلار بۆلىكى (دۇكان) 📦',
+          callback_data: 'tg_shop_categories',
+        },
+      ],
+      [
+        {
+          text: '⚡️ دۇكاننى توركۆزنەكتە ئېچىش | WebApp ➔',
           web_app: { url: TELEGRAM_CONFIG.storeUrl },
         },
       ],
       [
         {
-          text: '💎💳 شامكەشتىن پۇل سېلىش ⚡️',
-          callback_data: 'quick_deposit',
+          text: '💰 ھېساباتىم & قالدۇق پۇل 💳',
+          callback_data: 'tg_my_account',
         },
         {
-          text: '🔍 زاكاز سۈرۈشتۈرۈش 📦',
-          callback_data: 'quick_track',
+          text: '💎 پۇل سېلىش (شامكەش) ⚡️',
+          callback_data: 'quick_deposit',
         },
       ],
       [
         {
-          text: '🔥🎮 تۈرلەر ۋە باھالار 💎',
-          callback_data: 'quick_catalog',
+          text: '🔍 زاكاز سۈرۈشتۈرۈش 📦',
+          callback_data: 'quick_track',
         },
         {
           text: '💱 پۇل پېرېۋوت باھاسى 📊',
@@ -1678,6 +1688,20 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
         return;
       }
     }
+
+    // Handle Direct Shop & Purchasing callbacks (Categories, Products, Packages, Checkout)
+    const handledByShop = await handleShopCallbackQuery(
+      cq,
+      chatId,
+      messageId,
+      cqId,
+      fromId,
+      fromUser,
+      data,
+      showOrEditMessage,
+      answerCallbackQuery
+    );
+    if (handledByShop) return;
 
     // 1. Approve Deposit (dep_approve:<depositId>) [ADMIN ONLY]
     if (data.startsWith('dep_approve:')) {
@@ -2297,6 +2321,16 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       return;
     }
   }
+
+  // Handle Active Bot Order Session Input (Player ID / Phone / Zone ID) or Shortcut Commands
+  const handledByShopMsg = await handleShopTextMessage(
+    msg,
+    chatId,
+    text,
+    from,
+    sendTelegramMessage
+  );
+  if (handledByShopMsg) return;
 
   // 1. Command /start
   if (text.startsWith('/start')) {
