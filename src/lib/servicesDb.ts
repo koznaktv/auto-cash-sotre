@@ -133,42 +133,20 @@ export async function getServicesListAsync(): Promise<ServiceItem[]> {
   // 1. Read bundled catalog from data/autocash_services.json (Git source of truth)
   const bundledList = getServicesList();
 
-  // 2. Check Supabase
+  // 2. Always sync bundledList to Supabase so Supabase matches the repository
   const sb = getSupabase();
-  if (sb) {
+  if (sb && bundledList.length > 0) {
     try {
-      const { data, error } = await sb.from('system_settings').select('site_name').eq('id', 'custom_services').maybeSingle();
-      if (!error && data?.site_name) {
-        const parsed = JSON.parse(data.site_name);
-        const isUpToDate = Array.isArray(parsed) && parsed.length >= bundledList.length && parsed.some((s: ServiceItem) => s.id?.startsWith('othman_'));
-        if (isUpToDate) {
-          const clean = parsed.filter((s: ServiceItem) => !deleted.has(s.id));
-          cachedServices = clean;
-          lastServicesFetch = Date.now();
-          return [...clean];
-        } else {
-          // Supabase has outdated old catalog (e.g. old 21 services) -> overwrite Supabase with bundledList!
-          await sb.from('system_settings').upsert({
-            id: 'custom_services',
-            site_name: JSON.stringify(bundledList),
-            admin_pin: 'SERVICES_BACKUP',
-            shamcash_address: 'META',
-            whatsapp_number: 'META',
-            telegram_username: 'META',
-          });
-        }
-      } else if (!error) {
-        await sb.from('system_settings').upsert({
-          id: 'custom_services',
-          site_name: JSON.stringify(bundledList),
-          admin_pin: 'SERVICES_BACKUP',
-          shamcash_address: 'META',
-          whatsapp_number: 'META',
-          telegram_username: 'META',
-        });
-      }
+      await sb.from('system_settings').upsert({
+        id: 'custom_services',
+        site_name: JSON.stringify(bundledList),
+        admin_pin: 'SERVICES_BACKUP',
+        shamcash_address: 'META',
+        whatsapp_number: 'META',
+        telegram_username: 'META',
+      });
     } catch (e: any) {
-      console.warn('Supabase getServicesListAsync notice:', e?.message);
+      console.warn('Supabase getServicesListAsync sync notice:', e?.message);
     }
   }
 
