@@ -92,13 +92,19 @@ export default function HomePage() {
 
   const handleOpenProduct = (service: ServiceItem) => {
     try {
-      window.history.pushState({ modal: 'checkout', serviceId: service.id }, '', window.location.pathname);
+      const hash = selectedCatRef.current ? `#cat=${selectedCatRef.current}&product=${service.id}` : `#product=${service.id}`;
+      window.history.pushState({ view: 'product', catId: selectedCatRef.current, serviceId: service.id }, '', hash);
     } catch {}
     setActiveModalService(service);
   };
 
   const handleCloseProduct = () => {
     setActiveModalService(null);
+    try {
+      if (typeof window !== 'undefined' && window.history.state?.view === 'product') {
+        window.history.back();
+      }
+    } catch {}
   };
 
   const handleOpenAuth = () => {
@@ -122,56 +128,89 @@ export default function HomePage() {
 
     // Expose global bridge function for Android Native gesture & back button
     (window as any).handleAutoCashBack = () => {
-      // 1. If product checkout modal is open, CLOSE IT and return true!
+      // 1. If product checkout modal is open, CLOSE IT ONLY and stay in category view!
       if (activeModalServiceRef.current) {
         setActiveModalService(null);
+        try {
+          if (window.history.state?.view === 'product') {
+            window.history.back();
+          }
+        } catch {}
         return true;
       }
-      // 2. If Auth modal is open, CLOSE IT and return true!
+      // 2. If Auth modal is open, close it!
       if (isAuthOpenRef.current) {
         setIsAuthOpen(false);
+        try {
+          if (window.history.state?.modal === 'auth') {
+            window.history.back();
+          }
+        } catch {}
         return true;
       }
-      // 3. If Drawer is open, CLOSE IT and return true!
+      // 3. If Drawer is open, close it!
       if (isDrawerOpenRef.current) {
         setIsDrawerOpen(false);
+        try {
+          if (window.history.state?.modal === 'drawer') {
+            window.history.back();
+          }
+        } catch {}
         return true;
       }
-      // 4. If a Category is selected, return to all categories
+      // 4. If viewing inside a category, step back to all categories (home)
       if (selectedCatRef.current !== null) {
         setSelectedCat(null);
         setSearchQuery('');
+        try {
+          if (window.history.state?.view === 'category') {
+            window.history.back();
+          }
+        } catch {}
         return true;
       }
       return false;
     };
 
-    const handlePopState = () => {
-      // 1. If product modal is open, closing it satisfies the back gesture!
-      if (activeModalServiceRef.current) {
+    const handlePopState = (event: PopStateEvent) => {
+      const state = event.state;
+
+      // 1. If popped back to category state, close product modal but KEEP category active!
+      if (state?.view === 'category' || (state?.catId && !state?.serviceId)) {
         setActiveModalService(null);
-        return;
-      }
-      // 2. If auth modal is open, close it!
-      if (isAuthOpenRef.current) {
         setIsAuthOpen(false);
-        return;
-      }
-      // 3. If drawer is open, close it!
-      if (isDrawerOpenRef.current) {
         setIsDrawerOpen(false);
+        if (state.catId) {
+          setSelectedCat(state.catId);
+        }
         return;
       }
-      // 4. If viewing inside a category, step back to all categories
-      if (selectedCatRef.current !== null) {
+
+      // 2. If popped to root/home page:
+      if (!state || state.rootPage === 'home' || (!state.view && !state.catId)) {
+        if (activeModalServiceRef.current) {
+          setActiveModalService(null);
+          return;
+        }
+        if (isAuthOpenRef.current) {
+          setIsAuthOpen(false);
+          return;
+        }
+        if (isDrawerOpenRef.current) {
+          setIsDrawerOpen(false);
+          return;
+        }
+        // Return to all categories (home)
         setSelectedCat(null);
         setSearchQuery('');
         return;
       }
-      // 5. On the home page with no modal open, keep home page anchored as base
-      try {
-        window.history.pushState({ rootPage: 'home' }, '', '/');
-      } catch {}
+
+      // 3. Modal close fallback
+      if (activeModalServiceRef.current) {
+        setActiveModalService(null);
+        return;
+      }
     };
 
     window.addEventListener('popstate', handlePopState);
@@ -335,6 +374,9 @@ export default function HomePage() {
     setTimeout(() => {
       setSelectedCat(catId);
       setTransitioningCatId(null);
+      try {
+        window.history.pushState({ view: 'category', catId }, '', '#cat=' + catId);
+      } catch {}
       setTimeout(() => {
         const catSection = document.getElementById('category-products-view');
         if (catSection) {
@@ -369,7 +411,7 @@ export default function HomePage() {
         localStorage.removeItem('autocash_cached_catalog'); // Clean old legacy cache
         localStorage.removeItem('autocash_cached_catalog_v2'); // Clean v2 cache
         localStorage.removeItem('autocash_cached_catalog_v3'); // Clean v3 cache
-        const cachedCat = localStorage.getItem('autocash_cached_catalog_v6');
+        const cachedCat = localStorage.getItem('autocash_cached_catalog_v7');
         if (cachedCat) {
           const parsed = JSON.parse(cachedCat);
           if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
@@ -422,7 +464,7 @@ export default function HomePage() {
           setServices(normServices);
           setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
           try {
-            localStorage.setItem('autocash_cached_catalog_v6', JSON.stringify({ services: normServices, source: dCat.source }));
+            localStorage.setItem('autocash_cached_catalog_v7', JSON.stringify({ services: normServices, source: dCat.source }));
             localStorage.removeItem('autocash_cached_catalog');
             localStorage.removeItem('autocash_cached_catalog_v2');
             localStorage.removeItem('autocash_cached_catalog_v3');
@@ -470,7 +512,7 @@ export default function HomePage() {
           setServices(normServices);
           setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
           try {
-            localStorage.setItem('autocash_cached_catalog_v6', JSON.stringify({ services: normServices, source: dCat.source }));
+            localStorage.setItem('autocash_cached_catalog_v7', JSON.stringify({ services: normServices, source: dCat.source }));
             localStorage.removeItem('autocash_cached_catalog');
             localStorage.removeItem('autocash_cached_catalog_v2');
             localStorage.removeItem('autocash_cached_catalog_v3');
@@ -513,7 +555,7 @@ export default function HomePage() {
     } catch {}
 
     const handleStorageChange = (e: StorageEvent) => {
-      if ((e.key === 'autocash_cached_catalog_v6' || e.key === 'autocash_cached_catalog_v3') && e.newValue) {
+      if ((e.key === 'autocash_cached_catalog_v7' || e.key === 'autocash_cached_catalog_v3') && e.newValue) {
         try {
           const parsed = JSON.parse(e.newValue);
           if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
@@ -975,6 +1017,11 @@ export default function HomePage() {
                 onClick={() => {
                   setSelectedCat(null);
                   setSearchQuery('');
+                  try {
+                    if (window.history.state?.view === 'category') {
+                      window.history.back();
+                    }
+                  } catch {}
                 }}
                 className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-950 font-black gold-shimmer-btn px-3 sm:px-4 py-2 rounded-xl transition font-alkatip cursor-pointer shadow-lg hover:scale-105 active:scale-95 flex-shrink-0 whitespace-nowrap"
               >
@@ -1001,7 +1048,14 @@ export default function HomePage() {
               {filteredServices.map((service, idx) => (
                 <div
                   key={service.id}
-                  className={`gold-card-normal rounded-2xl p-2 sm:p-3 flex flex-col justify-between transition-all duration-200 group relative overflow-hidden ${
+                  onClick={() => {
+                    if (!currentUser || !currentUser.email) {
+                      handleOpenAuth();
+                    } else {
+                      handleOpenProduct(service);
+                    }
+                  }}
+                  className={`gold-card-normal rounded-2xl p-2 sm:p-3 flex flex-col justify-between transition-all duration-200 group relative overflow-hidden cursor-pointer ${
                     isRTL ? 'text-right' : 'text-left'
                   }`}
                 >
