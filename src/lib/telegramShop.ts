@@ -65,7 +65,7 @@ export async function getOrCreateTelegramUser(
 }
 
 export const SHOP_CATEGORIES_BANNER = `
-» » ༒•|——( مەھسۇلاتلار دۇكىنى )——|•༒ « «
+╭━━━ 🛍️ <b>مەھسۇلاتلار دۇكىنى</b> ━━━╮
 
 📌 <b>دۇكان — كېرەكلىك بۆلەكنى تاللاڭ:</b>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -338,7 +338,7 @@ export async function handleShopCallbackQuery(
       `(جەمئىي: ${services.length} تال مۇلازىمەت بار)`;
 
     const catText = `
-» » ༒•|——( ${catTitle} )——|•༒ « «
+╭━━━ 🌟 <b>${catTitle}</b> ━━━╮
 
 📌 <b>${choosePrompt}</b>
 <i>${countPrompt}</i>
@@ -377,7 +377,7 @@ export async function handleShopCallbackQuery(
     const selectPrompt = BOT_I18N.order.selectPackagePrompt[lang] || BOT_I18N.order.selectPackagePrompt.ug;
 
     const servText = `
-» » ༒•|——( ${serviceName}${effectiveSubTitle} )——|•༒ « «
+╭━━━ 💎 <b>${serviceName}${effectiveSubTitle}</b> ━━━╮
 
 ${selectPrompt}
 ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -432,7 +432,7 @@ ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━�
     const inputMsg = BOT_I18N.order.inputPrompt[lang] || BOT_I18N.order.inputPrompt.ug;
 
     const promptText = `
-» » ༒•|——( ${header} )——|•༒ « «
+╭━━━ ✍️ <b>${header}</b> ━━━╮
 
 ${BOT_I18N.order.productLabel[lang] || '🛍️ مەھسۇلات:'} ${sName}
 ${BOT_I18N.order.packageLabel[lang] || '📦 بولاق:'} <b>${pTitle}</b>
@@ -724,7 +724,7 @@ export async function handleShopTextMessage(
          `⚠️ قالدۇق يەتمەيدۇ! كەم قالغىنى: $${(activeSession.price - balance).toFixed(2)} USD`);
 
     const confirmCard = `
-» » ༒•|——( ${titleCard} )——|•༒ « «
+╭━━━ ⚡️ <b>${titleCard}</b> ━━━╮
 
 ${BOT_I18N.order.productLabel[lang]} ${sName}
 ${BOT_I18N.order.packageLabel[lang]} ${pTitle}

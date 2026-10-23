@@ -386,37 +386,37 @@ Welcome to the official <b>AUTO CASH</b> digital platform!
   // Shop Banner Header
   shopBanner: {
     ug: `
-» » ༒•|——( مەھسۇلاتلار دۇكىنى )——|•༒ « «
+╭━━━ 🛍️ <b>مەھسۇلاتلار دۇكىنى</b> ━━━╮
 
 📌 <b>دۇكان — كېرەكلىك بۆلەكنى تاللاڭ:</b>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `.trim(),
     ar: `
-» » ༒•|——( متجر المنتجات )——|•༒ « «
+╭━━━ 🛍️ <b>متجر المنتجات</b> ━━━╮
 
 📌 <b>المتجر — الرجاء اختيار القسم المطلوب:</b>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `.trim(),
     tr: `
-» » ༒•|——( Ürünler Mağazası )——|•༒ « «
+╭━━━ 🛍️ <b>Ürünler Mağazası</b> ━━━╮
 
 📌 <b>Mağaza — Lütfen istediğiniz kategoriyi seçin:</b>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `.trim(),
     en: `
-» » ༒•|——( Products Store )——|•༒ « «
+╭━━━ 🛍️ <b>Products Store</b> ━━━╮
 
 📌 <b>Store — Please select a category:</b>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `.trim(),
     uz: `
-» » ༒•|——( Mahsulotlar Doʻkoni )——|•༒ « «
+╭━━━ 🛍️ <b>Mahsulotlar Doʻkoni</b> ━━━╮
 
 📌 <b>Doʻkon — Kerakli boʻlimni tanlang:</b>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `.trim(),
     ru: `
-» » ༒•|——( Каталог товаров )——|•༒ « «
+╭━━━ 🛍️ <b>Каталог товаров</b> ━━━╮
 
 📌 <b>Магазин — Выберите нужную категорию:</b>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
