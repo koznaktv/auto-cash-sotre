@@ -10,19 +10,19 @@ export interface AppVersionInfo {
 }
 
 export const APP_VERSION_CONFIG: AppVersionInfo = {
-  version: '1.4.0',
-  code: 8,
-  minRequiredVersion: '1.3.0',
+  version: '1.5.0',
+  code: 9,
+  minRequiredVersion: '1.4.0',
   forceUpdate: false,
-  releaseDate: '2026-10-22',
+  releaseDate: '2026-10-24',
   downloadUrl: '/download/autocash.apk',
   releaseNotes: {
-    ug: 'AUTO CASH v1.4.0: يېڭى يۇمىلاق ھەشەمەتلىك ماركا بەلگىسى (Full Circular 3D Gold Logo) تولۇق پۈتتى. ئەپ سىنبەلگىسى، ئېچىلىش ئېكرانى ۋە پۈتۈن كۆرۈنمە يۈز ئەڭ يۇقىرى ئېنىقلىقتا يېڭىلاندى.',
-    en: 'AUTO CASH v1.4.0: Full circular luxury 3D gold logo released. App launcher icon, native splash screen, and full UI upgraded to ultra HD circular assets.',
-    ar: 'AUTO CASH v1.4.0: إطلاق الشعار الدائري الفاخر الجديد ثلاثي الأبعاد وتحديث أيقونة التطبيق وشاشة البداية بدقة فائقة.',
-    tr: 'AUTO CASH v1.4.0: Yepyeni tam yuvarlak lüks 3D altın logo yayınlandı. Uygulama simgesi ve açılış ekranı ultra net yenilendi.',
-    uz: 'AUTO CASH v1.4.0: Yangi doiraviy hashamatli 3D oltin logo chiqarildi. Ilova belgisi va barcha ekranlar to‘liq yangilandi.',
-    ru: 'AUTO CASH v1.4.0: Выпущен новый полноформатный круглый 3D-логотип. Обновлены иконки приложения и нативный сплэш-скрин.',
+    ug: 'AUTO CASH v1.5.0: كىرىش ۋە تىزىملىتىش كۆرۈنمە يۈزى تۇلۇق يېڭىلىنىپ، ئەپتىكى قېتىۋېلىش ۋە يېزىش ئاستىلىقى تۈپتىن ئوڭشالدى. سىستېما تېزلىكى ۋە كۇنۇپكىلار راۋان ھالەتكە كەلتۈرۈلدى.',
+    en: 'AUTO CASH v1.5.0: The login and registration modal has been completely refactored. Keystroke latency, BiDi text freeze, and animation frame stutter resolved for maximum smoothness.',
+    ar: 'AUTO CASH v1.5.0: تم إعادة بناء واجهة تسجيل الدخول والاشتراك بالكامل لحل مشكلة التجمد والبطء أثناء الكتابة، مع أداء فائق وسرعة استجابة فورية.',
+    tr: 'AUTO CASH v1.5.0: Giriş ve kayıt ekranı optimize edildi, klavye donma ve kasma sorunları tamamen giderildi. Süper akıcı performans sağlandı.',
+    uz: 'AUTO CASH v1.5.0: Kirish va ro‘yxatdan o‘tish oynasi yangilandi, qotib qolish va sekinlik muammolari to‘liq bartaraf etildi.',
+    ru: 'AUTO CASH v1.5.0: Переработан экран авторизации и регистрации. Полностью устранены задержки ввода клавиатуры и зависания.',
   },
   forceUpdateMessages: {
     ug: {
