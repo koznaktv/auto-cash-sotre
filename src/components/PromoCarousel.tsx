@@ -96,35 +96,35 @@ export default function PromoCarousel({ onSelectCategory }: { onSelectCategory?:
 
   return (
     <div className="relative w-full rounded-3xl overflow-hidden border border-amber-500/35 bg-[#061424] shadow-2xl group select-none">
-      {/* Background Image Banner */}
-      <div className="relative h-48 sm:h-64 md:h-72 w-full overflow-hidden">
-        <img
-          src={slide.image}
-          alt={titleText}
-          className="w-full h-full object-cover transition-all duration-700 scale-105 group-hover:scale-100 filter brightness-90"
-          onError={(e) => {
-            (e.currentTarget as HTMLImageElement).src =
-              'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200';
-          }}
-        />
-        {/* Gradient Overlay */}
-        <div
-          className={`absolute inset-0 bg-gradient-to-${
-            isRTL ? 'r' : 'l'
-          } from-[#040d1a] via-[#040d1a]/85 to-transparent`}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#040d1a] via-transparent to-transparent" />
+      {/* Ambient Blurred Background from Slide Image */}
+      <img
+        src={slide.image}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full object-cover filter blur-3xl opacity-25 scale-125 transition-all duration-700"
+        onError={(e) => {
+          (e.currentTarget as HTMLImageElement).src =
+            'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200';
+        }}
+      />
 
-        {/* Content Box */}
-        <div
-          className={`absolute inset-0 p-5 sm:p-8 flex flex-col justify-between z-10 ${
-            isRTL ? 'text-right' : 'text-left'
-          }`}
-        >
+      {/* Atmospheric Dark Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#040d1a]/95 via-[#061424]/90 to-[#040d1a]/95" />
+      <div className="absolute -top-24 -left-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none" />
+
+      {/* Main Foreground Container: Image & Text visible together */}
+      <div
+        className={`relative z-10 flex items-center justify-between gap-3 sm:gap-6 md:gap-8 p-4 sm:p-7 md:p-8 min-h-[210px] sm:min-h-[250px] md:min-h-[280px] ${
+          isRTL ? 'flex-row text-right' : 'flex-row text-left'
+        }`}
+      >
+        {/* Text & Content Section */}
+        <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
           {/* Top Badges with Animated Moving Emojis */}
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
             {rawBadge && (
-              <span className="gold-badge text-[10px] sm:text-xs font-black px-3 py-1 rounded-full flex items-center gap-1.5 font-alkatip shadow-md">
+              <span className="gold-badge text-[9px] sm:text-xs font-black px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full flex items-center gap-1.5 font-alkatip shadow-md shrink-0">
                 <span className="animate-moving-icon inline-block text-xs sm:text-sm">
                   {badgeEmoji || <Sparkles className="w-3.5 h-3.5 text-yellow-300" />}
                 </span>
@@ -132,7 +132,7 @@ export default function PromoCarousel({ onSelectCategory }: { onSelectCategory?:
               </span>
             )}
             {rawTag && (
-              <span className="text-[10px] sm:text-xs text-amber-200 font-alkatip font-bold bg-slate-900/85 px-2.5 py-0.5 rounded-full border border-amber-500/30 flex items-center gap-1 shadow-sm">
+              <span className="text-[9px] sm:text-xs text-amber-200 font-alkatip font-bold bg-slate-900/85 px-2 sm:px-2.5 py-0.5 rounded-full border border-amber-500/30 flex items-center gap-1 shadow-sm shrink-0">
                 {tagEmoji && <span className="animate-moving-icon inline-block">{tagEmoji}</span>}
                 <span>{tagText || rawTag}</span>
               </span>
@@ -141,22 +141,49 @@ export default function PromoCarousel({ onSelectCategory }: { onSelectCategory?:
 
           {/* Title, Subtitle, and Call-to-Action Button */}
           <div className="max-w-xl">
-            <h3 className="font-ukij text-lg sm:text-2xl md:text-3xl font-extrabold text-white mb-2 leading-snug gold-text-glow line-clamp-2">
+            <h3 className="font-ukij text-sm sm:text-xl md:text-2xl lg:text-3xl font-extrabold text-white mb-1.5 sm:mb-2 leading-snug gold-text-glow line-clamp-2">
               {titleText}
             </h3>
             {subtitleText && (
-              <p className="font-alkatip text-xs sm:text-sm text-amber-100/85 mb-4 line-clamp-2 leading-relaxed">
+              <p className="font-alkatip text-[11px] sm:text-xs md:text-sm text-amber-100/80 mb-3 sm:mb-4 line-clamp-2 leading-relaxed">
                 {subtitleText}
               </p>
             )}
 
-            <button
-              onClick={handleActionClick}
-              className="gold-shimmer-btn px-5 py-2 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer font-alkatip inline-flex items-center gap-1.5 shadow-lg active:scale-95"
-            >
-              <span>{linkText}</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </button>
+            <div>
+              <button
+                onClick={handleActionClick}
+                className="gold-shimmer-btn px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-sm font-black transition-all cursor-pointer font-alkatip inline-flex items-center gap-1.5 shadow-lg active:scale-95"
+              >
+                <span>{linkText}</span>
+                <ExternalLink className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Dedicated Prominent Image Showcase Card (Always clearly visible together with text) */}
+        <div className="shrink-0 flex items-center justify-center">
+          <div
+            onClick={handleActionClick}
+            className="relative w-24 h-24 sm:w-44 sm:h-44 md:w-56 md:h-56 lg:w-60 lg:h-60 rounded-2xl overflow-hidden border-2 border-amber-400/40 shadow-2xl shadow-amber-500/20 group-hover:border-amber-400 transition-all duration-500 group-hover:scale-105 bg-[#08182b] cursor-pointer"
+          >
+            <img
+              src={slide.image}
+              alt={titleText}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter brightness-100"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src =
+                  'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200';
+              }}
+            />
+            {/* Subtle Gradient Rim for Contrast */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none" />
+
+            {/* Corner Tag */}
+            <div className="absolute bottom-1.5 sm:bottom-2 left-1.5 sm:left-2 bg-slate-950/80 backdrop-blur-md border border-amber-400/40 text-[8px] sm:text-[10px] text-amber-300 font-bold px-1.5 sm:px-2 py-0.5 rounded-full shadow-md font-alkatip">
+              ⚡ AUTO CASH
+            </div>
           </div>
         </div>
       </div>

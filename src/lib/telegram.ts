@@ -8,6 +8,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { getSupabase } from './supabase';
 import {
   getAllOrdersAsync,
   getAllDepositsAsync,
@@ -119,78 +120,164 @@ export function getDailySiteVisits(): number {
 }
 
 /**
- * Persistent helper for bot subscribers
+ * Persistent helper for bot subscribers (In-Memory + Local JSON + Supabase system_settings)
  */
 export interface SubscriberRecord {
   id: number;
   username?: string;
   firstName?: string;
-  date?: string;
+  lastName?: string;
+  language?: string;
+  date?: string;          // first seen
+  lastActive?: string;    // latest activity
+  interactionCount?: number;
 }
 
 const memorySubscriberDetails = new Map<number, SubscriberRecord>([
-  [7575664493, { id: 7575664493, username: 'nasrulla0996', firstName: 'Nasrulla', date: new Date().toISOString() }],
+  [7575664493, { id: 7575664493, username: 'nasrulla0996', firstName: 'Nasrulla', date: new Date().toISOString(), lastActive: new Date().toISOString(), interactionCount: 1 }],
 ]);
 
-function getSubscribersFilePath(): string {
-  return path.join(process.cwd(), 'data', 'telegram_subscribers.json');
+const IS_SERVERLESS = Boolean(
+  process.env.VERCEL ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  (typeof process.cwd === 'function' && process.cwd().startsWith('/var/task'))
+);
+const SUBSCRIBERS_DIR = IS_SERVERLESS ? '/tmp' : path.join(process.cwd(), 'data');
+const SUBSCRIBERS_FILE = path.join(SUBSCRIBERS_DIR, 'telegram_subscribers.json');
+const BUNDLED_SUBSCRIBERS_FILE = path.join(process.cwd(), 'data', 'telegram_subscribers.json');
+
+let supabaseSubscribersLoaded = false;
+
+export async function loadSubscribersFromSupabaseAsync(): Promise<SubscriberRecord[]> {
+  try {
+    const sb = getSupabase();
+    if (sb) {
+      const { data, error } = await sb
+        .from('system_settings')
+        .select('site_name')
+        .eq('id', 'telegram_bot_subscribers')
+        .maybeSingle();
+
+      if (!error && data?.site_name) {
+        try {
+          const parsed = JSON.parse(data.site_name);
+          if (Array.isArray(parsed)) {
+            for (const s of parsed) {
+              if (s && s.id) {
+                const numId = Number(s.id);
+                memorySubscribers.add(numId);
+                const existing = memorySubscriberDetails.get(numId);
+                if (!existing) {
+                  memorySubscriberDetails.set(numId, s);
+                } else {
+                  memorySubscriberDetails.set(numId, {
+                    ...s,
+                    ...existing,
+                    interactionCount: Math.max(Number(s.interactionCount || 1), Number(existing.interactionCount || 1)),
+                  });
+                }
+              }
+            }
+            supabaseSubscribersLoaded = true;
+          }
+        } catch {}
+      }
+    }
+  } catch (err) {
+    console.warn('[Telegram] Could not load subscribers from Supabase:', err);
+  }
+  return getAllSubscribersDetails();
 }
 
-export function recordSubscriber(from: { id: number; first_name?: string; username?: string }): void {
+async function saveSubscribersToSupabaseAsync(subscribers: SubscriberRecord[]): Promise<void> {
+  try {
+    const sb = getSupabase();
+    if (!sb) return;
+    await sb.from('system_settings').upsert({
+      id: 'telegram_bot_subscribers',
+      site_name: JSON.stringify(subscribers),
+      admin_pin: 'SUBSCRIBERS_BACKUP',
+      shamcash_address: 'META',
+      whatsapp_number: 'META',
+      telegram_username: 'META',
+    });
+  } catch (err) {
+    console.warn('[Telegram] Failed to save subscribers to Supabase:', err);
+  }
+}
+
+export function recordSubscriber(from: {
+  id: number;
+  first_name?: string;
+  last_name?: string;
+  username?: string;
+  language_code?: string;
+}): void {
   if (!from || !from.id) return;
-  memorySubscribers.add(from.id);
+  const numId = Number(from.id);
+  memorySubscribers.add(numId);
+
+  const nowIso = new Date().toISOString();
+  const existing = memorySubscriberDetails.get(numId);
 
   const info: SubscriberRecord = {
-    id: from.id,
-    username: from.username,
-    firstName: from.first_name,
-    date: new Date().toISOString(),
+    id: numId,
+    username: from.username || existing?.username,
+    firstName: from.first_name || existing?.firstName,
+    lastName: from.last_name || existing?.lastName,
+    language: from.language_code || existing?.language,
+    date: existing?.date || nowIso,
+    lastActive: nowIso,
+    interactionCount: (existing?.interactionCount || 0) + 1,
   };
-  memorySubscriberDetails.set(from.id, info);
+  memorySubscriberDetails.set(numId, info);
 
+  // Local file sync
   try {
-    const filePath = getSubscribersFilePath();
-    const dir = path.dirname(filePath);
-    if (!fs.existsSync(dir)) {
+    if (!fs.existsSync(SUBSCRIBERS_DIR)) {
       try {
-        fs.mkdirSync(dir, { recursive: true });
+        fs.mkdirSync(SUBSCRIBERS_DIR, { recursive: true });
       } catch {}
     }
-    let subscribers: SubscriberRecord[] = [];
-    if (fs.existsSync(filePath)) {
-      try {
-        subscribers = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-      } catch {}
-    }
-    const existingIndex = subscribers.findIndex((s) => s.id === from.id);
-    if (existingIndex >= 0) {
-      subscribers[existingIndex] = info;
-    } else {
-      subscribers.push(info);
-    }
-    fs.writeFileSync(filePath, JSON.stringify(subscribers, null, 2), 'utf8');
-  } catch (e) {
-    // Non-fatal on serverless
-  }
+    const list = Array.from(memorySubscriberDetails.values());
+    fs.writeFileSync(SUBSCRIBERS_FILE, JSON.stringify(list, null, 2), 'utf8');
+  } catch {}
+
+  // Asynchronous Supabase backup
+  Promise.resolve().then(() => {
+    saveSubscribersToSupabaseAsync(Array.from(memorySubscriberDetails.values())).catch(() => {});
+  });
 }
 
 export function getAllSubscribersDetails(): SubscriberRecord[] {
   try {
-    const filePath = getSubscribersFilePath();
-    if (fs.existsSync(filePath)) {
-      const subscribers = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    const fileToRead = fs.existsSync(SUBSCRIBERS_FILE)
+      ? SUBSCRIBERS_FILE
+      : fs.existsSync(BUNDLED_SUBSCRIBERS_FILE)
+      ? BUNDLED_SUBSCRIBERS_FILE
+      : null;
+
+    if (fileToRead) {
+      const content = fs.readFileSync(fileToRead, 'utf8');
+      const subscribers = JSON.parse(content);
       if (Array.isArray(subscribers)) {
         subscribers.forEach((s) => {
-          if (s.id) {
-            memorySubscribers.add(Number(s.id));
-            if (!memorySubscriberDetails.has(Number(s.id))) {
-              memorySubscriberDetails.set(Number(s.id), s);
+          if (s && s.id) {
+            const numId = Number(s.id);
+            memorySubscribers.add(numId);
+            if (!memorySubscriberDetails.has(numId)) {
+              memorySubscriberDetails.set(numId, s);
             }
           }
         });
       }
     }
   } catch {}
+
+  if (!supabaseSubscribersLoaded) {
+    loadSubscribersFromSupabaseAsync().catch(() => {});
+  }
+
   return Array.from(memorySubscriberDetails.values());
 }
 
@@ -216,18 +303,90 @@ export function resolveSubscriberTarget(target: string | number): SubscriberReco
 }
 
 export function getAllSubscribers(): number[] {
-  try {
-    const filePath = getSubscribersFilePath();
-    if (fs.existsSync(filePath)) {
-      const subscribers = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-      if (Array.isArray(subscribers)) {
-        subscribers.forEach((s) => {
-          if (s.id) memorySubscribers.add(Number(s.id));
-        });
-      }
-    }
-  } catch {}
+  getAllSubscribersDetails();
   return Array.from(memorySubscribers);
+}
+
+/**
+ * Generate a comprehensive report of Bot Users / Subscribers for the Platform Admin
+ */
+export async function getBotUsersReportMessage(): Promise<{ text: string; keyboard: any }> {
+  await loadSubscribersFromSupabaseAsync().catch(() => {});
+  const subscribers = getAllSubscribersDetails();
+
+  const total = subscribers.length;
+  const todayPrefix = new Date().toISOString().slice(0, 10);
+  const activeToday = subscribers.filter((s) => (s.lastActive || s.date || '').startsWith(todayPrefix)).length;
+
+  const nowMs = Date.now();
+  const active7Days = subscribers.filter((s) => {
+    const t = new Date(s.lastActive || s.date || '').getTime();
+    return !isNaN(t) && nowMs - t < 7 * 24 * 60 * 60 * 1000;
+  }).length;
+
+  const withUsername = subscribers.filter((s) => Boolean(s.username)).length;
+
+  // Sort by latest activity descending
+  const sorted = [...subscribers].sort((a, b) => {
+    const tA = new Date(a.lastActive || a.date || 0).getTime();
+    const tB = new Date(b.lastActive || b.date || 0).getTime();
+    return tB - tA;
+  });
+
+  const topRecent = sorted.slice(0, 20);
+
+  let recentListText = '';
+  if (topRecent.length === 0) {
+    recentListText = '<i>ھازىرچە ئابۇنىت ئۇچۇرى يوق</i>';
+  } else {
+    recentListText = topRecent
+      .map((s, idx) => {
+        const name = [s.firstName, s.lastName].filter(Boolean).join(' ') || 'خېرىدار';
+        const userTag = s.username ? ('@' + s.username) : 'نامسىز';
+        const dateStr = (s.lastActive || s.date || '').slice(0, 16).replace('T', ' ');
+        const count = s.interactionCount || 1;
+        return `${idx + 1}. 👤 <b>${name}</b> (${userTag})\n   🆔 <code>${s.id}</code> • 🕒 <i>${dateStr}</i> • 🔄 <b>${count}</b> قېتىم`;
+      })
+      .join('\n\n');
+  }
+
+  const messageText = `
+╭━━━ 👥 <b>AUTO CASH بوتنى ئىشلەتكۈچىلەر تىزىملىكى</b> ━━━╮
+      📊 <i>ئومۇمىي ئابۇنىتلار سانى ۋە پائاللىق دوكلاتى</i> 📊
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+👥 <b>جەمئىي بوتنى ئىشلەتكەنلەر:</b> <b>${total} نەپەر</b>
+🟢 <b>بۈگۈن پائال بولغانلار:</b> <b>${activeToday} كىشى</b>
+🗓 <b>بۇ ھەپتە پائال بولغانلار:</b> <b>${active7Days} كىشى</b>
+📱 <b>تېلېگرام نامى بارلار:</b> <b>${withUsername} نەپەر</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 <b>ئەڭ يېڭى ئىشلەتكەن خېرىدارلار (يېقىنقى 20 كىشى):</b>
+
+${recentListText}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 <b>خېرىدارغا خەت يېزىش بۇيرۇقى:</b>
+<code>/sendto <ID نومۇرى> سىزنىڭ ئۇچۇرىڭىز</code>
+<i>مەسىلەن: <code>/sendto ${topRecent[0]?.id || '7575664493'} ئەسسالامۇ ئەلەيكۇم!</code></i>
+`.trim();
+
+  const keyboard = {
+    inline_keyboard: [
+      [
+        { text: '🔄 تىزىملىكنى قايتا يېڭىلاش 📊', callback_data: 'admin_users_list' },
+        { text: '📢 ھەممىگە تارقىتىش (/sendall) ⚡️', callback_data: 'admin_help_sendall' },
+      ],
+      [
+        { text: '👤 يەككە خېرىدارغا يېزىش (/sendto) 💌', callback_data: 'admin_help_sendto' },
+        { text: '📊 كۈنلۈك دوكلات (/stats) 📈', callback_data: 'refresh_stats' },
+      ],
+      [
+        { text: '🔙🏠 باشقۇرۇش باش بېتىگە قايتىش ↩️', callback_data: 'back_to_main' },
+      ],
+    ],
+  };
+
+  return { text: messageText, keyboard };
 }
 
 /**
@@ -769,6 +928,7 @@ export async function getDailyFinancialStats(): Promise<string> {
   • ❌ ئەمەلدىن قالغان / رەت قىلىنغان: <b>${failedOrders.length} تال</b>
 
 👥 <b>بۈگۈنكى يېڭى ئەزالار:</b> <b>${todayUsers.length} كىشى</b> (ئومۇمىي: ${users.length} ئەزا)
+🤖 <b>بوتنى ئىشلەتكەن ئابۇنىتلار:</b> <b>${getAllSubscribersDetails().length} نەپەر</b> (بۈگۈن پائال: <b>${getAllSubscribersDetails().filter((s) => (s.lastActive || s.date || '').startsWith(todayDate)).length}</b> كىشى)
 🌐 <b>بۈگۈنكى توربەت زىيارەت سانى:</b> <b>${visits} قېتىم</b>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👑 <i>AUTO CASH يۇقىرى سۈرئەتلىك رەقەملىك دۇكان مەركىزى</i>
@@ -1536,8 +1696,19 @@ function getAdminWelcomeMessage(adminName?: string): string {
 }
 
 function getAdminInlineKeyboard() {
+  const subCount = getAllSubscribersDetails().length;
   return {
     inline_keyboard: [
+      [
+        {
+          text: `👥 بوت ئىشلەتكۈچىلەر (${subCount} كىشى) 📋`,
+          callback_data: 'admin_users_list',
+        },
+        {
+          text: '📊 كۈنلۈك سودا دوكلاتى (/stats) 📈',
+          callback_data: 'refresh_stats',
+        },
+      ],
       [
         {
           text: '💬 قانالغا ئايرىم خەت يوللاش (/chan) ✍️',
@@ -1678,6 +1849,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     // Security check: register admin chat ID if from an authorized admin account
     registerAdminChatId(fromId, fromUser);
     const isAdmin = isTelegramAdmin(fromId, fromUser);
+    if (cq.from) recordSubscriber(cq.from);
 
     // Language Selection Callbacks (Accessible to all users anytime)
     if (data === 'bot_lang_menu') {
@@ -2297,6 +2469,18 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       return;
     }
 
+    // 7.9 View Bot Users List (Admin)
+    if (data === 'admin_users_list') {
+      if (!isAdmin) {
+        await answerCallbackQuery(cqId, 'رۇخسەت يوق', true);
+        return;
+      }
+      await answerCallbackQuery(cqId, 'ئابۇنىتلار تىزىملىكى يېڭىلاندى!');
+      const report = await getBotUsersReportMessage();
+      await showOrEditMessage(chatId, messageId, report.text, report.keyboard);
+      return;
+    }
+
     // 8. Refresh Stats (Admin)
     if (data === 'refresh_stats') {
       if (!isAdmin) {
@@ -2542,8 +2726,29 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     return;
   }
 
-  // 2.2 Admin Command: /sendall or /users (Broadcast to Bot Customers ONLY)
-  if (text.startsWith('/sendall') || text.startsWith('/users') || text.startsWith('/xaridar')) {
+  // 2.1.9 Admin Command: /users or /subscribers (View Bot Customers Count & List)
+  if (
+    text === '/users' ||
+    text === '/subscribers' ||
+    text === '/members' ||
+    text === '/botusers' ||
+    text === '/xaridar' ||
+    text === '/abunitle'
+  ) {
+    if (!isAdmin) {
+      await sendTelegramMessage(chatId, '⚠️ كەچۈرۈڭ، پەقەت دۇكان باشقۇرغۇچىسىلا ئابۇنىتلار تىزىملىكىنى كۆرەلەيدۇ.');
+      return;
+    }
+    const report = await getBotUsersReportMessage();
+    await sendTelegramMessage(chatId, report.text, {
+      parse_mode: 'HTML',
+      reply_markup: report.keyboard,
+    });
+    return;
+  }
+
+  // 2.2 Admin Command: /sendall (Broadcast to Bot Customers ONLY)
+  if (text.startsWith('/sendall') || text.startsWith('/broadcast')) {
     if (!isAdmin) {
       await sendTelegramMessage(chatId, '⚠️ كەچۈرۈڭ، پەقەت دۇكان باشقۇرغۇچىسىلا بارلىق خېرىدارلارغا ئومۇمىي ئۇچۇر تارقىتالايدۇ.');
       return;

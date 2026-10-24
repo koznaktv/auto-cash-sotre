@@ -16,7 +16,7 @@ export const DEFAULT_PROMO_SLIDES: PromoSlideData[] = [
   {
     id: 'slide-1',
     category: 'games',
-    image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/services/pubg_uc_robot.webp',
     title: {
       ug: 'PUBG Mobile UC ۋە Royale Pass تولۇقلاش',
       en: 'PUBG Mobile UC & Royale Pass Instant Top-up',
@@ -63,7 +63,7 @@ export const DEFAULT_PROMO_SLIDES: PromoSlideData[] = [
   {
     id: 'slide-2',
     category: 'ai',
-    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/services/chatgpt.webp',
     title: {
       ug: 'ChatGPT Plus & Claude Pro ئايلىق / يىللىق',
       en: 'ChatGPT Plus & Claude Pro Subscriptions',
@@ -110,7 +110,7 @@ export const DEFAULT_PROMO_SLIDES: PromoSlideData[] = [
   {
     id: 'slide-3',
     category: 'numbers',
-    image: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/services/telegram.webp',
     title: {
       ug: 'مەۋھۇم نومۇر (SMS) — Telegram, WhatsApp, TikTok',
       en: 'Virtual Numbers (SMS) for Telegram & WhatsApp',
@@ -157,7 +157,7 @@ export const DEFAULT_PROMO_SLIDES: PromoSlideData[] = [
   {
     id: 'slide-4',
     category: 'cards',
-    image: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/services/visa_card.webp',
     title: {
       ug: 'خەلقئارالىق مەۋھۇم ۋىزا كارتىلار (VCC) & Steam, Apple',
       en: 'Virtual Visa Cards (VCC) & Steam, Apple Cards',
