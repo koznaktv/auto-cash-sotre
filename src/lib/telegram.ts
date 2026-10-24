@@ -439,7 +439,7 @@ export async function notifyNewOrder(order: {
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 📦 <b>زاكاز نومۇرى:</b> <code>${order.id}</code>
-🎮 <b>مەھسۇلات:</b> <b>${order.serviceName || 'مەھسۇلات'}</b> - ${order.packageTitle || ''}
+🎮 <b>مەھسۇلات:</b> <b>${(order.serviceName || 'مەھسۇلات').replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')}</b> - ${(order.packageTitle || '').replace(/\(شەن\)/g, '').replace(/\(شەدەن\)/g, '').trim()}
 💰 <b>سوممىسى:</b> <b>$${Number(order.amount || 0).toFixed(2)} USD</b>
 🎯 <b>قاچىلاش ھېساباتى / ID:</b> <code>${order.targetAccount || '—'}</code>
 ${fieldsText ? `📝 <b>قوشۇمچە ئۇچۇرلار:</b>\n${fieldsText}\n` : ''}👤 <b>خېرىدار:</b> ${order.userName || 'ئەزا'} (<code>${order.userEmail || '—'}</code>)
@@ -496,7 +496,7 @@ export async function postOrderCompletedToChannel(order: {
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 📦 <b>زاكاز نومۇرى:</b> <code>#${cleanId}</code>
-🎮 <b>مەھسۇلات:</b> <b>${order.serviceName || 'رەقەملىك مەھسۇلات'}</b> - ${order.packageTitle || ''}
+🎮 <b>مەھسۇلات:</b> <b>${(order.serviceName || 'رەقەملىك مەھسۇلات').replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')}</b> - ${(order.packageTitle || '').replace(/\(شەن\)/g, '').replace(/\(شەدەن\)/g, '').trim()}
 💎 <b>سوممىسى:</b> <b>$${cleanAmount} USD</b>
 🎯 <b>قاچىلانغان ID:</b> <code>${maskedTarget}</code>
 ⚡️ <b>سۈرئىتى:</b> سېكۇنتتا ئاپتوماتىك كىردى 🚀
@@ -679,7 +679,7 @@ export async function notifyInvalidAccountId(data: {
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 📦 <b>زاكاز نومۇرى:</b> <code>${data.orderId}</code>
-🎮 <b>مەھسۇلات:</b> <b>${data.serviceName || 'ئويۇن مەھسۇلاتى'}</b> - ${data.packageTitle || ''}
+🎮 <b>مەھسۇلات:</b> <b>${(data.serviceName || 'ئويۇن مەھسۇلاتى').replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')}</b> - ${(data.packageTitle || '').replace(/\(شەن\)/g, '').replace(/\(شەدەن\)/g, '').trim()}
 🎯 <b>كىرگۈزگەن خاتا ID:</b> <code>${data.targetAccount || 'نامەلۇم'}</code>
 💰 <b>سوممىسى:</b> $${Number(data.amount || 0).toFixed(2)} USD
 👤 <b>خېرىدار:</b> ${data.userName || 'ئەزا'} (<code>${data.userEmail || '—'}</code>)
@@ -1077,7 +1077,7 @@ function formatOrderTrackingCard(order: OrderRecord) {
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 🆔 <b>زاكاز نومۇرى:</b> <code>#${cleanId}</code>
-🎮 <b>مەھسۇلات:</b> <b>${order.serviceName || 'رەقەملىك مەھسۇلات'}</b> - ${order.packageTitle || ''}
+🎮 <b>مەھسۇلات:</b> <b>${(order.serviceName || 'رەقەملىك مەھسۇلات').replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')}</b> - ${(order.packageTitle || '').replace(/\(شەن\)/g, '').replace(/\(شەدەن\)/g, '').trim()}
 💎 <b>سوممىسى:</b> <b>$${amountStr} USD</b>
 🎯 <b>قاچىلانغان ID:</b> <code>${target}</code>
 ⏰ <b>زاكاز ۋاقتى:</b> ${timeStr}

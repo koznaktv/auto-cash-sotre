@@ -281,7 +281,7 @@ export function getServicePackagesKeyboard(
   const slice = packages.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
 
   for (const pkg of slice) {
-    const rawTitle = pkg.title;
+    const rawTitle = (pkg.title || '').replace(/\(شەن\)/g, '').replace(/\(شەدەن\)/g, '').replace(/\s{2,}/g, ' ').trim();
     const translatedTitle = lang === 'ug' ? rawTitle : smartTranslateTitle(rawTitle, lang as any);
     inline_keyboard.push([
       {
@@ -455,7 +455,7 @@ ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━�
       serviceId: service.id,
       serviceName: service.name,
       pkgId: pkg.id,
-      pkgTitle: pkg.title,
+      pkgTitle: (pkg.title || '').replace(/\(شەن\)/g, '').replace(/\(شەدەن\)/g, '').replace(/\s{2,}/g, ' ').trim(),
       price: Number(pkg.price),
       providerProductId: pkg.providerProductId,
       providerQty: (pkg as any).providerQty,
@@ -464,8 +464,14 @@ ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━�
     });
     if (chatId) botOrderSessions.set(chatId, botOrderSessions.get(fromId)!);
 
-    const sName = lang === 'ug' ? service.name : smartTranslateTitle(service.name, lang as any);
-    const pTitle = lang === 'ug' ? pkg.title : smartTranslateTitle(pkg.title, lang as any);
+    const sName = (lang === 'ug' ? service.name : smartTranslateTitle(service.name, lang as any))
+      .replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')
+      .replace(/⚡ نەق شەن & ئەزالىق/g, '⚡ تېز قاچىلاش & ئەزالىق');
+    const pTitle = (lang === 'ug' ? pkg.title : smartTranslateTitle(pkg.title, lang as any))
+      .replace(/\(شەن\)/g, '')
+      .replace(/\(شەدەن\)/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
 
     const header = lang === 'ar' ? 'إدخال بيانات الطلب' :
                    lang === 'tr' ? 'Sipariş Bilgilerini Girin' :
@@ -644,8 +650,14 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
     const statusTxt = BOT_I18N.order.orderStatusLabel[lang];
     const tipTxt = BOT_I18N.order.orderSuccessTip[lang];
 
-    const sName = lang === 'ug' ? session.serviceName : smartTranslateTitle(session.serviceName, lang as any);
-    const pTitle = lang === 'ug' ? session.pkgTitle : smartTranslateTitle(session.pkgTitle, lang as any);
+    const sName = (lang === 'ug' ? session.serviceName : smartTranslateTitle(session.serviceName, lang as any))
+      .replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')
+      .replace(/⚡ نەق شەن & ئەزالىق/g, '⚡ تېز قاچىلاش & ئەزالىق');
+    const pTitle = (lang === 'ug' ? session.pkgTitle : smartTranslateTitle(session.pkgTitle, lang as any))
+      .replace(/\(شەن\)/g, '')
+      .replace(/\(شەدەن\)/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
 
     const successReceipt = `
 ${succTitle}
@@ -754,8 +766,14 @@ export async function handleShopTextMessage(
     const remaining = balance - activeSession.price;
     const isEnough = balance >= activeSession.price;
 
-    const sName = lang === 'ug' ? activeSession.serviceName : smartTranslateTitle(activeSession.serviceName, lang as any);
-    const pTitle = lang === 'ug' ? activeSession.pkgTitle : smartTranslateTitle(activeSession.pkgTitle, lang as any);
+    const sName = (lang === 'ug' ? activeSession.serviceName : smartTranslateTitle(activeSession.serviceName, lang as any))
+      .replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')
+      .replace(/⚡ نەق شەن & ئەزالىق/g, '⚡ تېز قاچىلاش & ئەزالىق');
+    const pTitle = (lang === 'ug' ? activeSession.pkgTitle : smartTranslateTitle(activeSession.pkgTitle, lang as any))
+      .replace(/\(شەن\)/g, '')
+      .replace(/\(شەدەن\)/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
 
     const titleCard = BOT_I18N.order.confirmOrderTitle[lang] || '⚡️ زاكازنى جەزملەشتۈرۈش';
     const targetFull = `${activeSession.targetAccount}${activeSession.zoneId ? ` (${activeSession.zoneId})` : ''}`;

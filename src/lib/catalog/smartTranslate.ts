@@ -20,7 +20,7 @@ const RULES: TranslationRule[] = [
   // 0. Arabic Game & Subscriptions Terms
   {
     regex: /(\d+)\s*(?:شدة|شدات)/gi,
-    ug: (_m, d) => `${d} UC (شەدەن)`,
+    ug: (_m, d) => `${d} UC`,
     en: (_m, d) => `${d} UC`,
     ar: (_m, d) => `${d} شدة`,
     tr: (_m, d) => `${d} UC`,
@@ -784,9 +784,9 @@ export function smartTranslateTitle(title: string | null | undefined, lang: Supp
       const rep = lang === 'ar' ? 'جوهرة' : lang === 'tr' ? 'Elmas' : lang === 'uz' ? 'Olmos' : lang === 'ru' ? 'Алмазов' : 'Diamonds';
       text = text.replace(/ئالماس/g, rep);
     }
-    if (text.includes('شەدەن')) {
+    if (text.includes('شەدەن') || text.includes('(شەن)') || text.includes('شەن')) {
       const rep = lang === 'ar' ? 'شدة' : 'UC';
-      text = text.replace(/شەدەن/g, rep);
+      text = text.replace(/\(شەدەن\)/g, '').replace(/\(شەن\)/g, '').replace(/شەدەن/g, rep);
     }
     if (text.includes('بىرلىك')) {
       const rep = lang === 'ar' ? 'وحدة' : lang === 'tr' ? 'Birim' : lang === 'uz' ? 'Birlik' : lang === 'ru' ? 'Единиц' : 'Units';
