@@ -1,12 +1,12 @@
 [
   {
     "id": "othman_pubg",
-    "name": "PUBG Mobile (پابجى شەن ۋە ئەزالىق)",
+    "name": "PUBG Mobile (پابجى قاچىلاش ۋە ئەزالىق)",
     "category": "games",
     "icon": "Gamepad2",
     "image": "/images/services/pubg_mobile.jpg",
-    "description": "پابجى خەلقئارا سېرۋېر نەق مەيدان UC شەن تولۇقلاش، Prime، Prime Plus ۋە ئېلىت كارتىلىرى.",
-    "badge": "⚡ نەق شەن & ئەزالىق",
+    "description": "پابجى خەلقئارا سېرۋېر نەق مەيدان UC تولۇقلاش، Prime، Prime Plus ۋە ئېلىت كارتىلىرى.",
+    "badge": "⚡ تېز قاچىلاش & ئەزالىق",
     "inputLabel": "ئوينىغۇچى ID نومۇرى (Player ID)",
     "inputPlaceholder": "مەسىلەن: 5123456789",
     "requiresZoneId": false,
@@ -26,7 +26,7 @@
       {
         "id": "pkg_pubg_uc_346",
         "subCategoryId": "pubg_uc",
-        "title": "60 UC (شەن) - تېز قاچىلاش",
+        "title": "60 UC - تېز قاچىلاش",
         "price": 0.95,
         "originalPrice": 1.09,
         "providerProductId": 346,
@@ -36,7 +36,7 @@
       {
         "id": "pkg_pubg_uc_350",
         "subCategoryId": "pubg_uc",
-        "title": "325 UC (شەن) - تېز قاچىلاش",
+        "title": "325 UC - تېز قاچىلاش",
         "price": 4.75,
         "originalPrice": 5.46,
         "providerProductId": 350,
@@ -46,7 +46,7 @@
       {
         "id": "pkg_pubg_uc_347",
         "subCategoryId": "pubg_uc",
-        "title": "660 UC (شەن) - تېز قاچىلاش",
+        "title": "660 UC - تېز قاچىلاش",
         "price": 9.5,
         "originalPrice": 10.93,
         "providerProductId": 347,
@@ -56,7 +56,7 @@
       {
         "id": "pkg_pubg_uc_348",
         "subCategoryId": "pubg_uc",
-        "title": "1800 UC (شەن) - تېز قاچىلاش",
+        "title": "1800 UC - تېز قاچىلاش",
         "price": 24.11,
         "originalPrice": 27.73,
         "providerProductId": 348,
@@ -66,7 +66,7 @@
       {
         "id": "pkg_pubg_uc_349",
         "subCategoryId": "pubg_uc",
-        "title": "3850 UC (شەن) - تېز قاچىلاش",
+        "title": "3850 UC - تېز قاچىلاش",
         "price": 47.93,
         "originalPrice": 55.12,
         "providerProductId": 349,
@@ -76,7 +76,7 @@
       {
         "id": "pkg_pubg_uc_351",
         "subCategoryId": "pubg_uc",
-        "title": "8100 UC (شەن) - تېز قاچىلاش",
+        "title": "8100 UC - تېز قاچىلاش",
         "price": 95.23,
         "originalPrice": 109.51,
         "providerProductId": 351,
