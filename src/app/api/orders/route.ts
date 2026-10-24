@@ -38,7 +38,7 @@ export async function GET(req: Request) {
 
     // Opportunistic status refresh for this buyer's in-flight provider orders (cron may be infrequent)
     if (orders.some((o) => isOrderInProgress(o.status) && o.details?.providerProductId)) {
-      const summary = await pollProviderOrders({ deadlineMs: Date.now() + 4000, limit: 5, onlyUserId: user.id }).catch(() => null);
+      const summary = await pollProviderOrders({ deadlineMs: Date.now() + 4500, limit: 10, onlyUserId: user.id, force: true }).catch(() => null);
       if (summary && summary.checked > 0) orders = await getOrdersByUserIdAsync(user.id, user.email);
     }
 

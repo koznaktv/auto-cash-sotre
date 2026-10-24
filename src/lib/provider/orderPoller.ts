@@ -1,7 +1,6 @@
 /**
- * Follows up provider orders that weren't final when placed (syria4game has no webhooks).
- * Refunds go through refund_order_balance, which refuses completed / already-refunded orders,
- * so two concurrent pollers (or a poller and an admin) can't refund twice.
+ * Follows up provider orders that weren't final when placed.
+ * Supports both Othman Store and Sahl Cash / Syria4game with lightning-fast progressive polling.
  */
 import crypto from 'crypto';
 import {
@@ -11,16 +10,23 @@ import {
   transitionOrderAsync,
   OrderRecord,
 } from '../db';
-import { syria4GameProvider } from '../providers/syria4game';
+import {
+  syria4GameProvider,
+  othmanStoreProvider,
+  sahlCashProvider,
+  Syria4GameProvider,
+} from '../providers/syria4game';
 import { acquireLock, getProviderSettings, releaseLock, updateProviderSettings } from '../catalog/store';
 import { pruneProviderCalls } from './callLog';
 import { postOrderCompletedToChannel } from '../telegram';
 
-const BACKOFF_MINUTES = [1, 2, 5, 10, 30, 60];
-const MAX_UNKNOWN_CHECKS = 5;
+// Ultra-fast progressive polling intervals for instant delivery verification:
+// Attempts 0: 5s, 1: 10s, 2: 20s, 3: 40s, 4: 1m, 5: 2m, 6: 5m, 7: 15m
+const BACKOFF_MINUTES = [0.08, 0.16, 0.33, 0.66, 1, 2, 5, 15];
+const MAX_UNKNOWN_CHECKS = 8;
 const NO_ID_REVIEW_AFTER_MS = 10 * 60 * 1000;
-// An order still 'processing' this long after creation lost its provider call (e.g. function timeout)
-const STALE_PROCESSING_MS = 3 * 60 * 1000;
+// An order still 'processing' this long after creation lost its provider call
+const STALE_PROCESSING_MS = 15 * 1000;
 const IN_FLIGHT: OrderRecord['status'][] = ['pending_provider', 'processing'];
 
 export interface PollSummary {
@@ -37,9 +43,21 @@ function nextCheckAt(attempts: number): string {
   return new Date(Date.now() + minutes * 60_000).toISOString();
 }
 
+function getProviderForOrder(order: OrderRecord): Syria4GameProvider {
+  const isOthman =
+    order.serviceId?.includes('othman_') ||
+    order.serviceId === 'othman_visa_cards' ||
+    order.serviceId === 'othman_chat_apps' ||
+    order.details?.providerKey === 'othman' ||
+    (order.details?.providerProductId && String(order.details.providerProductId).length < 6);
+  return isOthman ? othmanStoreProvider : syria4GameProvider;
+}
+
 function isDue(order: OrderRecord, force: boolean): boolean {
   if (force) return true;
   const age = Date.now() - new Date(order.createdAt).getTime();
+  // Fresh orders under 3 minutes are ALWAYS due for lightning checking!
+  if (age < 3 * 60 * 1000) return true;
   if (order.status === 'processing' && age < STALE_PROCESSING_MS) return false;
   const next = order.details?.providerNextCheckAt;
   return !next || new Date(next).getTime() <= Date.now();
@@ -75,24 +93,24 @@ export async function pollProviderOrders(options: {
     const withProviderId = orders.filter((o) => o.details?.providerOrderId);
     const withoutProviderId = orders.filter((o) => !o.details?.providerOrderId);
 
-    // Orders the provider never confirmed (ambiguous outcome / interrupted call): look them up by uuid
+    // 1. Orders without provider ID: check by uuid using the correct provider
     for (const order of withoutProviderId) {
       if (Date.now() > options.deadlineMs) break;
       summary.checked++;
       const age = Date.now() - new Date(order.createdAt).getTime();
       const uuid = order.details?.providerOrderUuid;
       if (uuid) {
-        const lookup = await syria4GameProvider.checkOrderByUuid(String(uuid));
-        if (lookup.found && lookup.providerOrderId) {
-          // The provider has it: record its id; the regular check below settles it from now on
-          const status = lookup.entry?.status;
+        const activeProv = getProviderForOrder(order);
+        const lookup: any = await activeProv.checkOrderByUuid(String(uuid)).catch(() => ({ found: false, success: false }));
+        if (lookup && lookup.found && lookup.providerOrderId) {
+          const status = (lookup as any).entry?.status;
           if (status === 'COMPLETED') {
             await transitionOrderAsync(order.id, IN_FLIGHT, 'completed', {
               providerOrderId: lookup.providerOrderId,
               providerStatus: 'COMPLETED',
               providerCheckedAt: new Date().toISOString(),
               needsReview: false,
-              ...(lookup.entry?.delivery ? { delivery: lookup.entry.delivery } : {}),
+              ...((lookup as any).entry?.delivery ? { delivery: (lookup as any).entry.delivery } : {}),
             });
             summary.completed++;
             postOrderCompletedToChannel({
@@ -107,7 +125,10 @@ export async function pollProviderOrders(options: {
             continue;
           }
           if (status === 'FAILED') {
-            const refund = await refundOrderBalanceAtomicAsync(order.id, `تەمىنلىگۈچى رەت قىلدى: ${lookup.entry?.message || 'rejected'}`);
+            const refund = await refundOrderBalanceAtomicAsync(
+              order.id,
+              `تەمىنلىگۈچى رەت قىلدى: ${(lookup as any).entry?.message || 'rejected'}`
+            );
             if (refund.success) summary.refunded++;
             else {
               await transitionOrderAsync(order.id, IN_FLIGHT, null, {
@@ -127,8 +148,7 @@ export async function pollProviderOrders(options: {
           summary.pending++;
           continue;
         }
-        if (lookup.success && lookup.absent && age > NO_ID_REVIEW_AFTER_MS) {
-          // Confirmed absent at the provider well after the attempt: nothing was bought, refund
+        if (lookup && lookup.success && (lookup as any).absent && age > NO_ID_REVIEW_AFTER_MS) {
           const refund = await refundOrderBalanceAtomicAsync(order.id, 'تەمىنلىگۈچىدە زاكاز قۇرۇلمىغان');
           if (refund.success) {
             summary.refunded++;
@@ -139,7 +159,7 @@ export async function pollProviderOrders(options: {
       if (age > NO_ID_REVIEW_AFTER_MS) {
         await transitionOrderAsync(order.id, IN_FLIGHT, 'pending_provider', {
           needsReview: true,
-          reviewReason: 'تەمىنلىگۈچى زاكاز نومۇرى قايتۇرمىدى — syria4game دا قولدا تەكشۈرۈڭ',
+          reviewReason: 'تەمىنلىگۈچى زاكاز نومۇرى قايتۇرمىدى — قولدا تەكشۈرۈڭ',
           providerNextCheckAt: nextCheckAt(BACKOFF_MINUTES.length),
         });
         summary.needsReview++;
@@ -149,67 +169,99 @@ export async function pollProviderOrders(options: {
       }
     }
 
+    // 2. Orders with provider ID: query the provider directly
     if (withProviderId.length && Date.now() < options.deadlineMs) {
-      const byProviderId = new Map(withProviderId.map((o) => [String(o.details!.providerOrderId), o]));
-      const result = await syria4GameProvider.checkOrders(Array.from(byProviderId.keys()));
+      const othmanList = withProviderId.filter((o) => getProviderForOrder(o) === othmanStoreProvider);
+      const sahlList = withProviderId.filter((o) => getProviderForOrder(o) !== othmanStoreProvider);
 
-      for (const [providerId, order] of Array.from(byProviderId.entries())) {
-        if (Date.now() > options.deadlineMs) break;
-        summary.checked++;
-        const entry = result.entries.get(providerId);
-        const attempts = Number(order.details?.providerCheckAttempts || 0) + 1;
-        const now = new Date().toISOString();
-        const tooOld = Date.now() - new Date(order.createdAt).getTime() > maxPendingMs;
+      const checkGroups = [
+        { prov: othmanStoreProvider, orders: othmanList },
+        { prov: syria4GameProvider, orders: sahlList },
+      ];
 
-        if (entry?.status === 'COMPLETED') {
-          await transitionOrderAsync(order.id, IN_FLIGHT, 'completed', {
-            providerStatus: 'COMPLETED',
+      for (const group of checkGroups) {
+        if (!group.orders.length || Date.now() >= options.deadlineMs) continue;
+        const byProviderId = new Map(group.orders.map((o) => [String(o.details!.providerOrderId), o]));
+        let result: any = null;
+        try {
+          result = await group.prov.checkOrders(Array.from(byProviderId.keys()));
+        } catch (err: any) {
+          console.warn('[Poller Check Error]:', err?.message);
+          continue;
+        }
+
+        if (!result || !result.entries) continue;
+
+        for (const [providerId, order] of Array.from(byProviderId.entries())) {
+          if (Date.now() > options.deadlineMs) break;
+          summary.checked++;
+          const entry = result.entries.get(providerId);
+          const attempts = Number(order.details?.providerCheckAttempts || 0) + 1;
+          const now = new Date().toISOString();
+          const tooOld = Date.now() - new Date(order.createdAt).getTime() > maxPendingMs;
+
+          if (entry?.status === 'COMPLETED') {
+            await transitionOrderAsync(order.id, IN_FLIGHT, 'completed', {
+              providerStatus: 'COMPLETED',
+              providerCheckedAt: now,
+              providerCheckAttempts: attempts,
+              needsReview: false,
+              ...(entry.delivery ? { delivery: entry.delivery } : {}),
+            });
+            summary.completed++;
+            postOrderCompletedToChannel({
+              id: order.id,
+              serviceName: order.serviceName,
+              packageTitle: order.packageTitle,
+              amount: order.amount,
+              targetAccount: (order as any).targetAccount || order.details?.targetAccount || order.details?.playerId,
+              userName: (order as any).userName,
+              userEmail: order.userEmail,
+            }).catch(() => {});
+            continue;
+          }
+
+          if (entry?.status === 'FAILED') {
+            const refund = await refundOrderBalanceAtomicAsync(
+              order.id,
+              `تەمىنلىگۈچى رەت قىلدى: ${entry.message || 'rejected'}`
+            );
+            if (refund.success) {
+              summary.refunded++;
+            } else {
+              await transitionOrderAsync(order.id, IN_FLIGHT, null, {
+                providerStatus: 'FAILED',
+                needsReview: true,
+                refundError: refund.message,
+                reviewReason: 'تەمىنلىگۈچى رەت قىلدى، ئەمما پۇل ئاپتوماتىك قايتۇرۇلمىدى',
+              });
+              summary.needsReview++;
+            }
+            continue;
+          }
+
+          const unknownCount = Number(order.details?.providerUnknownCount || 0) + (entry?.status === 'PENDING' ? 0 : 1);
+          const review = tooOld || unknownCount >= MAX_UNKNOWN_CHECKS;
+          await transitionOrderAsync(order.id, IN_FLIGHT, 'pending_provider', {
+            providerStatus: entry?.status || 'UNKNOWN',
             providerCheckedAt: now,
             providerCheckAttempts: attempts,
-            needsReview: false,
-            ...(entry.delivery ? { delivery: entry.delivery } : {}),
+            providerUnknownCount: unknownCount,
+            providerNextCheckAt: nextCheckAt(attempts),
+            ...(review
+              ? { needsReview: true, reviewReason: tooOld ? `${settings.maxPendingHours} سائەتتىن ئاشتى` : 'ھالىتى ئېنىق ئەمەس' }
+              : {}),
           });
-          summary.completed++;
-          continue;
+          if (review) summary.needsReview++;
+          else summary.pending++;
         }
-
-        if (entry?.status === 'FAILED') {
-          const refund = await refundOrderBalanceAtomicAsync(order.id, `تەمىنلىگۈچى رەت قىلدى: ${entry.message || 'rejected'}`);
-          if (refund.success) {
-            summary.refunded++;
-          } else {
-            await transitionOrderAsync(order.id, IN_FLIGHT, null, {
-              providerStatus: 'FAILED',
-              needsReview: true,
-              refundError: refund.message,
-              reviewReason: 'تەمىنلىگۈچى رەت قىلدى، ئەمما پۇل ئاپتوماتىك قايتۇرۇلمىدى',
-            });
-            summary.needsReview++;
-          }
-          continue;
-        }
-
-        const unknownCount = Number(order.details?.providerUnknownCount || 0) + (entry?.status === 'PENDING' ? 0 : 1);
-        const review = tooOld || unknownCount >= MAX_UNKNOWN_CHECKS;
-        await transitionOrderAsync(order.id, IN_FLIGHT, 'pending_provider', {
-          providerStatus: entry?.status || 'UNKNOWN',
-          providerCheckedAt: now,
-          providerCheckAttempts: attempts,
-          providerUnknownCount: unknownCount,
-          providerNextCheckAt: nextCheckAt(attempts),
-          ...(review
-            ? { needsReview: true, reviewReason: tooOld ? `${settings.maxPendingHours} سائەتتىن ئاشتى` : 'ھالىتى ئېنىق ئەمەس' }
-            : {}),
-        });
-        if (review) summary.needsReview++;
-        else summary.pending++;
       }
     }
 
     if (options.housekeeping) {
-      const profile = await syria4GameProvider.getProfile();
-      if (profile.success && profile.balance !== null) {
-        await updateProviderSettings({ lastBalance: profile.balance, lastBalanceAt: new Date().toISOString() });
+      const profile = await syria4GameProvider.getProfile().catch(() => null);
+      if (profile && profile.success && profile.balance !== null) {
+        await updateProviderSettings({ lastBalance: profile.balance, lastBalanceAt: new Date().toISOString() }).catch(() => {});
       }
       await pruneProviderCalls(30).catch(() => {});
     }

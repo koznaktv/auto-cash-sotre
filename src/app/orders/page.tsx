@@ -43,10 +43,18 @@ export default function OrdersPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // While a provider order is still in progress, refresh so delivered codes show up on their own
+  // While a provider order is still in progress, refresh swiftly so delivered codes appear automatically
   useEffect(() => {
-    if (!orders.some((o) => isOrderInProgress(o.status))) return;
-    const timer = setInterval(fetchOrders, 15000);
+    const inProgress = orders.filter((o) => isOrderInProgress(o.status));
+    if (!inProgress.length) return;
+
+    // Check if any in-flight order was created within the last 2 minutes for hyper-fast 4s polling
+    const hasFreshOrder = inProgress.some(
+      (o) => Date.now() - new Date(o.createdAt).getTime() < 2 * 60 * 1000
+    );
+    const intervalMs = hasFreshOrder ? 4000 : 10000;
+
+    const timer = setInterval(fetchOrders, intervalMs);
     return () => clearInterval(timer);
   }, [orders]); // eslint-disable-line react-hooks/exhaustive-deps
 
