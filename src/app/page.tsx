@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { clearLocalAuth, logout, syncSupabaseSession, getCachedBalance, getCachedUser, storeLocalAuth, ClientUser, formatSmartPrice } from '@/lib/clientAuth';
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
@@ -340,7 +340,11 @@ export default function HomePage() {
     localStorage.setItem('autocash_username', usr.name);
     localStorage.setItem('autocash_email', usr.email);
     if (usr.id) localStorage.setItem('autocash_userId', usr.id);
-    if (usr.avatarUrl) localStorage.setItem('autocash_avatar', usr.avatarUrl);
+    if (usr.avatarUrl && !usr.avatarUrl.startsWith('data:')) {
+      localStorage.setItem('autocash_avatar', usr.avatarUrl);
+    } else {
+      localStorage.removeItem('autocash_avatar');
+    }
     setCurrentUser(usr);
     setUserBalance(usr.balance ?? 0.0);
   };

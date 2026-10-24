@@ -8,7 +8,7 @@ function isAllowedAvatar(value: unknown): value is string {
   if (typeof value !== 'string') return false;
   if (value === '') return true;
   if (value.length > MAX_AVATAR_LENGTH) return false;
-  return /^data:image\/(png|jpe?g|webp|gif);base64,/i.test(value) || /^https:\/\//i.test(value);
+  return /^https:\/\//i.test(value);
 }
 
 export async function POST(req: Request) {

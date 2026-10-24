@@ -49,7 +49,7 @@ export function toSafeUser(user: UserRecord) {
     name: user.name,
     email: user.email,
     phone: user.phone,
-    avatarUrl: user.avatarUrl || undefined,
+    avatarUrl: (user.avatarUrl && !user.avatarUrl.startsWith('data:')) ? user.avatarUrl : undefined,
     balance: user.balance,
     totalSpent: user.totalSpent,
     vipTier: user.vipTier,

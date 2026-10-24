@@ -26,7 +26,6 @@ import {
   ShieldCheck,
   Zap,
   LayoutDashboard,
-  Camera,
   Smartphone,
   Megaphone,
 } from 'lucide-react';
@@ -163,30 +162,31 @@ export default function SideDrawer({
     const localAvatar = typeof window !== 'undefined' ? localStorage.getItem('autocash_avatar') : null;
     const userAvatar = user.avatarUrl || (user as any)?.avatar;
 
-    if (userAvatar) {
+    // Discard any legacy base64 data uploads
+    if (userAvatar && !userAvatar.startsWith('data:')) {
       setAvatarSrc(userAvatar);
-    } else if (localAvatar) {
+    } else if (localAvatar && !localAvatar.startsWith('data:')) {
       setAvatarSrc(localAvatar);
-    } else {
-      // Check Supabase session for Google profile picture
-      import('@/lib/supabaseBrowser').then(({ getBrowserSupabase }) => {
-        const sb = getBrowserSupabase();
-        if (sb) {
-          sb.auth.getSession().then(({ data: { session } }) => {
-            const meta = session?.user?.user_metadata;
-            const gAvatar =
-              meta?.avatar_url ||
-              meta?.picture ||
-              session?.user?.identities?.[0]?.identity_data?.avatar_url ||
-              session?.user?.identities?.[0]?.identity_data?.picture;
-            if (gAvatar) {
-              setAvatarSrc(gAvatar);
-              localStorage.setItem('autocash_avatar', gAvatar);
-            }
-          }).catch(() => {});
-        }
-      });
     }
+
+    // Always fetch and prioritize the authentic Google account profile picture
+    import('@/lib/supabaseBrowser').then(({ getBrowserSupabase }) => {
+      const sb = getBrowserSupabase();
+      if (sb) {
+        sb.auth.getSession().then(({ data: { session } }) => {
+          const meta = session?.user?.user_metadata;
+          const gAvatar =
+            meta?.avatar_url ||
+            meta?.picture ||
+            session?.user?.identities?.[0]?.identity_data?.avatar_url ||
+            session?.user?.identities?.[0]?.identity_data?.picture;
+          if (gAvatar) {
+            setAvatarSrc(gAvatar);
+            localStorage.setItem('autocash_avatar', gAvatar);
+          }
+        }).catch(() => {});
+      }
+    });
   }, [user, isOpen]);
 
   useEffect(() => {
@@ -206,52 +206,6 @@ export default function SideDrawer({
       };
     }
   }, [isOpen, onClose]);
-
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !file.type.startsWith('image/')) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const maxDim = 256;
-        let width = img.width;
-        let height = img.height;
-        if (width > height) {
-          if (width > maxDim) {
-            height = Math.round((height * maxDim) / width);
-            width = maxDim;
-          }
-        } else {
-          if (height > maxDim) {
-            width = Math.round((width * maxDim) / height);
-            height = maxDim;
-          }
-        }
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx?.drawImage(img, 0, 0, width, height);
-        const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
-
-        setAvatarSrc(resizedDataUrl);
-        localStorage.setItem('autocash_avatar', resizedDataUrl);
-        window.dispatchEvent(new Event('autocash-auth-changed'));
-
-        if (user?.email) {
-          fetch('/api/auth/profile', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userEmail: user.email, avatarUrl: resizedDataUrl }),
-          }).catch(() => {});
-        }
-      };
-      img.src = event.target?.result as string;
-    };
-    reader.readAsDataURL(file);
-  };
 
   const savedEmail = typeof window !== 'undefined' ? localStorage.getItem('autocash_email') || '' : '';
   const savedRole = typeof window !== 'undefined' ? localStorage.getItem('autocash_role') || '' : '';
@@ -368,7 +322,7 @@ export default function SideDrawer({
                 {/* Top Row: Avatar + Name + ID */}
                 <div className="flex items-center gap-3">
                   {/* User Avatar with Glowing Gold Frame */}
-                  <div className="relative shrink-0 group/avatar">
+                  <div className="relative shrink-0">
                     <div
                       className="w-12 h-12 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 shadow-md shadow-amber-500/30 shrink-0"
                       style={{ width: '48px', height: '48px' }}
@@ -379,29 +333,12 @@ export default function SideDrawer({
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = '/avatar.png';
                         }}
-                        onClick={() => fileInputRef.current?.click()}
-                        className="w-full h-full rounded-full object-cover bg-slate-900 border border-slate-950 cursor-pointer hover:opacity-90 transition"
-                        title={t('changePhoto')}
+                        className="w-full h-full rounded-full object-cover bg-slate-900 border border-slate-950"
                       />
                     </div>
                     <span
                       className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-[#081c33] rounded-full shadow-sm"
                       title={t('online')}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="absolute -bottom-1 -left-1 w-5 h-5 rounded-full bg-amber-400 hover:bg-yellow-300 text-slate-950 flex items-center justify-center shadow-md border border-[#081c33] transition cursor-pointer hover:scale-110 active:scale-95"
-                      title={t('changePhoto')}
-                    >
-                      <Camera className="w-3 h-3" />
-                    </button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleAvatarUpload}
                     />
                   </div>
 

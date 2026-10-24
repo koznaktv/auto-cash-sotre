@@ -43,7 +43,12 @@ export async function POST(req: Request) {
     const isSuperAdmin = cleanEmail === 'dronemax0996@gmail.com';
     const meta = verifiedUser.user_metadata || {};
     const name: string = meta.full_name || meta.name || cleanEmail.split('@')[0];
-    const avatarUrl: string | undefined = meta.avatar_url || meta.picture || undefined;
+    const avatarUrl: string | undefined =
+      meta.avatar_url ||
+      meta.picture ||
+      verifiedUser.identities?.[0]?.identity_data?.avatar_url ||
+      verifiedUser.identities?.[0]?.identity_data?.picture ||
+      undefined;
 
     let user = await getUserByEmailAsync(cleanEmail);
     let isNew = false;
@@ -60,7 +65,13 @@ export async function POST(req: Request) {
       isNew = true;
     } else {
       const updates: Record<string, unknown> = {};
-      if (avatarUrl && !user.avatarUrl) updates.avatarUrl = avatarUrl;
+      // Always sync the genuine Google / Gmail profile picture
+      if (avatarUrl && user.avatarUrl !== avatarUrl) {
+        updates.avatarUrl = avatarUrl;
+      } else if (user.avatarUrl?.startsWith('data:image/')) {
+        // Clear any old manual uploads in favor of Google profile picture or default
+        updates.avatarUrl = avatarUrl || null;
+      }
       if (isSuperAdmin && user.role !== 'admin') updates.role = 'admin';
       if (Object.keys(updates).length > 0) {
         user = (await updateUserAsync(user.id, updates)) || user;

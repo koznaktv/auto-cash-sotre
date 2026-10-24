@@ -16,7 +16,11 @@ export function storeLocalAuth(user: ClientUser): void {
   localStorage.setItem('autocash_username', user.name);
   localStorage.setItem('autocash_email', user.email);
   if (user.id) localStorage.setItem('autocash_userId', user.id);
-  if (user.avatarUrl) localStorage.setItem('autocash_avatar', user.avatarUrl);
+  if (user.avatarUrl && !user.avatarUrl.startsWith('data:')) {
+    localStorage.setItem('autocash_avatar', user.avatarUrl);
+  } else {
+    localStorage.removeItem('autocash_avatar');
+  }
   if (typeof user.balance === 'number') localStorage.setItem('autocash_balance', String(user.balance));
   if (user.vipTier) localStorage.setItem('autocash_vipTier', user.vipTier);
   if (typeof user.totalSpent === 'number') localStorage.setItem('autocash_totalSpent', String(user.totalSpent));
@@ -52,7 +56,11 @@ export function getCachedUser(): ClientUser | null {
   if (isLoggedIn !== 'true' || !email) return null;
   const name = localStorage.getItem('autocash_username') || email.split('@')[0];
   const id = localStorage.getItem('autocash_userId') || undefined;
-  const avatarUrl = localStorage.getItem('autocash_avatar') || undefined;
+  const rawAvatar = localStorage.getItem('autocash_avatar');
+  if (rawAvatar && rawAvatar.startsWith('data:')) {
+    localStorage.removeItem('autocash_avatar');
+  }
+  const avatarUrl = (rawAvatar && !rawAvatar.startsWith('data:')) ? rawAvatar : undefined;
   const balanceVal = localStorage.getItem('autocash_balance');
   const balance = balanceVal !== null && !isNaN(Number(balanceVal)) ? Number(balanceVal) : 0.0;
   const vipTier = localStorage.getItem('autocash_vipTier') || 'vip1';

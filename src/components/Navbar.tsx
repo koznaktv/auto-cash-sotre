@@ -350,7 +350,13 @@ export default function Navbar({
               >
                 <div className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/30 ring-1 ring-amber-400/60 shrink-0 group-hover:scale-105 transition-transform duration-200">
                   <img
-                    src={(activeUser as any)?.avatarUrl || (activeUser as any)?.avatar || "/avatar.png"}
+                    src={
+                      (activeUser as any)?.avatarUrl && !(activeUser as any)?.avatarUrl.startsWith('data:')
+                        ? (activeUser as any)?.avatarUrl
+                        : (activeUser as any)?.avatar && !(activeUser as any)?.avatar.startsWith('data:')
+                        ? (activeUser as any)?.avatar
+                        : "/avatar.png"
+                    }
                     alt={activeUser.name}
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = '/avatar.png';
