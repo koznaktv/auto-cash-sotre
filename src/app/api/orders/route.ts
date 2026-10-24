@@ -190,6 +190,9 @@ export async function POST(req: Request) {
             playerId: parsedGameAccount.userId || rawTarget,
             phone: parsedGameAccount.userId || rawTarget,
             'ادخل رقم الهاتف بدون النداء': parsedGameAccount.userId || rawTarget,
+            'الرابط': parsedGameAccount.userId || rawTarget,
+            link: parsedGameAccount.userId || rawTarget,
+            url: parsedGameAccount.userId || rawTarget,
             ...(parsedGameAccount.zoneId ? { zoneId: parsedGameAccount.zoneId } : {}),
             ...(fields && typeof fields === 'object' ? fields : {}),
           };

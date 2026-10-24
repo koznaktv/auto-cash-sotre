@@ -39,6 +39,10 @@ export async function GET(req: Request) {
           productType: p.productType,
           unitPrice: p.unitPrice,
           available: p.available,
+          subCategoryId: (p as any).subCategoryId,
+          providerProductId: (p as any).providerProductId,
+          providerQty: (p as any).providerQty,
+          badge: (p as any).badge,
         })),
       }));
 
