@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { verifyAdminToken } from '@/lib/adminAuth';
 import {
   handleTelegramWebhook,
   sendAdminAlert,
@@ -29,6 +30,10 @@ export async function POST(req: Request) {
  * - /api/telegram/webhook?action=status
  */
 export async function GET(req: Request) {
+  if (!verifyAdminToken(req)) {
+    return NextResponse.json({ success: false, message: 'رۇخسەت يوق (Unauthorized)' }, { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
   const action = searchParams.get('action');
   const token = getBotToken();
