@@ -12,7 +12,7 @@ import {
   OrderRecord,
 } from '../db';
 import { toBuyerOrder } from '../orders';
-import { generateUUIDv4, syria4GameProvider } from '../providers/syria4game';
+import { generateUUIDv4, syria4GameProvider, resolveProviderForProduct } from '../providers/syria4game';
 import { shouldPauseOrders } from '../providers/syria4gameNormalize';
 import { validateGameAccount } from '../validation/gameAccountValidator';
 import { validateOrderFields, validateQty } from '../catalog/fieldValidation';
@@ -82,7 +82,8 @@ export async function placeProviderOrder(user: UserRecord, input: PurchaseInput)
 
   // 2. Live price & availability (never sell below the provider's current cost)
   let unitCost = item.product.costPrice;
-  const live = await syria4GameProvider.getProduct(item.product.id);
+  const activeProvider = resolveProviderForProduct(item.serviceId, item.product);
+  const live = await activeProvider.getProduct(item.product.id);
   if (live.success && live.product) {
     if (!live.product.available) {
       await markUnavailable(item.product.id);
@@ -171,7 +172,7 @@ export async function placeProviderOrder(user: UserRecord, input: PurchaseInput)
   const baseOrder = charge.order || ({ id: orderId, amount: total, status: 'processing' } as OrderRecord);
 
   // 5. Provider order (never retried automatically)
-  const response = await syria4GameProvider.createOrder({
+  const response = await activeProvider.createOrder({
     productId: item.product.id,
     qty,
     params: fields.params,

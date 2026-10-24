@@ -613,6 +613,22 @@ export function getActiveProvider(): Syria4GameProvider {
   }
 }
 
+export function resolveProviderForProduct(serviceId?: string, pkg?: any): Syria4GameProvider {
+  if (
+    pkg?.providerKey === 'othman' ||
+    serviceId?.includes('othman_') ||
+    serviceId === 'othman_visa_cards' ||
+    serviceId === 'othman_chat_apps' ||
+    (pkg?.providerProductId && String(pkg.providerProductId).length < 6)
+  ) {
+    return othmanStoreProvider;
+  }
+  if (pkg?.providerKey === 'sahl' || serviceId?.startsWith('sahl_')) {
+    return sahlCashProvider;
+  }
+  return getActiveProvider();
+}
+
 export function getProviderInstance(providerKey?: string): Syria4GameProvider {
   if (providerKey === 'othman' || providerKey === 'othman_store') {
     return othmanStoreProvider;

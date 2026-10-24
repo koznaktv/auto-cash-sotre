@@ -18,7 +18,7 @@ import { getProviderSettings } from '@/lib/catalog/store';
 import { SERVICE_PREFIX, getCatalogServices } from '@/lib/catalog/storefront';
 import { placeProviderOrder } from '@/lib/provider/purchase';
 import { pollProviderOrders } from '@/lib/provider/orderPoller';
-import { generateUUIDv4, syria4GameProvider, othmanStoreProvider } from '@/lib/providers/syria4game';
+import { generateUUIDv4, syria4GameProvider, othmanStoreProvider, resolveProviderForProduct } from '@/lib/providers/syria4game';
 import { notifyNewOrder, postOrderCompletedToChannel } from '@/lib/telegram';
 
 // Provider calls (live price check + newOrder) can take a while
@@ -153,6 +153,71 @@ export async function POST(req: Request) {
       parsedGameAccount = validation.parsed;
     }
 
+    // Pre-flight Live Availability & Wholesale Cost Guard (Othman Store & Syria4game)
+    if (pkg.providerProductId) {
+      const activeProvider = resolveProviderForProduct(service.id, pkg);
+      const provConfig = await activeProvider.getResolvedConfig().catch(() => null);
+      if (provConfig && provConfig.enabled && provConfig.apiToken) {
+        try {
+          const liveCheck = await activeProvider.getProduct(pkg.providerProductId);
+          if (liveCheck.success && liveCheck.product) {
+            // 1. Availability Guard: Is it temporarily paused / out of stock?
+            if (!liveCheck.product.available) {
+              return NextResponse.json(
+                {
+                  success: false,
+                  message: 'بۇ مەھسۇلات تەمىنلىگۈچى تەرەپتە ۋاقىتلىق توختىتىلغان (غير متوفر)، ھېساباتىڭىزدىن پۇل تۇتۇلمىدى. تەمىنلىگۈچى قايتا تەمىنلىگەندە سېتىۋېلىڭ.',
+                  unavailable: true,
+                },
+                { status: 409 }
+              );
+            }
+
+            // 2. Cost Guard: Never sell at a loss!
+            const liveCost = liveCheck.product.costPrice;
+            const targetQty = (pkg as any).providerQty ?? (pkg as any).qty ?? (qty ? Number(qty) : 1);
+            const totalWholesaleCost = liveCost * targetQty;
+
+            if (totalWholesaleCost > price) {
+              return NextResponse.json(
+                {
+                  success: false,
+                  message: `تەمىنلىگۈچىنىڭ تەننەرخ باھاسى ئۆزگەردى (تەننەرخ: ${totalWholesaleCost.toFixed(2)}). زىيان تارتماسلىق ئۈچۈن زاكاز پۇلى تۇتۇلمىدى، بەتنى يېڭىلاپ قايتا سېتىۋېلىڭ.`,
+                  priceChanged: true,
+                  newCost: liveCost,
+                },
+                { status: 409 }
+              );
+            }
+
+            // 3. Significant Surge Guard: If cost increased by > 35% compared to recorded cost
+            const recordedCost = (pkg as any).costPrice;
+            if (recordedCost && liveCost > recordedCost * 1.35) {
+              return NextResponse.json(
+                {
+                  success: false,
+                  message: 'بۇ مەھسۇلات باھاسى تەمىنلىگۈچىدە تۇيۇقسىز بەك ئۆرلەپ كەتكەنلىكتىن سىستېما تەرىپىدىن ۋاقىتلىق توختىتىلدى. پۇلىڭىز تۇتۇلمىدى.',
+                  priceSurge: true,
+                },
+                { status: 409 }
+              );
+            }
+          } else if (liveCheck.notFound) {
+            return NextResponse.json(
+              {
+                success: false,
+                message: 'بۇ مەھسۇلات تەمىنلىگۈچى سىستېمىسىدا تېپىلمىدى ياكى ئۆچۈرۈلگەن. پۇلىڭىز تۇتۇلمىدى.',
+                notFound: true,
+              },
+              { status: 409 }
+            );
+          }
+        } catch (checkErr: any) {
+          console.warn('[Order PreCheck Notice]:', checkErr?.message);
+        }
+      }
+    }
+
     const atomicRes = await deductBalanceAndCreateOrderAtomicAsync({
       idempotencyKey,
       userId: user.id,
@@ -209,6 +274,14 @@ export async function POST(req: Request) {
               providerOutcome: providerRes.outcome,
             });
             order.status = providerRes.status === 'COMPLETED' ? 'completed' : 'pending_provider';
+          } else if (providerRes.outcome === 'rejected' || providerRes.status === 'FAILED') {
+            // Immediate Auto-Refund if provider explicitly rejected
+            const { refundOrderBalanceAtomicAsync } = await import('@/lib/db');
+            await refundOrderBalanceAtomicAsync(
+              order.id,
+              providerRes.message || 'تەمىنلىگۈچى زاكازنى رەت قىلدى ياكى مەھسۇلات ۋاقىتلىق توختىتىلدى'
+            ).catch(() => {});
+            order.status = 'refunded';
           }
         }
       } catch (provErr: any) {

@@ -229,7 +229,23 @@ export function normalizeProduct(raw: any): ProviderProduct | null {
     categoryId,
     parentId: toNumber(raw.parent_id),
     categoryName: toText(raw.category_name),
-    available: raw.available !== false && raw.available !== 0 && raw.status !== 0 && raw.status !== false,
+    available:
+      raw.available !== false &&
+      raw.available !== 0 &&
+      raw.available !== '0' &&
+      raw.status !== 0 &&
+      raw.status !== false &&
+      raw.status !== '0' &&
+      raw.is_available !== false &&
+      raw.is_available !== 0 &&
+      raw.is_available !== '0' &&
+      !String(raw.status || '').toLowerCase().includes('غير متوفر') &&
+      !String(raw.available || '').toLowerCase().includes('غير متوفر') &&
+      !String(raw.availability || '').toLowerCase().includes('غير متوفر') &&
+      !String(raw.name || '').toLowerCase().includes('غير متوفر') &&
+      !String(raw.title || '').toLowerCase().includes('غير متوفر') &&
+      !String(raw.status || '').toLowerCase().includes('unavailable') &&
+      !String(raw.status || '').toLowerCase().includes('paused'),
     productType: toText(raw.product_type) || 'package',
     inputSchema: raw.input_schema ?? [],
     params: raw.params ?? [],

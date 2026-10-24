@@ -558,6 +558,47 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
     const orderId = randomId('ORD');
     const targetAccFull = `${session.targetAccount || ''}${session.zoneId ? ` (Zone: ${session.zoneId})` : ''}`.trim();
 
+    // Pre-flight Live Availability & Wholesale Cost Guard (Telegram Shop)
+    if (session.providerProductId) {
+      const isOthman = session.serviceId.includes('othman_') || String(session.providerProductId).length < 6;
+      const activeProvider = isOthman ? othmanStoreProvider : syria4GameProvider;
+      const providerConfig = await activeProvider.getResolvedConfig().catch(() => null);
+      if (providerConfig && providerConfig.enabled && providerConfig.apiToken) {
+        try {
+          const liveCheck = await activeProvider.getProduct(session.providerProductId);
+          if (liveCheck.success && liveCheck.product) {
+            if (!liveCheck.product.available) {
+              await showOrEditMessage(
+                chatId,
+                messageId,
+                `⚠️ <b>بۇ مەھسۇلات تەمىنلىگۈچى تەرەپتە ۋاقىتلىق توختىتىلغان (غير متوفر)</b>\n\nھېساباتىڭىزدىن پۇل تۇتۇلمىدى. تەمىنلىگۈچى قايتا تولۇقلىغاندا سېتىۋالسىڭىز بولىدۇ.`,
+                {
+                  inline_keyboard: [[{ text: '🔙 دۇكان بۆلۈملىرىگە قايتىش ↩️', callback_data: 'tg_shop_categories' }]],
+                }
+              );
+              return true;
+            }
+
+            const targetQty = session.providerQty ?? 1;
+            const totalCost = liveCheck.product.costPrice * targetQty;
+            if (totalCost > session.price) {
+              await showOrEditMessage(
+                chatId,
+                messageId,
+                `⚠️ <b>تەمىنلىگۈچىنىڭ تەننەرخ باھاسى ئۆزگەردى</b>\n\nھېساباتىڭىزدىن ھېچقانداق پۇل تۇتۇلمىدى. يېڭى باھا بويىچە دۇكاندىن قايتا زاكاز بېرىڭ.`,
+                {
+                  inline_keyboard: [[{ text: '🔙 دۇكان بۆلۈملىرىگە قايتىش ↩️', callback_data: 'tg_shop_categories' }]],
+                }
+              );
+              return true;
+            }
+          }
+        } catch (e: any) {
+          console.warn('[Telegram PreCheck Notice]:', e?.message);
+        }
+      }
+    }
+
     const atomicRes = await deductBalanceAndCreateOrderAtomicAsync({
       idempotencyKey: `TG-${Date.now()}-${fromId}`,
       userId: user.id,
@@ -624,6 +665,22 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
               }
             );
             order.status = providerRes.status === 'COMPLETED' ? 'completed' : 'pending_provider';
+          } else if (providerRes.outcome === 'rejected' || providerRes.status === 'FAILED') {
+            const { refundOrderBalanceAtomicAsync } = await import('./db');
+            await refundOrderBalanceAtomicAsync(
+              order.id,
+              providerRes.message || 'تەمىنلىگۈچى مەھسۇلاتنى توختاتتى ياكى زاكاز رەت قىلىندى'
+            ).catch(() => {});
+            order.status = 'refunded';
+            await showOrEditMessage(
+              chatId,
+              messageId,
+              `⚠️ <b>تەمىنلىگۈچىدە مەھسۇلات توختىتىلغانلىقى سەۋەبلىك زاكاز رەت قىلىندى</b>\n\n✅ <b>${session.price.toFixed(2)} USD</b> سومما دەرھال ھېساباتىڭىزغا تولۇق قايتۇرۇلدى!`,
+              {
+                inline_keyboard: [[{ text: '🔙 دۇكان بۆلۈملىرىگە قايتىش ↩️', callback_data: 'tg_shop_categories' }]],
+              }
+            );
+            return true;
           }
         }
       } catch (provErr: any) {
