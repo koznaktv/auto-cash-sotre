@@ -1301,6 +1301,17 @@ function formatOrderTrackingCard(order: OrderRecord) {
   } else if (order.status === 'processing' || order.status === 'pending' || order.status === 'pending_provider') {
     const ageMs = order.createdAt ? Date.now() - new Date(order.createdAt).getTime() : 0;
     const isOverOneHour = ageMs >= 60 * 60 * 1000;
+    const isSocialBooster = /instagram|tiktok|ئىنستاگرام|كۆپەيتىش/i.test(`${order.serviceName || ''} ${order.packageTitle || ''}`);
+
+    if (isSocialBooster) {
+      statusBadge = [
+        '⏳ <b>كۆپەيتىش بىر تەرەپ قىلىنىۋاتىدۇ (1-24 سائەتتە پۈتىدۇ) ⚡️</b>',
+        '<i>بۇ خىل ئەگەشكۈچى، ياقتۇرۇش ۋە كۆرۈلۈش مۇلازىمەتلىرى ھېسابات بىخەتەرلىكى ئۈچۈن تەمىنلىگۈچى تەرىپىدىن تەدرىجىي ئورۇنلىنىدۇ، سەل كۈتۈپ بەرگەيسىز.</i>',
+        '',
+        '📌 <b>كاپالەت ئەسكەرتىشى:</b>',
+        '<i>تەمىنلىگۈچى بەلگىلىمىسى بويىچە بۇ بولاققا كېيىنچە چۈشۈپ كەتسە قايتا تولۇقلاپ بېرىش كاپالىتى (لا يوجد كفالة) بېرىلمەيدۇ.</i>',
+      ].join('\n');
+    } else 
 
     if (isOverOneHour) {
       statusBadge = [

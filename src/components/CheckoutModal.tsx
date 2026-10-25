@@ -706,6 +706,20 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                         {t('freefireUidNotice')}
                       </p>
                     )}
+
+                    {(service.id.toLowerCase().includes('instagram') ||
+                      (service.name && /instagram|ئىنستاگرام/i.test(service.name))) && (
+                      <div className="mt-2.5 p-3 rounded-2xl bg-amber-950/60 border border-amber-500/50 text-xs space-y-1.5 shadow-md font-alkatip">
+                        <div className="flex items-center gap-1.5 text-amber-300 font-bold">
+                          <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                          <span>⚠️ مۇھىم ئەسكەرتىش (ۋاقىت ۋە كاپالەت تۈزۈمى):</span>
+                        </div>
+                        <div className="text-[11px] text-amber-200/90 space-y-1 leading-relaxed">
+                          <p>• <b>ئورۇنلىنىش ۋاقتى:</b> بۇ خىل ئىنستاگرام كۆپەيتىش (رشق) زاكازلىرى سىستېمىدا بىرقەدەر ئۇزۇنراق ۋاقىتتا (1 سائەتتىن 24 سائەتكىچە) تەدرىجىي ئورۇنلىنىدۇ، سەۋرچانلىق بىلەن كۈتۈڭ.</p>
+                          <p>• <b>كاپالەت تۈزۈمى:</b> تەمىنلىگۈچىنىڭ بەلگىلىمىسى بويىچە، بۇ خىل ئەرزان تىپتىكى كۆپەيتىش مۇلازىمەتلىرىگە سان چۈشۈپ كەتسە قايتا تولۇقلاپ بېرىش كاپالىتى (لا يوجد كفالة) بېرىلمەيدۇ.</p>
+                        </div>
+                      </div>
+                    )}
                     {(service.id.toLowerCase().includes('syriatel') || service.id.toLowerCase().includes('mtn') || (service as any).inputHint) && (
                       <div className="mt-2.5 p-3 rounded-xl bg-slate-950/80 border border-emerald-500/30 text-xs space-y-1 shadow-inner">
                         <p className="text-rose-400 font-bold text-xs" dir="ltr">

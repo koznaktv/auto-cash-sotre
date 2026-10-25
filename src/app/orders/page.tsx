@@ -619,6 +619,24 @@ export default function OrdersPage() {
                   {isProcessing && (
                     (() => {
                       const isOverOneHour = Date.now() - new Date(order.createdAt).getTime() >= 60 * 60 * 1000;
+                      const isSocialBooster = /instagram|tiktok|ئىنستاگرام|كۆپەيتىش/i.test(`${order.serviceName || ''} ${order.packageTitle || ''}`);
+                      if (isSocialBooster) {
+                        return (
+                          <div className="mt-2.5 pt-2.5 border-t border-amber-500/40 bg-amber-950/40 p-3 rounded-xl text-xs space-y-1.5 text-amber-200 font-alkatip border border-amber-500/50 shadow-inner">
+                            <div className="flex items-center gap-1.5 font-bold text-amber-300 text-[11px]">
+                              <Clock className="w-4 h-4 text-amber-400 shrink-0 animate-pulse" />
+                              <span>ئىنستاگرام كۆپەيتىش زاكاز ئۇچۇرى (ئۇزۇنراق ۋاقىتتا تەدرىجىي بارىدۇ):</span>
+                            </div>
+                            <p className="text-[11px] text-amber-100/90 leading-relaxed">
+                              بۇ خىل ئەگەشكۈچى، ياقتۇرۇش ياكى كۆرۈلۈش سانى كۆپەيتىش زاكازلىرى ھېساباتنىڭ بىخەتەرلىكى ئۈچۈن تەمىنلىگۈچى تەرىپىدىن تەدرىجىي ۋە ئۇزۇنراق ۋاقىتتا (1 سائەتتىن 24 سائەتكىچە) ئورۇنلىنىدۇ. ئەنسىرىمەي سەۋرچانلىق بىلەن كۈتۈپ بېرىڭ.
+                            </p>
+                            <p className="text-[10px] text-amber-300/80">
+                              📌 ئەسكەرتىش: تەمىنلىگۈچىنىڭ بەلگىلىمىسى بويىچە، بۇ بولاققا كېيىنچە سان چۈشۈپ كەتسە قايتا تولۇقلاپ بېرىش كاپالىتى (لا يوجد كفالة) بېرىلمەيدۇ.
+                            </p>
+                          </div>
+                        );
+                      }
+                      
                       if (isOverOneHour) {
                         return (
                           <div className="mt-2.5 pt-2.5 border-t border-amber-500/40 bg-amber-950/40 p-3 rounded-xl text-xs space-y-1.5 text-amber-200 font-alkatip border border-amber-500/50 shadow-inner">

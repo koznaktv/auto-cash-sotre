@@ -5533,8 +5533,8 @@
     "category": "social",
     "icon": "Instagram",
     "image": "/images/services/instagram.jpg",
-    "description": "Instagram يازمىلىرىغا ئىجابىي ئىنكاسلار (Comments)، سىن ۋە ھېكايە بېلەت تاشلاشلىرى.",
-    "badge": "❤️ سۈپەتلىك",
+    "description": "Instagram ئەگەشكۈچى، ياقتۇرۇش ۋە كۆرۈلۈش سانى كۆپەيتىش. ⚠️ ئەسكەرتىش: زاكاز تەدرىجىي 1-24 سائەتتە پۈتىدۇ؛ چۈشۈپ كەتسە قايتا تولۇقلاپ بېرىش كاپالىتى (لا يوجد كفالة) يوق.",
+    "badge": "⏳ 1-24 سائەت (كاپالەتسىز)",
     "inputLabel": "Instagram يازما ياكى ئارخىپ ئۇلانمىسى (Link)",
     "inputPlaceholder": "https://www.instagram.com/p/... ياكى ئارخىپ ئۇلانمىسى",
     "packages": [
