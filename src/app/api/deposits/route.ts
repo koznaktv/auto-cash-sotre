@@ -103,6 +103,25 @@ export async function POST(req: Request) {
           exchangeRate: tsaConfig.exchangeRate,
         });
 
+        if (verifyRes.expired) {
+          notifyFraudulentDeposit({
+            userName: user.name,
+            userEmail: user.email,
+            txId: cleanTxId,
+            amount: parsedAmount,
+            reason: `مۇددىتى ئۆتكەن كونا تالون ئارقىلىق پۇل قاچىلاش سىنىقى (${verifyRes.ageMinutes} مىنۇت بۇرۇنقى تالون)`,
+          }).catch(() => {});
+
+          return NextResponse.json(
+            {
+              success: false,
+              expired: true,
+              message: verifyRes.error || 'بۇ تالوننىڭ مۇددىتى ئۆتۈپ كەتكەن (كونا تالون)! پەقەت ئەڭ يېقىن 45 مىنۇت ئىچىدىكى تالونلارلا قوبۇل قىلىنىدۇ.',
+            },
+            { status: 400 }
+          );
+        }
+
         if (verifyRes.success && verifyRes.found && verifyRes.transaction) {
           const tx = verifyRes.transaction;
 

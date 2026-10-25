@@ -2050,6 +2050,57 @@ export async function processTelegramShamcashDeposit(
       exchangeRate: tsaConfig.exchangeRate,
     });
 
+    if (verifyRes.expired) {
+      const timeAgoText = verifyRes.ageMinutes
+        ? verifyRes.ageMinutes >= 1440
+          ? `${Math.floor(verifyRes.ageMinutes / 1440)} كۈن بۇرۇن`
+          : verifyRes.ageMinutes >= 60
+          ? `${Math.floor(verifyRes.ageMinutes / 60)} سائەت بۇرۇن`
+          : `${verifyRes.ageMinutes} مىنۇت بۇرۇن`
+        : 'مۇددىتى ئۆتكەن';
+
+      const expiredCard = `
+⚠️ <b>بۇ تالوننىڭ قوبۇل قىلىش مۇددىتى ئۆتۈپ كەتكەن!</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🆔 <b>تالون نومۇرى:</b> <code>${cleanTxId}</code>
+⏰ <b>پۇل ئۇرۇلغان ۋاقتى:</b> <b>${timeAgoText}</b> (${verifyRes.transaction?.datetime || 'بۇرۇنقى كونا ۋاقىت'})
+
+❌ <b>رەت قىلىنىش سەۋەبى:</b>
+بىخەتەرلىك قائىدىسى بويىچە، پەقەت <b>ئەڭ يېقىن 45 مىنۇت</b> ئىچىدە ئۇرۇلغان يېڭى تالونلارلا ئاپتوماتىك قوبۇل قىلىنىدۇ. بىرنەچچە سائەت ياكى نەچچە كۈن بۇرۇن ئۇرۇلغان كونا تالونلار ئاپتوماتىك تەستىقلانمايدۇ.
+
+💡 <i>ئەگەر سىز بۇ پۇلنى ھەقىقەتەن ھازىر Auto Cash قا ئۇرغان، لېكىن تالوننى كىرگۈزۈش كېچىككەن بولسا، تالون رەسىمى بىلەن خېرىدارلار مۇلازىمىتىگە ئالاقىلىشىڭ.</i>
+`.trim();
+
+      const expiredKeyboard = {
+        inline_keyboard: [
+          [{ text: '💬 خېرىدارلار مۇلازىمىتى بىلەن كۆرۈشۈش 👨‍💻', url: TELEGRAM_CONFIG.supportUrl }],
+          [{ text: '🔙 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      };
+
+      if (tempMsgId) {
+        await editTelegramMessage(chatId, tempMsgId, expiredCard, {
+          parse_mode: 'HTML',
+          reply_markup: expiredKeyboard,
+        });
+      } else {
+        await sendTelegramMessage(chatId, expiredCard, {
+          parse_mode: 'HTML',
+          reply_markup: expiredKeyboard,
+        });
+      }
+
+      notifyFraudulentDeposit({
+        userName: from?.first_name || 'ئەزا',
+        userEmail: from?.username ? `@${from.username}` : `TG: ${chatId}`,
+        txId: cleanTxId,
+        amount: verifyRes.transaction?.usdAmount || 0,
+        reason: `مۇددىتى ئۆتكەن كونا تالون بىلەن پۇل قاچىلاش سىنىقى (${timeAgoText} ئۇرۇلغان)`,
+      }).catch(() => {});
+
+      return true;
+    }
+
     if (verifyRes.success && verifyRes.found && verifyRes.transaction) {
       const tx = verifyRes.transaction;
 

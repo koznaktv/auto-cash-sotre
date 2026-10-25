@@ -88,8 +88,18 @@ export async function POST(req: Request) {
     });
 
     if (!verifyRes.success) {
+      if (verifyRes.expired) {
+        notifyFraudulentDeposit({
+          userName: deposit.userName,
+          userEmail: deposit.userEmail,
+          txId: cleanTxId,
+          amount: deposit.amount,
+          reason: `مۇددىتى ئۆتكەن كونا تالون كىرگۈزۈلدى (${verifyRes.ageMinutes} مىنۇت بۇرۇنقى تالون)`,
+        }).catch(() => {});
+      }
       return NextResponse.json({
         success: false,
+        expired: verifyRes.expired || false,
         message: verifyRes.error || verifyRes.message || 'TSA API دەلىللەش مەغلۇپ بولدى',
       });
     }

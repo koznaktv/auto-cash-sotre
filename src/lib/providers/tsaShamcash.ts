@@ -17,6 +17,8 @@ export interface ShamcashTx {
 export interface VerifyTxResult {
   success: boolean;
   found: boolean;
+  expired?: boolean;
+  ageMinutes?: number;
   transaction?: ShamcashTx;
   message?: string;
   error?: string;
@@ -65,6 +67,40 @@ export function normalizeTxId(raw: string): string {
 }
 
 /**
+ * Safely parses transaction datetime from TSA API:
+ * Supports Unix timestamps, ISO strings, and Damascus local time strings (UTC+3).
+ */
+export function parseTxDatetime(raw: any): Date | null {
+  if (!raw) return null;
+  if (typeof raw === 'number') {
+    if (raw < 1e11) return new Date(raw * 1000);
+    return new Date(raw);
+  }
+  const str = String(raw).trim();
+  if (!str) return null;
+
+  if (/^\d{10}$/.test(str)) return new Date(Number(str) * 1000);
+  if (/^\d{13}$/.test(str)) return new Date(Number(str));
+
+  let normalized = str.replace(/\//g, '-');
+  if (/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}/.test(normalized)) {
+    // If no timezone offset is present, treat as Damascus time (UTC+03:00)
+    if (!normalized.includes('+') && !normalized.includes('Z')) {
+      normalized = normalized.replace(/\s+/, 'T') + '+03:00';
+    } else {
+      normalized = normalized.replace(/\s+/, 'T');
+    }
+  }
+
+  const d = new Date(normalized);
+  if (isNaN(d.getTime())) {
+    const fallback = new Date(str);
+    return isNaN(fallback.getTime()) ? null : fallback;
+  }
+  return d;
+}
+
+/**
  * Retrieves TSA API configuration from DB system settings with environment variable fallback.
  */
 export async function getTsaConfig(): Promise<{
@@ -72,6 +108,7 @@ export async function getTsaConfig(): Promise<{
   shamcashAddress: string;
   autoDepositEnabled: boolean;
   exchangeRate: number;
+  maxAgeMinutes: number;
 }> {
   const settings = await getSystemSettingsAsync();
   const apiKey = (settings.tsaApiKey || process.env.TSA_API_KEY || '').trim();
@@ -81,12 +118,14 @@ export async function getTsaConfig(): Promise<{
       ? Boolean(settings.tsaAutoDepositEnabled)
       : process.env.TSA_AUTO_DEPOSIT !== 'false';
   const exchangeRate = Number(settings.shamcashExchangeRate || process.env.SHAMCASH_EXCHANGE_RATE || 143);
+  const maxAgeMinutes = Number(settings.shamcashMaxAgeMinutes || process.env.SHAMCASH_MAX_AGE_MINUTES || 45);
 
   return {
     apiKey,
     shamcashAddress,
     autoDepositEnabled,
     exchangeRate: exchangeRate > 0 ? exchangeRate : 143,
+    maxAgeMinutes: maxAgeMinutes > 0 ? maxAgeMinutes : 45,
   };
 }
 
@@ -228,6 +267,7 @@ export async function verifyShamcashTransaction(
     apiKey?: string;
     accountAddress?: string;
     exchangeRate?: number;
+    maxAgeMinutes?: number;
   }
 ): Promise<VerifyTxResult> {
   const normalizedTx = normalizeTxId(rawTxId);
@@ -291,10 +331,10 @@ export async function verifyShamcashTransaction(
       });
       const logsData = await logsRes.json().catch(() => null);
       if (logsData?.success && Array.isArray(logsData?.data?.items)) {
+        // Strict exact match only - never substring match
         const match = logsData.data.items.find(
           (item: any) =>
-            normalizeTxId(String(item.tran_id || item.id || '')) === normalizedTx ||
-            String(item.tran_id || item.id || '').includes(normalizedTx)
+            normalizeTxId(String(item.tran_id || item.id || '')) === normalizedTx
         );
         if (match) {
           txItem = match;
@@ -349,12 +389,60 @@ export async function verifyShamcashTransaction(
       };
     }
 
+    const rawTxDate = txItem.datetime || txItem.created_at || txItem.date || txItem.timestamp || txItem.time;
+    const txDate = parseTxDatetime(rawTxDate);
+    const maxAgeMinutes = options?.maxAgeMinutes || config.maxAgeMinutes || 45;
+
+    // Strict freshness / anti-expired verification:
+    // Reject any transaction that occurred more than maxAgeMinutes ago
+    if (txDate) {
+      const now = Date.now();
+      const ageMs = now - txDate.getTime();
+      const ageMinutes = Math.round(ageMs / 60000);
+      const maxAgeMs = maxAgeMinutes * 60 * 1000;
+
+      // Allow up to 15 minutes clock skew into the future, but reject anything older than maxAgeMinutes
+      if (ageMs > maxAgeMs) {
+        const timeAgoText =
+          ageMinutes >= 1440
+            ? `${Math.floor(ageMinutes / 1440)} كۈن بۇرۇن`
+            : ageMinutes >= 60
+            ? `${Math.floor(ageMinutes / 60)} سائەت بۇرۇن`
+            : `${ageMinutes} مىنۇت بۇرۇن`;
+
+        const displayDate = txDate.toISOString().replace('T', ' ').slice(0, 19);
+
+        return {
+          success: false,
+          found: true,
+          expired: true,
+          ageMinutes,
+          transaction: {
+            tranId: String(txItem.tran_id || normalizedTx),
+            amount: rawAmount,
+            currency,
+            usdAmount,
+            datetime: displayDate,
+            fromName: String(txItem.from_name || ''),
+            toName: String(txItem.to_name || ''),
+            senderAccount: String(txItem.account || ''),
+            note: String(txItem.note || ''),
+          },
+          error: `بۇ تالوننىڭ قوبۇل قىلىش مۇددىتى ئۆتۈپ كەتكەن (${timeAgoText} ئۇرۇلغان كونا تالون)! بىخەتەرلىك قائىدىسى بويىچە، پەقەت ئەڭ يېقىن ${maxAgeMinutes} مىنۇت ئىچىدە ئۇرۇلغان يېڭى تالونلارلا ئاپتوماتىك قوبۇل قىلىنىدۇ.`,
+        };
+      }
+    }
+
+    const displayDate = txDate
+      ? txDate.toISOString().replace('T', ' ').slice(0, 19)
+      : String(rawTxDate || new Date().toISOString());
+
     const tx: ShamcashTx = {
       tranId: String(txItem.tran_id || normalizedTx),
       amount: rawAmount,
       currency,
       usdAmount,
-      datetime: String(txItem.datetime || new Date().toISOString()),
+      datetime: displayDate,
       fromName: String(txItem.from_name || ''),
       toName: String(txItem.to_name || ''),
       senderAccount: String(txItem.account || ''),

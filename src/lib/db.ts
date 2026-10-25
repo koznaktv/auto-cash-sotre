@@ -85,6 +85,7 @@ export interface SystemSettings {
   tsaApiKey?: string;
   tsaAutoDepositEnabled?: boolean;
   shamcashExchangeRate?: number;
+  shamcashMaxAgeMinutes?: number;
 }
 
 interface DatabaseSchema {
