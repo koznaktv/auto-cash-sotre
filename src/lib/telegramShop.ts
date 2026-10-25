@@ -129,6 +129,26 @@ export function getCategoryDisplayTitle(catKey: string, lang: BotLanguage = 'ug'
   }
 }
 
+export const TOP_GAME_ORDER = [
+  'othman_mobile_legends',
+  'othman_pubg',
+  'pubg_mobile',
+  'othman_free_fire',
+  'free_fire',
+  'othman_honor_of_kings',
+  'othman_arena_breakout',
+  'othman_delta_force',
+  'othman_blood_strike',
+  'othman_call_of_duty',
+  'othman_genshin_impact',
+  'othman_whiteout_survival',
+  'othman_efootball',
+  'othman_ball_pool_8',
+  'othman_yalla_ludo',
+  'othman_jawaker',
+  'othman_roblox',
+];
+
 export function getServicesForCategory(catKey: string): ServiceItem[] {
   const all = getServicesList().filter((s) => s.published !== false);
   if (catKey === 'giftcards') {
@@ -173,43 +193,270 @@ export function getServicesForCategory(catKey: string): ServiceItem[] {
         s.id.includes('turkcell')
     );
   }
+  if (catKey === 'games') {
+    const games = all.filter((s) => s.category === 'games');
+    return games.sort((a, b) => {
+      const idxA = TOP_GAME_ORDER.findIndex((id) => a.id === id || a.id.includes(id));
+      const idxB = TOP_GAME_ORDER.findIndex((id) => b.id === id || b.id.includes(id));
+      const rankA = idxA === -1 ? 999 : idxA;
+      const rankB = idxB === -1 ? 999 : idxB;
+      return rankA - rankB;
+    });
+  }
   return all.filter((s) => s.category === catKey);
+}
+
+export function formatCleanGameTitle(serviceId: string, rawName: string): string {
+  const id = (serviceId || '').toLowerCase();
+  const name = (rawName || '').toLowerCase();
+
+  if (id.includes('mobile_legends') || name.includes('mobile legends')) {
+    return '💎 ✤ Mobile Legends •';
+  }
+  if (id.includes('pubg') || name.includes('pubg')) {
+    return '🌕 ✤ PUBG Mobile •';
+  }
+  if (id.includes('free_fire') || id.includes('freefire') || name.includes('free fire')) {
+    return '💎 ✤ Free Fire •';
+  }
+  if (id.includes('call_of_duty') || id.includes('cod') || name.includes('call of duty')) {
+    return '✤ Call of Duty 🔫•';
+  }
+  if (id.includes('honor_of_kings') || id.includes('hok') || name.includes('honor of kings')) {
+    return '✤ Honor of Kings 💠•';
+  }
+  if (id.includes('blood_strike') || name.includes('blood strike')) {
+    return '🌕 ✤ Blood Strike •';
+  }
+  if (id.includes('arena_breakout') || name.includes('arena breakout')) {
+    return '✤ Arena Breakout 🗃•';
+  }
+  if (id.includes('delta_force') || name.includes('delta force')) {
+    return '🎯 ✤ Delta Force •';
+  }
+  if (id.includes('genshin') || name.includes('genshin')) {
+    return '✨ ✤ Genshin Impact •';
+  }
+  if (id.includes('whiteout') || name.includes('whiteout')) {
+    return '❄️ ✤ Whiteout Survival •';
+  }
+  if (id.includes('efootball') || name.includes('efootball')) {
+    return '⚽ ✤ eFootball •';
+  }
+  if (id.includes('ball_pool') || name.includes('8 ball pool')) {
+    return '🎱 ✤ 8 Ball Pool •';
+  }
+  if (id.includes('yalla_ludo') || name.includes('yalla ludo')) {
+    return '🎲 ✤ Yalla Ludo •';
+  }
+  if (id.includes('jawaker') || name.includes('jawaker')) {
+    return '🃏 ✤ Jawaker •';
+  }
+  if (id.includes('clash_of_clans') || name.includes('clash of clans')) {
+    return '⚔️ ✤ Clash of Clans •';
+  }
+  if (id.includes('brawl_stars') || name.includes('brawl stars')) {
+    return '⭐ ✤ Brawl Stars •';
+  }
+  if (id.includes('roblox') || name.includes('roblox')) {
+    return '🟥 ✤ Roblox •';
+  }
+
+  const clean = rawName
+    .replace(/\s*\([^)]*\)/g, '')
+    .replace(/شحن فوري ومباشر|شحن فوري|عن طريق الايدي|برقم الايدي|\(شەن\)|\(شەدەن\)/gi, '')
+    .trim();
+  return `🎮 ✤ ${clean || rawName} •`;
+}
+
+export function formatCleanGameBaseName(serviceId: string, rawName: string): string {
+  const id = (serviceId || '').toLowerCase();
+  const name = (rawName || '').toLowerCase();
+  if (id.includes('mobile_legends') || name.includes('mobile legends')) return 'Mobile Legends';
+  if (id.includes('pubg') || name.includes('pubg')) return 'PUBG Mobile';
+  if (id.includes('free_fire') || name.includes('free fire')) return 'Free Fire';
+  if (id.includes('call_of_duty') || name.includes('call of duty')) return 'Call of Duty';
+  if (id.includes('honor_of_kings') || name.includes('honor of kings')) return 'Honor of Kings';
+  if (id.includes('blood_strike') || name.includes('blood strike')) return 'Blood Strike';
+  if (id.includes('arena_breakout') || name.includes('arena breakout')) return 'Arena Breakout';
+  if (id.includes('delta_force') || name.includes('delta force')) return 'Delta Force';
+  if (id.includes('genshin') || name.includes('genshin')) return 'Genshin Impact';
+  if (id.includes('whiteout') || name.includes('whiteout')) return 'Whiteout Survival';
+  if (id.includes('efootball') || name.includes('efootball')) return 'eFootball';
+  if (id.includes('ball_pool') || name.includes('8 ball pool')) return '8 Ball Pool';
+  return rawName.split('(')[0].trim() || rawName;
+}
+
+export function cleanPackageLabel(rawTitle: string, serviceId = '', serviceName = ''): string {
+  let title = (rawTitle || '')
+    .replace(/\(شەن\)/g, '')
+    .replace(/\(شەدەن\)/g, '')
+    .trim();
+
+  // Strip bonus/parentheses details if it just repeats numbers or says bonus
+  title = title.replace(/\s*\(\s*\d+\s*\+\s*\d+\s*(?:Bonus|بونۇس|مكافأة)?\s*\)/gi, '');
+
+  // Clean boilerplate
+  const noisePhrases = [
+    /شحن فوري ومباشر/gi,
+    /شحن مباشر وفوري/gi,
+    /شحن فوري/gi,
+    /شحن مباشر/gi,
+    /عن طريق الايدي/gi,
+    /عبر الايدي/gi,
+    /برقم الايدي/gi,
+    /بالايدي/gi,
+    /حساب رسمي/gi,
+    /تسليم فوري/gi,
+    /كود رقمي/gi,
+    /بدون كود/gi,
+    /ضمان كامل/gi,
+    /لا يوجد استرجاع/gi,
+    /No Refund/gi,
+    /Instant/gi,
+    /Direct Top-up/gi,
+    /تېز قاچىلاش/gi,
+    /نەق قاچىلاش/gi,
+  ];
+  for (const regex of noisePhrases) {
+    title = title.replace(regex, ' ');
+  }
+
+  // Clean game names
+  const strippedNames = [
+    /Mobile Legends:?\s*Bang Bang/gi,
+    /Mobile Legends/gi,
+    /PUBG Mobile/gi,
+    /Free Fire/gi,
+    /Call of Duty:?\s*Mobile/gi,
+    /Honor of Kings/gi,
+    /Blood Strike/gi,
+    /Arena Breakout/gi,
+  ];
+  for (const sn of strippedNames) {
+    title = title.replace(sn, ' ');
+  }
+
+  const isMLBB = serviceId.includes('mobile_legends') || serviceName.toLowerCase().includes('mobile legends');
+  const isPUBG = serviceId.includes('pubg') || serviceName.toLowerCase().includes('pubg');
+  const isFF = serviceId.includes('free_fire') || serviceName.toLowerCase().includes('free fire');
+  const isCOD = serviceId.includes('call_of_duty') || serviceName.toLowerCase().includes('call of duty');
+  const isHOK = serviceId.includes('honor_of_kings') || serviceName.toLowerCase().includes('honor of kings');
+
+  // Clean passes & memberships cleanly
+  if (/Weekly.*Pass|ھەپتىلىك.*(?:كارت|پاس)/i.test(title)) {
+    title = title.includes('TR') || title.includes('تۈركىيە') ? '🛍 Weekly Pass (TR)' : '🛍 Weekly Pass';
+  } else if (/Weekly.*(?:Elite|ئېلىت)/i.test(title)) {
+    title = title.includes('TR') || title.includes('تۈركىيە') ? '🛍 Weekly Elite (TR)' : '🛍 Weekly Elite Pack';
+  } else if (/Monthly.*(?:Elite|ئايلىق\s*ئېلىت)/i.test(title)) {
+    title = title.includes('TR') || title.includes('تۈركىيە') ? '🛍 Monthly Elite (TR)' : '🛍 Monthly Elite Pack';
+  } else if (/Twilight\s*Pass|تۋايلايت/i.test(title)) {
+    title = title.includes('TR') || title.includes('تۈركىيە') ? '🛍 Twilight Pass (TR)' : '🛍 Twilight Pass';
+  } else if (/Booyah\s*Pass|بۇياھ/i.test(title)) {
+    title = '🛍 Booyah Pass';
+  } else if (/Weekly\s*Deal|ئالاھىدە\s*تەمىنات/i.test(title)) {
+    title = '🛍 Weekly Deals';
+  } else if (/Legendary\s*Emblem|نىشان\s*بەلگىسى/i.test(title)) {
+    title = '🛍 Legendary Emblem';
+  } else if (/Weekly\s*Membership/i.test(title)) {
+    title = '🛍 Weekly Membership';
+  } else if (/Monthly\s*Membership/i.test(title)) {
+    title = '🛍 Monthly Membership';
+  } else if (/Limited-?Time|ۋاقىتلىق\s*ئالاھىدە/i.test(title)) {
+    title = '🛍 Special Value Pack';
+  } else if (/First\s*Purchase|تۇنجى.*سېتىۋېلىش/i.test(title)) {
+    title = '🛍 First Purchase Pack';
+  } else if (/Prime.*1\s*Month|Prime.*ئايلىق/i.test(title)) {
+    title = '🛍 Prime (1 Month)';
+  } else if (/Royale\s*Pass\s*Plus|رويال\s*باس\s*بلس/i.test(title)) {
+    title = '🛍 Royale Pass Plus';
+  } else if (/Royale\s*Pass|رويال\s*باس/i.test(title)) {
+    title = '🛍 Royale Pass';
+  } else if (/Battle\s*Pass|باتل\s*باس/i.test(title)) {
+    title = '🛍 Battle Pass';
+  } else {
+    // Normal numeric / diamond packages
+    const isTR = /TR|تۈركىيە/i.test(title);
+    title = title.replace(/(?:TR|تۈركىيە)/gi, '').trim();
+
+    const numMatch = title.match(/\b\d+(?:\s*\+\s*\d+)?\b/);
+    if ((isMLBB || isFF) && numMatch) {
+      title = `💎 ${numMatch[0]}`;
+    } else if (isPUBG && numMatch) {
+      title = `${numMatch[0]} UC`;
+    } else if (isCOD && numMatch) {
+      title = `${numMatch[0]} CP`;
+    } else if (isHOK && numMatch) {
+      title = `💠 ${numMatch[0]}`;
+    } else {
+      title = title.replace(/(?:ئالماس|جوهرة|جوهره|ماس|ماسة|ماسات|الماسة|diamonds?)/gi, '💎');
+      title = title.replace(/(?:💎\s*)+/g, '💎');
+      title = title.replace(/(?:شدة|شدات|شدة\s*uc|uc)/gi, 'UC');
+      title = title.replace(/(?:كوينز|كوين|coins?)/gi, '🪙');
+      title = title.replace(/(?:قسيمة|قسائم|coupons?)/gi, '🎟️');
+      title = title.replace(/(?:ليرة\s*تركي|ليرة\s*تورك|ليرة\s*سورية|ليرة)/gi, 'TL');
+      title = title.replace(/\(\s*\)/g, '').replace(/[()[\]{}«»]/g, ' ').replace(/\s{2,}/g, ' ').trim();
+    }
+
+    if (isTR) {
+      title = `${title} (TR)`;
+    }
+  }
+
+  // Remove leading/trailing punctuation
+  title = title.replace(/^[-–—:\s]+|[-–—:\s]+$/g, '').trim();
+  return title || rawTitle;
 }
 
 export function getCategoryProductsKeyboard(catKey: string, page = 0, lang: BotLanguage = 'ug') {
   const services = getServicesForCategory(catKey);
-  const pageSize = 8;
+  const isGames = catKey === 'games';
+  const pageSize = isGames ? 8 : 10;
   const totalPages = Math.ceil(services.length / pageSize) || 1;
   const currentPage = Math.min(Math.max(0, page), totalPages - 1);
   const slice = services.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
 
   const inline_keyboard: any[][] = [];
 
-  for (let i = 0; i < slice.length; i += 2) {
-    const row: any[] = [];
-    const item1 = slice[i];
-    const icon1 = item1.badge ? item1.badge.split(' ')[0] : '⚡';
-    const rawName1 = item1.name;
-    const translatedName1 = lang === 'ug' ? rawName1 : smartTranslateTitle(rawName1, lang as any);
-    const shortName1 = translatedName1.length > 20 ? `${translatedName1.slice(0, 19)}…` : translatedName1;
-
-    row.push({
-      text: `${icon1} ${shortName1}`,
-      callback_data: `tgserv:${item1.id}`,
-    });
-    if (i + 1 < slice.length) {
-      const item2 = slice[i + 1];
-      const icon2 = item2.badge ? item2.badge.split(' ')[0] : '⚡';
-      const rawName2 = item2.name;
-      const translatedName2 = lang === 'ug' ? rawName2 : smartTranslateTitle(rawName2, lang as any);
-      const shortName2 = translatedName2.length > 20 ? `${translatedName2.slice(0, 19)}…` : translatedName2;
+  if (isGames) {
+    // 1 button per line for game products
+    for (const item of slice) {
+      const btnTitle = formatCleanGameTitle(item.id, item.name);
+      inline_keyboard.push([
+        {
+          text: btnTitle,
+          callback_data: `tgserv:${item.id}`,
+        },
+      ]);
+    }
+  } else {
+    // 2 buttons per line for other categories
+    for (let i = 0; i < slice.length; i += 2) {
+      const row: any[] = [];
+      const item1 = slice[i];
+      const icon1 = item1.badge ? item1.badge.split(' ')[0] : '⚡';
+      const rawName1 = item1.name;
+      const translatedName1 = lang === 'ug' ? rawName1 : smartTranslateTitle(rawName1, lang as any);
+      const shortName1 = translatedName1.length > 20 ? `${translatedName1.slice(0, 19)}…` : translatedName1;
 
       row.push({
-        text: `${icon2} ${shortName2}`,
-        callback_data: `tgserv:${item2.id}`,
+        text: `${icon1} ${shortName1}`,
+        callback_data: `tgserv:${item1.id}`,
       });
+      if (i + 1 < slice.length) {
+        const item2 = slice[i + 1];
+        const icon2 = item2.badge ? item2.badge.split(' ')[0] : '⚡';
+        const rawName2 = item2.name;
+        const translatedName2 = lang === 'ug' ? rawName2 : smartTranslateTitle(rawName2, lang as any);
+        const shortName2 = translatedName2.length > 20 ? `${translatedName2.slice(0, 19)}…` : translatedName2;
+
+        row.push({
+          text: `${icon2} ${shortName2}`,
+          callback_data: `tgserv:${item2.id}`,
+        });
+      }
+      inline_keyboard.push(row);
     }
-    inline_keyboard.push(row);
   }
 
   if (totalPages > 1) {
@@ -235,7 +482,7 @@ export function getCategoryProductsKeyboard(catKey: string, page = 0, lang: BotL
 
   inline_keyboard.push([
     {
-      text: BOT_I18N.categories.backToCategories[lang] || '🔙 دۇكان بۆلۈملىرىگە قايتىش ↩️',
+      text: '👈 قايتىش',
       callback_data: 'tg_shop_categories',
     },
   ]);
@@ -275,20 +522,44 @@ export function getServicePackagesKeyboard(
     return true;
   });
 
-  const pageSize = 10;
+  const pageSize = 16;
   const totalPages = Math.ceil(packages.length / pageSize) || 1;
   const currentPage = Math.min(Math.max(0, page), totalPages - 1);
   const slice = packages.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
 
+  const rowPairs: any[][] = [];
+  let currentRow: any[] = [];
+
   for (const pkg of slice) {
-    const rawTitle = (pkg.title || '').replace(/\(شەن\)/g, '').replace(/\(شەدەن\)/g, '').replace(/\s{2,}/g, ' ').trim();
-    const translatedTitle = lang === 'ug' ? rawTitle : smartTranslateTitle(rawTitle, lang as any);
-    inline_keyboard.push([
-      {
-        text: `📦 ${translatedTitle} — ${Number(pkg.price).toFixed(2)} USD`,
-        callback_data: `tgpkg:${service.id}:${pkg.id}`,
-      },
-    ]);
+    const cleanLabel = cleanPackageLabel(pkg.title || '', service.id, service.name);
+    const priceStr = Number(pkg.price).toFixed(2);
+    const btnText = `${cleanLabel} — ${priceStr}$`;
+    const btn = {
+      text: btnText,
+      callback_data: `tgpkg:${service.id}:${pkg.id}`,
+    };
+
+    // If text is long (> 22 chars), give it its own full row
+    if (btnText.length > 22) {
+      if (currentRow.length > 0) {
+        rowPairs.push(currentRow);
+        currentRow = [];
+      }
+      rowPairs.push([btn]);
+    } else {
+      currentRow.push(btn);
+      if (currentRow.length === 2) {
+        rowPairs.push(currentRow);
+        currentRow = [];
+      }
+    }
+  }
+  if (currentRow.length > 0) {
+    rowPairs.push(currentRow);
+  }
+
+  for (const r of rowPairs) {
+    inline_keyboard.push(r);
   }
 
   if (totalPages > 1) {
@@ -314,12 +585,8 @@ export function getServicePackagesKeyboard(
   }
 
   const backTarget = service.id === 'othman_visa_cards' ? 'tg_shop_categories' : `tgcat:${service.category || 'games'}`;
-  const backText = service.id === 'othman_visa_cards'
-    ? (BOT_I18N.categories.backToCategories[lang] || BOT_I18N.categories.backToCategories.ug)
-    : (BOT_I18N.categories.backToCategory[lang] || BOT_I18N.categories.backToCategory.ug);
-
   inline_keyboard.push([
-    { text: backText, callback_data: backTarget },
+    { text: '👈 قايتىش', callback_data: backTarget },
   ]);
 
   return { inline_keyboard };
@@ -380,12 +647,22 @@ export async function handleShopCallbackQuery(
       lang === 'ru' ? '💡 Этот раздел пока пуст, скоро будут добавлены услуги Wi-Fi...' :
       '💡 بۇ بۆلۈم ھازىرچە بوش، پات يېقىندا يېڭى Wi-Fi تور كارتىلىرى قوشۇلىدۇ...';
 
-    const catText = `
+    let catText = '';
+    if (catKey === 'games' && (lang === 'ug' || !lang)) {
+      catText = [
+        '» » ༒•|-- ( <b>ئويۇن مەھسۇلاتلىرى</b> ) --|•༒ « «',
+        '',
+        '📌 <b>سېتىۋالماقچى بولغان ئويۇننى تاللاڭ:</b>',
+        '___________________',
+      ].join('\n');
+    } else {
+      catText = `
 ╭━━━ 🌟 <b>${catTitle}</b> ━━━╮
 
 ${isEmpty ? emptyNotice : `📌 <b>${choosePrompt}</b>\n<i>${countPrompt}</i>`}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `.trim();
+    }
     await showOrEditMessage(chatId, messageId, catText, getCategoryProductsKeyboard(catKey, page, lang));
     return true;
   }
@@ -410,6 +687,9 @@ ${isEmpty ? emptyNotice : `📌 <b>${choosePrompt}</b>\n<i>${countPrompt}</i>`}
       return true;
     }
 
+    const user = await getOrCreateTelegramUser(fromId, fromUser, cq.from?.first_name);
+    const balanceStr = Number(user.balance || 0).toFixed(2);
+
     const hasSubs = service.subCategories && service.subCategories.length > 1;
     const activeSub = hasSubs
       ? service.subCategories?.find((sc) => sc.id === subCatId) || service.subCategories?.[0]
@@ -418,14 +698,33 @@ ${isEmpty ? emptyNotice : `📌 <b>${choosePrompt}</b>\n<i>${countPrompt}</i>`}
     const effectiveSubTitle = subLabel ? ` - ${subLabel}` : '';
     const serviceName = lang === 'ug' ? service.name : smartTranslateTitle(service.name, lang as any);
 
+    const isGame = service.category === 'games' || service.id.includes('othman_');
+    const cleanGameName = formatCleanGameBaseName(service.id, service.name);
+    const currencyWord = service.id.includes('pubg') ? 'UC' : service.id.includes('call_of_duty') ? 'CP' : '💎';
+
     const selectPrompt = BOT_I18N.order.selectPackagePrompt[lang] || BOT_I18N.order.selectPackagePrompt.ug;
 
-    const servText = `
+    let servText = '';
+    if (isGame && (lang === 'ug' || !lang)) {
+      servText = [
+        `🎮 <b>${cleanGameName} — قاچىلاش 💎 ${currencyWord}</b>`,
+        subLabel ? `📁 <i>${subLabel}</i>` : '',
+        `💳 <b>قالدۇقىڭىز:</b> $${balanceStr}`,
+        '',
+        `⚠️ <i>سېرۋېر (Zone) ياكى رايوننى خاتا كىرگۈزسىڭىز، مەھسۇلات ھېساباتىڭىزغا بارماسلىقى مۇمكىن ۋە بۇ خىل خاتالىقتا پۇل قايتۇرۇلمايدۇ. زاكاس بېرىشتىن بۇرۇن ئويۇنچى نامىنى جەزملەڭ.</i>`,
+        '',
+        `📌 <b>پاكېت تاللاڭ:</b>`,
+      ].filter(Boolean).join('\n');
+    } else {
+      servText = `
 ╭━━━ 💎 <b>${serviceName}${effectiveSubTitle}</b> ━━━╮
+💳 <b>${BOT_I18N.account.balance[lang] || 'قالدۇقىڭىز'}:</b> $${balanceStr}
 
 ${selectPrompt}
 ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `.trim();
+    }
+
     await showOrEditMessage(chatId, messageId, servText, getServicePackagesKeyboard(service, subCatId, page, lang));
     return true;
   }
@@ -450,12 +749,14 @@ ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━�
         pkg.fields?.some((f) => f.key?.toLowerCase().includes('zone'))
     );
 
+    const cleanPkgTitle = cleanPackageLabel(pkg.title || '', service.id, service.name);
+
     botOrderSessions.set(fromId, {
       step: 'awaiting_target_account',
       serviceId: service.id,
       serviceName: service.name,
       pkgId: pkg.id,
-      pkgTitle: (pkg.title || '').replace(/\(شەن\)/g, '').replace(/\(شەدەن\)/g, '').replace(/\s{2,}/g, ' ').trim(),
+      pkgTitle: cleanPkgTitle,
       price: Number(pkg.price),
       providerProductId: pkg.providerProductId,
       providerQty: (pkg as any).providerQty,
@@ -464,14 +765,8 @@ ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━�
     });
     if (chatId) botOrderSessions.set(chatId, botOrderSessions.get(fromId)!);
 
-    const sName = (lang === 'ug' ? service.name : smartTranslateTitle(service.name, lang as any))
-      .replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')
-      .replace(/⚡ نەق شەن & ئەزالىق/g, '⚡ تېز قاچىلاش & ئەزالىق');
-    const pTitle = (lang === 'ug' ? pkg.title : smartTranslateTitle(pkg.title, lang as any))
-      .replace(/\(شەن\)/g, '')
-      .replace(/\(شەدەن\)/g, '')
-      .replace(/\s{2,}/g, ' ')
-      .trim();
+    const sName = formatCleanGameBaseName(service.id, service.name);
+    const pTitle = cleanPkgTitle;
 
     const header = lang === 'ar' ? 'إدخال بيانات الطلب' :
                    lang === 'tr' ? 'Sipariş Bilgilerini Girin' :
@@ -823,14 +1118,13 @@ export async function handleShopTextMessage(
     const remaining = balance - activeSession.price;
     const isEnough = balance >= activeSession.price;
 
-    const sName = (lang === 'ug' ? activeSession.serviceName : smartTranslateTitle(activeSession.serviceName, lang as any))
-      .replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')
-      .replace(/⚡ نەق شەن & ئەزالىق/g, '⚡ تېز قاچىلاش & ئەزالىق');
-    const pTitle = (lang === 'ug' ? activeSession.pkgTitle : smartTranslateTitle(activeSession.pkgTitle, lang as any))
-      .replace(/\(شەن\)/g, '')
-      .replace(/\(شەدەن\)/g, '')
-      .replace(/\s{2,}/g, ' ')
-      .trim();
+    const isGame = activeSession.serviceId.includes('othman_') || activeSession.serviceId.includes('pubg') || activeSession.serviceId.includes('free_fire');
+    const sName = isGame
+      ? formatCleanGameBaseName(activeSession.serviceId, activeSession.serviceName)
+      : (lang === 'ug' ? activeSession.serviceName : smartTranslateTitle(activeSession.serviceName, lang as any))
+          .replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')
+          .replace(/⚡ نەق شەن & ئەزالىق/g, '⚡ تېز قاچىلاش & ئەزالىق');
+    const pTitle = activeSession.pkgTitle;
 
     const titleCard = BOT_I18N.order.confirmOrderTitle[lang] || '⚡️ زاكازنى جەزملەشتۈرۈش';
     const targetFull = `${activeSession.targetAccount}${activeSession.zoneId ? ` (${activeSession.zoneId})` : ''}`;
