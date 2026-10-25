@@ -41,7 +41,9 @@ import TelegramFloat from '@/components/TelegramFloat';
 import BottomNav from '@/components/BottomNav';
 import AppUpdateNotifier from '@/components/AppUpdateNotifier';
 import FirstTimeLanguageModal from '@/components/FirstTimeLanguageModal';
+import TelegramAutoLogin from '@/components/TelegramAutoLogin';
 import { LanguageProvider } from '@/context/LanguageContext';
+import Script from 'next/script';
 
 export default function RootLayout({
   children,
@@ -50,9 +52,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ug" dir="rtl" suppressHydrationWarning>
+      <head>
+        <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
+      </head>
       <body className="bg-[#040d1a] text-slate-100 antialiased min-h-screen">
         <LanguageProvider>
           {children}
+          <TelegramAutoLogin />
           <TelegramFloat />
           <BottomNav />
           <AppUpdateNotifier />

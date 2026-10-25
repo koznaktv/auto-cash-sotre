@@ -2932,6 +2932,37 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
   if (text.startsWith('/start')) {
     resetChatMenuButtonToDefault(chatId);
 
+    // 1-Click Telegram Login from Website: /start auth_<token>
+    if (text.startsWith('/start auth_')) {
+      const token = text.replace('/start auth_', '').trim();
+      const { approveTelegramLoginSessionAsync } = await import('./telegramAuthSessions');
+      const { getOrCreateTelegramUser } = await import('./telegramShop');
+
+      const user = await getOrCreateTelegramUser(from.id, from.username, from.first_name);
+      await approveTelegramLoginSessionAsync(token, user.id);
+
+      const loginSuccessMsg = `
+🎉 <b>توربەتكە كىرىش مۇۋەپپەقىيەتلىك تەستىقلاندى!</b> 🚀
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 <b>ھېساباتىڭىز:</b> ${user.name}
+📧 <b>ئېلخەت:</b> <code>${user.email}</code>
+💳 <b>ئورتاق قالدۇقىڭىز:</b> <b>$${Number(user.balance || 0).toFixed(2)} USD</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚡️ <i>ھازىر توربەتكە قايتسىڭىز، ھېساباتىڭىز ئاپتوماتىك كىرىپ بولغان ھالەتتە تۇرىدۇ!</i>
+`.trim();
+
+      await sendTelegramMessage(chatId, loginSuccessMsg, {
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '⚡️🛍️ توربەت دۇكىنىغا قايتىش ➔', web_app: { url: TELEGRAM_CONFIG.storeUrl } }],
+            [{ text: '🛍️ مۇشۇ يەردىلا مەھسۇلات كۆرۈش', callback_data: 'tg_shop_categories' }],
+          ],
+        },
+      });
+      return;
+    }
+
     // 1-Click Deep Link Account Linking from Website: /start link_<token>
     if (text.startsWith('/start link_')) {
       const token = text.replace('/start link_', '').trim();

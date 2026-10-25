@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import { X } from 'lucide-react';
 import { getBrowserSupabase } from '@/lib/supabaseBrowser';
+import { storeLocalAuth } from '@/lib/clientAuth';
 
 export interface UserSessionData {
   id: string;
@@ -50,6 +51,63 @@ const LoginForm = memo(function LoginForm({
   const [loginArrowFlying, setLoginArrowFlying] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  const [tgLoading, setTgLoading] = useState(false);
+  const [tgPollingToken, setTgPollingToken] = useState<string | null>(null);
+  const [tgBotUrl, setTgBotUrl] = useState<string | null>(null);
+
+  const handleTelegramLogin = async () => {
+    setErrorMsg('');
+    setTgLoading(true);
+    try {
+      const res = await fetch('/api/auth/telegram-session', { method: 'POST' });
+      const data = await res.json();
+      if (!data.success || !data.token || !data.botUrl) {
+        throw new Error(data.message || 'Telegram ئارقىلىق كىرىش مەغلۇپ بولدى');
+      }
+
+      setTgPollingToken(data.token);
+      setTgBotUrl(data.botUrl);
+
+      if (typeof window !== 'undefined') {
+        window.open(data.botUrl, '_blank');
+      }
+
+      let attempts = 0;
+      const interval = setInterval(async () => {
+        attempts++;
+        if (attempts > 80) {
+          clearInterval(interval);
+          setTgLoading(false);
+          setTgPollingToken(null);
+          return;
+        }
+
+        try {
+          const pollRes = await fetch(`/api/auth/telegram-session?token=${encodeURIComponent(data.token)}`);
+          const pollData = await pollRes.json();
+          if (pollData.success && pollData.approved && pollData.user) {
+            clearInterval(interval);
+            setTgLoading(false);
+            setTgPollingToken(null);
+            storeLocalAuth(pollData.user);
+            window.dispatchEvent(new Event('autocash_auth_changed'));
+            onTriggerSuccess(
+              'مۇۋەپپەقىيەتلىك كىردىڭىز',
+              'خۇش كەپسىز!',
+              pollData.user
+            );
+          }
+        } catch {}
+      }, 1500);
+    } catch (err: any) {
+      console.error('Telegram login error:', err);
+      setErrorMsg(err?.message || 'Telegram كىرىش مەغلۇپ بولدى');
+      setTgLoading(false);
+      setTgPollingToken(null);
+    }
+  };
+
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleGoogleLogin = async () => {
@@ -254,22 +312,68 @@ const LoginForm = memo(function LoginForm({
         </button>
 
         {/* Google OAuth Button */}
-        <div className="social-auth-grid">
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            disabled={googleLoading}
-            className="btn-social"
-          >
-            <svg viewBox="0 0 24 24">
-              <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.3 8.8 5 12 5z" />
-              <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z" />
-              <path fill="#FBBC05" d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.6 7.2C.6 9.2 0 11.5 0 14s.6 4.8 1.6 6.8l3.7-3.1z" />
-              <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.2 0-5.8-2.2-6.7-5.3L1.6 16C3.5 19.9 7.4 23 12 23z" />
-            </svg>
-            <span>{googleLoading ? t('googleSigningIn') : t('googleSignIn')}</span>
-          </button>
-        </div>
+        
+        {tgPollingToken && tgBotUrl ? (
+          <div className="p-3.5 rounded-2xl bg-sky-950/80 border border-sky-400/50 space-y-2 text-center text-xs animate-in fade-in my-3 font-alkatip">
+            <div className="flex items-center justify-center gap-2 text-sky-300 font-bold">
+              <div className="w-3.5 h-3.5 border-2 border-sky-400 border-t-transparent rounded-full animate-spin" />
+              <span>Telegram دا «Start» نى بېسىڭ...</span>
+            </div>
+            <p className="text-[11px] text-sky-200/90 leading-relaxed">
+              تېلېگراممىدا ئېچىلغان بوت كۆزنىكىدە <b>Start</b> نى باسسىڭىز، بۇ يەرگە ئاپتوماتىك كىرىپ بولىدۇ.
+            </p>
+            <div className="flex items-center justify-center gap-2 pt-1">
+              <a
+                href={tgBotUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="px-3 py-1.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs shadow flex items-center gap-1"
+              >
+                <span>بوتنى قايتا ئېچىش ➔</span>
+              </a>
+              <button
+                type="button"
+                onClick={() => {
+                  setTgLoading(false);
+                  setTgPollingToken(null);
+                }}
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs"
+              >
+                بىكار قىلىش
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="social-auth-grid">
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              disabled={googleLoading || tgLoading}
+              className="btn-social"
+            >
+              <svg viewBox="0 0 24 24">
+                <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.3 8.8 5 12 5z" />
+                <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z" />
+                <path fill="#FBBC05" d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.6 7.2C.6 9.2 0 11.5 0 14s.6 4.8 1.6 6.8l3.7-3.1z" />
+                <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.2 0-5.8-2.2-6.7-5.3L1.6 16C3.5 19.9 7.4 23 12 23z" />
+              </svg>
+              <span>{googleLoading ? t('googleSigningIn') : 'Google (Gmail) بىلەن كىرىش'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleTelegramLogin}
+              disabled={googleLoading || tgLoading}
+              className="btn-social btn-telegram-login"
+            >
+              <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#229ED9] shrink-0">
+                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.536-.196 1.006.128.832.926z" />
+              </svg>
+              <span>{tgLoading ? 'تەكشۈرۈلۈۋاتىدۇ...' : 'Telegram ئارقىلىق 1 چېكىپ كىرىش'}</span>
+            </button>
+          </div>
+        )}
+
 
         {/* Footer Switch */}
         <div className="card-footer">

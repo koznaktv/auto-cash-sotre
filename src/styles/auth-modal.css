@@ -1517,3 +1517,14 @@
     touch-action: manipulation;
   }
 }
+
+        .nasrulla-modal-root .btn-social.btn-telegram-login {
+          border: 1px solid rgba(34, 158, 217, 0.45);
+          background: rgba(34, 158, 217, 0.12);
+          color: #e0f2fe;
+        }
+        .nasrulla-modal-root .btn-social.btn-telegram-login:hover {
+          border-color: rgba(34, 158, 217, 0.8);
+          background: rgba(34, 158, 217, 0.22);
+          box-shadow: 0 4px 15px rgba(34, 158, 217, 0.25);
+        }
