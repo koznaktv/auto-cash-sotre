@@ -2634,6 +2634,55 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
   // 1. Command /start
   if (text.startsWith('/start')) {
     resetChatMenuButtonToDefault(chatId);
+
+    // 1-Click Deep Link Account Linking from Website: /start link_<token>
+    if (text.startsWith('/start link_')) {
+      const token = text.replace('/start link_', '').trim();
+      const { verifyAndConsumeTelegramLinkToken, linkTelegramAccountToUser } = await import('./telegramLink');
+      const verified = verifyAndConsumeTelegramLinkToken(token);
+      if (!verified) {
+        await sendTelegramMessage(
+          chatId,
+          `⚠️ <b>باغلاش ئۇلىنىشىنىڭ ۋاقتى ئۆتۈپ كەتكەن ياكى ئىناۋەتسىز</b>\n\nتوربەتتىكى «مېنىڭ ھېساباتىم» بېتىگە كىرىپ، «تېلېگراممىغا تۇتاشتۇرۇش» كۇنۇپكىسىنى قايتا بېسىڭ.`
+        );
+        return;
+      }
+
+      const res = await linkTelegramAccountToUser(verified.userId, from.id, from.username);
+      if (!res.success || !res.user) {
+        await sendTelegramMessage(chatId, `❌ ھېساباتنى تۇتاشتۇرۇش مەغلۇپ بولدى: ${res.error || 'نومۇر باغلانمىدى'}`);
+        return;
+      }
+
+      const u = res.user;
+      const mergedText = res.mergedBalance > 0
+        ? `\n💰 <b>يىغىنچاقلانغان قالدۇق:</b> تېلېگراممىدىكى بۇرۇنقى $${res.mergedBalance.toFixed(2)} قالدۇقىڭىز توربەت ھېساباتىڭىزغا تولۇق قوشۇلدى!`
+        : '';
+
+      const successCard = `
+🎉 <b>تەبرىكلەيمىز! توربەت بىلەن تېلېگرامما ھېساباتىڭىز تولۇق بىر گەۋدە قىلىندى!</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 <b>ئىسمىڭىز:</b> ${u.name}
+📧 <b>توربەت ھېساباتى:</b> <code>${u.email}</code>
+💳 <b>ئورتاق قالدۇقىڭىز:</b> <b>$${Number(u.balance || 0).toFixed(2)} USD</b>
+👑 <b>VIP دەرىجىسى:</b> <b>${(u.vipTier || 'VIP1').toUpperCase()}</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚡️ <b>ئەمدى نېمە بولىدۇ؟</b>
+• مەيلى توربەتتە ياكى بوتتا شامكەشتىن پۇل سالسىڭىز، ئىككىلا تەرەپتە بىرلا ۋاقىتتا تەڭلا چىقىدۇ!
+• پۈتۈن زاكاسلىرىڭىز ۋە ھەميىنىڭىز بىرلا كۈچلۈك ھېساباتقا ئايلاندى.${mergedText}
+`.trim();
+
+      await sendTelegramMessage(chatId, successCard, {
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '🛍️ مەھسۇلاتلار بۆلىكىگە كىرىش ➔', callback_data: 'tg_shop_categories' }],
+            [{ text: '💎💳 قالدۇق تەكشۈرۈش / پۇل سېلىش', callback_data: 'tg_my_account' }],
+          ],
+        },
+      });
+      return;
+    }
     if (isAdmin) {
       const adminWelcome = getAdminWelcomeMessage(from?.username || from?.first_name);
       await sendTelegramMessage(chatId, adminWelcome, {

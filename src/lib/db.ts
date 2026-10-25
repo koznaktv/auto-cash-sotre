@@ -9,6 +9,8 @@ export interface UserRecord {
   email: string;
   phone?: string;
   avatarUrl?: string;
+  telegramChatId?: string | number;
+  telegramUsername?: string;
   passwordHash: string;
   salt: string;
   balance: number;
@@ -253,6 +255,8 @@ function mapSupabaseUser(row: any): UserRecord {
     email: row.email,
     phone: row.phone || undefined,
     avatarUrl: row.avatar_url || row.avatar || undefined,
+    telegramChatId: row.telegram_chat_id || row.telegramChatId || undefined,
+    telegramUsername: row.telegram_username || row.telegramUsername || undefined,
     passwordHash: row.password_hash,
     salt: row.salt,
     balance: Number(row.balance || 0),
@@ -422,6 +426,8 @@ export async function updateUserAsync(
     if (updates.name !== undefined) dbUpdates.name = updates.name;
     if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
     if (updates.avatarUrl !== undefined) dbUpdates.avatar_url = updates.avatarUrl;
+    if (updates.telegramChatId !== undefined) dbUpdates.telegram_chat_id = updates.telegramChatId;
+    if (updates.telegramUsername !== undefined) dbUpdates.telegram_username = updates.telegramUsername;
     if (updates.vipTier !== undefined) dbUpdates.vip_tier = updates.vipTier;
     if (updates.role !== undefined) dbUpdates.role = updates.role;
     if (updates.isBanned !== undefined) dbUpdates.is_banned = updates.isBanned;

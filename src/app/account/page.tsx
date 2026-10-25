@@ -21,6 +21,11 @@ import {
   KeyRound,
   LogOut,
   Crown,
+  Send,
+  Link2,
+  ExternalLink,
+  Unlink,
+  CheckCircle2,
 } from 'lucide-react';
 
 const VIP_TIER_CONFIG: Record<
@@ -106,6 +111,62 @@ export default function AccountPage() {
   const [passwordSuccess, setPasswordSuccess] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<string>('');
 
+  const [telegramLink, setTelegramLink] = useState<{
+    isLinked: boolean;
+    telegramChatId?: string | number | null;
+    telegramUsername?: string | null;
+    linkUrl?: string;
+  } | null>(null);
+  const [loadingTgLink, setLoadingTgLink] = useState<boolean>(false);
+  const [tgUnlinkSuccess, setTgUnlinkSuccess] = useState<boolean>(false);
+
+  const fetchTelegramLink = async () => {
+    try {
+      const res = await fetch('/api/auth/telegram-link');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setTelegramLink({
+            isLinked: !!data.isLinked,
+            telegramChatId: data.telegramChatId,
+            telegramUsername: data.telegramUsername,
+            linkUrl: data.linkUrl,
+          });
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load telegram link info:', e);
+    }
+  };
+
+  const handleUnlinkTelegram = async () => {
+    const confirmMsg =
+      lang === 'ug'
+        ? 'راستلا تېلېگرامما ھېساباتىنى توربەتتىن ئۈزمەكچىمۇ؟'
+        : lang === 'ar'
+        ? 'هل أنت متأكد من رغبتك في إلغاء ربط حساب تلغرام؟'
+        : 'Are you sure you want to unlink your Telegram account?';
+    if (!window.confirm(confirmMsg)) return;
+
+    setLoadingTgLink(true);
+    try {
+      const res = await fetch('/api/auth/telegram-link', { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setTelegramLink({
+          isLinked: false,
+          linkUrl: data.linkUrl,
+        });
+        setTgUnlinkSuccess(true);
+        setTimeout(() => setTgUnlinkSuccess(false), 3500);
+      }
+    } catch (e) {
+      console.error('Failed to unlink telegram:', e);
+    } finally {
+      setLoadingTgLink(false);
+    }
+  };
+
   const normalizedTier = (vipTier || 'vip1').toLowerCase().replace(/[\s-_]/g, '');
   const activeTierConfig = VIP_TIER_CONFIG[normalizedTier] || VIP_TIER_CONFIG.vip1;
   const vipTierLabel =
@@ -160,6 +221,7 @@ export default function AccountPage() {
           setTotalPurchases(u.totalSpent || 0);
           setVipTier(u.vipTier ? u.vipTier.toUpperCase() : 'VIP 1');
           storeLocalAuth(u);
+          fetchTelegramLink();
         }
       } catch (e) {
         console.error(e);
@@ -170,6 +232,7 @@ export default function AccountPage() {
       setTotalDeposited(0.0);
       setTotalPurchases(0.0);
       setAvatarUrl('');
+      setTelegramLink(null);
     }
 
     // Always fetch authentic Google account photo directly from Google OAuth session
@@ -278,6 +341,7 @@ export default function AccountPage() {
     setBalance(0.0);
     setTotalPurchases(0.0);
     setTotalOrders(0);
+    setTelegramLink(null);
   };
 
   const handleAuthSuccess = (usr: any) => {
@@ -450,6 +514,110 @@ export default function AccountPage() {
                 <span>{t('loginRegister')}</span>
               </button>
             </div>
+          </div>
+        )}
+
+        {/* Telegram Integration Card (1-Click Deep Link Unification) */}
+        {isLoggedIn && (
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#0b2447] via-[#091b35] to-[#051124] border border-cyan-400/40 shadow-xl relative overflow-hidden">
+            <div className="absolute -top-12 -left-12 w-36 h-36 bg-cyan-500/15 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-600/15 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-start sm:items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/30 shrink-0">
+                  <Send className="w-6 h-6 transform -translate-y-0.5 translate-x-0.5" />
+                </div>
+
+                <div className={isRTL ? 'text-right' : 'text-left'}>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-extrabold text-white text-sm sm:text-base flex items-center gap-1.5">
+                      <span>{lang === 'ug' ? 'تېلېگرامما بوت بىلەن بىر گەۋدە' : lang === 'ar' ? 'ربط الحساب ببوت تلغرام' : 'Telegram Bot Unification'}</span>
+                      <span className="text-cyan-400">⚡️</span>
+                    </h3>
+                    {telegramLink?.isLinked ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-[11px] font-bold">
+                        <CheckCircle2 className="w-3 h-3" />
+                        <span>{lang === 'ug' ? 'تۇتاشتۇرۇلدى' : lang === 'ar' ? 'متصل' : 'Connected'}</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-bold animate-pulse">
+                        <span>{lang === 'ug' ? '1 چېكىش بىلەن' : lang === 'ar' ? 'بنقرة واحدة' : '1-Click Link'}</span>
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                    {telegramLink?.isLinked ? (
+                      lang === 'ug' ? (
+                        <>
+                          تېلېگرامما ھېساباتىڭىز ({telegramLink.telegramUsername ? `@${telegramLink.telegramUsername}` : `ID: ${telegramLink.telegramChatId}`}) مۇۋەپپەقىيەتلىك باغلاندى. قالدۇق پۇل ۋە زاكاسلار ئىككى تەرەپتە بىر گەۋدە يۈرۈشىدۇ!
+                        </>
+                      ) : lang === 'ar' ? (
+                        <>
+                          حسابك في تلغرام ({telegramLink.telegramUsername ? `@${telegramLink.telegramUsername}` : `ID: ${telegramLink.telegramChatId}`}) متصل بنجاح. الرصيد والطلبات متزامنة بالكامل!
+                        </>
+                      ) : (
+                        <>
+                          Your Telegram account ({telegramLink.telegramUsername ? `@${telegramLink.telegramUsername}` : `ID: ${telegramLink.telegramChatId}`}) is linked. Balance and orders sync seamlessly!
+                        </>
+                      )
+                    ) : (
+                      lang === 'ug' ? (
+                        'توربەتتىكى قالدۇق پۇلىڭىز بىلەن بوتنى تۇتاشتۇرۇڭ. قايسى تەرەپتە پۇل سالسىڭىز ئىككى تەرەپتە تەڭ چىقىدۇ.'
+                      ) : lang === 'ar' ? (
+                        'اربط حسابك ببوت تلغرام لتتمتع برصيد مشترك متزامن فوري بين الموقع والبوت.'
+                      ) : (
+                        'Link your store account with the Telegram bot for a real-time shared live balance.'
+                      )
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <div className="w-full sm:w-auto flex items-center gap-2 justify-end shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-700/60">
+                {telegramLink?.isLinked ? (
+                  <>
+                    <a
+                      href="https://t.me/Auto_cash_vip_bot"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-cyan-600/30 hover:bg-cyan-600/45 border border-cyan-400/50 text-cyan-200 hover:text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow"
+                    >
+                      <span>{lang === 'ug' ? 'بوتنى ئېچىش' : lang === 'ar' ? 'فتح البوت' : 'Open Bot'}</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                    <button
+                      type="button"
+                      disabled={loadingTgLink}
+                      onClick={handleUnlinkTelegram}
+                      className="px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-rose-950/40 border border-slate-700 hover:border-rose-500/40 text-slate-400 hover:text-rose-400 text-xs font-bold transition flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                      title={lang === 'ug' ? 'تېلېگراممىنى ئۈزۈش' : lang === 'ar' ? 'إلغاء الربط' : 'Unlink'}
+                    >
+                      <Unlink className="w-3.5 h-3.5" />
+                      <span>{lang === 'ug' ? 'ئۈزۈش' : lang === 'ar' ? 'فصل' : 'Unlink'}</span>
+                    </button>
+                  </>
+                ) : (
+                  <a
+                    href={telegramLink?.linkUrl || 'https://t.me/Auto_cash_vip_bot'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black text-xs transition-all shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 flex items-center justify-center gap-2 transform active:scale-95 cursor-pointer"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>{lang === 'ug' ? '1 چېكىپ بوتقا باغلاش' : lang === 'ar' ? 'ربط الحساب بالبوت فوراً' : '1-Click Link Telegram'}</span>
+                  </a>
+                )}
+              </div>
+            </div>
+
+            {tgUnlinkSuccess && (
+              <div className="mt-3 p-2 rounded-lg bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2">
+                <Check className="w-4 h-4" />
+                <span>{lang === 'ug' ? 'تېلېگرامما ھېساباتى مۇۋەپپەقىيەتلىك ئۈزۈلدى.' : lang === 'ar' ? 'تم إلغاء الربط بنجاح.' : 'Telegram unlinked successfully.'}</span>
+              </div>
+            )}
           </div>
         )}
 

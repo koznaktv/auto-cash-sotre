@@ -2,6 +2,7 @@ import {
   getAllUsersAsync,
   getUserByEmailAsync,
   createUserAsync,
+  updateUserAsync,
   deductBalanceAndCreateOrderAtomicAsync,
   transitionOrderAsync,
   randomId,
@@ -43,18 +44,41 @@ export async function getOrCreateTelegramUser(
   fromUsername?: string,
   firstName?: string
 ): Promise<UserRecord> {
+  const allUsers = await getAllUsersAsync();
+
+  // 1. Check if an account is linked by telegramChatId
+  const linkedByChatId = allUsers.find(
+    (u) => u.telegramChatId && String(u.telegramChatId) === String(fromId)
+  );
+  if (linkedByChatId) {
+    if (fromUsername && linkedByChatId.telegramUsername !== fromUsername) {
+      updateUserAsync(linkedByChatId.id, { telegramUsername: fromUsername } as any).catch(() => {});
+    }
+    return linkedByChatId;
+  }
+
+  // 2. Check if an account is linked by telegramUsername
+  if (fromUsername) {
+    const linkedByUsername = allUsers.find(
+      (u) =>
+        u.telegramUsername &&
+        u.telegramUsername.toLowerCase().replace('@', '') === fromUsername.toLowerCase().replace('@', '')
+    );
+    if (linkedByUsername) {
+      await updateUserAsync(linkedByUsername.id, {
+        telegramChatId: fromId,
+        telegramUsername: fromUsername,
+      } as any);
+      return linkedByUsername;
+    }
+  }
+
+  // 3. Check default telegram email
   const tgEmail = `tg_${fromId}@autocash.pro`;
   const existing = await getUserByEmailAsync(tgEmail);
   if (existing) {
     return existing;
   }
-  const allUsers = await getAllUsersAsync();
-  const linked = allUsers.find(
-    (u) =>
-      u.email === tgEmail ||
-      (fromUsername && (u as any).telegramUsername?.toLowerCase() === fromUsername.toLowerCase())
-  );
-  if (linked) return linked;
 
   const newUser = await createUserAsync({
     name: firstName || fromUsername || `TG_${fromId}`,
@@ -62,6 +86,10 @@ export async function getOrCreateTelegramUser(
     password: `tg_pass_${fromId}_${Date.now()}`,
     role: 'user',
   });
+  await updateUserAsync(newUser.id, {
+    telegramChatId: fromId,
+    telegramUsername: fromUsername || undefined,
+  } as any);
   return newUser;
 }
 
