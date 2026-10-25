@@ -503,7 +503,43 @@ export function normalizeQtyRule(qtyValues: unknown, productType: string): QtyRu
 
 // ---------------------------------------------------------------- delivery
 
-const DELIVERY_KEYS = ['replay_api', 'replay', 'codes', 'code', 'pin', 'pins', 'serial', 'voucher', 'card', 'cards', 'content', 'delivery'];
+const DELIVERY_KEYS = [
+  'replay_api',
+  'replay',
+  'reply_api',
+  'reply',
+  'response',
+  'link',
+  'url',
+  'activation_link',
+  'activation_url',
+  'activationUrl',
+  'invite_link',
+  'invite_url',
+  'inviteUrl',
+  'codes',
+  'code',
+  'pin',
+  'pins',
+  'serial',
+  'voucher',
+  'card',
+  'cards',
+  'content',
+  'delivery',
+  'note',
+  'comment',
+  'message',
+  'msg',
+  'result',
+  'account_credentials',
+  'credentials',
+  'account',
+];
+
+function isHttpUrl(str: string): boolean {
+  return /^https?:\/\/[^\s"'<>]+/i.test(str.trim());
+}
 
 function collectStrings(value: unknown, out: string[], depth = 0): void {
   if (depth > 3 || out.length >= 50) return;
@@ -522,18 +558,48 @@ function collectStrings(value: unknown, out: string[], depth = 0): void {
 /** Codes / text the provider delivered for an order, if the body contains any. */
 export function extractDelivery(obj: unknown): Delivery | undefined {
   if (!isObject(obj)) return undefined;
-  // In an order object, `data` echoes the params we sent (e.g. {playerId}); only envelopes nest codes there
   const isOrder = obj.order_id !== undefined || obj.orderId !== undefined;
   const sources = [obj, !isOrder && isObject(obj.data) ? obj.data : null].filter(Boolean) as Record<string, any>[];
   const codes: string[] = [];
+  let foundUrl: string | undefined;
+  let replyText: string | undefined;
+
   for (const source of sources) {
     for (const key of DELIVERY_KEYS) {
-      if (source[key] !== undefined && source[key] !== null && source[key] !== '') collectStrings(source[key], codes);
+      if (source[key] !== undefined && source[key] !== null && source[key] !== '') {
+        const val = source[key];
+        if (typeof val === 'string') {
+          const trimmed = val.trim();
+          if (isHttpUrl(trimmed) && !foundUrl) {
+            foundUrl = trimmed;
+          }
+          if (['reply', 'reply_api', 'replay', 'replay_api', 'response', 'note', 'message', 'msg'].includes(key) && !replyText) {
+            replyText = trimmed;
+          }
+        }
+        collectStrings(val, codes);
+      }
     }
     if (Array.isArray(source.items)) collectStrings(source.items, codes);
   }
+
   const unique = Array.from(new Set(codes)).slice(0, 50);
-  return unique.length ? { codes: unique } : undefined;
+
+  if (!foundUrl) {
+    const urlFromCodes = unique.find(isHttpUrl);
+    if (urlFromCodes) foundUrl = urlFromCodes;
+  }
+
+  if (unique.length || foundUrl || replyText) {
+    return {
+      codes: unique,
+      activationUrl: foundUrl,
+      reply: replyText,
+      text: replyText || (unique.length === 1 ? unique[0] : undefined),
+    };
+  }
+
+  return undefined;
 }
 
 // ---------------------------------------------------------------- order status
@@ -620,10 +686,17 @@ export function parseCheckResponse(data: unknown, ids: string[]): Map<string, Ch
 
   const record = (id: string, item: any) => {
     if (!wanted.has(id) || !isObject(item)) return;
+    const delivery = extractDelivery(item);
+    const rawMsg = toText(item.message ?? item.reason ?? item.note ?? item.reply ?? item.response) || undefined;
+    const urlMatch = rawMsg?.match(/https?:\/\/[^\s"'<>]+/i);
+    const urlInMsg = urlMatch ? urlMatch[0] : undefined;
+    if (urlInMsg && delivery && !delivery.activationUrl) {
+      delivery.activationUrl = urlInMsg;
+    }
     result.set(id, {
       status: normalizeCheckStatus(item.status ?? item.state ?? item.order_status),
-      message: toText(item.message ?? item.reason ?? item.note) || undefined,
-      delivery: extractDelivery(item),
+      message: rawMsg,
+      delivery: delivery || (urlInMsg ? { codes: [urlInMsg], activationUrl: urlInMsg, reply: rawMsg } : undefined),
     });
   };
 

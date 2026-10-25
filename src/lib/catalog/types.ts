@@ -47,6 +47,8 @@ export type QtyRule =
 export interface Delivery {
   codes: string[];
   text?: string;
+  activationUrl?: string;
+  reply?: string;
 }
 
 export interface ProviderCategory {

@@ -183,13 +183,19 @@ export async function placeProviderOrder(user: UserRecord, input: PurchaseInput)
 
   if (response.outcome === 'accepted') {
     const completed = response.status === 'COMPLETED';
+    const deliv = response.delivery;
+    const replyMsg = response.message || deliv?.reply || deliv?.text;
+    const activationUrl = deliv?.activationUrl || (deliv?.codes?.find((c: string) => /^https?:\/\//i.test(c))) || (replyMsg?.match(/https?:\/\/[^\s"'<>]+/i)?.[0]);
+
     const settled = await transitionOrderAsync(orderId, ['processing'], completed ? 'completed' : 'pending_provider', {
       providerOrderId: response.providerOrderId,
       providerStatus: response.status,
       providerCheckedAt: now,
       providerCheckAttempts: 0,
       providerNextCheckAt: completed ? null : new Date(Date.now() + 60_000).toISOString(),
-      ...(response.delivery ? { delivery: response.delivery } : {}),
+      ...(deliv ? { delivery: deliv } : {}),
+      ...(replyMsg ? { providerReply: replyMsg, reply: replyMsg } : {}),
+      ...(activationUrl ? { activationUrl, activationLink: activationUrl } : {}),
     }).catch((e) => {
       // Money taken and the provider accepted: a failed status write must not report "order failed"
       console.error(`Order ${orderId} accepted by provider but status update failed:`, e);

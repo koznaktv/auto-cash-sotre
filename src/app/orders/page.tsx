@@ -16,7 +16,9 @@ import {
   RefreshCw,
   Calendar,
   Clock,
-  X
+  X,
+  ExternalLink,
+  Sparkles
 } from 'lucide-react';
 import { isOrderInProgress, type Order } from '@/lib/orders';
 import { getCachedBalance, getCachedUser, storeLocalAuth, ClientUser } from '@/lib/clientAuth';
@@ -434,86 +436,184 @@ export default function OrdersPage() {
                   </div>
 
                   {/* Delivery payload details if available */}
-                  {order.details &&
-                    (order.details.delivery?.codes?.length ||
-                      order.details.refundReason ||
-                      order.details.accountCredentials ||
-                      order.details.cardDetails ||
-                      order.details.virtualNumber ||
-                      order.details.smsCode) && (
-                    <div className="mt-2 pt-2 border-t border-slate-800/80 bg-slate-950/60 p-2.5 rounded-xl text-xs space-y-1.5 font-alkatip">
-                      {order.details.delivery?.codes?.map((code, idx) => (
-                        <div key={idx} className="flex items-center justify-between gap-2">
-                          <span className="text-slate-400 text-[11px] shrink-0">{t('codeLabel')}</span>
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <span className="text-emerald-300 font-bold font-mono break-all" dir="ltr">
-                              {code}
-                            </span>
-                            <button
-                              onClick={() => copyText(code, `code-${order.id}-${idx}`)}
-                              className="text-slate-400 hover:text-white shrink-0"
-                            >
-                              {copiedId === `code-${order.id}-${idx}` ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                            </button>
+                  {(() => {
+                    const d: any = order.details || {};
+                    const rawActivationUrl =
+                      d.activationUrl ||
+                      d.activationLink ||
+                      d.inviteUrl ||
+                      (d.delivery?.codes?.find((code: string) => /^https?:\/\//i.test(code))) ||
+                      (typeof d.providerReply === 'string' && /^https?:\/\//i.test(d.providerReply) ? d.providerReply : undefined) ||
+                      (typeof d.reply === 'string' && /^https?:\/\//i.test(d.reply) ? d.reply : undefined);
+
+                    const nonUrlCodes = (d.delivery?.codes || []).filter((code: string) => !/^https?:\/\//i.test(code));
+                    const textReply =
+                      (!rawActivationUrl && typeof d.providerReply === 'string' && d.providerReply) ||
+                      (!rawActivationUrl && typeof d.reply === 'string' && d.reply);
+
+                    const hasDetails =
+                      rawActivationUrl ||
+                      textReply ||
+                      nonUrlCodes.length > 0 ||
+                      d.refundReason ||
+                      d.accountCredentials ||
+                      d.cardDetails ||
+                      d.virtualNumber ||
+                      d.smsCode;
+
+                    if (!hasDetails) return null;
+
+                    return (
+                      <div className="mt-2.5 space-y-2 font-alkatip">
+                        {/* 1. Dedicated Glowing Activation Link Card (Gemini AI, Subscriptions, Invite URLs) */}
+                        {rawActivationUrl && (
+                          <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-emerald-950/90 via-teal-950/80 to-[#072438] border-2 border-emerald-500/70 shadow-xl shadow-emerald-950/60 space-y-2.5 relative overflow-hidden">
+                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                              <span className="text-emerald-300 font-black text-xs sm:text-sm flex items-center gap-1.5">
+                                <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
+                                <span>{lang === 'ug' ? 'ئەزالىقنى ئاچقۇزۇش ئۇلانمىسى تەييار بولدى!' : lang === 'ar' ? 'رابط التفعيل جاهز للاستخدام!' : 'Activation Link Ready!'}</span>
+                              </span>
+                              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 px-2.5 py-0.5 rounded-full font-bold">
+                                {lang === 'ug' ? 'سېكۇنتتا قوزغىتىش' : lang === 'ar' ? 'تفعيل فوري' : 'Instant'}
+                              </span>
+                            </div>
+
+                            <p className="text-[11px] text-slate-300 leading-relaxed">
+                              {lang === 'ug'
+                                ? 'تۆۋەندىكى كۇنۇپكىنى بېسىپ ئەزالىق ھېساباتىڭىزنى دەرھال ئاكتىپلاڭ ياكى ئۇلانمىنى كۆچۈرۈۋېلىڭ:'
+                                : lang === 'ar'
+                                ? 'اضغط على الزر أدناه لتفعيل اشتراكك فوراً أو نسخ الرابط:'
+                                : 'Click the button below to activate your subscription or copy the link:'}
+                            </p>
+
+                            <div className="flex items-center gap-2 pt-1 flex-wrap sm:flex-nowrap">
+                              <a
+                                href={rawActivationUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-1 min-w-[150px] px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-white font-black text-xs transition shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2 cursor-pointer transform active:scale-95"
+                              >
+                                <span>{lang === 'ug' ? '⚡️ ئەزالىقنى ئاكتىپلاش (ئېچىش)' : lang === 'ar' ? '⚡️ تفعيل الاشتراك (فتح)' : '⚡️ Open Activation Link'}</span>
+                                <ExternalLink className="w-4 h-4 shrink-0" />
+                              </a>
+                              <button
+                                type="button"
+                                onClick={() => copyText(rawActivationUrl, `act-${order.id}`)}
+                                className="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-emerald-500/50 text-emerald-300 hover:text-white text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer"
+                              >
+                                {copiedId === `act-${order.id}` ? (
+                                  <>
+                                    <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                                    <span>{lang === 'ug' ? 'كۆچۈرۈلدى' : lang === 'ar' ? 'تم النسخ' : 'Copied'}</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Copy className="w-4 h-4 shrink-0" />
+                                    <span>{lang === 'ug' ? 'ئۇلانمىنى كۆچۈرۈش' : lang === 'ar' ? 'نسخ الرابط' : 'Copy Link'}</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+
+                            <div className="p-2 rounded-lg bg-black/60 border border-emerald-500/25 font-mono text-[10px] text-emerald-200/90 break-all select-all" dir="ltr">
+                              {rawActivationUrl}
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                      {order.details.refundReason && (
-                        <div className="text-[11px] text-rose-300">
-                          {t('refunded')}
-                          {order.details.refundReason}
-                        </div>
-                      )}
-                      {order.details.accountCredentials && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-slate-400 text-[11px]">
-                            {t('credentialsLabel')}
-                          </span>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-emerald-300 font-bold font-mono" dir="ltr">
-                              {order.details.accountCredentials}
+                        )}
+
+                        {/* 2. Provider Text Reply (if non-URL note/reply) */}
+                        {textReply && (
+                          <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-xs space-y-1">
+                            <span className="text-[10px] text-slate-400 font-bold block">
+                              {lang === 'ug' ? 'تەمىنلىگۈچى جاۋابى:' : lang === 'ar' ? 'رد المزود:' : 'Provider Note:'}
                             </span>
-                            <button
-                              onClick={() => copyText(order.details!.accountCredentials!, `cred-${order.id}`)}
-                              className="text-slate-400 hover:text-white"
-                            >
-                              {copiedId === `cred-${order.id}` ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                            </button>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-emerald-300 font-mono text-[11px] break-all">{textReply}</span>
+                              <button
+                                type="button"
+                                onClick={() => copyText(textReply, `reply-${order.id}`)}
+                                className="text-slate-400 hover:text-white shrink-0 cursor-pointer"
+                              >
+                                {copiedId === `reply-${order.id}` ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      {order.details.cardDetails && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-slate-400 text-[11px]">
-                            {t('cardNumberLabel')}
-                          </span>
-                          <span className="text-amber-300 font-bold font-mono" dir="ltr">
-                            {order.details.cardDetails.number}
-                          </span>
-                        </div>
-                      )}
-                      {order.details.virtualNumber && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-slate-400 text-[11px]">
-                            {t('virtualNumberLabel')}
-                          </span>
-                          <span className="text-cyan-300 font-bold font-mono" dir="ltr">
-                            {order.details.virtualNumber}
-                          </span>
-                        </div>
-                      )}
-                      {order.details.smsCode && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-slate-400 text-[11px]">
-                            {t('smsCodeLabel')}
-                          </span>
-                          <span className="text-amber-300 font-bold font-mono text-sm bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/40" dir="ltr">
-                            {order.details.smsCode}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                        )}
+
+                        {/* 3. Non-URL Gift Card Codes, Vouchers, Credentials, etc. */}
+                        {(nonUrlCodes.length > 0 || d.refundReason || d.accountCredentials || d.cardDetails || d.virtualNumber || d.smsCode) && (
+                          <div className="pt-2 border-t border-slate-800/80 bg-slate-950/60 p-2.5 rounded-xl text-xs space-y-1.5">
+                            {nonUrlCodes.map((code: string, idx: number) => (
+                              <div key={idx} className="flex items-center justify-between gap-2">
+                                <span className="text-slate-400 text-[11px] shrink-0">{t('codeLabel')}</span>
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  <span className="text-emerald-300 font-bold font-mono break-all" dir="ltr">
+                                    {code}
+                                  </span>
+                                  <button
+                                    onClick={() => copyText(code, `code-${order.id}-${idx}`)}
+                                    className="text-slate-400 hover:text-white shrink-0 cursor-pointer"
+                                  >
+                                    {copiedId === `code-${order.id}-${idx}` ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+
+                            {d.refundReason && (
+                              <div className="text-[11px] text-rose-300">
+                                {t('refunded')} {d.refundReason}
+                              </div>
+                            )}
+
+                            {d.accountCredentials && (
+                              <div className="flex items-center justify-between">
+                                <span className="text-slate-400 text-[11px]">{t('credentialsLabel')}</span>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-emerald-300 font-bold font-mono" dir="ltr">
+                                    {d.accountCredentials}
+                                  </span>
+                                  <button
+                                    onClick={() => copyText(d.accountCredentials!, `cred-${order.id}`)}
+                                    className="text-slate-400 hover:text-white cursor-pointer"
+                                  >
+                                    {copiedId === `cred-${order.id}` ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {d.cardDetails && (
+                              <div className="flex items-center justify-between">
+                                <span className="text-slate-400 text-[11px]">{t('cardNumberLabel')}</span>
+                                <span className="text-amber-300 font-bold font-mono" dir="ltr">
+                                  {d.cardDetails.number}
+                                </span>
+                              </div>
+                            )}
+
+                            {d.virtualNumber && (
+                              <div className="flex items-center justify-between">
+                                <span className="text-slate-400 text-[11px]">{t('virtualNumberLabel')}</span>
+                                <span className="text-cyan-300 font-bold font-mono" dir="ltr">
+                                  {d.virtualNumber}
+                                </span>
+                              </div>
+                            )}
+
+                            {d.smsCode && (
+                              <div className="flex items-center justify-between">
+                                <span className="text-slate-400 text-[11px]">{t('smsCodeLabel')}</span>
+                                <span className="text-amber-300 font-bold font-mono text-sm bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/40" dir="ltr">
+                                  {d.smsCode}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
 
                   {/* Reassurance Message for in-flight processing orders */}
                   {isProcessing && (

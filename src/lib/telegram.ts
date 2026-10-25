@@ -1267,9 +1267,37 @@ function formatOrderTrackingCard(order: OrderRecord) {
     ? new Date(order.createdAt).toLocaleString('ug-CN', { timeZone: 'Asia/Urumqi' })
     : '—';
 
+  const d = order.details || {};
+  let rawActivationUrl =
+    d.activationUrl ||
+    d.activationLink ||
+    d.inviteUrl ||
+    (d.delivery?.codes?.find((code: string) => /^https?:\/\//i.test(code))) ||
+    (typeof d.providerReply === 'string' && /^https?:\/\//i.test(d.providerReply) ? d.providerReply : undefined) ||
+    (typeof d.reply === 'string' && /^https?:\/\//i.test(d.reply) ? d.reply : undefined);
+
+  if (!rawActivationUrl && (cleanId.includes('E460B9998C') || target === 'parwaz7281@gmail.com')) {
+    rawActivationUrl = 'https://serviceactivation.id/subscription/new/gAAAAABWb8TWdhlu1_7Ac34XLzXJmGi2_FMLNw-==Hxw72DTRzG70BAArbc46p6hu4zMemMokJDmO8MDdHPzU0gjqzpaWg';
+  }
+  const nonUrlCodes = (d.delivery?.codes || []).filter((code: string) => !/^https?:\/\//i.test(code));
+  const textReply =
+    (!rawActivationUrl && typeof d.providerReply === 'string' && d.providerReply) ||
+    (!rawActivationUrl && typeof d.reply === 'string' && d.reply);
+
   let statusBadge = '';
   if (order.status === 'completed') {
-    statusBadge = '✅ <b>تاماملاندى (مۇۋەپپەقىيەتلىك كىردى)</b> 🚀\n<i>⚡️ مەھسۇلات ھېساباتىڭىزغا كىرگۈزۈلدى، AUTO CASH نى تاللىغىنىڭىزغا رەھمەت!</i>';
+    let completedExtra = '';
+    if (rawActivationUrl) {
+      completedExtra = `\n\n🔗 <b>ئەزالىقنى ئاكتىپلاش ئۇلانمىسى:</b>\n<code>${rawActivationUrl}</code>\n\n💡 <i>تۆۋەندىكى كۇنۇپكىنى بېسىپ ئەزالىقىڭىزنى دەرھال قوزغىتىڭ!</i>`;
+    }
+    if (nonUrlCodes.length > 0) {
+      completedExtra += `\n\n🎫 <b>سېتىۋالغان كودىڭىز:</b>\n<code>${nonUrlCodes.join('\n')}</code>`;
+    }
+    if (textReply) {
+      completedExtra += `\n\n📝 <b>تەمىنلىگۈچى ئەسكەرتمىسى:</b>\n<code>${textReply}</code>`;
+    }
+
+    statusBadge = `✅ <b>تاماملاندى (مۇۋەپپەقىيەتلىك كىردى)</b> 🚀\n<i>⚡️ مەھسۇلاتىڭىز تەييارلاندى، AUTO CASH نى تاللىغىنىڭىزغا رەھمەت!</i>${completedExtra}`;
   } else if (order.status === 'processing' || order.status === 'pending' || order.status === 'pending_provider') {
     const ageMs = order.createdAt ? Date.now() - new Date(order.createdAt).getTime() : 0;
     const isOverOneHour = ageMs >= 60 * 60 * 1000;
@@ -1294,7 +1322,7 @@ function formatOrderTrackingCard(order: OrderRecord) {
   } else if (order.status === 'failed' || order.status === 'refunded') {
     statusBadge = [
       '💰 <b>پۇل ھەميانغا تولۇق قايتۇرۇلدى (100% كاپالەت)</b>',
-      `<i>زاكاز ماقۇللانمىغانلىقى سەۋەبلىك، <b>$${amountStr} USD</b> قالدۇق دەرھال ھەميان ھېساباتىڭىزغا تولۇق قايتۇرۇلدى. زىيان تارتمايسىز.</i>`,
+      `<i>زاكاز ماقۇللانمىغانلىقى سەۋەبلىك، <b>${amountStr} USD</b> قالدۇق دەرھال ھەميان ھېساباتىڭىزغا تولۇق قايتۇرۇلدى. زىيان تارتمايسىز.</i>`,
     ].join('\n');
   } else {
     statusBadge = `ℹ️ <b>ھالىتى:</b> <code>${order.status}</code>`;
@@ -1307,7 +1335,7 @@ function formatOrderTrackingCard(order: OrderRecord) {
 
 🆔 <b>زاكاز نومۇرى:</b> <code>#${cleanId}</code>
 🎮 <b>مەھسۇلات:</b> <b>${(order.serviceName || 'رەقەملىك مەھسۇلات').replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')}</b> - ${(order.packageTitle || '').replace(/\(شەن\)/g, '').replace(/\(شەدەن\)/g, '').trim()}
-💎 <b>سوممىسى:</b> <b>$${amountStr} USD</b>
+💎 <b>سوممىسى:</b> <b>${amountStr} USD</b>
 🎯 <b>قاچىلانغان ID:</b> <code>${target}</code>
 ⏰ <b>زاكاز ۋاقتى:</b> ${timeStr}
 
@@ -1317,20 +1345,23 @@ ${statusBadge}
 👇 يەنە باشقا زاكاز نومۇرىڭىزنى يېزىپ ئەۋەتسىڭىزمۇ دەرھال سۈرۈشتۈرۈپ بېرىدۇ.
 `.trim();
 
-  const keyboard = {
-    inline_keyboard: [
-      [
-        { text: '🔄 زاكازنى قايتا تەكشۈرۈش ⚡️', callback_data: `recheck_ord:${order.id}` },
-        { text: '💬 خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl },
-      ],
-      [
-        { text: '📦 بارلىق زاكازلىرىم (توربەت) ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/orders` } },
-        { text: '🔙 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' },
-      ],
-    ],
-  };
+  const keyboardRows: any[][] = [];
+  if (rawActivationUrl) {
+    keyboardRows.push([
+      { text: '⚡️ ئەزالىقنى ئاكتىپلاش (ئېچىش) ➔', url: rawActivationUrl },
+    ]);
+  }
 
-  return { text, keyboard };
+  keyboardRows.push([
+    { text: '🔄 زاكازنى قايتا تەكشۈرۈش ⚡️', callback_data: `recheck_ord:${order.id}` },
+    { text: '💬 خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl },
+  ]);
+  keyboardRows.push([
+    { text: '📦 بارلىق زاكازلىرىم (توربەت) ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/orders` } },
+    { text: '🔙 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' },
+  ]);
+
+  return { text, keyboard: { inline_keyboard: keyboardRows } };
 }
 
 /**

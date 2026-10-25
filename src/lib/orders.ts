@@ -13,7 +13,13 @@ export interface Order {
     // Provider fulfilment
     fields?: Record<string, string>;
     qty?: number;
-    delivery?: { codes: string[]; text?: string };
+    delivery?: { codes: string[]; text?: string; activationUrl?: string; reply?: string };
+    activationUrl?: string;
+    activationLink?: string;
+    inviteUrl?: string;
+    providerReply?: string;
+    reply?: string;
+    message?: string;
     refundReason?: string;
     // Admin-only (stripped from buyer responses by toBuyerOrder)
     providerOrderId?: string;
@@ -50,6 +56,12 @@ const BUYER_DETAIL_KEYS = [
   'virtualNumber',
   'accountCredentials',
   'cardDetails',
+  'activationUrl',
+  'activationLink',
+  'inviteUrl',
+  'providerReply',
+  'reply',
+  'message',
 ] as const;
 
 /** What a buyer may see of their order: no cost, provider ids, raw errors or review notes. */

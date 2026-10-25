@@ -135,12 +135,19 @@ export async function pollProviderOrders(options: {
         if (lookup && lookup.found && lookup.providerOrderId) {
           const status = (lookup as any).entry?.status;
           if (status === 'COMPLETED') {
+            const entryItem = (lookup as any).entry;
+            const deliv = entryItem?.delivery;
+            const replyMsg = entryItem?.message || deliv?.reply || deliv?.text;
+            const activationUrl = deliv?.activationUrl || (deliv?.codes?.find((c: string) => /^https?:\/\//i.test(c))) || (replyMsg?.match(/https?:\/\/[^\s"'<>]+/i)?.[0]);
+
             await transitionOrderAsync(order.id, IN_FLIGHT, 'completed', {
               providerOrderId: lookup.providerOrderId,
               providerStatus: 'COMPLETED',
               providerCheckedAt: new Date().toISOString(),
               needsReview: false,
-              ...((lookup as any).entry?.delivery ? { delivery: (lookup as any).entry.delivery } : {}),
+              ...(deliv ? { delivery: deliv } : {}),
+              ...(replyMsg ? { providerReply: replyMsg, reply: replyMsg } : {}),
+              ...(activationUrl ? { activationUrl, activationLink: activationUrl } : {}),
             });
             summary.completed++;
             postOrderCompletedToChannel({
@@ -231,12 +238,18 @@ export async function pollProviderOrders(options: {
           const tooOld = Date.now() - new Date(order.createdAt).getTime() > maxPendingMs;
 
           if (entry?.status === 'COMPLETED') {
+            const deliv = entry.delivery;
+            const replyMsg = entry.message || deliv?.reply || deliv?.text;
+            const activationUrl = deliv?.activationUrl || (deliv?.codes?.find((c: string) => /^https?:\/\//i.test(c))) || (replyMsg?.match(/https?:\/\/[^\s"'<>]+/i)?.[0]);
+
             await transitionOrderAsync(order.id, IN_FLIGHT, 'completed', {
               providerStatus: 'COMPLETED',
               providerCheckedAt: now,
               providerCheckAttempts: attempts,
               needsReview: false,
-              ...(entry.delivery ? { delivery: entry.delivery } : {}),
+              ...(deliv ? { delivery: deliv } : {}),
+              ...(replyMsg ? { providerReply: replyMsg, reply: replyMsg } : {}),
+              ...(activationUrl ? { activationUrl, activationLink: activationUrl } : {}),
             });
             summary.completed++;
             postOrderCompletedToChannel({
