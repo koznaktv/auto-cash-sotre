@@ -1928,6 +1928,265 @@ function getTutorialInlineKeyboard() {
 }
 
 /**
+ * Generates the Sham Cash Deposit guide card with live exchange rate and visual receipt guide
+ */
+export async function getShamcashDepositCardText(): Promise<string> {
+  let rate = 143;
+  let shamAddress = 'efe8a2b200d66411c7c7e296369cbba8';
+  try {
+    const s = await getSystemSettingsAsync();
+    if (s?.shamcashExchangeRate) rate = s.shamcashExchangeRate;
+    if (s?.shamcashAddress) shamAddress = s.shamcashAddress;
+  } catch {}
+
+  return `
+╭━━━ 💎💳 <b>شامكەش (Sham Cash) ئارقىلىق پۇل سېلىش</b> 💳💎 ━━━╮
+       ⚡️ <i>24/7 سائەت سېكۇنتتا ئاپتوماتىك كىرىش كاپالىتى</i> ⚡️
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+📌 <b>بىزنىڭ شامكەش ھېسابات ئادرېسىمىز (چەكسىڭىز كۆچۈرۈلىدۇ):</b>
+<code>${shamAddress}</code>
+
+💱 <b>نەق مەيدان پېرېۋوت كۇرسى:</b> <b>1 USD = ${rate.toLocaleString()} SYP</b>
+
+📋 <b>تالون كۆرسەتمىسى (رقم العملية قەيەردە؟):</b>
+<code>┌───────────────────────────────┐
+│     شام كاش - Sham Cash       │
+│  ✅ تم التحويل بنجاح           │
+│  💵 المبلغ: 100,000 ل.س       │
+│👉 رقم العملية: 84920183 👈    │  ⬅️ مۇشۇ نومۇر!
+│  📅 2026-10-25                │
+└───────────────────────────────┘</code>
+
+🚀 <b>ئەڭ ئاسان پۇل كىرگۈزۈش (پەقەت 2 باسقۇچ):</b>
+① يۇقىرىقى شامكەش ئادرېسىمىزغا پۇل يوللاڭ.
+② تالوندىكى <b>«رقم العملية»</b> (تالون نومۇرى) نى <b>مۇشۇ چاتقا يېزىپلا ئەۋەتىڭ!</b>
+
+💡 <i>ھېچقانداق دوللار ھېسابلاپ ياكى توربەتكە كىرىپ يۈرمەيسىز! پەقەت نومۇرنى چاپلاپ ئەۋەتسىڭىزلا، سىستېما شامكەشتىن سوممىنى ئۆزى ئوقۇپ، سېكۇنت ئىچىدە ھەميىنىڭىزگە چۈشۈرۈپ بېرىدۇ.</i>
+`.trim();
+}
+
+/**
+ * Directly processes a ShamCash deposit when a customer sends their Transaction ID (رقم العملية)
+ * via Telegram chat or via inline callback.
+ */
+export async function processTelegramShamcashDeposit(
+  chatId: number | string,
+  from: any,
+  rawTxId: string,
+  isCallback: boolean = false,
+  cqId?: string,
+  messageId?: number
+): Promise<boolean> {
+  const { normalizeTxId, verifyShamcashTransaction, getTsaConfig } = await import('./providers/tsaShamcash');
+  const { isTxIdAlreadyCompletedAsync, createDepositAsync, updateDepositStatusAsync, getUserByIdAsync } = await import(
+    './db'
+  );
+  const { getOrCreateTelegramUser } = await import('./telegramShop');
+
+  const cleanTxId = normalizeTxId(rawTxId);
+  if (!cleanTxId || cleanTxId.length < 5 || cleanTxId.length > 35) {
+    if (isCallback && cqId) {
+      await answerCallbackQuery(cqId, '❌ تالون نومۇرى خاتا', true);
+    }
+    return false;
+  }
+
+  // 1. Anti-fraud / Anti-replay check
+  const alreadyUsed = await isTxIdAlreadyCompletedAsync(cleanTxId);
+  if (alreadyUsed) {
+    const duplicateCard = `
+⚠️ <b>بۇ تالون بۇرۇن ئاللىقاچان ئىشلىتىلگەن!</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🆔 <b>تالون نومۇرى:</b> <code>${cleanTxId}</code>
+
+<i>بۇ تالون نومۇرى (رقم العملية) بۇرۇن ئاللىقاچان سانداندا تەستىقلانغان ۋە ھەميانغا قوشۇلغان. ئەگەر سىز بۇ پۇلنى كىرمىدى دەپ قارىسىڭىز، خېرىدارلار مۇلازىمىتىگە ئالاقىلىشىڭ.</i>
+`.trim();
+
+    await sendTelegramMessage(chatId, duplicateCard, {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '💬 خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl }],
+          [{ text: '🔙 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      },
+    });
+    return true;
+  }
+
+  // Temporary checking status
+  const verifyingText = `
+⏳ <b>شامكەش تالونى دەلىللىنىۋاتىدۇ...</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🆔 <b>تالون نومۇرى:</b> <code>${cleanTxId}</code>
+⚡️ <i>شامكەش تورىدىن سۈرۈشتۈرۈلۈۋاتىدۇ، 1-3 سېكۇنت ساقلاڭ...</i>
+`.trim();
+
+  let tempMsgId: number | undefined = undefined;
+  if (!isCallback) {
+    const sent = await sendTelegramMessage(chatId, verifyingText, { parse_mode: 'HTML' });
+    if (sent?.ok && sent?.result?.message_id) {
+      tempMsgId = sent.result.message_id;
+    }
+  }
+
+  try {
+    const tsaConfig = await getTsaConfig();
+    const verifyRes = await verifyShamcashTransaction(cleanTxId, {
+      apiKey: tsaConfig.apiKey,
+      accountAddress: tsaConfig.shamcashAddress,
+      exchangeRate: tsaConfig.exchangeRate,
+    });
+
+    if (verifyRes.success && verifyRes.found && verifyRes.transaction) {
+      const tx = verifyRes.transaction;
+
+      // Double-check tranId
+      if (await isTxIdAlreadyCompletedAsync(tx.tranId)) {
+        const doubleCard = `⚠️ <b>بۇ تالون نومۇرى (${tx.tranId}) بۇرۇن ئاللىقاچان ھەميانغا كىرگۈزۈلگەن!</b>`;
+        if (tempMsgId) {
+          await editTelegramMessage(chatId, tempMsgId, doubleCard, { parse_mode: 'HTML' });
+        } else {
+          await sendTelegramMessage(chatId, doubleCard, { parse_mode: 'HTML' });
+        }
+        return true;
+      }
+
+      const rate = tsaConfig.exchangeRate || 143;
+      const finalCreditAmount =
+        tx.usdAmount > 0 ? tx.usdAmount : Math.round((tx.amount / rate) * 100) / 100;
+
+      // Get or create unified user account tied to this Telegram Chat ID
+      const user = await getOrCreateTelegramUser(from?.id || chatId, from?.username, from?.first_name);
+
+      const created = await createDepositAsync({
+        userId: user.id,
+        userName: user.name,
+        userEmail: user.email,
+        method: 'شامكەش (Sham Cash - Bot)',
+        amount: finalCreditAmount,
+        txId: tx.tranId,
+      });
+
+      // Atomically approve and credit user wallet
+      await updateDepositStatusAsync(created.id, 'completed');
+
+      // Fetch fresh live user balance
+      const updatedUser = await getUserByIdAsync(user.id);
+      const newBal = Number(
+        updatedUser?.balance ?? Number(user.balance || 0) + finalCreditAmount
+      ).toFixed(2);
+
+      // Alert Admin
+      notifyNewDeposit({
+        id: created.id,
+        amount: finalCreditAmount,
+        method: 'ShamCash (Bot ئارقىلىق دەلىللەندى ⚡️)',
+        txId: tx.tranId,
+        userName: user.name,
+        userEmail: user.email,
+        status: 'completed',
+      }).catch(() => {});
+
+      const successCard = `
+🎉 <b>شامكەش پۇلىڭىز ھەميانغا مۇۋەپپەقىيەتلىك كىردى!</b> 🚀
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💰 <b>تاپشۇرۇۋېلىنغان شامكەش پۇلى:</b> <b>${Number(tx.amount || 0).toLocaleString()} SYP</b>
+💵 <b>ھەميانغا قوشۇلغان:</b> <b>+$${finalCreditAmount.toFixed(2)} USD</b>
+💳 <b>يېڭى ئورتاق قالدۇقىڭىز:</b> <b>$${newBal} USD</b>
+🆔 <b>تەستىقلانغان تالون:</b> <code>${tx.tranId}</code>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚡️ <i>پۇل ھەميىنىڭىزگە دەرھال كىردى! ھەم توربەتتە ھەم مۇشۇ بوتتا بىۋاسىتە ئىشلىتەلەيسىز.</i>
+`.trim();
+
+      const successKeyboard = {
+        inline_keyboard: [
+          [{ text: '🛍️ مەھسۇلات سېتىۋېلىش (دۇكان) ➔', callback_data: 'tg_shop_categories' }],
+          [{ text: '💳 ئورتاق ھەمياننى كۆرۈش', callback_data: 'tg_my_account' }],
+          [{ text: '📦 بارلىق زاكازلىرىم (توربەت) ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/orders` } }],
+        ],
+      };
+
+      if (tempMsgId) {
+        await editTelegramMessage(chatId, tempMsgId, successCard, {
+          parse_mode: 'HTML',
+          reply_markup: successKeyboard,
+        });
+      } else {
+        await sendTelegramMessage(chatId, successCard, {
+          parse_mode: 'HTML',
+          reply_markup: successKeyboard,
+        });
+      }
+      return true;
+    }
+
+    // Not found yet or invalid
+    const notFoundCard = `
+⏳ <b>تالون تېخى شامكەش تورىدا كۆرۈنمىدى ياكى نومۇر خاتا</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🆔 <b>سىز كىرگۈزگەن نومۇر:</b> <code>${cleanTxId}</code>
+
+💡 <b>نېمە قىلىش كېرەك؟</b>
+1. ئەگەر پۇلنى ھازىرلا ئەۋەتكەن بولسىڭىز، شامكەش سىستېمىسىدا پۇلنىڭ يېتىپ كېلىشىگە <b>15-30 سېكۇنت</b> ۋاقىت كېتىشى مۇمكىن.
+2. تالوندىكى نومۇرنىڭ «<b>رقم العملية</b>» ئىكەنلىكىنى قايتا بىر تەكشۈرۈپ بېقىڭ.
+3. بىرنەچچە سېكۇنتتىن كېيىن تۆۋەندىكى «🔄 قايتا تەكشۈرۈش» كۇنۇپكىسىنى بېسىپ قايتا سىناڭ.
+`.trim();
+
+    const retryKeyboard = {
+      inline_keyboard: [
+        [{ text: '🔄 قايتا تەكشۈرۈش ⚡️', callback_data: `verify_shamcash_tx:${cleanTxId}` }],
+        [{ text: '💬 خېرىدارلار مۇلازىمىتى بىلەن كۆرۈشۈش 👨‍💻', url: TELEGRAM_CONFIG.supportUrl }],
+        [{ text: '🔙 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+      ],
+    };
+
+    if (tempMsgId) {
+      await editTelegramMessage(chatId, tempMsgId, notFoundCard, {
+        parse_mode: 'HTML',
+        reply_markup: retryKeyboard,
+      });
+    } else {
+      await sendTelegramMessage(chatId, notFoundCard, {
+        parse_mode: 'HTML',
+        reply_markup: retryKeyboard,
+      });
+    }
+    return true;
+  } catch (err: any) {
+    console.error('[processTelegramShamcashDeposit] Error:', err);
+    const errCard = `
+⚠️ <b>تالون تەكشۈرۈشتە كۈتۈلمىگەن كاشىلا كۆرۈلدى:</b> ${err?.message || 'تور ئۇلىنىش خاتالىقى'}
+
+تالون نومۇرىڭىز ياكى تالون رەسىمىنى خېرىدارلار مۇلازىمىتىگە ئەۋەتسىڭىز دەرھال قاچىلاپ بېرىدۇ.
+`.trim();
+    if (tempMsgId) {
+      await editTelegramMessage(chatId, tempMsgId, errCard, {
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '💬 خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl }],
+            [{ text: '🔙 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+          ],
+        },
+      });
+    } else {
+      await sendTelegramMessage(chatId, errCard, {
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '💬 خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl }],
+            [{ text: '🔙 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+          ],
+        },
+      });
+    }
+    return true;
+  }
+}
+
+/**
  * Handle incoming Telegram Webhook Updates (Messages & Interactive Inline Buttons)
  */
 export async function handleTelegramWebhook(update: any): Promise<void> {
@@ -2173,26 +2432,22 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       return;
     }
 
+    // Re-verify ShamCash TxID callback
+    if (data.startsWith('verify_shamcash_tx:')) {
+      const txId = data.replace('verify_shamcash_tx:', '').trim();
+      await answerCallbackQuery(cqId, '⏳ تالون قايتا تەكشۈرۈلۈۋاتىدۇ...', false);
+      await processTelegramShamcashDeposit(chatId, cq.from, txId, true, cqId, messageId);
+      return;
+    }
+
     // 5. Quick ShamCash Deposit
     if (data === 'quick_deposit') {
       await answerCallbackQuery(cqId);
-      const shamcashText = `
-╭━━━ 💎💳 <b>شامكەش (Sham Cash) ئارقىلىق پۇل سېلىش</b> 💳💎 ━━━╮
-       ⚡️ <i>24/7 سائەت ئاپتوماتىك سېكۇنتتا ھەميانغا كىرىش</i> ⚡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-📌 <b>رەسمىي شامكەش ھېسابات ئادرېسىمىز (چەكسىڭىز كۆچۈرۈلىدۇ):</b>
-<code>efe8a2b200d66411c7c7e296369cbba8</code>
-
-🚀 <b>قانداق قىلىپ پۇل كىرگۈزىسز؟</b>
-① يۇقىرىقى ئادرېسقا پۇل ئەۋەتىڭ.
-② چىققان تالون نومۇرى (رقم العملية / TxID) نى ساقلاڭ.
-③ دۇكاننىڭ «ھەميانغا پۇل كىرگۈزۈش» بېتىگە كىرگۈزۈپ «دەلىللەش» كۇنۇپكىسىنى بېسىڭ.
-⚡️ تالون سېكۇنت ئىچىدە تەستىقلىنىپ، مەبلەغ ھەميىنىڭىزگە چۈشىدۇ!
-`.trim();
+      const shamcashText = await getShamcashDepositCardText();
       await showOrEditMessage(chatId, messageId, shamcashText, {
         inline_keyboard: [
-          [{ text: '💎💳 ھەميانغا پۇل كىرگۈزۈش كۆزنىكى ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` } }],
+          [{ text: '💎💳 توربەت كۆزنىكىنى ئېچىش ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` } }],
+          [{ text: '💬 خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl }],
           [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
         ],
       });
@@ -3041,35 +3296,27 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     return;
   }
 
-  // 4. Command /deposit (ShamCash payment info for customers)
-  if (text.startsWith('/deposit') || text.startsWith('/shamcash') || text.startsWith('/pul')) {
-    const shamcashText = `
-╭━━━ 💎💳 <b>شامكەش (Sham Cash) ئارقىلىق پۇل كىرگۈزۈش</b> 💳💎 ━━━╮
-       ⚡️ <i>24/7 سائەت ئاپتوماتىك سېكۇنتتا كىرىش كاپالىتى</i> ⚡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+  // 4. Command /deposit (ShamCash payment info or direct TxID verification)
+  if (
+    text.startsWith('/deposit') ||
+    text.startsWith('/shamcash') ||
+    text.startsWith('/pul') ||
+    text.startsWith('/sc')
+  ) {
+    const rawArg = text.replace(/^\/(deposit|shamcash|pul|sc)[\s:_=-]*/i, '').trim();
+    if (rawArg) {
+      const handled = await processTelegramShamcashDeposit(chatId, from, rawArg);
+      if (handled) return;
+    }
 
-📌 <b>بىزنىڭ رەسمىي شامكەش ھېسابات ئادرېسىمىز (چەكسىڭىز كۆچۈرۈلىدۇ):</b>
-<code>efe8a2b200d66411c7c7e296369cbba8</code>
-
-🚀 <b>پۇل كىرگۈزۈش باسقۇچلىرى:</b>
-1. Sham Cash ئەپىنى ئېچىپ، يۇقىرىقى ئادرېسقا پۇل يوللاڭ.
-2. پۇل يوللانغاندىن كېيىن چىققان تالون نومۇرى (رقم العملية / TxID) نى كۆچۈرۈۋېلىڭ.
-3. دۇكانغا كىرىپ، «ھەميانغا پۇل كىرگۈزۈش» كۆزنىكىدىن تالون نومۇرىنى كىرگۈزۈپ «دەلىللەش» كۇنۇپكىسىنى بېسىڭ.
-4. ⚡️ پۇل دەرھال سېكۇنت ئىچىدە ھەميىنىڭىزگە كىرىدۇ!
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-`.trim();
-
+    const shamcashText = await getShamcashDepositCardText();
     await sendTelegramMessage(chatId, shamcashText, {
       parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [
-          [
-            { text: '💎💳 ھەميانغا پۇل سېلىش كۆزنىكى ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` } },
-          ],
-          [
-            { text: '💬✨ خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl },
-            { text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' },
-          ],
+          [{ text: '💎💳 توربەت كۆزنىكىنى ئېچىش ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` } }],
+          [{ text: '💬✨ خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl }],
+          [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
         ],
       },
     });
@@ -3301,6 +3548,18 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
     }
   }
 
+  // 7.1 Automatic ShamCash Transaction ID (TxID / رقم العملية) Detection
+  // If customer pastes their ShamCash receipt or TxID (numeric 5-24 digits or receipt text)
+  const { normalizeTxId: normScTx } = await import('./providers/tsaShamcash');
+  const candidateScTx = normScTx(text);
+  if (
+    (!text.startsWith('/') && /^[0-9]{5,24}$/.test(candidateScTx)) ||
+    /(?:رقم\s*العملية|العملية|tx(?:id)?|tran(?:id)?)/i.test(text)
+  ) {
+    const handledDeposit = await processTelegramShamcashDeposit(chatId, from, text);
+    if (handledDeposit) return;
+  }
+
   // 8. Smart Keyword Assistant for Natural Customer Messages
   const lowerText = text.toLowerCase();
 
@@ -3413,24 +3672,14 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
     lowerText.includes('ھەميان') ||
     lowerText.includes('cash')
   ) {
-    const shamcashText = `
-╭━━━ 💎💳 <b>شامكەش (Sham Cash) ئارقىلىق پۇل سېلىش</b> 💳💎 ━━━╮
-       ⚡️ <i>سېكۇنتتا ئاپتوماتىك ھەميانغا پۇل كىرگۈزۈش</i> ⚡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-
-📌 <b>رەسمىي شامكەش ھېسابات ئادرېسىمىز (چەكسىڭىز كۆچۈرۈلىدۇ):</b>
-<code>efe8a2b200d66411c7c7e296369cbba8</code>
-
-🚀 پۇلنى يوللاپ بولۇپ، تالون نومۇرى (TxID) بىلەن دۇكاننىڭ «ھەميانغا پۇل كىرگۈزۈش» بېتىدىن دەلىللىسىڭىز، سېكۇنت ئىچىدە كىرىدۇ!
-`.trim();
-
+    const shamcashText = await getShamcashDepositCardText();
     await sendTelegramMessage(chatId, shamcashText, {
       parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [
-          [{ text: '💎💳 ھەميانغا پۇل كىرگۈزۈش كۆزنىكى ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` } }],
+          [{ text: '💎💳 توربەت كۆزنىكىنى ئېچىش ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` } }],
           [
-            { text: '💬✨ مۇلازىمەت بىلەن كۆرۈشۈش 👨‍💻', url: TELEGRAM_CONFIG.supportUrl },
+            { text: '💬✨ خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl },
             { text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' },
           ],
         ],

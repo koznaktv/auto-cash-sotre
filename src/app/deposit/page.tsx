@@ -55,7 +55,9 @@ export default function DepositPage() {
     }
     return null;
   });
-  const [amount, setAmount] = useState<number>(25);
+  const [amount, setAmount] = useState<number>(0);
+  const [showManualAmount, setShowManualAmount] = useState<boolean>(false);
+  const [showVisualGuide, setShowVisualGuide] = useState<boolean>(true);
   const [copied, setCopied] = useState<boolean>(false);
   const [txNote, setTxNote] = useState<string>('');
   const [formError, setFormError] = useState<string>('');
@@ -209,7 +211,7 @@ export default function DepositPage() {
   };
 
   const handleDepositSubmit = async () => {
-    if (amount <= 0 || isSubmitting) return;
+    if (isSubmitting) return;
 
     if (!currentUser || !currentUser.email) {
       setFormError(t('loginToDepositAlert'));
@@ -218,7 +220,7 @@ export default function DepositPage() {
     }
 
     if (!txNote.trim()) {
-      setFormError(t('proofRequiredError'));
+      setFormError('شامكەش تالون نومۇرى (رقم العملية) نى كىرگۈزۈڭ');
       return;
     }
 
@@ -229,7 +231,7 @@ export default function DepositPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: amount,
+          amount: amount > 0 ? amount : 0,
           method: 'شامكەش (Sham Cash)',
           txId: txNote.trim(),
           userName: currentUser.name,
@@ -249,7 +251,7 @@ export default function DepositPage() {
           // Instant automated approval
           setIsSuccess(true);
           setSuccessInfo({
-            amount: data.creditedAmount || amount,
+            amount: data.creditedAmount || (amount > 0 ? amount : 0),
             txId: newRecord.txId || txNote.trim(),
             auto: true,
           });
@@ -258,7 +260,7 @@ export default function DepositPage() {
           // Pending review
           setIsSuccess(true);
           setSuccessInfo({
-            amount: amount,
+            amount: data.creditedAmount || (amount > 0 ? amount : 0),
             txId: newRecord.txId || txNote.trim(),
             auto: false,
           });
@@ -659,7 +661,7 @@ export default function DepositPage() {
               </div>
 
               {/* Step 2: Instructions and Address Copy */}
-              <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/90 space-y-2 mb-4 text-xs">
+              <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/90 space-y-2 mb-3 text-xs">
                 <div className="flex items-center justify-between">
                   <span className="text-slate-300 font-bold">{t('ourShamCashAccount')}</span>
                   <span className="text-[11px] text-amber-300 font-mono font-bold bg-amber-950/40 border border-amber-500/30 px-2.5 py-0.5 rounded-lg shadow-sm" dir="ltr">
@@ -693,58 +695,66 @@ export default function DepositPage() {
                 </div>
 
                 <div className="text-[11px] text-slate-400 space-y-1 pt-1 font-alkatip leading-relaxed">
-                  <p>{t('step1Instructions')}</p>
-                  <p>{t('step2Instructions')}</p>
-                  <p>{t('step3Instructions')}</p>
+                  <p>1. Sham Cash ئەپىڭىزنى ئېچىپ، يۇقىرىدىكى ئادرېسقا پۇل ئەۋەتىڭ.</p>
+                  <p>2. چىققان تالوندىكى <b>«رقم العملية»</b> (تالون نومۇرى) نى كۆچۈرۈپ تۆۋەنگە چاپلاڭ.</p>
                 </div>
               </div>
 
-              {/* Step 3: Amount Preset Selection (Optional helper) */}
-              <div className="space-y-1.5 mb-3">
-                <label className="text-xs text-slate-300 font-bold block">
-                  {t('sentAmountUsd')}
-                </label>
-                <div className="grid grid-cols-4 gap-1.5">
-                  {[10, 25, 50, 100].map((amt) => (
-                    <button
-                      key={amt}
-                      type="button"
-                      onClick={() => setAmount(amt)}
-                      className={`py-1.5 rounded-xl border text-xs font-bold font-mono transition cursor-pointer ${
-                        amount === amt
-                          ? 'bg-amber-400 text-slate-950 border-amber-400 shadow-md shadow-amber-500/20'
-                          : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700'
-                      }`}
-                    >
-                      ${amt}
-                    </button>
-                  ))}
-                </div>
-                <input
-                  type="number"
-                  min="1"
-                  value={amount || ''}
-                  onChange={(e) => setAmount(Number(e.target.value))}
-                  placeholder={t('amountPlaceholder')}
-                  className={`w-full bg-[#051120] border border-slate-700/80 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition font-mono ${
-                    isRTL ? 'text-right' : 'text-left'
-                  }`}
-                  dir="ltr"
-                />
-                {amount > 0 && (
-                  <div className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-amber-950/20 border border-amber-500/20 text-[11px] text-amber-300/90 font-mono">
-                    <span>{t('equivalentInSyp')}</span>
-                    <span className="font-bold text-amber-300 font-mono" dir="ltr">
-                      {(amount * exchangeRate).toLocaleString()} SYP
-                    </span>
+              {/* Step 3 (Visual Guide): Sham Cash Receipt Mock Guide */}
+              <div className="mb-3">
+                <button
+                  type="button"
+                  onClick={() => setShowVisualGuide(!showVisualGuide)}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800/80 text-xs text-amber-300 font-bold transition cursor-pointer"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <span>📸 تالون كۆرسەتمىسى (رقم العملية قەيەردە؟)</span>
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    {showVisualGuide ? '▲ يوشۇرۇش' : '▼ كۆرۈش'}
+                  </span>
+                </button>
+
+                {showVisualGuide && (
+                  <div className="mt-2 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-slate-900 via-slate-950 to-[#040e1d] border border-amber-500/40 space-y-2 text-xs shadow-lg animate-in fade-in">
+                    <div className="flex items-center justify-between pb-1.5 border-b border-slate-800 text-[11px]">
+                      <span className="font-bold text-slate-300 flex items-center gap-1">
+                        <span>🇸🇾 شام كاش (Sham Cash) - إشعار عملية</span>
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[10px] border border-emerald-500/30">
+                        ✅ تم التحويل بنجاح
+                      </span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-gradient-to-r from-amber-950/80 to-slate-900 border-2 border-dashed border-amber-400/90 shadow-md shadow-amber-500/10 flex items-center justify-between gap-2">
+                      <div className="space-y-0.5 text-left" dir="ltr">
+                        <span className="text-[10px] text-amber-200/90 font-alkatip block">
+                          رقم العملية (مۇشۇ نومۇرنى كۆچۈرۈڭ):
+                        </span>
+                        <span className="font-mono font-black text-amber-300 text-sm tracking-wider">
+                          84920183
+                        </span>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950 text-[10px] font-black shrink-0 shadow">
+                        👈 مۇشۇ نومۇرنى چاپلاڭ
+                      </span>
+                    </div>
+
+                    <p className="text-[10px] text-slate-400 font-alkatip leading-relaxed pt-0.5">
+                      💡 شامكەش ئەپى چىقىرىپ بەرگەن تالوندىكى «<b>رقم العملية</b>» دېگەن نومۇرنى كۆچۈرۈۋېلىڭ.
+                    </p>
                   </div>
                 )}
               </div>
 
-              {/* Step 4: Transaction ID Input (رقم العملية) */}
-              <div className="space-y-1.5 mb-4">
-                <label className="text-xs text-amber-300 font-bold flex items-center justify-between">
-                  <span>{t('txIdLabel')}</span>
+              {/* Step 4: Transaction ID Input (رقم العملية) — PRIMARY 1-STEP INPUT */}
+              <div className="space-y-1.5 mb-3 p-3 rounded-2xl bg-amber-950/30 border-2 border-amber-500/50 shadow-md shadow-amber-500/10">
+                <label className="text-xs text-amber-300 font-black flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                    <span>⚡️ تالون نومۇرى (رقم العملية) نى بۇ يەرگە چاپلاڭ:</span>
+                  </span>
                   <span className="text-[10px] text-slate-400 font-normal">
                     {t('txIdExample')}
                   </span>
@@ -757,13 +767,14 @@ export default function DepositPage() {
                       setTxNote(e.target.value);
                       if (formError) setFormError('');
                     }}
-                    placeholder={t('pasteTxIdPlaceholder')}
+                    placeholder="مەسىلەن: 84920183 (بۇ يەرگە چاپلاڭ)"
                     className={`w-full bg-[#051120] border ${
-                      formError ? 'border-rose-500 ring-1 ring-rose-500/40' : 'border-slate-700/80 focus:border-amber-400'
+                      formError ? 'border-rose-500 ring-1 ring-rose-500/40' : 'border-amber-400/80 focus:border-amber-300 focus:ring-1 focus:ring-amber-400'
                     } rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none transition font-mono ${
                       isRTL ? 'text-right' : 'text-left'
                     }`}
                     dir="ltr"
+                    autoFocus
                   />
                 </div>
                 {formError && (
@@ -771,6 +782,60 @@ export default function DepositPage() {
                     <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                     <span>{formError}</span>
                   </p>
+                )}
+                <p className="text-[10px] text-amber-200/80 font-alkatip pt-0.5 leading-relaxed">
+                  💡 <b>دوللار ھېسابلاپ ئولتۇرۇشىڭىزنىڭ ھاجىتى يوق!</b> پەقەت تالون نومۇرىنى كىرگۈزسىڭىزلا، سىستېما شامكەشتىن پۇل مىقدارىنى ئۆزى ئوقۇپ، سېكۇنتتا دوللارغا ئايلاندۇرۇپ ھەميىنىڭىزگە چۈشۈرۈپ بېرىدۇ.
+                </p>
+              </div>
+
+              {/* Optional Helper: Calculator / Preset Amount for Pre-Transfer Planning */}
+              <div className="mb-4">
+                <button
+                  type="button"
+                  onClick={() => setShowManualAmount(!showManualAmount)}
+                  className="text-[11px] text-slate-400 hover:text-amber-300 flex items-center gap-1 transition cursor-pointer font-alkatip"
+                >
+                  <span>{showManualAmount ? '▲ دوللار / پۇل ھېسابلىغۇچنى يوشۇرۇش' : '▼ (ئىختىيارىي) پۇل ئەۋەتىشتىن بۇرۇن دوللار كۇرسىنى ھېسابلاش'}</span>
+                </button>
+
+                {showManualAmount && (
+                  <div className="mt-2 p-3 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2 animate-in fade-in text-xs">
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {[10, 25, 50, 100].map((amt) => (
+                        <button
+                          key={amt}
+                          type="button"
+                          onClick={() => setAmount(amt)}
+                          className={`py-1.5 rounded-xl border text-xs font-bold font-mono transition cursor-pointer ${
+                            amount === amt
+                              ? 'bg-amber-400 text-slate-950 border-amber-400 shadow-md shadow-amber-500/20'
+                              : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
+                          }`}
+                        >
+                          ${amt}
+                        </button>
+                      ))}
+                    </div>
+                    <input
+                      type="number"
+                      min="1"
+                      value={amount || ''}
+                      onChange={(e) => setAmount(Number(e.target.value))}
+                      placeholder="دوللار مىقدارى (مەسىلەن: 25)"
+                      className={`w-full bg-[#051120] border border-slate-700/80 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition font-mono ${
+                        isRTL ? 'text-right' : 'text-left'
+                      }`}
+                      dir="ltr"
+                    />
+                    {amount > 0 && (
+                      <div className="flex items-center justify-between px-2 py-1 rounded-lg bg-amber-950/20 border border-amber-500/20 text-[11px] text-amber-300/90 font-mono">
+                        <span>سورىيە پۇلىدىكى مىقدارى:</span>
+                        <span className="font-bold text-amber-300 font-mono" dir="ltr">
+                          {(amount * exchangeRate).toLocaleString()} SYP
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
 

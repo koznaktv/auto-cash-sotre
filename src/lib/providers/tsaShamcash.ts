@@ -29,7 +29,9 @@ export interface VerifyTxResult {
  */
 export function normalizeTxId(raw: string): string {
   if (!raw) return '';
-  let normalized = String(raw)
+  let normalized = String(raw).trim();
+  // Convert Eastern Arabic numerals (٠-٩) and Persian numerals (۰-۹) to standard Latin (0-9)
+  normalized = normalized
     .replace(/[٠۰]/g, '0')
     .replace(/[١۱]/g, '1')
     .replace(/[٢۲]/g, '2')
@@ -40,6 +42,22 @@ export function normalizeTxId(raw: string): string {
     .replace(/[٧۷]/g, '7')
     .replace(/[٨۸]/g, '8')
     .replace(/[٩۹]/g, '9');
+
+  // Smart extraction: If customer pasted full text containing "رقم العملية: 84920183" or "عملية 84920183"
+  const receiptMatch = normalized.match(
+    /(?:رقم\s*العملية|رقم\s*الاشعار|العملية|الاشعار|tx(?:id)?|tran(?:s(?:action)?)?(?:id)?|ref(?:erence)?|no|num|#)[\s:#_-]*([0-9a-zA-Z]{5,32})/i
+  );
+  if (receiptMatch && receiptMatch[1]) {
+    return receiptMatch[1].trim();
+  }
+
+  // If long text was pasted and contains a distinct 6-20 digit number
+  if (normalized.length > 25) {
+    const digitsMatch = normalized.match(/\b([0-9]{6,20})\b/);
+    if (digitsMatch && digitsMatch[1]) {
+      return digitsMatch[1].trim();
+    }
+  }
 
   normalized = normalized.replace(/^(tx|id|sc|num|no)[\s:#_-]*/i, '');
   normalized = normalized.replace(/^#+/, '');

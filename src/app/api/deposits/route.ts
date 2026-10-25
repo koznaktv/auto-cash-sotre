@@ -52,10 +52,11 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { amount, method, txId } = body;
 
-    const parsedAmount = Math.round(Number(amount) * 100) / 100;
-    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0 || parsedAmount > MAX_DEPOSIT_AMOUNT) {
+    const rawNum = Number(amount);
+    const parsedAmount = Number.isFinite(rawNum) && rawNum > 0 ? Math.round(rawNum * 100) / 100 : 0;
+    if (parsedAmount > MAX_DEPOSIT_AMOUNT) {
       return NextResponse.json(
-        { success: false, message: 'سومما توغرا كىرگۈزۈلمىدى (0 دىن يۇقىرى كىرگۈزۈڭ)' },
+        { success: false, message: 'سومما بەك يۇقىرى كىرگۈزۈلدى' },
         { status: 400 }
       );
     }
@@ -114,7 +115,12 @@ export async function POST(req: Request) {
           }
 
           // Use the exact credited USD amount from the verified Sham Cash transaction
-          const finalCreditAmount = tx.usdAmount > 0 ? tx.usdAmount : parsedAmount;
+          const finalCreditAmount =
+            tx.usdAmount > 0
+              ? tx.usdAmount
+              : parsedAmount > 0
+              ? parsedAmount
+              : Math.round((tx.amount / (tsaConfig.exchangeRate || 143)) * 100) / 100;
 
           const created = await createDepositAsync({
             userId: user.id,
@@ -151,6 +157,18 @@ export async function POST(req: Request) {
       } catch (tsaErr) {
         console.warn('TSA verification exception, falling back to pending deposit:', tsaErr);
       }
+    }
+
+    // Fallback: If not auto-approved and user did not specify amount, prompt them
+    if (parsedAmount <= 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            'بۇ تالون شامكەش تورىدا تېخى كۆرۈنمىدى ياكى نومۇر خاتا. پۇلنى ھازىرلا سالغان بولسىڭىز 15-30 سېكۇنت ساقلاپ قايتا بېسىڭ ياكى خېرىدارلار مۇلازىمىتىگە ئالاقىلىشىڭ.',
+        },
+        { status: 400 }
+      );
     }
 
     // Fallback: If not auto-approved, record as pending deposit for admin review / manual retry
