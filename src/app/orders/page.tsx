@@ -326,6 +326,29 @@ export default function OrdersPage() {
           </button>
         </div>
 
+        {/* Processing Orders Reassurance Banner */}
+        {orders.some((o) => isOrderInProgress(o.status)) && (
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-transparent border border-amber-500/40 text-amber-200 text-xs shadow-lg space-y-2">
+            <div className="flex items-center gap-2 font-bold text-amber-400 text-sm">
+              <Hourglass className="w-4 h-4 animate-spin text-amber-400 shrink-0" />
+              <span>
+                {lang === 'ug'
+                  ? 'زاكاس بىر تەرەپ قىلىنىۋاتىدۇ (سەل تەخىر قىلىڭ ⚡️)'
+                  : lang === 'ar'
+                  ? 'الطلب قيد التنفيذ (يرجى الانتظار قليلاً ⚡️)'
+                  : 'Order Processing (Please wait a moment ⚡️)'}
+              </span>
+            </div>
+            <p className="text-[11px] sm:text-xs text-amber-100/90 leading-relaxed font-alkatip">
+              {lang === 'ug'
+                ? 'سىستېمىمىز زاكاسنى ئاپتوماتىك تەستىقلاپ قاچىلاۋاتىدۇ (ئادەتتە بىر نەچچە سېكۇنتتىن 1-3 مىنۇتقىچە). ئەگەردە تەمىنلىگۈچى تەرەپتىن زاكاز ماقۇللانمىسا ياكى كاشىلا كۆرۈلسە، كېمەيتىلگەن قالدۇق پۇلىڭىز ھەميان ھېساباتىڭىزغا دەرھال ئاپتوماتىك 100% تولۇق قايتۇرۇلىدۇ. ھېچقانداق زىيان تارتمايسىز!'
+                : lang === 'ar'
+                ? 'نقوم بمعالجة وتنفيذ طلبك تلقائياً (1-3 دقائق). إذا لم تتم الموافقة على الطلب أو حدث خطأ، فسيتم إعادة كامل المبلغ إلى محفظتك فوراً وتلقائياً بنسبة 100% بدون أي خسارة!'
+                : 'Your order is being automatically fulfilled (1-3 mins). If the order cannot be approved or fails, your money will be immediately and automatically refunded to your wallet balance in full!'}
+            </p>
+          </div>
+        )}
+
         {/* Orders List / Empty State */}
         {filteredOrders.length === 0 ? (
           <div className="p-8 sm:p-12 text-center rounded-2xl border border-dashed border-slate-800 bg-[#061424]/40 my-3">
@@ -488,6 +511,40 @@ export default function OrdersPage() {
                           </span>
                         </div>
                       )}
+                    </div>
+                  )}
+
+                  {/* Reassurance Message for in-flight processing orders */}
+                  {isProcessing && (
+                    <div className="mt-2 pt-2 border-t border-amber-500/20 bg-amber-950/30 p-2.5 rounded-xl text-xs space-y-1 text-amber-200 font-alkatip">
+                      <div className="flex items-center gap-1.5 font-bold text-amber-400 text-[11px]">
+                        <Hourglass className="w-3.5 h-3.5 animate-spin shrink-0" />
+                        <span>
+                          {lang === 'ug' ? 'سەل تەخىر قىلىڭ (تەستىقلىنىۋاتىدۇ):' : 'Please wait (Verifying):'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-amber-200/90 leading-relaxed">
+                        {lang === 'ug'
+                          ? 'زاكاس بىر نەچچە سېكۇنتتىن 1-3 مىنۇتتا ئاپتوماتىك قاچىلىنىدۇ. ئەگەر مەھسۇلات ماقۇللانماي قالسا، پۇلىڭىز ھەميان قالدۇقىڭىزغا دەرھال 100% تولۇق قايتۇرۇلىدۇ.'
+                          : 'Order will be auto-delivered in 1-3 mins. If it fails or is not approved, your funds are immediately refunded to your wallet in full.'}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Refund confirmation note for cancelled/refunded orders */}
+                  {(isFailed || (order.status as string) === 'refunded') && (
+                    <div className="mt-2 pt-2 border-t border-emerald-500/20 bg-emerald-950/30 p-2.5 rounded-xl text-xs space-y-1 text-emerald-200 font-alkatip">
+                      <div className="flex items-center gap-1.5 font-bold text-emerald-400 text-[11px]">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        <span>
+                          {lang === 'ug' ? 'پۇل قايتۇرۇلدى (100% كاپالەت):' : 'Refunded (100% Guarantee):'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-emerald-200/90 leading-relaxed">
+                        {lang === 'ug'
+                          ? 'بۇ زاكاز تەستىقلانمىغانلىقى ئۈچۈن، سومما دەرھال ھەميان قالدۇقىڭىزغا 100% تولۇق قايتۇرۇلدى.'
+                          : 'Since this order was not approved, the amount was refunded to your wallet balance in full.'}
+                      </p>
                     </div>
                   )}
                 </div>

@@ -745,6 +745,19 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
               </div>
             )}
 
+            {/* 100% Automatic Refund Guarantee Reassurance */}
+            <div className="rounded-xl bg-cyan-950/30 border border-cyan-800/40 p-2.5 text-xs text-cyan-200/90 leading-relaxed font-alkatip flex items-start gap-2">
+              <span className="text-sm shrink-0">🛡️</span>
+              <div className="text-[11px] leading-relaxed">
+                <span className="font-bold text-cyan-300">
+                  {lang === 'ug' ? '100% قالدۇق كاپالىتى:' : '100% Balance Protection:'}
+                </span>{' '}
+                {lang === 'ug'
+                  ? 'زاكاس تاپشۇرۇلغاندىن كېيىن سەل تەخىر قىلىڭ (ئادەتتە 1-3 مىنۇت). ئەگەر زاكاز ماقۇللانماي قالسا، كېمەيتىلگەن پۇلىڭىز ھەميان قالدۇقىڭىزغا دەرھال ئاپتوماتىك 100% تولۇق قايتۇرۇلىدۇ.'
+                  : 'Please allow 1-3 minutes for automatic verification. If the order cannot be approved, your funds will be immediately and automatically refunded to your wallet in full.'}
+              </div>
+            </div>
+
             {/* Price Summary & Submit */}
             <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
               <div>
