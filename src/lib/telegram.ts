@@ -621,6 +621,55 @@ ${fieldsText ? `📝 <b>قوشۇمچە ئۇچۇرلار:</b>\n${fieldsText}\n` :
 }
 
 /**
+ * Automatically notify customer when an order takes over 1 hour due to upstream provider delays.
+ * Reassures them that their order is queued and their funds are 100% protected.
+ */
+export async function sendOrderDelayNoticeToCustomer(params: {
+  orderId: string;
+  telegramChatId: string | number;
+  serviceName: string;
+  packageTitle: string;
+  amount: number;
+}): Promise<boolean> {
+  const cleanId = params.orderId.replace('ord_', '');
+  const amountStr = Number(params.amount || 0).toFixed(2);
+
+  const text = `
+⏳ <b>ھۆرمەتلىك خېرىدارىمىز، ئەسسالامۇئەلەيكۇم!</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 <b>زاكاس نومۇرى:</b> <code>#${cleanId}</code>
+🎮 <b>مەھسۇلات:</b> <b>${params.serviceName}</b> - ${params.packageTitle}
+💰 <b>سوممىسى:</b> <b>$${amountStr} USD</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ <b>تەمىنلىگۈچى ھالىتى ئۇقتۇرۇشى (1 سائەتتىن ئاشتى):</b>
+سىز بەرگەن بۇ زاكاسنى ئايرىم سۈرۈشتۈرۈپ چىقتۇق. بۇ مەھسۇلاتنىڭ باش تەمىنلىگۈچى سىستېمىسىدا زاكازلار زىيادە كۆپىيىپ كەتكەنلىكى سەۋەبلىك، قاچىلىنىش سۈرئىتى ئادەتتىكىدىن سەل ئاستىلاپ كەتتى.
+
+🛡️ <b>ئەنسىرىمەڭ، كاپالىتىمىز بار:</b>
+زاكىسىڭىز ھازىر رەتتە مېڭىۋاتىدۇ، چوقۇم يېتىپ بارىدۇ. ئەگەر ھېساباتىڭىزغا بارماي قالغان تەقدىردىمۇ، پۇلىڭىز دۇكىنىمىز كاپالىتى بويىچە <b>100% ھەميان قالدۇقىڭىزغا تولۇق قايتۇرۇلىدۇ</b>. ھېچقانداق زىيان تارتمايسىز.
+
+سەل سەۋر قىلىپ كۈتۈپ بەرگىنىڭىزگە كۆپ تەشەككۈر!
+`.trim();
+
+  const keyboard = {
+    inline_keyboard: [
+      [{ text: '🔄 زاكاسنى قايتا تەكشۈرۈش ⚡️', callback_data: `recheck_ord:${params.orderId}` }],
+      [{ text: '💬 خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl }],
+    ],
+  };
+
+  try {
+    const res = await sendTelegramMessage(params.telegramChatId, text, {
+      parse_mode: 'HTML',
+      reply_markup: keyboard,
+    });
+    return Boolean(res.ok);
+  } catch (err: any) {
+    console.warn('[Telegram] sendOrderDelayNoticeToCustomer error:', err?.message);
+    return false;
+  }
+}
+
+/**
  * 1.1 Automatically broadcast completed / fulfilled orders to the official channel (@autocash_cannel)
  * Builds trust, transparency, and social proof for visitors and customers.
  */
@@ -1222,13 +1271,26 @@ function formatOrderTrackingCard(order: OrderRecord) {
   if (order.status === 'completed') {
     statusBadge = '✅ <b>تاماملاندى (مۇۋەپپەقىيەتلىك كىردى)</b> 🚀\n<i>⚡️ مەھسۇلات ھېساباتىڭىزغا كىرگۈزۈلدى، AUTO CASH نى تاللىغىنىڭىزغا رەھمەت!</i>';
   } else if (order.status === 'processing' || order.status === 'pending' || order.status === 'pending_provider') {
-    statusBadge = [
-      '⏳ <b>بىر تەرەپ قىلىنىۋاتىدۇ (سەل تەخىر قىلىڭ ⚡️)</b>',
-      '<i>زاكىسىڭىز ھازىر ئاپتوماتىك تەستىقلىنىش ۋە قاچىلىنىش باسقۇچىدا (ئادەتتە 1-3 مىنۇت).</i>',
-      '',
-      '🛡️ <b>100% قالدۇق كاپالىتى:</b>',
-      '<i>ئەگەردە زاكاز ماقۇللانمىسا ياكى تەمىنلىگۈچىدە كاشىلا كۆرۈلسە، كېمەيتىلگەن قالدۇق پۇلىڭىز <b>ھەميان ھېساباتىڭىزغا دەرھال ئاپتوماتىك تولۇق قايتۇرۇلىدۇ</b>. ھېچقانداق زىيان تارتمايسىز!</i>',
-    ].join('\n');
+    const ageMs = order.createdAt ? Date.now() - new Date(order.createdAt).getTime() : 0;
+    const isOverOneHour = ageMs >= 60 * 60 * 1000;
+
+    if (isOverOneHour) {
+      statusBadge = [
+        '⏳ <b>بىر تەرەپ قىلىنىۋاتىدۇ (1 سائەتتىن ئاشتى، سەل سەۋر قىلىڭ ⚡️)</b>',
+        '<i>بۇ مەھسۇلاتنىڭ باش تەمىنلىگۈچى سىستېمىسى زىيادە بەند بولغانلىقى سەۋەبلىك قاچىلىنىش ئاستىلاپ كەتتى.</i>',
+        '',
+        '🛡️ <b>100% كاپالەت:</b>',
+        '<i>ئەنسىرىمەڭ! زاكىسىڭىز ھازىر رەتتە مېڭىۋاتىدۇ، چوقۇم يېتىپ بارىدۇ. ئەگەر ھېساباتىڭىزغا بارماي قالغان تەقدىردىمۇ، پۇلىڭىز دۇكىنىمىز كاپالىتى بويىچە <b>100% ھەميان قالدۇقىڭىزغا قايتۇرۇلىدۇ</b>. سەل كۈتۈپ بەرگىنىڭىزگە كۆپ تەشەككۈر!</i>',
+      ].join('\n');
+    } else {
+      statusBadge = [
+        '⏳ <b>بىر تەرەپ قىلىنىۋاتىدۇ (سەل تەخىر قىلىڭ ⚡️)</b>',
+        '<i>زاكىسىڭىز ھازىر ئاپتوماتىك تەستىقلىنىش ۋە قاچىلىنىش باسقۇچىدا (ئادەتتە 1-3 مىنۇت).</i>',
+        '',
+        '🛡️ <b>100% قالدۇق كاپالىتى:</b>',
+        '<i>ئەگەردە زاكاز ماقۇللانمىسا ياكى تەمىنلىگۈچىدە كاشىلا كۆرۈلسە، كېمەيتىلگەن قالدۇق پۇلىڭىز <b>ھەميان ھېساباتىڭىزغا دەرھال ئاپتوماتىك تولۇق قايتۇرۇلىدۇ</b>. ھېچقانداق زىيان تارتمايسىز!</i>',
+      ].join('\n');
+    }
   } else if (order.status === 'failed' || order.status === 'refunded') {
     statusBadge = [
       '💰 <b>پۇل ھەميانغا تولۇق قايتۇرۇلدى (100% كاپالەت)</b>',

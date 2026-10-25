@@ -15,6 +15,7 @@ import {
   Check, 
   RefreshCw,
   Calendar,
+  Clock,
   X
 } from 'lucide-react';
 import { isOrderInProgress, type Order } from '@/lib/orders';
@@ -516,19 +517,43 @@ export default function OrdersPage() {
 
                   {/* Reassurance Message for in-flight processing orders */}
                   {isProcessing && (
-                    <div className="mt-2 pt-2 border-t border-amber-500/20 bg-amber-950/30 p-2.5 rounded-xl text-xs space-y-1 text-amber-200 font-alkatip">
-                      <div className="flex items-center gap-1.5 font-bold text-amber-400 text-[11px]">
-                        <Hourglass className="w-3.5 h-3.5 animate-spin shrink-0" />
-                        <span>
-                          {lang === 'ug' ? 'سەل تەخىر قىلىڭ (تەستىقلىنىۋاتىدۇ):' : 'Please wait (Verifying):'}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-amber-200/90 leading-relaxed">
-                        {lang === 'ug'
-                          ? 'زاكاس بىر نەچچە سېكۇنتتىن 1-3 مىنۇتتا ئاپتوماتىك قاچىلىنىدۇ. ئەگەر مەھسۇلات ماقۇللانماي قالسا، پۇلىڭىز ھەميان قالدۇقىڭىزغا دەرھال 100% تولۇق قايتۇرۇلىدۇ.'
-                          : 'Order will be auto-delivered in 1-3 mins. If it fails or is not approved, your funds are immediately refunded to your wallet in full.'}
-                      </p>
-                    </div>
+                    (() => {
+                      const isOverOneHour = Date.now() - new Date(order.createdAt).getTime() >= 60 * 60 * 1000;
+                      if (isOverOneHour) {
+                        return (
+                          <div className="mt-2.5 pt-2.5 border-t border-amber-500/40 bg-amber-950/40 p-3 rounded-xl text-xs space-y-1.5 text-amber-200 font-alkatip border border-amber-500/50 shadow-inner">
+                            <div className="flex items-center gap-1.5 font-bold text-amber-300 text-[11px]">
+                              <Clock className="w-4 h-4 text-amber-400 shrink-0 animate-pulse" />
+                              <span>
+                                {lang === 'ug'
+                                  ? 'زاكاس بىر سائەتتىن ئاشتى (سەل سەۋر قىلىپ بەرگەيسىز):'
+                                  : 'Order In Progress (> 1 hour):'}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-amber-100/90 leading-relaxed">
+                              {lang === 'ug'
+                                ? 'بۇ مەھسۇلاتنىڭ باش تەمىنلىگۈچى سىستېمىسىدا زاكازلار بەك كۆپىيىپ كەتكەنلىكى ئۈچۈن قاچىلىنىش سۈرئىتى ئاستىلاپ كەتتى. ئەنسىرىمەڭ! زاكىسىڭىز قاچىلىنىش رېتىدە مېڭىۋاتىدۇ، چوقۇم يېتىپ بارىدۇ. ئەگەر بارماي قالغان تەقدىردىمۇ، پۇلىڭىز دۇكىنىمىز كاپالىتى بويىچە 100% ھەميىنىڭىزگە تولۇق قايتۇرۇلىدۇ.'
+                                : 'Due to heavy server volume at the provider, delivery is taking longer than usual. Rest assured your order is queued and will arrive. If it fails, your payment will be 100% refunded to your wallet balance.'}
+                            </p>
+                          </div>
+                        );
+                      }
+                      return (
+                        <div className="mt-2 pt-2 border-t border-amber-500/20 bg-amber-950/30 p-2.5 rounded-xl text-xs space-y-1 text-amber-200 font-alkatip">
+                          <div className="flex items-center gap-1.5 font-bold text-amber-400 text-[11px]">
+                            <Hourglass className="w-3.5 h-3.5 animate-spin shrink-0" />
+                            <span>
+                              {lang === 'ug' ? 'سەل تەخىر قىلىڭ (تەستىقلىنىۋاتىدۇ):' : 'Please wait (Verifying):'}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-amber-200/90 leading-relaxed">
+                            {lang === 'ug'
+                              ? 'زاكاس بىر نەچچە سېكۇنتتىن 1-3 مىنۇتتا ئاپتوماتىك قاچىلىنىدۇ. ئەگەر مەھسۇلات ماقۇللانماي قالسا، پۇلىڭىز ھەميان قالدۇقىڭىزغا دەرھال 100% تولۇق قايتۇرۇلىدۇ.'
+                              : 'Order will be auto-delivered in 1-3 mins. If it fails or is not approved, your funds are immediately refunded to your wallet in full.'}
+                          </p>
+                        </div>
+                      );
+                    })()
                   )}
 
                   {/* Refund confirmation note for cancelled/refunded orders */}

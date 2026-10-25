@@ -18,7 +18,7 @@ import {
 } from '../providers/syria4game';
 import { acquireLock, getProviderSettings, releaseLock, updateProviderSettings } from '../catalog/store';
 import { pruneProviderCalls } from './callLog';
-import { postOrderCompletedToChannel } from '../telegram';
+import { postOrderCompletedToChannel, sendOrderDelayNoticeToCustomer } from '../telegram';
 
 // Ultra-fast progressive polling intervals for instant delivery verification:
 // Attempts 0: 5s, 1: 10s, 2: 20s, 3: 40s, 4: 1m, 5: 2m, 6: 5m, 7: 15m
@@ -89,6 +89,36 @@ export async function pollProviderOrders(options: {
     }
     if (options.onlyUserId) orders = orders.filter((o) => o.userId === options.onlyUserId);
     orders = orders.filter((o) => isDue(o, Boolean(options.force)));
+
+    // 1-hour delay check: notify customers of upstream provider queue delays with 100% refund guarantee
+    const ONE_HOUR_MS = 60 * 60 * 1000;
+    for (const order of orders) {
+      const ageMs = Date.now() - new Date(order.createdAt).getTime();
+      if (ageMs >= ONE_HOUR_MS && !order.details?.delayNoticeSentAt) {
+        const tgChatId =
+          order.details?.telegramChatId ||
+          (order.userId?.startsWith('tg_') ? order.userId.replace('tg_', '') : null);
+
+        if (tgChatId) {
+          sendOrderDelayNoticeToCustomer({
+            orderId: order.id,
+            telegramChatId: tgChatId,
+            serviceName: order.serviceName,
+            packageTitle: order.packageTitle,
+            amount: Number(order.amount || 0),
+          }).catch((err: any) => console.warn('[Poller Delay Notice Error]:', err?.message));
+        }
+
+        order.details = {
+          ...(order.details || {}),
+          delayNoticeSentAt: new Date().toISOString(),
+        };
+
+        transitionOrderAsync(order.id, IN_FLIGHT, null, {
+          delayNoticeSentAt: new Date().toISOString(),
+        }).catch(() => {});
+      }
+    }
 
     const withProviderId = orders.filter((o) => o.details?.providerOrderId);
     const withoutProviderId = orders.filter((o) => !o.details?.providerOrderId);
