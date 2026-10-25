@@ -2638,12 +2638,21 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     // 1-Click Deep Link Account Linking from Website: /start link_<token>
     if (text.startsWith('/start link_')) {
       const token = text.replace('/start link_', '').trim();
-      const { verifyAndConsumeTelegramLinkToken, linkTelegramAccountToUser } = await import('./telegramLink');
-      const verified = verifyAndConsumeTelegramLinkToken(token);
+      const { verifyTelegramLinkTokenAsync, linkTelegramAccountToUser } = await import('./telegramLink');
+      const verified = await verifyTelegramLinkTokenAsync(token);
       if (!verified) {
         await sendTelegramMessage(
           chatId,
-          `⚠️ <b>باغلاش ئۇلىنىشىنىڭ ۋاقتى ئۆتۈپ كەتكەن ياكى ئىناۋەتسىز</b>\n\nتوربەتتىكى «مېنىڭ ھېساباتىم» بېتىگە كىرىپ، «تېلېگراممىغا تۇتاشتۇرۇش» كۇنۇپكىسىنى قايتا بېسىڭ.`
+          `⚠️ <b>باغلاش ئۇلىنىشىنىڭ ۋاقتى ئۆتۈپ كەتكەن ياكى ئىناۋەتسىز</b>\n\nتوربەتتىكى «مېنىڭ ھېساباتىم» بېتىگە كىرىپ، «1 چېكىپ بوتقا باغلاش» كۇنۇپكىسىنى قايتا بېسىڭ.`,
+          {
+            parse_mode: 'HTML',
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: '⚡️🛍️ «مېنىڭ ھېساباتىم» بېتىنى ئېچىش ➔', url: `${TELEGRAM_CONFIG.storeUrl}/account` }],
+                [{ text: '🛍️ دۇكان مەھسۇلاتلىرىنى كۆرۈش', callback_data: 'tg_shop_categories' }],
+              ],
+            },
+          }
         );
         return;
       }
@@ -2655,6 +2664,31 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       }
 
       const u = res.user;
+
+      if (res.alreadyLinked) {
+        const alreadyCard = `
+✅ <b>ھېساباتىڭىز ئاللىقاچان مۇۋەپپەقىيەتلىك باغلانغان!</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 <b>ئىسمىڭىز:</b> ${u.name}
+📧 <b>توربەت ھېساباتى:</b> <code>${u.email}</code>
+💳 <b>ئورتاق قالدۇقىڭىز:</b> <b>$${Number(u.balance || 0).toFixed(2)} USD</b>
+👑 <b>VIP دەرىجىسى:</b> <b>${(u.vipTier || 'VIP1').toUpperCase()}</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚡️ سىزنىڭ توربەتتىكى ۋە تېلېگراممىدىكى ھېساباتىڭىز پۈتۈنلەي بىر گەۋدە، قايسى تەرەپتە پۇل سالسىڭىز ئىككىلا تەرەپتە بىرلا ۋاقىتتا ئىشلىتىلىدۇ!
+`.trim();
+
+        await sendTelegramMessage(chatId, alreadyCard, {
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: '🛍️ مەھسۇلاتلار بۆلىكىگە كىرىش ➔', callback_data: 'tg_shop_categories' }],
+              [{ text: '💎💳 قالدۇق تەكشۈرۈش / پۇل سېلىش', callback_data: 'tg_my_account' }],
+            ],
+          },
+        });
+        return;
+      }
+
       const mergedText = res.mergedBalance > 0
         ? `\n💰 <b>يىغىنچاقلانغان قالدۇق:</b> تېلېگراممىدىكى بۇرۇنقى $${res.mergedBalance.toFixed(2)} قالدۇقىڭىز توربەت ھېساباتىڭىزغا تولۇق قوشۇلدى!`
         : '';

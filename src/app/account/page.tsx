@@ -120,9 +120,13 @@ export default function AccountPage() {
   const [loadingTgLink, setLoadingTgLink] = useState<boolean>(false);
   const [tgUnlinkSuccess, setTgUnlinkSuccess] = useState<boolean>(false);
 
-  const fetchTelegramLink = async () => {
+  const fetchTelegramLink = async (targetUserId?: string) => {
     try {
-      const res = await fetch('/api/auth/telegram-link');
+      const uid = targetUserId || userId || (typeof window !== 'undefined' ? localStorage.getItem('autocash_userId') || '' : '');
+      const url = uid ? `/api/auth/telegram-link?userId=${encodeURIComponent(uid)}` : '/api/auth/telegram-link';
+      const res = await fetch(url, {
+        headers: uid ? { 'x-user-id': uid } : undefined,
+      });
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
@@ -136,6 +140,38 @@ export default function AccountPage() {
       }
     } catch (e) {
       console.error('Failed to load telegram link info:', e);
+    }
+  };
+
+  const handleStartLink = async () => {
+    setLoadingTgLink(true);
+    try {
+      const uid = userId || (typeof window !== 'undefined' ? localStorage.getItem('autocash_userId') || '' : '');
+      const res = await fetch('/api/auth/telegram-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: uid }),
+      });
+      const data = await res.json();
+      if (data.success && data.linkUrl) {
+        setTelegramLink((prev) => ({
+          isLinked: false,
+          linkUrl: data.linkUrl,
+        }));
+        window.open(data.linkUrl, '_blank');
+      } else if (telegramLink?.linkUrl) {
+        window.open(telegramLink.linkUrl, '_blank');
+      } else {
+        window.open('https://t.me/Autocash_24_bot', '_blank');
+      }
+    } catch (e) {
+      if (telegramLink?.linkUrl) {
+        window.open(telegramLink.linkUrl, '_blank');
+      } else {
+        window.open('https://t.me/Autocash_24_bot', '_blank');
+      }
+    } finally {
+      setLoadingTgLink(false);
     }
   };
 
@@ -221,7 +257,7 @@ export default function AccountPage() {
           setTotalPurchases(u.totalSpent || 0);
           setVipTier(u.vipTier ? u.vipTier.toUpperCase() : 'VIP 1');
           storeLocalAuth(u);
-          fetchTelegramLink();
+          fetchTelegramLink(u.id);
         }
       } catch (e) {
         console.error(e);
@@ -579,7 +615,7 @@ export default function AccountPage() {
                 {telegramLink?.isLinked ? (
                   <>
                     <a
-                      href="https://t.me/Auto_cash_vip_bot"
+                      href="https://t.me/Autocash_24_bot"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-cyan-600/30 hover:bg-cyan-600/45 border border-cyan-400/50 text-cyan-200 hover:text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow"
@@ -599,15 +635,15 @@ export default function AccountPage() {
                     </button>
                   </>
                 ) : (
-                  <a
-                    href={telegramLink?.linkUrl || 'https://t.me/Auto_cash_vip_bot'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black text-xs transition-all shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 flex items-center justify-center gap-2 transform active:scale-95 cursor-pointer"
+                  <button
+                    type="button"
+                    disabled={loadingTgLink}
+                    onClick={handleStartLink}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black text-xs transition-all shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 flex items-center justify-center gap-2 transform active:scale-95 cursor-pointer disabled:opacity-60"
                   >
                     <Send className="w-4 h-4" />
-                    <span>{lang === 'ug' ? '1 چېكىپ بوتقا باغلاش' : lang === 'ar' ? 'ربط الحساب بالبوت فوراً' : '1-Click Link Telegram'}</span>
-                  </a>
+                    <span>{loadingTgLink ? (lang === 'ug' ? 'ئېچىلىۋاتىدۇ...' : 'جاري الفتح...') : (lang === 'ug' ? '1 چېكىپ بوتقا باغلاش' : lang === 'ar' ? 'ربط الحساب بالبوت فوراً' : '1-Click Link Telegram')}</span>
+                  </button>
                 )}
               </div>
             </div>

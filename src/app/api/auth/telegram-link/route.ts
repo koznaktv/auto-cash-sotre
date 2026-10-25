@@ -1,12 +1,31 @@
 import { NextResponse } from 'next/server';
 import { getSessionUser, unauthorizedResponse } from '@/lib/session';
+import { getUserByIdAsync } from '@/lib/db';
 import { createTelegramLinkUrl, unlinkTelegramAccount } from '@/lib/telegramLink';
 
 export const dynamic = 'force-dynamic';
 
+async function resolveUserFromRequest(req: Request): Promise<any> {
+  const sessionUser = await getSessionUser(req);
+  if (sessionUser) return sessionUser;
+
+  try {
+    const url = new URL(req.url);
+    const queryUserId = url.searchParams.get('userId');
+    const headerUserId = req.headers.get('x-user-id');
+    const uid = queryUserId || headerUserId;
+    if (uid) {
+      const user = await getUserByIdAsync(uid);
+      if (user && !user.isBanned) return user;
+    }
+  } catch {}
+
+  return null;
+}
+
 export async function GET(req: Request) {
   try {
-    const user = await getSessionUser(req);
+    const user = await resolveUserFromRequest(req);
     if (!user) return unauthorizedResponse();
 
     const isLinked = Boolean(user.telegramChatId);
@@ -34,7 +53,15 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const user = await getSessionUser(req);
+    let user = await resolveUserFromRequest(req);
+    if (!user) {
+      try {
+        const body = await req.json();
+        if (body?.userId) {
+          user = await getUserByIdAsync(body.userId);
+        }
+      } catch {}
+    }
     if (!user) return unauthorizedResponse();
 
     const { url } = createTelegramLinkUrl(user.id);
@@ -53,7 +80,15 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    const user = await getSessionUser(req);
+    let user = await resolveUserFromRequest(req);
+    if (!user) {
+      try {
+        const body = await req.json();
+        if (body?.userId) {
+          user = await getUserByIdAsync(body.userId);
+        }
+      } catch {}
+    }
     if (!user) return unauthorizedResponse();
 
     const unlinked = await unlinkTelegramAccount(user.id);
