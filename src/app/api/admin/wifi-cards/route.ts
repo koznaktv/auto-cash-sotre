@@ -7,6 +7,7 @@ import {
   deleteWifiCardAsync,
   bulkDeleteWifiCardsAsync,
   clearAvailableWifiCardsByPackageAsync,
+  invalidateWifiCardsCache,
 } from '@/lib/wifiInventoryDb';
 
 export const dynamic = 'force-dynamic';
@@ -19,11 +20,14 @@ export async function GET(req: Request) {
   try {
     const cards = await getAllWifiCardsAsync();
     const stockSummary = await getWifiStockSummaryAsync();
-    return NextResponse.json({
-      success: true,
-      cards,
-      stockSummary,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        cards,
+        stockSummary,
+      },
+      { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' } }
+    );
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err.message }, { status: 500 });
   }
@@ -52,6 +56,7 @@ export async function POST(req: Request) {
       packageTitle: packageTitle || packageId,
       rawText,
     });
+    invalidateWifiCardsCache();
 
     return NextResponse.json({
       success: true,
@@ -83,6 +88,7 @@ export async function DELETE(req: Request) {
         return NextResponse.json({ success: false, message: 'serviceId ۋە packageId كىرگۈزۈلمىدى' }, { status: 400 });
       }
       const count = await clearAvailableWifiCardsByPackageAsync({ serviceId, packageId });
+      invalidateWifiCardsCache();
       return NextResponse.json({ success: true, count, message: `مۇۋەپپەقىيەتلىك ھالدا بۇ بولاقتىكى ${count} تال سېتىلمىغان كارتا ئۆچۈرۈلدى` });
     }
 
@@ -101,6 +107,7 @@ export async function DELETE(req: Request) {
 
     if (targetIds.length > 0) {
       const count = await bulkDeleteWifiCardsAsync(targetIds);
+      invalidateWifiCardsCache();
       return NextResponse.json({ success: true, count, message: `مۇۋەپپەقىيەتلىك ھالدا ${count} تال كارتا ئامباردىن تولۇق ئۆچۈرۈلدى` });
     }
 
@@ -110,6 +117,7 @@ export async function DELETE(req: Request) {
     }
 
     await deleteWifiCardAsync(cardId);
+    invalidateWifiCardsCache();
     return NextResponse.json({ success: true, message: 'كارتا ئامباردىن دەرھال ئۆچۈرۈلدى' });
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err.message }, { status: 500 });

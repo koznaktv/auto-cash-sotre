@@ -73,7 +73,7 @@ export default function AdminWifiInventory() {
   const fetchCards = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/admin/wifi-cards');
+      const res = await fetch(`/api/admin/wifi-cards?_t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       if (data.success) {
         setCards(data.cards || []);
