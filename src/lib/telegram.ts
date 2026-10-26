@@ -84,10 +84,7 @@ export function registerAdminChatId(fromId?: number | string, fromUsername?: str
 }
 
 export function getBotToken(): string {
-  return (
-    process.env.TELEGRAM_BOT_TOKEN ||
-    '8886426395:AAGYz2nDCPrtOyqDH-mmqSwq_ctIAvIBcKY'
-  );
+  return process.env.TELEGRAM_BOT_TOKEN || '';
 }
 
 // In-memory traffic & subscriber cache
