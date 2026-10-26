@@ -398,7 +398,7 @@ export default function AdminPage() {
 
   const [serviceMarkupPercent, setServiceMarkupPercent] = useState<number>(20);
 
-  // Sahl Cash Importer / Customizer Modal State (Whole-Service & All Packages)
+  // Othman Store Importer / Customizer Modal State (Whole-Service & All Packages)
   const [sahlCashModalOpen, setSahlCashModalOpen] = useState(false);
   const [sahlSearch, setSahlSearch] = useState('');
   const [sahlCategoryFilter, setSahlCategoryFilter] = useState('all');
@@ -451,7 +451,7 @@ export default function AdminPage() {
     othmanEnabled: boolean;
   }>({
     activeProvider: 'othman',
-    apiUrl: 'https://api.sahl-cash.com',
+    apiUrl: 'https://api.othman-storee.com',
     apiKey: '',
     apiType: 'syria4game',
     apiSecret: '',
@@ -807,7 +807,7 @@ export default function AdminPage() {
       if (data && data.success && Array.isArray(data.products)) {
         setProviderProducts(data.products);
         if (!silent) {
-          alert(`تەمىنلىگۈچىلەردىن (Sahl Cash & Othman Store) جەمئىي ${data.products.length} دانە مەھسۇلات يېڭىلاندى!`);
+          alert(`تەمىنلىگۈچىلەردىن (Othman Store) جەمئىي ${data.products.length} دانە مەھسۇلات يېڭىلاندى!`);
         }
       } else if (!silent) {
         alert(data?.errorMessage || 'مەھسۇلاتلارنى ئېلىش مەغلۇپ بولدى');
@@ -1883,7 +1883,7 @@ export default function AdminPage() {
           alert(data.message || 'ساقلاش مەغلۇپ بولدى');
         }
       } else {
-        // Add new or save Sahl Cash item to custom services
+        // Add new or save Othman Store item to custom services
         const res = await fetch('/api/admin/services', {
           method: 'POST',
           headers,
@@ -1908,7 +1908,7 @@ export default function AdminPage() {
 
   const handleDeleteService = async (id: string) => {
     if (!savedServiceIds.has(id)) {
-      if (!confirm('بۇ Sahl Cash مەھسۇلاتىنى تىزىملىكتىن يوشۇرۇۋەتمەكچىمۇ؟')) return;
+      if (!confirm('بۇ تەمىنلىگۈچى مەھسۇلاتىنى تىزىملىكتىن يوشۇرۇۋەتمەكچىمۇ؟')) return;
       handleHideSahlKey(id.replace('sahl_', ''));
       return;
     }
@@ -2173,7 +2173,7 @@ export default function AdminPage() {
     }
   };
 
-  // Sahl Cash Importer & Customizer Helper Dictionaries & Functions
+  // Othman Store Importer & Customizer Helper Dictionaries & Functions
   const UYGHUR_SERVICE_NAMES: Record<string, string> = {
     'PUBG Mobile': 'پابجى كۆچمە (PUBG Mobile)',
     'PUBGM Lite': 'پابجى لايت (PUBGM Lite)',
@@ -2243,7 +2243,7 @@ export default function AdminPage() {
   };
 
   const guessImageFromName = (name: string, originalImage?: string): string => {
-    if (originalImage && !originalImage.endsWith('sahl-cash.com/') && originalImage !== 'https://api.sahl-cash.com' && originalImage.startsWith('http')) {
+    if (originalImage && !originalImage.endsWith('sahl-cash.com/') && !originalImage.endsWith('othman-storee.com/') && originalImage !== 'https://api.sahl-cash.com' && originalImage !== 'https://api.othman-storee.com' && originalImage.startsWith('http')) {
       return originalImage;
     }
     const n = name.toLowerCase();
@@ -2289,7 +2289,7 @@ export default function AdminPage() {
     return title || pkgName;
   };
 
-  // Group all Sahl Cash provider products into services with ALL packages
+  // Group all Othman Store provider products into services with ALL packages
   const groupedSahlServices = useMemo<SahlGroupedService[]>(() => {
     if (!providerProducts || providerProducts.length === 0) return [];
 
@@ -2394,7 +2394,7 @@ export default function AdminPage() {
     return list;
   }, [providerProducts]);
 
-  // Unified list: Saved custom services + all Sahl Cash grouped services
+  // Unified list: Saved custom services + all Othman Store grouped services
   const unifiedServicesList = useMemo<ServiceItem[]>(() => {
     const list: ServiceItem[] = [...services];
 
@@ -2422,7 +2422,7 @@ export default function AdminPage() {
           icon: getCategoryIcon(sahl.category),
           image: sahl.image || '/logo.png',
           description: `${sahl.name} ئاپتوماتىك پۇل قاچىلاش مۇلازىمىتى`,
-          badge: '⚡ Sahl Cash',
+          badge: '⚡ Othman Store',
           inputLabel: sahl.inputLabel,
           inputPlaceholder: sahl.inputPlaceholder,
           requiresZoneId: sahl.requiresZoneId,
@@ -2928,7 +2928,7 @@ export default function AdminPage() {
     });
   }, [orders, searchQuery, statusFilter]);
 
-  // Filtered Services & Pagination (Unified from Sahl Cash & Custom)
+  // Filtered Services & Pagination (Unified from Othman Store & Custom)
   const filteredServices = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return unifiedServicesList.filter((s) => {
@@ -2944,8 +2944,7 @@ export default function AdminPage() {
       const matchSource =
         productSourceFilter === 'all' ||
         (productSourceFilter === 'published' && isCustomSaved) ||
-        (productSourceFilter === 'sahl' && !isCustomSaved && !isOthmanService) ||
-        (productSourceFilter === 'othman' && !isCustomSaved && isOthmanService);
+        ((productSourceFilter === 'othman' || productSourceFilter === 'sahl') && !isCustomSaved);
       return matchCat && matchSearch && matchSource;
     });
   }, [unifiedServicesList, searchQuery, categoryFilter, productSourceFilter, savedServiceIds]);
@@ -3220,7 +3219,7 @@ export default function AdminPage() {
             <h2 className="font-ukij font-black text-sm sm:text-base text-white">
               {activeTab === 'dashboard' && 'باش تاختا كۆرسەتكۈچلىرى'}
               {activeTab === 'orders' && 'زاكازلارنى باشقۇرۇش مەركىزى'}
-              {activeTab === 'provider' && 'API تەمىنلىگۈچى تەڭشىكى (Sahl Cash & Othman Store)'}
+              {activeTab === 'provider' && 'API تەمىنلىگۈچى تەڭشىكى (Othman Store)'}
               {activeTab === 'sms' && '📱 مەۋھۇم نومۇر (SMS Verification) API مەركىزى'}
               
               {activeTab === 'banners' && 'باشبەت ئېلان تاختىسى ۋە سلايدېر تەڭشىكى'}
@@ -3408,7 +3407,7 @@ export default function AdminPage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-sm font-bold text-white">Sahl Cash (api.sahl-cash.com) API ئۇلىنىشى</h3>
+                      <h3 className="text-sm font-bold text-white">Othman Store (api.othman-storee.com) API ئۇلىنىشى</h3>
                       <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold ${
                         providerStatus?.success
                           ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
@@ -3434,7 +3433,7 @@ export default function AdminPage() {
                               ? 'bg-rose-600 hover:bg-rose-500 text-white animate-pulse'
                               : 'bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700'
                           }`}
-                          title="Sahl Cash تەمىنلىگۈچىگە كىرگۈزىدىغان ئاممىۋى IP نى كۆچۈرۈۋېلىش"
+                          title="Othman Store تەمىنلىگۈچىگە كىرگۈزىدىغان ئاممىۋى IP نى كۆچۈرۈۋېلىش"
                         >
                           <Globe className="w-3 h-3" />
                           <span>IP: {providerStatus.serverPublicIp}</span>
@@ -3738,7 +3737,7 @@ export default function AdminPage() {
                               {order.targetAccount}
                               {order.details?.providerOrderId && (
                                 <span className="block text-[10px] text-cyan-400 font-normal" dir="ltr">
-                                  Sahl Cash #{order.details.providerOrderId}
+                                  Othman Store #{order.details.providerOrderId}
                                   {order.details.providerStatus ? ` · ${order.details.providerStatus}` : ''}
                                 </span>
                               )}
@@ -3895,17 +3894,17 @@ export default function AdminPage() {
                       onClick={() => fetchProviderProducts(false)}
                       disabled={loadingProducts}
                       className="px-3.5 py-2 rounded-xl bg-cyan-900/70 hover:bg-cyan-800 border border-cyan-500/50 text-cyan-200 text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50"
-                      title="Sahl Cash تىن ئەڭ يېڭى مەھسۇلات ۋە باھالارنى قايتا يېڭىلاش"
+                      title="Othman Store تىن ئەڭ يېڭى مەھسۇلات ۋە باھالارنى قايتا يېڭىلاش"
                     >
                       <RefreshCw className={`w-3.5 h-3.5 text-amber-300 ${loadingProducts ? 'animate-spin' : ''}`} />
-                      <span>{loadingProducts ? 'يېڭىلىنىۋاتىدۇ...' : '⚡ Sahl Cash يېڭىلاش'}</span>
+                      <span>{loadingProducts ? 'يېڭىلىنىۋاتىدۇ...' : '⚡ Othman Store يېڭىلاش'}</span>
                     </button>
                     {categoryFilter !== 'all' && (
                       <button
                         onClick={handleBatchPublishActiveCategory}
                         disabled={loadingProducts}
                         className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:opacity-90 text-slate-950 text-xs font-black transition cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50"
-                        title="مۇشۇ سەھىپىدىكى بارلىق Sahl Cash مەھسۇلاتلىرىنى بىراقلا دۇكانغا قوشۇپ باشبەتكە چىقىرىش"
+                        title="مۇشۇ سەھىپىدىكى بارلىق Othman Store مەھسۇلاتلىرىنى بىراقلا دۇكانغا قوشۇپ باشبەتكە چىقىرىش"
                       >
                         <Zap className="w-3.5 h-3.5 fill-slate-950" />
                         <span>🚀 سەھىپىنى دۇكانغا تولۇق قوشۇش</span>
@@ -4020,30 +4019,16 @@ export default function AdminPage() {
                     <button
                       type="button"
                       onClick={() => {
-                        setProductSourceFilter('sahl');
-                        setCurrentPage(1);
-                      }}
-                      className={`px-3 py-1.5 rounded-xl transition cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                        productSourceFilter === 'sahl'
-                          ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black shadow-md'
-                          : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
-                      }`}
-                    >
-                      <span>⚡ Sahl Cash ({groupedSahlServices.filter(s => s.providerKey !== 'othman').length})</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
                         setProductSourceFilter('othman');
                         setCurrentPage(1);
                       }}
                       className={`px-3 py-1.5 rounded-xl transition cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                        productSourceFilter === 'othman'
-                          ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-black shadow-md'
+                        productSourceFilter === 'othman' || productSourceFilter === 'sahl'
+                          ? 'bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-black shadow-md'
                           : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
                       }`}
                     >
-                      <span>🔷 Othman Store ({groupedSahlServices.filter(s => s.providerKey === 'othman').length})</span>
+                      <span>🔷 Othman Store تىزىملىكى ({groupedSahlServices.length})</span>
                     </button>
                     <button
                       type="button"
@@ -4096,7 +4081,7 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Services Grid (Store Products / Sahl Cash Warehouse) */}
+              {/* Services Grid (Store Products / Othman Store Warehouse) */}
               {paginatedServices.length === 0 ? (
                 <div className={`p-8 rounded-3xl ${themeClasses.card} text-center space-y-4 my-4`}>
                   <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mx-auto">
@@ -4110,7 +4095,7 @@ export default function AdminPage() {
                     </h3>
                     <p className={`text-xs ${themeClasses.subtext} max-w-md mx-auto`}>
                       {productSourceFilter === 'published'
-                        ? 'Sahl Cash مەھسۇلات ئامبىرىدىن ئۆزىڭىز خالىغان ئويۇن ياكى ئەپلەرنى تاللاپ، باھاسىنى خالىغانچە تەھرىرلەپ دۇكىنىڭىزغا ئاسانلا قوشالايسىز.'
+                        ? 'Othman Store مەھسۇلات ئامبىرىدىن ئۆزىڭىز خالىغان ئويۇن ياكى ئەپلەرنى تاللاپ، باھاسىنى خالىغانچە تەھرىرلەپ دۇكىنىڭىزغا ئاسانلا قوشالايسىز.'
                         : 'ئىزدەش شەرتىنى ئۆزگەرتىپ كۆرۈڭ ياكى سەھىپىنى قايتا تاللاڭ.'}
                     </p>
                   </div>
@@ -4124,7 +4109,7 @@ export default function AdminPage() {
                       className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs transition cursor-pointer shadow-lg inline-flex items-center gap-2"
                     >
                       <Zap className="w-4 h-4 fill-slate-950" />
-                      <span>⚡ Sahl Cash ئامبىرىدىن مەھسۇلات تاللاپ قوشۇش</span>
+                      <span>⚡ Othman Store ئامبىرىدىن مەھسۇلات تاللاپ قوشۇش</span>
                     </button>
                   )}
                 </div>
@@ -4178,7 +4163,7 @@ export default function AdminPage() {
                                   )
                                 ) : (
                                   <span className="text-[9px] text-cyan-300 font-bold bg-cyan-950/80 border border-cyan-500/40 px-1.5 py-0.2 rounded-md">
-                                    Sahl Cash
+                                    Othman Store
                                   </span>
                                 )}
                               </div>
@@ -4354,7 +4339,7 @@ export default function AdminPage() {
                   <div className="space-y-1">
                     <h4 className="font-bold text-sm text-white">بۇ تۈردە مەھسۇلات تېپىلمىدى</h4>
                     <p className={`text-xs ${themeClasses.subtext} max-w-md mx-auto`}>
-                      ئىزدەش شەرتى ياكى سەھىپە تاللىشىنى ئۆزگەرتىپ كۆرۈڭ، ياكى «⚡ Sahl Cash يېڭىلاش» كۇنۇپكىسىنى بېسىپ مەھسۇلاتلارنى قايتا يۈكلەڭ.
+                      ئىزدەش شەرتى ياكى سەھىپە تاللىشىنى ئۆزگەرتىپ كۆرۈڭ، ياكى «⚡ Othman Store يېڭىلاش» كۇنۇپكىسىنى بېسىپ مەھسۇلاتلارنى قايتا يۈكلەڭ.
                     </p>
                   </div>
                   <button
@@ -4362,7 +4347,7 @@ export default function AdminPage() {
                     className="px-4 py-2 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer shadow-md inline-flex items-center gap-1.5"
                   >
                     <RefreshCw className="w-4 h-4" />
-                    <span>Sahl Cash مەھسۇلاتلىرىنى يېڭىلاش</span>
+                    <span>Othman Store مەھسۇلاتلىرىنى يېڭىلاش</span>
                   </button>
                 </div>
               )}
@@ -5466,7 +5451,7 @@ export default function AdminPage() {
                     </div>
                     <div>
                       <h2 className="text-base sm:text-lg font-bold text-white">
-                        Sahl Cash (api.sahl-cash.com) API مەركىزى
+                        Othman Store (api.othman-storee.com) API مەركىزى
                       </h2>
                       <p className={`text-xs ${themeClasses.subtext}`}>
                         رەسمىي ئويۇن پۇل قاچىلاش API سى، توپ سېتىۋېلىش قالدۇق پۇلى ۋە مەھسۇلات تىزىملىكى
@@ -5495,53 +5480,6 @@ export default function AdminPage() {
                   </button>
                 </div>
               </div>
-
-              {/* IP Whitelist Warning Alert */}
-              {providerStatus?.isIpBlocked && (
-                <div className="p-4 sm:p-5 rounded-2xl bg-rose-500/15 border-2 border-rose-500/50 text-rose-200 space-y-3 shadow-xl">
-                  <div className="flex items-center justify-between gap-3 flex-wrap">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-300 font-bold text-lg shrink-0">
-                        ⚠️
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-sm text-white">Sahl Cash سىزنىڭ IP ئادرېسىڭىزنى چەكلىدى (IP not allowed - كود 123)</h4>
-                        <p className="text-xs text-rose-300/90 font-alkatip">تەمىنلىگۈچى (Sahl Cash) تورىڭىزنىڭ ئاممىۋى IP ئادرېسى ئۆزگىرىپ كەتكەنلىكى ئۈچۈن ئۇلىنىشنى رەت قىلغان.</p>
-                      </div>
-                    </div>
-                    {providerStatus?.serverPublicIp && providerStatus.serverPublicIp !== 'ئېنىقلانمىدى' && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard.writeText(providerStatus.serverPublicIp!);
-                          alert(`نۆۋەتتىكى مۇلازىمېتىر ئاممىۋى IP كۆچۈرۈلدى: ${providerStatus.serverPublicIp}`);
-                        }}
-                        className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition flex items-center gap-2 shadow-lg cursor-pointer"
-                      >
-                        <Copy className="w-3.5 h-3.5" />
-                        <span>نۆۋەتتىكى IP نى كۆچۈرۈش ({providerStatus.serverPublicIp})</span>
-                      </button>
-                    )}
-                  </div>
-                  <div className="p-3.5 rounded-xl bg-black/40 border border-rose-500/20 text-xs text-slate-300 space-y-2 font-alkatip">
-                    <div className="font-bold text-white flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>قايتا ئۈزۈلمەيدىغان قىلىش ئۇسۇللىرى (مەڭگۈلۈك ھەل قىلىش):</span>
-                    </div>
-                    <ul className="space-y-1.5 list-disc list-inside text-slate-300 text-[11px] leading-relaxed">
-                      <li>
-                        <strong className="text-cyan-300">1-ئۇسۇل (ھازىرلا تۈزىتىش):</strong> sahl-cash.com دىكى شەخسىي بەت → API تەڭشىكىگە كىرىپ، «IP Address» تۈرىنى <span className="text-white font-mono bg-slate-800 px-1.5 py-0.5 rounded">پۈتۈنلەي بوش (قۇرۇق)</span> قويۇپ ياكى <span className="text-white font-mono bg-slate-800 px-1.5 py-0.5 rounded">0.0.0.0</span> قىلىپ ساقلاپ سىناڭ.
-                      </li>
-                      <li>
-                        <strong className="text-emerald-300">2-ئۇسۇل (ئەڭ ياخشى، ئۆمۈرلۈك ھەل قىلىش):</strong> Sahl Cash نىڭ WhatsApp/Telegram تېخنىكىلىق خېرىدارلار مۇلازىمىتىگە مۇنداق دەپ خەت يېزىڭ: <span className="text-white font-mono bg-slate-800 px-1.5 py-0.5 rounded">«أرجو إلغاء قيد الآيبي IP restriction على حساب الـ API»</span> (API ھېساباتىمدىكى IP تەكشۈرۈش چەكلىمىسىنى بىكار قىلىپ بېرىڭلار). ئۇلار چەكلىمىنى ئېلىۋەتسە مەڭگۈ قايتا ئۈزۈلمەيدۇ.
-                      </li>
-                      <li>
-                        <strong className="text-amber-300">3-ئۇسۇل (ۋاقىتلىق):</strong> ئەگەر چەكلىمىنى تېخى ئالمىغان بولسا، يۇقىرىدىكى قىزىل كۇنۇپكىنى بېسىپ نۆۋەتتىكى IP نى كۆچۈرۈۋېلىپ، Sahl Cash نىڭ API تەڭشىكىدىكى «IP Address» تۈرىگە چاپلاپ ساقلاڭ.
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              )}
 
               {/* Status Overview 4 Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -5607,7 +5545,7 @@ export default function AdminPage() {
                   providerStatus?.othman?.success ? 'border-indigo-500/40 bg-indigo-950/10' : 'border-slate-800'
                 }`}>
                   <div className="flex items-center justify-between">
-                    <span className={`text-xs ${themeClasses.subtext} block`}>2-تەمىنلىگۈچى (Othman Store)</span>
+                    <span className={`text-xs ${themeClasses.subtext} block`}>تەمىنلىگۈچى (Othman Store)</span>
                     <span className={`w-2.5 h-2.5 rounded-full ${providerStatus?.othman?.success ? 'bg-indigo-400 animate-pulse' : 'bg-slate-500'}`} />
                   </div>
                   <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-2">
@@ -5622,19 +5560,19 @@ export default function AdminPage() {
               </div>
 
               {/* Dynamic Provider Configuration Form */}
-              <div className={`p-5 sm:p-6 rounded-2xl ${themeClasses.card} border border-cyan-500/40 shadow-xl space-y-4`}>
+              <div className={`p-5 sm:p-6 rounded-2xl ${themeClasses.card} border border-indigo-500/40 shadow-xl space-y-4`}>
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                   <div className="flex items-center gap-2">
-                    <Sliders className="w-5 h-5 text-cyan-400" />
-                    <h3 className="text-sm font-bold text-white font-alkatip">API تەمىنلىگۈچىنى ئالماشتۇرۇش ۋە بىۋاسىتە ئۇلاش</h3>
+                    <Sliders className="w-5 h-5 text-indigo-400" />
+                    <h3 className="text-sm font-bold text-white font-alkatip">Othman Store (api.othman-storee.com) API تەڭشىكى</h3>
                   </div>
-                  <span className="text-[11px] px-2.5 py-1 rounded-full bg-cyan-950/60 text-cyan-300 border border-cyan-800/40 font-mono">
-                    Dynamic API Setup
+                  <span className="text-[11px] px-2.5 py-1 rounded-full bg-indigo-950/60 text-indigo-300 border border-indigo-800/40 font-mono">
+                    Primary Wholesale API
                   </span>
                 </div>
 
                 <p className="text-xs text-slate-400 font-alkatip leading-relaxed">
-                  بۇ يەردە كود ئۆزگەرتمەي تۇرۇپلا تور بېتىڭىزنىڭ زاكازلىرىنى Sahl Cash (https://api.sahl-cash.com) سۇپىسىغا تولۇق ئۇلىيالايسىز. تۆۋەندىكى تەلەپلەرنى كىرگۈزۈپ «ساقلاش ۋە دەرھال ئۇلىنىشنى سىناش» كۇنۇپكىسىنى باسسىڭىز، سىستېما دەرھال نەق پۇل قالدۇقىنى تەكشۈرۈپ ئاپتوماتىك ئىشقا كىرىشتۈرىدۇ.
+                  تور بېتىڭىزنىڭ بارلىق زاكازلىرى Othman Store (https://api.othman-storee.com) غا بىۋاسىتە ئۇلىنىدۇ. يېڭى Token ياكى URL نى كىرگۈزۈپ «ساقلاش ۋە دەرھال ئۇلىنىشنى سىناش» كۇنۇپكىسىنى باسسىڭىز، سىستېما نەق پۇل قالدۇقىنى تەكشۈرۈپ ساقلايدۇ.
                 </p>
 
                 {providerFeedback && (
@@ -5651,148 +5589,20 @@ export default function AdminPage() {
                 )}
 
                 <form onSubmit={handleSaveProviderConfig} className="space-y-4 pt-1">
-                  {/* Primary Active Provider Selection Card */}
-                  <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-950 border-2 border-indigo-500/60 shadow-xl space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  {/* Dedicated Status Badge */}
+                  <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/50 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                          <h4 className="text-sm font-black text-white font-alkatip">نۆۋەتتىكى ئاساسىي تەمىنلىگۈچى (Active API Provider):</h4>
-                        </div>
-                        <p className="text-[11px] text-slate-400 mt-0.5 font-alkatip">
-                          بۇ يەردىن بىرىنى توختىتىپ، يەنە بىرىنى ئاساسىي ئورۇنغا بىرلا چېكىپ تاللىيالايسىز.
-                        </p>
+                        <span className="text-xs font-bold text-white block">🔷 Othman Store (https://api.othman-storee.com)</span>
+                        <span className="text-[11px] text-indigo-300">ئاساسىي ئاپتوماتىك توپ تارقىتىش تەمىنلىگۈچىسى</span>
                       </div>
-                      <span className="text-xs px-3 py-1 rounded-full bg-indigo-950 text-indigo-300 font-bold border border-indigo-700/60 self-start sm:self-auto">
-                        {providerForm.activeProvider === 'othman' ? '🔷 Othman Store نۆۋەتتە ئاكتىپ' : '⚡ Sahl Cash نۆۋەتتە ئاكتىپ'}
-                      </span>
                     </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                      {/* Option 1: Othman Store */}
-                      <button
-                        type="button"
-                        onClick={() => setProviderForm({ ...providerForm, activeProvider: 'othman', othmanEnabled: true, enabled: false })}
-                        className={`p-3.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between ${
-                          providerForm.activeProvider === 'othman'
-                            ? 'bg-indigo-950/80 border-indigo-400 text-white shadow-lg shadow-indigo-500/20'
-                            : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5 text-right">
-                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                            providerForm.activeProvider === 'othman' ? 'border-indigo-400 bg-indigo-500' : 'border-slate-600'
-                          }`}>
-                            {providerForm.activeProvider === 'othman' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                          </div>
-                          <div>
-                            <span className="text-xs font-bold block">🔷 Othman Store (https://api.othman-storee.com)</span>
-                            <span className="text-[10px] text-slate-400 block font-mono">قالدۇق: ${providerStatus?.othman?.balance ?? '0.096'} USD</span>
-                          </div>
-                        </div>
-                        {providerForm.activeProvider === 'othman' && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500 text-slate-950">ئاكتىپ</span>
-                        )}
-                      </button>
-
-                      {/* Option 2: Sahl Cash */}
-                      <button
-                        type="button"
-                        onClick={() => setProviderForm({ ...providerForm, activeProvider: 'sahl', enabled: true, othmanEnabled: false })}
-                        className={`p-3.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between ${
-                          providerForm.activeProvider === 'sahl'
-                            ? 'bg-amber-950/80 border-amber-400 text-white shadow-lg shadow-amber-500/20'
-                            : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5 text-right">
-                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                            providerForm.activeProvider === 'sahl' ? 'border-amber-400 bg-amber-500' : 'border-slate-600'
-                          }`}>
-                            {providerForm.activeProvider === 'sahl' && <div className="w-1.5 h-1.5 rounded-full bg-slate-950" />}
-                          </div>
-                          <div>
-                            <span className="text-xs font-bold block">⚡ Sahl Cash (https://api.sahl-cash.com)</span>
-                            <span className="text-[10px] text-slate-400 block font-mono">قالدۇق: ${providerStatus?.balance ?? '19.91'} USD</span>
-                          </div>
-                        </div>
-                        {providerForm.activeProvider === 'sahl' && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500 text-slate-950">ئاكتىپ</span>
-                        )}
-                      </button>
-                    </div>
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950">
+                      دائىملىق ئاكتىپ
+                    </span>
                   </div>
-                  {/* Primary Active Provider Selection Card */}
-                  <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-950 border-2 border-indigo-500/60 shadow-xl space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                          <h4 className="text-sm font-black text-white font-alkatip">نۆۋەتتىكى ئاساسىي تەمىنلىگۈچى (Active API Provider):</h4>
-                        </div>
-                        <p className="text-[11px] text-slate-400 mt-0.5 font-alkatip">
-                          بۇ يەردىن بىرىنى توختىتىپ، يەنە بىرىنى ئاساسىي ئورۇنغا بىرلا چېكىپ تاللىيالايسىز.
-                        </p>
-                      </div>
-                      <span className="text-xs px-3 py-1 rounded-full bg-indigo-950 text-indigo-300 font-bold border border-indigo-700/60 self-start sm:self-auto">
-                        {providerForm.activeProvider === 'othman' ? '🔷 Othman Store نۆۋەتتە ئاكتىپ' : '⚡ Sahl Cash نۆۋەتتە ئاكتىپ'}
-                      </span>
-                    </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                      {/* Option 1: Othman Store */}
-                      <button
-                        type="button"
-                        onClick={() => setProviderForm({ ...providerForm, activeProvider: 'othman', othmanEnabled: true, enabled: false })}
-                        className={`p-3.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between ${
-                          providerForm.activeProvider === 'othman'
-                            ? 'bg-indigo-950/80 border-indigo-400 text-white shadow-lg shadow-indigo-500/20'
-                            : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5 text-right">
-                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                            providerForm.activeProvider === 'othman' ? 'border-indigo-400 bg-indigo-500' : 'border-slate-600'
-                          }`}>
-                            {providerForm.activeProvider === 'othman' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                          </div>
-                          <div>
-                            <span className="text-xs font-bold block">🔷 Othman Store (https://api.othman-storee.com)</span>
-                            <span className="text-[10px] text-slate-400 block font-mono">قالدۇق: ${providerStatus?.othman?.balance ?? '0.096'} USD</span>
-                          </div>
-                        </div>
-                        {providerForm.activeProvider === 'othman' && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500 text-slate-950">ئاكتىپ</span>
-                        )}
-                      </button>
-
-                      {/* Option 2: Sahl Cash */}
-                      <button
-                        type="button"
-                        onClick={() => setProviderForm({ ...providerForm, activeProvider: 'sahl', enabled: true, othmanEnabled: false })}
-                        className={`p-3.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between ${
-                          providerForm.activeProvider === 'sahl'
-                            ? 'bg-amber-950/80 border-amber-400 text-white shadow-lg shadow-amber-500/20'
-                            : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5 text-right">
-                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                            providerForm.activeProvider === 'sahl' ? 'border-amber-400 bg-amber-500' : 'border-slate-600'
-                          }`}>
-                            {providerForm.activeProvider === 'sahl' && <div className="w-1.5 h-1.5 rounded-full bg-slate-950" />}
-                          </div>
-                          <div>
-                            <span className="text-xs font-bold block">⚡ Sahl Cash (https://api.sahl-cash.com)</span>
-                            <span className="text-[10px] text-slate-400 block font-mono">قالدۇق: ${providerStatus?.balance ?? '19.91'} USD</span>
-                          </div>
-                        </div>
-                        {providerForm.activeProvider === 'sahl' && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500 text-slate-950">ئاكتىپ</span>
-                        )}
-                      </button>
-                    </div>
-                  </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Provider Type */}
                     <div>
@@ -5804,9 +5614,9 @@ export default function AdminPage() {
                         onChange={(e) => setProviderForm({ ...providerForm, apiType: e.target.value as any })}
                         className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-bold ${themeClasses.input} focus:outline-none focus:border-cyan-400`}
                       >
-                        <option value="syria4game" className="bg-slate-900 text-white">Sahl Cash API (https://api.sahl-cash.com)</option>
-                        <option value="smm" className="bg-slate-900 text-white">Standard SMM / Top-Up Panel v2 API</option>
-                        <option value="custom_rest" className="bg-slate-900 text-white">Custom REST API (خاس ئۇلىنىش)</option>
+                        <option value="syria4game" className="bg-slate-900 text-white">Syria4Game / Othman Store Protocol</option>
+                        <option value="smm" className="bg-slate-900 text-white">Standard SMM Panel v2 API</option>
+                        <option value="custom_rest" className="bg-slate-900 text-white">Custom REST API</option>
                       </select>
                     </div>
 
@@ -5839,13 +5649,13 @@ export default function AdminPage() {
                       type="text"
                       value={providerForm.apiUrl}
                       onChange={(e) => setProviderForm({ ...providerForm, apiUrl: e.target.value })}
-                      placeholder="https://api.sahl-cash.com"
-                      className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-xs ${themeClasses.input} focus:outline-none focus:border-cyan-400`}
+                      placeholder="https://api.othman-storee.com"
+                      className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-xs ${themeClasses.input} focus:outline-none focus:border-indigo-400`}
                       dir="ltr"
                       required
                     />
                     <span className="text-[10px] text-slate-500 mt-1 block">
-                      نۆۋەتتىكى ئادرېس: https://api.sahl-cash.com
+                      نۆۋەتتىكى ئادرېس: https://api.othman-storee.com
                     </span>
                   </div>
 
@@ -5853,7 +5663,7 @@ export default function AdminPage() {
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
                       <label className="block text-xs font-bold text-amber-300 font-alkatip">
-                        API ئاچقۇچى (API Token / Key):
+                        Othman Store API ئاچقۇچى (API Token / Key):
                       </label>
                       <button
                         type="button"
@@ -5868,80 +5678,13 @@ export default function AdminPage() {
                       type={showPin ? 'text' : 'password'}
                       value={providerForm.apiKey}
                       onChange={(e) => setProviderForm({ ...providerForm, apiKey: e.target.value })}
-                      placeholder={providerStatus?.config?.hasRealKey ? `ھازىر ئاچقۇچ ساقلانغان (${providerStatus.config.providerApiKey})، ئۆزگەرتمەكچى بولسىڭىز يېڭىسىنى كىرگۈزۈڭ` : 'يېڭى API Token نى بۇ يەرگە چاپلاڭ'}
-                      className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-xs tracking-wider text-white ${themeClasses.input} focus:outline-none focus:border-cyan-400`}
+                      placeholder={providerStatus?.config?.hasRealKey ? `ھازىر ئاچقۇچ ساقلانغان (${providerStatus.config.providerApiKey})، ئۆزگەرتمەكچى بولسىڭىز يېڭىسىنى كىرگۈزۈڭ` : 'يېڭى Othman API Token نى بۇ يەرگە چاپلاڭ'}
+                      className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-xs tracking-wider text-white ${themeClasses.input} focus:outline-none focus:border-indigo-400`}
                       dir="ltr"
                     />
                     <span className="text-[10px] text-slate-500 mt-1 block">
-                      باشقىلار سىزگە بەرگەن مەخپىي API Key ياكى Token نى مۇشۇ يەرگە كىرگۈزۈڭ.
+                      Othman Store بەرگەن مەخپىي API Token نى مۇشۇ يەرگە كىرگۈزۈڭ.
                     </span>
-                  </div>
-
-                  {/* Optional API Secret / Extra identifier */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1.5 font-alkatip">
-                      قوشۇمچە مەخپىي پارول ياكى خېرىدار ID (ئەگەر كېرەك بولسا - Optional Secret):
-                    </label>
-                    <input
-                      type="text"
-                      value={providerForm.apiSecret}
-                      onChange={(e) => setProviderForm({ ...providerForm, apiSecret: e.target.value })}
-                      placeholder="ئەگەر تەمىنلىگۈچى تەلەپ قىلسا كىرگۈزۈڭ، بولمىسا بوش قالدۇرۇڭ"
-                      className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-xs ${themeClasses.input} focus:outline-none focus:border-cyan-400`}
-                      dir="ltr"
-                    />
-                  </div>
-
-                  {/* ========================================== */}
-                  {/* 2-تەمىنلىگۈچى: Othman Store API تەڭشىكى */}
-                  {/* ========================================== */}
-                  <div className="pt-4 border-t border-slate-800/80 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-indigo-400" />
-                        <h4 className="text-xs font-bold text-indigo-300 font-alkatip">2-تەمىنلىگۈچى: Othman Store (https://api.othman-storee.com)</h4>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setProviderForm({ ...providerForm, othmanEnabled: !providerForm.othmanEnabled })}
-                        className={`px-3 py-1 rounded-lg text-[11px] font-bold border transition ${
-                          providerForm.othmanEnabled
-                            ? 'bg-indigo-950/40 text-indigo-300 border-indigo-500/40'
-                            : 'bg-rose-950/40 text-rose-300 border-rose-500/40'
-                        }`}
-                      >
-                        {providerForm.othmanEnabled ? 'Othman Store ئوچۇق' : 'تاقالغان'}
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-300 mb-1 font-alkatip">
-                          Othman Store ئادرېسى (Base URL):
-                        </label>
-                        <input
-                          type="text"
-                          value={providerForm.othmanApiUrl}
-                          onChange={(e) => setProviderForm({ ...providerForm, othmanApiUrl: e.target.value })}
-                          placeholder="https://api.othman-storee.com"
-                          className={`w-full px-3 py-2 rounded-xl font-mono text-xs ${themeClasses.input} focus:outline-none focus:border-indigo-400`}
-                          dir="ltr"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-300 mb-1 font-alkatip">
-                          Othman Store API Token:
-                        </label>
-                        <input
-                          type={showPin ? 'text' : 'password'}
-                          value={providerForm.othmanApiKey}
-                          onChange={(e) => setProviderForm({ ...providerForm, othmanApiKey: e.target.value })}
-                          placeholder={providerStatus?.othman?.config?.hasRealKey ? `ئاچقۇچ ساقلانغان (${providerStatus.othman.config.apiKey})` : 'يېڭى Othman Token چاپلاڭ'}
-                          className={`w-full px-3 py-2 rounded-xl font-mono text-xs ${themeClasses.input} focus:outline-none focus:border-indigo-400`}
-                          dir="ltr"
-                        />
-                      </div>
-                    </div>
                   </div>
 
                   {/* Submit Button */}
@@ -5949,7 +5692,7 @@ export default function AdminPage() {
                     <button
                       type="submit"
                       disabled={savingProvider}
-                      className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:opacity-95 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 cursor-pointer active:scale-98 disabled:opacity-50"
+                      className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-blue-600 to-cyan-500 hover:opacity-95 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20 cursor-pointer active:scale-98 disabled:opacity-50"
                     >
                       <RefreshCw className={`w-4 h-4 ${savingProvider ? 'animate-spin' : ''}`} />
                       <span>{savingProvider ? 'تەڭشەك ساقلىنىۋاتىدۇ ھەم ئۇلىنىش سىنىلىۋاتىدۇ...' : 'ساقلاش ۋە دەرھال ئۇلىنىشنى سىناش (Save & Test Live Connection)'}</span>
@@ -6727,7 +6470,7 @@ export default function AdminPage() {
                 </div>
                 <div>
                   <h3 className="font-ukij font-bold text-base text-white">
-                    Sahl Cash تىن مەھسۇلات تاللاش ۋە باشبەتكە چىقىرىش
+                    Othman Store تىن مەھسۇلات تاللاش ۋە باشبەتكە چىقىرىش
                   </h3>
                   <p className={`text-xs ${themeClasses.subtext}`}>
                     مەھسۇلاتلار بارلىق بولاقلىرى بىلەن تەييارلاندى. سەھىپە بويىچە تاللاپ ياكى ئىزدەپ، بىر چېكىش بىلەنلا باشبەتكە چىقىرىڭ.
@@ -6848,7 +6591,7 @@ export default function AdminPage() {
                   {loadingProducts ? (
                     <div className="p-12 text-center text-xs text-slate-400 flex flex-col items-center gap-2">
                       <RefreshCw className="w-6 h-6 animate-spin text-cyan-400" />
-                      <span>Sahl Cash تىن مەھسۇلاتلار يۈكلىنىۋاتىدۇ...</span>
+                      <span>Othman Store تىن مەھسۇلاتلار يۈكلىنىۋاتىدۇ...</span>
                     </div>
                   ) : filteredGroupedServices.length === 0 ? (
                     <div className="p-12 text-center text-xs text-slate-400 border border-dashed border-slate-800 rounded-2xl">

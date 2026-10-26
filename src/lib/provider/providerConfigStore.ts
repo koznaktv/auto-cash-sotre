@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 export interface StoredProviderConfig {
-  activeProvider?: 'othman' | 'sahl';
+  activeProvider?: 'othman';
   providerApiUrl: string;
   providerApiKey: string;
   providerApiType: 'syria4game' | 'smm' | 'custom_rest';
@@ -30,30 +30,26 @@ const CONFIG_FILE = path.join(DATA_DIR, 'provider_config.json');
 const BUNDLED_CONFIG_FILE = path.join(BUNDLED_DATA_DIR, 'provider_config.json');
 const ENV_LOCAL_FILE = path.join(process.cwd(), '.env.local');
 
-// Default fallback URL and token
-const DEFAULT_URL = (process.env.SAHL_CASH_BASE_URL || process.env.SYRIA4GAME_BASE_URL || 'https://api.sahl-cash.com').trim();
-const DEFAULT_TOKEN = (process.env.SAHL_CASH_API_TOKEN || process.env.SAHL_CASH_API_KEY || process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '').trim();
+// Default fallback URL and token - permanently locked to Othman Store
+const DEFAULT_URL = (process.env.OTHMAN_STORE_BASE_URL || process.env.SYRIA4GAME_BASE_URL || 'https://api.othman-storee.com').trim();
+const DEFAULT_TOKEN = (process.env.OTHMAN_STORE_API_TOKEN || process.env.OTHMAN_STORE_API_KEY || process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '-OrFU2hk5qtDMWfei8SpSmYWhtgD1O5Na57FKQH9G0Q8EAv2a2OS12Vqag5Q5AKN').trim();
 
 let memoryCachedConfig: StoredProviderConfig | null = null;
 
 function normalizeUrl(url: string): string {
   let clean = (url || '').trim().replace(/\/+$/, '');
-  if (!clean) return 'https://api.sahl-cash.com';
+  if (!clean || clean.includes('sahl-cash.com') || clean.includes('syria4game.com')) {
+    return 'https://api.othman-storee.com';
+  }
   if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
     clean = `https://${clean}`;
-  }
-  if (/^https?:\/\/sahl-cash\.com/i.test(clean)) {
-    clean = clean.replace(/^https?:\/\/sahl-cash\.com/i, 'https://api.sahl-cash.com');
   }
   return clean;
 }
 
 /**
  * Loads persistent provider configuration.
- * Order of priority:
- * 1. data/provider_config.json
- * 2. process.env (SYRIA4GAME_BASE_URL / SYRIA4GAME_API_TOKEN)
- * 3. Default sahl-cash settings
+ * Always resolves to Othman Store as the sole wholesale top-up provider.
  */
 export function loadStoredProviderConfig(): StoredProviderConfig {
   if (memoryCachedConfig) {
@@ -70,33 +66,29 @@ export function loadStoredProviderConfig(): StoredProviderConfig {
       const raw = fs.readFileSync(fileToRead, 'utf-8');
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed === 'object') {
-        const token = (parsed.providerApiKey || DEFAULT_TOKEN || '').trim();
-        let url = normalizeUrl(parsed.providerApiUrl || DEFAULT_URL);
+        let token = (parsed.othmanApiKey || parsed.providerApiKey || DEFAULT_TOKEN || '').trim();
+        let url = normalizeUrl(parsed.othmanApiUrl || parsed.providerApiUrl || DEFAULT_URL);
 
-        // If the URL was left as the legacy syria4game.com, but the token or env is for sahl-cash, correct it
-        if (url === 'https://syria4game.com' && (DEFAULT_URL.includes('sahl-cash') || token.length >= 40)) {
-          url = 'https://api.sahl-cash.com';
+        // Sanitize any legacy sahl-cash references
+        if (url.includes('sahl-cash') || url.includes('syria4game.com')) {
+          url = 'https://api.othman-storee.com';
+        }
+        if (!token || token.startsWith('1c96e0')) {
+          token = (process.env.OTHMAN_STORE_API_TOKEN || '-OrFU2hk5qtDMWfei8SpSmYWhtgD1O5Na57FKQH9G0Q8EAv2a2OS12Vqag5Q5AKN').trim();
         }
 
-        const defaultOthmanToken = (process.env.OTHMAN_STORE_API_TOKEN || '').trim();
-        const othmanToken = (parsed.othmanApiKey !== undefined ? parsed.othmanApiKey : defaultOthmanToken).trim();
-        const othmanUrl = (parsed.othmanApiUrl || process.env.OTHMAN_STORE_BASE_URL || 'https://api.othman-storee.com').trim();
-
-        const activeProvider: 'othman' | 'sahl' =
-          parsed.activeProvider === 'sahl' ? 'sahl' : 'othman';
-
         memoryCachedConfig = {
-          activeProvider,
+          activeProvider: 'othman',
           providerApiUrl: url,
           providerApiKey: token,
           providerApiType: parsed.providerApiType || 'syria4game',
           providerApiSecret: parsed.providerApiSecret || '',
-          providerEnabled: parsed.providerEnabled === true,
-          othmanApiUrl: othmanUrl,
-          othmanApiKey: othmanToken,
-          othmanApiType: parsed.othmanApiType || 'syria4game',
-          othmanApiSecret: parsed.othmanApiSecret || '',
-          othmanEnabled: parsed.othmanEnabled !== false,
+          providerEnabled: parsed.providerEnabled !== false,
+          othmanApiUrl: url,
+          othmanApiKey: token,
+          othmanApiType: 'syria4game',
+          othmanApiSecret: '',
+          othmanEnabled: true,
           smsProviderType: parsed.smsProviderType || (process.env.SMS_PROVIDER_TYPE as any) || 'sms_activate',
           smsApiUrl: (parsed.smsApiUrl || process.env.SMS_API_URL || process.env.SMS_PROVIDER_URL || 'https://api.sms-activate.org/stubs/handler_api.php').trim(),
           smsApiKey: (parsed.smsApiKey !== undefined ? parsed.smsApiKey : (process.env.SMS_API_KEY || process.env.SMS_PROVIDER_API_KEY || '')).trim(),
@@ -116,9 +108,9 @@ export function loadStoredProviderConfig(): StoredProviderConfig {
     providerApiKey: DEFAULT_TOKEN,
     providerApiType: 'syria4game',
     providerApiSecret: '',
-    providerEnabled: false,
-    othmanApiUrl: (process.env.OTHMAN_STORE_BASE_URL || 'https://api.othman-storee.com').trim(),
-    othmanApiKey: (process.env.OTHMAN_STORE_API_TOKEN || '').trim(),
+    providerEnabled: true,
+    othmanApiUrl: 'https://api.othman-storee.com',
+    othmanApiKey: DEFAULT_TOKEN,
     othmanApiType: 'syria4game',
     othmanApiSecret: '',
     othmanEnabled: true,
@@ -128,7 +120,6 @@ export function loadStoredProviderConfig(): StoredProviderConfig {
     smsEnabled: Boolean(process.env.SMS_API_KEY || process.env.SMS_PROVIDER_API_KEY),
   };
 
-  // Persist the default file immediately so it doesn't get lost
   try {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -155,47 +146,19 @@ export function saveStoredProviderConfig(updates: Partial<StoredProviderConfig>)
 
   const nextUrl = updates.providerApiUrl !== undefined
     ? normalizeUrl(updates.providerApiUrl)
-    : current.providerApiUrl;
-
-  const nextToken = updates.providerApiKey !== undefined
-    ? updates.providerApiKey.trim()
-    : current.providerApiKey;
-
-  const nextType = updates.providerApiType !== undefined
-    ? updates.providerApiType
-    : current.providerApiType;
-
-  const nextSecret = updates.providerApiSecret !== undefined
-    ? updates.providerApiSecret.trim()
-    : current.providerApiSecret;
-
-  const nextEnabled = updates.providerEnabled !== undefined
-    ? Boolean(updates.providerEnabled)
-    : current.providerEnabled;
-
-  const nextOthmanUrl = updates.othmanApiUrl !== undefined
+    : updates.othmanApiUrl !== undefined
     ? normalizeUrl(updates.othmanApiUrl)
     : (current.othmanApiUrl || 'https://api.othman-storee.com');
 
-  const nextOthmanToken = updates.othmanApiKey !== undefined
+  const nextToken = updates.providerApiKey !== undefined && updates.providerApiKey.trim().length > 0
+    ? updates.providerApiKey.trim()
+    : updates.othmanApiKey !== undefined && updates.othmanApiKey.trim().length > 0
     ? updates.othmanApiKey.trim()
-    : (current.othmanApiKey || '');
+    : (current.othmanApiKey || DEFAULT_TOKEN);
 
-  const nextOthmanType = updates.othmanApiType !== undefined
-    ? updates.othmanApiType
-    : (current.othmanApiType || 'syria4game');
-
-  const nextOthmanSecret = updates.othmanApiSecret !== undefined
-    ? updates.othmanApiSecret.trim()
-    : (current.othmanApiSecret || '');
-
-  const nextOthmanEnabled = updates.othmanEnabled !== undefined
-    ? Boolean(updates.othmanEnabled)
-    : (current.othmanEnabled !== false);
-
-  const nextActive = updates.activeProvider !== undefined
-    ? updates.activeProvider
-    : (current.activeProvider || 'othman');
+  const nextType = updates.providerApiType || updates.othmanApiType || 'syria4game';
+  const nextSecret = updates.providerApiSecret || updates.othmanApiSecret || '';
+  const nextEnabled = updates.providerEnabled !== undefined ? Boolean(updates.providerEnabled) : true;
 
   const nextSmsType = updates.smsProviderType !== undefined ? updates.smsProviderType : (current.smsProviderType || 'sms_activate');
   const nextSmsUrl = updates.smsApiUrl !== undefined ? updates.smsApiUrl.trim() : (current.smsApiUrl || 'https://api.sms-activate.org/stubs/handler_api.php');
@@ -203,17 +166,17 @@ export function saveStoredProviderConfig(updates: Partial<StoredProviderConfig>)
   const nextSmsEnabled = updates.smsEnabled !== undefined ? Boolean(updates.smsEnabled) : (current.smsEnabled !== false);
 
   const newConfig: StoredProviderConfig = {
-    activeProvider: nextActive,
+    activeProvider: 'othman',
     providerApiUrl: nextUrl,
     providerApiKey: nextToken,
     providerApiType: nextType,
     providerApiSecret: nextSecret,
     providerEnabled: nextEnabled,
-    othmanApiUrl: nextOthmanUrl,
-    othmanApiKey: nextOthmanToken,
-    othmanApiType: nextOthmanType,
-    othmanApiSecret: nextOthmanSecret,
-    othmanEnabled: nextOthmanEnabled,
+    othmanApiUrl: nextUrl,
+    othmanApiKey: nextToken,
+    othmanApiType: nextType,
+    othmanApiSecret: nextSecret,
+    othmanEnabled: nextEnabled,
     smsProviderType: nextSmsType,
     smsApiUrl: nextSmsUrl,
     smsApiKey: nextSmsKey,
@@ -237,30 +200,36 @@ export function saveStoredProviderConfig(updates: Partial<StoredProviderConfig>)
   // 2. Update process.env
   process.env.SMS_API_URL = nextSmsUrl;
   if (nextSmsKey) process.env.SMS_API_KEY = nextSmsKey;
-  process.env.SAHL_CASH_BASE_URL = nextUrl;
+  process.env.OTHMAN_STORE_BASE_URL = nextUrl;
+  process.env.OTHMAN_STORE_API_TOKEN = nextToken;
   process.env.SYRIA4GAME_BASE_URL = nextUrl;
-  if (nextToken) {
-    process.env.SAHL_CASH_API_TOKEN = nextToken;
-    process.env.SYRIA4GAME_API_TOKEN = nextToken;
-  }
+  process.env.SYRIA4GAME_API_TOKEN = nextToken;
 
   // 3. Update .env.local file if present
   try {
     if (fs.existsSync(ENV_LOCAL_FILE)) {
       let envContent = fs.readFileSync(ENV_LOCAL_FILE, 'utf-8');
-      if (/^SYRIA4GAME_BASE_URL=.*/m.test(envContent)) {
-        envContent = envContent.replace(/^SYRIA4GAME_BASE_URL=.*/m, `SYRIA4GAME_BASE_URL=${nextUrl}`);
+      if (/^OTHMAN_STORE_BASE_URL=.*/m.test(envContent)) {
+        envContent = envContent.replace(/^OTHMAN_STORE_BASE_URL=.*/m, `OTHMAN_STORE_BASE_URL=${nextUrl}`);
       } else {
-        envContent += `\nSYRIA4GAME_BASE_URL=${nextUrl}`;
+        envContent += `\nOTHMAN_STORE_BASE_URL=${nextUrl}`;
       }
 
       if (nextToken) {
-        if (/^SYRIA4GAME_API_TOKEN=.*/m.test(envContent)) {
-          envContent = envContent.replace(/^SYRIA4GAME_API_TOKEN=.*/m, `SYRIA4GAME_API_TOKEN=${nextToken}`);
+        if (/^OTHMAN_STORE_API_TOKEN=.*/m.test(envContent)) {
+          envContent = envContent.replace(/^OTHMAN_STORE_API_TOKEN=.*/m, `OTHMAN_STORE_API_TOKEN=${nextToken}`);
         } else {
-          envContent += `\nSYRIA4GAME_API_TOKEN=${nextToken}`;
+          envContent += `\nOTHMAN_STORE_API_TOKEN=${nextToken}`;
         }
       }
+
+      if (/^SYRIA4GAME_BASE_URL=.*/m.test(envContent)) {
+        envContent = envContent.replace(/^SYRIA4GAME_BASE_URL=.*/m, `SYRIA4GAME_BASE_URL=${nextUrl}`);
+      }
+      if (nextToken && /^SYRIA4GAME_API_TOKEN=.*/m.test(envContent)) {
+        envContent = envContent.replace(/^SYRIA4GAME_API_TOKEN=.*/m, `SYRIA4GAME_API_TOKEN=${nextToken}`);
+      }
+
       fs.writeFileSync(ENV_LOCAL_FILE, envContent, 'utf-8');
     }
   } catch (err) {

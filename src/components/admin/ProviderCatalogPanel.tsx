@@ -146,7 +146,7 @@ export default function ProviderCatalogPanel({ themeClasses }: { themeClasses: T
   const switchSource = (source: 'legacy' | 'provider') => {
     const text =
       source === 'provider'
-        ? 'ماگىزىن Sahl Cash تىزىملىكىگە ئالماشسۇنمۇ؟ كونا مەھسۇلاتلار كۆرۈنمەيدۇ.'
+        ? 'ماگىزىن Othman Store تىزىملىكىگە ئالماشسۇنمۇ؟ كونا مەھسۇلاتلار كۆرۈنمەيدۇ.'
         : 'كونا تىزىملىككە قايتسۇنمۇ؟';
     if (window.confirm(text)) saveSettings({ catalogSource: source });
   };
@@ -209,7 +209,7 @@ export default function ProviderCatalogPanel({ themeClasses }: { themeClasses: T
       <div className={`p-5 rounded-2xl ${themeClasses.card} space-y-4`}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div>
-            <h3 className="text-sm font-bold text-white">مەھسۇلات تىزىملىكى (Sahl Cash Catalog)</h3>
+            <h3 className="text-sm font-bold text-white">مەھسۇلات تىزىملىكى (Othman Store Catalog)</h3>
             <p className={`text-[11px] ${themeClasses.subtext} mt-1`}>
               ئاخىرقى sync: {settings?.lastSyncAt ? new Date(settings.lastSyncAt).toLocaleString() : '—'} ·{' '}
               {settings?.lastSyncStatus || '—'}
@@ -244,7 +244,7 @@ export default function ProviderCatalogPanel({ themeClasses }: { themeClasses: T
                 settings?.catalogSource === source ? themeClasses.pillActive : themeClasses.pillInactive
               }`}
             >
-              {source === 'legacy' ? 'كونا (قولدا)' : 'Sahl Cash (ئاپتوماتىك)'}
+              {source === 'legacy' ? 'كونا (قولدا)' : 'Othman Store (ئاپتوماتىك)'}
             </button>
           ))}
         </div>

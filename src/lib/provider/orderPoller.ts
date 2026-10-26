@@ -1,6 +1,6 @@
 /**
  * Follows up provider orders that weren't final when placed.
- * Supports both Othman Store and Sahl Cash / Syria4game with lightning-fast progressive polling.
+ * Primary wholesale provider: Othman Store (api.othman-storee.com) with lightning-fast progressive polling.
  */
 import crypto from 'crypto';
 import {

@@ -428,7 +428,7 @@ export async function POST(req: Request) {
           }
         }
       } catch (provErr: any) {
-        console.warn('Sahl cash fulfillment notice:', provErr?.message);
+        console.warn('Provider fulfillment notice:', provErr?.message);
       }
     }
     notifyNewOrder({

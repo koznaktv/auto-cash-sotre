@@ -67,7 +67,7 @@ interface RequestOptions {
 
 const NOT_CONFIGURED: ProviderError = {
   kind: 'auth',
-  message: 'SAHL_CASH_API_TOKEN مۇھىت ئۆزگەرگۈچىسى تەڭشەلمىگەن',
+  message: 'OTHMAN_STORE_API_TOKEN مۇھىت ئۆزگەرگۈچىسى تەڭشەلمىگەن',
 };
 
 function sleep(ms: number) {
@@ -88,22 +88,19 @@ interface ResolvedProviderConfig {
 export class Syria4GameProvider {
   private defaultBaseUrl: string;
   private defaultApiToken: string;
-  private providerKey: 'sahl' | 'othman' = 'sahl';
+  private providerKey: 'othman' = 'othman';
   private lastResolvedToken: string = '';
+  private cachedProfileResult: {
+    result: { success: boolean; balance: number | null; currency: string; userName?: string; error?: ProviderError; raw?: unknown };
+    timestamp: number;
+  } | null = null;
 
-  constructor(options?: { providerKey?: 'sahl' | 'othman'; baseUrl?: string; apiToken?: string }) {
-    this.providerKey = options?.providerKey || 'sahl';
-    if (this.providerKey === 'othman') {
-      const rawUrl = options?.baseUrl || process.env.OTHMAN_STORE_BASE_URL || 'https://api.othman-storee.com';
-      this.defaultBaseUrl = rawUrl.replace(/\/+$/, '');
-      const rawToken = (options?.apiToken || process.env.OTHMAN_STORE_API_TOKEN || '').trim();
-      this.defaultApiToken = rawToken.replace(/^["']|["']$/g, '').trim();
-    } else {
-      const rawUrl = options?.baseUrl || process.env.SAHL_CASH_BASE_URL || process.env.SYRIA4GAME_BASE_URL || 'https://api.sahl-cash.com';
-      this.defaultBaseUrl = rawUrl.replace(/\/+$/, '');
-      const rawToken = (options?.apiToken || process.env.SAHL_CASH_API_TOKEN || process.env.SAHL_CASH_API_KEY || process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '').trim();
-      this.defaultApiToken = rawToken.replace(/^["']|["']$/g, '').trim();
-    }
+  constructor(options?: { providerKey?: 'othman'; baseUrl?: string; apiToken?: string }) {
+    this.providerKey = 'othman';
+    const rawUrl = options?.baseUrl || process.env.OTHMAN_STORE_BASE_URL || process.env.SYRIA4GAME_BASE_URL || 'https://api.othman-storee.com';
+    this.defaultBaseUrl = rawUrl.replace(/\/+$/, '');
+    const rawToken = (options?.apiToken || process.env.OTHMAN_STORE_API_TOKEN || process.env.OTHMAN_STORE_API_KEY || process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '').trim();
+    this.defaultApiToken = rawToken.replace(/^["']|["']$/g, '').trim();
     setAssetBase(this.defaultBaseUrl);
   }
 
@@ -112,33 +109,18 @@ export class Syria4GameProvider {
       const stored = loadStoredProviderConfig();
       const settings = await getSystemSettingsAsync().catch(() => null);
 
-      if (this.providerKey === 'othman') {
-        let baseUrl = (stored.othmanApiUrl || process.env.OTHMAN_STORE_BASE_URL || 'https://api.othman-storee.com').trim();
-        let apiToken = (stored.othmanApiKey || process.env.OTHMAN_STORE_API_TOKEN || '').trim();
-        let apiType = stored.othmanApiType || 'syria4game';
-        let apiSecret = stored.othmanApiSecret;
-        let enabled = stored.othmanEnabled !== false;
-
-        baseUrl = baseUrl.replace(/\/+$/, '');
-        this.lastResolvedToken = apiToken;
-        return { baseUrl, apiToken, apiType, apiSecret, enabled };
+      let baseUrl = (stored.othmanApiUrl || stored.providerApiUrl || process.env.OTHMAN_STORE_BASE_URL || 'https://api.othman-storee.com').trim();
+      if (!baseUrl || baseUrl.includes('sahl-cash') || baseUrl.includes('syria4game')) {
+        baseUrl = 'https://api.othman-storee.com';
       }
+      let apiToken = (stored.othmanApiKey || stored.providerApiKey || process.env.OTHMAN_STORE_API_TOKEN || '').trim();
+      let apiType = stored.othmanApiType || stored.providerApiType || 'syria4game';
+      let apiSecret = stored.othmanApiSecret || stored.providerApiSecret;
+      let enabled = stored.othmanEnabled !== false;
 
-      let baseUrl = stored.providerApiUrl;
-      if (!baseUrl || baseUrl.includes('syria4game')) {
-        baseUrl = 'https://api.sahl-cash.com';
-      }
-      let apiToken = stored.providerApiKey;
-      let apiType = stored.providerApiType || 'syria4game';
-      let apiSecret = stored.providerApiSecret;
-      let enabled = stored.providerEnabled !== false;
-
-      // If DB settings has non-default custom settings, merge them
       if (settings) {
-        if (settings.providerApiUrl && !settings.providerApiUrl.includes('syria4game')) {
+        if (settings.providerApiUrl && !settings.providerApiUrl.includes('syria4game') && !settings.providerApiUrl.includes('sahl-cash')) {
           baseUrl = settings.providerApiUrl;
-        } else {
-          baseUrl = 'https://api.sahl-cash.com';
         }
         if (settings.providerApiKey && settings.providerApiKey.trim().length > 0) {
           apiToken = settings.providerApiKey.trim();
@@ -154,30 +136,16 @@ export class Syria4GameProvider {
         }
       }
 
-      if (baseUrl.includes('syria4game')) {
-        baseUrl = 'https://api.sahl-cash.com';
-      }
-
       baseUrl = baseUrl.replace(/\/+$/, '');
       this.lastResolvedToken = apiToken;
       return { baseUrl, apiToken, apiType, apiSecret, enabled };
     } catch {
       const stored = loadStoredProviderConfig();
-      if (this.providerKey === 'othman') {
-        return {
-          baseUrl: stored.othmanApiUrl || 'https://api.othman-storee.com',
-          apiToken: stored.othmanApiKey || '',
-          apiType: stored.othmanApiType || 'syria4game',
-          apiSecret: stored.othmanApiSecret,
-          enabled: stored.othmanEnabled !== false,
-        };
-      }
       return {
-        baseUrl: stored.providerApiUrl,
-        apiToken: stored.providerApiKey,
-        apiType: stored.providerApiType || 'syria4game',
-        apiSecret: stored.providerApiSecret,
-        enabled: stored.providerEnabled !== false,
+        baseUrl: stored.othmanApiUrl || 'https://api.othman-storee.com',
+        apiToken: stored.othmanApiKey || process.env.OTHMAN_STORE_API_TOKEN || '',
+        apiType: 'syria4game',
+        enabled: true,
       };
     }
   }
@@ -199,7 +167,7 @@ export class Syria4GameProvider {
     }
     // Specific fix for sahl-cash: api endpoints are strictly on api.sahl-cash.com
     if (/^https?:\/\/sahl-cash\.com/i.test(cleanBase)) {
-      cleanBase = cleanBase.replace(/^https?:\/\/sahl-cash\.com/i, 'https://api.sahl-cash.com');
+      cleanBase = cleanBase.replace(/^https?:\/\/sahl-cash\.com/i, 'https://api.othman-storee.com');
     }
 
     const isFullUrl = path.startsWith('http://') || path.startsWith('https://');
@@ -598,54 +566,18 @@ export class Syria4GameProvider {
   }
 }
 
-export const sahlCashProvider = new Syria4GameProvider({ providerKey: 'sahl' });
 export const othmanStoreProvider = new Syria4GameProvider({ providerKey: 'othman' });
+export const sahlCashProvider = othmanStoreProvider;
+export const syria4GameProvider = othmanStoreProvider;
 
 export function getActiveProvider(): Syria4GameProvider {
-  try {
-    const config = loadStoredProviderConfig();
-    if (config.activeProvider === 'sahl') {
-      return sahlCashProvider;
-    }
-    return othmanStoreProvider;
-  } catch {
-    return othmanStoreProvider;
-  }
+  return othmanStoreProvider;
 }
 
-export function resolveProviderForProduct(serviceId?: string, pkg?: any): Syria4GameProvider {
-  if (
-    pkg?.providerKey === 'othman' ||
-    serviceId?.includes('othman_') ||
-    serviceId === 'othman_visa_cards' ||
-    serviceId === 'othman_chat_apps' ||
-    (pkg?.providerProductId && String(pkg.providerProductId).length < 6)
-  ) {
-    return othmanStoreProvider;
-  }
-  if (pkg?.providerKey === 'sahl' || serviceId?.startsWith('sahl_')) {
-    return sahlCashProvider;
-  }
-  return getActiveProvider();
+export function resolveProviderForProduct(_serviceId?: string, _pkg?: any): Syria4GameProvider {
+  return othmanStoreProvider;
 }
 
-export function getProviderInstance(providerKey?: string): Syria4GameProvider {
-  if (providerKey === 'othman' || providerKey === 'othman_store') {
-    return othmanStoreProvider;
-  }
-  if (providerKey === 'sahl') {
-    return sahlCashProvider;
-  }
-  return getActiveProvider();
+export function getProviderInstance(_providerKey?: string): Syria4GameProvider {
+  return othmanStoreProvider;
 }
-
-export const syria4GameProvider: Syria4GameProvider = new Proxy({} as any, {
-  get(_target, prop) {
-    const instance = getActiveProvider();
-    const value = (instance as any)[prop];
-    if (typeof value === 'function') {
-      return value.bind(instance);
-    }
-    return value;
-  },
-});

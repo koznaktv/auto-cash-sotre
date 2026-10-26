@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { verifyAdminToken } from '@/lib/adminAuth';
-import { syria4GameProvider, sahlCashProvider, othmanStoreProvider } from '@/lib/providers/syria4game';
+import { othmanStoreProvider } from '@/lib/providers/syria4game';
 import { listProviderCalls } from '@/lib/provider/callLog';
 import { getProviderSettings, updateProviderSettings } from '@/lib/catalog/store';
-import { getSystemSettingsAsync, updateSystemSettingsAsync } from '@/lib/db';
+import { updateSystemSettingsAsync } from '@/lib/db';
 import { saveStoredProviderConfig, loadStoredProviderConfig } from '@/lib/provider/providerConfigStore';
 
 export const maxDuration = 60;
@@ -54,35 +54,12 @@ export async function GET(req: Request) {
     }
 
     if (action === 'ping') {
-      const ping = await syria4GameProvider.ping();
+      const ping = await othmanStoreProvider.ping();
       return NextResponse.json({ success: ping.success, errorMessage: ping.error?.message, raw: ping.raw });
     }
 
     if (action === 'products') {
-      const providerParam = searchParams.get('provider');
-      if (providerParam === 'othman') {
-        const productsRes = await othmanStoreProvider.getProducts();
-        return NextResponse.json(productsRes);
-      }
-      if (providerParam === 'all') {
-        const [sahlRes, othmanRes] = await Promise.all([
-          syria4GameProvider.getProducts(),
-          othmanStoreProvider.getProducts(),
-        ]);
-        const sahlProds = (sahlRes.success && Array.isArray(sahlRes.products))
-          ? sahlRes.products.map((p: any) => ({ ...p, providerKey: 'sahl' }))
-          : [];
-        const othmanProds = (othmanRes.success && Array.isArray(othmanRes.products))
-          ? othmanRes.products.map((p: any) => ({ ...p, providerKey: 'othman' }))
-          : [];
-        return NextResponse.json({
-          success: true,
-          products: [...sahlProds, ...othmanProds],
-          sahlCount: sahlProds.length,
-          othmanCount: othmanProds.length,
-        });
-      }
-      const productsRes = await syria4GameProvider.getProducts();
+      const productsRes = await othmanStoreProvider.getProducts();
       return NextResponse.json(productsRes);
     }
 
@@ -91,10 +68,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ success: true, calls });
     }
 
-    // Default: wholesale balance & connection status + current provider config
-    const [resolvedConfig, profile, othmanConfig, othmanProfile, serverPublicIp, catalogSettings] = await Promise.all([
-      syria4GameProvider.getResolvedConfig(),
-      syria4GameProvider.getProfile(),
+    // Default: wholesale balance & connection status for Othman Store
+    const [resolvedConfig, profile, serverPublicIp, catalogSettings] = await Promise.all([
       othmanStoreProvider.getResolvedConfig(),
       othmanStoreProvider.getProfile(),
       fetchServerPublicIp(),
@@ -105,21 +80,6 @@ export async function GET(req: Request) {
       await updateProviderSettings({ lastBalance: profile.balance, lastBalanceAt: new Date().toISOString() }).catch(() => {});
     }
 
-    const isIpBlocked = Boolean(
-      profile.error &&
-      (profile.error.kind === 'ip' ||
-        profile.error.code === 123 ||
-        /ip/i.test(profile.error.message || ''))
-    );
-
-    let formattedError = profile.error
-      ? `${profile.error.code ? `[${profile.error.code}] ` : ''}${profile.error.message}`
-      : undefined;
-
-    if (isIpBlocked) {
-      formattedError = `[123] IP ئادرېسى چەكلەندى (IP not allowed). سىزنىڭ نۆۋەتتىكى ئاممىۋى IP ئادرېسىڭىز: ${serverPublicIp || 'ئېنىقلانمىدى'}`;
-    }
-
     const effectiveBalance: number | undefined =
       profile.balance !== null && profile.balance !== undefined
         ? profile.balance
@@ -127,19 +87,18 @@ export async function GET(req: Request) {
         ? catalogSettings.lastBalance
         : undefined;
 
-    const storedCfg = loadStoredProviderConfig();
     return NextResponse.json({
-      activeProvider: storedCfg.activeProvider || 'othman',
+      activeProvider: 'othman',
       success: profile.success,
-      isConfigured: await syria4GameProvider.hasLiveConfig(),
+      isConfigured: await othmanStoreProvider.hasLiveConfig(),
       balance: effectiveBalance,
       isLiveBalance: profile.success,
       lastBalanceAt: catalogSettings?.lastBalanceAt,
-      currency: profile.currency,
-      userName: profile.userName,
+      currency: profile.currency || 'USD',
+      userName: profile.userName || 'Othman Store',
       serverPublicIp: serverPublicIp || 'ئېنىقلانمىدى',
-      isIpBlocked,
-      errorMessage: formattedError,
+      isIpBlocked: false,
+      errorMessage: profile.error?.message,
       lowBalance: Boolean(catalogSettings && effectiveBalance !== undefined && effectiveBalance < catalogSettings.lowBalanceThresholdUsd),
       config: {
         providerApiUrl: resolvedConfig.baseUrl,
@@ -150,16 +109,16 @@ export async function GET(req: Request) {
         hasRealKey: Boolean(resolvedConfig.apiToken && resolvedConfig.apiToken.length > 5),
       },
       othman: {
-        success: othmanProfile.success,
-        balance: othmanProfile.balance,
-        currency: othmanProfile.currency,
-        userName: othmanProfile.userName,
-        errorMessage: othmanProfile.error?.message,
+        success: profile.success,
+        balance: effectiveBalance,
+        currency: profile.currency || 'USD',
+        userName: profile.userName || 'Othman Store',
+        errorMessage: profile.error?.message,
         config: {
-          apiUrl: othmanConfig.baseUrl,
-          apiKey: othmanConfig.apiToken ? `${othmanConfig.apiToken.slice(0, 4)}...${othmanConfig.apiToken.slice(-4)}` : '',
-          enabled: othmanConfig.enabled,
-          hasRealKey: Boolean(othmanConfig.apiToken && othmanConfig.apiToken.length > 5),
+          apiUrl: resolvedConfig.baseUrl,
+          apiKey: resolvedConfig.apiToken ? `${resolvedConfig.apiToken.slice(0, 4)}...${resolvedConfig.apiToken.slice(-4)}` : '',
+          enabled: resolvedConfig.enabled,
+          hasRealKey: Boolean(resolvedConfig.apiToken && resolvedConfig.apiToken.length > 5),
         },
       },
     });
@@ -182,21 +141,26 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { activeProvider, providerApiUrl, providerApiKey, providerApiType, providerApiSecret, providerEnabled, othmanApiUrl, othmanApiKey, othmanApiType, othmanApiSecret, othmanEnabled } = body;
+    const { providerApiUrl, providerApiKey, providerApiType, providerApiSecret, providerEnabled, othmanApiUrl, othmanApiKey } = body;
 
-    const updates: any = {};
-    if (activeProvider !== undefined) updates.activeProvider = activeProvider;
-    if (providerApiUrl !== undefined) updates.providerApiUrl = String(providerApiUrl).trim();
-    if (providerApiKey !== undefined) updates.providerApiKey = String(providerApiKey).trim();
-    if (providerApiType !== undefined) updates.providerApiType = providerApiType;
-    if (providerApiSecret !== undefined) updates.providerApiSecret = String(providerApiSecret).trim();
-    if (providerEnabled !== undefined) updates.providerEnabled = Boolean(providerEnabled);
+    const targetUrl = String(othmanApiUrl || providerApiUrl || 'https://api.othman-storee.com').trim();
+    const targetKey = String(othmanApiKey || providerApiKey || '').trim();
 
-    if (othmanApiUrl !== undefined) updates.othmanApiUrl = String(othmanApiUrl).trim();
-    if (othmanApiKey !== undefined) updates.othmanApiKey = String(othmanApiKey).trim();
-    if (othmanApiType !== undefined) updates.othmanApiType = othmanApiType;
-    if (othmanApiSecret !== undefined) updates.othmanApiSecret = String(othmanApiSecret).trim();
-    if (othmanEnabled !== undefined) updates.othmanEnabled = Boolean(othmanEnabled);
+    const updates: any = {
+      activeProvider: 'othman',
+      providerApiUrl: targetUrl,
+      othmanApiUrl: targetUrl,
+      providerApiType: providerApiType || 'syria4game',
+      othmanApiType: 'syria4game',
+      providerApiSecret: providerApiSecret ? String(providerApiSecret).trim() : '',
+      providerEnabled: providerEnabled !== undefined ? Boolean(providerEnabled) : true,
+      othmanEnabled: true,
+    };
+
+    if (targetKey) {
+      updates.providerApiKey = targetKey;
+      updates.othmanApiKey = targetKey;
+    }
 
     // 1. Save settings to dedicated persistent store (.env.local + data/provider_config.json)
     saveStoredProviderConfig(updates);
@@ -206,7 +170,7 @@ export async function POST(req: Request) {
 
     // 3. Perform live check with the newly saved configuration
     const [profile, serverPublicIp] = await Promise.all([
-      syria4GameProvider.getProfile(),
+      othmanStoreProvider.getProfile(),
       fetchServerPublicIp(),
     ]);
 
@@ -214,29 +178,18 @@ export async function POST(req: Request) {
       await updateProviderSettings({ lastBalance: profile.balance, lastBalanceAt: new Date().toISOString() }).catch(() => {});
     }
 
-    const isIpBlocked = Boolean(
-      profile.error &&
-      (profile.error.kind === 'ip' ||
-        profile.error.code === 123 ||
-        /ip/i.test(profile.error.message || ''))
-    );
-
-    let feedbackMsg = profile.success
-      ? 'تەمىنلىگۈچى API مۇۋەپپەقىيەتلىك ئۇلاندى ھەم قالدۇق پۇل تەكشۈرۈلدى!'
-      : `تەڭشەك ساقلاندى، لېكىن تەمىنلىگۈچى قايتۇرغان جاۋاب: [${profile.error?.code || 'خاتالىق'}] ${profile.error?.message || 'ئۇلىنىش مەغلۇپ بولدى'}`;
-
-    if (isIpBlocked) {
-      feedbackMsg = `تەڭشەك ساقلاندى، لېكىن Sahl Cash IP ئادرېسىڭىزنى توسۇۋالدى [123: IP not allowed]. نۆۋەتتىكى مۇلازىمېتىر ئاممىۋى IP ئادرېسىڭىز: ${serverPublicIp || 'ئېنىقلانمىدى'}`;
-    }
+    const feedbackMsg = profile.success
+      ? 'Othman Store API مۇۋەپپەقىيەتلىك ئۇلاندى ھەم قالدۇق پۇل تەكشۈرۈلدى!'
+      : `تەڭشەك ساقلاندى، لېكىن Othman Store قايتۇرغان جاۋاب: [${profile.error?.code || 'خاتالىق'}] ${profile.error?.message || 'ئۇلىنىش مەغلۇپ بولدى'}`;
 
     return NextResponse.json({
       success: profile.success,
       message: feedbackMsg,
       balance: profile.balance,
       currency: profile.currency,
-      userName: profile.userName,
+      userName: profile.userName || 'Othman Store',
       serverPublicIp: serverPublicIp || 'ئېنىقلانمىدى',
-      isIpBlocked,
+      isIpBlocked: false,
       errorMessage: profile.error?.message,
       errorCode: profile.error?.code,
       raw: profile.raw,

@@ -135,8 +135,8 @@ const initialDefaultData: DatabaseSchema = {
     telegramUsername: 'autocash_UYGHUR',
     siteName: 'AUTO CASH',
     siteLogo: '/brand_logo.png?v=2.1.0',
-    providerApiUrl: process.env.SAHL_CASH_BASE_URL || process.env.SYRIA4GAME_BASE_URL || 'https://api.sahl-cash.com',
-    providerApiKey: process.env.SAHL_CASH_API_TOKEN || process.env.SAHL_CASH_API_KEY || process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '',
+    providerApiUrl: process.env.OTHMAN_STORE_BASE_URL || process.env.SYRIA4GAME_BASE_URL || 'https://api.othman-storee.com',
+    providerApiKey: process.env.OTHMAN_STORE_API_TOKEN || process.env.OTHMAN_STORE_API_KEY || process.env.SYRIA4GAME_API_TOKEN || process.env.SYRIA4GAME_API_KEY || '',
     providerApiType: 'syria4game',
     providerApiSecret: '',
     providerEnabled: true,
@@ -177,10 +177,10 @@ function ensureDbFile(): DatabaseSchema {
     if (!parsed.orders) parsed.orders = [];
     if (!parsed.deposits) parsed.deposits = [];
     if (!parsed.settings) parsed.settings = { ...initialDefaultData.settings };
-    if (!parsed.settings.providerApiUrl || parsed.settings.providerApiUrl.includes('syria4game')) {
-      parsed.settings.providerApiUrl = 'https://api.sahl-cash.com';
+    if (!parsed.settings.providerApiUrl || parsed.settings.providerApiUrl.includes('syria4game') || parsed.settings.providerApiUrl.includes('sahl-cash')) {
+      parsed.settings.providerApiUrl = 'https://api.othman-storee.com';
     }
-    const envProvToken = process.env.SAHL_CASH_API_TOKEN || process.env.SYRIA4GAME_API_TOKEN;
+    const envProvToken = process.env.OTHMAN_STORE_API_TOKEN || process.env.SYRIA4GAME_API_TOKEN;
     if (!parsed.settings.providerApiKey && envProvToken) {
       parsed.settings.providerApiKey = envProvToken;
     }

@@ -406,7 +406,7 @@ export default function HomePage() {
     });
   };
 
-  // Storefront catalog: Sahl Cash synced provider catalog (with instant 0ms preloaded fallback)
+  // Storefront catalog: Provider synced catalog (with instant 0ms preloaded fallback)
   const isNotTelecom = (s: ServiceItem) => s.id !== 'srv-1792696947336';
 
   const normalizeServiceItem = (s: ServiceItem): ServiceItem => {
@@ -622,7 +622,7 @@ export default function HomePage() {
         setCatalogLoading(false);
       });
 
-    // 2. Real-time sync listener across tabs (when admin publishes from Sahl Cash)
+    // 2. Real-time sync listener across tabs (when admin publishes from provider)
     let bc: BroadcastChannel | null = null;
     try {
       bc = new BroadcastChannel('autocash_catalog_channel');
@@ -1181,7 +1181,7 @@ export default function HomePage() {
                             ? 'https://i.ibb.co/cSFZhGLB/photo-2026-10-26-07-50-39.jpg'
                             : service.id === 'almujahid_net'
                             ? 'https://i.ibb.co/9HqpZdVg/photo-2026-10-26-08-32-29.jpg'
-                            : service.image && !service.image.endsWith('sahl-cash.com/') && service.image !== 'https://api.sahl-cash.com'
+                            : service.image && !service.image.endsWith('sahl-cash.com/') && !service.image.endsWith('othman-storee.com/') && service.image !== 'https://api.sahl-cash.com' && service.image !== 'https://api.othman-storee.com'
                             ? service.image
                             : '/images/services/pubg_mobile.jpg'
                         }
