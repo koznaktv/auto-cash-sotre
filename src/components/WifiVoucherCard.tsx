@@ -26,9 +26,10 @@ export default function WifiVoucherCard({ card, className = '' }: WifiVoucherCar
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const isFursan = card.network === 'fursan' || (card.networkName || '').includes('فرسان');
-  const netNameEn = card.networkEn || (isFursan ? 'FURSAN NET' : 'AZEZ . NET');
-  const netNameAr = card.networkName || (isFursan ? 'شبكة الفرسان' : 'شبكة عزيز نت');
+  const isMujahid = card.network === 'mujahid' || (card.networkName || '').includes('مجاهد') || (card.networkEn || '').toLowerCase().includes('mujahid');
+  const isFursan = !isMujahid && (card.network === 'fursan' || (card.networkName || '').includes('فرسان') || (card.networkEn || '').toLowerCase().includes('fursan'));
+  const netNameEn = card.networkEn || (isMujahid ? 'AL MUJAHID NET' : (isFursan ? 'FURSAN NET' : 'AZEZ . NET'));
+  const netNameAr = card.networkName || (isMujahid ? 'شبكة المجاهد نت' : (isFursan ? 'شبكة الفرسان' : 'شبكة عزيز نت'));
   const cardNumber = card.cardNumber || '#1001';
   const username = card.username || '—';
   const password = card.password || '—';
@@ -103,7 +104,7 @@ export default function WifiVoucherCard({ card, className = '' }: WifiVoucherCar
     ctx.fillRect(pad, pad, cardW, cardH);
 
     // Accent top bar
-    ctx.fillStyle = isFursan ? '#059669' : '#15803d';
+    ctx.fillStyle = isMujahid ? '#4f46e5' : (isFursan ? '#059669' : '#15803d');
     ctx.fillRect(pad, pad, cardW, 10);
 
     // Header background
@@ -129,11 +130,11 @@ export default function WifiVoucherCard({ card, className = '' }: WifiVoucherCar
     ctx.fillText(netNameAr, pad + cardW / 2, pad + 88);
 
     // Right: Badge
-    ctx.fillStyle = isFursan ? '#1e40af' : '#166534';
+    ctx.fillStyle = isMujahid ? '#4338ca' : (isFursan ? '#1e40af' : '#166534');
     ctx.font = 'bold 22px sans-serif';
     ctx.textAlign = 'right';
     ctx.fillText(netNameAr + ' 📶', pad + cardW - 30, pad + 65);
-    ctx.fillStyle = isFursan ? '#3b82f6' : '#22c55e';
+    ctx.fillStyle = isMujahid ? '#6366f1' : (isFursan ? '#3b82f6' : '#22c55e');
     ctx.font = '15px sans-serif';
     ctx.fillText(netNameEn + ' Wi-Fi Card', pad + cardW - 30, pad + 88);
 
@@ -235,7 +236,15 @@ export default function WifiVoucherCard({ card, className = '' }: WifiVoucherCar
       {/* THE VOUCHER CARD */}
       <div className="bg-white text-slate-800 rounded-2xl shadow-xl border border-slate-200 overflow-hidden relative select-none">
         {/* Top Decorative Accent Bar */}
-        <div className={`h-2 bg-gradient-to-r ${isFursan ? 'from-emerald-600 via-teal-500 to-amber-500' : 'from-green-600 via-emerald-500 to-amber-500'}`} />
+        <div
+          className={`h-2 bg-gradient-to-r ${
+            isMujahid
+              ? 'from-indigo-600 via-purple-500 to-amber-500'
+              : isFursan
+              ? 'from-emerald-600 via-teal-500 to-amber-500'
+              : 'from-green-600 via-emerald-500 to-amber-500'
+          }`}
+        />
 
         {/* Header Section */}
         <div className="px-4 sm:px-5 py-3.5 flex items-center justify-between border-b border-slate-100 bg-slate-50/80">
@@ -259,9 +268,21 @@ export default function WifiVoucherCard({ card, className = '' }: WifiVoucherCar
           </div>
 
           {/* Network Badge */}
-          <div className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl border ${isFursan ? 'bg-blue-50 border-blue-200 text-blue-800' : 'bg-green-50 border-green-200 text-green-800'}`}>
-            <div className={`w-5 h-5 rounded-lg text-white flex items-center justify-center font-bold text-xs ${isFursan ? 'bg-blue-600' : 'bg-green-600'}`}>
-              {isFursan ? 'R' : '📶'}
+          <div
+            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl border ${
+              isMujahid
+                ? 'bg-indigo-50 border-indigo-200 text-indigo-900'
+                : isFursan
+                ? 'bg-blue-50 border-blue-200 text-blue-800'
+                : 'bg-green-50 border-green-200 text-green-800'
+            }`}
+          >
+            <div
+              className={`w-5 h-5 rounded-lg text-white flex items-center justify-center font-bold text-xs ${
+                isMujahid ? 'bg-indigo-700' : isFursan ? 'bg-blue-600' : 'bg-green-600'
+              }`}
+            >
+              {isMujahid ? 'M' : isFursan ? 'R' : '📶'}
             </div>
             <div className="text-right leading-tight">
               <span className="text-[11px] font-bold block">{netNameAr}</span>

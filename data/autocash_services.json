@@ -96,6 +96,54 @@
     ]
   },
   {
+    "id": "almujahid_net",
+    "name": "شبكة المجاهد نت (Al Mujahid Net)",
+    "category": "wifi",
+    "icon": "Wifi",
+    "image": "https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg",
+    "description": "بطاقات شبكة المجاهد نت للإنترنت اللاسلكي السريع — سېتىۋالغاندىن كېيىن كارتا دەرھال چىقىدۇ",
+    "badge": "⚡ تېز كارتىلار (Wi-Fi)",
+    "inputLabel": "سېتىۋېلىش ئەسكەرتىشى",
+    "inputPlaceholder": "كارتىنى تاللاڭ، سېتىۋالغاندىن كېيىن كارتا دەرھال چىقىدۇ",
+    "requiresZoneId": false,
+    "source": "legacy",
+    "published": true,
+    "packages": [
+      {
+        "id": "mujahid_6gb",
+        "title": "6 جيجا 7 كۈنلۈك (6GB 7 Days)",
+        "price": 0.45,
+        "originalPrice": 0.5,
+        "duration": "7 كۈن",
+        "available": true
+      },
+      {
+        "id": "mujahid_4gb",
+        "title": "4 جيجا 7 كۈنلۈك (4GB 7 Days)",
+        "price": 0.34,
+        "originalPrice": 0.4,
+        "duration": "7 كۈن",
+        "available": true
+      },
+      {
+        "id": "mujahid_2gb",
+        "title": "2 جيجا 5 كۈنلۈك (2GB 5 Days)",
+        "price": 0.23,
+        "originalPrice": 0.28,
+        "duration": "5 كۈن",
+        "available": true
+      },
+      {
+        "id": "mujahid_1gb",
+        "title": "1 جيجا 3 كۈنلۈك (1GB 3 Days)",
+        "price": 0.12,
+        "originalPrice": 0.15,
+        "duration": "3 كۈن",
+        "available": true
+      }
+    ]
+  },
+  {
     "id": "othman_pubg",
     "name": "PUBG Mobile (پابجى قاچىلاش ۋە ئەزالىق)",
     "category": "games",

@@ -40,6 +40,16 @@ const NETWORKS = [
       { id: 'azez_1gb', title: '1 جيجا 3 كۈنلۈك (1GB 3 Days)', price: '$0.12' },
     ],
   },
+  {
+    id: 'almujahid_net',
+    name: 'شبكة المجاهد نت (Al Mujahid Net)',
+    packages: [
+      { id: 'mujahid_6gb', title: '6 جيجا 7 كۈنلۈك (6GB 7 Days)', price: '$0.45' },
+      { id: 'mujahid_4gb', title: '4 جيجا 7 كۈنلۈك (4GB 7 Days)', price: '$0.34' },
+      { id: 'mujahid_2gb', title: '2 جيجا 5 كۈنلۈك (2GB 5 Days)', price: '$0.23' },
+      { id: 'mujahid_1gb', title: '1 جيجا 3 كۈنلۈك (1GB 3 Days)', price: '$0.12' },
+    ],
+  },
 ];
 
 export default function AdminWifiInventory() {
@@ -55,7 +65,7 @@ export default function AdminWifiInventory() {
   const [importing, setImporting] = useState(false);
 
   // Filter state
-  const [filterNet, setFilterNet] = useState<'all' | 'fursan_net' | 'azez_net'>('all');
+  const [filterNet, setFilterNet] = useState<'all' | 'fursan_net' | 'azez_net' | 'almujahid_net'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'available' | 'sold'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -389,6 +399,7 @@ export default function AdminWifiInventory() {
               <option value="all">بارلىق تورلار</option>
               <option value="fursan_net">شبكة الفرسان</option>
               <option value="azez_net">شبكة عزيز نت</option>
+              <option value="almujahid_net">شبكة المجاهد نت</option>
             </select>
 
             {/* Filter Status */}

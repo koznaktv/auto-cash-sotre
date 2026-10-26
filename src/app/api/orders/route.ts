@@ -223,6 +223,7 @@ export async function POST(req: Request) {
       service.category === 'wifi' ||
       service.id === 'fursan_net' ||
       service.id === 'azez_net' ||
+      service.id === 'almujahid_net' ||
       (service.name || '').toLowerCase().includes('wifi') ||
       (service.name || '').toLowerCase().includes('واي فاي');
 
@@ -263,9 +264,9 @@ export async function POST(req: Request) {
       orderId: prospectiveOrderId,
       details: isWifiService && claimedWifiCard ? {
         wifiCard: {
-          network: service.id === 'fursan_net' ? 'fursan' : 'azez',
-          networkName: service.id === 'fursan_net' ? 'شبكة الفرسان' : 'شبكة عزيز نت',
-          networkEn: service.id === 'fursan_net' ? 'FURSAN NET' : 'AZEZ . NET',
+          network: service.id === 'fursan_net' ? 'fursan' : (service.id === 'azez_net' ? 'azez' : 'mujahid'),
+          networkName: service.id === 'fursan_net' ? 'شبكة الفرسان' : (service.id === 'azez_net' ? 'شبكة عزيز نت' : 'شبكة المجاهد نت'),
+          networkEn: service.id === 'fursan_net' ? 'FURSAN NET' : (service.id === 'azez_net' ? 'AZEZ . NET' : 'AL MUJAHID NET'),
           username: claimedWifiCard.username,
           password: claimedWifiCard.password,
           cardNumber: claimedWifiCard.cardNumber,
