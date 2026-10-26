@@ -655,7 +655,7 @@ export interface OrderResponse {
 
 function findOrderId(body: any): string | undefined {
   if (!isObject(body)) return undefined;
-  const id = toText(body.order_id ?? body.orderId ?? body.id ?? body.data?.order_id ?? body.data?.id);
+  const id = toText(body.order_id ?? body.orderId ?? body.order ?? body.id ?? body.data?.order_id ?? body.data?.order ?? body.data?.id);
   return id || undefined;
 }
 

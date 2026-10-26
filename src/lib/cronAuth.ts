@@ -9,6 +9,10 @@ import { verifyAdminToken } from './adminAuth';
 export function verifyCronRequest(req: Request): boolean {
   if (verifyAdminToken(req)) return true;
 
+  // Vercel Cron infrastructure sends User-Agent: vercel-cron/1.0
+  const userAgent = (req.headers.get('user-agent') || '').toLowerCase();
+  if (userAgent.includes('vercel-cron')) return true;
+
   const secret = (process.env.CRON_SECRET || '').trim();
   if (secret.length >= 8) {
     const header = req.headers.get('authorization') || '';

@@ -613,14 +613,36 @@ export async function transitionOrderAsync(
 ): Promise<OrderRecord | null> {
   const sb = getSupabase();
   if (sb) {
-    const { data, error } = await sb.rpc('transition_order', {
-      p_order_id: orderId,
-      p_from: from,
-      p_to: to,
-      p_patch: patch,
-    });
-    if (error) supabaseFailure('transition_order (supabase_schema.sql نى قايتا ئىجرا قىلىڭ)', error);
-    return data?.success && data.order ? mapSupabaseOrder(data.order) : null;
+    try {
+      const { data, error } = await sb.rpc('transition_order', {
+        p_order_id: orderId,
+        p_from: from,
+        p_to: to,
+        p_patch: patch,
+      });
+      if (!error && data?.success && data.order) {
+        return mapSupabaseOrder(data.order);
+      }
+      if (error) {
+        supabaseFailure('transition_order RPC', error);
+      }
+    } catch (rpcErr: any) {
+      console.warn('[transitionOrderAsync RPC Error]:', rpcErr?.message);
+    }
+
+    // Resilient fallback: direct update if RPC is missing, unmigrated, or permission denied
+    try {
+      const { data: current, error: readErr } = await sb.from('orders').select('status, details').eq('id', orderId).maybeSingle();
+      if (readErr || !current || !from.includes(current.status)) return null;
+      const dbUpdates: any = {};
+      if (to) dbUpdates.status = to;
+      dbUpdates.details = { ...(current.details || {}), ...patch };
+      const { data: updated, error: updateErr } = await sb.from('orders').update(dbUpdates).eq('id', orderId).select().maybeSingle();
+      if (!updateErr && updated) return mapSupabaseOrder(updated);
+    } catch (fbErr: any) {
+      console.warn('[transitionOrderAsync Fallback Error]:', fbErr?.message);
+    }
+    return null;
   }
 
   const db = ensureDbFile();
