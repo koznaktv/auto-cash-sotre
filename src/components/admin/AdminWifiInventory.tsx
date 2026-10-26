@@ -68,6 +68,7 @@ export default function AdminWifiInventory() {
   const [filterNet, setFilterNet] = useState<'all' | 'fursan_net' | 'azez_net' | 'almujahid_net'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'available' | 'sold'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const fetchCards = async () => {
     try {
@@ -140,14 +141,55 @@ export default function AdminWifiInventory() {
   };
 
   const handleDelete = async (cardId: string) => {
-    if (!confirm('بۇ كارتىنى ئامباردىن ئۆچۈرەمسىز؟')) return;
+    if (!confirm('بۇ كارتىنى ئامباردىن ئۆچۈرەمسىز؟ سېتىۋېلىش دەرھال توختايدۇ.')) return;
+    // Instant optimistic removal from UI
+    setCards((prev) => prev.filter((c) => c.id !== cardId));
+    setSelectedIds((prev) => prev.filter((id) => id !== cardId));
+    setMsg({ type: 'success', text: '✅ كارتا ئامباردىن دەرھال ئۆچۈرۈلدى (توربەت ۋە بوتتا شۇئان چىقىرىۋېتىلدى)' });
     try {
       const res = await fetch(`/api/admin/wifi-cards?id=${encodeURIComponent(cardId)}`, {
         method: 'DELETE',
       });
       const data = await res.json();
       if (data.success) {
-        setCards((prev) => prev.filter((c) => c.id !== cardId));
+        fetchCards();
+      }
+    } catch {}
+  };
+
+  const handleDeleteSelected = async () => {
+    if (!selectedIds.length) return;
+    if (!confirm(`تاللانغان ${selectedIds.length} تال كارتىنى ئامباردىن تولۇق ئۆچۈرەمسىز؟`)) return;
+    const idsToDelete = [...selectedIds];
+    // Instant optimistic removal from UI
+    setCards((prev) => prev.filter((c) => !idsToDelete.includes(c.id)));
+    setSelectedIds([]);
+    setMsg({ type: 'success', text: `✅ تاللانغان ${idsToDelete.length} تال كارتا ئامباردىن تولۇق ئۆچۈرۈلدى` });
+    try {
+      const res = await fetch('/api/admin/wifi-cards', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: idsToDelete }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchCards();
+      }
+    } catch {}
+  };
+
+  const handleClearPackage = async (serviceId: string, packageId: string, packageTitle: string) => {
+    if (!confirm(`«${packageTitle}» بولىقىدىكى بارلىق سېتىلمىغان كارتىلارنى ئامباردىن تولۇق ئۆچۈرەمسىز؟`)) return;
+    // Instant optimistic removal from UI
+    setCards((prev) => prev.filter((c) => !(c.serviceId === serviceId && c.packageId === packageId && c.status === 'available')));
+    setSelectedIds([]);
+    setMsg({ type: 'success', text: `✅ «${packageTitle}» بولىقىدىكى سېتىلمىغان كارتىلار ئامباردىن تولۇق ئۆچۈرۈلدى` });
+    try {
+      const res = await fetch(`/api/admin/wifi-cards?clearPackage=1&serviceId=${encodeURIComponent(serviceId)}&packageId=${encodeURIComponent(packageId)}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success) {
         fetchCards();
       }
     } catch {}
@@ -174,6 +216,22 @@ export default function AdminWifiInventory() {
     }
     return true;
   });
+
+  const availableFiltered = filteredCards.filter((c) => c.status === 'available');
+
+  const toggleSelectAll = () => {
+    if (availableFiltered.length > 0 && availableFiltered.every((c) => selectedIds.includes(c.id))) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(availableFiltered.map((c) => c.id));
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
 
   return (
     <div className="space-y-6 text-right font-alkatip" dir="rtl">
@@ -295,6 +353,17 @@ export default function AdminWifiInventory() {
                         {stock.available > 0 ? `ئامباردا: ${stock.available}` : 'تۈگىدى ⚠️'}
                       </span>
                       <span className="text-slate-500 font-mono text-[11px]">سېتىلغىنى: {stock.sold}</span>
+                      {stock.available > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => handleClearPackage(net.id, pkg.id, pkg.title)}
+                          title="خاتا قاچىلانغان بولسا سېتىلمىغان كارتىلارنى ئۆچۈرۈش"
+                          className="px-2 py-0.5 bg-rose-500/10 hover:bg-rose-500/25 text-rose-400 hover:text-rose-300 border border-rose-500/30 rounded text-[10px] flex items-center gap-1 transition"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          <span>تازىلاش</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
@@ -424,6 +493,18 @@ export default function AdminWifiInventory() {
               />
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" />
             </div>
+
+            {/* Batch Delete Selected Button */}
+            {selectedIds.length > 0 && (
+              <button
+                type="button"
+                onClick={handleDeleteSelected}
+                className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-rose-950 animate-pulse"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>تاللانغان ({selectedIds.length}) كارتىنى ئۆچۈرۈش</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -432,6 +513,18 @@ export default function AdminWifiInventory() {
           <table className="w-full text-xs text-right">
             <thead>
               <tr className="border-b border-slate-800 text-slate-400">
+                <th className="py-2.5 px-3 text-center w-10">
+                  <input
+                    type="checkbox"
+                    checked={
+                      availableFiltered.length > 0 &&
+                      availableFiltered.every((c) => selectedIds.includes(c.id))
+                    }
+                    onChange={toggleSelectAll}
+                    title="ھەممە سېتىلمىغان كارتىلارنى تاللاش"
+                    className="w-4 h-4 rounded text-emerald-600 bg-slate-950 border-slate-700 cursor-pointer"
+                  />
+                </th>
                 <th className="py-2.5 px-3">تەرتىپ</th>
                 <th className="py-2.5 px-3">تور نامى</th>
                 <th className="py-2.5 px-3">بولاق تۈرى</th>
@@ -445,13 +538,25 @@ export default function AdminWifiInventory() {
             <tbody className="divide-y divide-slate-800/60">
               {filteredCards.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-slate-500">
+                  <td colSpan={9} className="py-8 text-center text-slate-500">
                     ھېچقانداق كارتا تېپىلمىدى. يۇقىرىدىن يېڭى كارتا قوشۇڭ.
                   </td>
                 </tr>
               ) : (
                 filteredCards.map((c) => (
                   <tr key={c.id} className="hover:bg-slate-800/30 transition">
+                    <td className="py-3 px-3 text-center">
+                      {c.status === 'available' ? (
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(c.id)}
+                          onChange={() => toggleSelect(c.id)}
+                          className="w-4 h-4 rounded text-emerald-600 bg-slate-950 border-slate-700 cursor-pointer"
+                        />
+                      ) : (
+                        <span className="text-slate-600 select-none text-xs">🔒</span>
+                      )}
+                    </td>
                     <td className="py-3 px-3 font-mono font-bold text-amber-400">{c.cardNumber}</td>
                     <td className="py-3 px-3 font-bold text-slate-200">{c.serviceName}</td>
                     <td className="py-3 px-3 text-slate-300">{c.packageTitle}</td>

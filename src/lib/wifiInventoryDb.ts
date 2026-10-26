@@ -349,3 +349,45 @@ export async function deleteWifiCardAsync(cardId: string): Promise<boolean> {
   saveCardsFile(filtered);
   return true;
 }
+
+/**
+ * Bulk delete unsold cards by an array of IDs
+ */
+export async function bulkDeleteWifiCardsAsync(cardIds: string[]): Promise<number> {
+  if (!cardIds || !cardIds.length) return 0;
+  const idSet = new Set(cardIds);
+  const sb = getSupabase();
+  if (sb) {
+    await sb.from('wifi_cards').delete().in('id', cardIds).eq('status', 'available');
+  }
+  const all = ensureCardsFile();
+  const filtered = all.filter((c) => !(idSet.has(c.id) && c.status === 'available'));
+  const deletedCount = all.length - filtered.length;
+  saveCardsFile(filtered);
+  return deletedCount;
+}
+
+/**
+ * Clear all unsold cards for a specific network and package
+ */
+export async function clearAvailableWifiCardsByPackageAsync(params: {
+  serviceId: string;
+  packageId: string;
+}): Promise<number> {
+  const sb = getSupabase();
+  if (sb) {
+    await sb
+      .from('wifi_cards')
+      .delete()
+      .eq('service_id', params.serviceId)
+      .eq('package_id', params.packageId)
+      .eq('status', 'available');
+  }
+  const all = ensureCardsFile();
+  const filtered = all.filter(
+    (c) => !(c.serviceId === params.serviceId && c.packageId === params.packageId && c.status === 'available')
+  );
+  const deletedCount = all.length - filtered.length;
+  saveCardsFile(filtered);
+  return deletedCount;
+}
