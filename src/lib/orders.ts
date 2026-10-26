@@ -30,6 +30,19 @@ export interface Order {
     reviewReason?: string;
     costTotal?: number;
     sellPrice?: number;
+    // Wi-Fi cards
+    wifiCard?: {
+      network: 'fursan' | 'azez' | string;
+      networkName: string;
+      networkEn: string;
+      username: string;
+      password: string;
+      cardNumber: string;
+      packageTitle: string;
+      price: number;
+      purchaseDate: string;
+      validity: string;
+    };
     // Legacy orders
     smsCode?: string;
     virtualNumber?: string;
@@ -48,6 +61,7 @@ export function isOrderInProgress(status: string): boolean {
 }
 
 const BUYER_DETAIL_KEYS = [
+  'wifiCard',
   'fields',
   'qty',
   'delivery',

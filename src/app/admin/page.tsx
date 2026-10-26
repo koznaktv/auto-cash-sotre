@@ -9,6 +9,7 @@ import ProviderCatalogPanel from '@/components/admin/ProviderCatalogPanel';
 import { formatSmartPrice } from '@/lib/formatMoney';
 import { detectServiceInputs, getServiceDefaultBio } from '@/lib/catalog/productBios';
 import DynamicIcon from '@/components/DynamicIcon';
+import AdminWifiInventory from '@/components/admin/AdminWifiInventory';
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -48,6 +49,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Filter,
+  Wifi,
   Check,
   Zap,
   Sparkles,
@@ -259,7 +261,7 @@ export default function AdminPage() {
 
   // Navigation tab
   const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'orders' | 'provider' | 'banners' | 'deposits' | 'users' | 'finance' | 'settings'
+    'dashboard' | 'orders' | 'provider' | 'banners' | 'deposits' | 'users' | 'finance' | 'settings' | 'wifi'
   >('dashboard');
 
   // Main Data States
@@ -3028,6 +3030,7 @@ export default function AdminPage() {
               { id: 'dashboard', label: 'باش تاختا (Dashboard)', icon: LayoutDashboard },
               { id: 'orders', label: 'زاكازلارنى باشقۇرۇش', icon: ShoppingBag, badge: metrics.processingCount },
               { id: 'provider', label: 'API تەمىنلىگۈچى تەڭشىكى', icon: Zap, badgeColor: 'bg-cyan-500 text-slate-950' },
+              { id: 'wifi', label: 'Wi-Fi كارتىلار ئامبىرى', icon: Wifi, badgeColor: 'bg-emerald-500 text-white' },
               { id: 'banners', label: 'باشبەت ئېلانلىرى (سلايدېر)', icon: ImageIcon, badge: banners.length, badgeColor: 'bg-amber-400 text-slate-950' },
               { id: 'deposits', label: 'ھەميان كىرىملىرى (شامكەش)', icon: Wallet, badge: metrics.pendingDepCount, badgeColor: 'bg-amber-500 text-slate-950' },
               { id: 'users', label: 'ئىشلەتكۈچىلەر (ئەزالار)', icon: Users, badge: metrics.userCount },
@@ -3121,6 +3124,7 @@ export default function AdminPage() {
               {activeTab === 'users' && 'ئەزالار ۋە ئىشلەتكۈچىلەر باشقۇرۇش'}
               {activeTab === 'finance' && 'پۇل مۇئامىلە ۋە كىرىم ئانالىزى'}
               {activeTab === 'settings' && 'سىستېما تەڭشەكلىرى'}
+              {activeTab === 'wifi' && 'Wi-Fi كارتىلار ئامبىرى (Fursan & Azez)'}
             </h2>
           </div>
 
@@ -5903,6 +5907,13 @@ export default function AdminPage() {
                   </table>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* ================= TAB: WI-FI CARDS INVENTORY ================= */}
+          {activeTab === 'wifi' && (
+            <div className="space-y-6 animate-in fade-in duration-300">
+              <AdminWifiInventory />
             </div>
           )}
         </main>

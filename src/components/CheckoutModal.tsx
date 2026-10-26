@@ -13,6 +13,7 @@ import { minQty, validateOrderFields, validateQty } from '@/lib/catalog/fieldVal
 import { estimateTotal } from '@/lib/catalog/pricing';
 import { formatSmartPrice } from '@/lib/formatMoney';
 import { getProductBio } from '@/lib/catalog/productBios';
+import WifiVoucherCard from './WifiVoucherCard';
 
 interface CheckoutModalProps {
   service: ServiceItem | null;
@@ -46,6 +47,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
   const [infoMsg, setInfoMsg] = useState('');
   const [confirmTotal, setConfirmTotal] = useState<number | null>(null);
   const [buttonState, setButtonState] = useState<'idle' | 'loading' | 'success'>('idle');
+  const [purchasedWifiCard, setPurchasedWifiCard] = useState<any | null>(null);
   const isSubmittingRef = useRef(false);
   const touchStartXRef = useRef<number | null>(null);
   const touchStartYRef = useRef<number | null>(null);
@@ -250,6 +252,12 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
       }
       if (!data.success) throw new Error(data.message || t('orderFailed'));
 
+      if (data.wifiCard) {
+        setPurchasedWifiCard(data.wifiCard);
+        onSuccess(data.order, data.newBalance);
+        return;
+      }
+
       if (res.status === 202) {
         // Accepted but the provider's answer was unclear: the order is being verified
         setButtonState('success');
@@ -291,6 +299,13 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
         onClose();
         onOpenAuth();
       }
+      return;
+    }
+
+    // For Wi-Fi Local Voucher Cards
+    const isWifiService = service.category === 'wifi' || service.id === 'fursan_net' || service.id === 'azez_net';
+    if (isWifiService) {
+      await submitOrder(selectedPkg.price, 'Wi-Fi كارتىسى');
       return;
     }
 
@@ -453,6 +468,40 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
         )}
 
         {detail && (
+          purchasedWifiCard ? (
+          <div className="space-y-4 pt-2">
+            <div className="text-center space-y-1">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold">
+                🎉 سېتىۋېلىش مۇۋەپپەقىيەتلىك بولدى!
+              </span>
+              <h3 className="text-base sm:text-lg font-bold text-white">
+                {service.name} كارتىڭىز ھازىر ئىشلىتىشكە تەييار
+              </h3>
+            </div>
+
+            <WifiVoucherCard card={purchasedWifiCard} />
+
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  router.push('/orders');
+                }}
+                className="w-full py-3 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-bold rounded-xl text-xs sm:text-sm transition"
+              >
+                📦 بارلىق زاكازلىرىمنى كۆرۈش ➔
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="py-3 px-5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-xl text-xs sm:text-sm transition"
+              >
+                تامام
+              </button>
+            </div>
+          </div>
+        ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Sub-category / Server Tabs Selector */}
             {subCategories && subCategories.length > 1 && (
@@ -684,10 +733,22 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                   </div>
                 ) : (
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
-                      <span>{translateInputLabel(effectiveInputLabel || 'ھېسابات / ئويۇنچى ID')}</span>
-                      {service.category !== 'cards' && <span className="text-rose-400 font-bold">*</span>}
-                    </label>
+                    {service.category === 'wifi' ? (
+                      <div className="p-3.5 bg-emerald-950/40 border border-emerald-500/40 rounded-xl flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg shrink-0">
+                          📶
+                        </div>
+                        <div className="text-xs text-emerald-200 space-y-0.5">
+                          <div className="font-bold text-white">Wi-Fi رەقەملىك ئامبار كارتىسى</div>
+                          <div>نومۇر كىرگۈزۈش ھاجەتسىز. كارتىنى تاللاپ «سېتىۋېلىش» نى باسسىڭىزلا سىستېما نومۇر ۋە پارولنى دەرھال چىقىرىپ بېرىدۇ.</div>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+                          <span>{translateInputLabel(effectiveInputLabel || 'ھېسابات / ئويۇنچى ID')}</span>
+                          {service.category !== 'cards' && <span className="text-rose-400 font-bold">*</span>}
+                        </label>
                     <input
                       type="text"
                       value={accountInput}
@@ -740,6 +801,8 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                             : 'ومن ثم إختيار الباقة التي تناسب طلبك.'}
                         </p>
                       </div>
+                    )}
+                      </>
                     )}
                   </div>
                 )}
@@ -833,7 +896,8 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
               </div>
             )}
           </form>
-        )}
+        ))
+      }
       </div>
     </div>
   );

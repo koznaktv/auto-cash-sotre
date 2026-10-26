@@ -23,6 +23,7 @@ import {
 import { isOrderInProgress, type Order } from '@/lib/orders';
 import { getCachedBalance, getCachedUser, storeLocalAuth, ClientUser } from '@/lib/clientAuth';
 import { formatSmartPrice } from '@/lib/formatMoney';
+import WifiVoucherCard from '@/components/WifiVoucherCard';
 
 export default function OrdersPage() {
   const { lang, t, isRTL, translatePackageTitle } = useLanguage();
@@ -452,6 +453,7 @@ export default function OrdersPage() {
                       (!rawActivationUrl && typeof d.reply === 'string' && d.reply);
 
                     const hasDetails =
+                      d.wifiCard ||
                       rawActivationUrl ||
                       textReply ||
                       nonUrlCodes.length > 0 ||
@@ -465,6 +467,13 @@ export default function OrdersPage() {
 
                     return (
                       <div className="mt-2.5 space-y-2 font-alkatip">
+                        {/* 0. Dedicated Wi-Fi Voucher Card (Fursan Net & Azez Net) */}
+                        {d.wifiCard && (
+                          <div className="pt-1 pb-2">
+                            <WifiVoucherCard card={d.wifiCard} />
+                          </div>
+                        )}
+
                         {/* 1. Dedicated Glowing Activation Link Card (Gemini AI, Subscriptions, Invite URLs) */}
                         {rawActivationUrl && (
                           <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-emerald-950/90 via-teal-950/80 to-[#072438] border-2 border-emerald-500/70 shadow-xl shadow-emerald-950/60 space-y-2.5 relative overflow-hidden">

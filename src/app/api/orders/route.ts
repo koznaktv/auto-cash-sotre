@@ -218,6 +218,39 @@ export async function POST(req: Request) {
       }
     }
 
+    // Wi-Fi Card Local Stock Check & Pre-Claim
+    const isWifiService =
+      service.category === 'wifi' ||
+      service.id === 'fursan_net' ||
+      service.id === 'azez_net' ||
+      (service.name || '').toLowerCase().includes('wifi') ||
+      (service.name || '').toLowerCase().includes('واي فاي');
+
+    const prospectiveOrderId = randomId('ORD');
+    let claimedWifiCard = null;
+
+    if (isWifiService) {
+      const { claimAvailableWifiCardAsync } = await import('@/lib/wifiInventoryDb');
+      claimedWifiCard = await claimAvailableWifiCardAsync({
+        serviceId: service.id,
+        packageId: pkg.id,
+        userId: user.id,
+        userEmail: user.email,
+        orderId: prospectiveOrderId,
+      });
+
+      if (!claimedWifiCard) {
+        return NextResponse.json(
+          {
+            success: false,
+            outOfStock: true,
+            message: '⚠️ بۇ كارتىدىن ئامباردا قالمىدى (تۈگەپ كەتتى). باشقۇرغۇچى يېڭى كارتا كىرگۈزگەندە سېتىۋېلىڭ.',
+          },
+          { status: 409 }
+        );
+      }
+    }
+
     const atomicRes = await deductBalanceAndCreateOrderAtomicAsync({
       idempotencyKey,
       userId: user.id,
@@ -226,23 +259,77 @@ export async function POST(req: Request) {
       serviceName: service.name,
       packageTitle: pkg.title,
       amount: price,
-      targetAccount: rawTarget || 'تەلەپ قىلىنمىغان',
-      orderId: randomId('ORD'),
-      details: {
-      gamePlayerId: parsedGameAccount.userId,
-      gameZoneId: parsedGameAccount.zoneId,
-      providerProductId: pkg.providerProductId,
-    },
+      targetAccount: rawTarget || (isWifiService ? 'Wi-Fi كارتىسى' : 'تەلەپ قىلىنمىغان'),
+      orderId: prospectiveOrderId,
+      details: isWifiService && claimedWifiCard ? {
+        wifiCard: {
+          network: service.id === 'fursan_net' ? 'fursan' : 'azez',
+          networkName: service.id === 'fursan_net' ? 'شبكة الفرسان' : 'شبكة عزيز نت',
+          networkEn: service.id === 'fursan_net' ? 'FURSAN NET' : 'AZEZ . NET',
+          username: claimedWifiCard.username,
+          password: claimedWifiCard.password,
+          cardNumber: claimedWifiCard.cardNumber,
+          packageTitle: pkg.title,
+          price: price,
+          purchaseDate: new Date().toISOString().replace('T', ' ').slice(0, 19),
+          validity: pkg.duration || '7 كۈن',
+        }
+      } : {
+        gamePlayerId: parsedGameAccount.userId,
+        gameZoneId: parsedGameAccount.zoneId,
+        providerProductId: pkg.providerProductId,
+      },
     });
 
     if (!atomicRes.success) {
+      if (isWifiService && claimedWifiCard) {
+        const { unclaimWifiCardAsync } = await import('@/lib/wifiInventoryDb');
+        await unclaimWifiCardAsync(claimedWifiCard.id).catch(() => {});
+      }
       return NextResponse.json(
         { success: false, message: atomicRes.message || 'زاكاز مەغلۇپ بولدى' },
         { status: 400 }
       );
     }
 
-    const order = atomicRes.order || ({ id: 'pending', amount: price, status: 'processing' } as OrderRecord);
+    const order = atomicRes.order || ({ id: prospectiveOrderId, amount: price, status: 'processing' } as OrderRecord);
+
+    // Instant Completion for Local Wi-Fi Card Vouchers
+    if (isWifiService && claimedWifiCard && order?.id) {
+      await updateOrderStatusAsync(order.id, 'completed');
+      order.status = 'completed';
+
+      notifyNewOrder({
+        id: order.id,
+        serviceName: order.serviceName,
+        packageTitle: order.packageTitle,
+        amount: order.amount,
+        userName: user.name,
+        userEmail: user.email,
+        targetAccount: `Wi-Fi (${claimedWifiCard.username})`,
+        status: 'completed',
+        fields: {
+          'اسم المستخدم': claimedWifiCard.username,
+          'كلمة المرور': claimedWifiCard.password,
+          'رقم البطاقة': claimedWifiCard.cardNumber,
+        },
+      }).catch(() => {});
+
+      postOrderCompletedToChannel({
+        id: order.id,
+        serviceName: order.serviceName,
+        packageTitle: order.packageTitle,
+        amount: order.amount,
+        targetAccount: `Wi-Fi (${claimedWifiCard.username.slice(0, 2)}***)`,
+      }).catch(() => {});
+
+      return NextResponse.json({
+        success: true,
+        order: toBuyerOrder(order),
+        wifiCard: order.details?.wifiCard,
+        message: 'Wi-Fi كارتىڭىز ھېساباتىڭىزغا مۇۋەپپەقىيەتلىك تارقىتىلدى!',
+      });
+    }
 
     if (pkg.providerProductId && order?.id) {
       try {

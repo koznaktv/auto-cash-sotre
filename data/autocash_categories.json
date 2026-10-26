@@ -1,5 +1,12 @@
 [
   {
+    "id": "wifi",
+    "name": "Wi-Fi تور كارتىلىرى",
+    "icon": "Wifi",
+    "count": "شبكات واي فاي",
+    "image": "https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg"
+  },
+  {
     "id": "apps",
     "name": "ئەپلەر",
     "icon": "Smartphone",
