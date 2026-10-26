@@ -393,6 +393,13 @@ export default function HomePage() {
 
   const normalizeServiceItem = (s: ServiceItem): ServiceItem => {
     let item = s;
+    if (item.id === 'fursan_net') {
+      item = { ...item, image: 'https://i.ibb.co/f3X6BjQ/photo-2026-10-26-07-50-55.jpg' };
+    } else if (item.id === 'azez_net') {
+      item = { ...item, image: 'https://i.ibb.co/cSFZhGLB/photo-2026-10-26-07-50-39.jpg' };
+    } else if (item.id === 'almujahid_net') {
+      item = { ...item, image: 'https://i.ibb.co/9HqpZdVg/photo-2026-10-26-08-32-29.jpg' };
+    }
     if (item.name && item.name.toLowerCase().includes('canva') && item.category !== 'apps') {
       item = { ...item, category: 'apps' };
     }
@@ -408,10 +415,11 @@ export default function HomePage() {
   const [services, setServices] = useState<ServiceItem[]>(() => {
     if (typeof window !== 'undefined') {
       try {
-        localStorage.removeItem('autocash_cached_catalog'); // Clean old legacy cache
-        localStorage.removeItem('autocash_cached_catalog_v2'); // Clean v2 cache
-        localStorage.removeItem('autocash_cached_catalog_v3'); // Clean v3 cache
-        const cachedCat = localStorage.getItem('autocash_cached_catalog_v19');
+        localStorage.removeItem('autocash_cached_catalog');
+        localStorage.removeItem('autocash_cached_catalog_v2');
+        localStorage.removeItem('autocash_cached_catalog_v3');
+        localStorage.removeItem('autocash_cached_catalog_v19');
+        const cachedCat = localStorage.getItem('autocash_cached_catalog_v20');
         if (cachedCat) {
           const parsed = JSON.parse(cachedCat);
           if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
@@ -474,10 +482,11 @@ export default function HomePage() {
           setServices(normServices);
           setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
           try {
-            localStorage.setItem('autocash_cached_catalog_v19', JSON.stringify({ services: normServices, source: dCat.source }));
+            localStorage.setItem('autocash_cached_catalog_v20', JSON.stringify({ services: normServices, source: dCat.source }));
             localStorage.removeItem('autocash_cached_catalog');
             localStorage.removeItem('autocash_cached_catalog_v2');
             localStorage.removeItem('autocash_cached_catalog_v3');
+            localStorage.removeItem('autocash_cached_catalog_v19');
           } catch {}
         } else if (dCat && Array.isArray(dCat.services) && dCat.services.length > 0) {
           setServices(dCat.services.filter(isNotTelecom).map(normalizeServiceItem));
@@ -532,10 +541,11 @@ export default function HomePage() {
           setServices(normServices);
           setCatalogSource(dCat.source === 'legacy' ? 'legacy' : 'provider');
           try {
-            localStorage.setItem('autocash_cached_catalog_v19', JSON.stringify({ services: normServices, source: dCat.source }));
+            localStorage.setItem('autocash_cached_catalog_v20', JSON.stringify({ services: normServices, source: dCat.source }));
             localStorage.removeItem('autocash_cached_catalog');
             localStorage.removeItem('autocash_cached_catalog_v2');
             localStorage.removeItem('autocash_cached_catalog_v3');
+            localStorage.removeItem('autocash_cached_catalog_v19');
           } catch {}
         } else if (dCat && Array.isArray(dCat.services) && dCat.services.length > 0) {
           setServices(dCat.services.filter(isNotTelecom).map(normalizeServiceItem));
@@ -585,7 +595,7 @@ export default function HomePage() {
     } catch {}
 
     const handleStorageChange = (e: StorageEvent) => {
-      if ((e.key === 'autocash_cached_catalog_v19' || e.key === 'autocash_cached_catalog_v3') && e.newValue) {
+      if ((e.key === 'autocash_cached_catalog_v20' || e.key === 'autocash_cached_catalog_v19') && e.newValue) {
         try {
           const parsed = JSON.parse(e.newValue);
           if (Array.isArray(parsed?.services) && parsed.services.length > 0) {
@@ -1123,7 +1133,13 @@ export default function HomePage() {
                     <div className="w-full h-20 sm:h-28 rounded-xl overflow-hidden bg-slate-900 relative mb-2 border border-slate-800">
                       <img
                         src={
-                          service.image && !service.image.endsWith('sahl-cash.com/') && service.image !== 'https://api.sahl-cash.com'
+                          service.id === 'fursan_net'
+                            ? 'https://i.ibb.co/f3X6BjQ/photo-2026-10-26-07-50-55.jpg'
+                            : service.id === 'azez_net'
+                            ? 'https://i.ibb.co/cSFZhGLB/photo-2026-10-26-07-50-39.jpg'
+                            : service.id === 'almujahid_net'
+                            ? 'https://i.ibb.co/9HqpZdVg/photo-2026-10-26-08-32-29.jpg'
+                            : service.image && !service.image.endsWith('sahl-cash.com/') && service.image !== 'https://api.sahl-cash.com'
                             ? service.image
                             : '/images/services/pubg_mobile.jpg'
                         }
@@ -1132,7 +1148,20 @@ export default function HomePage() {
                         loading={idx < 9 ? "eager" : "lazy"}
                         decoding="async"
                         onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).src = '/brand_logo.png?v=2.1.0';
+                          const target = e.currentTarget as HTMLImageElement;
+                          if (service.id === 'fursan_net' && target.src !== '/images/services/fursan_net.jpg') {
+                            target.src = '/images/services/fursan_net.jpg';
+                            return;
+                          }
+                          if (service.id === 'azez_net' && target.src !== '/images/services/azez_net.jpg') {
+                            target.src = '/images/services/azez_net.jpg';
+                            return;
+                          }
+                          if (service.id === 'almujahid_net' && target.src !== '/images/services/mujahid_net.jpg') {
+                            target.src = '/images/services/mujahid_net.jpg';
+                            return;
+                          }
+                          target.src = '/brand_logo.png?v=2.1.0';
                         }}
                       />
                       {service.badge && (

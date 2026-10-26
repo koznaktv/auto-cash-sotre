@@ -405,7 +405,35 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700/80 flex items-center justify-center text-cyan-400 shadow-inner shrink-0 overflow-hidden">
             {service.image ? (
-              <img src={service.image} alt="" className="w-full h-full object-cover" />
+              <img
+                src={
+                  service.id === 'fursan_net'
+                    ? 'https://i.ibb.co/f3X6BjQ/photo-2026-10-26-07-50-55.jpg'
+                    : service.id === 'azez_net'
+                    ? 'https://i.ibb.co/cSFZhGLB/photo-2026-10-26-07-50-39.jpg'
+                    : service.id === 'almujahid_net'
+                    ? 'https://i.ibb.co/9HqpZdVg/photo-2026-10-26-08-32-29.jpg'
+                    : service.image
+                }
+                alt=""
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.currentTarget as HTMLImageElement;
+                  if (service.id === 'fursan_net' && target.src !== '/images/services/fursan_net.jpg') {
+                    target.src = '/images/services/fursan_net.jpg';
+                    return;
+                  }
+                  if (service.id === 'azez_net' && target.src !== '/images/services/azez_net.jpg') {
+                    target.src = '/images/services/azez_net.jpg';
+                    return;
+                  }
+                  if (service.id === 'almujahid_net' && target.src !== '/images/services/mujahid_net.jpg') {
+                    target.src = '/images/services/mujahid_net.jpg';
+                    return;
+                  }
+                  target.src = '/brand_logo.png?v=2.1.0';
+                }}
+              />
             ) : (
               <DynamicIcon name={service.icon} className="w-6 h-6" />
             )}
