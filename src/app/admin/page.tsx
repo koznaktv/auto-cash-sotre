@@ -3695,6 +3695,25 @@ export default function AdminPage() {
                         : `بىكار قىلىندى (${orders.filter((o) => o.status === 'cancelled' || o.status === 'refunded').length})`}
                     </button>
                   ))}
+                  {orders.some((o) => isOrderInProgress(o.status)) ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-cyan-950/70 border border-cyan-500/40 text-cyan-300 text-[11px] font-bold shrink-0">
+                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                      <span>ئاپتوماتىك كۆزىتىلىۋاتىدۇ</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 text-[11px] shrink-0">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                      <span>بارلىق زاكاز پۈتكەن</span>
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => refreshLiveOrdersAndDeposits(true)}
+                    className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition cursor-pointer shrink-0"
+                    title="ھازىرلا تەكشۈرۈش"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
 

@@ -671,7 +671,10 @@ export async function getInFlightProviderOrdersAsync(limit = 100): Promise<Order
           o.details?.providerOrderId ||
           o.details?.providerOrderUuid ||
           o.serviceId?.startsWith('s4g-') ||
-          o.serviceId?.includes('othman')
+          o.serviceId?.includes('othman') ||
+          o.serviceId?.startsWith('srv-') ||
+          o.details?.gamePlayerId ||
+          !o.serviceId?.includes('wifi')
       )
     );
   }
@@ -683,7 +686,10 @@ export async function getInFlightProviderOrdersAsync(limit = 100): Promise<Order
             o.details?.providerOrderId ||
             o.details?.providerOrderUuid ||
             o.serviceId?.startsWith('s4g-') ||
-            o.serviceId?.includes('othman'))
+            o.serviceId?.includes('othman') ||
+            o.serviceId?.startsWith('srv-') ||
+            o.details?.gamePlayerId ||
+            !o.serviceId?.includes('wifi'))
       )
     )
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
@@ -726,6 +732,7 @@ export async function deductBalanceAndCreateOrderAtomicAsync(params: {
   targetAccount: string;
   orderId: string;
   details?: any;
+  initialStatus?: OrderRecord['status'];
 }): Promise<AtomicOrderResult> {
   if (!Number.isFinite(params.amount) || params.amount <= 0) {
     return { success: false, message: 'سومما خاتا' };
@@ -800,7 +807,7 @@ export async function deductBalanceAndCreateOrderAtomicAsync(params: {
     packageTitle: params.packageTitle,
     amount: params.amount,
     targetAccount: params.targetAccount,
-    status: 'processing',
+    status: params.initialStatus || 'processing',
     details: params.details || {},
     createdAt: new Date().toISOString(),
   };

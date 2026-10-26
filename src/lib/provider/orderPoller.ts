@@ -55,6 +55,10 @@ function getProviderForOrder(order: OrderRecord): Syria4GameProvider {
 
 function isDue(order: OrderRecord, force: boolean): boolean {
   if (force) return true;
+  if (order.details?.providerCheckedAt) {
+    const lastCheck = Date.now() - new Date(order.details.providerCheckedAt).getTime();
+    if (lastCheck < 8000) return false;
+  }
   const age = Date.now() - new Date(order.createdAt).getTime();
   // Fresh orders under 5 minutes are ALWAYS due for lightning checking!
   if (age < 5 * 60 * 1000) return true;
@@ -225,12 +229,8 @@ export async function pollProviderOrders(options: {
 
     // 2. Orders with provider ID: query the provider directly
     if (withProviderId.length && Date.now() < options.deadlineMs) {
-      const othmanList = withProviderId.filter((o) => getProviderForOrder(o) === othmanStoreProvider);
-      const sahlList = withProviderId.filter((o) => getProviderForOrder(o) !== othmanStoreProvider);
-
       const checkGroups = [
-        { prov: othmanStoreProvider, orders: othmanList },
-        { prov: syria4GameProvider, orders: sahlList },
+        { prov: othmanStoreProvider, orders: withProviderId },
       ];
 
       for (const group of checkGroups) {

@@ -25,23 +25,29 @@ import { notifyNewOrder, postOrderCompletedToChannel } from '@/lib/telegram';
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
 
+let lastAdminOrdersPollTime = 0;
+
 export async function GET(req: Request) {
   try {
     if (hasAdminBearer(req)) {
-      // Opportunistic status refresh for in-flight provider orders so admin always sees real-time status!
-      try {
-        const { getInFlightProviderOrdersAsync } = await import('@/lib/db');
-        const inFlightOrders = await getInFlightProviderOrdersAsync(25).catch(() => []);
-        if (inFlightOrders.length > 0) {
-          await pollProviderOrders({
-            deadlineMs: Date.now() + 6000,
-            limit: 25,
-            orderIds: inFlightOrders.map((o) => o.id),
-            force: true,
-          }).catch(() => null);
+      // Opportunistic status refresh throttled to 12s so admin sees live status without triggering rate-limits
+      const now = Date.now();
+      if (now - lastAdminOrdersPollTime > 12000) {
+        lastAdminOrdersPollTime = now;
+        try {
+          const { getInFlightProviderOrdersAsync } = await import('@/lib/db');
+          const inFlightOrders = await getInFlightProviderOrdersAsync(20).catch(() => []);
+          if (inFlightOrders.length > 0) {
+            await pollProviderOrders({
+              deadlineMs: now + 7000,
+              limit: 20,
+              orderIds: inFlightOrders.map((o) => o.id),
+              force: false,
+            }).catch(() => null);
+          }
+        } catch (pollErr: any) {
+          console.warn('[Admin Order Poll Notice]:', pollErr?.message);
         }
-      } catch (pollErr: any) {
-        console.warn('[Admin Order Poll Notice]:', pollErr?.message);
       }
       return NextResponse.json({ success: true, orders: await getAllOrdersAsync() });
     }
@@ -248,8 +254,11 @@ export async function POST(req: Request) {
       service.id === 'fursan_net' ||
       service.id === 'azez_net' ||
       service.id === 'almujahid_net' ||
+      (service.id || '').toLowerCase().includes('wifi') ||
+      (service.id || '').toLowerCase().includes('_net') ||
       (service.name || '').toLowerCase().includes('wifi') ||
-      (service.name || '').toLowerCase().includes('واي فاي');
+      (service.name || '').toLowerCase().includes('واي فاي') ||
+      (service.name || '').toLowerCase().includes('نت');
 
     const prospectiveOrderId = randomId('ORD');
     let claimedWifiCard = null;
@@ -286,6 +295,7 @@ export async function POST(req: Request) {
       amount: price,
       targetAccount: rawTarget || (isWifiService ? 'Wi-Fi كارتىسى' : 'تەلەپ قىلىنمىغان'),
       orderId: prospectiveOrderId,
+      initialStatus: (isWifiService && claimedWifiCard) ? 'completed' : 'processing',
       details: isWifiService && claimedWifiCard ? {
         wifiCard: {
           network: service.id === 'fursan_net' ? 'fursan' : (service.id === 'azez_net' ? 'azez' : 'mujahid'),
@@ -399,6 +409,29 @@ export async function POST(req: Request) {
               ...(activationUrl ? { activationUrl, activationLink: activationUrl } : {}),
             });
             order.status = completed ? 'completed' : 'pending_provider';
+            if (completed) {
+              postOrderCompletedToChannel({
+                id: order.id,
+                serviceName: order.serviceName,
+                packageTitle: order.packageTitle,
+                amount: order.amount,
+                targetAccount: (order as any).targetAccount || order.details?.targetAccount || order.details?.playerId || rawTarget,
+                userName: user.name,
+                userEmail: order.userEmail || user.email,
+              }).catch(() => {});
+            } else if (order.id) {
+              // Rapid non-blocking follow-up check at 6s for quick fulfillment
+              setTimeout(async () => {
+                try {
+                  const { pollProviderOrders } = await import('@/lib/provider/orderPoller');
+                  await pollProviderOrders({
+                    deadlineMs: Date.now() + 8000,
+                    orderIds: [order.id],
+                    force: true,
+                  });
+                } catch {}
+              }, 6000);
+            }
             if (updatedOrder) {
               order.details = { ...(order.details || {}), ...(updatedOrder.details || {}) };
             } else {

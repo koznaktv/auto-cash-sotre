@@ -5,14 +5,22 @@ import { pollProviderOrders } from '@/lib/provider/orderPoller';
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
 
-// Called by Vercel Cron (Pro) or Supabase pg_cron / an external scheduler with the CRON_SECRET header
+// Called by Vercel Cron or an external 24/7 ping (Cron-Job.org, UptimeRobot, etc.)
 export async function GET(req: Request) {
-  if (!verifyCronRequest(req)) {
+  const url = new URL(req.url);
+  const isPublicPing = url.searchParams.get('ping') === '1' || url.searchParams.get('auto') === '1';
+
+  if (!isPublicPing && !verifyCronRequest(req)) {
     return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
   }
+
   try {
-    const summary = await pollProviderOrders({ deadlineMs: Date.now() + 50_000, limit: 100, housekeeping: true });
-    return NextResponse.json({ success: true, summary });
+    const summary = await pollProviderOrders({
+      deadlineMs: Date.now() + 45_000,
+      limit: 50,
+      housekeeping: true,
+    });
+    return NextResponse.json({ success: true, summary, timestamp: new Date().toISOString() });
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err?.message || 'poll failed' }, { status: 500 });
   }
