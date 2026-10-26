@@ -107,6 +107,27 @@ export default function HomePage() {
     } catch {}
   };
 
+  const handleBackToCategories = () => {
+    setSelectedCat(null);
+    setSearchQuery('');
+    try {
+      if (typeof window !== 'undefined') {
+        if (window.history.state?.view === 'category' || window.location.hash.includes('cat=')) {
+          window.history.replaceState({ rootPage: 'home' }, '', window.location.pathname);
+        }
+      }
+    } catch {}
+
+    requestAnimationFrame(() => {
+      const categoriesSection = document.getElementById('categories-container');
+      if (categoriesSection) {
+        categoriesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 320, behavior: 'smooth' });
+      }
+    });
+  };
+
   const handleOpenAuth = () => {
     try {
       window.history.pushState({ modal: 'auth' }, '', window.location.pathname);
@@ -123,6 +144,9 @@ export default function HomePage() {
 
   useEffect(() => {
     try {
+      if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+        window.history.scrollRestoration = 'manual';
+      }
       window.history.replaceState({ rootPage: 'home' }, '', '/');
     } catch {}
 
@@ -160,13 +184,7 @@ export default function HomePage() {
       }
       // 4. If viewing inside a category, step back to all categories (home)
       if (selectedCatRef.current !== null) {
-        setSelectedCat(null);
-        setSearchQuery('');
-        try {
-          if (window.history.state?.view === 'category') {
-            window.history.back();
-          }
-        } catch {}
+        handleBackToCategories();
         return true;
       }
       return false;
@@ -962,9 +980,8 @@ export default function HomePage() {
         </div>
 
         {/* Categories vs Products View */}
-        {!isProductsOpen ? (
-          /* View 1: Categories Grid */
-          <div className="animate-in fade-in duration-300">
+        {/* View 1: Categories Grid (kept mounted to prevent DOM tearing, image decoding delays, and flicker) */}
+        <div id="categories-container" className={isProductsOpen ? 'hidden' : 'block'}>
             <div className="flex items-center justify-between mb-3.5">
               <h2 className="font-ukij text-base sm:text-lg font-bold text-white flex items-center gap-2">
                 <span className="w-2.5 h-5 rounded-full bg-amber-400 shadow-md shadow-amber-400/50" />
@@ -1090,22 +1107,15 @@ export default function HomePage() {
             </div>
           )}
         </div>
-        ) : (
-          /* View 2: Inside Category Products */
-          <section className="pt-2 animate-in fade-in duration-300 space-y-4" id="category-products-view">
+
+        {/* View 2: Inside Category Products */}
+        {isProductsOpen && (
+          <section className="pt-2 space-y-4" id="category-products-view">
             {/* Header with Back to Categories Button */}
             <div className="flex items-center justify-between gap-2 p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-[#07192d] to-slate-900 border border-amber-500/40 shadow-xl">
               {/* Back to Categories Button (On Right in RTL) */}
               <button
-                onClick={() => {
-                  setSelectedCat(null);
-                  setSearchQuery('');
-                  try {
-                    if (window.history.state?.view === 'category') {
-                      window.history.back();
-                    }
-                  } catch {}
-                }}
+                onClick={handleBackToCategories}
                 className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-950 font-black gold-shimmer-btn px-3 sm:px-4 py-2 rounded-xl transition font-alkatip cursor-pointer shadow-lg hover:scale-105 active:scale-95 flex-shrink-0 whitespace-nowrap"
               >
                 {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -1278,10 +1288,7 @@ export default function HomePage() {
                   {t('noServicesFound')}
                 </p>
                 <button
-                  onClick={() => {
-                    setSelectedCat(null);
-                    setSearchQuery('');
-                  }}
+                  onClick={handleBackToCategories}
                   className="px-4 py-2 rounded-xl gold-shimmer-btn text-xs font-black font-alkatip cursor-pointer"
                 >
                   {t('backToCategories')}
