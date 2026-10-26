@@ -1,12 +1,5 @@
 {
   "crons": [
-    {
-      "path": "/api/cron/poll-orders",
-      "schedule": "* * * * *"
-    },
-    {
-      "path": "/api/cron/sync-catalog",
-      "schedule": "0 3 * * *"
-    }
+    { "path": "/api/cron/sync-catalog", "schedule": "0 3 * * *" }
   ]
 }
