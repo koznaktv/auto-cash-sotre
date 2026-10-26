@@ -2476,7 +2476,7 @@
     "category": "cards",
     "icon": "CreditCard",
     "image": "/images/services/visa_card.jpg",
-    "description": "توردىن خەلقئارالىق سېتىۋېلىشلار ئۈچۈن رەسمىي Tremendous Visa ۋە شەخسىي ئىسىمدىكى ۋىزا كارتىلىرى.",
+    "description": "توردىن خەلقئارالىق سېتىۋېلىشلار، Google Play ۋە ئىچكى ئەزالىقلار ئۈچۈن. كود ئاپتوماتىك دەرھال چىقىدۇ. كارتىنى wallet.google.com غا باغلاپ ئىشلىتىڭ.",
     "badge": "💳 دەرھال كود",
     "inputLabel": "ئېلخەت ياكى تېلېفون نومۇرى",
     "inputPlaceholder": "ۋىزا كارت ئۇچۇرى ئەۋەتىلىدىغان ئېلخەت ياكى تېلېفون",
@@ -2497,16 +2497,6 @@
         "price": 10.74,
         "originalPrice": 12.35,
         "providerProductId": 896,
-        "productType": "fixed",
-        "available": true,
-        "providerKey": "othman"
-      },
-      {
-        "id": "pkg-othman-962",
-        "title": "فيزا بأسمك الشخصي",
-        "price": 25.1,
-        "originalPrice": 28.87,
-        "providerProductId": 962,
         "productType": "fixed",
         "available": true,
         "providerKey": "othman"

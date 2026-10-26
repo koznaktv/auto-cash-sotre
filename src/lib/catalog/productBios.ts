@@ -19,6 +19,40 @@ interface BioEntry {
 }
 
 const BIOS_DATABASE: BioEntry[] = [
+  // 0. Tremendous Visa Cards (Exact match for provider screenshot instructions)
+  {
+    matcher: (service, pkg) => {
+      const s = `${service?.id || ''} ${service?.name || ''} ${pkg?.title || ''}`.toLowerCase();
+      return /tremendous|ترمندوس|othman_visa_cards/i.test(s);
+    },
+    ug: `⚠️ تنبيه / مۇھىم ئەسكەرتىش:
+ئەگەر سىز بۇ كارتىنى ئىشلىتىش ئۇسۇلىنى بىلمىسىڭىز، سېتىۋالماسلىقىڭىزنى ئۈمىد قىلىمىز.
+
+⚡ يتم التسليم بشكل تلقائي (يەتكۈزۈش ئاپتوماتىك ۋە دەرھال ئورۇنلىنىدۇ)
+• بۇ كارتا Google مۇلازىمەتلىرى، Google Play ۋە ئىچكى ئەزالىقلار ئۈچۈن تولۇق ماس كېلىدۇ (البطاقة تعمل لخدمات جوجل والاشتراكات الداخلية).
+• كارتا %100 پۈتۈن، ئىناۋەتلىك ۋە كاپالەتلىك (البطاقة سليمة 100%).
+🌟 كارتا نورمال ئىشلىشى ئۈچۈن Google Wallet ھېساباتىڭىزغا مۇشۇ ئۇلانما ئارقىلىق قوشۇشىڭىز كېرەك:
+https://wallet.google.com`,
+    ar: `تنبيه: اذا كنت لا تعلم طريقة استخدام البطاقة الرجاء عدم شرائها
+يتم التسليم بشكل تلقائي ⚡
+البطاقة تعمل لخدمات جوجل والاشتراكات الداخلية.....
+البطاقة سليمة 100%
+يجب اضافة البطاقة هنا لتعمل بشكل سليم ضمن حسابكم 🌟
+https://wallet.google.com`,
+    en: `Notice: If you do not know how to use this card, please do not purchase it.
+Delivery is automatic and instant ⚡
+The card works for Google services and in-app subscriptions...
+100% valid card guaranteed.
+The card must be added here to work properly with your account 🌟
+https://wallet.google.com`,
+    tr: `Uyarı: Kartın nasıl kullanılacağını bilmiyorsanız lütfen satın almayın.
+Teslimat otomatik ve anında yapılır ⚡
+Kart, Google hizmetleri ve uygulama içi abonelikler için geçerlidir...
+%100 sorunsuz ve geçerli kart garantisi.
+Kartın düzgün çalışması için hesabınıza buradan eklenmelidir 🌟
+https://wallet.google.com`,
+  },
+
   // 1. Chimera Tool (Exact match for user's screenshot!)
   {
     matcher: /chimera/i,

@@ -6,7 +6,7 @@ import type { ServiceItem, ServicePackage } from '@/lib/data';
 import DynamicIcon from './DynamicIcon';
 import AnimatedOrderButton from './AnimatedOrderButton';
 import { useLanguage } from '@/context/LanguageContext';
-import { X, AlertCircle, Loader2, Search, Info } from 'lucide-react';
+import { X, AlertCircle, Loader2, Search, Info, ExternalLink } from 'lucide-react';
 
 import { validateGameAccount } from '@/lib/validation/gameAccountValidator';
 import { minQty, validateOrderFields, validateQty } from '@/lib/catalog/fieldValidation';
@@ -971,6 +971,51 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                             ? 'ئاندىن يۇقىرىدىن ئۆزىڭىزگە ماس كېلىدىغان بولاقنى تاللاڭ.'
                             : 'ومن ثم إختيار الباقة التي تناسب طلبك.'}
                         </p>
+                      </div>
+                    )}
+                    {(service.id === 'othman_visa_cards' || service.name.toLowerCase().includes('tremendous') || service.name.includes('ترمندوس')) && (
+                      <div className="mt-2.5 p-3.5 rounded-2xl bg-gradient-to-br from-emerald-950/70 via-slate-900 to-[#07192d] border-2 border-emerald-500/60 text-xs space-y-2 shadow-xl font-alkatip">
+                        <div className="flex items-center justify-between gap-2 border-b border-emerald-500/30 pb-1.5 flex-wrap">
+                          <div className="flex items-center gap-1.5 text-rose-400 font-bold text-xs sm:text-sm">
+                            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                            <span>⚠️ {lang === 'ug' ? 'تنبيه: مۇھىم ئەسكەرتىش' : lang === 'ar' ? 'تنبيه هـام:' : 'Important Notice:'}</span>
+                          </div>
+                          <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 px-2 py-0.5 rounded-full font-bold">
+                            ⚡ {lang === 'ug' ? 'ئاپتوماتىك تاپشۇرۇلىدۇ' : lang === 'ar' ? 'تسليم تلقائي' : 'Instant Delivery'}
+                          </span>
+                        </div>
+
+                        <div className="text-[11px] space-y-1.5 leading-relaxed text-slate-200">
+                          <p className="text-rose-300 font-medium">
+                            • {lang === 'ug'
+                              ? 'ئەگەر سىز كارتىنى ئىشلىتىش ئۇسۇلىنى بىلمىسىڭىز، سېتىۋالماسلىقىڭىزنى ئۈمىد قىلىمىز (اذا كنت لا تعلم طريقة استخدام البطاقة الرجاء عدم شرائها).'
+                              : lang === 'ar'
+                              ? 'إذا كنت لا تعلم طريقة استخدام البطاقة الرجاء عدم شرائها.'
+                              : 'If you do not know how to use this card, please do not purchase it.'}
+                          </p>
+                          <p className="text-emerald-300 font-medium">
+                            • {lang === 'ug'
+                              ? 'كارتا %100 پۈتۈن، ئىناۋەتلىك ۋە كاپالەتلىك بولۇپ، Google مۇلازىمەتلىرى، Google Play ۋە ئىچكى ئەزالىقلار ئۈچۈن تولۇق ماس كېلىدۇ.'
+                              : lang === 'ar'
+                              ? 'البطاقة تعمل لخدمات جوجل والاشتراكات الداخلية..... البطاقة سليمة 100%'
+                              : 'The card is 100% valid and works for Google services and in-app subscriptions.'}
+                          </p>
+                          <div className="pt-1.5 p-2.5 rounded-xl bg-slate-950/80 border border-emerald-500/40 text-[11px] space-y-1">
+                            <span className="text-amber-300 font-bold flex items-center gap-1">
+                              <span>🌟</span>
+                              <span>{lang === 'ug' ? 'كارتا نورمال ئىشلىشى ئۈچۈن Google Wallet ھېساباتىڭىزغا قوشۇشىڭىز كېرەك:' : lang === 'ar' ? 'يجب اضافة البطاقة هنا لتعمل بشكل سليم ضمن حسابكم 🌟' : 'The card must be added here to work properly:'}</span>
+                            </span>
+                            <a
+                              href="https://wallet.google.com"
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 hover:underline font-mono text-[11px] dir-ltr break-all font-bold pt-0.5"
+                            >
+                              <span>https://wallet.google.com</span>
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </a>
+                          </div>
+                        </div>
                       </div>
                     )}
                       </>
