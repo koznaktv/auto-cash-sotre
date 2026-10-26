@@ -607,11 +607,40 @@ export function extractDelivery(obj: unknown): Delivery | undefined {
 export type ProviderOrderStatus = 'COMPLETED' | 'PENDING' | 'FAILED' | 'UNKNOWN';
 
 export function normalizeCheckStatus(raw: unknown): ProviderOrderStatus {
-  const s = toText(raw).toLowerCase();
+  if (raw === null || raw === undefined) return 'UNKNOWN';
+  const s = toText(raw).trim().toLowerCase();
   if (!s) return 'UNKNOWN';
-  if (/^(accept(ed)?|complete(d)?|done|success(ful)?|delivered|finished|1)$/.test(s)) return 'COMPLETED';
-  if (/^(reject(ed)?|fail(ed)?|cancel(l)?ed|cancel|refund(ed)?|error|declined|-1)$/.test(s)) return 'FAILED';
-  if (/^(wait(ing)?|pend(ing)?|process(ing)?|in_progress|queued|new|0)$/.test(s)) return 'PENDING';
+
+  // Numeric codes common across Syria4Game, Othman Store, SMM Panels, and Wholesalers:
+  // 1 or 3 = Completed
+  // 0, 2 = Pending / In Progress
+  // -1, 4, 5, 6 = Canceled / Refunded / Failed
+  if (s === '1' || s === '3') return 'COMPLETED';
+  if (s === '0' || s === '2') return 'PENDING';
+  if (s === '-1' || s === '4' || s === '5' || s === '6') return 'FAILED';
+
+  // Exact keywords (English + Arabic)
+  if (/^(accept(ed)?|complete(d)?|done|success(ful)?|delivered|finished|approved|ok|true|مكتمل|تم|تم التنفيذ|تم التسليم|تم الطلب|ناجح|مقبول|منجز)$/i.test(s)) {
+    return 'COMPLETED';
+  }
+  if (/^(reject(ed)?|fail(ed)?|cancel(l)?ed|cancel|refund(ed)?|error|declined|refused|false|ملغي|ملغى|مرفوض|فاشل|مسترجع|خطأ|غير متوفر|مرفوضة)$/i.test(s)) {
+    return 'FAILED';
+  }
+  if (/^(wait(ing)?|pend(ing)?|process(ing)?|in_progress|in progress|queued|new|hold|on_hold|قيد الانتظار|قيد الإنتظار|قيد التنفيذ|قيد المعالجة|انتظار|جديد|معلق)$/i.test(s)) {
+    return 'PENDING';
+  }
+
+  // Fallback substring checks for compound sentences (e.g. "طلب مكتمل", "تم التنفيذ بنجاح")
+  if (s.includes('مكتمل') || s.includes('تم التنفيذ') || s.includes('تم التسليم') || s.includes('success') || s.includes('completed')) {
+    return 'COMPLETED';
+  }
+  if (s.includes('مرفوض') || s.includes('ملغي') || s.includes('ملغى') || s.includes('failed') || s.includes('cancelled') || s.includes('canceled')) {
+    return 'FAILED';
+  }
+  if (s.includes('قيد') || s.includes('انتظار') || s.includes('pending') || s.includes('processing')) {
+    return 'PENDING';
+  }
+
   return 'UNKNOWN';
 }
 

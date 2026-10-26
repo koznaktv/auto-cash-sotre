@@ -27,7 +27,7 @@ const MAX_UNKNOWN_CHECKS = 8;
 const NO_ID_REVIEW_AFTER_MS = 10 * 60 * 1000;
 // An order still 'processing' this long after creation lost its provider call
 const STALE_PROCESSING_MS = 15 * 1000;
-const IN_FLIGHT: OrderRecord['status'][] = ['pending_provider', 'processing'];
+const IN_FLIGHT: OrderRecord['status'][] = ['pending_provider', 'processing', 'pending'];
 
 export interface PollSummary {
   skipped?: boolean;

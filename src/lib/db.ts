@@ -639,7 +639,7 @@ export async function getInFlightProviderOrdersAsync(limit = 100): Promise<Order
     const { data, error } = await sb
       .from('orders')
       .select('*')
-      .in('status', ['pending_provider', 'processing'])
+      .in('status', ['pending_provider', 'processing', 'pending'])
       .order('created_at', { ascending: true })
       .limit(limit);
     if (error) supabaseFailure('getInFlightProviderOrders', error);
@@ -656,7 +656,7 @@ export async function getInFlightProviderOrdersAsync(limit = 100): Promise<Order
   return ensureDbFile()
     .orders.filter((o) =>
       Boolean(
-        (o.status === 'pending_provider' || o.status === 'processing') &&
+        (o.status === 'pending_provider' || o.status === 'processing' || o.status === 'pending') &&
           (o.details?.providerProductId ||
             o.details?.providerOrderId ||
             o.details?.providerOrderUuid ||

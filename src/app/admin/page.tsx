@@ -870,6 +870,13 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.success && data.order) {
         setOrders((prev) => prev.map((o) => (o.id === order.id ? data.order : o)));
+        if (data.order.status === 'completed') {
+          alert('✅ زاكاز تەمىنلىگۈچى تەرەپتىن مۇۋەپپەقىيەتلىك پۈتتى (Completed)!');
+        } else if (data.order.status === 'refunded' || data.order.status === 'cancelled') {
+          alert('⚠️ تەمىنلىگۈچى زاكازنى رەت قىلغانلىقتىن خېرىدارغا پۇلى قايتۇرۇلدى.');
+        } else {
+          alert(`ℹ️ تەمىنلىگۈچىدىكى ھازىرقى ھالىتى: ${data.order.status}`);
+        }
       } else if (!data.success) {
         alert(data.message || 'تەكشۈرۈش مەغلۇپ بولدى');
       }
@@ -3697,7 +3704,7 @@ export default function AdminPage() {
                                 >
                                   بىر تەرەپ
                                 </button>
-                                {(order.details as any)?.providerProductId && isOrderInProgress(order.status) && (
+                                {Boolean(((order.details as any)?.providerProductId || (order.details as any)?.providerOrderId || (order.details as any)?.providerOrderUuid || order.serviceId?.includes('othman') || order.serviceId?.startsWith('s4g-')) && isOrderInProgress(order.status)) && (
                                   <button
                                     disabled={actionLoading === order.id}
                                     onClick={() => handleRecheckOrder(order)}

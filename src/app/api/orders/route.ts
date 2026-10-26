@@ -28,6 +28,21 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: Request) {
   try {
     if (hasAdminBearer(req)) {
+      // Opportunistic status refresh for in-flight provider orders so admin always sees real-time status!
+      try {
+        const { getInFlightProviderOrdersAsync } = await import('@/lib/db');
+        const inFlightOrders = await getInFlightProviderOrdersAsync(25).catch(() => []);
+        if (inFlightOrders.length > 0) {
+          await pollProviderOrders({
+            deadlineMs: Date.now() + 6000,
+            limit: 25,
+            orderIds: inFlightOrders.map((o) => o.id),
+            force: true,
+          }).catch(() => null);
+        }
+      } catch (pollErr: any) {
+        console.warn('[Admin Order Poll Notice]:', pollErr?.message);
+      }
       return NextResponse.json({ success: true, orders: await getAllOrdersAsync() });
     }
 
