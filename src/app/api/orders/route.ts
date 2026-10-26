@@ -245,7 +245,7 @@ export async function POST(req: Request) {
           {
             success: false,
             outOfStock: true,
-            message: '⚠️ بۇ كارتىدىن ئامباردا قالمىدى (تۈگەپ كەتتى). باشقۇرغۇچى يېڭى كارتا كىرگۈزگەندە سېتىۋېلىڭ.',
+            message: '⚠️ كارتا تۈگەپ كەتتى، يېقىندا قوشۇلىدۇ',
           },
           { status: 409 }
         );

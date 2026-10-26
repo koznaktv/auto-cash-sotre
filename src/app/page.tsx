@@ -466,8 +466,28 @@ export default function HomePage() {
 
   const [catalogSource, setCatalogSource] = useState<'legacy' | 'provider'>('legacy');
   const [catalogLoading, setCatalogLoading] = useState(false);
+  const [wifiStockMap, setWifiStockMap] = useState<Record<string, number>>({});
+
+  const fetchWifiStock = useCallback(() => {
+    fetch(`/api/catalog/wifi-stock?_t=${Date.now()}`, { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.success && d?.stock) {
+          const map: Record<string, number> = {};
+          for (const [key, val] of Object.entries<any>(d.stock)) {
+            const [servId] = key.split(':');
+            if (servId) {
+              map[servId] = (map[servId] || 0) + Number(val?.available || 0);
+            }
+          }
+          setWifiStockMap(map);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const fetchFreshCatalog = useCallback(() => {
+    fetchWifiStock();
     Promise.all([
       fetch(`/api/catalog?_t=${Date.now()}`, { cache: 'no-store' })
         .then((r) => r.json())
@@ -523,6 +543,7 @@ export default function HomePage() {
 
   useEffect(() => {
     // 1. Initial fresh background fetch without stale cache
+    fetchWifiStock();
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 7000);
 
@@ -1110,7 +1131,18 @@ export default function HomePage() {
 
             {/* Product Cards Grid: 3 per row as requested */}
             <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
-              {filteredServices.map((service, idx) => (
+              {filteredServices.map((service, idx) => {
+                const isWifiService =
+                  service.category === 'wifi' ||
+                  service.id === 'fursan_net' ||
+                  service.id === 'azez_net' ||
+                  service.id === 'almujahid_net' ||
+                  (service.name || '').toLowerCase().includes('wifi') ||
+                  (service.name || '').toLowerCase().includes('واي فاي');
+                const wifiStockCount = isWifiService ? (wifiStockMap[service.id] ?? null) : null;
+                const isWifiOutOfStock = isWifiService && wifiStockCount !== null && wifiStockCount <= 0;
+
+                return (
                 <div
                   key={service.id}
                   onClick={() => {
@@ -1172,6 +1204,16 @@ export default function HomePage() {
                           <span>{translateBadge(service.badge.replace(/^([\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF]|\u2B50|\u26A1|\uD83D[\uDE00-\uDFFF]|\uD83C[\uDF00-\uDFFF]|\uD83E[\uDD00-\uDFFF]|⚡|🔥|👑|⭐|💎|🚀|🎉|✨|🔒|🏆|💫|🎮|🤖)\s*/, ''))}</span>
                         </span>
                       )}
+                      {isWifiService && isWifiOutOfStock && (
+                        <span className={`absolute top-1.5 ${isRTL ? 'left-1.5' : 'right-1.5'} text-[8px] sm:text-[9px] font-bold bg-rose-600 text-white px-1.5 py-0.5 rounded-md shadow-lg z-10 font-alkatip`}>
+                          ⚠️ كارتا تۈگىدى
+                        </span>
+                      )}
+                      {isWifiService && !isWifiOutOfStock && wifiStockCount !== null && wifiStockCount > 0 && (
+                        <span className={`absolute top-1.5 ${isRTL ? 'left-1.5' : 'right-1.5'} text-[8px] sm:text-[9px] font-bold bg-emerald-600 text-white px-1.5 py-0.5 rounded-md shadow-lg z-10 font-alkatip`}>
+                          📶 زاپاس: {wifiStockCount}
+                        </span>
+                      )}
                     </div>
 
                     <h4 className="font-alkatip text-xs sm:text-sm font-bold text-white group-hover:text-amber-300 transition line-clamp-1 mb-1.5 leading-snug">
@@ -1194,22 +1236,39 @@ export default function HomePage() {
                   </div>
 
                   {/* Buy Button */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (!currentUser || !currentUser.email) {
-                        handleOpenAuth();
-                      } else {
-                        handleOpenProduct(service);
-                      }
-                    }}
-                    className="w-full py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500 hover:opacity-95 text-slate-950 font-black text-[10px] sm:text-xs transition cursor-pointer font-alkatip active:scale-95 flex items-center justify-center gap-1 shadow-sm hover:shadow-amber-500/20"
-                  >
-                    <span>{isRTL ? 'سېتىۋېلىش' : 'Buy Now'}</span>
-                    <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-950 fill-slate-950 stroke-[2.5]" />
-                  </button>
+                  {isWifiService && isWifiOutOfStock ? (
+                    <button
+                      type="button"
+                      disabled
+                      className="w-full py-1.5 sm:py-2 rounded-xl bg-rose-950/70 border border-rose-700/60 text-rose-300 font-bold text-[9px] sm:text-[10px] cursor-not-allowed font-alkatip flex items-center justify-center gap-1 opacity-90 shadow-sm"
+                    >
+                      <span>
+                        {lang === 'ug'
+                          ? '⚠️ كارتا تۈگەپ كەتتى، يېقىندا قوشۇلىدۇ'
+                          : lang === 'ar'
+                          ? '⚠️ نفدت البطاقات، سيتم التوفير قريباً'
+                          : '⚠️ Out of stock, coming soon'}
+                      </span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!currentUser || !currentUser.email) {
+                          handleOpenAuth();
+                        } else {
+                          handleOpenProduct(service);
+                        }
+                      }}
+                      className="w-full py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500 hover:opacity-95 text-slate-950 font-black text-[10px] sm:text-xs transition cursor-pointer font-alkatip active:scale-95 flex items-center justify-center gap-1 shadow-sm hover:shadow-amber-500/20"
+                    >
+                      <span>{isRTL ? 'سېتىۋېلىش' : 'Buy Now'}</span>
+                      <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-950 fill-slate-950 stroke-[2.5]" />
+                    </button>
+                  )}
                 </div>
-              ))}
+              );
+            })}
             </div>
 
             {catalogLoading && filteredServices.length === 0 && (

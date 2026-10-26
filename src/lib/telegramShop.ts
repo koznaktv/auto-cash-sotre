@@ -524,13 +524,38 @@ export function getCategoryProductsKeyboard(catKey: string, page = 0, lang: BotL
   return { inline_keyboard };
 }
 
-export function getServicePackagesKeyboard(
+export async function getServicePackagesKeyboard(
   service: ServiceItem,
   activeSubCatId?: string,
   page = 0,
   lang: BotLanguage = 'ug'
 ) {
   const inline_keyboard: any[][] = [];
+
+  const isWifi =
+    service.category === 'wifi' ||
+    service.id === 'fursan_net' ||
+    service.id === 'azez_net' ||
+    service.id === 'almujahid_net' ||
+    (service.name || '').toLowerCase().includes('wifi') ||
+    (service.name || '').toLowerCase().includes('واي فاي');
+
+  let wifiStockMap: Record<string, number> | null = null;
+  if (isWifi) {
+    try {
+      const { getWifiStockSummaryAsync } = await import('./wifiInventoryDb');
+      const summary = await getWifiStockSummaryAsync();
+      wifiStockMap = {};
+      for (const [key, val] of Object.entries(summary)) {
+        const [servId, pkgId] = key.split(':');
+        if (servId === service.id && pkgId) {
+          wifiStockMap[pkgId] = Number(val.available || 0);
+        }
+      }
+    } catch (e) {
+      console.error('[tg] Error getting wifi stock:', e);
+    }
+  }
 
   if (service.subCategories && service.subCategories.length > 1) {
     const subRows: any[] = [];
@@ -567,10 +592,27 @@ export function getServicePackagesKeyboard(
   for (const pkg of slice) {
     const cleanLabel = cleanPackageLabel(pkg.title || '', service.id, service.name);
     const priceStr = Number(pkg.price).toFixed(2);
-    const btnText = `${cleanLabel} — ${priceStr}$`;
+
+    const isWifiOutOfStock = isWifi && wifiStockMap !== null && (wifiStockMap[pkg.id] ?? 0) <= 0;
+    const availableCount = isWifi && wifiStockMap !== null ? (wifiStockMap[pkg.id] ?? 0) : undefined;
+
+    let btnText: string;
+    let callbackData: string;
+
+    if (isWifiOutOfStock) {
+      btnText = `⚠️ ${cleanLabel} (تۈگەپ كەتتى)`;
+      callbackData = `tg_wifi_out:${service.id}:${pkg.id}`;
+    } else if (availableCount !== undefined) {
+      btnText = `📶 ${cleanLabel} (${availableCount}) — ${priceStr}$`;
+      callbackData = `tgpkg:${service.id}:${pkg.id}`;
+    } else {
+      btnText = `${cleanLabel} — ${priceStr}$`;
+      callbackData = `tgpkg:${service.id}:${pkg.id}`;
+    }
+
     const btn = {
       text: btnText,
-      callback_data: `tgpkg:${service.id}:${pkg.id}`,
+      callback_data: callbackData,
     };
 
     // If text is long (> 22 chars), give it its own full row
@@ -759,7 +801,63 @@ ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━�
 `.trim();
     }
 
-    await showOrEditMessage(chatId, messageId, servText, getServicePackagesKeyboard(service, subCatId, page, lang));
+    const isWifiCheck =
+      service.category === 'wifi' ||
+      service.id === 'fursan_net' ||
+      service.id === 'azez_net' ||
+      service.id === 'almujahid_net' ||
+      (service.name || '').toLowerCase().includes('wifi') ||
+      (service.name || '').toLowerCase().includes('واي فاي');
+
+    if (isWifiCheck) {
+      try {
+        const { getWifiStockSummaryAsync } = await import('./wifiInventoryDb');
+        const summary = await getWifiStockSummaryAsync();
+        let availableTotal = 0;
+        for (const [key, val] of Object.entries(summary)) {
+          if (key.startsWith(`${service.id}:`)) {
+            availableTotal += Number(val.available || 0);
+          }
+        }
+        if (availableTotal <= 0) {
+          servText += `\n\n⚠️ <b>كارتا تۈگەپ كەتتى، يېقىندا قوشۇلىدۇ!</b>\n<i>بۇ تورنىڭ بارلىق كارتىلىرى ھازىر تۈگەپ كەتتى، يېقىندا يېڭى كارتىلار تەمىنلەنگەندە سېتىۋالالايسىز.</i>`;
+        }
+      } catch {}
+    }
+
+    await showOrEditMessage(chatId, messageId, servText, await getServicePackagesKeyboard(service, subCatId, page, lang));
+    return true;
+  }
+
+  // 3.5 Out of stock Wi-Fi package clicked
+  if (data.startsWith('tg_wifi_out:')) {
+    const parts = data.split(':');
+    const serviceId = parts[1];
+    const pkgId = parts[2];
+    const service = getServicesList().find((s) => s.id === serviceId);
+    const pkg = service?.packages.find((p) => p.id === pkgId);
+    const cleanPkgTitle = cleanPackageLabel(pkg?.title || '', service?.id || '', service?.name || '');
+    const sName = formatCleanGameBaseName(service?.id || '', service?.name || '');
+
+    await answerCallbackQuery(cqId, '⚠️ كارتا تۈگەپ كەتتى، يېقىندا قوشۇلىدۇ!', true);
+
+    const outPrompt = `
+╭━━━ ⚠️ <b>كارتا تۈگەپ كەتتى</b> ━━━╮
+
+📶 <b>تور نامى:</b> ${sName}
+📦 <b>كارتىنىڭ بولىقى:</b> <b>${cleanPkgTitle}</b>
+
+❌ <b>ھازىر بۇ كارتىنىڭ ئامبار قالدۇقى تۈگەپ كەتتى!</b>
+✨ مەسئۇللار تەرىپىدىن يېڭى كارتىلار <b>يېقىندا قوشۇلىدۇ</b>، سەل تەخىر قىلىڭ ياكى باشقا بولاقنى تاللاڭ.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`.trim();
+
+    await showOrEditMessage(chatId, messageId, outPrompt, {
+      inline_keyboard: [
+        [{ text: '↩️ باشقا بولاقلارنى كۆرۈش', callback_data: `tgserv:${serviceId}` }],
+        [{ text: '🏠 دۇكان بۆلۈملىرىگە قايتىش', callback_data: 'tg_shop_categories' }],
+      ],
+    });
     return true;
   }
 
@@ -796,6 +894,37 @@ ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━�
       (service.name || '').toLowerCase().includes('واي فاي');
 
     if (isWifi) {
+      // Live stock guard
+      let isAvailable = false;
+      try {
+        const { getWifiStockSummaryAsync } = await import('./wifiInventoryDb');
+        const summary = await getWifiStockSummaryAsync();
+        const key = `${service.id}:${pkg.id}`;
+        isAvailable = (summary[key]?.available ?? 0) > 0;
+      } catch (e) {
+        console.error('[tg] check wifi stock failed:', e);
+      }
+
+      if (!isAvailable) {
+        await answerCallbackQuery(cqId, '⚠️ كارتا تۈگەپ كەتتى، يېقىندا قوشۇلىدۇ!', true);
+        const outPrompt = `
+╭━━━ ⚠️ <b>كارتا تۈگەپ كەتتى</b> ━━━╮
+
+📶 <b>تور نامى:</b> ${sName}
+📦 <b>كارتىنىڭ بولىقى:</b> <b>${pTitle}</b>
+
+❌ <b>ھازىر بۇ كارتىنىڭ ئامبار قالدۇقى تۈگەپ كەتتى!</b>
+✨ مەسئۇللار تەرىپىدىن يېڭى كارتىلار <b>يېقىندا قوشۇلىدۇ</b>، سەل تەخىر قىلىڭ ياكى باشقا بولاقنى تاللاڭ.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`.trim();
+        await showOrEditMessage(chatId, messageId, outPrompt, {
+          inline_keyboard: [
+            [{ text: '↩️ باشقا بولاقلارنى كۆرۈش', callback_data: `tgserv:${service.id}` }],
+            [{ text: '🏠 دۇكان بۆلۈملىرىگە قايتىش', callback_data: 'tg_shop_categories' }],
+          ],
+        });
+        return true;
+      }
       botOrderSessions.set(fromId, {
         step: 'ready_to_confirm',
         serviceId: service.id,
@@ -951,7 +1080,7 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
         await showOrEditMessage(
           chatId,
           messageId,
-          `⚠️ <b>كەچۈرۈڭ، بۇ Wi-Fi كارتىسىدىن ئامباردا قالمىدى (تۈگەپ كەتتى).</b>\n\nھېساباتىڭىزدىن پۇل تۇتۇلمىدى. باشقۇرغۇچى توربەتتىن يېڭى كارتا كىرگۈزگەندە دەرھال سېتىۋالالايسىز.`,
+          `⚠️ <b>كارتا تۈگەپ كەتتى، يېقىندا قوشۇلىدۇ!</b>\n\nھازىر بۇ كارتىنىڭ ئامبار قالدۇقى تۈگەپ كەتتى. ھېساباتىڭىزدىن ھېچقانداق پۇل تۇتۇلمىدى. يېقىندا يېڭى كارتىلار قوشۇلىدۇ، سەل تەخىر قىلىڭ ياكى باشقا بولاقنى تاللاڭ.`,
           {
             inline_keyboard: [[{ text: '🔙 دۇكانغا قايتىش ↩️', callback_data: 'tg_shop_categories' }]],
           }

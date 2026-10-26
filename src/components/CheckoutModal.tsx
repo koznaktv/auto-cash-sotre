@@ -34,6 +34,16 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
   const { lang, t, isRTL, translatePackageTitle, translateInputLabel, translateInputPlaceholder } = useLanguage();
 
   const isProvider = Boolean(service && (service.source === 'provider' || service.id.startsWith('s4g-')));
+  const isWifiService = Boolean(
+    service &&
+      (service.category === 'wifi' ||
+        service.id === 'fursan_net' ||
+        service.id === 'azez_net' ||
+        service.id === 'almujahid_net' ||
+        (service.name || '').toLowerCase().includes('wifi') ||
+        (service.name || '').toLowerCase().includes('واي فاي'))
+  );
+
   const [detail, setDetail] = useState<ServiceItem | null>(service || null);
   const [detailError, setDetailError] = useState('');
   const [selectedPkgId, setSelectedPkgId] = useState('');
@@ -48,6 +58,8 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
   const [confirmTotal, setConfirmTotal] = useState<number | null>(null);
   const [buttonState, setButtonState] = useState<'idle' | 'loading' | 'success'>('idle');
   const [purchasedWifiCard, setPurchasedWifiCard] = useState<any | null>(null);
+  const [wifiStockMap, setWifiStockMap] = useState<Record<string, number> | null>(null);
+  const [loadingStock, setLoadingStock] = useState(false);
   const isSubmittingRef = useRef(false);
   const touchStartXRef = useRef<number | null>(null);
   const touchStartYRef = useRef<number | null>(null);
@@ -126,6 +138,33 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
     }
   }, [service, isProvider]);
 
+  // Fetch real-time Wi-Fi inventory stock
+  useEffect(() => {
+    if (!isWifiService || !service) return;
+    let active = true;
+    setLoadingStock(true);
+    fetch(`/api/catalog/wifi-stock?_t=${Date.now()}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!active || !data?.success || !data?.stock) return;
+        const map: Record<string, number> = {};
+        for (const [key, val] of Object.entries<any>(data.stock)) {
+          const [servId, pkgId] = key.split(':');
+          if (servId === service.id && pkgId) {
+            map[pkgId] = Number(val?.available || 0);
+          }
+        }
+        setWifiStockMap(map);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setLoadingStock(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [isWifiService, service?.id]);
+
   const subCategories = detail?.subCategories || service?.subCategories || [];
   const [activeSubCatId, setActiveSubCatId] = useState<string>(() => {
     const subs = service?.subCategories || [];
@@ -153,12 +192,37 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
     return filtered.length > 0 ? filtered : allPackages;
   }, [allPackages, activeSubCat]);
 
+  const isPkgOutOfStock = (pkg: ServicePackage): boolean => {
+    if (pkg.available === false) return true;
+    if (isWifiService && wifiStockMap !== null) {
+      return (wifiStockMap[pkg.id] ?? 0) <= 0;
+    }
+    return false;
+  };
+
+  const getPkgStockCount = (pkgId: string): number | null => {
+    if (!isWifiService || wifiStockMap === null) return null;
+    return wifiStockMap[pkgId] ?? 0;
+  };
+
+  const allWifiOutOfStock = useMemo(() => {
+    if (!isWifiService || wifiStockMap === null || !packages.length) return false;
+    return packages.every((p) => (wifiStockMap[p.id] ?? 0) <= 0);
+  }, [isWifiService, wifiStockMap, packages]);
+
   useEffect(() => {
     if (!packages.length) return;
-    if (!packages.some((p) => p.id === selectedPkgId)) {
-      setSelectedPkgId((packages.find((p) => p.available !== false) || packages[0]).id);
+    const current = packages.find((p) => p.id === selectedPkgId);
+    const isCurrentOut = current ? isPkgOutOfStock(current) : true;
+    if (!current || isCurrentOut) {
+      const firstInStock = packages.find((p) => !isPkgOutOfStock(p));
+      if (firstInStock) {
+        setSelectedPkgId(firstInStock.id);
+      } else if (!current) {
+        setSelectedPkgId(packages[0].id);
+      }
     }
-  }, [packages, selectedPkgId]);
+  }, [packages, selectedPkgId, wifiStockMap]);
 
   const selectedPkg = packages.find((p) => p.id === selectedPkgId);
 
@@ -244,6 +308,18 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
       });
       const data = await res.json();
 
+      if (res.status === 409 && data.outOfStock) {
+        setErrorMsg(
+          data.message ||
+            (lang === 'ug'
+              ? '⚠️ كارتا تۈگەپ كەتتى، يېقىندا قوشۇلىدۇ'
+              : lang === 'ar'
+              ? '⚠️ نفدت البطاقات، سيتم التوفير قريباً'
+              : '⚠️ Out of stock, coming soon')
+        );
+        setButtonState('idle');
+        return;
+      }
       if (res.status === 409 && data.priceChanged && typeof data.newTotal === 'number') {
         setConfirmTotal(data.newTotal);
         setErrorMsg(data.message || t('priceChanged'));
@@ -303,8 +379,17 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
     }
 
     // For Wi-Fi Local Voucher Cards
-    const isWifiService = service.category === 'wifi' || service.id === 'fursan_net' || service.id === 'azez_net';
     if (isWifiService) {
+      if (selectedPkg && isPkgOutOfStock(selectedPkg)) {
+        setErrorMsg(
+          lang === 'ug'
+            ? '⚠️ كارتا تۈگەپ كەتتى، يېقىندا قوشۇلىدۇ'
+            : lang === 'ar'
+            ? '⚠️ نفدت البطاقات، سيتم التوفير قريباً'
+            : '⚠️ Out of stock, coming soon'
+        );
+        return;
+      }
       await submitOrder(selectedPkg.price, 'Wi-Fi كارتىسى');
       return;
     }
@@ -570,6 +655,31 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
             {/* Package Selection */}
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-2">{t('selectPackageLabel')}</label>
+
+              {allWifiOutOfStock && (
+                <div className="mb-3 p-3 bg-rose-950/70 border border-rose-500/50 rounded-xl flex items-center gap-3 text-rose-200 text-xs shadow-md">
+                  <div className="w-8 h-8 rounded-lg bg-rose-600/40 border border-rose-500/50 text-rose-200 flex items-center justify-center font-bold text-base shrink-0">
+                    ⚠️
+                  </div>
+                  <div className="space-y-0.5">
+                    <div className="font-bold text-rose-300 text-xs font-alkatip">
+                      {lang === 'ug'
+                        ? 'كارتا تۈگەپ كەتتى، يېقىندا قوشۇلىدۇ'
+                        : lang === 'ar'
+                        ? 'نفدت البطاقات، سيتم التوفير قريباً'
+                        : 'Cards out of stock, coming soon'}
+                    </div>
+                    <div className="text-[11px] text-rose-200/90 font-alkatip leading-relaxed">
+                      {lang === 'ug'
+                        ? 'بۇ تورنىڭ بارلىق كارتىلىرى ھازىر تۈگەپ كەتتى، باشقۇرغۇچى تەرىپىدىن يېقىندا يېڭى كارتىلار تولۇقلىنىدۇ.'
+                        : lang === 'ar'
+                        ? 'تم نفاد جميع كروت هذه الشبكة حالياً. سيتم تزويد كروت جديدة قريباً.'
+                        : 'All cards for this network are currently sold out and will be replenished soon.'}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {packages.length > PACKAGE_SEARCH_THRESHOLD && (
                 <div className="relative mb-2">
                   <Search className={`w-3.5 h-3.5 text-slate-500 absolute top-1/2 -translate-y-1/2 ${isRTL ? 'right-3' : 'left-3'}`} />
@@ -585,18 +695,19 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
               <div className="grid grid-cols-1 gap-2 max-h-56 overflow-y-auto pr-1">
                 {visiblePackages.map((pkg) => {
                   const isSelected = pkg.id === selectedPkgId;
-                  const unavailable = pkg.available === false;
+                  const outOfStock = isPkgOutOfStock(pkg);
+                  const stockCount = getPkgStockCount(pkg.id);
                   return (
                     <button
                       key={pkg.id}
                       type="button"
-                      disabled={unavailable}
-                      onClick={() => setSelectedPkgId(pkg.id)}
+                      disabled={outOfStock}
+                      onClick={() => !outOfStock && setSelectedPkgId(pkg.id)}
                       className={`flex items-center justify-between p-3 rounded-xl border text-sm transition ${
                         isRTL ? 'text-right' : 'text-left'
                       } ${
-                        unavailable
-                          ? 'opacity-40 cursor-not-allowed bg-slate-800/20 border-slate-800 text-slate-500'
+                        outOfStock
+                          ? 'opacity-60 cursor-not-allowed bg-rose-950/20 border-rose-900/40 text-slate-400'
                           : isSelected
                           ? 'bg-cyan-950/40 border-cyan-500/80 text-white shadow-sm shadow-cyan-500/10'
                           : 'bg-slate-800/40 border-slate-800 hover:border-slate-700 text-slate-300'
@@ -605,14 +716,30 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                       <div className="flex items-center gap-2">
                         <div
                           className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
-                            isSelected ? 'border-cyan-400 bg-cyan-400' : 'border-slate-600'
+                            outOfStock
+                              ? 'border-rose-800 bg-rose-950/50'
+                              : isSelected
+                              ? 'border-cyan-400 bg-cyan-400'
+                              : 'border-slate-600'
                           }`}
                         >
-                          {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />}
+                          {isSelected && !outOfStock && <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />}
                         </div>
-                        <span className="font-medium">{translatePackageTitle(pkg.title)}</span>
-                        {unavailable ? (
-                          <span className="text-[11px] bg-slate-800 px-2 py-0.5 rounded text-slate-400">{t('outOfStock')}</span>
+                        <span className={`font-medium ${outOfStock ? 'line-through text-slate-400' : ''}`}>
+                          {translatePackageTitle(pkg.title)}
+                        </span>
+                        {outOfStock ? (
+                          <span className="text-[10px] sm:text-[11px] bg-rose-950/90 border border-rose-500/50 text-rose-300 px-2 py-0.5 rounded font-bold font-alkatip">
+                            {lang === 'ug'
+                              ? '⚠️ كارتا تۈگەپ كەتتى، يېقىندا قوشۇلىدۇ'
+                              : lang === 'ar'
+                              ? '⚠️ نفدت، قريباً'
+                              : '⚠️ Out of stock, coming soon'}
+                          </span>
+                        ) : stockCount !== null && stockCount > 0 ? (
+                          <span className="text-[10px] sm:text-[11px] bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 px-1.5 py-0.5 rounded font-mono font-medium">
+                            قالدۇق: {stockCount}
+                          </span>
                         ) : (
                           pkg.duration && (
                             <span className="text-[11px] bg-slate-800 px-2 py-0.5 rounded text-slate-400">{t('instant')}</span>
@@ -761,14 +888,30 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                   </div>
                 ) : (
                   <div>
-                    {service.category === 'wifi' ? (
-                      <div className="p-3.5 bg-emerald-950/40 border border-emerald-500/40 rounded-xl flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg shrink-0">
-                          📶
+                    {isWifiService ? (
+                      <div className={`p-3.5 rounded-xl border flex items-center gap-3 transition-colors ${
+                        selectedPkg && isPkgOutOfStock(selectedPkg)
+                          ? 'bg-rose-950/40 border-rose-500/40 text-rose-200'
+                          : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-200'
+                      }`}>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg shrink-0 ${
+                          selectedPkg && isPkgOutOfStock(selectedPkg) ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'
+                        }`}>
+                          {selectedPkg && isPkgOutOfStock(selectedPkg) ? '⚠️' : '📶'}
                         </div>
-                        <div className="text-xs text-emerald-200 space-y-0.5">
-                          <div className="font-bold text-white">Wi-Fi رەقەملىك ئامبار كارتىسى</div>
-                          <div>نومۇر كىرگۈزۈش ھاجەتسىز. كارتىنى تاللاپ «سېتىۋېلىش» نى باسسىڭىزلا سىستېما نومۇر ۋە پارولنى دەرھال چىقىرىپ بېرىدۇ.</div>
+                        <div className="text-xs space-y-0.5">
+                          <div className="font-bold text-white font-alkatip">
+                            {selectedPkg && isPkgOutOfStock(selectedPkg)
+                              ? (lang === 'ug' ? 'بۇ كارتىنىڭ ئامبار قالدۇقى قالمىدى' : 'هذه البطاقة غير متوفرة بالمخزون حالياً')
+                              : 'Wi-Fi رەقەملىك ئامبار كارتىسى'}
+                          </div>
+                          <div className="font-alkatip leading-relaxed text-[11px]">
+                            {selectedPkg && isPkgOutOfStock(selectedPkg)
+                              ? (lang === 'ug'
+                                  ? 'بۇ كارتىنىڭ قالدۇقى تۈگەپ كەتتى، يېقىندا قوشۇلىدۇ. باشقا تۈردىكى كارتىلارنى تاللاڭ ياكى تەخىر قىلىڭ.'
+                                  : 'نفدت هذه الفئة من الكروت حالياً، سيتم توفيرها قريباً.')
+                              : 'نومۇر كىرگۈزۈش ھاجەتسىز. كارتىنى تاللاپ «سېتىۋېلىش» نى باسسىڭىزلا سىستېما نومۇر ۋە پارولنى دەرھال چىقىرىپ بېرىدۇ.'}
+                          </div>
                         </div>
                       </div>
                     ) : (
@@ -891,10 +1034,24 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                 >
                   {t('done')}
                 </button>
+              ) : selectedPkg && isPkgOutOfStock(selectedPkg) ? (
+                <button
+                  type="button"
+                  disabled
+                  className="flex items-center gap-2 bg-rose-950/70 border border-rose-600/70 text-rose-300 font-bold px-4 py-2.5 rounded-xl shadow-lg text-xs sm:text-sm cursor-not-allowed opacity-90 font-alkatip"
+                >
+                  <span>
+                    {lang === 'ug'
+                      ? '⚠️ كارتا تۈگەپ كەتتى، يېقىندا قوشۇلىدۇ'
+                      : lang === 'ar'
+                      ? '⚠️ نفدت البطاقات، سيتم التوفير قريباً'
+                      : '⚠️ Out of stock, coming soon'}
+                  </span>
+                </button>
               ) : (
                 <AnimatedOrderButton
                   status={buttonState}
-                  disabled={loading || isSubmittingRef.current || !selectedPkg || selectedPkg.available === false}
+                  disabled={loading || isSubmittingRef.current || !selectedPkg || isPkgOutOfStock(selectedPkg)}
                   label={
                     confirmTotal !== null
                       ? `${t('confirmNewPrice')} ($${formatSmartPrice(confirmTotal)})`
