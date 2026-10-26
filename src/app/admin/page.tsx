@@ -3124,7 +3124,7 @@ export default function AdminPage() {
               {activeTab === 'users' && 'ئەزالار ۋە ئىشلەتكۈچىلەر باشقۇرۇش'}
               {activeTab === 'finance' && 'پۇل مۇئامىلە ۋە كىرىم ئانالىزى'}
               {activeTab === 'settings' && 'سىستېما تەڭشەكلىرى'}
-              {activeTab === 'wifi' && 'Wi-Fi كارتىلار ئامبىرى (Fursan & Azez)'}
+              {activeTab === 'wifi' && 'Wi-Fi كارتىلار ئامبىرى (Fursan, Azez & Mujahid)'}
             </h2>
           </div>
 

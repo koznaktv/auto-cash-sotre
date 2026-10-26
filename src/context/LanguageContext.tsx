@@ -1816,6 +1816,14 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
 };
 
 const CATEGORY_NAMES: Record<string, Record<Language, string>> = {
+  wifi: {
+    ug: 'Wi-Fi تور كارتىلىرى',
+    en: 'Wi-Fi Cards',
+    ar: 'بطاقات واي فاي',
+    tr: 'Wi-Fi Kartları',
+    uz: 'Wi-Fi kartalari',
+    ru: 'Wi-Fi Карты',
+  },
   games: {
     ug: 'ئويۇنلار',
     en: 'Games',
@@ -1891,6 +1899,14 @@ const CATEGORY_NAMES: Record<string, Record<Language, string>> = {
 };
 
 const CATEGORY_COUNTS: Record<string, Record<Language, string>> = {
+  wifi: {
+    ug: 'تېز كارتىلار',
+    en: 'Voucher Cards',
+    ar: 'شبكات واي فاي',
+    tr: 'Hızlı Kartlar',
+    uz: 'Tezkor kartalar',
+    ru: 'Быстрые карты',
+  },
   games: {
     ug: '117 ئويۇن',
     en: '117 Games',

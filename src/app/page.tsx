@@ -426,7 +426,8 @@ export default function HomePage() {
   const [categories, setCategories] = useState<any[]>(() => {
     if (typeof window !== 'undefined') {
       try {
-        const cachedCats = localStorage.getItem('autocash_cached_categories_v2');
+        localStorage.removeItem('autocash_cached_categories_v2');
+        const cachedCats = localStorage.getItem('autocash_cached_categories_v3');
         if (cachedCats) {
           const parsedCats = JSON.parse(cachedCats);
           if (Array.isArray(parsedCats) && parsedCats.length > 0) {
@@ -436,6 +437,15 @@ export default function HomePage() {
               }
               if (c.id === 'cards' && (c.name === 'كارتىلار ۋە VCC' || c.name === 'كارتىلار' || !c.name.includes('تىلفۇن'))) {
                 return { ...c, name: 'تىلفۇن كارتىلىرىغا پۇل قاچىلاش', count: 'Turkcell', image: '/images/services/turkcell.jpg' };
+              }
+              if (c.id === 'wifi') {
+                return {
+                  ...c,
+                  name: 'Wi-Fi تور كارتىلىرى',
+                  icon: 'Wifi',
+                  count: 'شبكات واي فاي',
+                  image: 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg',
+                };
               }
               return c;
             });
@@ -481,11 +491,21 @@ export default function HomePage() {
             if (c.id === 'cards' && (c.name === 'كارتىلار ۋە VCC' || c.name === 'كارتىلار' || !c.name.includes('تىلفۇن'))) {
               return { ...c, name: 'تىلفۇن كارتىلىرىغا پۇل قاچىلاش', count: 'Turkcell', image: '/images/services/turkcell.jpg' };
             }
+            if (c.id === 'wifi') {
+              return {
+                ...c,
+                name: 'Wi-Fi تور كارتىلىرى',
+                icon: 'Wifi',
+                count: 'شبكات واي فاي',
+                image: 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg',
+              };
+            }
             return c;
           });
           setCategories(mappedCats);
           try {
-            localStorage.setItem('autocash_cached_categories_v2', JSON.stringify(mappedCats));
+            localStorage.setItem('autocash_cached_categories_v3', JSON.stringify(mappedCats));
+            localStorage.removeItem('autocash_cached_categories_v2');
           } catch {}
         }
       })
@@ -529,11 +549,21 @@ export default function HomePage() {
             if (c.id === 'cards' && (c.name === 'كارتىلار ۋە VCC' || c.name === 'كارتىلار' || !c.name.includes('تىلفۇن'))) {
               return { ...c, name: 'تىلفۇن كارتىلىرىغا پۇل قاچىلاش', count: 'Turkcell', image: '/images/services/turkcell.jpg' };
             }
+            if (c.id === 'wifi') {
+              return {
+                ...c,
+                name: 'Wi-Fi تور كارتىلىرى',
+                icon: 'Wifi',
+                count: 'شبكات واي فاي',
+                image: 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg',
+              };
+            }
             return c;
           });
           setCategories(mappedCats);
           try {
-            localStorage.setItem('autocash_cached_categories_v2', JSON.stringify(mappedCats));
+            localStorage.setItem('autocash_cached_categories_v3', JSON.stringify(mappedCats));
+            localStorage.removeItem('autocash_cached_categories_v2');
           } catch {}
         }
       })
@@ -580,17 +610,37 @@ export default function HomePage() {
   const effectiveCategories = useMemo(() => {
     const map = new Map<string, any>();
     for (const c of categories) {
-      map.set(c.id, c);
+      if (c.id === 'wifi') {
+        map.set(c.id, {
+          ...c,
+          name: c.name && c.name !== 'wifi' ? c.name : 'Wi-Fi تور كارتىلىرى',
+          icon: 'Wifi',
+          count: 'شبكات واي فاي',
+          image: 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg',
+        });
+      } else {
+        map.set(c.id, c);
+      }
     }
     for (const s of services) {
       if (s.category && !map.has(s.category)) {
-        map.set(s.category, {
-          id: s.category,
-          name: s.category,
-          icon: 'Package',
-          count: 'مەھسۇلاتلار',
-          image: '/brand_logo.png?v=2.1.0',
-        });
+        if (s.category === 'wifi') {
+          map.set(s.category, {
+            id: 'wifi',
+            name: 'Wi-Fi تور كارتىلىرى',
+            icon: 'Wifi',
+            count: 'شبكات واي فاي',
+            image: 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg',
+          });
+        } else {
+          map.set(s.category, {
+            id: s.category,
+            name: s.category,
+            icon: 'Package',
+            count: 'مەھسۇلاتلار',
+            image: '/brand_logo.png?v=2.1.0',
+          });
+        }
       }
     }
     return Array.from(map.values());
@@ -946,7 +996,7 @@ export default function HomePage() {
                     {/* Category Background Image */}
                     <div className="absolute inset-0 z-0 bg-slate-900">
                       <img
-                        src={cat.image}
+                        src={cat.id === 'wifi' ? 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg' : cat.image}
                         loading="eager"
                         decoding="async"
                         alt={getCategoryName(cat.id, cat.name)}
@@ -954,7 +1004,12 @@ export default function HomePage() {
                           isTransitioning ? 'opacity-100 scale-105' : 'opacity-80 group-hover:opacity-100 group-hover:scale-105'
                         }`}
                         onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).src = '/brand_logo.png?v=2.1.0';
+                          const target = e.currentTarget as HTMLImageElement;
+                          if (cat.id === 'wifi' && target.src !== '/images/services/wifi_cards.jpg') {
+                            target.src = '/images/services/wifi_cards.jpg';
+                            return;
+                          }
+                          target.src = '/brand_logo.png?v=2.1.0';
                         }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#030a14]/90 via-[#030a14]/40 to-transparent" />

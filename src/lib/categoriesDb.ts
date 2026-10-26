@@ -92,6 +92,23 @@ export function getCategoriesList(): CategoryItem[] {
     const parsed = JSON.parse(content);
     if (Array.isArray(parsed)) {
       const filtered = parsed.filter((c) => !deleted.has(c.id));
+      const hasWifi = filtered.some((c: any) => c.id === 'wifi');
+      if (!hasWifi && !deleted.has('wifi')) {
+        filtered.unshift({
+          id: 'wifi',
+          name: 'Wi-Fi تور كارتىلىرى',
+          icon: 'Wifi',
+          count: 'شبكات واي فاي',
+          image: 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg',
+        });
+      } else {
+        const wf = filtered.find((c: any) => c.id === 'wifi');
+        if (wf) {
+          wf.image = 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg';
+          if (!wf.name || wf.name === 'wifi') wf.name = 'Wi-Fi تور كارتىلىرى';
+          if (!wf.icon) wf.icon = 'Wifi';
+        }
+      }
       cachedCategories = filtered;
       return [...filtered];
     }
@@ -145,8 +162,33 @@ export async function getCategoriesListAsync(): Promise<CategoryItem[]> {
                   image: '/images/services/turkcell.jpg',
                 };
               }
+              if (c.id === 'wifi') {
+                if (c.image !== 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg' || c.name === 'wifi' || !c.name) {
+                  updated = true;
+                  return {
+                    ...c,
+                    name: 'Wi-Fi تور كارتىلىرى',
+                    icon: 'Wifi',
+                    count: 'شبكات واي فاي',
+                    image: 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg',
+                  };
+                }
+              }
               return c;
             });
+
+          const wifiItem = clean.find((c) => c.id === 'wifi');
+          if (!wifiItem && !deleted.has('wifi')) {
+            updated = true;
+            clean.unshift({
+              id: 'wifi',
+              name: 'Wi-Fi تور كارتىلىرى',
+              icon: 'Wifi',
+              count: 'شبكات واي فاي',
+              image: 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg',
+            });
+          }
+
           const gamesItem = clean.find((c) => c.id === 'games');
           const cleanSorted = gamesItem
             ? [...clean.filter((c) => c.id !== 'games'), gamesItem]
