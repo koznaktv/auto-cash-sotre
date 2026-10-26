@@ -206,9 +206,15 @@ export function getServicesForCategory(catKey: string): ServiceItem[] {
   if (catKey === 'accounts') {
     return all.filter((s) => s.category === 'accounts' || s.category === 'ai');
   }
-  if (catKey === 'balance') {
-    // Wi-Fi category left empty for upcoming additions
-    return all.filter((s) => s.category === 'balance');
+  if (catKey === 'balance' || catKey === 'wifi') {
+    return all.filter(
+      (s) =>
+        s.category === 'wifi' ||
+        s.category === 'balance' ||
+        s.id === 'fursan_net' ||
+        s.id === 'azez_net' ||
+        s.id === 'almujahid_net'
+    );
   }
   if (catKey === 'cards') {
     return all.filter(
@@ -778,6 +784,50 @@ ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━�
     );
 
     const cleanPkgTitle = cleanPackageLabel(pkg.title || '', service.id, service.name);
+    const sName = formatCleanGameBaseName(service.id, service.name);
+    const pTitle = cleanPkgTitle;
+
+    const isWifi =
+      service.category === 'wifi' ||
+      service.id === 'fursan_net' ||
+      service.id === 'azez_net' ||
+      service.id === 'almujahid_net' ||
+      (service.name || '').toLowerCase().includes('wifi') ||
+      (service.name || '').toLowerCase().includes('واي فاي');
+
+    if (isWifi) {
+      botOrderSessions.set(fromId, {
+        step: 'ready_to_confirm',
+        serviceId: service.id,
+        serviceName: service.name,
+        pkgId: pkg.id,
+        pkgTitle: cleanPkgTitle,
+        price: Number(pkg.price),
+        targetAccount: 'Wi-Fi كارتىسى',
+        requiresZoneId: false,
+        timestamp: Date.now(),
+      });
+      if (chatId) botOrderSessions.set(chatId, botOrderSessions.get(fromId)!);
+
+      const confirmPrompt = `
+╭━━━ ⚡️ <b>Wi-Fi كارتىسىنى سېتىۋېلىش</b> ━━━╮
+
+📶 <b>تور نامى:</b> ${sName}
+📦 <b>كارتىنىڭ بولىقى:</b> <b>${pTitle}</b>
+💰 <b>كارتىنىڭ باھاسى:</b> <b>$${Number(pkg.price).toFixed(2)} USD</b>
+💳 <b>قالدۇقىڭىز:</b> <b>$${Number(user.balance || 0).toFixed(2)} USD</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 <b>ئەسكەرتىش:</b> «سېتىۋېلىش» نى باسسىڭىز، مەركىزى ئامباردىن بىر كارتا تۇتۇلۇپ، 👤 اسم المستخدم (Username) ۋە 🔑 كلمة المرور (Password) دەرھال چىقىپ بېرىدۇ.
+`.trim();
+
+      await showOrEditMessage(chatId, messageId, confirmPrompt, {
+        inline_keyboard: [
+          [{ text: '✅ كارتىنى سېتىۋېلىش ⚡️', callback_data: 'tg_confirm_buy' }],
+          [{ text: '❌ بىكار قىلىش ↩️', callback_data: `tgserv:${service.id}` }],
+        ],
+      });
+      return true;
+    }
 
     botOrderSessions.set(fromId, {
       step: 'awaiting_target_account',
@@ -792,9 +842,6 @@ ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━�
       timestamp: Date.now(),
     });
     if (chatId) botOrderSessions.set(chatId, botOrderSessions.get(fromId)!);
-
-    const sName = formatCleanGameBaseName(service.id, service.name);
-    const pTitle = cleanPkgTitle;
 
     const header = lang === 'ar' ? 'إدخال بيانات الطلب' :
                    lang === 'tr' ? 'Sipariş Bilgilerini Girin' :
@@ -881,6 +928,38 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
     const orderId = randomId('ORD');
     const targetAccFull = `${session.targetAccount || ''}${session.zoneId ? ` (Zone: ${session.zoneId})` : ''}`.trim();
 
+    // Wi-Fi Local Stock Check & Pre-Claim for Telegram
+    const isWifiService =
+      session.serviceId === 'fursan_net' ||
+      session.serviceId === 'azez_net' ||
+      session.serviceId === 'almujahid_net' ||
+      (session.serviceName || '').toLowerCase().includes('wifi') ||
+      (session.serviceName || '').toLowerCase().includes('واي فاي');
+
+    let claimedWifiCard: any = null;
+    if (isWifiService) {
+      const { claimAvailableWifiCardAsync } = await import('./wifiInventoryDb');
+      claimedWifiCard = await claimAvailableWifiCardAsync({
+        serviceId: session.serviceId,
+        packageId: session.pkgId,
+        userId: user.id,
+        userEmail: user.email,
+        orderId,
+      });
+
+      if (!claimedWifiCard) {
+        await showOrEditMessage(
+          chatId,
+          messageId,
+          `⚠️ <b>كەچۈرۈڭ، بۇ Wi-Fi كارتىسىدىن ئامباردا قالمىدى (تۈگەپ كەتتى).</b>\n\nھېساباتىڭىزدىن پۇل تۇتۇلمىدى. باشقۇرغۇچى توربەتتىن يېڭى كارتا كىرگۈزگەندە دەرھال سېتىۋالالايسىز.`,
+          {
+            inline_keyboard: [[{ text: '🔙 دۇكانغا قايتىش ↩️', callback_data: 'tg_shop_categories' }]],
+          }
+        );
+        return true;
+      }
+    }
+
     // Pre-flight Live Availability & Wholesale Cost Guard (Telegram Shop)
     if (session.providerProductId) {
       const isOthman = session.serviceId.includes('othman_') || String(session.providerProductId).length < 6;
@@ -930,9 +1009,25 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
       serviceName: session.serviceName,
       packageTitle: session.pkgTitle,
       amount: session.price,
-      targetAccount: targetAccFull || 'Not provided',
+      targetAccount: isWifiService ? 'Wi-Fi كارتىسى' : (targetAccFull || 'Not provided'),
       orderId,
-      details: {
+      details: isWifiService && claimedWifiCard ? {
+        fromTelegram: true,
+        telegramChatId: fromId,
+        telegramUsername: fromUser,
+        wifiCard: {
+          network: session.serviceId === 'fursan_net' ? 'fursan' : (session.serviceId === 'azez_net' ? 'azez' : 'mujahid'),
+          networkName: session.serviceId === 'fursan_net' ? 'شبكة الفرسان' : (session.serviceId === 'azez_net' ? 'شبكة عزيز نت' : 'شبكة المجاهد نت'),
+          networkEn: session.serviceId === 'fursan_net' ? 'FURSAN NET' : (session.serviceId === 'azez_net' ? 'AZEZ . NET' : 'AL MUJAHID NET'),
+          username: claimedWifiCard.username,
+          password: claimedWifiCard.password,
+          cardNumber: claimedWifiCard.cardNumber,
+          packageTitle: session.pkgTitle,
+          price: session.price,
+          purchaseDate: new Date().toISOString().replace('T', ' ').slice(0, 19),
+          validity: '7 كۈن',
+        }
+      } : {
         fromTelegram: true,
         telegramChatId: fromId,
         telegramUsername: fromUser,
@@ -943,13 +1038,27 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
     });
 
     if (!atomicRes.success) {
+      if (isWifiService && claimedWifiCard) {
+        // Unclaim card if balance deduction failed
+        try {
+          const { unclaimWifiCardAsync } = await import('./wifiInventoryDb');
+          await unclaimWifiCardAsync(claimedWifiCard.id);
+        } catch {}
+      }
       await showOrEditMessage(chatId, messageId, `❌ Order failed: ${atomicRes.message}`, {
         inline_keyboard: [[{ text: BOT_I18N.categories.backToCategories[lang] || '🔙 Back', callback_data: 'tg_shop_categories' }]],
       });
       return true;
     }
 
-    const order = atomicRes.order || ({ id: orderId, amount: session.price, status: 'processing' } as any);
+    const order = atomicRes.order || ({ id: orderId, amount: session.price, status: isWifiService ? 'completed' : 'processing' } as any);
+
+    if (isWifiService && claimedWifiCard) {
+      await transitionOrderAsync(order.id, ['processing', 'pending'], 'completed', {
+        adminNotes: `Wi-Fi Card Fulfilled via Telegram: ${claimedWifiCard.cardNumber}`,
+      }).catch(() => {});
+      order.status = 'completed';
+    }
 
     if (session.providerProductId && order?.id) {
       try {
@@ -1038,6 +1147,42 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
       .replace(/\(شەدەن\)/g, '')
       .replace(/\s{2,}/g, ' ')
       .trim();
+
+    if (isWifiService && claimedWifiCard) {
+      const netName =
+        session.serviceId === 'fursan_net'
+          ? 'شبكة الفرسان (Fursan Net)'
+          : session.serviceId === 'azez_net'
+          ? 'شبكة عزيز نت (Azez Net)'
+          : 'شبكة المجاهد نت (Al Mujahid Net)';
+
+      const wifiSuccessReceipt = `
+╭━━━ 🎉 <b>كارتىڭىز تەييار بولدى!</b> ━━━╮
+
+📶 <b>تور نامى:</b> ${netName}
+📦 <b>كارتىنىڭ بولىقى:</b> <b>${pTitle}</b>
+💰 <b>كارتىنىڭ باھاسى:</b> <b>$${session.price.toFixed(2)} USD</b>
+💳 <b>يېڭى قالدۇقىڭىز:</b> <b>$${Number(atomicRes.newBalance ?? 0).toFixed(2)} USD</b>
+🔢 <b>كارتا نومۇرى:</b> <code>${claimedWifiCard.cardNumber}</code>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 <b>اسم المستخدم (Username):</b>
+<code>${claimedWifiCard.username}</code> <i>(نۇسخىلاش ئۈچۈن بىر چېكىڭ 👆)</i>
+
+🔑 <b>كلمة المرور (Password):</b>
+<code>${claimedWifiCard.password}</code> <i>(نۇسخىلاش ئۈچۈن بىر چېكىڭ 👆)</i>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏰ <b>مۇددىتى:</b> 7 كۈن
+💡 <i>بۇ كارتىنىڭ نومۇرى پەقەت سىزگىلا بېرىلدى ۋە ھېساباتىڭىزدا مەڭگۈلۈك ساقلىنىدۇ.</i>
+`.trim();
+
+      await showOrEditMessage(chatId, messageId, wifiSuccessReceipt, {
+        inline_keyboard: [
+          [{ text: BOT_I18N.storeButtons.shopCategories[lang] || '🛍️ يەنە مال سېتىۋېلىش ➔', callback_data: 'tg_shop_categories' }],
+          [{ text: BOT_I18N.categories.backToMain[lang] || '🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
+        ],
+      });
+      return true;
+    }
 
     const successReceipt = `
 ${succTitle}
