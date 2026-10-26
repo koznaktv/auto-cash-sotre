@@ -13,6 +13,10 @@ export interface StoredProviderConfig {
   othmanApiType?: 'syria4game' | 'smm' | 'custom_rest';
   othmanApiSecret?: string;
   othmanEnabled?: boolean;
+  smsProviderType?: 'sms_activate' | '5sim' | 'custom_rest';
+  smsApiUrl?: string;
+  smsApiKey?: string;
+  smsEnabled?: boolean;
 }
 
 const IS_SERVERLESS = Boolean(
@@ -93,6 +97,10 @@ export function loadStoredProviderConfig(): StoredProviderConfig {
           othmanApiType: parsed.othmanApiType || 'syria4game',
           othmanApiSecret: parsed.othmanApiSecret || '',
           othmanEnabled: parsed.othmanEnabled !== false,
+          smsProviderType: parsed.smsProviderType || (process.env.SMS_PROVIDER_TYPE as any) || 'sms_activate',
+          smsApiUrl: (parsed.smsApiUrl || process.env.SMS_API_URL || process.env.SMS_PROVIDER_URL || 'https://api.sms-activate.org/stubs/handler_api.php').trim(),
+          smsApiKey: (parsed.smsApiKey !== undefined ? parsed.smsApiKey : (process.env.SMS_API_KEY || process.env.SMS_PROVIDER_API_KEY || '')).trim(),
+          smsEnabled: parsed.smsEnabled !== undefined ? Boolean(parsed.smsEnabled) : Boolean(process.env.SMS_API_KEY || process.env.SMS_PROVIDER_API_KEY),
         };
         return { ...memoryCachedConfig };
       }
@@ -114,6 +122,10 @@ export function loadStoredProviderConfig(): StoredProviderConfig {
     othmanApiType: 'syria4game',
     othmanApiSecret: '',
     othmanEnabled: true,
+    smsProviderType: (process.env.SMS_PROVIDER_TYPE as any) || 'sms_activate',
+    smsApiUrl: (process.env.SMS_API_URL || process.env.SMS_PROVIDER_URL || 'https://api.sms-activate.org/stubs/handler_api.php').trim(),
+    smsApiKey: (process.env.SMS_API_KEY || process.env.SMS_PROVIDER_API_KEY || '').trim(),
+    smsEnabled: Boolean(process.env.SMS_API_KEY || process.env.SMS_PROVIDER_API_KEY),
   };
 
   // Persist the default file immediately so it doesn't get lost
@@ -185,6 +197,11 @@ export function saveStoredProviderConfig(updates: Partial<StoredProviderConfig>)
     ? updates.activeProvider
     : (current.activeProvider || 'othman');
 
+  const nextSmsType = updates.smsProviderType !== undefined ? updates.smsProviderType : (current.smsProviderType || 'sms_activate');
+  const nextSmsUrl = updates.smsApiUrl !== undefined ? updates.smsApiUrl.trim() : (current.smsApiUrl || 'https://api.sms-activate.org/stubs/handler_api.php');
+  const nextSmsKey = updates.smsApiKey !== undefined ? updates.smsApiKey.trim() : (current.smsApiKey || '');
+  const nextSmsEnabled = updates.smsEnabled !== undefined ? Boolean(updates.smsEnabled) : (current.smsEnabled !== false);
+
   const newConfig: StoredProviderConfig = {
     activeProvider: nextActive,
     providerApiUrl: nextUrl,
@@ -197,6 +214,10 @@ export function saveStoredProviderConfig(updates: Partial<StoredProviderConfig>)
     othmanApiType: nextOthmanType,
     othmanApiSecret: nextOthmanSecret,
     othmanEnabled: nextOthmanEnabled,
+    smsProviderType: nextSmsType,
+    smsApiUrl: nextSmsUrl,
+    smsApiKey: nextSmsKey,
+    smsEnabled: nextSmsEnabled,
   };
 
   memoryCachedConfig = newConfig;
@@ -214,6 +235,8 @@ export function saveStoredProviderConfig(updates: Partial<StoredProviderConfig>)
   }
 
   // 2. Update process.env
+  process.env.SMS_API_URL = nextSmsUrl;
+  if (nextSmsKey) process.env.SMS_API_KEY = nextSmsKey;
   process.env.SAHL_CASH_BASE_URL = nextUrl;
   process.env.SYRIA4GAME_BASE_URL = nextUrl;
   if (nextToken) {

@@ -463,6 +463,36 @@ export default function AdminPage() {
   const [savingProvider, setSavingProvider] = useState<boolean>(false);
   const [providerFeedback, setProviderFeedback] = useState<{ success?: boolean; message?: string } | null>(null);
 
+  // SMS Virtual Numbers Provider State
+  const [smsProviderForm, setSmsProviderForm] = useState<{
+    type: 'sms_activate' | '5sim' | 'custom_rest';
+    baseUrl: string;
+    apiKey: string;
+    enabled: boolean;
+  }>({
+    type: 'sms_activate',
+    baseUrl: 'https://api.sms-activate.org/stubs/handler_api.php',
+    apiKey: '',
+    enabled: true,
+  });
+  const [smsProviderStatus, setSmsProviderStatus] = useState<{
+    success?: boolean;
+    balance?: number | null;
+    currency?: string;
+    userName?: string;
+    error?: string;
+    config?: {
+      type: string;
+      baseUrl: string;
+      apiKey: string;
+      enabled: boolean;
+      hasRealKey: boolean;
+    };
+  } | null>(null);
+  const [checkingSmsProvider, setCheckingSmsProvider] = useState<boolean>(false);
+  const [savingSmsProvider, setSavingSmsProvider] = useState<boolean>(false);
+  const [smsFeedback, setSmsFeedback] = useState<{ success?: boolean; message?: string } | null>(null);
+
   // User Balance & VIP Edit Modal
   const [userModalOpen, setUserModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<SafeUser | null>(null);
@@ -681,6 +711,7 @@ export default function AdminPage() {
 
       // Check external gaming provider (syria4game.com) status in background
       checkProviderLive();
+      checkSmsProviderLive();
     } catch (e) {
       console.error('Error fetching admin data:', e);
     } finally {
@@ -785,6 +816,69 @@ export default function AdminPage() {
       if (!silent) alert(err.message || 'تور كاشىلىسى');
     } finally {
       setLoadingProducts(false);
+    }
+  };
+
+  const checkSmsProviderLive = async () => {
+    setCheckingSmsProvider(true);
+    try {
+      const token = sessionStorage.getItem('autocash_admin_token');
+      const res = await fetch('/api/admin/sms-provider?action=status', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data) {
+        setSmsProviderStatus(data);
+        if (data.config) {
+          setSmsProviderForm((prev) => ({
+            ...prev,
+            type: (data.config.type as any) || prev.type,
+            baseUrl: data.config.baseUrl || prev.baseUrl,
+            enabled: data.config.enabled !== undefined ? data.config.enabled : prev.enabled,
+          }));
+        }
+      }
+    } catch (err) {
+      console.error('SMS provider live check failed:', err);
+    } finally {
+      setCheckingSmsProvider(false);
+    }
+  };
+
+  const handleSaveSmsProviderConfig = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingSmsProvider(true);
+    setSmsFeedback(null);
+    try {
+      const token = sessionStorage.getItem('autocash_admin_token');
+      const payload: any = {
+        smsProviderType: smsProviderForm.type,
+        smsApiUrl: smsProviderForm.baseUrl.trim(),
+        smsEnabled: smsProviderForm.enabled,
+      };
+      if (smsProviderForm.apiKey.trim()) {
+        payload.smsApiKey = smsProviderForm.apiKey.trim();
+      }
+      const res = await fetch('/api/admin/sms-provider', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSmsFeedback({ success: true, message: data.message || 'مەۋھۇم نومۇر API سى مۇۋەپپەقىيەتلىك ئۇلاندى!' });
+        setSmsProviderForm((prev) => ({ ...prev, apiKey: '' }));
+      } else {
+        setSmsFeedback({ success: false, message: data.message || data.error || 'ساقلاندى ئەمما ئۇلىنىش مەغلۇپ بولدى' });
+      }
+      await checkSmsProviderLive();
+    } catch (err: any) {
+      setSmsFeedback({ success: false, message: err?.message || 'تور ئۇلىنىش خاتالىقى' });
+    } finally {
+      setSavingSmsProvider(false);
     }
   };
 
@@ -5916,6 +6010,159 @@ export default function AdminPage() {
               </div>
             </div>
           )}
+
+              {/* ================= SMS VIRTUAL NUMBERS API CARD ================= */}
+              <div className={`p-5 sm:p-6 rounded-2xl ${themeClasses.card} border-2 border-emerald-500/40 bg-gradient-to-r from-[#06201b] to-[#041412] shadow-2xl space-y-5`}>
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-emerald-500/20 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold shadow-lg shadow-emerald-500/20">
+                      <Smartphone className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-base sm:text-lg font-black text-white font-alkatip">
+                          📱 مەۋھۇم نومۇر (SMS Verification) API مەركىزى
+                        </h3>
+                        {smsProviderStatus?.success ? (
+                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/60 text-emerald-300 text-[10px] font-bold">
+                            ئاكتىپ • ئۇلاندى
+                          </span>
+                        ) : (
+                          <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/60 text-amber-300 text-[10px] font-bold">
+                            تەڭشەلمىگەن / كۈتۈۋاتىدۇ
+                          </span>
+                        )}
+                      </div>
+                      <p className={`text-xs ${themeClasses.subtext} mt-0.5 font-alkatip`}>
+                        SMS-Activate, 5sim, Grizzly SMS, Vak-SMS ۋە ئۆلچەملىك دەلىللەش كودى سۇپىلىرىنى ئاپتوماتىك ئۇلاش
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Live Balance & Test Button */}
+                  <div className="flex items-center gap-3 w-full md:w-auto">
+                    <div className="px-4 py-2 rounded-xl bg-slate-900/80 border border-emerald-500/30 text-right">
+                      <span className="text-[10px] text-slate-400 block font-alkatip">تەمىنلىگۈچىدىكى قالدۇق پۇل</span>
+                      <span className="text-sm font-black text-emerald-400 font-mono">
+                        {smsProviderStatus?.balance !== null && smsProviderStatus?.balance !== undefined
+                          ? `${smsProviderStatus.balance} ${smsProviderStatus.currency || 'USD'}`
+                          : '—'}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={checkSmsProviderLive}
+                      disabled={checkingSmsProvider}
+                      className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 cursor-pointer disabled:opacity-50"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${checkingSmsProvider ? 'animate-spin' : ''}`} />
+                      <span>{checkingSmsProvider ? 'سىناۋاتىدۇ...' : 'قالدۇقنى سىناش'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {smsFeedback && (
+                  <div
+                    className={`p-3.5 rounded-xl text-xs font-bold font-alkatip flex items-center gap-2 ${
+                      smsFeedback.success ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                    }`}
+                  >
+                    <span>{smsFeedback.success ? '✅' : '⚠️'}</span>
+                    <span>{smsFeedback.message}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handleSaveSmsProviderConfig} className="space-y-4 pt-1">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Provider Type */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-300 font-alkatip">API پىروتوكولى (Provider Protocol)</label>
+                      <select
+                        value={smsProviderForm.type}
+                        onChange={(e) => setSmsProviderForm({ ...smsProviderForm, type: e.target.value as any })}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-emerald-500 font-mono"
+                      >
+                        <option value="sms_activate">SMS-Activate Protocol (SMS-Activate, Grizzly SMS, SMS-Man, Vak-SMS)</option>
+                        <option value="5sim">5sim REST API (https://5sim.net/v1/)</option>
+                        <option value="custom_rest">Custom JSON REST API</option>
+                      </select>
+                      <p className="text-[10px] text-slate-400 font-alkatip">
+                        كۆپ ساندىكى قىسقا ئۇچۇر توربەتلىرى SMS-Activate نىڭ ئۆلچەملىك handler_api.php نى ئىشلىتىدۇ.
+                      </p>
+                    </div>
+
+                    {/* Enable Toggle */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-300 font-alkatip">مەۋھۇم نومۇر مۇلازىمەت ھالىتى</label>
+                      <div className="flex items-center gap-3 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setSmsProviderForm({ ...smsProviderForm, enabled: !smsProviderForm.enabled })}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer border ${
+                            smsProviderForm.enabled
+                              ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300'
+                              : 'bg-slate-800 border-slate-700 text-slate-400'
+                          }`}
+                        >
+                          <span className={`w-2 h-2 rounded-full ${smsProviderForm.enabled ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`} />
+                          <span>{smsProviderForm.enabled ? 'مۇلازىمەت ئېچىق (Enabled)' : 'مۇلازىمەت تاقاق (Disabled)'}</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Base URL */}
+                    <div className="space-y-1.5 md:col-span-2">
+                      <label className="text-xs font-bold text-slate-300 font-alkatip">API ئاساسىي ئادرېسى (Base URL)</label>
+                      <input
+                        type="text"
+                        value={smsProviderForm.baseUrl}
+                        onChange={(e) => setSmsProviderForm({ ...smsProviderForm, baseUrl: e.target.value })}
+                        placeholder="https://api.sms-activate.org/stubs/handler_api.php"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-emerald-500 font-mono"
+                        dir="ltr"
+                      />
+                    </div>
+
+                    {/* API Key */}
+                    <div className="space-y-1.5 md:col-span-2">
+                      <label className="text-xs font-bold text-slate-300 font-alkatip">
+                        API ئاچقۇچى (API Token / Secret Key)
+                      </label>
+                      <input
+                        type="password"
+                        value={smsProviderForm.apiKey}
+                        onChange={(e) => setSmsProviderForm({ ...smsProviderForm, apiKey: e.target.value })}
+                        placeholder={smsProviderStatus?.config?.hasRealKey ? 'ئىلگىرى كىرگۈزۈلگەن ئاچقۇچ ساقلانغان (ئۆزگەرتىش ئۈچۈن قايتا يېزىڭ)' : 'تەمىنلىگۈچى بەرگەن مەخپىي API ئاچقۇچنى كىرگۈزۈڭ'}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-emerald-500 font-mono"
+                        dir="ltr"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Vercel Environment Variables Tip */}
+                  <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px] text-slate-400 space-y-1 font-alkatip">
+                    <div className="flex items-center gap-1.5 text-cyan-300 font-bold">
+                      <Zap className="w-3.5 h-3.5" />
+                      <span>ۋىرسىل (Vercel) دا مەڭگۈ مۇقىم ساقلاش ئۇسۇلى:</span>
+                    </div>
+                    <p>
+                      باشقۇرۇش كۆزنىكىدىن ساقلىسىڭىزمۇ دەرھال ئىشلەيدۇ. تېخىمۇ مەڭگۈلۈك بولسۇن دېسىڭىز، Vercel Project Settings → <b>Environment Variables</b> بۆلىكىگە بېرىپ <code>SMS_PROVIDER_API_KEY</code> ۋە <code>SMS_PROVIDER_URL</code> قىلىپ قوشۇپ قويسىڭىز، سىستېما سانداندىنمۇ ئۈستۈن كۆرۈپ مەڭگۈ ئوقۇيدۇ.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-3 pt-2">
+                    <button
+                      type="submit"
+                      disabled={savingSmsProvider}
+                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-95 text-white font-bold text-xs transition shadow-lg shadow-emerald-500/20 cursor-pointer disabled:opacity-50 font-alkatip"
+                    >
+                      {savingSmsProvider ? 'ساقلاۋاتىدۇ...' : '💾 مەۋھۇم نومۇر API تەڭشىكىنى ساقلاش'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+
 
           {/* ================= TAB: WI-FI CARDS INVENTORY ================= */}
           {activeTab === 'wifi' && (
