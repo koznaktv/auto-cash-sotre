@@ -34,7 +34,7 @@ const NETWORKS = [
     id: 'azez_net',
     name: 'شبكة عزيز نت (Azez Net)',
     packages: [
-      { id: 'azez_6gb', title: '6 جيجا 7 كۈنلۈك (1 أجهزة)', price: '$0.44' },
+      { id: 'azez_6gb', title: '6 جيجا 7 كۈنلۈك (1 أجهزة)', price: '$0.45' },
       { id: 'azez_4gb', title: '4 جيجا 7 كۈنلۈك (4GB 7 Days)', price: '$0.34' },
       { id: 'azez_2gb', title: '2 جيجا 5 كۈنلۈك (2GB 5 Days)', price: '$0.23' },
       { id: 'azez_1gb', title: '1 جيجا 3 كۈنلۈك (1GB 3 Days)', price: '$0.12' },
