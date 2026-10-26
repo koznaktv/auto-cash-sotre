@@ -643,10 +643,27 @@ export async function getInFlightProviderOrdersAsync(limit = 100): Promise<Order
       .order('created_at', { ascending: true })
       .limit(limit);
     if (error) supabaseFailure('getInFlightProviderOrders', error);
-    return (data || []).map(mapSupabaseOrder).filter((o) => o.details?.providerProductId);
+    return (data || []).map(mapSupabaseOrder).filter((o) =>
+      Boolean(
+        o.details?.providerProductId ||
+          o.details?.providerOrderId ||
+          o.details?.providerOrderUuid ||
+          o.serviceId?.startsWith('s4g-') ||
+          o.serviceId?.includes('othman')
+      )
+    );
   }
   return ensureDbFile()
-    .orders.filter((o) => (o.status === 'pending_provider' || o.status === 'processing') && o.details?.providerProductId)
+    .orders.filter((o) =>
+      Boolean(
+        (o.status === 'pending_provider' || o.status === 'processing') &&
+          (o.details?.providerProductId ||
+            o.details?.providerOrderId ||
+            o.details?.providerOrderUuid ||
+            o.serviceId?.startsWith('s4g-') ||
+            o.serviceId?.includes('othman'))
+      )
+    )
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
     .slice(0, limit);
 }

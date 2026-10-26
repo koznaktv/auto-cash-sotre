@@ -56,8 +56,8 @@ function getProviderForOrder(order: OrderRecord): Syria4GameProvider {
 function isDue(order: OrderRecord, force: boolean): boolean {
   if (force) return true;
   const age = Date.now() - new Date(order.createdAt).getTime();
-  // Fresh orders under 3 minutes are ALWAYS due for lightning checking!
-  if (age < 3 * 60 * 1000) return true;
+  // Fresh orders under 5 minutes are ALWAYS due for lightning checking!
+  if (age < 5 * 60 * 1000) return true;
   if (order.status === 'processing' && age < STALE_PROCESSING_MS) return false;
   const next = order.details?.providerNextCheckAt;
   return !next || new Date(next).getTime() <= Date.now();
@@ -72,8 +72,16 @@ export async function pollProviderOrders(options: {
   housekeeping?: boolean;
 }): Promise<PollSummary> {
   const summary: PollSummary = { checked: 0, completed: 0, refunded: 0, pending: 0, needsReview: 0 };
+  const isTargeted = Boolean(options.force || options.onlyUserId || options.orderIds?.length);
   const holder = crypto.randomUUID();
-  if (!(await acquireLock('poll-orders', 120, holder))) return { ...summary, skipped: true };
+  let acquiredLock = false;
+
+  // Only global cron / housekeeping runs acquire the global 120s lock.
+  // On-demand buyer refreshes must NEVER be blocked by the cron lock!
+  if (!isTargeted) {
+    acquiredLock = await acquireLock('poll-orders', 120, holder);
+    if (!acquiredLock) return { ...summary, skipped: true };
+  }
 
   try {
     const settings = await getProviderSettings();
@@ -82,7 +90,16 @@ export async function pollProviderOrders(options: {
     let orders: OrderRecord[];
     if (options.orderIds?.length) {
       orders = (await Promise.all(options.orderIds.map((id) => getOrderByIdAsync(id)))).filter(
-        (o): o is OrderRecord => Boolean(o && IN_FLIGHT.includes(o.status) && o.details?.providerProductId)
+        (o): o is OrderRecord =>
+          Boolean(
+            o &&
+              IN_FLIGHT.includes(o.status) &&
+              (o.details?.providerProductId ||
+                o.details?.providerOrderId ||
+                o.details?.providerOrderUuid ||
+                o.serviceId?.startsWith('s4g-') ||
+                o.serviceId?.includes('othman'))
+          )
       );
     } else {
       orders = await getInFlightProviderOrdersAsync(options.limit || 100);
@@ -310,6 +327,8 @@ export async function pollProviderOrders(options: {
     }
     return summary;
   } finally {
-    await releaseLock('poll-orders', holder).catch(() => {});
+    if (acquiredLock) {
+      await releaseLock('poll-orders', holder).catch(() => {});
+    }
   }
 }

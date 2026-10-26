@@ -37,9 +37,18 @@ export async function GET(req: Request) {
     let orders = await getOrdersByUserIdAsync(user.id, user.email);
 
     // Opportunistic status refresh for this buyer's in-flight provider orders (cron may be infrequent)
-    if (orders.some((o) => isOrderInProgress(o.status) && o.details?.providerProductId)) {
-      const summary = await pollProviderOrders({ deadlineMs: Date.now() + 4500, limit: 10, onlyUserId: user.id, force: true }).catch(() => null);
-      if (summary && summary.checked > 0) orders = await getOrdersByUserIdAsync(user.id, user.email);
+    const inFlightOrders = orders.filter((o) => isOrderInProgress(o.status));
+    if (inFlightOrders.length > 0) {
+      const summary = await pollProviderOrders({
+        deadlineMs: Date.now() + 5000,
+        limit: 15,
+        onlyUserId: user.id,
+        orderIds: inFlightOrders.map((o) => o.id),
+        force: true,
+      }).catch(() => null);
+      if (summary && (summary.checked > 0 || summary.completed > 0 || summary.refunded > 0)) {
+        orders = await getOrdersByUserIdAsync(user.id, user.email);
+      }
     }
 
     return NextResponse.json({ success: true, orders: orders.map(toBuyerOrder) });
@@ -349,19 +358,46 @@ export async function POST(req: Request) {
             ...(parsedGameAccount.zoneId ? { zoneId: parsedGameAccount.zoneId } : {}),
             ...(fields && typeof fields === 'object' ? fields : {}),
           };
+          const orderUuid = generateUUIDv4();
           const providerRes = await activeProvider.createOrder({
             productId: pkg.providerProductId,
-            orderUuid: generateUUIDv4(),
+            orderUuid,
             qty: targetQty,
             params: targetParams,
             orderId: order.id,
           });
+          const now = new Date().toISOString();
           if (providerRes.outcome === 'accepted' || providerRes.status === 'COMPLETED' || providerRes.status === 'PENDING') {
-            await transitionOrderAsync(order.id, ['processing', 'pending'], providerRes.status === 'COMPLETED' ? 'completed' : 'pending_provider', {
+            const completed = providerRes.status === 'COMPLETED';
+            const deliv = providerRes.delivery;
+            const replyMsg = providerRes.message || deliv?.reply || deliv?.text;
+            const activationUrl = deliv?.activationUrl || (deliv?.codes?.find((c: string) => /^https?:\/\//i.test(c))) || (replyMsg?.match(/https?:\/\/[^\s"'<>]+/i)?.[0]);
+
+            const updatedOrder = await transitionOrderAsync(order.id, ['processing', 'pending'], completed ? 'completed' : 'pending_provider', {
               providerOrderId: providerRes.providerOrderId,
+              providerOrderUuid: orderUuid,
               providerOutcome: providerRes.outcome,
+              providerStatus: providerRes.status,
+              providerCheckedAt: now,
+              ...(deliv ? { delivery: deliv } : {}),
+              ...(replyMsg ? { providerReply: replyMsg, reply: replyMsg } : {}),
+              ...(activationUrl ? { activationUrl, activationLink: activationUrl } : {}),
             });
-            order.status = providerRes.status === 'COMPLETED' ? 'completed' : 'pending_provider';
+            order.status = completed ? 'completed' : 'pending_provider';
+            if (updatedOrder) {
+              order.details = { ...(order.details || {}), ...(updatedOrder.details || {}) };
+            } else {
+              order.details = {
+                ...(order.details || {}),
+                providerOrderId: providerRes.providerOrderId,
+                providerOrderUuid: orderUuid,
+                providerOutcome: providerRes.outcome,
+                providerStatus: providerRes.status,
+                ...(deliv ? { delivery: deliv } : {}),
+                ...(replyMsg ? { providerReply: replyMsg, reply: replyMsg } : {}),
+                ...(activationUrl ? { activationUrl, activationLink: activationUrl } : {}),
+              };
+            }
           } else if (providerRes.outcome === 'rejected' || providerRes.status === 'FAILED') {
             // Immediate Auto-Refund if provider explicitly rejected
             const { refundOrderBalanceAtomicAsync } = await import('@/lib/db');
@@ -370,6 +406,10 @@ export async function POST(req: Request) {
               providerRes.message || 'تەمىنلىگۈچى زاكازنى رەت قىلدى ياكى مەھسۇلات ۋاقىتلىق توختىتىلدى'
             ).catch(() => {});
             order.status = 'refunded';
+            order.details = {
+              ...(order.details || {}),
+              refundReason: providerRes.message || 'تەمىنلىگۈچى زاكازنى رەت قىلدى ياكى مەھسۇلات ۋاقىتلىق توختىتىلدى'
+            };
           }
         }
       } catch (provErr: any) {
