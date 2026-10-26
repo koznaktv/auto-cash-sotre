@@ -261,7 +261,7 @@ export default function AdminPage() {
 
   // Navigation tab
   const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'orders' | 'provider' | 'banners' | 'deposits' | 'users' | 'finance' | 'settings' | 'wifi'
+    'dashboard' | 'orders' | 'provider' | 'sms' | 'banners' | 'deposits' | 'users' | 'finance' | 'settings' | 'wifi'
   >('dashboard');
 
   // Main Data States
@@ -3131,6 +3131,7 @@ export default function AdminPage() {
               { id: 'dashboard', label: 'باش تاختا (Dashboard)', icon: LayoutDashboard },
               { id: 'orders', label: 'زاكازلارنى باشقۇرۇش', icon: ShoppingBag, badge: metrics.processingCount },
               { id: 'provider', label: 'API تەمىنلىگۈچى تەڭشىكى', icon: Zap, badgeColor: 'bg-cyan-500 text-slate-950' },
+              { id: 'sms', label: '📱 مەۋھۇم نومۇر API سى', icon: Smartphone, badgeColor: 'bg-emerald-500 text-white' },
               { id: 'wifi', label: 'Wi-Fi كارتىلار ئامبىرى', icon: Wifi, badgeColor: 'bg-emerald-500 text-white' },
               { id: 'banners', label: 'باشبەت ئېلانلىرى (سلايدېر)', icon: ImageIcon, badge: banners.length, badgeColor: 'bg-amber-400 text-slate-950' },
               { id: 'deposits', label: 'ھەميان كىرىملىرى (شامكەش)', icon: Wallet, badge: metrics.pendingDepCount, badgeColor: 'bg-amber-500 text-slate-950' },
@@ -3219,6 +3220,8 @@ export default function AdminPage() {
             <h2 className="font-ukij font-black text-sm sm:text-base text-white">
               {activeTab === 'dashboard' && 'باش تاختا كۆرسەتكۈچلىرى'}
               {activeTab === 'orders' && 'زاكازلارنى باشقۇرۇش مەركىزى'}
+              {activeTab === 'provider' && 'API تەمىنلىگۈچى تەڭشىكى (Sahl Cash & Othman Store)'}
+              {activeTab === 'sms' && '📱 مەۋھۇم نومۇر (SMS Verification) API مەركىزى'}
               
               {activeTab === 'banners' && 'باشبەت ئېلان تاختىسى ۋە سلايدېر تەڭشىكى'}
               {activeTab === 'deposits' && 'ھەميان كىرىملىرى ۋە تالونلار'}
@@ -6011,7 +6014,9 @@ export default function AdminPage() {
             </div>
           )}
 
-              {/* ================= SMS VIRTUAL NUMBERS API CARD ================= */}
+              {/* ================= TAB: SMS VIRTUAL NUMBERS (DEDICATED VIEW) ================= */}
+          {activeTab === 'sms' && (
+            <div className="space-y-6 animate-in fade-in duration-300">
               <div className={`p-5 sm:p-6 rounded-2xl ${themeClasses.card} border-2 border-emerald-500/40 bg-gradient-to-r from-[#06201b] to-[#041412] shadow-2xl space-y-5`}>
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-emerald-500/20 pb-4">
                   <div className="flex items-center gap-3">
@@ -6162,6 +6167,8 @@ export default function AdminPage() {
                   </div>
                 </form>
               </div>
+            </div>
+          )}
 
 
           {/* ================= TAB: WI-FI CARDS INVENTORY ================= */}
