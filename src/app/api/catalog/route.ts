@@ -43,6 +43,7 @@ export async function GET(req: Request) {
           providerProductId: (p as any).providerProductId,
           providerQty: (p as any).providerQty,
           badge: (p as any).badge,
+          instructions: (p as any).instructions,
         })),
       }));
 

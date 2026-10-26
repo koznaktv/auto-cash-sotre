@@ -553,6 +553,38 @@ export function getProductBio(
     }
   }
 
+  // 3.5. Direct Provider Instructions (Othman Store / Syria4Game)
+  const providerInstructions = (selectedPkg as any)?.instructions || (service as any)?.instructions;
+  if (providerInstructions && typeof providerInstructions === 'string' && providerInstructions.trim().length > 10) {
+    const raw = providerInstructions.trim();
+    if (lang === 'ar') {
+      return {
+        title: pkgTitle || serviceName,
+        content: raw,
+      };
+    }
+    // For Uyghur / other languages, provide the clean text with clear Uyghur header
+    if (lang === 'ug') {
+      let ugHeader = '📋 تەمىنلىگۈچىنىڭ رەسمىي ئەسكەرتىش ۋە تەلەپلىرى:\n';
+      if (raw.includes('تلقائي')) {
+        ugHeader += '⚡ بۇ مۇلازىمەت دەرھال ۋە ئاپتوماتىك بىر تەرەپ قىلىنىدۇ.\n';
+      } else if (raw.includes('يدوي')) {
+        ugHeader += '⏳ بۇ مۇلازىمەت تەمىنلىگۈچى تەرەپتىن خىزمەت ۋاقتىدا قولدا بىر تەرەپ قىلىنىدۇ.\n';
+      }
+      if (raw.includes('لا يوجد كفالة')) {
+        ugHeader += '⚠️ بۇ خىل مۇلازىمەتكە تەمىنلىگۈچى قايتا تولۇقلاش كاپالىتى بەرمەيدۇ.\n';
+      }
+      return {
+        title: pkgTitle || serviceName,
+        content: `${ugHeader}\n${raw}`,
+      };
+    }
+    return {
+      title: pkgTitle || serviceName,
+      content: raw,
+    };
+  }
+
   // 4. Fallback: Generate an informative, clean description based on service category and parameters
   const isGame = service.category === 'games';
   const isApp = service.category === 'apps';

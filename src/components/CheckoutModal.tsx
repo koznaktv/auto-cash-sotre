@@ -1018,6 +1018,39 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                         </div>
                       </div>
                     )}
+
+                    {/* Universal Provider / Othman Store Instructions & Notices */}
+                    {service.id !== 'othman_visa_cards' &&
+                      !service.name.toLowerCase().includes('tremendous') &&
+                      !service.name.includes('ترمندوس') &&
+                      Boolean((selectedPkg as any)?.instructions || (service as any)?.instructions) && (
+                        <div className="mt-2.5 p-3.5 rounded-2xl bg-gradient-to-br from-[#06182c] via-slate-900 to-[#040f1d] border border-amber-500/40 text-xs space-y-2 shadow-xl font-alkatip">
+                          <div className="flex items-center justify-between gap-2 border-b border-amber-500/25 pb-1.5 flex-wrap">
+                            <div className="flex items-center gap-1.5 text-amber-300 font-bold text-xs sm:text-sm">
+                              <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                              <span>
+                                {lang === 'ug'
+                                  ? '📋 مەھسۇلات ئەسكەرتىشى ۋە تەلىپى:'
+                                  : lang === 'ar'
+                                  ? '📋 تعليمات وتنبيهات الخدمة:'
+                                  : '📋 Service Instructions & Notices:'}
+                              </span>
+                            </div>
+                            {Boolean(
+                              (((selectedPkg as any)?.instructions || (service as any)?.instructions || '').includes('تلقائي') ||
+                                ((selectedPkg as any)?.instructions || (service as any)?.instructions || '').includes('فوري'))
+                            ) && (
+                              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 px-2 py-0.5 rounded-full font-bold">
+                                ⚡ {lang === 'ug' ? 'ئاپتوماتىك تاپشۇرۇلىدۇ' : lang === 'ar' ? 'تسليم تلقائي' : 'Instant Delivery'}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="text-[11px] sm:text-xs text-slate-200 leading-relaxed whitespace-pre-line space-y-1 text-right" dir="rtl">
+                            <p>{String((selectedPkg as any)?.instructions || (service as any)?.instructions || '')}</p>
+                          </div>
+                        </div>
+                    )}
                       </>
                     )}
                   </div>
