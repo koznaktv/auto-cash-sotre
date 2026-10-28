@@ -562,3 +562,37 @@ export function getEnrichedService(rawService: { service_code: string; name: str
     popular: Boolean(meta?.popular),
   };
 }
+
+/**
+ * Curated list of popular world apps for the App-First browsing experience
+ */
+export const FEATURED_APPS: ServiceMeta[] = [
+  SERVICE_META_MAP.tg,
+  SERVICE_META_MAP.wa,
+  SERVICE_META_MAP.oi,
+  SERVICE_META_MAP.go,
+  SERVICE_META_MAP.lf,
+  SERVICE_META_MAP.ig,
+  SERVICE_META_MAP.fb,
+  SERVICE_META_MAP.sn,
+  SERVICE_META_MAP.ds,
+  SERVICE_META_MAP.wb,
+  SERVICE_META_MAP.vi,
+  SERVICE_META_MAP.tw,
+  SERVICE_META_MAP.nf,
+  SERVICE_META_MAP.sp,
+  SERVICE_META_MAP.st,
+  SERVICE_META_MAP.mb,
+  SERVICE_META_MAP.am,
+  SERVICE_META_MAP.ap,
+  SERVICE_META_MAP.ub,
+  SERVICE_META_MAP.ka,
+  SERVICE_META_MAP.li,
+  SERVICE_META_MAP.yl,
+  SERVICE_META_MAP.me,
+  SERVICE_META_MAP.vk,
+  SERVICE_META_MAP.ts,
+  SERVICE_META_MAP.rd,
+  SERVICE_META_MAP.ot,
+].filter(Boolean);
+

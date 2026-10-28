@@ -6,7 +6,7 @@ import BottomNav from '@/components/BottomNav';
 import AuthModal from '@/components/AuthModal';
 import { useLanguage } from '@/context/LanguageContext';
 import { getCachedUser, clearLocalAuth, formatCurrencyAmount } from '@/lib/clientAuth';
-import { CountryMeta } from '@/lib/sms/smsMetadata';
+import { CountryMeta, FEATURED_APPS, ServiceMeta } from '@/lib/sms/smsMetadata';
 import WavingFlag from '@/components/sms/WavingFlag';
 import AppIcon from '@/components/sms/AppIcon';
 import {
@@ -73,6 +73,11 @@ export default function NumbersPage() {
   const [loadingCountries, setLoadingCountries] = useState(true);
   const [loadingServices, setLoadingServices] = useState(false);
   const [buying, setBuying] = useState(false);
+
+  // App-First Flow State
+  const [selectedApp, setSelectedApp] = useState<ServiceMeta | null>(null);
+  const [appSearch, setAppSearch] = useState('');
+  const [appCategoryTab, setAppCategoryTab] = useState<'all' | 'messaging' | 'social' | 'ai' | 'entertainment' | 'other'>('all');
 
   // Filters
   const [countrySearch, setCountrySearch] = useState('');
@@ -234,6 +239,60 @@ export default function NumbersPage() {
       );
     });
   }, [countries, countrySearch]);
+
+  // Combine FEATURED_APPS with any unique services from the provider
+  const allAvailableApps = useMemo(() => {
+    const map = new Map<string, ServiceMeta>();
+    FEATURED_APPS.forEach((app) => map.set(app.code.toLowerCase(), app));
+
+    services.forEach((s) => {
+      const code = s.service_code.toLowerCase();
+      if (!map.has(code)) {
+        map.set(code, {
+          code: s.service_code,
+          name: s.name,
+          nameUg: s.nameUg || s.name,
+          category: (s.category as any) || 'other',
+          color: s.color || '#3b82f6',
+          popular: false,
+        });
+      }
+    });
+
+    return Array.from(map.values());
+  }, [services]);
+
+  // Filter apps
+  const filteredApps = useMemo(() => {
+    return allAvailableApps.filter((app) => {
+      const q = appSearch.toLowerCase().trim();
+      const matchSearch =
+        !q ||
+        app.name.toLowerCase().includes(q) ||
+        (app.nameUg && app.nameUg.toLowerCase().includes(q)) ||
+        app.code.toLowerCase().includes(q);
+
+      const matchCategory =
+        appCategoryTab === 'all' ||
+        (appCategoryTab === 'entertainment' ? ['entertainment', 'gaming'].includes(app.category) : app.category === appCategoryTab);
+
+      return matchSearch && matchCategory;
+    });
+  }, [allAvailableApps, appSearch, appCategoryTab]);
+
+  // Current active service item (price + stock) for selectedApp in selectedCountry
+  const currentService = useMemo(() => {
+    if (!selectedApp || services.length === 0) return null;
+    const appCode = selectedApp.code.toLowerCase().trim();
+    return (
+      services.find((s) => s.service_code.toLowerCase().trim() === appCode) ||
+      (appCode === 'lf' ? services.find((s) => s.service_code.toLowerCase().trim() === 'tt') : null) ||
+      (appCode === 'tt' ? services.find((s) => s.service_code.toLowerCase().trim() === 'lf') : null) ||
+      (appCode === 'ctkt' ? services.find((s) => s.service_code.toLowerCase().trim() === 'lf') : null) ||
+      services.find((s) => s.name.toLowerCase().includes(selectedApp.name.toLowerCase())) ||
+      null
+    );
+  }, [selectedApp, services]);
 
   // Capped display for buttery-smooth mobile scrolling
   const [displayLimit, setDisplayLimit] = useState(40);
@@ -611,59 +670,295 @@ export default function NumbersPage() {
           </div>
         )}
 
-        {/* -------------------- TAB 2: BUY FLOW -------------------- */}
+        {/* -------------------- TAB 2: BUY FLOW (APP-FIRST EXPERIENCE) -------------------- */}
         {viewTab === 'buy' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* LEFT / TOP COLUMN: Country Picker (4 cols) */}
-            <div className="lg:col-span-4 space-y-4">
-              <div className="rounded-3xl bg-[#08182b]/95 border border-amber-500/25 p-5 shadow-xl">
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-base font-black text-white flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-amber-400" />
-                    <span>1. دۆلەتنى تاللاڭ</span>
-                  </h2>
-                  <span className="text-[11px] text-amber-300/70 font-mono">
-                    {filteredCountries.length} دۆلەت
-                  </span>
+          <>
+            {/* STEP 1: CHOOSE APP FIRST (App Catalog) */}
+            {!selectedApp ? (
+              <div className="rounded-3xl bg-[#08182b]/95 border border-amber-500/25 p-5 sm:p-7 shadow-2xl">
+                {/* App Catalog Header */}
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6 pb-4 border-b border-amber-500/20">
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold mb-2">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                      <span>1-قەدەم: ئەپنى تاللاڭ</span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-black text-white gold-text-glow flex items-center gap-2">
+                      <span>قايسى ئەپكە نومۇر ئالماقچى؟</span>
+                    </h2>
+                    <p className="text-xs sm:text-sm text-amber-200/60 mt-1">
+                      ئەڭ كۆپ ئىشلىتىلىدىغان داڭلىق ئەپلەردىن بىرىنى تاللاڭ، ئاندىن خالىغان دۆلەت تەۋەلىكىدىكى مەۋھۇم نومۇرنى سېتىۋېلىڭ.
+                    </p>
+                  </div>
+
+                  {/* App Category Tabs */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {[
+                      { id: 'all', label: 'ھەممىسى' },
+                      { id: 'messaging', label: 'ئالاقە' },
+                      { id: 'social', label: 'تاراتقۇ' },
+                      { id: 'ai', label: 'AI سۈنئىي ئەقىل' },
+                      { id: 'entertainment', label: 'كۆڭۈل ئېچىش' },
+                      { id: 'other', label: 'باشقىلار' },
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => setAppCategoryTab(tab.id as any)}
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                          appCategoryTab === tab.id
+                            ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black shadow-md shadow-amber-500/30'
+                            : 'bg-slate-900/80 text-slate-300 hover:text-white border border-slate-700/60'
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Search Country */}
-                <div className="relative mb-3">
+                {/* Instant App Search Bar */}
+                <div className="relative mb-6">
                   <input
                     type="text"
-                    value={countrySearch}
-                    onChange={(e) => setCountrySearch(e.target.value)}
-                    placeholder="دۆلەت ئىزدەش (مەسىلەن: تۈركىيە، ئامېرىكا، +90...)"
-                    className={`w-full bg-[#051120] border border-amber-500/30 rounded-2xl ${
-                      isRTL ? 'pl-9 pr-3 text-right' : 'pr-9 pl-3 text-left'
-                    } py-2 text-xs text-white placeholder-amber-200/40 focus:outline-none focus:border-amber-400 font-alkatip`}
+                    value={appSearch}
+                    onChange={(e) => setAppSearch(e.target.value)}
+                    placeholder="ئەپ ئىزدەش (مەسىلەن: Telegram, WhatsApp, ChatGPT, TikTok, Google, Instagram...)"
+                    className={`w-full bg-[#051120] border border-amber-500/30 focus:border-amber-400 rounded-2xl ${
+                      isRTL ? 'pl-10 pr-4 text-right' : 'pr-10 pl-4 text-left'
+                    } py-3 text-sm text-white placeholder-amber-200/40 focus:outline-none font-alkatip shadow-inner`}
                   />
-                  <Search className={`w-4 h-4 text-amber-400/60 absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5`} />
+                  <Search className={`w-5 h-5 text-amber-400/70 absolute ${isRTL ? 'left-3.5' : 'right-3.5'} top-3.5`} />
+                  {appSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setAppSearch('')}
+                      className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-3 p-1 text-slate-400 hover:text-white cursor-pointer`}
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
 
-                {/* Popular Country Quick-Selector Chips */}
-                <div className="mb-3 pb-2 border-b border-amber-500/15">
-                  <div className="text-[10px] text-amber-200/60 font-semibold mb-1.5 flex items-center justify-between">
-                    <span>ئەڭ كۆپ ئىشلىتىلىدىغان دۆلەتلەر:</span>
-                    <span className="text-[9px] text-amber-400/80">1 چەكمە بىلەن تاللاش</span>
+                {/* Apps Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-3 sm:gap-4">
+                  {filteredApps.map((app) => (
+                    <button
+                      key={app.code}
+                      type="button"
+                      onClick={() => {
+                        setSelectedApp(app);
+                        window.scrollTo({ top: 320, behavior: 'smooth' });
+                      }}
+                      className="group relative p-4 rounded-2xl bg-gradient-to-b from-[#071b30] via-[#051426] to-[#040e1b] border border-amber-500/20 hover:border-amber-400/80 transition-all duration-200 hover:scale-[1.02] active:scale-95 text-right flex flex-col justify-between shadow-lg hover:shadow-amber-500/10 cursor-pointer overflow-hidden min-h-[145px]"
+                    >
+                      {/* Subtle brand glow on hover */}
+                      <div
+                        className="absolute -top-12 -right-12 w-24 h-24 rounded-full blur-2xl opacity-0 group-hover:opacity-30 transition-opacity pointer-events-none"
+                        style={{ backgroundColor: app.color }}
+                      />
+
+                      <div className="flex items-start justify-between gap-2 mb-3">
+                        <div
+                          className="w-12 h-12 rounded-2xl p-2 shrink-0 flex items-center justify-center border shadow-md transition-transform group-hover:scale-110"
+                          style={{
+                            backgroundColor: `${app.color}18`,
+                            borderColor: `${app.color}45`,
+                          }}
+                        >
+                          <AppIcon code={app.code} name={app.name} color={app.color} size={28} />
+                        </div>
+
+                        {app.popular && (
+                          <span className="px-2 py-0.5 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-black">
+                            ئالقىشلىق
+                          </span>
+                        )}
+                      </div>
+
+                      <div>
+                        <h3 className="font-bold text-sm sm:text-base text-white group-hover:text-amber-300 transition truncate">
+                          {app.nameUg || app.name}
+                        </h3>
+                        <span className="text-xs text-amber-200/50 block font-sans truncate mt-0.5">
+                          {app.name}
+                        </span>
+                      </div>
+
+                      <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs text-amber-400/80 group-hover:text-amber-300 font-semibold">
+                        <span>دۆلەت تاللاش</span>
+                        <ArrowLeft className={`w-3.5 h-3.5 transition-transform group-hover:-translate-x-1 ${!isRTL ? 'rotate-180' : ''}`} />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              /* STEP 2: COUNTRY & PURCHASE FOR SELECTED APP */
+              <div className="space-y-6 animate-in fade-in duration-300">
+                {/* Top Navigation & Selected App Banner */}
+                <div className="rounded-3xl bg-gradient-to-r from-[#0a233f] via-[#07192f] to-[#040e1b] border-2 border-amber-500/40 p-5 sm:p-6 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    {/* Back button to app catalog */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedApp(null)}
+                      className="px-3.5 py-2 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-400/50 text-slate-200 hover:text-white text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-md active:scale-95"
+                    >
+                      <ArrowRight className={`w-4 h-4 text-amber-400 ${!isRTL ? 'rotate-180' : ''}`} />
+                      <span>باشقا ئەپ تاللاش</span>
+                    </button>
+
+                    {/* Selected App Badge */}
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-12 h-12 rounded-2xl p-2 shrink-0 flex items-center justify-center border shadow-lg"
+                        style={{
+                          backgroundColor: `${selectedApp.color}25`,
+                          borderColor: `${selectedApp.color}60`,
+                        }}
+                      >
+                        <AppIcon code={selectedApp.code} name={selectedApp.name} color={selectedApp.color} size={28} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] text-amber-300/80 font-bold">تاللانغان ئەپ:</span>
+                          <span className="px-2 py-0.5 rounded-md bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-[10px] font-mono">
+                            {selectedApp.code.toUpperCase()}
+                          </span>
+                        </div>
+                        <h2 className="text-lg sm:text-xl font-black text-white">
+                          {selectedApp.nameUg} ({selectedApp.name})
+                        </h2>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 custom-scrollbar">
+
+                  {/* Step 2 Indicator Badge */}
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold">
+                    <Globe className="w-4 h-4 text-amber-400" />
+                    <span>2-قەدەم: دۆلەت ۋە نومۇر سېتىۋېلىش</span>
+                  </div>
+                </div>
+
+                {/* Active Country Purchase Hero Card */}
+                <div className="rounded-3xl bg-gradient-to-br from-[#081f38] via-[#061628] to-[#040e1b] border-2 border-cyan-500/40 p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+                  <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                    {/* Country Flag & Dial Info */}
+                    <div className="md:col-span-5 flex items-center gap-4">
+                      <WavingFlag
+                        code={selectedCountry?.code || 'tr'}
+                        name={selectedCountry?.name || ''}
+                        size="lg"
+                        animated={true}
+                        className="shadow-2xl"
+                      />
+                      <div>
+                        <div className="text-xs text-amber-300/80 font-bold flex items-center gap-1.5 mb-1">
+                          <span>تاللانغان دۆلەت:</span>
+                          <span className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-cyan-300 font-mono text-[11px]" dir="ltr">
+                            {selectedCountry?.dialCode}
+                          </span>
+                        </div>
+                        <h3 className="text-xl sm:text-2xl font-black text-white">
+                          {selectedCountry?.nameUg || selectedCountry?.name}
+                        </h3>
+                        <span className="text-xs text-amber-200/50 block font-sans">
+                          {selectedCountry?.name} ({selectedCountry?.code.toUpperCase()})
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Live Stock & Price for this app */}
+                    <div className="md:col-span-3 text-center md:text-right border-y md:border-y-0 md:border-x border-amber-500/20 py-4 md:py-0 md:px-6">
+                      <div className="text-xs text-slate-300 font-semibold mb-1">سېتىلىش باھاسى:</div>
+                      {loadingServices ? (
+                        <div className="flex items-center gap-2 justify-center md:justify-start text-xs text-amber-300">
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>باھا تەكشۈرۈلىۋاتىدۇ...</span>
+                        </div>
+                      ) : currentService ? (
+                        <>
+                          <div className="text-3xl font-black text-amber-300 font-mono gold-text-glow">
+                            ${currentService.sellPrice.toFixed(2)}
+                          </div>
+                          <div className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-[11px] font-mono">
+                            <span>زاپاستا:</span>
+                            <span className="font-bold">{currentService.count.toLocaleString()} دانە</span>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-xs text-rose-300 bg-rose-950/60 p-2 rounded-xl border border-rose-500/30">
+                          بۇ دۆلەتتە نۆۋەتتە زاپاس يوق
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 1-Click Buy Button */}
+                    <div className="md:col-span-4 flex flex-col gap-2">
+                      <button
+                        type="button"
+                        onClick={() => currentService && handleBuyNumber(currentService)}
+                        disabled={buying || loadingServices || !currentService || currentService.count <= 0}
+                        className={`w-full py-4 px-6 rounded-2xl font-black text-base transition-all duration-200 flex items-center justify-center gap-2.5 shadow-xl cursor-pointer ${
+                          !currentService || currentService.count <= 0 || loadingServices
+                            ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
+                            : 'bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 shadow-amber-500/30 hover:scale-[1.02] active:scale-95'
+                        }`}
+                      >
+                        {buying ? (
+                          <>
+                            <RefreshCw className="w-5 h-5 animate-spin" />
+                            <span>نومۇر ئېلىنىۋاتىدۇ...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="w-5 h-5 fill-current" />
+                            <span>
+                              {currentService
+                                ? `${selectedApp.nameUg} نومۇرى سېتىۋېلىش ($${currentService.sellPrice.toFixed(2)})`
+                                : 'نۆۋەتتە نومۇر يوق'}
+                            </span>
+                          </>
+                        )}
+                      </button>
+                      <span className="text-[11px] text-center text-amber-200/60">
+                        🛡️ كود كەلمىسە پۇلىڭىز ھېساباتىڭىزغا دەل ۋاقتىدا قايتۇرۇلىدۇ
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Popular Countries Quick Switcher */}
+                <div className="rounded-3xl bg-[#08182b]/95 border border-amber-500/25 p-5 sm:p-6 shadow-xl">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/15">
+                    <div className="flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-amber-400" />
+                      <h3 className="text-sm font-bold text-white">ئەڭ كۆپ ئىشلىتىلىدىغان دۆلەتلەر (1 چەكمە بىلەن تاللاش)</h3>
+                    </div>
+                    <span className="text-[11px] text-amber-300/70">دۆلەتنى ئالماشتۇرۇش</span>
+                  </div>
+
+                  {/* Country Chips Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
                     {[
-                      { id: 62, code: 'tr', name: 'تۈركىيە' },
-                      { id: 12, code: 'us', name: 'ئامېرىكا' },
-                      { id: 53, code: 'sa', name: 'سەئۇدى' },
-                      { id: 95, code: 'ae', name: 'ئەرەب بىرلەشمە' },
-                      { id: 21, code: 'eg', name: 'مىسىر' },
-                      { id: 110, code: 'sy', name: 'سۇرىيە' },
-                      { id: 47, code: 'iq', name: 'ئىراق' },
-                      { id: 43, code: 'de', name: 'گېرمانىيە' },
-                      { id: 16, code: 'gb', name: 'ئەنگلىيە' },
-                      { id: 0, code: 'ru', name: 'روسىيە' },
-                      { id: 2, code: 'kz', name: 'قازاقىستان' },
-                      { id: 40, code: 'uz', name: 'ئۆزبېكىستان' },
-                      { id: 6, code: 'id', name: 'ھىندونېزىيە' },
+                      { id: 62, code: 'tr', name: 'تۈركىيە', dial: '+90' },
+                      { id: 12, code: 'us', name: 'ئامېرىكا', dial: '+1' },
+                      { id: 53, code: 'sa', name: 'سەئۇدى', dial: '+966' },
+                      { id: 95, code: 'ae', name: 'ئەرەب بىرلەشمە', dial: '+971' },
+                      { id: 21, code: 'eg', name: 'مىسىر', dial: '+20' },
+                      { id: 110, code: 'sy', name: 'سۇرىيە', dial: '+963' },
+                      { id: 47, code: 'iq', name: 'ئىراق', dial: '+964' },
+                      { id: 43, code: 'de', name: 'گېرمانىيە', dial: '+49' },
+                      { id: 16, code: 'gb', name: 'ئەنگلىيە', dial: '+44' },
+                      { id: 0, code: 'ru', name: 'روسىيە', dial: '+7' },
+                      { id: 2, code: 'kz', name: 'قازاقىستان', dial: '+7' },
+                      { id: 40, code: 'uz', name: 'ئۆزبېكىستان', dial: '+998' },
                     ].map((pop) => {
-                      const isPopSelected = selectedCountry?.code === pop.code || selectedCountry?.id === pop.id;
+                      const isSelected = selectedCountry?.code === pop.code || selectedCountry?.id === pop.id;
                       return (
                         <button
                           key={pop.code}
@@ -674,221 +969,73 @@ export default function NumbersPage() {
                             );
                             if (found) setSelectedCountry(found);
                           }}
-                          className={`px-2.5 py-1 rounded-xl text-[11px] font-bold shrink-0 flex items-center gap-1.5 transition-all cursor-pointer ${
-                            isPopSelected
-                              ? 'bg-amber-400 text-slate-950 shadow-md shadow-amber-500/30 scale-105'
+                          className={`p-2.5 rounded-2xl flex items-center justify-between gap-2 transition-all cursor-pointer text-xs ${
+                            isSelected
+                              ? 'bg-amber-400 text-slate-950 font-black shadow-lg shadow-amber-500/30 scale-105'
                               : 'bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700/60'
                           }`}
                         >
-                          <WavingFlag code={pop.code} name={pop.name} size="sm" animated={isPopSelected} />
-                          <span>{pop.name}</span>
+                          <div className="flex items-center gap-2">
+                            <WavingFlag code={pop.code} name={pop.name} size="sm" animated={isSelected} />
+                            <span className="truncate">{pop.name}</span>
+                          </div>
+                          <span className={`text-[10px] font-mono ${isSelected ? 'text-slate-900 font-bold' : 'text-cyan-300'}`} dir="ltr">
+                            {pop.dial}
+                          </span>
                         </button>
                       );
                     })}
                   </div>
-                </div>
 
-                {/* Countries List */}
-                <div className="max-h-[440px] overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
-                  {loadingCountries ? (
-                    <div className="py-12 text-center text-xs text-slate-400">
-                      <RefreshCw className="w-5 h-5 animate-spin mx-auto text-amber-400 mb-2" />
-                      <span>دۆلەتلەر يۈكلىنىۋاتىدۇ...</span>
+                  {/* Full 206 Countries Drawer */}
+                  <div className="mt-5 pt-4 border-t border-amber-500/15">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs text-amber-200/80 font-bold">پۈتۈن دۇنيا دۆلەتلىرىدىن ئىزدەش (206 دۆلەت):</span>
+                      <span className="text-[11px] text-cyan-300 font-mono">{filteredCountries.length} دۆلەت</span>
                     </div>
-                  ) : filteredCountries.length === 0 ? (
-                    <div className="py-8 text-center text-xs text-slate-400">دۆلەت تېپىلمىدى</div>
-                  ) : (
-                    filteredCountries.map((c) => {
-                      const isSelected = selectedCountry?.id === c.id;
-                      return (
-                        <button
-                          key={c.id}
-                          onClick={() => setSelectedCountry(c)}
-                          className={`w-full p-2.5 rounded-2xl flex items-center justify-between transition cursor-pointer text-xs group ${
-                            isSelected
-                              ? 'bg-gradient-to-r from-amber-500/25 via-yellow-500/15 to-transparent border border-amber-400/80 text-white font-black shadow-md'
-                              : 'bg-[#051222]/60 hover:bg-[#07192f] border border-transparent hover:border-amber-500/20 text-slate-300'
-                          }`}
-                          style={{ contentVisibility: 'auto', containIntrinsicSize: '46px' }}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            {/* Realistic 3D Fluttering Flag */}
-                            <WavingFlag
-                              code={c.code}
-                              name={c.name}
-                              size="md"
-                              animated={isSelected}
-                              className="group-hover:scale-105 transition-transform"
-                            />
-                            <div className="text-right">
-                              <span className="font-bold text-white block">{c.nameUg || c.name}</span>
-                              <span className="text-[10px] text-amber-200/50 block font-sans">{c.name}</span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            {c.dialCode && (
-                              <span className="px-1.5 py-0.5 rounded-md bg-slate-900/80 border border-slate-700 text-[10px] text-cyan-300 font-mono" dir="ltr">
-                                {c.dialCode}
-                              </span>
-                            )}
-                            {isSelected && <Check className="w-3.5 h-3.5 text-amber-400" />}
-                          </div>
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* RIGHT COLUMN: Service / App Picker (8 cols) */}
-            <div className="lg:col-span-8 space-y-4">
-              <div className="rounded-3xl bg-[#08182b]/95 border border-amber-500/25 p-5 sm:p-6 shadow-xl">
-                {/* Header with Selected Country Banner */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-amber-500/20">
-                  <div>
-                    <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                      <Zap className="w-5 h-5 text-amber-400" />
-                      <span>2. مۇلازىمەت / ئەپنى تاللاڭ</span>
-                    </h2>
-                    <div className="text-xs text-amber-200/70 mt-1 flex items-center gap-2">
-                      <span>تاللانغان دۆلەت:</span>
-                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/15 border border-amber-500/40 text-white font-bold">
-                        <WavingFlag code={selectedCountry?.code || 'tr'} name={selectedCountry?.name || ''} size="sm" />
-                        <span>{selectedCountry?.nameUg || selectedCountry?.name}</span>
-                        <span className="font-mono text-cyan-300" dir="ltr">{selectedCountry?.dialCode}</span>
-                      </div>
+                    <div className="relative mb-3">
+                      <input
+                        type="text"
+                        value={countrySearch}
+                        onChange={(e) => setCountrySearch(e.target.value)}
+                        placeholder="باشقا دۆلەت ئىزدەش (مەسىلەن: فرانسىيە، ياپونىيە، كانادا، +33...)"
+                        className={`w-full bg-[#051120] border border-amber-500/30 rounded-2xl ${
+                          isRTL ? 'pl-9 pr-3 text-right' : 'pr-9 pl-3 text-left'
+                        } py-2 text-xs text-white placeholder-amber-200/40 focus:outline-none focus:border-amber-400 font-alkatip`}
+                      />
+                      <Search className={`w-4 h-4 text-amber-400/60 absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5`} />
                     </div>
-                  </div>
 
-                  {/* Category Pills */}
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    {[
-                      { id: 'all', label: 'ھەممىسى' },
-                      { id: 'messaging', label: 'ئالاقە' },
-                      { id: 'social', label: 'تاراتقۇ' },
-                      { id: 'ai', label: 'AI' },
-                      { id: 'other', label: 'باشقىلار' },
-                    ].map((tab) => (
-                      <button
-                        key={tab.id}
-                        onClick={() => setActiveCategoryTab(tab.id as any)}
-                        className={`px-3 py-1 rounded-xl text-xs font-bold transition cursor-pointer ${
-                          activeCategoryTab === tab.id
-                            ? 'bg-amber-500 text-slate-950 font-black shadow-md'
-                            : 'bg-slate-900/80 text-slate-300 hover:text-white border border-slate-700/60'
-                        }`}
-                      >
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Service Search Input */}
-                <div className="relative mb-4">
-                  <input
-                    type="text"
-                    value={serviceSearch}
-                    onChange={(e) => setServiceSearch(e.target.value)}
-                    placeholder="مۇلازىمەت ئىزدەش (مەسىلەن: Telegram, WhatsApp, ChatGPT, Google, TikTok...)"
-                    className={`w-full bg-[#051120] border border-amber-500/30 rounded-2xl ${
-                      isRTL ? 'pl-9 pr-3 text-right' : 'pr-9 pl-3 text-left'
-                    } py-2.5 text-xs text-white placeholder-amber-200/40 focus:outline-none focus:border-amber-400 font-alkatip`}
-                  />
-                  <Search className={`w-4 h-4 text-amber-400/60 absolute ${isRTL ? 'left-3' : 'right-3'} top-3`} />
-                </div>
-
-                {/* Services Grid */}
-                {loadingServices ? (
-                  <div className="py-20 text-center text-xs text-slate-400">
-                    <RefreshCw className="w-6 h-6 animate-spin mx-auto text-amber-400 mb-2" />
-                    <span>مۇلازىمەت باھالىرى تەكشۈرۈلىۋاتىدۇ...</span>
-                  </div>
-                ) : filteredServices.length === 0 ? (
-                  <div className="py-16 text-center text-xs text-slate-400">
-                    بۇ دۆلەتتە مۇلازىمەت تېپىلمىدى ياكى نۆۋەتتە نومۇر قالمىدى.
-                  </div>
-                ) : (
-                  <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[520px] overflow-y-auto pr-1 custom-scrollbar">
-                      {visibleServices.map((service) => {
+                    <div className="max-h-[260px] overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 pr-1 custom-scrollbar">
+                      {filteredCountries.slice(0, 80).map((c) => {
+                        const isSelected = selectedCountry?.id === c.id;
                         return (
-                          <div
-                            key={service.service_code}
-                            className="relative p-3 rounded-2xl bg-gradient-to-b from-[#06182c] to-[#040e1b] border border-amber-500/20 hover:border-amber-400/60 transition-all duration-200 flex items-center justify-between gap-3 group hover:shadow-lg hover:shadow-black/50"
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => setSelectedCountry(c)}
+                            className={`p-2 rounded-xl flex items-center justify-between text-xs transition cursor-pointer ${
+                              isSelected
+                                ? 'bg-amber-500/25 border border-amber-400 text-white font-bold'
+                                : 'bg-[#051222]/60 hover:bg-[#07192f] border border-transparent hover:border-amber-500/20 text-slate-300'
+                            }`}
                           >
-                            <div className="flex items-center gap-3 min-w-0">
-                              {/* App Icon: 0ms instant inline SVG, never blank */}
-                              <div
-                                className="w-11 h-11 rounded-2xl p-1 shrink-0 flex items-center justify-center border shadow-md"
-                                style={{
-                                  backgroundColor: `${service.color}15`,
-                                  borderColor: `${service.color}40`,
-                                }}
-                              >
-                                <AppIcon
-                                  code={service.service_code}
-                                  name={service.name}
-                                  color={service.color}
-                                  size={24}
-                                  className="group-hover:scale-110 transition-transform"
-                                />
-                              </div>
-
-                              {/* App Details */}
-                              <div className="min-w-0">
-                                <h4 className="font-bold text-sm text-white truncate group-hover:text-amber-300 transition">
-                                  {service.nameUg || service.name}
-                                </h4>
-                                <div className="flex items-center gap-2 mt-0.5">
-                                  <span className="text-[10px] text-amber-200/50 font-sans truncate">
-                                    {service.name}
-                                  </span>
-                                  <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 font-mono">
-                                    {service.count.toLocaleString()} دانە
-                                  </span>
-                                </div>
-                              </div>
+                            <div className="flex items-center gap-2 truncate">
+                              <WavingFlag code={c.code} name={c.name} size="sm" animated={isSelected} />
+                              <span className="truncate">{c.nameUg || c.name}</span>
                             </div>
-
-                            {/* Price & Buy Button */}
-                            <div className="flex flex-col items-end shrink-0 gap-1.5">
-                              <div className="text-right">
-                                <span className="text-base font-black text-amber-300 font-mono">
-                                  ${service.sellPrice.toFixed(2)}
-                                </span>
-                              </div>
-
-                              <button
-                                onClick={() => handleBuyNumber(service)}
-                                disabled={buying || service.count <= 0}
-                                className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 text-xs font-black transition cursor-pointer shadow-md shadow-amber-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                نومۇر ئېلىش
-                              </button>
-                            </div>
-                          </div>
+                            <span className="text-[10px] text-cyan-300 font-mono shrink-0" dir="ltr">
+                              {c.dialCode}
+                            </span>
+                          </button>
                         );
                       })}
                     </div>
-
-                    {/* Sliced DOM: Load More button to keep website lightweight & lag-free */}
-                    {filteredServices.length > displayLimit && !serviceSearch.trim() && (
-                      <button
-                        type="button"
-                        onClick={() => setDisplayLimit((prev) => prev + 40)}
-                        className="w-full py-2.5 mt-3 rounded-2xl bg-[#06182c]/90 hover:bg-[#0a233f] border border-amber-500/30 hover:border-amber-400 text-amber-300 font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer shadow-md"
-                      >
-                        <span>تېخىمۇ كۆپ ئەپلەرنى كۆرسىتىش ({filteredServices.length - displayLimit} ئەپ قالدى)</span>
-                      </button>
-                    )}
-                  </>
-                )}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            )}
+          </>
         )}
 
         {/* -------------------- TAB 3: USER HISTORY -------------------- */}
