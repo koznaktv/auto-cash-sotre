@@ -92,6 +92,13 @@ export function getCategoriesList(): CategoryItem[] {
     const parsed = JSON.parse(content);
     if (Array.isArray(parsed)) {
       const filtered = parsed.filter((c) => !deleted.has(c.id));
+      filtered.forEach((c: any) => {
+        if (c.id === 'numbers') {
+          c.name = 'مەۋھۇم نومۇر (SMS)';
+          c.count = 'Telegram, WhatsApp, etc.';
+          c.image = '/images/services/whatsapp.jpg';
+        }
+      });
       const hasWifi = filtered.some((c: any) => c.id === 'wifi');
       if (!hasWifi && !deleted.has('wifi')) {
         filtered.unshift({

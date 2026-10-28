@@ -22,10 +22,10 @@
   },
   {
     "id": "numbers",
-    "name": "تېلېگرام ئەزالىق",
-    "icon": "MessageSquareShare",
-    "count": "Telegram Premium",
-    "image": "/images/services/telegram.jpg"
+    "name": "مەۋھۇم نومۇر (SMS)",
+    "icon": "Smartphone",
+    "count": "Telegram, WhatsApp, etc.",
+    "image": "/images/services/whatsapp.jpg"
   },
   {
     "id": "cards",
