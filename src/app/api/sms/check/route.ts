@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSessionUser, unauthorizedResponse } from '@/lib/session';
-import { getOrderByIdAsync, updateOrderAsync } from '@/lib/db';
+import { getOrderByIdAsync, updateOrderAsync, refundOrderBalanceAtomicAsync } from '@/lib/db';
 import { phonecashProvider } from '@/lib/providers/phonecashProvider';
 import { postOrderCompletedToChannel } from '@/lib/telegram';
 
@@ -80,6 +80,28 @@ export async function GET(req: Request) {
         code: statusRes.code,
         message: 'SMS كودى كەلدى!',
       });
+    }
+
+    // Auto-detect cancellation or expiration from PhoneCash provider
+    const isExpired = order.details?.expiresAt && Date.now() > new Date(order.details.expiresAt).getTime();
+    if (statusRes.status === 'CANCELED' || isExpired) {
+      if (order.status !== 'refunded' && order.status !== 'cancelled') {
+        const refundRes = await refundOrderBalanceAtomicAsync(
+          orderId,
+          isExpired
+            ? '15 مىنۇتتا SMS كەلمىگەنلىكى ئۈچۈن بىكار قىلىندى (پۇل قايتۇرۇلدى)'
+            : 'تەمىنلىگۈچى تەرەپتىن نومۇر بىكار قىلىندى (پۇل قايتۇرۇلدى)',
+          true
+        ).catch(() => ({ success: false, newBalance: undefined }));
+
+        return NextResponse.json({
+          success: true,
+          status: 'CANCELED',
+          refunded: true,
+          newBalance: refundRes?.newBalance,
+          message: 'تەمىنلىگۈچى تەرەپتىن كود كەلمىدى، نومۇر بىكار قىلىنىپ پۇلىڭىز ھېساباتىڭىزغا دەل ۋاقتىدا قايتۇرۇلدى!',
+        });
+      }
     }
 
     return NextResponse.json({

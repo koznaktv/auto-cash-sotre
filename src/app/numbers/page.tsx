@@ -58,6 +58,8 @@ interface ActiveSession {
   expiresAt: number;
   code?: string;
   status: 'waiting' | 'received' | 'canceled';
+  country?: CountryMeta | null;
+  service?: ServiceItem | null;
 }
 
 export default function NumbersPage() {
@@ -218,6 +220,13 @@ export default function NumbersPage() {
             if (d.success && d.user) setUser(d.user);
           })
           .catch(() => null);
+      } else if (data.status === 'CANCELED' || data.refunded) {
+        // Auto cancellation detected from provider
+        setActionError(data.message || 'تەمىنلىگۈچى تەرەپتىن كود كەلمىدى، نومۇر بىكار قىلىنىپ پۇلىڭىز ھېساباتىڭىزغا دەل ۋاقتىدا قايتۇرۇلدى!');
+        if (data.newBalance !== undefined) {
+          setUser((prev) => (prev ? { ...prev, balance: data.newBalance } : null));
+        }
+        setActiveSession(null);
       }
     } catch (err) {
       console.warn('[SMS Poll Warning]:', err);
@@ -385,14 +394,29 @@ export default function NumbersPage() {
         return;
       }
 
-      // Successful purchase! Update user balance locally
+      // Successful purchase! Activate the exact PhoneCash order dashboard
+      setActiveSession({
+        orderId: data.orderId,
+        activationId: data.activationId,
+        phone: data.phone,
+        serviceCode: service.service_code,
+        serviceName: service.name,
+        countryName: selectedCountry.nameUg || selectedCountry.name,
+        sellPrice: data.sellPrice,
+        expiresAt: data.expiresAt || Date.now() + 15 * 60 * 1000,
+        status: 'waiting',
+        country: selectedCountry,
+        service: service,
+      });
+
+      // Update user balance locally
       setUser((prev) => (prev ? { ...prev, balance: (prev.balance || 0) - data.sellPrice } : null));
 
-      // As requested by user: "باسقان ھامانلا مىنىڭ تەلەپلىرىم بىتىگە سەكرەيدىغان قىلىڭ"
-      // Jump immediately to /orders (مېنىڭ تەلەپلىرىم)
-      router.push('/orders');
+      // Scroll smoothly up to the active dashboard
+      window.scrollTo({ top: 80, behavior: 'smooth' });
     } catch (err: any) {
       setActionError(err?.message || 'تور ئۇلىنىشىدا خاتالىق كۆرۈلدى');
+    } finally {
       isBuyingRef.current = false;
       setBuying(false);
     }
@@ -543,145 +567,247 @@ export default function NumbersPage() {
           </div>
         )}
 
-        {/* -------------------- TAB 1: ACTIVE LIVE ACTIVATION CARD -------------------- */}
+        {/* -------------------- TAB 1: ACTIVE LIVE ACTIVATION SCREEN (PhoneCash Official Replica) -------------------- */}
         {activeSession && (
-          <div className="mb-8 relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#0b2749] via-[#071d36] to-[#051527] border-2 border-cyan-400/60 p-6 sm:p-8 shadow-[0_0_50px_rgba(6,182,212,0.25)] animate-in fade-in duration-300">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-cyan-500/20">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 shadow-lg">
-                  <Phone className="w-6 h-6 animate-bounce" />
-                </div>
-                <div>
-                  <div className="text-xs text-cyan-300/80 font-bold">
-                    {activeSession.countryName} • {activeSession.serviceName}
+          <div className="max-w-2xl mx-auto space-y-4 mb-10 animate-in fade-in zoom-in-95 duration-300">
+            {/* 1. Top Notice Banner: بانتظار رمز التحقق، لم يتم الخصم بعد */}
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-sky-950/90 via-[#0a233f] to-sky-950/90 border border-sky-400/50 text-sky-200 text-xs sm:text-sm flex items-center justify-between gap-3 shadow-xl">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-6 h-6 rounded-full border-2 border-sky-400 border-t-transparent animate-spin shrink-0" />
+                <div className="min-w-0">
+                  <div className="font-bold text-sky-100 truncate">
+                    بانتظار رمز التحقق، لم يتم الخصم بعد
                   </div>
-                  <h3 className="text-lg sm:text-xl font-black text-white">
-                    {activeSession.status === 'received'
-                      ? '🎉 تەستىق كودى قوبۇل قىلىندى!'
-                      : '📲 مەۋھۇم نومۇر تەييارلاندى'}
-                  </h3>
+                  <div className="text-[11px] text-sky-200/70 mt-0.5 truncate">
+                    تەستىق كودى كۈتۈلمەكتە، كود كەلمىگۈچە پۇل كېسىلمەيدۇ (كەلمىسە تولۇق ھەميانغا قايتىدۇ)
+                  </div>
                 </div>
               </div>
-
-              {/* Countdown or Status Indicator */}
               {activeSession.status === 'waiting' && (
-                <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-cyan-950/90 border border-cyan-500/40 text-cyan-300 shadow-inner">
-                  <Clock className="w-4 h-4 text-cyan-400 animate-spin" style={{ animationDuration: '6s' }} />
-                  <span className="text-xs font-semibold">قالغان ۋاقىت:</span>
-                  <span className="font-mono font-black text-sm tracking-wider text-white">
-                    {formatTimer(timeLeft)}
-                  </span>
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-sky-900/80 border border-sky-400/40 text-sky-300 font-mono font-bold text-xs shrink-0" dir="ltr">
+                  <Clock className="w-3.5 h-3.5 text-sky-400 animate-spin" style={{ animationDuration: '6s' }} />
+                  <span>{formatTimer(timeLeft)}</span>
                 </div>
               )}
             </div>
 
-            {/* Virtual Number Box */}
-            <div className="my-6 p-5 sm:p-6 rounded-2xl bg-[#040e1a]/90 border border-cyan-500/30 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
-              <div className="text-center md:text-right">
-                <span className="text-xs text-amber-300/80 font-semibold block mb-1">
-                  تېلېفون ياكى ئەپكە كىرگۈزىدىغان نومۇر:
-                </span>
-                <span className="text-2xl sm:text-3xl font-black font-mono tracking-widest text-white text-glow" dir="ltr">
+            {/* 2. Main Purchased Number Card: الرقم الذي تم شراؤه */}
+            <div className="p-6 rounded-3xl bg-gradient-to-b from-[#081f38] via-[#06182c] to-[#040e1b] border-2 border-cyan-400/60 shadow-2xl space-y-5 relative overflow-hidden">
+              <div className="flex items-center justify-between pb-1 border-b border-cyan-500/20">
+                <div className="flex items-center gap-2 text-amber-300 font-bold text-xs sm:text-sm">
+                  <Smartphone className="w-4 h-4 text-amber-400" />
+                  <span>الرقم الذي تم شراؤه (سېتىۋېلىنغان نومۇر)</span>
+                </div>
+                <div className="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300">
+                  <Phone className="w-4 h-4 animate-bounce" />
+                </div>
+              </div>
+
+              {/* Large Centered Phone Number */}
+              <div className="text-center py-2">
+                <div className="text-3xl sm:text-4xl md:text-5xl font-black font-mono tracking-widest text-white text-glow select-all" dir="ltr">
                   {activeSession.phone}
+                </div>
+                <span className="text-[11px] text-cyan-300/70 mt-1 block">
+                  نومۇرنى ئەپكە كىرگۈزۈپ «كود ئەۋەتىش» نى بېسىڭ
                 </span>
               </div>
 
-              <div className="flex items-center gap-2">
+              {/* Order Stats Grid: Order ID | الحالة | سعر بيع */}
+              <div className="grid grid-cols-3 gap-2 p-3.5 rounded-2xl bg-[#030b15]/90 border border-cyan-500/25 text-center">
+                <div>
+                  <span className="text-[10px] text-slate-400 block mb-0.5">Order ID / زاكاز</span>
+                  <span className="font-mono text-cyan-300 font-bold text-xs truncate block" dir="ltr">
+                    {activeSession.orderId}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 block mb-0.5">الحالة / ھالىتى</span>
+                  <span className={`font-bold text-xs block ${
+                    activeSession.status === 'received' ? 'text-emerald-400 font-black' : 'text-amber-400 animate-pulse'
+                  }`}>
+                    {activeSession.status === 'received' ? 'RECEIVED' : 'WAITING'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 block mb-0.5">سعر بيع / باھاسى</span>
+                  <span className="font-mono text-amber-300 font-bold text-xs block" dir="ltr">
+                    ${activeSession.sellPrice.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Two Action Buttons: [نسخ الرقم] & [إلغاء الرقم] */}
+              <div className="grid grid-cols-2 gap-3 pt-1">
                 <button
+                  type="button"
                   onClick={() => copyText(activeSession.phone, 'phone')}
-                  className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition cursor-pointer shadow-lg ${
+                  className={`py-3.5 px-4 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-xl active:scale-95 ${
                     copiedPhone
-                      ? 'bg-emerald-500 text-slate-950 font-black'
-                      : 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black hover:scale-105 active:scale-95'
+                      ? 'bg-emerald-500 text-slate-950 scale-102'
+                      : 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-950 shadow-cyan-500/30'
                   }`}
                 >
                   {copiedPhone ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  <span>{copiedPhone ? 'نومۇر كۆچۈرۈلدى!' : 'نومۇرنى كۆچۈرۈش'}</span>
+                  <span>{copiedPhone ? 'نومۇر كۆچۈرۈلدى!' : 'نسخ الرقم (نومۇر كۆچۈرۈش)'}</span>
                 </button>
+
+                {activeSession.status === 'waiting' && (
+                  <button
+                    type="button"
+                    onClick={handleCancelSession}
+                    disabled={canceling}
+                    className="py-3.5 px-4 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition cursor-pointer border-2 border-rose-500/60 hover:bg-rose-950/60 text-rose-300 active:scale-95 disabled:opacity-50"
+                  >
+                    <XCircle className="w-4 h-4 text-rose-400" />
+                    <span>{canceling ? 'بىكار قىلىنىۋاتىدۇ...' : 'إلغاء الرقم (بىكار قىلىش)'}</span>
+                  </button>
+                )}
+
+                {activeSession.status === 'received' && (
+                  <button
+                    type="button"
+                    onClick={() => setActiveSession(null)}
+                    className="py-3.5 px-4 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition cursor-pointer bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 hover:bg-emerald-500/30 active:scale-95"
+                  >
+                    <Check className="w-4 h-4 text-emerald-400" />
+                    <span>تاماملاش</span>
+                  </button>
+                )}
               </div>
             </div>
 
-            {/* SMS Code Box (When code arrives) */}
+            {/* 3. Selected Country Card: الدولة */}
+            <div className="p-4 rounded-2xl bg-[#081a2e]/90 border border-amber-500/25 flex items-center justify-between shadow-lg">
+              <div className="flex items-center gap-3">
+                <WavingFlag
+                  code={activeSession.country?.code || selectedCountry?.code || 'ca'}
+                  name={activeSession.country?.name || activeSession.countryName}
+                  size="md"
+                  animated={true}
+                />
+                <div>
+                  <span className="text-[10px] text-amber-200/60 font-semibold block">الدولة (دۆلەت)</span>
+                  <h4 className="font-bold text-white text-sm">
+                    {activeSession.country?.name || activeSession.countryName}
+                  </h4>
+                  <span className="text-[11px] text-cyan-300 font-mono" dir="ltr">
+                    {activeSession.country?.name.toLowerCase()} • {activeSession.country?.dialCode || ''}
+                  </span>
+                </div>
+              </div>
+              <ChevronLeft className="w-4 h-4 text-slate-500" />
+            </div>
+
+            {/* 4. Selected Service Card: الخدمة */}
+            <div className="p-4 rounded-2xl bg-[#081a2e]/90 border border-amber-500/25 flex items-center justify-between shadow-lg">
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-11 h-11 rounded-2xl p-1 shrink-0 flex items-center justify-center border shadow-md"
+                  style={{
+                    backgroundColor: `${activeSession.service?.color || '#3b82f6'}20`,
+                    borderColor: `${activeSession.service?.color || '#3b82f6'}50`,
+                  }}
+                >
+                  <AppIcon
+                    code={activeSession.serviceCode}
+                    name={activeSession.serviceName}
+                    color={activeSession.service?.color || '#3b82f6'}
+                    size={24}
+                  />
+                </div>
+                <div>
+                  <span className="text-[10px] text-amber-200/60 font-semibold block">الخدمة (مۇلازىمەت / ئەپ)</span>
+                  <h4 className="font-bold text-white text-sm">
+                    {activeSession.service?.nameUg || activeSession.serviceName}
+                  </h4>
+                  <span className="text-[11px] text-amber-300/80 font-mono" dir="ltr">
+                    ${activeSession.sellPrice.toFixed(2)} • {activeSession.service?.count ? `${activeSession.service.count.toLocaleString()} متاح` : 'متاح'}
+                  </span>
+                </div>
+              </div>
+              <ChevronLeft className="w-4 h-4 text-slate-500" />
+            </div>
+
+            {/* 5. Status Summary Grid: الحالة */}
+            <div className="p-4 rounded-2xl bg-[#081a2e]/90 border border-amber-500/20 shadow-lg space-y-3">
+              <span className="text-xs text-amber-300/80 font-bold block">الحالة (ئومۇمىي ئەھۋالى)</span>
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="p-2.5 rounded-xl bg-[#051120] border border-slate-800">
+                  <span className="text-xs font-bold text-white block truncate">
+                    {activeSession.country?.name || activeSession.countryName}
+                  </span>
+                  <span className="text-[10px] text-slate-400 block mt-0.5">الدولة</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-[#051120] border border-slate-800">
+                  <span className="text-xs font-bold text-white block">Any</span>
+                  <span className="text-[10px] text-slate-400 block mt-0.5">Operator</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-[#051120] border border-slate-800">
+                  <span className="text-xs font-bold text-cyan-300 font-mono block">185</span>
+                  <span className="text-[10px] text-slate-400 block mt-0.5">الخدمات</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-slate-800/80">
+                <div className="flex items-center gap-2">
+                  <AppIcon code={activeSession.serviceCode} name={activeSession.serviceName} size={18} />
+                  <span className="text-xs text-slate-200 font-bold">{activeSession.serviceName}</span>
+                </div>
+                <span className="text-xs font-mono font-bold text-amber-300" dir="ltr">
+                  سعر بيع: ${activeSession.sellPrice.toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            {/* 6. Bottom Verification Code Box: جارٍ انتظار رمز SMS... */}
             {activeSession.status === 'received' && activeSession.code ? (
-              <div className="p-6 rounded-2xl bg-gradient-to-r from-emerald-950/90 via-[#062c20] to-emerald-950/90 border-2 border-emerald-400 text-center shadow-[0_0_40px_rgba(16,185,129,0.3)] animate-in zoom-in-95 duration-300">
-                <div className="text-xs sm:text-sm text-emerald-200 font-bold mb-2 flex items-center justify-center gap-2">
+              <div className="p-6 rounded-3xl bg-gradient-to-r from-emerald-950/90 via-[#062c20] to-emerald-950/90 border-2 border-emerald-400 text-center shadow-[0_0_40px_rgba(16,185,129,0.3)] space-y-2 animate-in zoom-in-95 duration-300">
+                <div className="text-xs sm:text-sm text-emerald-200 font-bold flex items-center justify-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                  <span>تەستىق كودى قوبۇل قىلىندى (SMS Verification Code):</span>
+                  <span>رمز التحقق / تەستىق كودى قوبۇل قىلىندى (SMS Verification Code):</span>
                 </div>
                 <div className="text-4xl sm:text-5xl font-black font-mono tracking-[0.25em] text-white my-3 drop-shadow-[0_0_20px_rgba(16,185,129,0.8)]" dir="ltr">
                   {activeSession.code}
                 </div>
                 <button
+                  type="button"
                   onClick={() => copyText(activeSession.code!, 'code')}
-                  className={`mt-3 px-8 py-3 rounded-2xl font-black text-sm flex items-center justify-center gap-2 mx-auto transition cursor-pointer shadow-xl ${
-                    copiedCode
-                      ? 'bg-emerald-400 text-slate-950 scale-105'
-                      : 'bg-gradient-to-r from-amber-400 to-yellow-300 hover:from-amber-300 hover:to-yellow-200 text-slate-950 shadow-amber-500/30 hover:scale-105'
-                  }`}
+                  className="px-8 py-3 rounded-2xl bg-gradient-to-r from-amber-400 to-yellow-300 hover:from-amber-300 hover:to-yellow-200 text-slate-950 font-black text-sm flex items-center justify-center gap-2 mx-auto transition cursor-pointer shadow-xl active:scale-95"
                 >
                   {copiedCode ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
                   <span>{copiedCode ? 'كود كۆچۈرۈۋېلىندى!' : 'كودنى دەرھال كۆچۈرۈش'}</span>
                 </button>
               </div>
             ) : (
-              /* Waiting Radar Animation */
-              <div className="p-6 rounded-2xl bg-[#04101e]/60 border border-cyan-500/20 text-center">
-                <div className="relative w-16 h-16 mx-auto mb-3 flex items-center justify-center">
-                  <div className="absolute inset-0 rounded-full border-2 border-cyan-400/40 animate-ping" />
-                  <div className="w-12 h-12 rounded-full bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-cyan-300">
-                    <RefreshCw className={`w-5 h-5 text-cyan-400 ${isCheckingNow ? 'animate-spin' : ''}`} />
+              <div className="p-4 rounded-2xl bg-[#081a2e]/90 border border-cyan-500/30 flex items-center justify-between gap-3 text-cyan-300 shadow-md">
+                <div className="flex items-center gap-3 min-w-0">
+                  <RefreshCw className="w-5 h-5 text-cyan-400 animate-spin shrink-0" style={{ animationDuration: '3s' }} />
+                  <div className="min-w-0">
+                    <span className="font-bold text-xs sm:text-sm block text-white truncate">جارٍ انتظار رمز SMS...</span>
+                    <span className="text-[11px] text-cyan-200/70 block truncate">ھەر 5 سېكۇنتتا بىر تەمىنلىگۈچىدىن ئاپتوماتىك تەكشۈرۈلىۋاتىدۇ</span>
                   </div>
                 </div>
-
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-[11px] font-bold mb-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>تەمىنلىگۈچىدىن ھەر 5 سېكۇنتتا كود قوغلاپ تەكشۈرۈلمەكتە</span>
-                </div>
-
-                <h4 className="text-base font-bold text-white mb-1">
-                  SMS كودى كۈتۈلمەكتە...
-                </h4>
-                <p className="text-xs text-cyan-200/70 max-w-md mx-auto leading-relaxed mb-4">
-                  نومۇرنى ئەپكە كىرگۈزۈپ «كود ئەۋەتىش» نى بېسىڭ. SMS كەلگەن دەقىقىدە بەتتە ئاپتوماتىك پەيدا بولىدۇ.
-                </p>
-
                 <button
                   type="button"
                   onClick={checkCodeStatus}
                   disabled={isCheckingNow}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-950/90 hover:bg-cyan-900/80 border border-cyan-500/50 text-cyan-300 text-xs font-bold transition shadow-md cursor-pointer hover:scale-105 active:scale-95 disabled:opacity-50"
+                  className="px-3.5 py-1.5 rounded-xl bg-cyan-950 hover:bg-cyan-900 border border-cyan-500/50 text-cyan-300 text-xs font-bold transition cursor-pointer shrink-0 active:scale-95 disabled:opacity-50"
                 >
-                  <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${isCheckingNow ? 'animate-spin' : ''}`} />
-                  <span>{isCheckingNow ? 'تەكشۈرۈلىۋاتىدۇ...' : 'ھازىرلا تەكشۈرۈش'}</span>
+                  {isCheckingNow ? 'تەكشۈرۈلىۋاتىدۇ...' : 'ھازىرلا تەكشۈرۈش'}
                 </button>
               </div>
             )}
 
-            {/* Bottom Actions: Cancel & Refund */}
-            <div className="mt-5 flex items-center justify-between pt-4 border-t border-cyan-500/20">
-              <span className="text-[11px] text-slate-400">
-                زاكاز كودى: <span className="font-mono text-cyan-300">{activeSession.orderId}</span>
-              </span>
-
-              {activeSession.status === 'waiting' && (
-                <button
-                  onClick={handleCancelSession}
-                  disabled={canceling}
-                  className="px-4 py-2 rounded-xl border border-rose-500/40 text-rose-300 hover:bg-rose-950/60 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                >
-                  <XCircle className="w-4 h-4 text-rose-400" />
-                  <span>{canceling ? 'بىكار قىلىنىۋاتىدۇ...' : 'بىكار قىلىش ۋە پۇلنى قايتۇرۇش'}</span>
-                </button>
-              )}
-
-              {activeSession.status === 'received' && (
-                <button
-                  onClick={() => setActiveSession(null)}
-                  className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-black transition cursor-pointer"
-                >
-                  تاماملاش
-                </button>
-              )}
+            {/* Return / Buy another number */}
+            <div className="text-center pt-2">
+              <button
+                type="button"
+                onClick={() => setActiveSession(null)}
+                className="text-xs text-amber-300 hover:text-amber-200 font-semibold underline underline-offset-4 cursor-pointer"
+              >
+                ← باشقا ئەپكە يەنە مەۋھۇم نومۇر ئېلىش
+              </button>
             </div>
           </div>
         )}
