@@ -724,11 +724,12 @@ export default function AdminPage() {
 
 
 
-  const checkProviderLive = async () => {
+  const checkProviderLive = async (force: boolean = false) => {
     setCheckingProvider(true);
     try {
       const token = sessionStorage.getItem('autocash_admin_token');
-      const res = await fetch('/api/admin/provider?action=balance&force=1', {
+      const url = force ? '/api/admin/provider?action=balance&force=1' : '/api/admin/provider?action=balance';
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -3469,7 +3470,7 @@ export default function AdminPage() {
                   </div>
 
                   <button
-                    onClick={checkProviderLive}
+                    onClick={() => checkProviderLive(true)}
                     disabled={checkingProvider}
                     className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-bold transition flex items-center gap-2 border border-slate-700/80 cursor-pointer disabled:opacity-50 shadow-sm"
                   >
@@ -5497,7 +5498,7 @@ export default function AdminPage() {
 
                 <div className="flex items-center gap-3 w-full md:w-auto">
                   <button
-                    onClick={checkProviderLive}
+                    onClick={() => checkProviderLive(true)}
                     disabled={checkingProvider}
                     className="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:opacity-95 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 cursor-pointer disabled:opacity-50"
                   >

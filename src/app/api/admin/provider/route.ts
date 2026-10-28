@@ -92,14 +92,17 @@ export async function GET(req: Request) {
     let friendlyError = rawError;
     const isRateLimited = /rate\s*limit/i.test(rawError);
     if (isRateLimited) {
-      friendlyError = 'تەمىنلىگۈچى API نى زىيارەت قىلىش سۈرئىتى چەكلەندى (Rate Limit). 1 مىنۇتتىن كېيىن ئۆزلۈكىدىن ئەسلىگە كېلىدۇ.';
+      friendlyError = 'تەمىنلىگۈچى API نى زىيارەت قىلىش سۈرئىتى ۋاقىتلىق چەكلەندى (Rate Limit). ئۇلىنىش نورمال، ئازراق كۈتۈپ قايتا سىناڭ.';
     } else if (/ip\s*(not\s*allowed|blocked|invalid|address)/i.test(rawError)) {
       friendlyError = `مۇلازىمېتىر IP سى (${serverPublicIp}) تەمىنلىگۈچىدە تېخى ئاق تىزىملىككە كىرگۈزۈلمىگەن`;
     }
 
+    const hasRealKey = Boolean(resolvedConfig.apiToken && resolvedConfig.apiToken.length > 5);
+    const effectiveSuccess = profile.success || (isRateLimited && effectiveBalance !== undefined && hasRealKey);
+
     return NextResponse.json({
       activeProvider: 'othman',
-      success: profile.success,
+      success: effectiveSuccess,
       isConfigured: await othmanStoreProvider.hasLiveConfig(),
       balance: effectiveBalance,
       isLiveBalance: profile.success,
@@ -117,10 +120,10 @@ export async function GET(req: Request) {
         providerApiType: resolvedConfig.apiType,
         providerApiSecret: resolvedConfig.apiSecret || '',
         providerEnabled: resolvedConfig.enabled,
-        hasRealKey: Boolean(resolvedConfig.apiToken && resolvedConfig.apiToken.length > 5),
+        hasRealKey,
       },
       othman: {
-        success: profile.success,
+        success: effectiveSuccess,
         balance: effectiveBalance,
         currency: profile.currency || 'USD',
         userName: profile.userName || 'Othman Store',
@@ -130,7 +133,7 @@ export async function GET(req: Request) {
           apiUrl: resolvedConfig.baseUrl,
           apiKey: resolvedConfig.apiToken ? `${resolvedConfig.apiToken.slice(0, 4)}...${resolvedConfig.apiToken.slice(-4)}` : '',
           enabled: resolvedConfig.enabled,
-          hasRealKey: Boolean(resolvedConfig.apiToken && resolvedConfig.apiToken.length > 5),
+          hasRealKey,
         },
       },
     });

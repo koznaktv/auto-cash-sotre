@@ -1,6 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import { getServicesList, saveServicesListAsync } from './servicesDb';
+import {
+  getServicesList,
+  getServicesListAsync,
+  saveServicesListAsync,
+  invalidateServicesCache,
+} from './servicesDb';
 import { ServiceItem } from './data';
 import { getSupabase } from './supabase';
 import { sendChannelBroadcast } from './telegram';
@@ -90,9 +95,14 @@ export async function getPromotionsListAsync(): Promise<ActivePromotion[]> {
       if (!error && data?.site_name) {
         const parsed = JSON.parse(data.site_name);
         if (Array.isArray(parsed)) {
-          cachedPromos = parsed;
+          const active = filterActive(parsed);
+          // If any invalid or expired promotions were pruned, persist clean list back to storage
+          if (active.length !== parsed.length) {
+            savePromotionsListAsync(active).catch(() => {});
+          }
+          cachedPromos = active;
           lastPromosFetch = Date.now();
-          return filterActive(parsed);
+          return active;
         }
       }
     } catch {}
@@ -108,6 +118,8 @@ function filterActive(list: ActivePromotion[]): ActivePromotion[] {
     if (new Date(p.endsAt).getTime() <= now) return false;
     // Strict Anti-Loss Guard: Auto-deactivate any promotion if promoPrice <= costPrice
     if (p.costPrice && p.promoPrice <= p.costPrice) return false;
+    // Auto-clean any bogus promotion where promoPrice or costPrice is absurdly higher than regularPrice
+    if (p.regularPrice > 0 && (p.promoPrice > p.regularPrice * 2 || p.costPrice > p.regularPrice * 2)) return false;
     return true;
   });
 }
@@ -119,28 +131,19 @@ function filterActive(list: ActivePromotion[]): ActivePromotion[] {
 export function resolvePackageCostPrice(pkg: any): number {
   if (!pkg) return 0;
 
-  // 1. Explicit costPrice on package
+  const regularPrice = Number(pkg.regularPrice || pkg.price);
+
+  // 1. Explicit costPrice on package if reasonable (not colliding with foreign catalogs)
   const directCost = Number(pkg.costPrice);
-  if (Number.isFinite(directCost) && directCost > 0) {
+  if (
+    Number.isFinite(directCost) &&
+    directCost > 0 &&
+    (!Number.isFinite(regularPrice) || regularPrice <= 0 || directCost <= regularPrice * 1.25)
+  ) {
     return Number(directCost.toFixed(2));
   }
 
-  // 2. Check provider catalog for matching providerProductId
-  if (pkg.providerProductId) {
-    try {
-      const catalogPath = path.join(process.cwd(), 'data', 'provider_catalog.json');
-      if (fs.existsSync(catalogPath)) {
-        const cat = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
-        const found = (cat.products || []).find((pr: any) => pr.id === pkg.providerProductId);
-        if (found && Number(found.costPrice) > 0) {
-          return Number(Number(found.costPrice).toFixed(2));
-        }
-      }
-    } catch {}
-  }
-
-  // 3. Standard store wholesale base: price / 1.15 (15% standard retail markup)
-  const regularPrice = Number(pkg.regularPrice || pkg.price);
+  // 2. Standard store wholesale base: price / 1.15 (15% standard retail markup)
   if (Number.isFinite(regularPrice) && regularPrice > 0) {
     return Number((regularPrice / 1.15).toFixed(2));
   }
@@ -328,15 +331,7 @@ export async function createOrUpdatePromotionsBulk(input: {
     return { success: false, error: 'پائالىيەتنىڭ ئاخىرلىشىش ۋاقتى خاتا ياكى ئۆتۈپ كەتكەن ۋاقىت بولۇپ قالدى' };
   }
 
-  let catalog: any = null;
-  try {
-    const catalogPath = path.join(process.cwd(), 'data', 'provider_catalog.json');
-    if (fs.existsSync(catalogPath)) {
-      catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
-    }
-  } catch {}
-
-  const currentList = getPromotionsList();
+  const currentList = await getPromotionsListAsync();
   const createdPromos: ActivePromotion[] = [];
 
   // 1. Strict Anti-Loss Guard Check across all items FIRST
@@ -440,19 +435,50 @@ export async function createOrUpdatePromotionsBulk(input: {
  * Removes or cancels a promotion and reverts package to regular price.
  */
 export async function removePromotion(promoId: string): Promise<{ success: boolean; error?: string }> {
-  const currentList = getPromotionsList();
+  const currentList = await getPromotionsListAsync();
   const target = currentList.find((p) => p.id === promoId);
-  if (!target) {
-    return { success: false, error: 'پائالىيەت تېپىلمىدى' };
+
+  // 1. Revert service package in servicesDb
+  const services = await getServicesListAsync();
+  if (target) {
+    const service = services.find((s) => s.id === target.serviceId);
+    if (service && service.packages) {
+      const pkg = service.packages.find((p) => p.id === target.packageId);
+      if (pkg) {
+        pkg.price = target.regularPrice;
+        if ((pkg as any).regularOriginalPrice !== undefined) {
+          pkg.originalPrice = (pkg as any).regularOriginalPrice;
+        }
+        delete (pkg as any).promoPrice;
+        delete (pkg as any).regularPrice;
+        delete (pkg as any).regularOriginalPrice;
+        delete (pkg as any).promoEndsAt;
+      }
+      await saveServicesListAsync(services);
+      invalidateServicesCache();
+    }
   }
 
-  // 1. Revert service package
-  const services = getServicesList();
-  const service = services.find((s) => s.id === target.serviceId);
-  if (service && service.packages) {
-    const pkg = service.packages.find((p) => p.id === target.packageId);
-    if (pkg) {
-      pkg.price = target.regularPrice;
+  // 2. Remove from promotions list (both local file and Supabase)
+  const filtered = currentList.filter((p) => p.id !== promoId);
+  await savePromotionsListAsync(filtered);
+  cachedPromos = filtered;
+  lastPromosFetch = Date.now();
+
+  return { success: true };
+}
+
+/**
+ * Resets/cancels ALL active promotions and reverts all packages back to their original regular prices.
+ */
+export async function clearAllPromotions(): Promise<{ success: boolean }> {
+  const services = await getServicesListAsync();
+
+  for (const srv of services) {
+    for (const pkg of srv.packages || []) {
+      if ((pkg as any).regularPrice !== undefined) {
+        pkg.price = (pkg as any).regularPrice;
+      }
       if ((pkg as any).regularOriginalPrice !== undefined) {
         pkg.originalPrice = (pkg as any).regularOriginalPrice;
       }
@@ -461,12 +487,13 @@ export async function removePromotion(promoId: string): Promise<{ success: boole
       delete (pkg as any).regularOriginalPrice;
       delete (pkg as any).promoEndsAt;
     }
-    await saveServicesListAsync(services);
   }
+  await saveServicesListAsync(services);
+  invalidateServicesCache();
 
-  // 2. Remove from promotions list
-  const filtered = currentList.filter((p) => p.id !== promoId);
-  await savePromotionsListAsync(filtered);
+  await savePromotionsListAsync([]);
+  cachedPromos = [];
+  lastPromosFetch = Date.now();
 
   return { success: true };
 }

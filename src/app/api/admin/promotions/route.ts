@@ -4,6 +4,7 @@ import {
   createOrUpdatePromotion,
   createOrUpdatePromotionsBulk,
   removePromotion,
+  clearAllPromotions,
   resolvePackageCostPrice,
 } from '@/lib/promotionsDb';
 import { getServicesListAsync } from '@/lib/servicesDb';
@@ -133,6 +134,16 @@ export async function DELETE(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const promoId = searchParams.get('id');
+    const action = searchParams.get('action');
+
+    if (action === 'clear_all' || promoId === 'all') {
+      await clearAllPromotions();
+      return NextResponse.json({
+        success: true,
+        promotions: [],
+        message: 'بارلىق پائالىيەتلەر بىكار قىلىندى ۋە باھالار ئەسلىگە قايتتى',
+      });
+    }
 
     if (!promoId) {
       return NextResponse.json(

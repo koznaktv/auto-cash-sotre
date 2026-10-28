@@ -118,68 +118,70 @@ export default function FlashSaleSection({
         </div>
 
         {/* Luxury Grand VIP Countdown Clock */}
-        <div className="relative flex items-center gap-3 bg-gradient-to-r from-slate-950 via-amber-950/40 to-slate-950 border-2 border-amber-400/50 rounded-2xl px-4 py-2 shadow-[0_0_25px_rgba(245,158,11,0.25)] backdrop-blur-md">
-          {/* Subtle gold shimmer edge */}
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-amber-400/10 via-transparent to-transparent pointer-events-none" />
+        <div className="relative flex items-center gap-3.5 bg-gradient-to-r from-zinc-950 via-amber-950/40 to-black border border-amber-400/50 rounded-2xl px-4 py-2.5 shadow-[0_0_30px_rgba(245,158,11,0.25)] backdrop-blur-md">
+          {/* Subtle gold specular reflection */}
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-300/60 to-transparent pointer-events-none" />
 
           {/* RTL Label Side */}
           <div className="flex flex-col items-start gap-0.5 text-right font-alkatip">
             <div className="flex items-center gap-1.5">
-              <span className="inline-block w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#f59e0b] animate-pulse" />
+              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-300 text-xs shadow-[0_0_10px_rgba(245,158,11,0.4)] animate-pulse">
+                ⏳
+              </span>
               <span className="text-amber-200 text-xs sm:text-sm font-black tracking-wide">
-                {lang === 'ug' ? 'ئاخىرلىشىشقا قالدى' : 'Sale Ends In'}
+                {lang === 'ug' ? 'قالدۇق ۋاقىت' : 'Sale Ends In'}
               </span>
             </div>
-            <span className="text-[10px] text-amber-400/70 font-mono">
-              ⚡️ {lang === 'ug' ? 'چەكلىك پۇرسەت' : 'LIMITED TIME'}
+            <span className="text-[10px] text-amber-400/80 font-mono tracking-wider">
+              ⚡️ {lang === 'ug' ? 'چەكلىك ئېتىبار' : 'LIMITED TIME'}
             </span>
           </div>
 
-          <div className="h-8 w-px bg-gradient-to-b from-transparent via-amber-400/40 to-transparent mx-1" />
+          <div className="h-9 w-px bg-gradient-to-b from-transparent via-amber-400/50 to-transparent mx-1" />
 
           {/* LTR Digital Flip Cards */}
-          <div className="flex items-center gap-1.5" dir="ltr">
+          <div className="flex items-center gap-2" dir="ltr">
             {/* Hours */}
             <div className="flex flex-col items-center">
-              <div className="relative min-w-[38px] sm:min-w-[44px] h-10 sm:h-11 rounded-xl bg-gradient-to-b from-slate-900 via-amber-950/60 to-black border border-amber-400/40 shadow-inner flex items-center justify-center px-1.5">
-                <span className="font-mono text-base sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-300 to-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+              <div className="relative min-w-[42px] sm:min-w-[46px] h-10 sm:h-11 rounded-xl bg-gradient-to-b from-zinc-900 via-stone-950 to-black border border-amber-400/50 shadow-[inset_0_1px_2px_rgba(255,255,255,0.1),0_4px_12px_rgba(0,0,0,0.8)] flex items-center justify-center px-1.5">
+                <span className="font-mono text-base sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-300 to-amber-500 drop-shadow-[0_2px_6px_rgba(245,158,11,0.4)]">
                   {pad(timeLeft.hours)}
                 </span>
-                <div className="absolute top-0 inset-x-0 h-px bg-amber-300/40 rounded-t-xl" />
+                <div className="absolute top-0 inset-x-0 h-px bg-amber-200/50 rounded-t-xl" />
               </div>
-              <span className="text-[9px] font-bold text-amber-300/80 font-alkatip mt-1">
+              <span className="text-[10px] font-bold text-amber-300/90 font-alkatip mt-1">
                 {lang === 'ug' ? 'سائەت' : 'HRS'}
               </span>
             </div>
 
             {/* Pulsing separator */}
-            <span className="text-amber-400 font-mono font-black text-sm sm:text-base animate-pulse -mt-3.5">:</span>
+            <span className="text-amber-400 font-mono font-black text-base sm:text-lg animate-pulse -mt-4">:</span>
 
             {/* Minutes */}
             <div className="flex flex-col items-center">
-              <div className="relative min-w-[38px] sm:min-w-[44px] h-10 sm:h-11 rounded-xl bg-gradient-to-b from-slate-900 via-amber-950/60 to-black border border-amber-400/40 shadow-inner flex items-center justify-center px-1.5">
-                <span className="font-mono text-base sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-300 to-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+              <div className="relative min-w-[42px] sm:min-w-[46px] h-10 sm:h-11 rounded-xl bg-gradient-to-b from-zinc-900 via-stone-950 to-black border border-amber-400/50 shadow-[inset_0_1px_2px_rgba(255,255,255,0.1),0_4px_12px_rgba(0,0,0,0.8)] flex items-center justify-center px-1.5">
+                <span className="font-mono text-base sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-300 to-amber-500 drop-shadow-[0_2px_6px_rgba(245,158,11,0.4)]">
                   {pad(timeLeft.minutes)}
                 </span>
-                <div className="absolute top-0 inset-x-0 h-px bg-amber-300/40 rounded-t-xl" />
+                <div className="absolute top-0 inset-x-0 h-px bg-amber-200/50 rounded-t-xl" />
               </div>
-              <span className="text-[9px] font-bold text-amber-300/80 font-alkatip mt-1">
+              <span className="text-[10px] font-bold text-amber-300/90 font-alkatip mt-1">
                 {lang === 'ug' ? 'مىنۇت' : 'MIN'}
               </span>
             </div>
 
             {/* Pulsing separator */}
-            <span className="text-amber-400 font-mono font-black text-sm sm:text-base animate-pulse -mt-3.5">:</span>
+            <span className="text-amber-400 font-mono font-black text-base sm:text-lg animate-pulse -mt-4">:</span>
 
             {/* Seconds */}
             <div className="flex flex-col items-center">
-              <div className="relative min-w-[38px] sm:min-w-[44px] h-10 sm:h-11 rounded-xl bg-gradient-to-b from-slate-900 via-amber-950/60 to-black border border-amber-400/40 shadow-inner flex items-center justify-center px-1.5">
-                <span className="font-mono text-base sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-orange-400 to-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+              <div className="relative min-w-[42px] sm:min-w-[46px] h-10 sm:h-11 rounded-xl bg-gradient-to-b from-zinc-900 via-stone-950 to-black border border-amber-400/50 shadow-[inset_0_1px_2px_rgba(255,255,255,0.1),0_4px_12px_rgba(0,0,0,0.8)] flex items-center justify-center px-1.5">
+                <span className="font-mono text-base sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-orange-400 to-amber-500 drop-shadow-[0_2px_6px_rgba(245,158,11,0.4)]">
                   {pad(timeLeft.seconds)}
                 </span>
-                <div className="absolute top-0 inset-x-0 h-px bg-amber-300/40 rounded-t-xl" />
+                <div className="absolute top-0 inset-x-0 h-px bg-amber-200/50 rounded-t-xl" />
               </div>
-              <span className="text-[9px] font-bold text-amber-300/80 font-alkatip mt-1">
+              <span className="text-[10px] font-bold text-amber-300/90 font-alkatip mt-1">
                 {lang === 'ug' ? 'سېكۇنت' : 'SEC'}
               </span>
             </div>

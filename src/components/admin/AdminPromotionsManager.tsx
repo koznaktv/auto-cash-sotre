@@ -278,6 +278,25 @@ export default function AdminPromotionsManager() {
     }
   };
 
+  const handleClearAllPromotions = async () => {
+    if (!window.confirm('دىققەت! راستلا بارلىق ئېتىبار پائالىيەتلىرىنى بىكار قىلىپ، بارلىق مەھسۇلاتلارنى ئەسلى باھاسىغا قايتۇرامسىز؟')) return;
+
+    try {
+      const res = await fetch('/api/admin/promotions?action=clear_all', {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPromotions([]);
+        setSuccessMsg('بارلىق ئېتىبار پائالىيەتلىرى پۈتۈنلەي بىكار قىلىندى، بارلىق باھالار ئەسلىگە كەلدى.');
+      } else {
+        setErrorMsg(data.error || 'بىكار قىلىش مەغلۇپ بولدى');
+      }
+    } catch (e: any) {
+      setErrorMsg(e?.message || 'تور خاتالىقى');
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Top Banner & Actions */}
@@ -300,6 +319,16 @@ export default function AdminPromotionsManager() {
         </div>
 
         <div className="flex items-center gap-2.5">
+          {promotions.length > 0 && (
+            <button
+              onClick={handleClearAllPromotions}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-950/80 hover:bg-rose-900 border border-rose-500/50 text-rose-300 font-bold text-xs transition"
+              title="بارلىق پائالىيەتلەرنى بىكار قىلىپ مەھسۇلات باھالىرىنى ئەسلىگە قايتۇرۇش"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>بارلىقىنى ئەسلىگە قايتۇرۇش</span>
+            </button>
+          )}
           <button
             onClick={fetchPromotionsData}
             disabled={loading}
