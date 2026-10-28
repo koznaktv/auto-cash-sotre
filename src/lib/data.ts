@@ -17,6 +17,7 @@ export interface ServicePackage {
   title: string;
   /** Sell price; for 'amount' products this is the price of the minimum quantity. */
   price: number;
+  costPrice?: number;
   originalPrice?: number;
   duration?: string;
   subCategoryId?: string;

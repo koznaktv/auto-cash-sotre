@@ -91,6 +91,38 @@ export async function runCatalogSync(options: { trigger: 'admin' | 'cron' }): Pr
     await upsertStoredProducts(productRows);
     const removed = await markUnseenRemoved(runId);
 
+    // Auto-protect website prices: If any provider products increased costPrice, auto-raise selling price
+    if (priceChanged > 0) {
+      try {
+        const { getServicesListAsync, saveServicesListAsync, invalidateServicesCache } = await import('../servicesDb');
+        const currentServices = await getServicesListAsync();
+        let anyUpdated = false;
+        const prodMap = new Map(products.map((p) => [p.id, p]));
+
+        for (const srv of currentServices) {
+          for (const pkg of srv.packages || []) {
+            if (pkg.providerProductId && prodMap.has(pkg.providerProductId)) {
+              const liveProd = prodMap.get(pkg.providerProductId);
+              if (liveProd && (liveProd.costPrice >= pkg.price || (pkg.costPrice && liveProd.costPrice > pkg.costPrice))) {
+                const targetMarkup = 0.15;
+                const newPrice = Number(Math.max(liveProd.costPrice * (1 + targetMarkup), liveProd.costPrice + 0.08).toFixed(2));
+                pkg.costPrice = Number(liveProd.costPrice.toFixed(4));
+                pkg.price = newPrice;
+                pkg.originalPrice = Number((newPrice * 1.15).toFixed(2));
+                anyUpdated = true;
+              }
+            }
+          }
+        }
+        if (anyUpdated) {
+          await saveServicesListAsync(currentServices);
+          invalidateServicesCache();
+        }
+      } catch (err) {
+        console.warn('Sync auto-adjust services error:', err);
+      }
+    }
+
     const [storedCategories, storedProducts, overrides, settings] = await Promise.all([
       listStoredCategories(),
       listStoredProducts(),

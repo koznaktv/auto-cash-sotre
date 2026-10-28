@@ -375,3 +375,106 @@ export function restoreDefaultServices(): number {
   saveServicesList([...SERVICES_DATA]);
   return SERVICES_DATA.length;
 }
+
+/**
+ * Automatically adjusts a package's price on the website when the provider increases wholesale cost.
+ * Ensures the store ALWAYS sells at a normal profitable price (never at a loss).
+ * Also updates or deactivates any conflicting active flash promotions.
+ */
+export async function autoAdjustPackagePriceForWholesaleCost(
+  serviceId: string,
+  packageIdOrProviderProductId: string | number,
+  liveCostPrice: number,
+  options?: { targetMarkupPercent?: number; minimumProfitUsd?: number }
+): Promise<{ adjusted: boolean; oldPrice?: number; newPrice?: number; newCost?: number }> {
+  if (!Number.isFinite(liveCostPrice) || liveCostPrice <= 0) {
+    return { adjusted: false };
+  }
+
+  const targetMarkup = (options?.targetMarkupPercent ?? 15) / 100;
+  const minProfit = options?.minimumProfitUsd ?? 0.08;
+
+  // 1. Update package in servicesDb
+  const services = await getServicesListAsync();
+  let modified = false;
+  let oldPrice = 0;
+  let newPrice = 0;
+  let matchedPackageId = '';
+
+  const targetPkgStr = String(packageIdOrProviderProductId);
+  const targetPkgNum = Number(packageIdOrProviderProductId);
+
+  for (const srv of services) {
+    if (srv.id === serviceId) {
+      for (const pkg of srv.packages || []) {
+        const isMatch =
+          pkg.id === targetPkgStr ||
+          (Number.isFinite(targetPkgNum) && pkg.providerProductId === targetPkgNum);
+
+        if (isMatch) {
+          matchedPackageId = pkg.id;
+          oldPrice = Number(pkg.price);
+
+          // If live wholesale cost is greater than or equal to current price, or higher than recorded cost:
+          if (liveCostPrice >= pkg.price || (pkg.costPrice && liveCostPrice > pkg.costPrice)) {
+            // Normal retail price with margin (e.g. +15% or at least +$0.08)
+            newPrice = Number(Math.max(liveCostPrice * (1 + targetMarkup), liveCostPrice + minProfit).toFixed(2));
+            const newOriginal = Number((newPrice * 1.15).toFixed(2));
+
+            pkg.costPrice = Number(liveCostPrice.toFixed(4));
+            pkg.price = newPrice;
+            pkg.originalPrice = newOriginal;
+            modified = true;
+          }
+          break;
+        }
+      }
+      break;
+    }
+  }
+
+  if (modified) {
+    await saveServicesListAsync(services);
+    invalidateServicesCache();
+  }
+
+  // 2. Also check and protect any active promotions for this package
+  try {
+    const { getPromotionsList, savePromotionsListAsync } = await import('./promotionsDb');
+    const promos = getPromotionsList();
+    let promoModified = false;
+
+    for (const promo of promos) {
+      const isPromoMatch =
+        promo.serviceId === serviceId &&
+        (promo.packageId === matchedPackageId || promo.packageId === targetPkgStr);
+
+      if (isPromoMatch) {
+        // If promotion price is lower than or equal to the new wholesale cost:
+        if (promo.promoPrice <= liveCostPrice) {
+          const safePromoPrice = Number((liveCostPrice + minProfit).toFixed(2));
+          if (newPrice > safePromoPrice) {
+            promo.costPrice = Number(liveCostPrice.toFixed(4));
+            promo.promoPrice = safePromoPrice;
+            promo.regularPrice = newPrice;
+            promo.profitMargin = Number((safePromoPrice - liveCostPrice).toFixed(2));
+            promo.discountPercent = Math.round(((newPrice - safePromoPrice) / newPrice) * 100);
+            promoModified = true;
+          } else {
+            // Deactivate promo to ensure safe selling at normal price
+            promo.enabled = false;
+            promoModified = true;
+          }
+        }
+      }
+    }
+
+    if (promoModified) {
+      await savePromotionsListAsync(promos);
+    }
+  } catch (err) {
+    console.warn('Error adjusting promotion on wholesale price change:', err);
+  }
+
+  return { adjusted: modified, oldPrice, newPrice, newCost: liveCostPrice };
+}

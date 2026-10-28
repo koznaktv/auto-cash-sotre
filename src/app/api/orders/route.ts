@@ -9,7 +9,7 @@ import {
   OrderRecord,
   ORDER_STATUSES,
 } from '@/lib/db';
-import { getServicesList } from '@/lib/servicesDb';
+import { getServicesList, autoAdjustPackagePriceForWholesaleCost } from '@/lib/servicesDb';
 import { verifyAdminToken, hasAdminBearer } from '@/lib/adminAuth';
 import { getSessionUser, unauthorizedResponse } from '@/lib/session';
 import { validateGameAccount } from '@/lib/validation/gameAccountValidator';
@@ -209,10 +209,13 @@ export async function POST(req: Request) {
             const totalWholesaleCost = liveCost * targetQty;
 
             if (totalWholesaleCost >= price) {
+              // Automatically increase website package price to normal profitable rate!
+              await autoAdjustPackagePriceForWholesaleCost(service.id, pkg.id, liveCost).catch((e) => console.warn('Auto adjust price error:', e));
+
               return NextResponse.json(
                 {
                   success: false,
-                  message: `تەمىنلىگۈچىنىڭ تەننەرخ باھاسى ئۆزگەردى (ھازىرقى تەننەرخ: $${totalWholesaleCost.toFixed(2)}). زىياندىن ساقلىنىش ئۈچۈن زاكاز پۇلى تۇتۇلمىدى، بەتنى يېڭىلاپ قايتا سېتىۋېلىڭ.`,
+                  message: `تەمىنلىگۈچىنىڭ تەننەرخ باھاسى ئۆسۈپ $${totalWholesaleCost.toFixed(2)} بولدى. سىستېما سىزنىڭ زىيان تارتماسلىقىڭىز ئۈچۈن توربەتتىكى باھانى ئاپتوماتىك نورمال پايدا باھاسىغا ئۆستۈردى. بەتنى يېڭىلاپ قايتا سېتىۋېلىڭ.`,
                   priceChanged: true,
                   newCost: liveCost,
                 },
@@ -223,11 +226,14 @@ export async function POST(req: Request) {
             // 3. Significant Surge Guard: If cost increased by > 35% compared to recorded cost
             const recordedCost = (pkg as any).costPrice;
             if (recordedCost && liveCost > recordedCost * 1.35) {
+              await autoAdjustPackagePriceForWholesaleCost(service.id, pkg.id, liveCost).catch((e) => console.warn('Auto adjust price error:', e));
+
               return NextResponse.json(
                 {
                   success: false,
-                  message: 'بۇ مەھسۇلات باھاسى تەمىنلىگۈچىدە تۇيۇقسىز بەك ئۆرلەپ كەتكەنلىكتىن سىستېما تەرىپىدىن ۋاقىتلىق توختىتىلدى. پۇلىڭىز تۇتۇلمىدى.',
+                  message: 'بۇ مەھسۇلاتنىڭ تەننەرخى تەمىنلىگۈچىدە تۇيۇقسىز ئۆرلەپ كەتكەنلىكتىن، توربەت باھاسى يېڭىلاندى. بەتنى يېڭىلاپ قايتا كۆرۈڭ.',
                   priceSurge: true,
+                  newCost: liveCost,
                 },
                 { status: 409 }
               );

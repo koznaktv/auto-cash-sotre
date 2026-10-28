@@ -8,7 +8,7 @@ import {
   randomId,
   UserRecord,
 } from './db';
-import { getServicesList } from './servicesDb';
+import { getServicesList, autoAdjustPackagePriceForWholesaleCost } from './servicesDb';
 import { syria4GameProvider, othmanStoreProvider, generateUUIDv4 } from './providers/syria4game';
 import { notifyNewOrder, TELEGRAM_CONFIG } from './telegram';
 import type { ServiceItem, ServicePackage } from './data';
@@ -1117,10 +1117,13 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
             const targetQty = session.providerQty ?? 1;
             const totalCost = liveCheck.product.costPrice * targetQty;
             if (totalCost >= session.price) {
+              // Automatically adjust website & bot price to profitable rate
+              await autoAdjustPackagePriceForWholesaleCost(session.serviceId, session.pkgId || session.providerProductId || '', liveCheck.product.costPrice).catch(() => {});
+
               await showOrEditMessage(
                 chatId,
                 messageId,
-                `⚠️ <b>تەمىنلىگۈچىنىڭ تەننەرخ باھاسى ئۆزگەردى</b>\n\nتەننەرخ: $${totalCost.toFixed(2)} | سېتىلىش باھاسى: $${session.price.toFixed(2)}\nسىزنىڭ زىيان تارتماسلىقىڭىز ئۈچۈن ھېساباتتىن پۇل تۇتۇلمىدى. يېڭى باھا بويىچە دۇكاندىن قايتا زاكاز بېرىڭ.`,
+                `⚠️ <b>تەمىنلىگۈچىنىڭ تەننەرخ باھاسى ئۆستى ($${totalCost.toFixed(2)})</b>\n\nسىزنىڭ زىيان تارتماسلىقىڭىز ئۈچۈن دۇكان باھاسى ئاپتوماتىك نورمال پايدا باھاسىغا ئۆستۈرۈلدى ھەم ھېساباتتىن پۇل تۇتۇلمىدى.\nيېڭى باھا بويىچە دۇكاندىن قايتا زاكاز بېرىڭ.`,
                 {
                   inline_keyboard: [[{ text: '🔙 دۇكان بۆلۈملىرىگە قايتىش ↩️', callback_data: 'tg_shop_categories' }]],
                 }
