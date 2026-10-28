@@ -118,8 +118,16 @@ function filterActive(list: ActivePromotion[]): ActivePromotion[] {
     if (new Date(p.endsAt).getTime() <= now) return false;
     // Strict Anti-Loss Guard: Auto-deactivate any promotion if promoPrice <= costPrice
     if (p.costPrice && p.promoPrice <= p.costPrice) return false;
+
+    // Hard check: Prune bogus items with $40+ price if regularPrice is small or under $35
+    if (p.promoPrice > 40 && (!p.regularPrice || p.regularPrice < 35)) {
+      return false;
+    }
+
     // Auto-clean any bogus promotion where promoPrice or costPrice is absurdly higher than regularPrice
-    if (p.regularPrice > 0 && (p.promoPrice > p.regularPrice * 2 || p.costPrice > p.regularPrice * 2)) return false;
+    if (p.regularPrice > 0 && (p.promoPrice > p.regularPrice * 1.5 || (p.costPrice && p.costPrice > p.regularPrice * 1.5))) {
+      return false;
+    }
     return true;
   });
 }
