@@ -5,6 +5,7 @@ import { getBrandLogo, BRAND_LOGO_URL } from '@/lib/brand';
 import Link from 'next/link';
 import LanguageFlag from '@/components/LanguageFlag';
 import { useLanguage } from '@/context/LanguageContext';
+import { useTheme } from '@/context/ThemeContext';
 import {
   X,
   Store,
@@ -19,6 +20,7 @@ import {
   Disc3,
   Globe2,
   Moon,
+  Sun,
   LogOut,
   Send,
   MessageCircle,
@@ -117,6 +119,7 @@ export default function SideDrawer({
   onLogout,
 }: SideDrawerProps) {
   const { lang, setLang, t, isRTL } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   const [avatarSrc, setAvatarSrc] = useState<string>('');
   const [siteLogo, setSiteLogo] = useState<string>(() => {
     if (typeof window !== 'undefined') {
@@ -559,6 +562,32 @@ export default function SideDrawer({
                 <span className="font-semibold">{t('adminPanel')}</span>
               </a>
             )}
+
+            {/* Quick Theme Switcher in Drawer */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-900/80 hover:bg-slate-850 border border-slate-800 hover:border-amber-500/35 transition group text-right cursor-pointer"
+            >
+              <div className="flex items-center gap-3">
+                <span className="p-1.5 rounded-lg bg-amber-500/20 text-amber-400 shrink-0">
+                  {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                </span>
+                <div className="flex flex-col text-right">
+                  <span className="text-xs font-bold text-slate-200 group-hover:text-white">
+                    {lang === 'ug' ? 'كۆرۈنمە يۈز ئۇسلۇبى' : 'Display Theme'}
+                  </span>
+                  <span className="text-[10px] text-amber-400 font-medium">
+                    {theme === 'dark'
+                      ? (lang === 'ug' ? '🌙 قاراڭغۇ ھالەت (Dark)' : 'Dark Mode')
+                      : (lang === 'ug' ? '☀️ نۇرلۇق ئاق ھالەت (Light)' : 'Comfort Light')}
+                  </span>
+                </div>
+              </div>
+              <span className="px-2 py-0.5 rounded-full bg-slate-800 text-[10px] font-bold text-amber-300 border border-slate-700">
+                {lang === 'ug' ? 'ئالماشتۇرۇش' : 'Switch'}
+              </span>
+            </button>
           </div>
 
           {/* Support section */}

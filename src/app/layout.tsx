@@ -43,6 +43,7 @@ import AppUpdateNotifier from '@/components/AppUpdateNotifier';
 import FirstTimeLanguageModal from '@/components/FirstTimeLanguageModal';
 import TelegramAutoLogin from '@/components/TelegramAutoLogin';
 import { LanguageProvider } from '@/context/LanguageContext';
+import { ThemeProvider } from '@/context/ThemeContext';
 import Script from 'next/script';
 
 export default function RootLayout({
@@ -51,19 +52,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ug" dir="rtl" suppressHydrationWarning>
+    <html lang="ug" dir="rtl" className="dark" suppressHydrationWarning>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('autocash_theme');if(t==='light'){document.documentElement.classList.remove('dark');document.documentElement.classList.add('light');document.documentElement.style.colorScheme='light';}else{document.documentElement.classList.add('dark');document.documentElement.classList.remove('light');document.documentElement.style.colorScheme='dark';}}catch(e){}})();`,
+          }}
+        />
         <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
       </head>
-      <body className="bg-[#040d1a] text-slate-100 antialiased min-h-screen">
-        <LanguageProvider>
-          {children}
-          <TelegramAutoLogin />
-          <TelegramFloat />
-          <BottomNav />
-          <AppUpdateNotifier />
-          <FirstTimeLanguageModal />
-        </LanguageProvider>
+      <body className="bg-[#040d1a] text-slate-100 antialiased min-h-screen transition-colors duration-200">
+        <ThemeProvider>
+          <LanguageProvider>
+            {children}
+            <TelegramAutoLogin />
+            <TelegramFloat />
+            <BottomNav />
+            <AppUpdateNotifier />
+            <FirstTimeLanguageModal />
+          </LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
