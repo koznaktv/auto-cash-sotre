@@ -144,13 +144,13 @@ export async function getCategoriesListAsync(): Promise<CategoryItem[]> {
           const clean = parsed
             .filter((c: CategoryItem) => !deleted.has(c.id))
             .map((c: CategoryItem) => {
-              if (c.id === 'numbers' && (c.name === 'مەۋھۇم نومۇر' || !c.name.includes('ئەزالىق'))) {
+              if (c.id === 'numbers') {
                 updated = true;
                 return {
                   ...c,
-                  name: 'تېلېگرام ئەزالىق',
-                  count: 'Telegram Premium',
-                  image: '/images/services/telegram.jpg',
+                  name: 'مەۋھۇم نومۇر (SMS)',
+                  count: 'Telegram, WhatsApp, etc.',
+                  image: '/images/services/whatsapp.jpg',
                 };
               }
               if (c.id === 'cards' && (c.name === 'كارتىلار ۋە VCC' || c.name === 'كارتىلار' || !c.name.includes('تىلفۇن') || c.count?.includes('Telecom'))) {
