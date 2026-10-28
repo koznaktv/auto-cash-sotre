@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { ActivePromotion } from '@/lib/promotionsDb';
-import { Flame, Clock, Plus, Trash2, AlertTriangle, CheckCircle, Send, Sparkles, RefreshCw } from 'lucide-react';
+import { Flame, Clock, Plus, Trash2, AlertTriangle, CheckCircle, Send, Sparkles, RefreshCw, CheckSquare, Square } from 'lucide-react';
 import { formatSmartPrice } from '@/lib/formatMoney';
 
 interface ServicePackageOption {
@@ -21,6 +21,15 @@ interface ServicePackageOption {
   }>;
 }
 
+interface PackagePromoRow {
+  packageId: string;
+  title: string;
+  costPrice: number;
+  regularPrice: number;
+  promoPrice: string; // string for input editing
+  selected: boolean;
+}
+
 export default function AdminPromotionsManager() {
   const [promotions, setPromotions] = useState<ActivePromotion[]>([]);
   const [servicePackages, setServicePackages] = useState<ServicePackageOption[]>([]);
@@ -32,8 +41,7 @@ export default function AdminPromotionsManager() {
 
   // Form State
   const [selectedServiceId, setSelectedServiceId] = useState('');
-  const [selectedPackageId, setSelectedPackageId] = useState('');
-  const [promoPriceInput, setPromoPriceInput] = useState('');
+  const [packageRows, setPackageRows] = useState<PackagePromoRow[]>([]);
   const [endsAtInput, setEndsAtInput] = useState('');
   const [broadcastToChannel, setBroadcastToChannel] = useState(true);
 
@@ -60,18 +68,33 @@ export default function AdminPromotionsManager() {
     fetchPromotionsData();
   }, []);
 
-  // Currently selected service & package details
+  // When serviceId changes, initialize all packages of that service
   const activeService = useMemo(
     () => servicePackages.find((s) => s.serviceId === selectedServiceId),
     [servicePackages, selectedServiceId]
   );
 
-  const activePackage = useMemo(
-    () => activeService?.packages.find((p) => p.id === selectedPackageId),
-    [activeService, selectedPackageId]
-  );
+  useEffect(() => {
+    if (activeService && activeService.packages) {
+      const rows: PackagePromoRow[] = activeService.packages.map((p) => {
+        // Default promo price: costPrice + 0.10$ or regularPrice
+        const defaultPromo = p.costPrice > 0 ? (p.costPrice + 0.10).toFixed(2) : p.price.toFixed(2);
+        return {
+          packageId: p.id,
+          title: p.title,
+          costPrice: Number(p.costPrice),
+          regularPrice: Number(p.price),
+          promoPrice: defaultPromo,
+          selected: true, // Selected by default so admin can do all or filter
+        };
+      });
+      setPackageRows(rows);
+    } else {
+      setPackageRows([]);
+    }
+  }, [activeService]);
 
-  // Default time helper: Today at 23:59:59
+  // Default time helper
   const setQuickEndsAt = (type: 'midnight' | '3h' | '6h' | '12h' | '24h' | '3d' | '7d') => {
     const now = new Date();
     let target = new Date();
@@ -92,7 +115,6 @@ export default function AdminPromotionsManager() {
       target.setTime(now.getTime() + 7 * 24 * 3600 * 1000);
     }
 
-    // Format for datetime-local (YYYY-MM-DDTHH:mm)
     const localIso = new Date(target.getTime() - target.getTimezoneOffset() * 60000)
       .toISOString()
       .slice(0, 16);
@@ -102,54 +124,66 @@ export default function AdminPromotionsManager() {
   const handleOpenAddModal = () => {
     setErrorMsg('');
     setSuccessMsg('');
-    setSelectedServiceId(servicePackages[0]?.serviceId || '');
-    setSelectedPackageId(servicePackages[0]?.packages[0]?.id || '');
-    setPromoPriceInput('');
+    const firstSrvId = servicePackages[0]?.serviceId || '';
+    setSelectedServiceId(firstSrvId);
     setQuickEndsAt('midnight');
     setBroadcastToChannel(true);
     setModalOpen(true);
   };
 
-  // Cost validation & Anti-loss check
-  const costPrice = activePackage?.costPrice || 0;
-  const regularPrice = activePackage?.price || 0;
-  const numericPromoPrice = Number(promoPriceInput);
-  const isPriceValidNumber = !isNaN(numericPromoPrice) && numericPromoPrice > 0;
-  const isLossRisk = isPriceValidNumber && numericPromoPrice <= costPrice;
-  const profitMargin = isPriceValidNumber ? numericPromoPrice - costPrice : 0;
-  const discountPercent =
-    isPriceValidNumber && regularPrice > numericPromoPrice
-      ? Math.round(((regularPrice - numericPromoPrice) / regularPrice) * 100)
-      : 0;
-
-  const handleSetProfitMargin = (margin: number) => {
-    if (costPrice > 0) {
-      setPromoPriceInput((costPrice + margin).toFixed(2));
-    }
+  // Bulk Apply Margin to All Selected Packages
+  const handleBulkApplyMargin = (margin: number) => {
+    setPackageRows((prev) =>
+      prev.map((row) => {
+        if (!row.selected) return row;
+        const newPromo = (row.costPrice + margin).toFixed(2);
+        return { ...row, promoPrice: newPromo };
+      })
+    );
   };
+
+  // Toggle select all
+  const allSelected = packageRows.length > 0 && packageRows.every((r) => r.selected);
+  const handleToggleSelectAll = () => {
+    setPackageRows((prev) => prev.map((r) => ({ ...r, selected: !allSelected })));
+  };
+
+  // Check if any selected row has loss risk
+  const selectedRows = useMemo(() => packageRows.filter((r) => r.selected), [packageRows]);
+
+  const hasAnyLoss = useMemo(() => {
+    return selectedRows.some((r) => {
+      const p = Number(r.promoPrice);
+      return isNaN(p) || p <= r.costPrice;
+    });
+  }, [selectedRows]);
 
   const handleSavePromotion = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedServiceId || !selectedPackageId || !promoPriceInput || !endsAtInput) {
-      setErrorMsg('بارلىق تەلەپلەرنى تولۇق تولدۇرۇڭ');
+    if (!selectedServiceId || selectedRows.length === 0 || !endsAtInput) {
+      setErrorMsg('كەم دېگەندە بىر بولاقنى تاللاڭ ۋە ئاخىرلىشىش ۋاقتىنى بەلگىلەڭ');
       return;
     }
 
-    if (isLossRisk) {
-      setErrorMsg(`⛔️ زىيان تارتىش خەۋپى! باھا تەننەرختىن ($${costPrice}) تۆۋەن ياكى تەڭ بولالمايدۇ.`);
+    if (hasAnyLoss) {
+      setErrorMsg('⛔️ دىققەت! تاللانغان بولاقلار ئىچىدە تەننەرختىن تۆۋەن ياكى تەڭ باھا بايقالدى. زىياندىن ساقلىنىش ئۈچۈن قىزىل يېزىلغان باھالارنى توغرىلاڭ!');
       return;
     }
 
     setSubmitting(true);
     setErrorMsg('');
     try {
+      const payloadItems = selectedRows.map((r) => ({
+        packageId: r.packageId,
+        promoPrice: Number(r.promoPrice),
+      }));
+
       const res = await fetch('/api/admin/promotions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           serviceId: selectedServiceId,
-          packageId: selectedPackageId,
-          promoPrice: numericPromoPrice,
+          items: payloadItems,
           endsAt: new Date(endsAtInput).toISOString(),
           broadcastToChannel,
         }),
@@ -158,13 +192,13 @@ export default function AdminPromotionsManager() {
       const data = await res.json();
       if (data.success) {
         setPromotions(data.promotions || []);
-        setSuccessMsg('پائالىيەت مۇۋەپپەقىيەتلىك باشلاندى ۋە دەرھال كۈچكە ئىگە قىلىندى!');
+        setSuccessMsg(`پائالىيەت مۇۋەپپەقىيەتلىك باشلاندى! (${payloadItems.length} بولاق پائالىيەتكە قوشۇلدى)`);
         setModalOpen(false);
       } else {
         setErrorMsg(data.error || 'پائالىيەتنى باشلاشتا خاتالىق كۆرۈلدى');
       }
     } catch (e: any) {
-      setErrorMsg(e?.message || 'ساقلاشتا خاتالىق يۈز بەردى');
+      setErrorMsg(e?.message || 'ساقلاشتا تور خاتالىقى كۆرۈلدى');
     } finally {
       setSubmitting(false);
     }
@@ -191,7 +225,7 @@ export default function AdminPromotionsManager() {
 
   return (
     <div className="space-y-6">
-      {/* Top Banner & Action */}
+      {/* Top Banner & Actions */}
       <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border border-amber-500/20 shadow-lg">
         <div className="flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-red-600 flex items-center justify-center text-white shadow-lg shadow-amber-500/30">
@@ -205,7 +239,7 @@ export default function AdminPromotionsManager() {
               </span>
             </h2>
             <p className="text-xs text-slate-400 font-alkatip mt-0.5">
-              خالىغان مەھسۇلاتقا تەننەرختىن تۆۋەنلىمەيدىغان بىخەتەر ئېتىبار باھا تەڭشەڭ، توربەتتە ھەقىقىي ۋاقىت سانىقى بىلەن مېڭىدۇ.
+              مەھسۇلاتلارنىڭ بارلىق بولاقلىرىنى سېلىشتۇرۇپ تاللاپ، باھا ۋە پايدىنى ئېنىق كۆرۈپ بىخەتەر ئېتىبار پائالىيىتى ئېچىڭ.
             </p>
           </div>
         </div>
@@ -248,10 +282,10 @@ export default function AdminPromotionsManager() {
         <div className="p-4 border-b border-slate-800 flex items-center justify-between">
           <h3 className="font-bold text-white text-sm font-alkatip flex items-center gap-2">
             <Clock className="w-4 h-4 text-amber-400" />
-            <span>ئاكتىپ يۈرۈشۈۋاتقان ئېتىبار پائالىيەتلىرى تىزىملىكى</span>
+            <span>ئاكتىپ يۈرۈشۈۋاتقان ئېتىبار پائالىيەتلىرى تىزىملىكى ({promotions.length})</span>
           </h3>
-          <span className="text-xs text-slate-400">
-            ۋاقىت توشقاندا سىستېما تەرىپىدىن ئۆزلۈكىدىن ئەسلى باھاسىغا قايتۇرۇلىدۇ
+          <span className="text-xs text-slate-400 font-alkatip">
+            سائەت 12:00 دە ياكى ۋاقىت توشقاندا سىستېما تەرىپىدىن ئۆزلۈكىدىن ئەسلى باھاسىغا قايتىدۇ
           </span>
         </div>
 
@@ -269,13 +303,13 @@ export default function AdminPromotionsManager() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-right text-xs">
-              <thead className="bg-slate-800/60 text-slate-400 font-bold border-b border-slate-800">
+              <thead className="bg-slate-800/60 text-slate-400 font-bold border-b border-slate-800 font-alkatip">
                 <tr>
                   <th className="py-3 px-4">مۇلازىمەت & بولاق</th>
                   <th className="py-3 px-3">باش تەننەرخ (Cost)</th>
                   <th className="py-3 px-3">ئەسلى باھا</th>
                   <th className="py-3 px-3">پائالىيەت باھاسى</th>
-                  <th className="py-3 px-3">پايدا & ئېتىبار</th>
+                  <th className="py-3 px-3">ساپ پايدا</th>
                   <th className="py-3 px-4">ئاخىرلىشىش ۋاقتى</th>
                   <th className="py-3 px-4 text-center">مەشغۇلات</th>
                 </tr>
@@ -311,7 +345,7 @@ export default function AdminPromotionsManager() {
                       </td>
                       <td className="py-3.5 px-3">
                         <div className="flex items-center gap-1.5" dir="ltr">
-                          <span className="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono">
+                          <span className="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono font-bold">
                             +${p.profitMargin.toFixed(2)}
                           </span>
                           {p.discountPercent > 0 && (
@@ -329,7 +363,7 @@ export default function AdminPromotionsManager() {
                         {isExpired ? (
                           <span className="text-[10px] text-rose-400">توختىغان</span>
                         ) : (
-                          <span className="text-[10px] text-emerald-400">ئاكتىپ</span>
+                          <span className="text-[10px] text-emerald-400">ئاكتىپ مېڭىۋاتىدۇ</span>
                         )}
                       </td>
                       <td className="py-3.5 px-4 text-center">
@@ -351,14 +385,15 @@ export default function AdminPromotionsManager() {
         )}
       </div>
 
-      {/* Modal: Add New Promotion */}
+      {/* Modal: Add New Promotion with Full Package Comparison & Bulk Settings */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-          <div className="w-full max-w-lg bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-            <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-gradient-to-r from-amber-500/10 to-orange-500/10">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/85 backdrop-blur-md">
+          <div className="w-full max-w-4xl bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col">
+            {/* Header */}
+            <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10">
               <h3 className="font-bold text-white text-base font-alkatip flex items-center gap-2">
                 <Flame className="w-5 h-5 text-amber-400" />
-                <span>يېڭى ئېتىبار پائالىيىتى قۇرۇش</span>
+                <span>ئېتىبار پائالىيىتى قۇرۇش — باھا، تەننەرخ ۋە پايدا كونترول تاختىسى</span>
               </h3>
               <button
                 onClick={() => setModalOpen(false)}
@@ -369,128 +404,179 @@ export default function AdminPromotionsManager() {
             </div>
 
             <form onSubmit={handleSavePromotion} className="p-5 space-y-4 overflow-y-auto flex-1 text-right">
-              {/* Service Selector */}
+              {/* 1. Service Selection */}
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1.5 font-alkatip">
-                  1. مۇلازىمەتنى تاللاڭ
+                  1. پائالىيەت قىلىدىغان مەھسۇلاتنى تاللاڭ:
                 </label>
                 <select
                   value={selectedServiceId}
-                  onChange={(e) => {
-                    const nextSrvId = e.target.value;
-                    setSelectedServiceId(nextSrvId);
-                    const srv = servicePackages.find((s) => s.serviceId === nextSrvId);
-                    if (srv && srv.packages.length > 0) {
-                      setSelectedPackageId(srv.packages[0].id);
-                    }
-                  }}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400"
+                  onChange={(e) => setSelectedServiceId(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-amber-400 font-bold"
                 >
                   {servicePackages.map((s) => (
                     <option key={s.serviceId} value={s.serviceId}>
-                      {s.serviceName} ({s.packages.length} بولاق)
+                      {s.serviceName} ({s.packages.length} بولاق بار)
                     </option>
                   ))}
                 </select>
               </div>
 
-              {/* Package Selector */}
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5 font-alkatip">
-                  2. بولاقنى تاللاڭ
-                </label>
-                <select
-                  value={selectedPackageId}
-                  onChange={(e) => setSelectedPackageId(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400"
-                >
-                  {activeService?.packages.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.title} — ئەسلى باھاسى: ${formatSmartPrice(p.price)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Wholesale Cost Floor & Safety Monitor Box */}
-              <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-300 pb-2 border-b border-slate-800/80">
-                  <span>🏢 باش مۇلازىمەتچى تەننەرخى:</span>
-                  <span className="font-mono text-cyan-400 text-sm" dir="ltr">
-                    ${costPrice > 0 ? formatSmartPrice(costPrice) : 'ھېسابلىنىۋاتىدۇ...'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs text-slate-400">
-                  <span>🛒 ھازىرقى نورمال سېتىلىش باھاسى:</span>
-                  <span className="font-mono text-slate-200" dir="ltr">
-                    ${formatSmartPrice(regularPrice)}
+              {/* 2. Bulk Margin Buttons & Select All */}
+              <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleToggleSelectAll}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 border border-slate-700 transition"
+                  >
+                    {allSelected ? <CheckSquare className="w-4 h-4 text-amber-400" /> : <Square className="w-4 h-4 text-slate-500" />}
+                    <span>{allSelected ? 'ھەممىسىنى بىكار قىلىش' : 'ھەممىسىنى تاللاش'}</span>
+                  </button>
+                  <span className="text-xs text-slate-400 font-mono">
+                    ({selectedRows.length} / {packageRows.length} بولاق تاللانغان)
                   </span>
                 </div>
 
-                {/* Real-time Anti-Loss Guard Warning */}
-                {isLossRisk && (
-                  <div className="p-2.5 rounded-lg bg-rose-950/90 border border-rose-500 text-rose-200 text-xs flex items-start gap-2 animate-shake">
-                    <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                    <div>
-                      <div className="font-bold">⛔️ زىيان تارتىش خەۋپى بار!</div>
-                      <div className="text-[11px] text-rose-300">
-                        پائالىيەت باھاسى ($${numericPromoPrice}) باش مۇلازىمەتچىنىڭ تەننەرخىدىن ($${costPrice}) تۆۋەن ياكى تەڭ بولۇپ قالدى. سىستېما زىيان چىقىشتىن ساقلىنىش ئۈچۈن بۇ باھانى قوبۇل قىلمايدۇ!
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {isPriceValidNumber && !isLossRisk && (
-                  <div className="p-2 rounded-lg bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 text-xs flex items-center justify-between">
-                    <span className="flex items-center gap-1.5 font-bold">
-                      <CheckCircle className="w-3.5 h-3.5" />
-                      بىخەتەر تەننەرخ! پايدا سوممىسى:
-                    </span>
-                    <span className="font-mono font-bold" dir="ltr">
-                      +${profitMargin.toFixed(2)} USD ({discountPercent}% ئېتىبار)
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Set Promo Price */}
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5 font-alkatip">
-                  3. پائالىيەت سېتىش باھاسى ($ USD)
-                </label>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-[11px] text-slate-400">تەننەرخكە پايدا قوشۇش:</span>
-                  {[0.05, 0.10, 0.20, 0.50, 1.00].map((m) => (
+                {/* Bulk Margin Quick Adder */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-xs text-amber-300 font-bold font-alkatip">
+                    ⚡️ ھەممىسىگە پايدا قوشۇپ تەڭشەش:
+                  </span>
+                  {[0.05, 0.10, 0.20, 0.30, 0.50, 1.00].map((m) => (
                     <button
                       key={m}
                       type="button"
-                      onClick={() => handleSetProfitMargin(m)}
-                      className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 text-[11px] font-mono border border-slate-700"
+                      onClick={() => handleBulkApplyMargin(m)}
+                      className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-mono font-bold border border-amber-500/30 transition active:scale-95"
                     >
                       +{m}$
                     </button>
                   ))}
                 </div>
-                <input
-                  type="number"
-                  step="0.01"
-                  required
-                  placeholder="مەسىلەن: 1.55"
-                  value={promoPriceInput}
-                  onChange={(e) => setPromoPriceInput(e.target.value)}
-                  className={`w-full bg-slate-800 border rounded-xl px-3.5 py-2.5 text-sm font-mono text-white focus:outline-none ${
-                    isLossRisk
-                      ? 'border-rose-500 bg-rose-950/20 text-rose-300 focus:border-rose-400'
-                      : 'border-slate-700 focus:border-amber-400'
-                  }`}
-                  dir="ltr"
-                />
               </div>
 
-              {/* Duration / Ends At */}
+              {/* 3. Package Price Comparison Table */}
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-2 font-alkatip flex items-center justify-between">
+                  <span>2. مەزكۇر مەھسۇلاتنىڭ بارلىق بولاقلىرى ۋە تەننەرخ، باھا، پايدا سېلىشتۇرمىسى:</span>
+                  <span className="text-[11px] text-slate-400 font-normal">
+                    (ھەر بىر بولاقنىڭ پائالىيەت باھاسىنى ئايرىم-ئايرىممۇ تەڭشىيەلەيسىز)
+                  </span>
+                </label>
+
+                <div className="border border-slate-800 rounded-xl overflow-hidden shadow-inner max-h-72 overflow-y-auto">
+                  <table className="w-full text-right text-xs">
+                    <thead className="bg-slate-800/80 text-slate-300 font-bold sticky top-0 z-10 font-alkatip border-b border-slate-700">
+                      <tr>
+                        <th className="py-2.5 px-3 w-10 text-center">تاللاش</th>
+                        <th className="py-2.5 px-3">بولاق نامى</th>
+                        <th className="py-2.5 px-3">🏢 باش تەننەرخ</th>
+                        <th className="py-2.5 px-3">🛒 ھازىرقى توربەت باھاسى</th>
+                        <th className="py-2.5 px-3">⚡️ پائالىيەت باھاسى ($)</th>
+                        <th className="py-2.5 px-3">💰 قالىدىغان ساپ پايدا</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800">
+                      {packageRows.map((row, idx) => {
+                        const numPromo = Number(row.promoPrice);
+                        const isNumValid = !isNaN(numPromo) && numPromo > 0;
+                        const isRowLoss = isNumValid && numPromo <= row.costPrice;
+                        const profit = isNumValid ? numPromo - row.costPrice : 0;
+                        const discount = isNumValid && row.regularPrice > numPromo
+                          ? Math.round(((row.regularPrice - numPromo) / row.regularPrice) * 100)
+                          : 0;
+
+                        return (
+                          <tr
+                            key={row.packageId}
+                            className={`transition ${
+                              !row.selected
+                                ? 'opacity-40 bg-slate-950/40'
+                                : isRowLoss
+                                ? 'bg-rose-950/40 border-l-4 border-l-rose-500'
+                                : 'hover:bg-slate-800/40'
+                            }`}
+                          >
+                            <td className="py-2.5 px-3 text-center">
+                              <input
+                                type="checkbox"
+                                checked={row.selected}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setPackageRows((prev) =>
+                                    prev.map((r, i) => (i === idx ? { ...r, selected: checked } : r))
+                                  );
+                                }}
+                                className="w-4 h-4 rounded accent-amber-500 cursor-pointer"
+                              />
+                            </td>
+                            <td className="py-2.5 px-3 font-bold text-white font-alkatip">
+                              {row.title}
+                            </td>
+                            <td className="py-2.5 px-3 font-mono text-cyan-400" dir="ltr">
+                              ${formatSmartPrice(row.costPrice)}
+                            </td>
+                            <td className="py-2.5 px-3 font-mono text-slate-400" dir="ltr">
+                              ${formatSmartPrice(row.regularPrice)}
+                            </td>
+                            <td className="py-2 px-3">
+                              <input
+                                type="number"
+                                step="0.01"
+                                disabled={!row.selected}
+                                value={row.promoPrice}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setPackageRows((prev) =>
+                                    prev.map((r, i) => (i === idx ? { ...r, promoPrice: val } : r))
+                                  );
+                                }}
+                                className={`w-28 bg-slate-800 border rounded-lg px-2 py-1 text-xs font-mono font-bold text-white focus:outline-none ${
+                                  isRowLoss
+                                    ? 'border-rose-500 bg-rose-950/30 text-rose-300'
+                                    : 'border-slate-700 focus:border-amber-400'
+                                }`}
+                                dir="ltr"
+                              />
+                            </td>
+                            <td className="py-2.5 px-3 font-mono" dir="ltr">
+                              {isRowLoss ? (
+                                <span className="px-2 py-0.5 rounded bg-rose-950 text-rose-300 text-[10px] font-bold border border-rose-500/50">
+                                  ⛔️ زىيان! (-${(row.costPrice - numPromo).toFixed(2)})
+                                </span>
+                              ) : (
+                                <span className="flex items-center gap-1">
+                                  <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 text-[11px] font-bold border border-emerald-500/30">
+                                    +${profit.toFixed(2)}
+                                  </span>
+                                  {discount > 0 && (
+                                    <span className="text-[10px] text-red-400">(-{discount}%)</span>
+                                  )}
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {hasAnyLoss && (
+                  <div className="mt-2 p-2.5 rounded-lg bg-rose-950/80 border border-rose-500 text-rose-300 text-xs flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                    <span>
+                      ⚠️ دىققەت: قىزىل رەڭدە كۆرۈنگەن بولاقلارنىڭ باھاسى باش تەننەرختىن تۆۋەن ياكى تەڭ بولۇپ قالدى. سىستېما زىيان چىقماسلىق ئۈچۈن ساقلاشنى چەكلەيدۇ. باھانى ئۆستۈرۈڭ!
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* 4. Duration Selector */}
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1.5 font-alkatip">
-                  4. پائالىيەت ۋاقتى ۋە ئاخىرلىشىش چېسلاسى
+                  3. پائالىيەت ۋاقتى ۋە ئاخىرلىشىش مۆھلىتى:
                 </label>
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   <button
@@ -513,6 +599,13 @@ export default function AdminPromotionsManager() {
                     className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] border border-slate-700"
                   >
                     6 سائەت
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQuickEndsAt('12h')}
+                    className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] border border-slate-700"
+                  >
+                    12 سائەت
                   </button>
                   <button
                     type="button"
@@ -539,14 +632,14 @@ export default function AdminPromotionsManager() {
                 />
               </div>
 
-              {/* Channel Broadcast Checkbox */}
+              {/* 5. Broadcast Checkbox */}
               <div className="p-3 rounded-xl bg-slate-800/50 border border-slate-700/80 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Send className="w-4 h-4 text-cyan-400 shrink-0" />
                   <div>
                     <div className="text-xs font-bold text-white font-alkatip">تېلېگرامما قانىلىغا تەڭ يوللاش</div>
                     <div className="text-[10px] text-slate-400 font-alkatip">
-                      @autocash_cannel قانىلىغا ئاپتوماتىك كۇنۇپكىلىرى بىلەن تەشۋىقات ئېلانى چىقىرىدۇ
+                      @autocash_cannel قانىلىغا ئېتىبار بولاقلار تىزىملىكىنى ئاپتوماتىك ئېلان قىلىدۇ
                     </div>
                   </div>
                 </div>
@@ -554,27 +647,32 @@ export default function AdminPromotionsManager() {
                   type="checkbox"
                   checked={broadcastToChannel}
                   onChange={(e) => setBroadcastToChannel(e.target.checked)}
-                  className="w-4 h-4 rounded text-amber-500 focus:ring-amber-400 accent-amber-500 cursor-pointer"
+                  className="w-4 h-4 rounded accent-amber-500 cursor-pointer"
                 />
               </div>
 
-              {/* Buttons */}
-              <div className="pt-3 border-t border-slate-800 flex items-center justify-end gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold"
-                >
-                  بىكار قىلىش
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting || isLossRisk || !isPriceValidNumber}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 disabled:opacity-50 text-slate-950 text-xs font-bold shadow-md shadow-amber-500/20 active:scale-95 transition flex items-center gap-2"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>{submitting ? 'ساقلىنىۋاتىدۇ...' : 'پائالىيەتنى باشلاش'}</span>
-                </button>
+              {/* Action Buttons */}
+              <div className="pt-3 border-t border-slate-800 flex items-center justify-between gap-3">
+                <div className="text-xs text-slate-400 font-mono">
+                  جەمئىي <b className="text-amber-400">{selectedRows.length}</b> بولاق پائالىيەتكە قوشۇلىدۇ
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setModalOpen(false)}
+                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold"
+                  >
+                    بىكار قىلىش
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting || hasAnyLoss || selectedRows.length === 0}
+                    className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 disabled:opacity-50 text-slate-950 text-xs font-bold shadow-md shadow-amber-500/20 active:scale-95 transition flex items-center gap-2"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>{submitting ? 'ساقلىنىۋاتىدۇ...' : `⚡️ پائالىيەتنى باشلاش (${selectedRows.length})`}</span>
+                  </button>
+                </div>
               </div>
             </form>
           </div>

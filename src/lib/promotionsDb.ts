@@ -280,6 +280,161 @@ export async function createOrUpdatePromotion(input: {
 }
 
 /**
+ * Creates or updates MULTIPLE active promotions in bulk with STRICT Anti-Loss Guard.
+ */
+export async function createOrUpdatePromotionsBulk(input: {
+  serviceId: string;
+  items: Array<{ packageId: string; promoPrice: number }>;
+  endsAt: string;
+  startsAt?: string;
+  broadcastToChannel?: boolean;
+}): Promise<{ success: boolean; promotions?: ActivePromotion[]; error?: string }> {
+  const services = getServicesList();
+  const service = services.find((s) => s.id === input.serviceId);
+  if (!service) {
+    return { success: false, error: 'مۇلازىمەت تېپىلمىدى' };
+  }
+
+  if (!Array.isArray(input.items) || input.items.length === 0) {
+    return { success: false, error: 'كەم دېگەندە بىر بولاق تاللىنىشى كېرەك' };
+  }
+
+  const endsAtTime = new Date(input.endsAt).getTime();
+  if (isNaN(endsAtTime) || endsAtTime <= Date.now()) {
+    return { success: false, error: 'پائالىيەتنىڭ ئاخىرلىشىش ۋاقتى خاتا ياكى ئۆتۈپ كەتكەن ۋاقىت بولۇپ قالدى' };
+  }
+
+  let catalog: any = null;
+  try {
+    const catalogPath = path.join(process.cwd(), 'data', 'provider_catalog.json');
+    if (fs.existsSync(catalogPath)) {
+      catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
+    }
+  } catch {}
+
+  const currentList = getPromotionsList();
+  const createdPromos: ActivePromotion[] = [];
+
+  // 1. Strict Anti-Loss Guard Check across all items FIRST
+  for (const item of input.items) {
+    const pkg = service.packages?.find((p) => p.id === item.packageId);
+    if (!pkg) continue;
+
+    let costPrice = Number((pkg as any).costPrice);
+    if (!Number.isFinite(costPrice) || costPrice <= 0) {
+      if (catalog && catalog.products) {
+        const found = catalog.products.find((pr: any) => pr.id === pkg.providerProductId);
+        if (found && Number(found.costPrice) > 0) {
+          costPrice = Number(found.costPrice);
+        }
+      }
+    }
+    if (!Number.isFinite(costPrice) || costPrice <= 0) {
+      costPrice = Number(pkg.price) * 0.9;
+    }
+
+    const promoPrice = Number(Number(item.promoPrice).toFixed(2));
+    if (promoPrice <= costPrice) {
+      return {
+        success: false,
+        error: `⛔️ زىيان تارتىش خەۋپى بار! «${pkg.title}» بولىقىنىڭ پائالىيەت باھاسى ($${promoPrice}) باش مۇلازىمەتچى تەننەرخىدىن ($${costPrice.toFixed(2)}) تۆۋەن ياكى تەڭ بولۇپ قالدى!`,
+      };
+    }
+  }
+
+  // 2. Apply all promotions
+  for (const item of input.items) {
+    const pkg = service.packages?.find((p) => p.id === item.packageId);
+    if (!pkg) continue;
+
+    let costPrice = Number((pkg as any).costPrice);
+    if (!Number.isFinite(costPrice) || costPrice <= 0) {
+      if (catalog && catalog.products) {
+        const found = catalog.products.find((pr: any) => pr.id === pkg.providerProductId);
+        if (found && Number(found.costPrice) > 0) {
+          costPrice = Number(found.costPrice);
+        }
+      }
+    }
+    if (!Number.isFinite(costPrice) || costPrice <= 0) {
+      costPrice = Number(pkg.price) * 0.9;
+    }
+
+    const promoPrice = Number(Number(item.promoPrice).toFixed(2));
+    const regularPrice = Number(Number((pkg as any).regularPrice || pkg.price).toFixed(2));
+    const discountPercent = regularPrice > promoPrice
+      ? Math.round(((regularPrice - promoPrice) / regularPrice) * 100)
+      : 0;
+
+    const existingIdx = currentList.findIndex((p) => p.serviceId === input.serviceId && p.packageId === item.packageId);
+
+    const promoRecord: ActivePromotion = {
+      id: existingIdx !== -1 ? currentList[existingIdx].id : `promo_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      serviceId: service.id,
+      serviceName: service.name,
+      packageId: pkg.id,
+      packageTitle: pkg.title,
+      category: service.category,
+      serviceImage: service.image,
+      providerProductId: pkg.providerProductId,
+      costPrice: Number(costPrice.toFixed(4)),
+      regularPrice,
+      promoPrice,
+      profitMargin: Number((promoPrice - costPrice).toFixed(2)),
+      discountPercent,
+      startsAt: input.startsAt || new Date().toISOString(),
+      endsAt: input.endsAt,
+      enabled: true,
+      broadcastToChannel: Boolean(input.broadcastToChannel),
+      createdAt: new Date().toISOString(),
+    };
+
+    (pkg as any).promoPrice = promoPrice;
+    (pkg as any).regularPrice = regularPrice;
+    (pkg as any).regularOriginalPrice = (pkg as any).regularOriginalPrice || pkg.originalPrice || regularPrice;
+    pkg.originalPrice = regularPrice;
+    pkg.price = promoPrice;
+    (pkg as any).promoEndsAt = input.endsAt;
+    (pkg as any).costPrice = costPrice;
+
+    if (existingIdx !== -1) {
+      currentList[existingIdx] = promoRecord;
+    } else {
+      currentList.unshift(promoRecord);
+    }
+    createdPromos.push(promoRecord);
+  }
+
+  await saveServicesListAsync(services);
+  await savePromotionsListAsync(currentList);
+
+  // 3. Optional: Broadcast to Telegram Channel
+  if (input.broadcastToChannel && createdPromos.length > 0) {
+    try {
+      const channelLines = [
+        `🔥 <b>${service.name} | ئالاھىدە چوڭ ئېتىبار پائالىيىتى!</b> 🔥`,
+        `⏰ <b>ئاخىرلىشىش ۋاقتى:</b> بۈگۈن كېچە سائەت ${new Date(input.endsAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} گىچە پۇرسەت غەنىيمەت!`,
+        ``,
+        `💎 <b>ئېتىبار بولاقلار تىزىملىكى:</b>`,
+      ];
+
+      createdPromos.forEach((p) => {
+        channelLines.push(`🔹 <b>${p.packageTitle}</b> ➔ <s>$${p.regularPrice}</s> | <b>$${p.promoPrice}</b>`);
+      });
+
+      channelLines.push(``);
+      channelLines.push(`⚡️ 24/7 سېكۇنتتا ئاپتوماتىك قاچىلىنىدۇ!`);
+
+      await sendChannelBroadcast(channelLines.join('\n'));
+    } catch (bcErr) {
+      console.warn('Channel broadcast notice:', bcErr);
+    }
+  }
+
+  return { success: true, promotions: createdPromos };
+}
+
+/**
  * Removes or cancels a promotion and reverts package to regular price.
  */
 export async function removePromotion(promoId: string): Promise<{ success: boolean; error?: string }> {

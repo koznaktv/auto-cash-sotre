@@ -94,10 +94,10 @@ export async function getOrCreateTelegramUser(
 }
 
 export const SHOP_CATEGORIES_BANNER = `
-╭━━━ 🛍️ <b>مەھسۇلاتلار دۇكىنى</b> ━━━╮
+🛍️ <b>مەھسۇلاتلار دۇكىنى</b>
 
 📌 <b>دۇكان — كېرەكلىك بۆلەكنى تاللاڭ:</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 `.trim();
 
 export function getShopCategoriesKeyboard(lang: BotLanguage = 'ug') {
@@ -733,10 +733,10 @@ export async function handleShopCallbackQuery(
       ].join('\n');
     } else {
       catText = `
-╭━━━ 🌟 <b>${catTitle}</b> ━━━╮
+🌟 <b>${catTitle}</b>
 
 ${isEmpty ? emptyNotice : `📌 <b>${choosePrompt}</b>\n<i>${countPrompt}</i>`}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 `.trim();
     }
     await showOrEditMessage(chatId, messageId, catText, getCategoryProductsKeyboard(catKey, page, lang));
@@ -793,11 +793,11 @@ ${isEmpty ? emptyNotice : `📌 <b>${choosePrompt}</b>\n<i>${countPrompt}</i>`}
       ].filter(Boolean).join('\n');
     } else {
       servText = `
-╭━━━ 💎 <b>${serviceName}${effectiveSubTitle}</b> ━━━╮
+💎 <b>${serviceName}${effectiveSubTitle}</b>
 💳 <b>${BOT_I18N.account.balance[lang] || 'قالدۇقىڭىز'}:</b> $${balanceStr}
 
 ${selectPrompt}
-${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${service.description ? `<i>${service.description}</i>` : ''}
 `.trim();
     }
 
@@ -842,14 +842,14 @@ ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━�
     await answerCallbackQuery(cqId, '⚠️ كارتا تۈگەپ كەتتى، يېقىندا قوشۇلىدۇ!', true);
 
     const outPrompt = `
-╭━━━ ⚠️ <b>كارتا تۈگەپ كەتتى</b> ━━━╮
+⚠️ <b>كارتا تۈگەپ كەتتى</b>
 
 📶 <b>تور نامى:</b> ${sName}
 📦 <b>كارتىنىڭ بولىقى:</b> <b>${cleanPkgTitle}</b>
 
 ❌ <b>ھازىر بۇ كارتىنىڭ ئامبار قالدۇقى تۈگەپ كەتتى!</b>
 ✨ مەسئۇللار تەرىپىدىن يېڭى كارتىلار <b>يېقىندا قوشۇلىدۇ</b>، سەل تەخىر قىلىڭ ياكى باشقا بولاقنى تاللاڭ.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 `.trim();
 
     await showOrEditMessage(chatId, messageId, outPrompt, {
@@ -908,14 +908,14 @@ ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━�
       if (!isAvailable) {
         await answerCallbackQuery(cqId, '⚠️ كارتا تۈگەپ كەتتى، يېقىندا قوشۇلىدۇ!', true);
         const outPrompt = `
-╭━━━ ⚠️ <b>كارتا تۈگەپ كەتتى</b> ━━━╮
+⚠️ <b>كارتا تۈگەپ كەتتى</b>
 
 📶 <b>تور نامى:</b> ${sName}
 📦 <b>كارتىنىڭ بولىقى:</b> <b>${pTitle}</b>
 
 ❌ <b>ھازىر بۇ كارتىنىڭ ئامبار قالدۇقى تۈگەپ كەتتى!</b>
 ✨ مەسئۇللار تەرىپىدىن يېڭى كارتىلار <b>يېقىندا قوشۇلىدۇ</b>، سەل تەخىر قىلىڭ ياكى باشقا بولاقنى تاللاڭ.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 `.trim();
         await showOrEditMessage(chatId, messageId, outPrompt, {
           inline_keyboard: [
@@ -939,13 +939,13 @@ ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━�
       if (chatId) botOrderSessions.set(chatId, botOrderSessions.get(fromId)!);
 
       const confirmPrompt = `
-╭━━━ ⚡️ <b>Wi-Fi كارتىسىنى سېتىۋېلىش</b> ━━━╮
+⚡️ <b>Wi-Fi كارتىسىنى سېتىۋېلىش</b>
 
 📶 <b>تور نامى:</b> ${sName}
 📦 <b>كارتىنىڭ بولىقى:</b> <b>${pTitle}</b>
 💰 <b>كارتىنىڭ باھاسى:</b> <b>$${Number(pkg.price).toFixed(2)} USD</b>
 💳 <b>قالدۇقىڭىز:</b> <b>$${Number(user.balance || 0).toFixed(2)} USD</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 💡 <b>ئەسكەرتىش:</b> «سېتىۋېلىش» نى باسسىڭىز، مەركىزى ئامباردىن بىر كارتا تۇتۇلۇپ، 👤 اسم المستخدم (Username) ۋە 🔑 كلمة المرور (Password) دەرھال چىقىپ بېرىدۇ.
 `.trim();
 
@@ -981,17 +981,21 @@ ${service.description ? `<i>${service.description}</i>\n` : ''}━━━━━�
 
     const inputMsg = BOT_I18N.order.inputPrompt[lang] || BOT_I18N.order.inputPrompt.ug;
 
-    const promptText = `
-╭━━━ ✍️ <b>${header}</b> ━━━╮
+    const rawInstructions = (pkg as any).instructions || (service as any).instructions || '';
+    const cleanInstructions = typeof rawInstructions === 'string' ? rawInstructions.trim() : '';
 
-${BOT_I18N.order.productLabel[lang] || '🛍️ مەھسۇلات:'} ${sName}
-${BOT_I18N.order.packageLabel[lang] || '📦 بولاق:'} <b>${pTitle}</b>
-${BOT_I18N.order.priceLabel[lang] || '💰 باھاسى:'} <b>$${Number(pkg.price).toFixed(2)} USD</b>
-${BOT_I18N.order.yourBalanceLabel[lang] || '💳 قالدۇقىڭىز:'} <b>$${Number(user.balance || 0).toFixed(2)} USD</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${inputMsg}
-${service.inputPlaceholder ? `<i>(${service.inputPlaceholder})</i>` : ''}
-`.trim();
+    const promptText = [
+      `✍️ <b>${header}</b>`,
+      '',
+      `${BOT_I18N.order.productLabel[lang] || '🛍️ مەھسۇلات:'} <b>${sName}</b>`,
+      `${BOT_I18N.order.packageLabel[lang] || '📦 بولاق:'} <b>${pTitle}</b>`,
+      `${BOT_I18N.order.priceLabel[lang] || '💰 باھاسى:'} <b>$${Number(pkg.price).toFixed(2)} USD</b>`,
+      `${BOT_I18N.order.yourBalanceLabel[lang] || '💳 قالدۇقىڭىز:'} <b>$${Number(user.balance || 0).toFixed(2)} USD</b>`,
+      cleanInstructions ? `\n💡 <b>باش مۇلازىمەتچى ئەسكەرتىشى:</b>\n<i>${cleanInstructions}</i>` : '',
+      '',
+      inputMsg,
+      service.inputPlaceholder ? `<i>(${service.inputPlaceholder})</i>` : '',
+    ].filter(Boolean).join('\n');
 
     await showOrEditMessage(chatId, messageId, promptText, {
       inline_keyboard: [
@@ -1038,11 +1042,11 @@ ${service.inputPlaceholder ? `<i>(${service.inputPlaceholder})</i>` : ''}
 
       const insufficientText = `
 <b>${insufficientHeader}</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ${orderPriceLabel} $${session.price.toFixed(2)} USD
 ${balanceLabel} $${balance.toFixed(2)} USD
 ${missingText} $${(session.price - balance).toFixed(2)} USD
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ${BOT_I18N.order.insufficientBalanceAlert[lang]}
 `.trim();
       await showOrEditMessage(chatId, messageId, insufficientText, {
@@ -1286,20 +1290,20 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
           : 'شبكة المجاهد نت (Al Mujahid Net)';
 
       const wifiSuccessReceipt = `
-╭━━━ 🎉 <b>كارتىڭىز تەييار بولدى!</b> ━━━╮
+🎉 <b>كارتىڭىز تەييار بولدى!</b>
 
 📶 <b>تور نامى:</b> ${netName}
 📦 <b>كارتىنىڭ بولىقى:</b> <b>${pTitle}</b>
 💰 <b>كارتىنىڭ باھاسى:</b> <b>$${session.price.toFixed(2)} USD</b>
 💳 <b>يېڭى قالدۇقىڭىز:</b> <b>$${Number(atomicRes.newBalance ?? 0).toFixed(2)} USD</b>
 🔢 <b>كارتا نومۇرى:</b> <code>${claimedWifiCard.cardNumber}</code>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 👤 <b>اسم المستخدم (Username):</b>
 <code>${claimedWifiCard.username}</code> <i>(نۇسخىلاش ئۈچۈن بىر چېكىڭ 👆)</i>
 
 🔑 <b>كلمة المرور (Password):</b>
 <code>${claimedWifiCard.password}</code> <i>(نۇسخىلاش ئۈچۈن بىر چېكىڭ 👆)</i>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ⏰ <b>مۇددىتى:</b> 7 كۈن
 💡 <i>بۇ كارتىنىڭ نومۇرى پەقەت سىزگىلا بېرىلدى ۋە ھېساباتىڭىزدا مەڭگۈلۈك ساقلىنىدۇ.</i>
 `.trim();
@@ -1315,7 +1319,7 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
 
     const successReceipt = `
 ${succTitle}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ${orderIdTxt} <code>${order.id}</code>
 ${BOT_I18N.order.productLabel[lang]} ${sName}
 ${BOT_I18N.order.packageLabel[lang]} ${pTitle}
@@ -1323,7 +1327,7 @@ ${BOT_I18N.order.targetAccountLabel[lang]} <code>${targetAccFull}</code>
 ${BOT_I18N.order.priceLabel[lang]} <b>$${session.price.toFixed(2)} USD</b>
 ${BOT_I18N.order.yourBalanceLabel[lang]} <b>$${Number(atomicRes.newBalance ?? 0).toFixed(2)} USD</b>
 ${statusTxt}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ✨ <i>${tipTxt}</i>
 `.trim();
 
@@ -1356,12 +1360,12 @@ ${statusTxt}
     const a = BOT_I18N.account;
     const accText = `
 ${a.title[lang] || a.title.ug}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 👤 <b>Name:</b> ${user.name}
 ${a.userId[lang] || a.userId.ug} <code>${fromId}</code>
 ${a.balance[lang] || a.balance.ug} <b>$${balance.toFixed(2)} USD</b>
 ${a.vipLevel[lang] || a.vipLevel.ug} <b>${(user.vipTier || 'VIP1').toUpperCase()}</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 `.trim();
 
     await showOrEditMessage(chatId, messageId, accText, {
@@ -1445,18 +1449,23 @@ export async function handleShopTextMessage(
          lang === 'ru' ? `⚠️ Не хватает средств! Нужно еще: $${(activeSession.price - balance).toFixed(2)} USD` :
          `⚠️ قالدۇق يەتمەيدۇ! كەم قالغىنى: $${(activeSession.price - balance).toFixed(2)} USD`);
 
-    const confirmCard = `
-╭━━━ ⚡️ <b>${titleCard}</b> ━━━╮
+    const activeSrv = getServicesList().find((s) => s.id === activeSession.serviceId);
+    const activePkg = activeSrv?.packages?.find((p) => p.id === activeSession.pkgId);
+    const rawInstructions = (activePkg as any)?.instructions || (activeSrv as any)?.instructions || '';
+    const cleanInstructions = typeof rawInstructions === 'string' ? rawInstructions.trim() : '';
 
-${BOT_I18N.order.productLabel[lang]} ${sName}
-${BOT_I18N.order.packageLabel[lang]} ${pTitle}
-${BOT_I18N.order.priceLabel[lang]} <b>$${activeSession.price.toFixed(2)} USD</b>
-${BOT_I18N.order.targetAccountLabel[lang]} <code>${targetFull}</code>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${BOT_I18N.order.yourBalanceLabel[lang]} <b>$${balance.toFixed(2)} USD</b>
-💵 <b>${remainingText}</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-`.trim();
+    const confirmCard = [
+      `⚡️ <b>${titleCard}</b>`,
+      '',
+      `${BOT_I18N.order.productLabel[lang]} <b>${sName}</b>`,
+      `${BOT_I18N.order.packageLabel[lang]} <b>${pTitle}</b>`,
+      `${BOT_I18N.order.priceLabel[lang]} <b>$${activeSession.price.toFixed(2)} USD</b>`,
+      `${BOT_I18N.order.targetAccountLabel[lang]} <code>${targetFull}</code>`,
+      cleanInstructions ? `\n💡 <b>باش مۇلازىمەتچى ئەسكەرتىشى:</b>\n<i>${cleanInstructions}</i>` : '',
+      '',
+      `${BOT_I18N.order.yourBalanceLabel[lang]} <b>$${balance.toFixed(2)} USD</b>`,
+      `💵 <b>${remainingText}</b>`,
+    ].filter(Boolean).join('\n');
 
     await sendTelegramMessage(chatId, confirmCard, {
       parse_mode: 'HTML',
@@ -1496,12 +1505,12 @@ ${BOT_I18N.order.yourBalanceLabel[lang]} <b>$${balance.toFixed(2)} USD</b>
     const a = BOT_I18N.account;
     const balText = `
 ${a.title[lang] || a.title.ug}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 👤 <b>Name:</b> ${user.name}
 ${a.userId[lang] || a.userId.ug} <code>${from?.id || chatId}</code>
 ${a.balance[lang] || a.balance.ug} <b>$${balance.toFixed(2)} USD</b>
 ${a.vipLevel[lang] || a.vipLevel.ug} <b>${(user.vipTier || 'VIP1').toUpperCase()}</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 `.trim();
     await sendTelegramMessage(chatId, balText, {
       parse_mode: 'HTML',

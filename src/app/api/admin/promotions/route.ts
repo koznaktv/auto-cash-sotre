@@ -61,11 +61,41 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { serviceId, packageId, promoPrice, endsAt, startsAt, broadcastToChannel } = body;
+    const { serviceId, packageId, promoPrice, items, endsAt, startsAt, broadcastToChannel } = body;
 
-    if (!serviceId || !packageId || promoPrice === undefined || !endsAt) {
+    if (!serviceId || !endsAt) {
       return NextResponse.json(
-        { success: false, error: 'مۇلازىمەت، بولاق، باھا ۋە ئاخىرلىشىش ۋاقتى چوقۇم تەمىنلىنىشى كېرەك' },
+        { success: false, error: 'مۇلازىمەت ۋە ئاخىرلىشىش ۋاقتى كەمچىل' },
+        { status: 400 }
+      );
+    }
+
+    // Bulk creation support
+    if (Array.isArray(items) && items.length > 0) {
+      const { createOrUpdatePromotionsBulk } = await import('@/lib/promotionsDb');
+      const result = await createOrUpdatePromotionsBulk({
+        serviceId,
+        items,
+        endsAt,
+        startsAt,
+        broadcastToChannel: Boolean(broadcastToChannel),
+      });
+
+      if (!result.success) {
+        return NextResponse.json({ success: false, error: result.error }, { status: 400 });
+      }
+
+      const updatedList = await getPromotionsListAsync();
+      return NextResponse.json({
+        success: true,
+        promotions: updatedList,
+      });
+    }
+
+    // Single item fallback
+    if (!packageId || promoPrice === undefined) {
+      return NextResponse.json(
+        { success: false, error: 'كەم دېگەندە بىر بولاق ۋە باھاسى كىرگۈزۈلۈشى كېرەك' },
         { status: 400 }
       );
     }

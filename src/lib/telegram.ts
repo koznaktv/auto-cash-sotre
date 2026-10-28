@@ -354,20 +354,18 @@ export async function getBotUsersReportMessage(): Promise<{ text: string; keyboa
   }
 
   const messageText = `
-╭━━━ 👥 <b>AUTO CASH بوتنى ئىشلەتكۈچىلەر تىزىملىكى</b> ━━━╮
+👥 <b>AUTO CASH بوتنى ئىشلەتكۈچىلەر تىزىملىكى</b>
       📊 <i>ئومۇمىي ئابۇنىتلار سانى ۋە پائاللىق دوكلاتى</i> 📊
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 👥 <b>جەمئىي بوتنى ئىشلەتكەنلەر:</b> <b>${total} نەپەر</b>
 🟢 <b>بۈگۈن پائال بولغانلار:</b> <b>${activeToday} كىشى</b>
 🗓 <b>بۇ ھەپتە پائال بولغانلار:</b> <b>${active7Days} كىشى</b>
 📱 <b>تېلېگرام نامى بارلار:</b> <b>${withUsername} نەپەر</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 📋 <b>ئەڭ يېڭى ئىشلەتكەن خېرىدارلار (يېقىنقى 20 كىشى):</b>
 
 ${recentListText}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 💡 <b>خېرىدارغا خەت يېزىش بۇيرۇقى:</b>
 <code>/sendto <ID نومۇرى> سىزنىڭ ئۇچۇرىڭىز</code>
 <i>مەسىلەن: <code>/sendto ${topRecent[0]?.id || '7575664493'} ئەسسالامۇ ئەلەيكۇم!</code></i>
@@ -596,9 +594,8 @@ export async function notifyNewOrder(order: {
         : '';
 
     const message = `
-╭━━━ ⚡️🛍️ <b>يېڭى مەھسۇلات زاكازى چۈشتى!</b> 🛍️⚡️ ━━━╮
+⚡️🛍️ <b>يېڭى مەھسۇلات زاكازى چۈشتى!</b> 🛍️⚡️
       💎 <i>AUTO CASH ئاپتوماتىك قاچىلاش سىستېمىسى</i> 💎
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 📦 <b>زاكاز نومۇرى:</b> <code>${order.id}</code>
 🎮 <b>مەھسۇلات:</b> <b>${(order.serviceName || 'مەھسۇلات').replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')}</b> - ${(order.packageTitle || '').replace(/\(شەن\)/g, '').replace(/\(شەدەن\)/g, '').trim()}
@@ -607,7 +604,7 @@ export async function notifyNewOrder(order: {
 ${fieldsText ? `📝 <b>قوشۇمچە ئۇچۇرلار:</b>\n${fieldsText}\n` : ''}👤 <b>خېرىدار:</b> ${order.userName || 'ئەزا'} (<code>${order.userEmail || '—'}</code>)
 ⏳ <b>ھالىتى:</b> <b>${order.status || 'سۈرۈشتۈرۈلمەكتە'}</b>
 ⏰ <b>ۋاقتى:</b> ${new Date().toLocaleString('ug-CN', { timeZone: 'Asia/Urumqi' })}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 `.trim();
 
     await sendAdminAlert(message, {
@@ -639,11 +636,11 @@ export async function sendOrderDelayNoticeToCustomer(params: {
 
   const text = `
 ⏳ <b>ھۆرمەتلىك خېرىدارىمىز، ئەسسالامۇئەلەيكۇم!</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 📦 <b>زاكاس نومۇرى:</b> <code>#${cleanId}</code>
 🎮 <b>مەھسۇلات:</b> <b>${params.serviceName}</b> - ${params.packageTitle}
 💰 <b>سوممىسى:</b> <b>$${amountStr} USD</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ⚠️ <b>تەمىنلىگۈچى ھالىتى ئۇقتۇرۇشى (1 سائەتتىن ئاشتى):</b>
 سىز بەرگەن بۇ زاكاسنى ئايرىم سۈرۈشتۈرۈپ چىقتۇق. بۇ مەھسۇلاتنىڭ باش تەمىنلىگۈچى سىستېمىسىدا زاكازلار زىيادە كۆپىيىپ كەتكەنلىكى سەۋەبلىك، قاچىلىنىش سۈرئىتى ئادەتتىكىدىن سەل ئاستىلاپ كەتتى.
 
@@ -702,9 +699,8 @@ export async function postOrderCompletedToChannel(order: {
   const timeStr = new Date().toLocaleString('ug-CN', { timeZone: 'Asia/Urumqi' });
 
   const channelText = `
-╭━━━ 👑 <b>AUTO CASH | يېڭى زاكاز تاماملاندى!</b> 👑 ━━━╮
+👑 <b>AUTO CASH | يېڭى زاكاز تاماملاندى!</b> 👑
       ⚡️ <i>ئاپتوماتىك پۇل قاچىلاش مۇۋەپپەقىيەتلىك بولدى</i> ⚡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 📦 <b>زاكاز نومۇرى:</b> <code>#${cleanId}</code>
 🎮 <b>مەھسۇلات:</b> <b>${(order.serviceName || 'رەقەملىك مەھسۇلات').replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')}</b> - ${(order.packageTitle || '').replace(/\(شەن\)/g, '').replace(/\(شەدەن\)/g, '').trim()}
@@ -712,7 +708,7 @@ export async function postOrderCompletedToChannel(order: {
 🎯 <b>قاچىلانغان ID:</b> <code>${maskedTarget}</code>
 ⚡️ <b>سۈرئىتى:</b> سېكۇنتتا ئاپتوماتىك كىردى 🚀
 ⏰ <b>ۋاقتى:</b> ${timeStr}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ✨ <i>خېرىدارىمىزنىڭ ھېساباتىغا پۇل مۇۋەپپەقىيەتلىك يەتكۈزۈپ بېرىلدى. AUTO CASH نى تاللىغىنىڭىزغا كۆپ رەھمەت!</i>
 
 🛒 <b>سىزمۇ ئەڭ ئەرزان باھادا پۇل قاچىلاڭ:</b>
@@ -769,9 +765,8 @@ export async function notifyNewDeposit(deposit: {
   try {
     const depositId = deposit.id || '';
     const message = `
-╭━━━ 💸💳 <b>يېڭى شامكەش پۇل كىرگۈزۈش تالونى!</b> 💳💸 ━━━╮
+💸💳 <b>يېڭى شامكەش پۇل كىرگۈزۈش تالونى!</b> 💳💸
        💎 <i>شامكەش (ShamCash) تەكشۈرۈش مەركىزى</i> 💎
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 💰 <b>سوممىسى:</b> <b>$${Number(deposit.amount || 0).toFixed(2)} USD</b>
 🏦 <b>تۈرى:</b> <b>${deposit.method || 'ShamCash (شامكەش)'}</b>
@@ -779,7 +774,7 @@ export async function notifyNewDeposit(deposit: {
 👤 <b>خېرىدار:</b> ${deposit.userName || 'ئەزا'} (<code>${deposit.userEmail || '—'}</code>)
 ⏳ <b>ھالىتى:</b> <b>${deposit.status || 'تەكشۈرۈلمەكتە'}</b>
 ⏰ <b>ۋاقتى:</b> ${new Date().toLocaleString('ug-CN', { timeZone: 'Asia/Urumqi' })}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 👇 <b>بىۋاسىتە تېلېگرامدىن 1 كۇنۇپكا بىلەن بىر تەرەپ قىلىڭ:</b>
 `.trim();
 
@@ -815,15 +810,14 @@ export async function notifyNewUser(user: {
 }): Promise<void> {
   try {
     const message = `
-╭━━━ 🎉✨ <b>يېڭى خېرىدار تىزىملاتتى!</b> ✨🎉 ━━━╮
+🎉✨ <b>يېڭى خېرىدار تىزىملاتتى!</b> ✨🎉
       👑 <i>AUTO CASH يېڭى ئەزا قوشۇلدى</i> 👑
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 👤 <b>ئىسمى:</b> <b>${user.name}</b>
 📧 <b>ئېلخەت:</b> <code>${user.email}</code>
 🆔 <b>خېرىدار ID:</b> <code>${user.id || '—'}</code>
 ⏰ <b>ۋاقتى:</b> ${new Date().toLocaleString('ug-CN', { timeZone: 'Asia/Urumqi' })}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 🔗 <a href="${TELEGRAM_CONFIG.storeUrl}/admin">📊🖥️ باشقۇرۇش مەركىزىدىن تەپسىلاتىنى كۆرۈش</a>
 `.trim();
 
@@ -845,16 +839,15 @@ export async function notifyFraudulentDeposit(data: {
 }): Promise<void> {
   try {
     const message = `
-╭━━━ 🚨⚠️ <b>ساختا / تەكرار شامكەش تالونى بايقالدى!</b> ⚠️🚨 ━━━╮
+🚨⚠️ <b>ساختا / تەكرار شامكەش تالونى بايقالدى!</b> ⚠️🚨
        🛑 <i>AUTO CASH ئەقلىي بىخەتەرلىك قوغداش سىستېمىسى</i> 🛑
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 👤 <b>گۇمانلىق خېرىدار:</b> ${data.userName || 'ئەزا'} (<code>${data.userEmail || '—'}</code>)
 🧾 <b>تالون نومۇرى (TxID):</b> <code>${data.txId}</code>
 💰 <b>ئىلتىماس قىلغان سوممىسى:</b> $${Number(data.amount || 0).toFixed(2)} USD
 ⚠️ <b>بايقالغان سەۋەب:</b> <b>${data.reason}</b>
 ⏰ <b>ۋاقتى:</b> ${new Date().toLocaleString('ug-CN', { timeZone: 'Asia/Urumqi' })}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 🚫 <i>بۇ تەلەپ سىستېما تەرىپىدىن ئاپتوماتىك توسۇلدى، مەبلەغ سېلىنمىدى.</i>
 `.trim();
 
@@ -885,9 +878,8 @@ export async function notifyInvalidAccountId(data: {
 }): Promise<void> {
   try {
     const message = `
-╭━━━ ⚠️🎯 <b>زاكاز مەغلۇپ بولدى (خاتا Player ID / تەمىنلىگۈچى رەت قىلدى)!</b> ━━━╮
+⚠️🎯 <b>زاكاز مەغلۇپ بولدى (خاتا Player ID / تەمىنلىگۈچى رەت قىلدى)!</b>
        🛑 <i>تەمىنلىگۈچى API قايتۇرغان سىستېما سىگنالى</i> 🛑
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 📦 <b>زاكاز نومۇرى:</b> <code>${data.orderId}</code>
 🎮 <b>مەھسۇلات:</b> <b>${(data.serviceName || 'ئويۇن مەھسۇلاتى').replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')}</b> - ${(data.packageTitle || '').replace(/\(شەن\)/g, '').replace(/\(شەدەن\)/g, '').trim()}
@@ -896,7 +888,7 @@ export async function notifyInvalidAccountId(data: {
 👤 <b>خېرىدار:</b> ${data.userName || 'ئەزا'} (<code>${data.userEmail || '—'}</code>)
 ⚠️ <b>تەمىنلىگۈچى قايتۇرغان سەۋەب:</b> <code>${data.errorMessage}</code>
 ⏰ <b>ۋاقتى:</b> ${new Date().toLocaleString('ug-CN', { timeZone: 'Asia/Urumqi' })}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 👇 <b>ئەگەر پۇل قايتۇرۇلمىغان بولسا، تېلېگرامدىن 1 كۇنۇپكا بىلەن پۇلنى قايتۇرۇڭ:</b>
 `.trim();
 
@@ -963,9 +955,8 @@ export async function getDailyFinancialStats(): Promise<string> {
     const visits = getDailySiteVisits();
 
     return `
-╭━━━ 📊💰 <b>AUTO CASH كۈنلۈك سودا ۋە كىرىم دوكلاتى</b> 💰📊 ━━━╮
+📊💰 <b>AUTO CASH كۈنلۈك سودا ۋە كىرىم دوكلاتى</b> 💰📊
        📈 <i>ئاپتوماتىك سېتىش، شامكەش قالدۇق ۋە پايدا سىتاستىكىسى</i> 📈
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 📅 <b>تارىخ:</b> <code>${todayDate}</code> (${nowUrumqi})
 
@@ -982,7 +973,7 @@ export async function getDailyFinancialStats(): Promise<string> {
 👥 <b>بۈگۈنكى يېڭى ئەزالار:</b> <b>${todayUsers.length} كىشى</b> (ئومۇمىي: ${users.length} ئەزا)
 🤖 <b>بوتنى ئىشلەتكەن ئابۇنىتلار:</b> <b>${getAllSubscribersDetails().length} نەپەر</b> (بۈگۈن پائال: <b>${getAllSubscribersDetails().filter((s) => (s.lastActive || s.date || '').startsWith(todayDate)).length}</b> كىشى)
 🌐 <b>بۈگۈنكى توربەت زىيارەت سانى:</b> <b>${visits} قېتىم</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 👑 <i>AUTO CASH يۇقىرى سۈرئەتلىك رەقەملىك دۇكان مەركىزى</i>
 `.trim();
   } catch (err: any) {
@@ -1051,9 +1042,9 @@ export async function sendChannelBroadcast(
 
   const formattedMessage = `
 🔥 <b>AUTO CASH | ئالاھىدە خەۋەر & تەشۋىقات</b> 🔥
-━━━━━━━━━━━━━━━━━━
+
 ${content}
-━━━━━━━━━━━━━━━━━━
+
 ⚡️ <b>ئەڭ ئەرزان باھا • 24/7 شۇئان قاچىلاش • بىخەتەر كاپالەت</b>
 🛒 <b>رەسمىي دۇكان:</b> ${TELEGRAM_CONFIG.storeUrl}
 📢 <b>تېلېگرام قانىلىمىز:</b> @${TELEGRAM_CONFIG.channelUsername}
@@ -1124,9 +1115,9 @@ export async function sendUsersBroadcast(
   const subscriberIds = getAllSubscribers();
   const formattedMessage = `
 📢 <b>AUTO CASH | خېرىدارلارغا مەخسۇس ئۇچۇر</b>
-━━━━━━━━━━━━━━━━━━
+
 ${content}
-━━━━━━━━━━━━━━━━━━
+
 ⚡️ <b>ئەڭ ئەرزان باھا • 24/7 سېكۇنتتا يەتكۈزۈش كاپالىتى</b>
 🛒 <b>رەسمىي دۇكان:</b> ${TELEGRAM_CONFIG.storeUrl}
 `.trim();
@@ -1184,13 +1175,11 @@ export async function sendDirectMessageToUser(
   }
 
   const formattedMessage = `
-╭━━━ 💌 <b>AUTO CASH | خېرىدارلار مۇلازىمىتىدىن مەخسۇس ئۇچۇر</b> ━━━╮
+💌 <b>AUTO CASH | خېرىدارلار مۇلازىمىتىدىن مەخسۇس ئۇچۇر</b>
       👨‍💻 <i>سىزنىڭ تەلىپىڭىز ۋە زاكازىڭىز بويىچە يېزىلغان ئۇچۇر</i> 👨‍💻
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 ${content}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 💡 <i>سوئالىڭىز ياكى پىكرىڭىز بولسا بىۋاستە بۇ بوتقا يازسىڭىز، مۇلازىمەت خادىملىرىمىزغا بارىدۇ.</i>
 `.trim();
 
@@ -1343,9 +1332,8 @@ function formatOrderTrackingCard(order: OrderRecord) {
   }
 
   const text = `
-╭━━━ 📦🔍 <b>AUTO CASH زاكاز تەپسىلاتى</b> 🔍📦 ━━━╮
+📦🔍 <b>AUTO CASH زاكاز تەپسىلاتى</b> 🔍📦
       ⚡️ <i>24/7 نەق مەيدان جانلىق تەكشۈرۈش مەركىزى</i> ⚡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 🆔 <b>زاكاز نومۇرى:</b> <code>#${cleanId}</code>
 🎮 <b>مەھسۇلات:</b> <b>${(order.serviceName || 'رەقەملىك مەھسۇلات').replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')}</b> - ${(order.packageTitle || '').replace(/\(شەن\)/g, '').replace(/\(شەدەن\)/g, '').trim()}
@@ -1353,9 +1341,8 @@ function formatOrderTrackingCard(order: OrderRecord) {
 🎯 <b>قاچىلانغان ID:</b> <code>${target}</code>
 ⏰ <b>زاكاز ۋاقتى:</b> ${timeStr}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${statusBadge}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 👇 يەنە باشقا زاكاز نومۇرىڭىزنى يېزىپ ئەۋەتسىڭىزمۇ دەرھال سۈرۈشتۈرۈپ بېرىدۇ.
 `.trim();
 
@@ -1388,9 +1375,8 @@ function getExchangeRatesMessage(effectiveRate: number): string {
   const ex25 = Math.round(25 * sypRate);
   const ex50 = Math.round(50 * sypRate);
   return `
-╭━━━ 💱📊 <b>AUTO CASH — نەق مەيدان پېرېۋوت باھاسى</b> 📊💱 ━━━╮
+💱📊 <b>AUTO CASH — نەق مەيدان پېرېۋوت باھاسى</b> 📊💱
       ⚡️ <i>24/7 ئاپتوماتىك سېكۇنتتا ھەميانغا پۇل كىرىش كاپالىتى</i> ⚡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 💵 <b>1.00 USD (دوللار)</b> = <b>${sypRate.toLocaleString()} SYP (سۈرىيە لىراسى)</b>
 
@@ -1410,9 +1396,8 @@ Sham Cash ئەپى ئارقىلىق پۇل ئەۋەتىپ، تالون نومۇ�
  */
 function getFaqMessage(): string {
   return `
-╭━━━ ❓💡 <b>AUTO CASH — كۆپ سورىلىدىغان سوئاللار (FAQ)</b> 💡❓ ━━━╮
+❓💡 <b>AUTO CASH — كۆپ سورىلىدىغان سوئاللار (FAQ)</b> 💡❓
       💎 <i>قەدىرلىك خېرىدارلار ئەڭ كۆپ سورايدىغان مەسىلىلەر</i> 💎
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 <b>1. شامكەشتىن پۇل سالسام قاچان كىرىدۇ؟</b>
 ✅ تالون نومۇرى (TxID) نى دۇكاننىڭ «ھەميانغا پۇل كىرگۈزۈش» بېتىگە كىرگۈزۈپ «دەلىللەش» كۇنۇپكىسىنى باسسىڭىز، سېكۇنت ئىچىدە ئاپتوماتىك تەستىقلىنىپ كىرىدۇ!
@@ -1436,9 +1421,8 @@ function getFaqMessage(): string {
  */
 function getVipMembershipMessage(): string {
   return `
-╭━━━ 👑💎 <b>AUTO CASH VIP ئەزالىق ۋە ئېتىبار تۈزۈمى</b> 💎👑 ━━━╮
+👑💎 <b>AUTO CASH VIP ئەزالىق ۋە ئېتىبار تۈزۈمى</b> 💎👑
       🌟 <i>قانداق قىلىپ تېخىمۇ كۆپ ئېتىبار ۋە قايتۇرما پۇلغا ئېرىشىسىز؟</i> 🌟
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 🥇 <b>VIP 1 ئەزالىق:</b>
 • مەبلەغ ئومۇمىي مىقدارى: $50+
@@ -1464,9 +1448,8 @@ function getVipMembershipMessage(): string {
  */
 function getAppDownloadMessage(): string {
   return `
-╭━━━ 📲⚡️ <b>AUTO CASH رەسمىي يانفون ئەپى (Android APK)</b> ⚡️📲 ━━━╮
+📲⚡️ <b>AUTO CASH رەسمىي يانفون ئەپى (Android APK)</b> ⚡️📲
       🚀 <i>تېلېفوندا تېخىمۇ راۋان، تېز ۋە قولايلىق سېتىۋېلىش</i> 🚀
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 📱 <b>ئەپ ئۇچۇرى:</b>
 • ئەڭ يېڭى نەشرى: <b>v1.5.0 (كىرىش ۋە تىزىملىتىش تولۇق راۋانلاشتۇرۇلدى)</b>
@@ -1487,16 +1470,15 @@ export async function pinChannelMasterGuide(): Promise<{ ok: boolean; messageId?
   const targetChannel = TELEGRAM_CONFIG.channelId || `@${TELEGRAM_CONFIG.channelUsername}`;
 
   const pinText = `
-╭━━━ 🌟👑 <b>AUTO CASH | دۇنياۋى تېز سۈرئەتلىك رەقەملىك دۇكان</b> 👑🌟 ━━━╮
+🌟👑 <b>AUTO CASH | دۇنياۋى تېز سۈرئەتلىك رەقەملىك دۇكان</b> 👑🌟
       💎 <i>ئەڭ ئەرزان باھا • 24/7 سېكۇنتتا ئاپتوماتىك قاچىلاش • %100 كاپالەت</i> 💎
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 👋 <b>ھۆرمەتلىك قەدىرلىك قېرىنداشلار ۋە دوستلار!</b>
 <b>AUTO CASH</b> رەسمىي تېلېگرام سۇپىمىزغا كەلگىنىڭىزنى قىزغىن قارشى ئالىمىز!
 
 ⚡️ <b>AUTO CASH</b> — سىزگە خەلقئارالىق ئەڭ ئىلغار، ئىشەنچلىك ۋە سېكۇنتتا يېتىپ كېلىدىغان 24/7 ئاپتوماتلاشقان رەقەملىك مال سېتىۋېلىش دەرۋازىسىنى ئاچىدۇ!
 
-┏━━━━━━━━━ 💎 <b>سۇپىمىزنىڭ كاپالىتى ۋە ئالاھىدىلىكلىرى</b> ━━━━━━━━━┓
+💎 <b>سۇپىمىزنىڭ كاپالىتى ۋە ئالاھىدىلىكلىرى</b>
  ⚡️ <b>24/7 سېكۇنتتا قاچىلاش:</b> زاكاز بېرىلگەن ھامان 0.1 سېكۇنتتا ئاپتوماتىك كىرىدۇ!
  💳 <b>شامكەش (Sham Cash):</b> تالون نومۇرى بىلەن دەقىقىدە ھەميانغا پۇل كىرىش كاپالىتى.
  🌐 <b>رەقەملىك مۇلازىمەتلەر:</b> دۇنياۋى ئەپلەر، ئالقىش پۇللىرى، سوۋغات كارتىلىرى.
@@ -1505,7 +1487,6 @@ export async function pinChannelMasterGuide(): Promise<{ ok: boolean; messageId?
  👑 <b>VIP ئەزالىق تۈزۈمى:</b> سېتىۋالغانچە پۇل قايتىدىغان (Cashback) ئالاھىدە ئېتىبارلار.
  🛡️ <b>%100 رەسمىي كاپالەت:</b> كېچىكىشتىن خالىي؛ زاكاز پۈتمىسە پۇلىڭىز دەرھال قايتىدۇ.
  📲 <b>تېلېگرام مىنى ئەپ (Mini App):</b> دۇكان تېلېگرام ئىچىدىلا قولايلىق ئېچىلىدۇ.
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 🔗 <b>رەسمىي ئادرېسلىرىمىز:</b>
 • 🛍️ <b>توربەت دۇكىنى:</b> ${TELEGRAM_CONFIG.storeUrl}
@@ -1735,9 +1716,8 @@ export async function isUserSubscribedToChannel(userId: number | string): Promis
 function getSubscriptionGateMessage(firstName?: string): string {
   const name = firstName ? `<b>${firstName}</b>` : 'ھۆرمەتلىك خېرىدارىمىز';
   return `
-╭━━━ 📢🔒 <b>AUTO CASH | ئەزالىقنى دەلىللەش كۆزنىكى</b> 🔒📢 ━━━╮
+📢🔒 <b>AUTO CASH | ئەزالىقنى دەلىللەش كۆزنىكى</b> 🔒📢
       ⚡️ <i>داۋاملاشتۇرۇش ئۈچۈن رەسمىي قانىلىمىزغا ئەزا بولۇڭ</i> ⚡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 👋 <b>ئەسسالامۇ ئەلەيكۇم، ھۆرمەتلىك ${name}!</b>
 AUTO CASH نىڭ ئەڭ يېڭى ئېتىبار باھالىرى، ھەميان مۇلازىمەتلىرى ۋە 24/7 سېكۇنتتا قاچىلاش ئىقتىدارلىرىدىن پايدىلىنىش ئۈچۈن، ئالدى بىلەن رەسمىي تېلېگرام قانىلىمىزغا ئەزا بولۇشىڭىز كېرەك.
@@ -1795,9 +1775,8 @@ function getWelcomeMessage(firstName?: string, lang: BotLanguage = 'ug'): string
 function getAdminWelcomeMessage(adminName?: string): string {
   const name = adminName ? `@${adminName}` : 'ھۆرمەتلىك مەسئۇل باشقۇرغۇچى';
   return `
-╭━━━ 👑 <b>AUTO CASH VIP باشقۇرۇش مەركىزى</b> 👑 ━━━╮
+👑 <b>AUTO CASH VIP باشقۇرۇش مەركىزى</b> 👑
       🛡️ <i>ئاپتوماتىك نازارەت ۋە سىستېما تىزگىنلىگۈچى</i> 🛡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 👋 <b>ئەسسالامۇ ئەلەيكۇم، ھۆرمەتلىك باشقۇرغۇچى ${name}!</b> سۇپىنىڭ ئاپتوماتىك باشقۇرۇش مەركىزىگە خۇش كەپسىز!
 
@@ -1879,9 +1858,8 @@ function getAdminInlineKeyboard() {
 function getTutorialGuideMessage(firstName?: string): string {
   const customerName = firstName ? `<b>${firstName}</b>` : 'ھۆرمەتلىك خېرىدارىمىز';
   return `
-╭━━━ 💡 <b>AUTO CASH قولايلىق ئىشلىتىش قوللانمىسى</b> 💡 ━━━╮
+💡 <b>AUTO CASH قولايلىق ئىشلىتىش قوللانمىسى</b> 💡
      🚀 <i>تېز، ئاددىي ۋە 1 مىنۇتتا پۇل قاچىلاش سىرلىرى</i> 🚀
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 👋 <b>ئەسسالامۇ ئەلەيكۇم، ${customerName}!</b>
 سۇپىمىزدىن مال سېتىۋېلىش پەقەت 4 تاللا ئاددىي باسقۇچ:
@@ -1897,7 +1875,7 @@ function getTutorialGuideMessage(firstName?: string): string {
 
 ④ ⚡️ <b>4-قەدەم: سېكۇنتتا ئاپتوماتىك قاچىلاش</b> 🚀
 • ھەميان قالدۇقىڭىز بىلەن «سېتىۋېلىش»نى باسسىڭىز، سىستېما سېكۇنت ئىچىدە ھېساباتىڭىزغا ئۇدۇل يەتكۈزۈپ بېرىدۇ!
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 👇 <b>سىناپ كۆرۈش ئۈچۈن تۆۋەندىكى كۇنۇپكىلارنىڭ بىرىنى بېسىڭ:</b>
 `.trim();
 }
@@ -1954,9 +1932,8 @@ export async function getShamcashDepositCardText(): Promise<string> {
   } catch {}
 
   return `
-╭━━━ 💎💳 <b>شامكەش (Sham Cash) ئارقىلىق پۇل سېلىش</b> 💳💎 ━━━╮
+💎💳 <b>شامكەش (Sham Cash) ئارقىلىق پۇل سېلىش</b> 💳💎
        ⚡️ <i>24/7 سائەت سېكۇنتتا ئاپتوماتىك كىرىش كاپالىتى</i> ⚡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 📌 <b>بىزنىڭ شامكەش ھېسابات ئادرېسىمىز (چەكسىڭىز كۆچۈرۈلىدۇ):</b>
 <code>${shamAddress}</code>
@@ -2011,7 +1988,7 @@ export async function processTelegramShamcashDeposit(
   if (alreadyUsed) {
     const duplicateCard = `
 ⚠️ <b>بۇ تالون بۇرۇن ئاللىقاچان ئىشلىتىلگەن!</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 🆔 <b>تالون نومۇرى:</b> <code>${cleanTxId}</code>
 
 <i>بۇ تالون نومۇرى (رقم العملية) بۇرۇن ئاللىقاچان سانداندا تەستىقلانغان ۋە ھەميانغا قوشۇلغان. ئەگەر سىز بۇ پۇلنى كىرمىدى دەپ قارىسىڭىز، خېرىدارلار مۇلازىمىتىگە ئالاقىلىشىڭ.</i>
@@ -2032,7 +2009,7 @@ export async function processTelegramShamcashDeposit(
   // Temporary checking status
   const verifyingText = `
 ⏳ <b>شامكەش تالونى دەلىللىنىۋاتىدۇ...</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 🆔 <b>تالون نومۇرى:</b> <code>${cleanTxId}</code>
 ⚡️ <i>شامكەش تورىدىن سۈرۈشتۈرۈلۈۋاتىدۇ، 1-3 سېكۇنت ساقلاڭ...</i>
 `.trim();
@@ -2064,7 +2041,7 @@ export async function processTelegramShamcashDeposit(
 
       const expiredCard = `
 ⚠️ <b>بۇ تالوننىڭ قوبۇل قىلىش مۇددىتى ئۆتۈپ كەتكەن!</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 🆔 <b>تالون نومۇرى:</b> <code>${cleanTxId}</code>
 ⏰ <b>پۇل ئۇرۇلغان ۋاقتى:</b> <b>${timeAgoText}</b> (${verifyRes.transaction?.datetime || 'بۇرۇنقى كونا ۋاقىت'})
 
@@ -2156,12 +2133,12 @@ export async function processTelegramShamcashDeposit(
 
       const successCard = `
 🎉 <b>شامكەش پۇلىڭىز ھەميانغا مۇۋەپپەقىيەتلىك كىردى!</b> 🚀
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 💰 <b>تاپشۇرۇۋېلىنغان شامكەش پۇلى:</b> <b>${Number(tx.amount || 0).toLocaleString()} SYP</b>
 💵 <b>ھەميانغا قوشۇلغان:</b> <b>+$${finalCreditAmount.toFixed(2)} USD</b>
 💳 <b>يېڭى ئورتاق قالدۇقىڭىز:</b> <b>$${newBal} USD</b>
 🆔 <b>تەستىقلانغان تالون:</b> <code>${tx.tranId}</code>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ⚡️ <i>پۇل ھەميىنىڭىزگە دەرھال كىردى! ھەم توربەتتە ھەم مۇشۇ بوتتا بىۋاسىتە ئىشلىتەلەيسىز.</i>
 `.trim();
 
@@ -2190,7 +2167,7 @@ export async function processTelegramShamcashDeposit(
     // Not found yet or invalid
     const notFoundCard = `
 ⏳ <b>تالون تېخى شامكەش تورىدا كۆرۈنمىدى ياكى نومۇر خاتا</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 🆔 <b>سىز كىرگۈزگەن نومۇر:</b> <code>${cleanTxId}</code>
 
 💡 <b>نېمە قىلىش كېرەك؟</b>
@@ -2368,14 +2345,14 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 
           const updatedText = `
 ✅ <b>پۇل كىرگۈزۈش تەستىقلاندى! (COMPLETED)</b>
-━━━━━━━━━━━━━━━━━━
+
 💰 <b>سوممىسى:</b> <b>$${Number(deposit.amount).toFixed(2)} USD</b>
 🏦 <b>تۈرى:</b> ${deposit.method}
 🧾 <b>تالون نومۇرى (TxID):</b> <code>${deposit.txId || '—'}</code>
 👤 <b>خېرىدار:</b> ${deposit.userName} (<code>${deposit.userEmail}</code>)
 👑 <b>تەستىقلىغۇچى:</b> @${fromUser || 'Admin'}
 ⏰ <b>تەستىقلانغان ۋاقىت:</b> ${new Date().toLocaleString('ug-CN', { timeZone: 'Asia/Urumqi' })}
-━━━━━━━━━━━━━━━━━━
+
 ✨ <i>مەبلەغ سۇپا سانداندىكى خېرىدار ھەميانىغا مۇۋەپپەقىيەتلىك كىرگۈزۈلدى.</i>
 `.trim();
 
@@ -2413,13 +2390,13 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 
         const updatedText = `
 ❌ <b>پۇل كىرگۈزۈش رەت قىلىندى! (REJECTED)</b>
-━━━━━━━━━━━━━━━━━━
+
 💰 <b>سوممىسى:</b> $${Number(deposit.amount).toFixed(2)} USD
 🧾 <b>تالون نومۇرى (TxID):</b> <code>${deposit.txId || '—'}</code>
 👤 <b>خېرىدار:</b> ${deposit.userName} (<code>${deposit.userEmail}</code>)
 👑 <b>بىر تەرەپ قىلغۇچى:</b> @${fromUser || 'Admin'}
 ⏰ <b>ۋاقتى:</b> ${new Date().toLocaleString('ug-CN', { timeZone: 'Asia/Urumqi' })}
-━━━━━━━━━━━━━━━━━━
+
 ⚠️ <i>بۇ تەلەپ باشقۇرغۇچى تەرىپىدىن رەت قىلىندى، ھەميانغا پۇل قوشۇلمىدى.</i>
 `.trim();
 
@@ -2448,13 +2425,13 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 
         const updatedText = `
 🚨 <b>ساختىلىق دەپ بەلگىلەندى ۋە رەت قىلىندى! (FRAUD FLAGGED)</b>
-━━━━━━━━━━━━━━━━━━
+
 💰 <b>سوممىسى:</b> $${deposit ? Number(deposit.amount).toFixed(2) : '—'} USD
 🧾 <b>تالون نومۇرى (TxID):</b> <code>${deposit?.txId || '—'}</code>
 👤 <b>خېرىدار:</b> ${deposit?.userName || 'ئەزا'} (<code>${deposit?.userEmail || '—'}</code>)
 👑 <b>بەلگىلىگۈچى:</b> @${fromUser || 'Admin'}
 ⏰ <b>ۋاقتى:</b> ${new Date().toLocaleString('ug-CN', { timeZone: 'Asia/Urumqi' })}
-━━━━━━━━━━━━━━━━━━
+
 🚫 <i>بۇ ئىسپات ساختا ياكى تەكرار دەپ باھالىنىپ بىكار قىلىندى.</i>
 `.trim();
 
@@ -2523,16 +2500,15 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     if (data === 'quick_catalog') {
       await answerCallbackQuery(cqId);
       const catalogText = `
-╭━━━ 🔥🎮 <b>AUTO CASH — مەھسۇلات ۋە باھالار</b> 🎮🔥 ━━━╮
+🔥🎮 <b>AUTO CASH — مەھسۇلات ۋە باھالار</b> 🎮🔥
       💎 <i>تۆۋەندىكى تۈرلەرنى بېسىپ تەپسىلىي باھالارنى كۆرۈڭ</i> 💎
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 • 🔫 <b>PUBG Mobile UC:</b> 60 تىن 8100 UC غىچە سېكۇنتتا ⚡️
 • 🔥 <b>Free Fire:</b> بارلىق ئالماس (Diamonds) تۈرلىرى 💎
 • 🎵 <b>TikTok Coins:</b> ئەڭ يۇقىرى باھا ئېتىبارى 💫
 • 🤖 <b>ChatGPT Plus & Claude Pro:</b> سۈنئىي ئەقىل كارتىلىرى 🧠
 • 📱 <b>مەۋھۇم نومۇرلار:</b> Telegram، WhatsApp شۇئان دەلىللەش 📲
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 👇 <b>ئۆزىڭىز قىزىققان ئويۇن ياكى ئەپنى تاللاڭ:</b>
 `.trim();
       await showOrEditMessage(chatId, messageId, catalogText, {
@@ -2560,9 +2536,8 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     if (data === 'cat_pubg') {
       await answerCallbackQuery(cqId);
       const pubgText = `
-╭━━━ 🔫🔥 <b>PUBG Mobile UC تېز قاچىلاش باھالىرى</b> 🔥🔫 ━━━╮
+🔫🔥 <b>PUBG Mobile UC تېز قاچىلاش باھالىرى</b> 🔥🔫
       ⚡️ <i>ID نومۇرىڭىزغا سېكۇنتتا ئاپتوماتىك كىرىدۇ</i> ⚡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 • 📦 <b>60 UC:</b> <b>$0.98 USD</b>
 • 📦 <b>325 UC:</b> <b>$4.85 USD</b> (ئالقىشلىق 🔥)
@@ -2571,7 +2546,6 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 • 📦 <b>3850 UC:</b> <b>$47.50 USD</b>
 • 📦 <b>8100 UC:</b> <b>$95.00 USD</b> (چوڭ يۇقىرى دەرىجە 💎)
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👇 سېتىۋېلىش ئۈچۈن تۆۋەندىكى كۇنۇپكىنى بېسىڭ:
 `.trim();
       await showOrEditMessage(chatId, messageId, pubgText, {
@@ -2587,9 +2561,8 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     if (data === 'cat_freefire') {
       await answerCallbackQuery(cqId);
       const ffText = `
-╭━━━ 🔥💎 <b>Free Fire ئالماس (Diamonds) باھالىرى</b> 💎🔥 ━━━╮
+🔥💎 <b>Free Fire ئالماس (Diamonds) باھالىرى</b> 💎🔥
       ⚡️ <i>Player ID ئارقىلىق شۇئان قاچىلاش</i> ⚡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 • 💎 <b>100 + 10 ئالماس:</b> <b>$1.00 USD</b>
 • 💎 <b>210 + 21 ئالماس:</b> <b>$1.95 USD</b>
@@ -2597,7 +2570,6 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 • 💎 <b>1080 + 108 ئالماس:</b> <b>$9.50 USD</b> (ئەڭ كۆپ سېتىلغان 🚀)
 • 💎 <b>2200 + 220 ئالماس:</b> <b>$19.00 USD</b>
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👇 سېتىۋېلىش ئۈچۈن تۆۋەندىكى كۇنۇپكىنى بېسىڭ:
 `.trim();
       await showOrEditMessage(chatId, messageId, ffText, {
@@ -2613,9 +2585,8 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     if (data === 'cat_tiktok') {
       await answerCallbackQuery(cqId);
       const ttText = `
-╭━━━ 🎵💫 <b>TikTok تەڭگە (Coins) باھالىرى</b> 💫🎵 ━━━╮
+🎵💫 <b>TikTok تەڭگە (Coins) باھالىرى</b> 💫🎵
       ⚡️ <i>شەخسىي ھېساباتقا شۇئان بىخەتەر قاچىلاش</i> ⚡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 • 🪙 <b>70 Coins:</b> <b>$0.90 USD</b>
 • 🪙 <b>350 Coins:</b> <b>$4.40 USD</b>
@@ -2624,7 +2595,6 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 • 🪙 <b>3500 Coins:</b> <b>$43.50 USD</b>
 • 🪙 <b>7000 Coins:</b> <b>$87.00 USD</b>
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👇 سېتىۋېلىش ئۈچۈن تۆۋەندىكى كۇنۇپكىنى بېسىڭ:
 `.trim();
       await showOrEditMessage(chatId, messageId, ttText, {
@@ -2640,9 +2610,8 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     if (data === 'cat_ai') {
       await answerCallbackQuery(cqId);
       const aiText = `
-╭━━━ 🤖🧠 <b>سۈنئىي ئەقىل (AI) & رەقەملىك كارتىلار</b> 🧠🤖 ━━━╮
+🤖🧠 <b>سۈنئىي ئەقىل (AI) & رەقەملىك كارتىلار</b> 🧠🤖
       ⚡️ <i>رەسمىي، تەستىقلانغان يۇقىرى سۈرئەتلىك مۇلازىمەت</i> ⚡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 • 🧠 <b>ChatGPT Plus (1 ئايلىق):</b> <b>$22.50 USD</b>
 • 💡 <b>Claude Pro (1 ئايلىق):</b> <b>$22.50 USD</b>
@@ -2650,7 +2619,6 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 • ✈️ <b>Telegram Premium (1 يىللىق):</b> <b>$38.00 USD</b>
 • 📱 <b>مەۋھۇم نومۇرلار (Telegram/WhatsApp):</b> <b>$0.50 - $2.00 USD</b>
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👇 سېتىۋېلىش ئۈچۈن تۆۋەندىكى كۇنۇپكىنى بېسىڭ:
 `.trim();
       await showOrEditMessage(chatId, messageId, aiText, {
@@ -2666,9 +2634,8 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     if (data === 'quick_track') {
       await answerCallbackQuery(cqId);
       const trackPrompt = `
-╭━━━ 🔍📦 <b>AUTO CASH — زاكاز سۈرۈشتۈرۈش مەركىزى</b> 📦🔍 ━━━╮
+🔍📦 <b>AUTO CASH — زاكاز سۈرۈشتۈرۈش مەركىزى</b> 📦🔍
       ⚡️ <i>24/7 نەق مەيدان جانلىق زاكاز تەكشۈرۈش</i> ⚡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 📌 <b>زاكاز ھالىتىڭىزنى بىلمەكچىمۇسىز؟</b>
 بۇ يەرگە زاكاز نومۇرىڭىزنى بىۋاسىتە يېزىپ ئەۋەتىڭ!
@@ -2777,9 +2744,8 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       }
       await answerCallbackQuery(cqId);
       const chanGuide = `
-╭━━━ 💬✍️ <b>قانالغا ئايرىم خەتنىلا چىقىرىش</b> ✍️💬 ━━━╮
+💬✍️ <b>قانالغا ئايرىم خەتنىلا چىقىرىش</b> ✍️💬
       ⚡️ <i>پەقەت يازغان خېتىڭىزلا چىقىدۇ، باشقا قېلىپ قوشۇلمىغان</i> ⚡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 💡 <b>ئىشلىتىش ئۇسۇلى:</b>
 تۆۋەندىكىدەك يېزىپ بېسىڭ:
@@ -2807,9 +2773,8 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       }
       await answerCallbackQuery(cqId);
       const adGuide = `
-╭━━━ 📢🔥 <b>قانالغا ئېلان خېتى يوللاش (دۇكان كۇنۇپكىسى بىلەن)</b> 🔥📢 ━━━╮
+📢🔥 <b>قانالغا ئېلان خېتى يوللاش (دۇكان كۇنۇپكىسى بىلەن)</b> 🔥📢
       ⚡️ <i>رەسمىي ماۋزۇ، ئۇلىنىش ۋە دۇكان كۇنۇپكىلىرى بىلەن</i> ⚡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 💡 <b>ئىشلىتىش ئۇسۇلى:</b>
 تۆۋەندىكىدەك يېزىپ بېسىڭ:
@@ -2837,9 +2802,8 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       }
       await answerCallbackQuery(cqId);
       const sendallGuide = `
-╭━━━ 👥⚡️ <b>بارلىق خېرىدارلارغا ئومۇمىي ئۇچۇر تارقىتىش</b> ⚡️👥 ━━━╮
+👥⚡️ <b>بارلىق خېرىدارلارغا ئومۇمىي ئۇچۇر تارقىتىش</b> ⚡️👥
       📢 <i>بارلىق بوت ئابۇنىتلىرىغا شەخسىي ئۇچۇر قىلىپ ئەۋەتىش</i> 📢
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 💡 <b>ئىشلىتىش ئۇسۇلى:</b>
 بۇ ئۇچۇر پەقەت بوتنى قوزغاتقان بارلىق خېرىدارلارغا ئايرىم-ئايرىم بارىدۇ (قانالغا چىقمايدۇ):
@@ -2865,9 +2829,8 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       }
       await answerCallbackQuery(cqId);
       const sendtoGuide = `
-╭━━━ 👤💌 <b>يەككە خېرىدارغا بىۋاستە ئۇچۇر يېزىش</b> 💌👤 ━━━╮
+👤💌 <b>يەككە خېرىدارغا بىۋاستە ئۇچۇر يېزىش</b> 💌👤
       ⚡️ <i>خېرىدار بىلەن 1-گە-1 شەخسىي ئالاقىلىشىش</i> ⚡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 💡 <b>ئىشلىتىش ئۇسۇلى:</b>
 خېرىدارنىڭ تېلېگرام ID نومۇرى ياكى @username بويىچە خەت يېزىڭ:
@@ -2997,11 +2960,11 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 
       const loginSuccessMsg = `
 🎉 <b>توربەتكە كىرىش مۇۋەپپەقىيەتلىك تەستىقلاندى!</b> 🚀
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 👤 <b>ھېساباتىڭىز:</b> ${user.name}
 📧 <b>ئېلخەت:</b> <code>${user.email}</code>
 💳 <b>ئورتاق قالدۇقىڭىز:</b> <b>$${Number(user.balance || 0).toFixed(2)} USD</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ⚡️ <i>ھازىر توربەتكە قايتسىڭىز، ھېساباتىڭىز ئاپتوماتىك كىرىپ بولغان ھالەتتە تۇرىدۇ!</i>
 `.trim();
 
@@ -3050,12 +3013,12 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       if (res.alreadyLinked) {
         const alreadyCard = `
 ✅ <b>ھېساباتىڭىز ئاللىقاچان مۇۋەپپەقىيەتلىك باغلانغان!</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 👤 <b>ئىسمىڭىز:</b> ${u.name}
 📧 <b>توربەت ھېساباتى:</b> <code>${u.email}</code>
 💳 <b>ئورتاق قالدۇقىڭىز:</b> <b>$${Number(u.balance || 0).toFixed(2)} USD</b>
 👑 <b>VIP دەرىجىسى:</b> <b>${(u.vipTier || 'VIP1').toUpperCase()}</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ⚡️ سىزنىڭ توربەتتىكى ۋە تېلېگراممىدىكى ھېساباتىڭىز پۈتۈنلەي بىر گەۋدە، قايسى تەرەپتە پۇل سالسىڭىز ئىككىلا تەرەپتە بىرلا ۋاقىتتا ئىشلىتىلىدۇ!
 `.trim();
 
@@ -3077,12 +3040,12 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 
       const successCard = `
 🎉 <b>تەبرىكلەيمىز! توربەت بىلەن تېلېگرامما ھېساباتىڭىز تولۇق بىر گەۋدە قىلىندى!</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 👤 <b>ئىسمىڭىز:</b> ${u.name}
 📧 <b>توربەت ھېساباتى:</b> <code>${u.email}</code>
 💳 <b>ئورتاق قالدۇقىڭىز:</b> <b>$${Number(u.balance || 0).toFixed(2)} USD</b>
 👑 <b>VIP دەرىجىسى:</b> <b>${(u.vipTier || 'VIP1').toUpperCase()}</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ⚡️ <b>ئەمدى نېمە بولىدۇ؟</b>
 • مەيلى توربەتتە ياكى بوتتا شامكەشتىن پۇل سالسىڭىز، ئىككىلا تەرەپتە بىرلا ۋاقىتتا تەڭلا چىقىدۇ!
 • پۈتۈن زاكاسلىرىڭىز ۋە ھەميىنىڭىز بىرلا كۈچلۈك ھېساباتقا ئايلاندى.${mergedText}
@@ -3208,7 +3171,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     if (res.success) {
       await sendTelegramMessage(
         chatId,
-        `✅ <b>@${TELEGRAM_CONFIG.channelUsername} قانىلىغا خېتىڭىز مۇۋەپپەقىيەتلىك چىقتى!</b> 💬\n━━━━━━━━━━━━━━━━━━\n<i>ئۇچۇر: «${content.slice(0, 80)}${content.length > 80 ? '...' : ''}»</i>`,
+        `✅ <b>@${TELEGRAM_CONFIG.channelUsername} قانىلىغا خېتىڭىز مۇۋەپپەقىيەتلىك چىقتى!</b> 💬\n\n<i>ئۇچۇر: «${content.slice(0, 80)}${content.length > 80 ? '...' : ''}»</i>`,
         { parse_mode: 'HTML' }
       );
     } else {
@@ -3247,7 +3210,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     if (res.success) {
       await sendTelegramMessage(
         chatId,
-        `✅ <b>@${TELEGRAM_CONFIG.channelUsername} قانىلىغا ئېلان خېتى مۇۋەپپەقىيەتلىك تارقىتىلدى!</b> 📢\n━━━━━━━━━━━━━━━━━━\n<i>دۇكان كۇنۇپكىسى بىلەن بىللە چىقتى.</i>`,
+        `✅ <b>@${TELEGRAM_CONFIG.channelUsername} قانىلىغا ئېلان خېتى مۇۋەپپەقىيەتلىك تارقىتىلدى!</b> 📢\n\n<i>دۇكان كۇنۇپكىسى بىلەن بىللە چىقتى.</i>`,
         { parse_mode: 'HTML' }
       );
     } else {
@@ -3306,7 +3269,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 
     await sendTelegramMessage(
       chatId,
-      `👥 <b>خېرىدارلارغا ئۇچۇر يوللاش تامام Rome:</b>\n━━━━━━━━━━━━━━━━━━\n✅ مۇۋەپپەقىيەتلىك ئەۋەتىلگىنى: <b>${res.sent}</b> كىشى\n⚠️ يەتكۈزۈلمىگىنى: <b>${res.failed}</b>\n📊 جەمئىي تىزىملىكتىكى ئابۇنىت: <b>${res.total}</b>`,
+      `👥 <b>خېرىدارلارغا ئۇچۇر يوللاش تامام Rome:</b>\n\n✅ مۇۋەپپەقىيەتلىك ئەۋەتىلگىنى: <b>${res.sent}</b> كىشى\n⚠️ يەتكۈزۈلمىگىنى: <b>${res.failed}</b>\n📊 جەمئىي تىزىملىكتىكى ئابۇنىت: <b>${res.total}</b>`,
       { parse_mode: 'HTML' }
     );
     return;
@@ -3345,7 +3308,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       const recName = res.recipient?.firstName || res.recipient?.username || target;
       await sendTelegramMessage(
         chatId,
-        `✅ <b>خېرىدارغا خەت مۇۋەپپەقىيەتلىك يەتكۈزۈلدى!</b>\n━━━━━━━━━━━━━━━━━━\n👤 <b>قوبۇل قىلغۇچى:</b> ${recName} (<code>${res.recipient?.id || target}</code>)\n📝 <b>ئۇچۇر مەزمۇنى:</b>\n${msgContent}`,
+        `✅ <b>خېرىدارغا خەت مۇۋەپپەقىيەتلىك يەتكۈزۈلدى!</b>\n\n👤 <b>قوبۇل قىلغۇچى:</b> ${recName} (<code>${res.recipient?.id || target}</code>)\n📝 <b>ئۇچۇر مەزمۇنى:</b>\n${msgContent}`,
         { parse_mode: 'HTML' }
       );
     } else {
@@ -3382,11 +3345,11 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 
     const res = await broadcastAnnouncement(content, from);
 
-    let replyResult = `📢 <b>ئېلان تارقىتىش تامام Rome:</b>\n━━━━━━━━━━━━━━━━━━\n`;
+    let replyResult = `📢 <b>ئېلان تارقىتىش تامام Rome:</b>\n\n`;
     replyResult += res.channelSuccess
       ? `✅ <b>@${TELEGRAM_CONFIG.channelUsername} قانىلىغا:</b> مۇۋەپپەقىيەتلىك تارقىتىلدى!\n`
       : `⚠️ <b>@${TELEGRAM_CONFIG.channelUsername} قانىلىغا:</b> چىقمىدى (بوتنى قانالغا باشقۇرغۇچى قىلىپ قوشۇڭ)\n`;
-    replyResult += `👥 <b>خېرىدارلارغا ئەۋەتىلگىنى:</b> ${res.usersSent} كىشى\n━━━━━━━━━━━━━━━━━━`;
+    replyResult += `👥 <b>خېرىدارلارغا ئەۋەتىلگىنى:</b> ${res.usersSent} كىشى`;
 
     await sendTelegramMessage(chatId, replyResult, { parse_mode: 'HTML' });
     return;
@@ -3422,16 +3385,15 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
   // 5. Command /catalog or /games
   if (text.startsWith('/catalog') || text.startsWith('/games') || text.startsWith('/dukan')) {
     const catalogText = `
-╭━━━ 🔥🎮 <b>AUTO CASH ئەڭ ئالقىشلىق مەھسۇلاتلار</b> 🎮🔥 ━━━╮
+🔥🎮 <b>AUTO CASH ئەڭ ئالقىشلىق مەھسۇلاتلار</b> 🎮🔥
       💎 <i>تېز سۈرئەتلىك ۋە ئەڭ ئەرزان رەقەملىك تۈرلەر</i> 💎
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 • 🔫 <b>PUBG Mobile:</b> بارلىق 60 UC تىن 8100 UC غىچە شۇئان قاچىلاش ⚡️
 • 🔥 <b>Free Fire:</b> بارلىق ئالماس (Diamonds) ئەڭ ئەرزان باھادا 💎
 • 🎵 <b>TikTok:</b> ئالقىش پۇلى (TikTok Coins) ئەڭ يۇقىرى ئېتىبار 💫
 • 🤖 <b>AI ئابۇنىتلىرى:</b> ChatGPT Plus، Claude Pro، Midjourney 🧠
 • 📱 <b>مەۋھۇم نومۇرلار:</b> Telegram، WhatsApp، Google دەلىللەش كودى 📲
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 👇 تۆۋەندىكى كۇنۇپكىنى بېسىپ دەرھال سېتىۋېلىڭ:
 `.trim();
 
@@ -3454,9 +3416,8 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
   // 6. Command /help
   if (text.startsWith('/help')) {
     const helpText = `
-╭━━━ ℹ️✨ <b>AUTO CASH ياردەم مەركىزى & بۇيرۇقلار</b> ✨ℹ️ ━━━╮
+ℹ️✨ <b>AUTO CASH ياردەم مەركىزى & بۇيرۇقلار</b> ✨ℹ️
       💎 <i>24/7 سائەت سىز ئۈچۈن خىزمەت قىلىمىز</i> 💎
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 • 🛍️ <b>/start</b> — دۇكاننى ئېچىش & قارشى ئېلىش كۆزنىكى
 • 🔍 <b>/track &lt;زاكاز نومۇرى&gt;</b> — زاكاز ھالىتىنى جانلىق سۈرۈشتۈرۈش
@@ -3469,7 +3430,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 • ❓ <b>/faq</b> — كۆپ سورىلىدىغان سوئاللار
 • 💬 <b>/support</b> — خېرىدارلار مۇلازىمىتى بىلەن ئۇلىنىش
 ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</b>\n• <b>/stats</b> — كۈنلۈك سودا، ساپ پايدا ۋە زاكاز دوكلاتى\n• <b>/post &lt;ئېلان&gt;</b> — قانال ۋە بارلىق خېرىدارلارغا ئېلان تارقىتىش\n• <b>/pinchannel</b> — قانالغا رەسمىي يېتەكچى ئېلاننى مىخلاش (Pin)\n` : ''}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 • 📢 رەسمىي قانال: @${TELEGRAM_CONFIG.channelUsername}
 • 💬 خېرىدارلار مۇلازىمىتى: @${TELEGRAM_CONFIG.supportUsername}
 `.trim();
@@ -3695,9 +3656,8 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
     lowerText.includes('نومۇر')
   ) {
     const trackPrompt = `
-╭━━━ 🔍📦 <b>AUTO CASH — زاكاز سۈرۈشتۈرۈش مەركىزى</b> 📦🔍 ━━━╮
+🔍📦 <b>AUTO CASH — زاكاز سۈرۈشتۈرۈش مەركىزى</b> 📦🔍
       ⚡️ <i>24/7 نەق مەيدان جانلىق زاكاز تەكشۈرۈش</i> ⚡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 📌 <b>زاكازىڭىزنىڭ ھالىتىنى كۆرمەكچىمۇسىز؟</b>
 زاكاز نومۇرىڭىزنى بۇ يەرگە بىۋاسىتە يېزىپ ئەۋەتسىڭىزلا، سىستېمىمىز سېكۇنتتا تەكشۈرۈپ تەپسىلاتىنى چىقىرىپ بېرىدۇ!
@@ -3794,9 +3754,8 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
     lowerText.includes('باھا')
   ) {
     const catalogText = `
-╭━━━ 🔥🎮 <b>AUTO CASH — ئالقىشلىق مەھسۇلاتلىرىمىز</b> 🎮🔥 ━━━╮
+🔥🎮 <b>AUTO CASH — ئالقىشلىق مەھسۇلاتلىرىمىز</b> 🎮🔥
       💎 <i>تېز، بىخەتەر ۋە ئەرزان باھادا سېتىۋېلىش</i> 💎
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 • 🔫 <b>PUBG Mobile UC:</b> 60 UC تىن 8100 UC غىچە ئەڭ ئەرزان باھادا ⚡️
 • 🔥 <b>Free Fire:</b> بارلىق ئالماس (Diamonds) كارتىلىرى 💎
@@ -3836,9 +3795,8 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
     lowerText.includes('باشقۇرغۇچى')
   ) {
     const supportReply = `
-╭━━━ 💬✨ <b>AUTO CASH خېرىدارلار مۇلازىمەت مەركىزى</b> ✨💬 ━━━╮
+💬✨ <b>AUTO CASH خېرىدارلار مۇلازىمەت مەركىزى</b> ✨💬
       👨‍💻 <i>24/7 سىز ئۈچۈن بىر تەرەپ قىلىمىز</i> 👨‍💻
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 سوئالىڭىز ياكى بىر تەرەپ قىلىشقا تېگىشلىك زاكازلىرىڭىز بولسا، رەسمىي خېرىدارلار مۇلازىمىتىمىزگە دەرھال يېزىڭ:
 👉 @${TELEGRAM_CONFIG.supportUsername}
@@ -3865,9 +3823,8 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
   // 9. Admin Quick Help Menu
   if (isAdmin) {
     const adminHelpReply = `
-╭━━━ 👑🛡️ <b>AUTO CASH — باشقۇرغۇچى قولايلىق ياردەمچىسى</b> 🛡️👑 ━━━╮
+👑🛡️ <b>AUTO CASH — باشقۇرغۇچى قولايلىق ياردەمچىسى</b> 🛡️👑
       ⚡️ <i>سىستېما تېز بۇيرۇقلىرى ۋە تەڭشەكلەر</i> ⚡️
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 👋 <b>ھۆرمەتلىك باشقۇرغۇچى @${from?.username || from?.first_name}!</b>
 سىز تۆۋەندىكى بۇيرۇقلار بىلەن قانال، بارلىق خېرىدار ياكى يەككە خېرىدارغا بىۋاستە خەت يازالايسىز:
@@ -3880,7 +3837,7 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
 📊 <b>/stats</b> — كۈنلۈك كىرىم، ساپ پايدا ۋە زاكاز دوكلاتىنى كۆرۈش
 📌 <b>/pinchannel</b> — قانالغا رەسمىي دۇكان يېتەكچىسىنى چىقىرىش ۋە مىخلاش (Pin)
 🛒 <b>/start</b> — باشقۇرغۇچى ئاساسىي كۆزنىكىنى ئېچىش
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 👇 ياكى تۆۋەندىكى كۇنۇپكىلار ئارقىلىق تېز باشقۇرۇڭ:
 `.trim();
 
@@ -3896,12 +3853,12 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
     try {
       const adminNotice = `
 📩 <b>خېرىداردىن يېڭى ئۇچۇر كەلدى:</b>
-━━━━━━━━━━━━━━━━━━
+
 👤 <b>خېرىدار:</b> ${from?.first_name || ''} ${from?.last_name || ''} (@${from?.username || 'نامسىز'})
 🆔 <b>User ID:</b> <code>${chatId}</code>
 📝 <b>مەزمۇنى:</b>
 ${text}
-━━━━━━━━━━━━━━━━━━
+
 👇 <b>جاۋاب قايتۇرۇش ئۈچۈن چېكىپ كۆچۈرۈڭ:</b>
 <code>/sendto ${chatId} بۇ يەرگە جاۋابىڭىزنى يېزىڭ</code>
 `.trim();

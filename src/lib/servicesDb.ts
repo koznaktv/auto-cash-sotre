@@ -23,6 +23,7 @@ const SERVICES_CACHE_TTL = 30_000; // 30 seconds
 
 export function invalidateServicesCache(): void {
   lastServicesFetch = 0;
+  cachedServices = null;
 }
 
 function getDeletedServiceIds(): Set<string> {
@@ -109,7 +110,7 @@ export function applyActivePromotions(services: ServiceItem[]): ServiceItem[] {
 export function getServicesList(): ServiceItem[] {
   const deleted = getDeletedServiceIds();
 
-  if (cachedServices && cachedServices.length > 0) {
+  if (cachedServices && cachedServices.length > 0 && Date.now() - lastServicesFetch < SERVICES_CACHE_TTL) {
     return applyActivePromotions(cachedServices.filter((s) => !deleted.has(s.id)));
   }
 
