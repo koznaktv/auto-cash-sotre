@@ -68,6 +68,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     navHome: 'باشبەت',
     navOrders: 'مېنىڭ تەلەپلىرىم',
     navDeposit: 'مېنىڭ ھەميانىم',
+    navPromotions: 'پائالىيەتلەر',
     navAccount: 'مېنىڭ ھېسابىم',
 
     // Home Page
@@ -367,6 +368,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     navHome: 'Home',
     navOrders: 'My Orders',
     navDeposit: 'Wallet',
+    navPromotions: 'Deals',
     navAccount: 'Account',
 
     // Home Page
@@ -666,6 +668,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     navHome: 'الرئيسية',
     navOrders: 'طلباتي',
     navDeposit: 'المحفظة',
+    navPromotions: 'العروض',
     navAccount: 'حسابي',
 
     // Home Page
@@ -965,6 +968,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     navHome: 'Ana Sayfa',
     navOrders: 'Siparişlerim',
     navDeposit: 'Cüzdanım',
+    navPromotions: 'Fırsatlar',
     navAccount: 'Hesabım',
 
     // Home Page
@@ -1264,6 +1268,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     navHome: 'Bosh sahifa',
     navOrders: 'Buyurtmalarim',
     navDeposit: 'Hamyonim',
+    navPromotions: 'Aksiyalar',
     navAccount: 'Hisobim',
 
     // Home Page
@@ -1563,6 +1568,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     navHome: 'Главная',
     navOrders: 'Мои заказы',
     navDeposit: 'Кошелек',
+    navPromotions: 'Акции',
     navAccount: 'Аккаунт',
 
     // Home Page

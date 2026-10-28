@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
-import { Home, ReceiptText, Wallet, User } from 'lucide-react';
+import { Home, ReceiptText, Wallet, User, Zap } from 'lucide-react';
 
 export default function BottomNav() {
   const pathname = usePathname();
@@ -15,6 +15,7 @@ export default function BottomNav() {
       { href: '/', label: t('navHome'), icon: Home },
       { href: '/orders', label: t('navOrders'), icon: ReceiptText },
       { href: '/deposit', label: t('navDeposit'), icon: Wallet },
+      { href: '/promotions', label: t('navPromotions') || 'پائالىيەتلەر', icon: Zap },
       { href: '/account', label: t('navAccount'), icon: User },
     ],
     [t]
@@ -24,7 +25,8 @@ export default function BottomNav() {
     if (!pathname || pathname === '/') return 0;
     if (pathname.startsWith('/orders')) return 1;
     if (pathname.startsWith('/deposit')) return 2;
-    if (pathname.startsWith('/account') || pathname.startsWith('/membership')) return 3;
+    if (pathname.startsWith('/promotions')) return 3;
+    if (pathname.startsWith('/account') || pathname.startsWith('/membership')) return 4;
     return 0;
   };
 
@@ -52,8 +54,9 @@ export default function BottomNav() {
       >
         {/* Animated Sliding Lamp Indicator (100% GPU Hardware Accelerated) */}
         <div
-          className="absolute top-0 bottom-0 w-1/4 pointer-events-none z-0"
+          className="absolute top-0 bottom-0 pointer-events-none z-0"
           style={{
+            width: `${100 / navItems.length}%`,
             [isRTL ? 'right' : 'left']: 0,
             transform: `translate3d(${translateX}%, 0, 0)`,
             transition: 'transform 320ms cubic-bezier(0.34, 1.35, 0.64, 1)',

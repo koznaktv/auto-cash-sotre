@@ -25,6 +25,7 @@ import {
   HelpCircle,
   ShieldCheck,
   Zap,
+  Flame,
   LayoutDashboard,
   Smartphone,
   Megaphone,
@@ -465,6 +466,24 @@ export default function SideDrawer({
               </div>
               <span className="px-2 py-0.5 rounded-md bg-cyan-950/80 border border-cyan-500/40 text-[10px] text-cyan-300 font-bold">
                 يېڭى
+              </span>
+            </Link>
+
+            <Link
+              href="/promotions"
+              onClick={handleNavigate('/promotions')}
+              className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-transparent hover:from-amber-500/25 hover:via-orange-500/20 border border-amber-500/35 transition group"
+            >
+              <div className="flex items-center gap-3">
+                <span className="animate-pulse">
+                  <Flame className="w-4 h-4 text-amber-400 fill-amber-400 group-hover:scale-110 transition" />
+                </span>
+                <span className="font-bold text-amber-200 group-hover:text-amber-100">
+                  {lang === 'ug' ? 'بۈگۈنكى پائالىيەتلەر' : 'Flash Sale Deals'}
+                </span>
+              </div>
+              <span className="px-1.5 py-0.5 rounded-md bg-red-600/90 text-white text-[9px] font-black uppercase tracking-wider">
+                FLASH
               </span>
             </Link>
 

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import PromoCarousel from '@/components/PromoCarousel';
-import FlashSaleSection from '@/components/FlashSaleSection';
+import TodayPromotionsBanner from '@/components/TodayPromotionsBanner';
 import DynamicIcon from '@/components/DynamicIcon';
 import CheckoutModal from '@/components/CheckoutModal';
 import OrdersList from '@/components/OrdersList';
@@ -980,12 +980,8 @@ export default function HomePage() {
           <PromoCarousel onSelectCategory={handleSelectCategory} />
         </section>
 
-        {/* Limited-Time Flash Sale Section with Live Countdown */}
-        <FlashSaleSection
-          services={services}
-          onSelectPackage={handleSelectPromoPackage}
-          lang={lang}
-        />
+        {/* Unique Entry Banner for Today's Promotions */}
+        <TodayPromotionsBanner />
 
         {/* Global Search Bar */}
         <div className="relative max-w-2xl mx-auto">
