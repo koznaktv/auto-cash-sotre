@@ -1,0 +1,22 @@
+[
+  {
+    "id": "promo_pkg_ml_gpass_425",
+    "serviceId": "othman_mobile_legends",
+    "serviceName": "Mobile Legends: Bang Bang",
+    "packageId": "pkg_ml_gpass_425",
+    "packageTitle": "Weekly Diamond Pass (ھەپتىلىك ئالماس پاس كارتىسى)",
+    "category": "games",
+    "serviceImage": "/images/services/mobile_legends.jpg",
+    "providerProductId": 425,
+    "costPrice": 1.452,
+    "regularPrice": 1.65,
+    "promoPrice": 1.55,
+    "profitMargin": 0.1,
+    "discountPercent": 6,
+    "startsAt": "2026-10-28T16:06:13.398Z",
+    "endsAt": "2026-10-28T23:59:59+03:00",
+    "enabled": true,
+    "broadcastToChannel": true,
+    "createdAt": "2026-10-28T16:06:13.398Z"
+  }
+]

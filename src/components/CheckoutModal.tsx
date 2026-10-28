@@ -21,6 +21,7 @@ interface CheckoutModalProps {
   onClose: () => void;
   onSuccess: (order: any, newBalance?: number) => void;
   onOpenAuth?: () => void;
+  initialPackageId?: string;
 }
 
 const PACKAGE_SEARCH_THRESHOLD = 10;
@@ -29,7 +30,7 @@ function newIdempotencyKey(): string {
   return `IDEM-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 }
 
-export default function CheckoutModal({ service, user, onClose, onSuccess, onOpenAuth }: CheckoutModalProps) {
+export default function CheckoutModal({ service, user, onClose, onSuccess, onOpenAuth, initialPackageId }: CheckoutModalProps) {
   const router = useRouter();
   const { lang, t, isRTL, translatePackageTitle, translateInputLabel, translateInputPlaceholder } = useLanguage();
 
@@ -46,7 +47,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
 
   const [detail, setDetail] = useState<ServiceItem | null>(service || null);
   const [detailError, setDetailError] = useState('');
-  const [selectedPkgId, setSelectedPkgId] = useState('');
+  const [selectedPkgId, setSelectedPkgId] = useState(initialPackageId || '');
   const [packageQuery, setPackageQuery] = useState('');
   const [accountInput, setAccountInput] = useState('');
   const [zoneInput, setZoneInput] = useState('');
@@ -747,14 +748,21 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                         )}
                       </div>
                       <div className="font-bold font-mono shrink-0 flex items-center gap-1.5" dir="ltr">
-                        {pkg.originalPrice && pkg.originalPrice > pkg.price && (
-                          <span className="text-[11px] text-slate-500 line-through font-normal">
-                            ${formatSmartPrice(pkg.originalPrice)}
-                          </span>
-                        )}
+                        {Boolean((pkg as any).isPromoActive || (pkg as any).promoPrice !== undefined) &&
+                          pkg.originalPrice &&
+                          pkg.originalPrice > pkg.price && (
+                            <span className="text-[11px] text-slate-500 line-through font-normal">
+                              ${formatSmartPrice(pkg.originalPrice)}
+                            </span>
+                          )}
                         <span className="text-cyan-400">
                           {pkg.productType === 'amount' ? `${t('fromPrice')} ` : ''}${formatSmartPrice(pkg.price)}
                         </span>
+                        {Boolean((pkg as any).isPromoActive || (pkg as any).promoPrice !== undefined) && (
+                          <span className="text-[9px] bg-red-600/90 text-white px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
+                            SALE
+                          </span>
+                        )}
                       </div>
                     </button>
                   );

@@ -548,16 +548,12 @@
         "id": "pkg_ml_gpass_423",
         "subCategoryId": "ml_global_passes",
         "title": "Weekly Elite Bundle (ھەپتىلىك ئېلىت بولاق)",
-        "price": 0.87,
+        "price": 0.86,
         "originalPrice": 0.99,
         "providerProductId": 423,
         "productType": "package",
         "available": true,
-        "instructions": "الخدمة تعمل بشكل تلقائي على مدار 24 ساعةيرجى عدم اضافة () في السيرفر ارسل الرقم فقط",
-        "regularPrice": 0.86,
-        "promoPrice": 0.87,
-        "regularOriginalPrice": 0.99,
-        "promoEndsAt": "2026-10-28T23:59:59+03:00"
+        "instructions": "الخدمة تعمل بشكل تلقائي على مدار 24 ساعةيرجى عدم اضافة () في السيرفر ارسل الرقم فقط"
       },
       {
         "id": "pkg_ml_gpass_425",
@@ -611,16 +607,12 @@
         "id": "pkg_ml_tr_437",
         "subCategoryId": "ml_turkish_server",
         "title": "Weekly Elite Pack TR (تۈركىيە ھەپتىلىك ئېلىت)",
-        "price": 0.94,
+        "price": 0.91,
         "originalPrice": 1.05,
         "providerProductId": 437,
         "productType": "package",
         "available": true,
-        "instructions": "Mobile Legends Turkish",
-        "regularPrice": 0.91,
-        "promoPrice": 0.94,
-        "regularOriginalPrice": 1.05,
-        "promoEndsAt": "2026-10-28T23:59:59+03:00"
+        "instructions": "Mobile Legends Turkish"
       },
       {
         "id": "pkg_ml_tr_428",
@@ -637,16 +629,12 @@
         "id": "pkg_ml_tr_438",
         "subCategoryId": "ml_turkish_server",
         "title": "Weekly Pass TR (تۈركىيە ھەپتىلىك كارتىسى)",
-        "price": 2.03,
-        "originalPrice": 2.09,
+        "price": 2.09,
+        "originalPrice": 2.4,
         "providerProductId": 438,
         "productType": "package",
         "available": true,
-        "instructions": "Mobile Legends Turkish",
-        "regularPrice": 2.09,
-        "promoPrice": 2.03,
-        "regularOriginalPrice": 2.4,
-        "promoEndsAt": "2026-10-28T23:59:59+03:00"
+        "instructions": "Mobile Legends Turkish"
       },
       {
         "id": "pkg_ml_tr_429",

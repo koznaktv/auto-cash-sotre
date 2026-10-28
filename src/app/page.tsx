@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import PromoCarousel from '@/components/PromoCarousel';
+import FlashSaleSection from '@/components/FlashSaleSection';
 import DynamicIcon from '@/components/DynamicIcon';
 import CheckoutModal from '@/components/CheckoutModal';
 import OrdersList from '@/components/OrdersList';
@@ -49,6 +50,7 @@ export default function HomePage() {
   const [transitioningCatId, setTransitioningCatId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeModalService, setActiveModalService] = useState<ServiceItem | null>(null);
+  const [initialPromoPkgId, setInitialPromoPkgId] = useState<string | undefined>(undefined);
   const [orders, setOrders] = useState<Order[]>([]);
   const [userBalance, setUserBalance] = useState<number>(() => {
     if (typeof window !== 'undefined') {
@@ -95,11 +97,22 @@ export default function HomePage() {
       const hash = selectedCatRef.current ? `#cat=${selectedCatRef.current}&product=${service.id}` : `#product=${service.id}`;
       window.history.pushState({ view: 'product', catId: selectedCatRef.current, serviceId: service.id }, '', hash);
     } catch {}
+    setInitialPromoPkgId(undefined);
+    setActiveModalService(service);
+  };
+
+  const handleSelectPromoPackage = (service: ServiceItem, packageId: string) => {
+    try {
+      const hash = `#product=${service.id}&pkg=${packageId}`;
+      window.history.pushState({ view: 'product', serviceId: service.id, pkgId: packageId }, '', hash);
+    } catch {}
+    setInitialPromoPkgId(packageId);
     setActiveModalService(service);
   };
 
   const handleCloseProduct = () => {
     setActiveModalService(null);
+    setInitialPromoPkgId(undefined);
     try {
       if (typeof window !== 'undefined' && window.history.state?.view === 'product') {
         window.history.back();
@@ -960,6 +973,13 @@ export default function HomePage() {
           <PromoCarousel onSelectCategory={handleSelectCategory} />
         </section>
 
+        {/* Limited-Time Flash Sale Section with Live Countdown */}
+        <FlashSaleSection
+          services={services}
+          onSelectPackage={handleSelectPromoPackage}
+          lang={lang}
+        />
+
         {/* Global Search Bar */}
         <div className="relative max-w-2xl mx-auto">
           <input
@@ -1330,6 +1350,7 @@ export default function HomePage() {
         <CheckoutModal
           service={activeModalService}
           user={currentUser}
+          initialPackageId={initialPromoPkgId}
           onClose={handleCloseProduct}
           onSuccess={handleOrderSuccess}
           onOpenAuth={handleOpenAuth}

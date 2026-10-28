@@ -10,8 +10,10 @@ import { formatSmartPrice } from '@/lib/formatMoney';
 import { detectServiceInputs, getServiceDefaultBio } from '@/lib/catalog/productBios';
 import DynamicIcon from '@/components/DynamicIcon';
 import AdminWifiInventory from '@/components/admin/AdminWifiInventory';
+import AdminPromotionsManager from '@/components/admin/AdminPromotionsManager';
 import {
   LayoutDashboard,
+  Flame,
   ShoppingBag,
   Package,
   Layers,
@@ -261,7 +263,7 @@ export default function AdminPage() {
 
   // Navigation tab
   const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'orders' | 'provider' | 'sms' | 'banners' | 'deposits' | 'users' | 'finance' | 'settings' | 'wifi'
+    'dashboard' | 'orders' | 'provider' | 'sms' | 'promotions' | 'banners' | 'deposits' | 'users' | 'finance' | 'settings' | 'wifi'
   >('dashboard');
 
   // Main Data States
@@ -3129,6 +3131,7 @@ export default function AdminPage() {
             {[
               { id: 'dashboard', label: 'باش تاختا (Dashboard)', icon: LayoutDashboard },
               { id: 'orders', label: 'زاكازلارنى باشقۇرۇش', icon: ShoppingBag, badge: metrics.processingCount },
+              { id: 'promotions', label: '⚡️ چەكلىك ئېتىبار (Flash Sale)', icon: Flame, badgeColor: 'bg-red-500 text-white' },
               { id: 'provider', label: 'API تەمىنلىگۈچى تەڭشىكى', icon: Zap, badgeColor: 'bg-cyan-500 text-slate-950' },
               { id: 'sms', label: '📱 مەۋھۇم نومۇر API سى', icon: Smartphone, badgeColor: 'bg-emerald-500 text-white' },
               { id: 'wifi', label: 'Wi-Fi كارتىلار ئامبىرى', icon: Wifi, badgeColor: 'bg-emerald-500 text-white' },
@@ -3219,6 +3222,7 @@ export default function AdminPage() {
             <h2 className="font-ukij font-black text-sm sm:text-base text-white">
               {activeTab === 'dashboard' && 'باش تاختا كۆرسەتكۈچلىرى'}
               {activeTab === 'orders' && 'زاكازلارنى باشقۇرۇش مەركىزى'}
+              {activeTab === 'promotions' && '⚡️ چەكلىك ۋاقىتلىق ئېتىبار پائالىيىتى مەركىزى (Flash Sale)'}
               {activeTab === 'provider' && 'API تەمىنلىگۈچى تەڭشىكى (Othman Store)'}
               {activeTab === 'sms' && '📱 مەۋھۇم نومۇر (SMS Verification) API مەركىزى'}
               
@@ -5215,6 +5219,13 @@ export default function AdminPage() {
                   </button>
                 </form>
               </div>
+            </div>
+          )}
+
+          {/* ================= TAB: FLASH SALE & PROMOTIONS ================= */}
+          {activeTab === 'promotions' && (
+            <div className="space-y-6 animate-in fade-in duration-300">
+              <AdminPromotionsManager />
             </div>
           )}
 
