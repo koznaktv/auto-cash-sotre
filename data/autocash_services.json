@@ -559,16 +559,13 @@
         "id": "pkg_ml_gpass_425",
         "subCategoryId": "ml_global_passes",
         "title": "Weekly Diamond Pass (ھەپتىلىك ئالماس پاس كارتىسى)",
-        "price": 1.55,
+        "price": 1.65,
         "originalPrice": 1.65,
         "providerProductId": 425,
         "productType": "package",
         "available": true,
         "instructions": "الخدمة تعمل بشكل تلقائي على مدار 24 ساعةيرجى عدم اضافة () في السيرفر ارسل الرقم فقط",
-        "regularPrice": 1.65,
-        "promoPrice": 1.55,
-        "regularOriginalPrice": 1.9,
-        "promoEndsAt": "2026-10-28T23:59:59+03:00"
+        "regularOriginalPrice": 1.9
       },
       {
         "id": "pkg_ml_gpass_424",

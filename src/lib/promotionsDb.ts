@@ -82,7 +82,6 @@ export function getPromotionsList(): ActivePromotion[] {
 }
 
 export async function getPromotionsListAsync(): Promise<ActivePromotion[]> {
-  const local = getPromotionsList();
   const sb = getSupabase();
 
   if (sb) {
@@ -92,8 +91,9 @@ export async function getPromotionsListAsync(): Promise<ActivePromotion[]> {
         .select('site_name')
         .eq('id', 'custom_promotions')
         .single();
-      if (!error && data?.site_name) {
-        const parsed = JSON.parse(data.site_name);
+      if (!error && data) {
+        const raw = data.site_name || '[]';
+        const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
           const active = filterActive(parsed);
           // If any invalid or expired promotions were pruned, persist clean list back to storage
@@ -105,10 +105,12 @@ export async function getPromotionsListAsync(): Promise<ActivePromotion[]> {
           return active;
         }
       }
-    } catch {}
+    } catch (e: any) {
+      console.warn('Supabase promotions fetch warning:', e?.message);
+    }
   }
 
-  return local;
+  return getPromotionsList();
 }
 
 function filterActive(list: ActivePromotion[]): ActivePromotion[] {
@@ -442,18 +444,24 @@ export async function createOrUpdatePromotionsBulk(input: {
 /**
  * Removes or cancels a promotion and reverts package to regular price.
  */
-export async function removePromotion(promoId: string): Promise<{ success: boolean; error?: string }> {
+export async function removePromotion(promoIdOrPackageId: string): Promise<{ success: boolean; error?: string }> {
   const currentList = await getPromotionsListAsync();
-  const target = currentList.find((p) => p.id === promoId);
+  const target = currentList.find((p) => p.id === promoIdOrPackageId || p.packageId === promoIdOrPackageId);
 
   // 1. Revert service package in servicesDb
   const services = await getServicesListAsync();
-  if (target) {
-    const service = services.find((s) => s.id === target.serviceId);
-    if (service && service.packages) {
-      const pkg = service.packages.find((p) => p.id === target.packageId);
-      if (pkg) {
-        pkg.price = target.regularPrice;
+  const targetServiceId = target?.serviceId;
+  const targetPackageId = target?.packageId || promoIdOrPackageId;
+
+  for (const service of services) {
+    if (targetServiceId && service.id !== targetServiceId) continue;
+    for (const pkg of service.packages || []) {
+      if (pkg.id === targetPackageId || pkg.id === promoIdOrPackageId) {
+        if ((pkg as any).regularPrice !== undefined) {
+          pkg.price = (pkg as any).regularPrice;
+        } else if (target?.regularPrice) {
+          pkg.price = target.regularPrice;
+        }
         if ((pkg as any).regularOriginalPrice !== undefined) {
           pkg.originalPrice = (pkg as any).regularOriginalPrice;
         }
@@ -462,16 +470,17 @@ export async function removePromotion(promoId: string): Promise<{ success: boole
         delete (pkg as any).regularOriginalPrice;
         delete (pkg as any).promoEndsAt;
       }
-      await saveServicesListAsync(services);
-      invalidateServicesCache();
     }
   }
+  await saveServicesListAsync(services);
+  invalidateServicesCache();
 
   // 2. Remove from promotions list (both local file and Supabase)
-  const filtered = currentList.filter((p) => p.id !== promoId);
+  const filtered = currentList.filter((p) => p.id !== promoIdOrPackageId && p.packageId !== promoIdOrPackageId);
   await savePromotionsListAsync(filtered);
   cachedPromos = filtered;
   lastPromosFetch = Date.now();
+  invalidatePromotionsCache();
 
   return { success: true };
 }
@@ -502,6 +511,7 @@ export async function clearAllPromotions(): Promise<{ success: boolean }> {
   await savePromotionsListAsync([]);
   cachedPromos = [];
   lastPromosFetch = Date.now();
+  invalidatePromotionsCache();
 
   return { success: true };
 }

@@ -24,9 +24,11 @@ export default function FlashSaleSection({
   // Fetch active promotions
   useEffect(() => {
     let mounted = true;
+    let bc: BroadcastChannel | null = null;
+
     const fetchPromos = async () => {
       try {
-        const res = await fetch('/api/promotions', { cache: 'no-store' });
+        const res = await fetch(`/api/promotions?_t=${Date.now()}`, { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           if (mounted && data.success && Array.isArray(data.promotions)) {
@@ -41,10 +43,21 @@ export default function FlashSaleSection({
     };
 
     fetchPromos();
-    const interval = setInterval(fetchPromos, 30_000); // Polling every 30s
+    const interval = setInterval(fetchPromos, 15_000); // Polling every 15s
+
+    try {
+      bc = new BroadcastChannel('autocash_promotions_channel');
+      bc.onmessage = () => {
+        fetchPromos();
+      };
+    } catch {}
+
     return () => {
       mounted = false;
       clearInterval(interval);
+      try {
+        bc?.close();
+      } catch {}
     };
   }, []);
 

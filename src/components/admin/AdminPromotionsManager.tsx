@@ -249,6 +249,11 @@ export default function AdminPromotionsManager() {
         setPromotions(data.promotions || []);
         setSuccessMsg(`پائالىيەت مۇۋەپپەقىيەتلىك باشلاندى! (${payloadItems.length} بولاق پائالىيەتكە قوشۇلدى)`);
         setModalOpen(false);
+        try {
+          const bc = new BroadcastChannel('autocash_promotions_channel');
+          bc.postMessage({ type: 'PROMOTIONS_CHANGED' });
+          bc.close();
+        } catch {}
       } else {
         setErrorMsg(data.error || 'پائالىيەتنى باشلاشتا خاتالىق كۆرۈلدى');
       }
@@ -270,6 +275,11 @@ export default function AdminPromotionsManager() {
       if (data.success) {
         setPromotions(data.promotions || []);
         setSuccessMsg('پائالىيەت توختىتىلدى، مەھسۇلات باھاسى ئەسلىگە قايتتى.');
+        try {
+          const bc = new BroadcastChannel('autocash_promotions_channel');
+          bc.postMessage({ type: 'PROMOTIONS_CHANGED' });
+          bc.close();
+        } catch {}
       } else {
         setErrorMsg(data.error || 'توختىتىش مەغلۇپ بولدى');
       }
@@ -289,6 +299,11 @@ export default function AdminPromotionsManager() {
       if (data.success) {
         setPromotions([]);
         setSuccessMsg('بارلىق ئېتىبار پائالىيەتلىرى پۈتۈنلەي بىكار قىلىندى، بارلىق باھالار ئەسلىگە كەلدى.');
+        try {
+          const bc = new BroadcastChannel('autocash_promotions_channel');
+          bc.postMessage({ type: 'PROMOTIONS_CHANGED' });
+          bc.close();
+        } catch {}
       } else {
         setErrorMsg(data.error || 'بىكار قىلىش مەغلۇپ بولدى');
       }
