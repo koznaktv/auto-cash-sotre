@@ -1,16 +1,16 @@
 /**
  * Rich metadata for SMS Verification (PhoneCash / GrizzlySMS)
- * - Country mappings with Emoji flags, ISO codes, international dialing codes, and Uyghur names
- * - Service / App mappings with brand colors, full names (Uyghur + English), and icons
+ * - Country mappings with ISO codes, international dialing codes, and Uyghur names
+ * - Service / App mappings with brand colors, full names (Uyghur + English), and instant local SVGs
  */
 
 export interface CountryMeta {
   id: number;
   name: string;
   nameUg: string;
-  code: string; // ISO-2 alpha
-  flag: string; // Emoji flag
+  code: string; // ISO-2 alpha (tr, us, de, etc.)
   dialCode: string; // e.g. '+90'
+  flagUrl: string; // Flag CDN URL
   popular?: boolean;
 }
 
@@ -20,114 +20,246 @@ export interface ServiceMeta {
   nameUg: string;
   category: 'social' | 'messaging' | 'ai' | 'entertainment' | 'gaming' | 'shopping' | 'tech' | 'other';
   color: string;
-  iconUrl?: string;
+  iconSvg?: string;
   popular?: boolean;
 }
 
-// 1. Comprehensive Country Mapping
-export const COUNTRY_META_MAP: Record<string, { code: string; flag: string; dialCode: string; nameUg: string }> = {
-  // Turkey
-  '62': { code: 'tr', flag: '🇹🇷', dialCode: '+90', nameUg: 'تۈركىيە' },
-  'turkey': { code: 'tr', flag: '🇹🇷', dialCode: '+90', nameUg: 'تۈركىيە' },
-  // USA
-  '12': { code: 'us', flag: '🇺🇸', dialCode: '+1', nameUg: 'ئامېرىكا' },
-  'usa': { code: 'us', flag: '🇺🇸', dialCode: '+1', nameUg: 'ئامېرىكا' },
-  'usa (2)': { code: 'us', flag: '🇺🇸', dialCode: '+1', nameUg: 'ئامېرىكا' },
-  // United Kingdom
-  '16': { code: 'gb', flag: '🇬🇧', dialCode: '+44', nameUg: 'ئەنگلىيە' },
-  'united kingdom': { code: 'gb', flag: '🇬🇧', dialCode: '+44', nameUg: 'ئەنگلىيە' },
-  // Germany
-  '43': { code: 'de', flag: '🇩🇪', dialCode: '+49', nameUg: 'گېرمانىيە' },
-  'germany': { code: 'de', flag: '🇩🇪', dialCode: '+49', nameUg: 'گېرمانىيە' },
-  // Russia
-  '0': { code: 'ru', flag: '🇷🇺', dialCode: '+7', nameUg: 'روسىيە' },
-  'russia': { code: 'ru', flag: '🇷🇺', dialCode: '+7', nameUg: 'روسىيە' },
-  // Ukraine
-  '1': { code: 'ua', flag: '🇺🇦', dialCode: '+380', nameUg: 'ئۇكرائىنا' },
-  'ukraine': { code: 'ua', flag: '🇺🇦', dialCode: '+380', nameUg: 'ئۇكرائىنا' },
-  // Kazakhstan
-  '2': { code: 'kz', flag: '🇰🇿', dialCode: '+7', nameUg: 'قازاقىستان' },
-  'kazakhstan': { code: 'kz', flag: '🇰🇿', dialCode: '+7', nameUg: 'قازاقىستان' },
-  // Uzbekistan
-  '40': { code: 'uz', flag: '🇺🇿', dialCode: '+998', nameUg: 'ئۆزبېكىستان' },
-  'uzbekistan': { code: 'uz', flag: '🇺🇿', dialCode: '+998', nameUg: 'ئۆزبېكىستان' },
-  // Kyrgyzstan
-  '11': { code: 'kg', flag: '🇰🇬', dialCode: '+996', nameUg: 'قىرغىزىستان' },
-  'kyrgyzstan': { code: 'kg', flag: '🇰🇬', dialCode: '+996', nameUg: 'قىرغىزىستان' },
-  // Azerbaijan
-  '35': { code: 'az', flag: '🇦🇿', dialCode: '+994', nameUg: 'ئەزەربەيجان' },
-  'azerbaijan': { code: 'az', flag: '🇦🇿', dialCode: '+994', nameUg: 'ئەزەربەيجان' },
-  // Saudi Arabia
-  '53': { code: 'sa', flag: '🇸🇦', dialCode: '+966', nameUg: 'سەئۇدى ئەرەبىستان' },
-  'saudi arabia': { code: 'sa', flag: '🇸🇦', dialCode: '+966', nameUg: 'سەئۇدى ئەرەبىستان' },
-  // UAE
-  '95': { code: 'ae', flag: '🇦🇪', dialCode: '+971', nameUg: 'ئەرەب بىرلەشمە خەلىپىلىكى' },
-  'united arab emirates': { code: 'ae', flag: '🇦🇪', dialCode: '+971', nameUg: 'ئەرەب بىرلەشمە خەلىپىلىكى' },
-  // Egypt
-  '21': { code: 'eg', flag: '🇪🇬', dialCode: '+20', nameUg: 'مىسىر' },
-  'egypt': { code: 'eg', flag: '🇪🇬', dialCode: '+20', nameUg: 'مىسىر' },
-  // Syria
-  '110': { code: 'sy', flag: '🇸🇾', dialCode: '+963', nameUg: 'سۇرىيە' },
-  'syria': { code: 'sy', flag: '🇸🇾', dialCode: '+963', nameUg: 'سۇرىيە' },
-  // Iraq
-  '47': { code: 'iq', flag: '🇮🇶', dialCode: '+964', nameUg: 'ئىراق' },
-  'iraq': { code: 'iq', flag: '🇮🇶', dialCode: '+964', nameUg: 'ئىراق' },
-  // Jordan
-  '116': { code: 'jo', flag: '🇯🇴', dialCode: '+962', nameUg: 'ئىئوردانىيە' },
-  'jordan': { code: 'jo', flag: '🇯🇴', dialCode: '+962', nameUg: 'ئىئوردانىيە' },
-  // Kuwait
-  '100': { code: 'kw', flag: '🇰🇼', dialCode: '+965', nameUg: 'كۇۋەيت' },
-  'kuwait': { code: 'kw', flag: '🇰🇼', dialCode: '+965', nameUg: 'كۇۋەيت' },
-  // Qatar
-  '111': { code: 'qa', flag: '🇶🇦', dialCode: '+974', nameUg: 'قاتار' },
-  'qatar': { code: 'qa', flag: '🇶🇦', dialCode: '+974', nameUg: 'قاتار' },
-  // France
-  '78': { code: 'fr', flag: '🇫🇷', dialCode: '+33', nameUg: 'فىرانسىيە' },
-  'france': { code: 'fr', flag: '🇫🇷', dialCode: '+33', nameUg: 'فىرانسىيە' },
-  // Netherlands
-  '48': { code: 'nl', flag: '🇳🇱', dialCode: '+31', nameUg: 'گوللاندىيە' },
-  'netherlands': { code: 'nl', flag: '🇳🇱', dialCode: '+31', nameUg: 'گوللاندىيە' },
-  // Canada
-  '36': { code: 'ca', flag: '🇨🇦', dialCode: '+1', nameUg: 'كانادا' },
-  'canada': { code: 'ca', flag: '🇨🇦', dialCode: '+1', nameUg: 'كانادا' },
-  // Poland
-  '15': { code: 'pl', flag: '🇵🇱', dialCode: '+48', nameUg: 'پولشا' },
-  'poland': { code: 'pl', flag: '🇵🇱', dialCode: '+48', nameUg: 'پولشا' },
-  // Sweden
-  '46': { code: 'se', flag: '🇸🇪', dialCode: '+46', nameUg: 'شىۋېتسىيە' },
-  'sweden': { code: 'se', flag: '🇸🇪', dialCode: '+46', nameUg: 'شىۋېتسىيە' },
-  // Spain
-  '56': { code: 'es', flag: '🇪🇸', dialCode: '+34', nameUg: 'ئىسپانىيە' },
-  'spain': { code: 'es', flag: '🇪🇸', dialCode: '+34', nameUg: 'ئىسپانىيە' },
-  // Italy
-  '86': { code: 'it', flag: '🇮🇹', dialCode: '+39', nameUg: 'ئىتالىيە' },
-  'italy': { code: 'it', flag: '🇮🇹', dialCode: '+39', nameUg: 'ئىتالىيە' },
-  // Indonesia
-  '6': { code: 'id', flag: '🇮🇩', dialCode: '+62', nameUg: 'ھىندونېزىيە' },
-  'indonesia': { code: 'id', flag: '🇮🇩', dialCode: '+62', nameUg: 'ھىندونېزىيە' },
-  // Malaysia
-  '7': { code: 'my', flag: '🇲🇾', dialCode: '+60', nameUg: 'مالايشىيا' },
-  'malaysia': { code: 'my', flag: '🇲🇾', dialCode: '+60', nameUg: 'مالايشىيا' },
-  // Vietnam
-  '10': { code: 'vn', flag: '🇻🇳', dialCode: '+84', nameUg: 'ۋىيېتنام' },
-  'vietnam': { code: 'vn', flag: '🇻🇳', dialCode: '+84', nameUg: 'ۋىيېتنام' },
-  // Philippines
-  '4': { code: 'ph', flag: '🇵🇭', dialCode: '+63', nameUg: 'فىلىپپىن' },
-  'philippines': { code: 'ph', flag: '🇵🇭', dialCode: '+63', nameUg: 'فىلىپپىن' },
-  // Brazil
-  '73': { code: 'br', flag: '🇧🇷', dialCode: '+55', nameUg: 'بىرازىلىيە' },
-  'brazil': { code: 'br', flag: '🇧🇷', dialCode: '+55', nameUg: 'بىرازىلىيە' },
-  // India
-  '22': { code: 'in', flag: '🇮🇳', dialCode: '+91', nameUg: 'ھىندىستان' },
-  'india': { code: 'in', flag: '🇮🇳', dialCode: '+91', nameUg: 'ھىندىستان' },
-  // China / Hong Kong
-  '3': { code: 'cn', flag: '🇨🇳', dialCode: '+86', nameUg: 'جۇڭگو' },
-  'china': { code: 'cn', flag: '🇨🇳', dialCode: '+86', nameUg: 'جۇڭگو' },
-  '14': { code: 'hk', flag: '🇭🇰', dialCode: '+852', nameUg: 'شياڭگاڭ' },
-  'hong kong': { code: 'hk', flag: '🇭🇰', dialCode: '+852', nameUg: 'شياڭگاڭ' },
+// 1. Comprehensive ISO-2, Dial Code & Uyghur Name Dictionary for ALL 206 Countries
+export const ALL_COUNTRIES_MAP: Record<string, { code: string; dialCode: string; nameUg: string; popular?: boolean }> = {
+  // Top Popular Countries (surfaced first)
+  'turkey': { code: 'tr', dialCode: '+90', nameUg: 'تۈركىيە', popular: true },
+  '62': { code: 'tr', dialCode: '+90', nameUg: 'تۈركىيە', popular: true },
+  'usa': { code: 'us', dialCode: '+1', nameUg: 'ئامېرىكا', popular: true },
+  'usa (2)': { code: 'us', dialCode: '+1', nameUg: 'ئامېرىكا', popular: true },
+  '12': { code: 'us', dialCode: '+1', nameUg: 'ئامېرىكا', popular: true },
+  'united kingdom': { code: 'gb', dialCode: '+44', nameUg: 'ئەنگلىيە', popular: true },
+  '16': { code: 'gb', dialCode: '+44', nameUg: 'ئەنگلىيە', popular: true },
+  'germany': { code: 'de', dialCode: '+49', nameUg: 'گېرمانىيە', popular: true },
+  '43': { code: 'de', dialCode: '+49', nameUg: 'گېرمانىيە', popular: true },
+  'russia': { code: 'ru', dialCode: '+7', nameUg: 'روسىيە', popular: true },
+  '0': { code: 'ru', dialCode: '+7', nameUg: 'روسىيە', popular: true },
+  'saudi arabia': { code: 'sa', dialCode: '+966', nameUg: 'سەئۇدى ئەرەبىستان', popular: true },
+  '53': { code: 'sa', dialCode: '+966', nameUg: 'سەئۇدى ئەرەبىستان', popular: true },
+  'united arab emirates': { code: 'ae', dialCode: '+971', nameUg: 'ئەرەب بىرلەشمە خەلىپىلىكى', popular: true },
+  '95': { code: 'ae', dialCode: '+971', nameUg: 'ئەرەب بىرلەشمە خەلىپىلىكى', popular: true },
+  'egypt': { code: 'eg', dialCode: '+20', nameUg: 'مىسىر', popular: true },
+  '21': { code: 'eg', dialCode: '+20', nameUg: 'مىسىر', popular: true },
+  'syria': { code: 'sy', dialCode: '+963', nameUg: 'سۇرىيە', popular: true },
+  '110': { code: 'sy', dialCode: '+963', nameUg: 'سۇرىيە', popular: true },
+  'iraq': { code: 'iq', dialCode: '+964', nameUg: 'ئىراق', popular: true },
+  '47': { code: 'iq', dialCode: '+964', nameUg: 'ئىراق', popular: true },
+  'kazakhstan': { code: 'kz', dialCode: '+7', nameUg: 'قازاقىستان', popular: true },
+  '2': { code: 'kz', dialCode: '+7', nameUg: 'قازاقىستان', popular: true },
+  'uzbekistan': { code: 'uz', dialCode: '+998', nameUg: 'ئۆزبېكىستان', popular: true },
+  '40': { code: 'uz', dialCode: '+998', nameUg: 'ئۆزبېكىستان', popular: true },
+  'kyrgyzstan': { code: 'kg', dialCode: '+996', nameUg: 'قىرغىزىستان', popular: true },
+  '11': { code: 'kg', dialCode: '+996', nameUg: 'قىرغىزىستان', popular: true },
+  'azerbaijan': { code: 'az', dialCode: '+994', nameUg: 'ئەزەربەيجان', popular: true },
+  '35': { code: 'az', dialCode: '+994', nameUg: 'ئەزەربەيجان', popular: true },
+  'indonesia': { code: 'id', dialCode: '+62', nameUg: 'ھىندونېزىيە', popular: true },
+  '6': { code: 'id', dialCode: '+62', nameUg: 'ھىندونېزىيە', popular: true },
+  'france': { code: 'fr', dialCode: '+33', nameUg: 'فىرانسىيە', popular: true },
+  '78': { code: 'fr', dialCode: '+33', nameUg: 'فىرانسىيە', popular: true },
+  'netherlands': { code: 'nl', dialCode: '+31', nameUg: 'گوللاندىيە', popular: true },
+  '48': { code: 'nl', dialCode: '+31', nameUg: 'گوللاندىيە', popular: true },
+  'canada': { code: 'ca', dialCode: '+1', nameUg: 'كانادا', popular: true },
+  '36': { code: 'ca', dialCode: '+1', nameUg: 'كانادا', popular: true },
+  'ukraine': { code: 'ua', dialCode: '+380', nameUg: 'ئۇكرائىنا', popular: true },
+  '1': { code: 'ua', dialCode: '+380', nameUg: 'ئۇكرائىنا', popular: true },
+  'malaysia': { code: 'my', dialCode: '+60', nameUg: 'مالايشىيا', popular: true },
+  '7': { code: 'my', dialCode: '+60', nameUg: 'مالايشىيا', popular: true },
+  'sweden': { code: 'se', dialCode: '+46', nameUg: 'شىۋېتسىيە', popular: true },
+  '46': { code: 'se', dialCode: '+46', nameUg: 'شىۋېتسىيە', popular: true },
+
+  // All other countries alphabetically mapped
+  'afghanistan': { code: 'af', dialCode: '+93', nameUg: 'ئافغانىستان' },
+  'albania': { code: 'al', dialCode: '+355', nameUg: 'ئالبانىيە' },
+  'algeria': { code: 'dz', dialCode: '+213', nameUg: 'ئالجىرىيە' },
+  'american samoa': { code: 'as', dialCode: '+1684', nameUg: 'ئامېرىكا ساموئاسى' },
+  'andorra': { code: 'ad', dialCode: '+376', nameUg: 'ئاندوررا' },
+  'angola': { code: 'ao', dialCode: '+244', nameUg: 'ئانگولا' },
+  'anguilla': { code: 'ai', dialCode: '+1264', nameUg: 'ئانگۋىللا' },
+  'antigua and barbuda': { code: 'ag', dialCode: '+1268', nameUg: 'ئانتىگۇئا ۋە باربۇدا' },
+  'argentina': { code: 'ar', dialCode: '+54', nameUg: 'ئارگېنتىنا' },
+  'argentinas': { code: 'ar', dialCode: '+54', nameUg: 'ئارگېنتىنا' },
+  'armenia': { code: 'am', dialCode: '+374', nameUg: 'ئەرمېنىيە' },
+  'aruba': { code: 'aw', dialCode: '+297', nameUg: 'ئارۇبا' },
+  'australia': { code: 'au', dialCode: '+61', nameUg: 'ئاۋسترالىيە' },
+  'austria': { code: 'at', dialCode: '+43', nameUg: 'ئاۋسترىيە' },
+  'bahamas': { code: 'bs', dialCode: '+1242', nameUg: 'باھاما' },
+  'bahrain': { code: 'bh', dialCode: '+973', nameUg: 'بەھرەين' },
+  'bangladesh': { code: 'bd', dialCode: '+880', nameUg: 'بېنگال' },
+  'barbados': { code: 'bb', dialCode: '+1246', nameUg: 'باربادوس' },
+  'belarus': { code: 'by', dialCode: '+375', nameUg: 'بېلارۇسىيە' },
+  'belgium': { code: 'be', dialCode: '+32', nameUg: 'بېلگىيە' },
+  'belize': { code: 'bz', dialCode: '+501', nameUg: 'بېلىز' },
+  'benin': { code: 'bj', dialCode: '+229', nameUg: 'بېنىن' },
+  'bermuda': { code: 'bm', dialCode: '+1441', nameUg: 'بېرمۇدا' },
+  'bhutan': { code: 'bt', dialCode: '+975', nameUg: 'بۇتان' },
+  'bolivia': { code: 'bo', dialCode: '+591', nameUg: 'بولىۋىيە' },
+  'bosnia and herzegovina': { code: 'ba', dialCode: '+387', nameUg: 'بوسنىيە ۋە گېرتسېگوۋىنا' },
+  'botswana': { code: 'bw', dialCode: '+267', nameUg: 'بوتسۋانا' },
+  'brazil': { code: 'br', dialCode: '+55', nameUg: 'بىرازىلىيە' },
+  'brunei darussalam': { code: 'bn', dialCode: '+673', nameUg: 'بىرۇنېي' },
+  'bulgaria': { code: 'bg', dialCode: '+359', nameUg: 'بۇلغارىيە' },
+  'burkina faso': { code: 'bf', dialCode: '+226', nameUg: 'بۇركىنا فاسو' },
+  'burundi': { code: 'bi', dialCode: '+257', nameUg: 'بۇرۇندى' },
+  'cambodia': { code: 'kh', dialCode: '+855', nameUg: 'كامبودژا' },
+  'cameroon': { code: 'cm', dialCode: '+237', nameUg: 'كامېرۇن' },
+  'cape verde': { code: 'cv', dialCode: '+238', nameUg: 'كەپ ۋېردې' },
+  'cayman islands': { code: 'ky', dialCode: '+1345', nameUg: 'كايمان ئاراللىرى' },
+  'central african republic': { code: 'cf', dialCode: '+236', nameUg: 'ئوتتۇرا ئافرىقا' },
+  'chad': { code: 'td', dialCode: '+235', nameUg: 'چاد' },
+  'chile': { code: 'cl', dialCode: '+56', nameUg: 'چىلى' },
+  'china': { code: 'cn', dialCode: '+86', nameUg: 'جۇڭگو' },
+  'colombia': { code: 'co', dialCode: '+57', nameUg: 'كولومبىيە' },
+  'comoros': { code: 'km', dialCode: '+269', nameUg: 'كومورو' },
+  'costa rica': { code: 'cr', dialCode: '+506', nameUg: 'كوستارىكا' },
+  'croatia': { code: 'hr', dialCode: '+385', nameUg: 'كىرودىيە' },
+  'cuba': { code: 'cu', dialCode: '+53', nameUg: 'كۇبا' },
+  'cyprus': { code: 'cy', dialCode: '+357', nameUg: 'سىپرۇس' },
+  'czech': { code: 'cz', dialCode: '+420', nameUg: 'چېخ' },
+  'dr congo': { code: 'cd', dialCode: '+243', nameUg: 'كونگو (DRC)' },
+  'denmark': { code: 'dk', dialCode: '+45', nameUg: 'دانىيە' },
+  'djibouti': { code: 'dj', dialCode: '+253', nameUg: 'جىبۇتى' },
+  'dominica': { code: 'dm', dialCode: '+1767', nameUg: 'دومىنىكا' },
+  'dominican republic': { code: 'do', dialCode: '+1809', nameUg: 'دومىنىكا جۇمھۇرىيىتى' },
+  'ecuador': { code: 'ec', dialCode: '+593', nameUg: 'ئېكۋادور' },
+  'equatorial guinea': { code: 'gq', dialCode: '+240', nameUg: 'ئېكۋاتور گىۋىنىيىسى' },
+  'eritrea': { code: 'er', dialCode: '+291', nameUg: 'ئېرىترىيە' },
+  'estonia': { code: 'ee', dialCode: '+372', nameUg: 'ئېستونىيە' },
+  'ethiopia': { code: 'et', dialCode: '+251', nameUg: 'ئېفىيوپىيە' },
+  'fiji': { code: 'fj', dialCode: '+679', nameUg: 'فىجى' },
+  'finland': { code: 'fi', dialCode: '+358', nameUg: 'فىنلاندىيە' },
+  'french guiana': { code: 'gf', dialCode: '+594', nameUg: 'فىرانسىيە گۋىئاناسى' },
+  'french polynesia': { code: 'pf', dialCode: '+689', nameUg: 'فىرانسىيە پولىنېزىيىسى' },
+  'gabon': { code: 'ga', dialCode: '+241', nameUg: 'گابون' },
+  'gambia': { code: 'gm', dialCode: '+220', nameUg: 'گامبىيە' },
+  'georgia': { code: 'ge', dialCode: '+995', nameUg: 'گىرۇزىيە' },
+  'ghana': { code: 'gh', dialCode: '+233', nameUg: 'گانا' },
+  'gibraltar': { code: 'gi', dialCode: '+350', nameUg: 'جىبرالتار' },
+  'greece': { code: 'gr', dialCode: '+30', nameUg: 'گرېتسىيە' },
+  'greenland': { code: 'gl', dialCode: '+299', nameUg: 'گرېنلاندىيە' },
+  'grenada': { code: 'gd', dialCode: '+1473', nameUg: 'گرېنادا' },
+  'guadeloupe': { code: 'gp', dialCode: '+590', nameUg: 'گۋادېلۇپ' },
+  'guatemala': { code: 'gt', dialCode: '+502', nameUg: 'گۋاتېمالا' },
+  'guinea': { code: 'gn', dialCode: '+224', nameUg: 'گىۋىنىيە' },
+  'guinea-bissau': { code: 'gw', dialCode: '+245', nameUg: 'گۋىنىيە بىسسائۇ' },
+  'guyana': { code: 'gy', dialCode: '+592', nameUg: 'گايانا' },
+  'haiti': { code: 'ht', dialCode: '+509', nameUg: 'ھايتى' },
+  'honduras': { code: 'hn', dialCode: '+504', nameUg: 'ھوندۇراس' },
+  'hong kong': { code: 'hk', dialCode: '+852', nameUg: 'شياڭگاڭ' },
+  'hungary': { code: 'hu', dialCode: '+36', nameUg: 'ۋېنگىرىيە' },
+  'iceland': { code: 'is', dialCode: '+354', nameUg: 'ئىسلاندىيە' },
+  'india': { code: 'in', dialCode: '+91', nameUg: 'ھىندىستان' },
+  'iran': { code: 'ir', dialCode: '+98', nameUg: 'ئىران' },
+  'ireland': { code: 'ie', dialCode: '+353', nameUg: 'ئىرېلاندىيە' },
+  'israel': { code: 'il', dialCode: '+972', nameUg: 'ئىسرائىلىيە' },
+  'italy': { code: 'it', dialCode: '+39', nameUg: 'ئىتالىيە' },
+  'ivory coast': { code: 'ci', dialCode: '+225', nameUg: 'پىل چىشى قىرغىقى' },
+  'jamaica': { code: 'jm', dialCode: '+1876', nameUg: 'يامايكا' },
+  'japan': { code: 'jp', dialCode: '+81', nameUg: 'ياپونىيە' },
+  'jordan': { code: 'jo', dialCode: '+962', nameUg: 'ئىئوردانىيە' },
+  'kenya': { code: 'ke', dialCode: '+254', nameUg: 'كېنىيە' },
+  'kosovo': { code: 'xk', dialCode: '+383', nameUg: 'كوسوۋو' },
+  'kuwait': { code: 'kw', dialCode: '+965', nameUg: 'كۇۋەيت' },
+  'lao': { code: 'la', dialCode: '+856', nameUg: 'لائوس' },
+  'latvia': { code: 'lv', dialCode: '+371', nameUg: 'لاتۋىيە' },
+  'lebanon': { code: 'lb', dialCode: '+961', nameUg: 'لىۋان' },
+  'lesotho': { code: 'ls', dialCode: '+266', nameUg: 'لېسوتو' },
+  'liberia': { code: 'lr', dialCode: '+231', nameUg: 'لىبېرىيە' },
+  'libya': { code: 'ly', dialCode: '+218', nameUg: 'لىۋىيە' },
+  'liechtenstein': { code: 'li', dialCode: '+423', nameUg: 'لىكتېنستېين' },
+  'lithuania': { code: 'lt', dialCode: '+370', nameUg: 'لىتۋا' },
+  'luxembourg': { code: 'lu', dialCode: '+352', nameUg: 'لىيۇكسېمبۇرگ' },
+  'macao': { code: 'mo', dialCode: '+853', nameUg: 'ئاۋمېن (ماكاۋ)' },
+  'macedonia': { code: 'mk', dialCode: '+389', nameUg: 'شىمالىي ماكېدونىيە' },
+  'madagascar': { code: 'mg', dialCode: '+261', nameUg: 'ماداغاسقار' },
+  'malawi': { code: 'mw', dialCode: '+265', nameUg: 'مالاۋى' },
+  'maldives': { code: 'mv', dialCode: '+960', nameUg: 'مالدىۋې' },
+  'mali': { code: 'ml', dialCode: '+223', nameUg: 'مالى' },
+  'malta': { code: 'mt', dialCode: '+356', nameUg: 'مالتا' },
+  'martinique': { code: 'mq', dialCode: '+596', nameUg: 'مارتىنىك' },
+  'mauritania': { code: 'mr', dialCode: '+222', nameUg: 'ماۋرىتانىيە' },
+  'mauritius': { code: 'mu', dialCode: '+230', nameUg: 'ماۋرىتىئۇس' },
+  'mexico': { code: 'mx', dialCode: '+52', nameUg: 'مېكسىكا' },
+  'moldova': { code: 'md', dialCode: '+373', nameUg: 'مولدوۋا' },
+  'monaco': { code: 'mc', dialCode: '+377', nameUg: 'موناكو' },
+  'mongolia': { code: 'mn', dialCode: '+976', nameUg: 'موڭغۇلىيە' },
+  'montenegro': { code: 'me', dialCode: '+382', nameUg: 'مونتېنېگرو' },
+  'montserrat': { code: 'ms', dialCode: '+1664', nameUg: 'مونتسېررەت' },
+  'morocco': { code: 'ma', dialCode: '+212', nameUg: 'ماراكەش' },
+  'mozambique': { code: 'mz', dialCode: '+258', nameUg: 'موزامبىك' },
+  'myanmar': { code: 'mm', dialCode: '+95', nameUg: 'بېرما (ميانما)' },
+  'nambia': { code: 'na', dialCode: '+264', nameUg: 'نامىبىيە' },
+  'nepal': { code: 'np', dialCode: '+977', nameUg: 'نېپال' },
+  'new caledonia': { code: 'nc', dialCode: '+687', nameUg: 'يېڭى كالېدونىيە' },
+  'new zealand': { code: 'nz', dialCode: '+64', nameUg: 'يېڭى زېلاندىيە' },
+  'nicaragua': { code: 'ni', dialCode: '+505', nameUg: 'نىكاراگۇئا' },
+  'niger': { code: 'ne', dialCode: '+227', nameUg: 'نىگېر' },
+  'nigeria': { code: 'ng', dialCode: '+234', nameUg: 'نىگېرىيە' },
+  'niue': { code: 'nu', dialCode: '+683', nameUg: 'نىيۇئې' },
+  'norway': { code: 'no', dialCode: '+47', nameUg: 'نورۋېگىيە' },
+  'oman': { code: 'om', dialCode: '+968', nameUg: 'ئومان' },
+  'pakistan': { code: 'pk', dialCode: '+92', nameUg: 'پاكىستان' },
+  'palestine': { code: 'ps', dialCode: '+970', nameUg: 'پەلەستىن' },
+  'panama': { code: 'pa', dialCode: '+507', nameUg: 'پاناما' },
+  'papua new gvineya': { code: 'pg', dialCode: '+675', nameUg: 'پاپۇئا يېڭى گىۋىنىيىسى' },
+  'paraguay': { code: 'py', dialCode: '+595', nameUg: 'پاراگۋاي' },
+  'peru': { code: 'pe', dialCode: '+51', nameUg: 'پېرۇ' },
+  'philippines': { code: 'ph', dialCode: '+63', nameUg: 'فىلىپپىن' },
+  'poland': { code: 'pl', dialCode: '+48', nameUg: 'پولشا' },
+  'portugal': { code: 'pt', dialCode: '+351', nameUg: 'پورتۇگالىيە' },
+  'puerto rico': { code: 'pr', dialCode: '+1787', nameUg: 'پۇئېرتو رىكو' },
+  'qatar': { code: 'qa', dialCode: '+974', nameUg: 'قاتار' },
+  'republic of the congo': { code: 'cg', dialCode: '+242', nameUg: 'كونگو جۇمھۇرىيىتى' },
+  'reunion': { code: 're', dialCode: '+262', nameUg: 'رېيۇنىيون' },
+  'romania': { code: 'ro', dialCode: '+40', nameUg: 'رۇمىنىيە' },
+  'rwanda': { code: 'rw', dialCode: '+250', nameUg: 'رۋاندا' },
+  'saint kitts and nevis': { code: 'kn', dialCode: '+1869', nameUg: 'ساينت كىتتس' },
+  'saint lucia': { code: 'lc', dialCode: '+1758', nameUg: 'ساينت لۇسىيە' },
+  'saint vincent': { code: 'vc', dialCode: '+1784', nameUg: 'ساينت ۋىنسېنت' },
+  'salvador': { code: 'sv', dialCode: '+503', nameUg: 'ئەل سالۋادور' },
+  'samoa': { code: 'ws', dialCode: '+685', nameUg: 'ساموئا' },
+  'sao tome and principe': { code: 'st', dialCode: '+239', nameUg: 'سان تومې' },
+  'senegal': { code: 'sn', dialCode: '+221', nameUg: 'سېنېگال' },
+  'serbia': { code: 'rs', dialCode: '+381', nameUg: 'سېربىيە' },
+  'seychelles': { code: 'sc', dialCode: '+248', nameUg: 'سېيشېل' },
+  'sierra leone': { code: 'sl', dialCode: '+232', nameUg: 'سېررالېئون' },
+  'singapore': { code: 'sg', dialCode: '+65', nameUg: 'سىنگاپور' },
+  'sint maarten': { code: 'sx', dialCode: '+1721', nameUg: 'سىنت مارتېن' },
+  'slovakia': { code: 'sk', dialCode: '+421', nameUg: 'سىلوۋاكىيە' },
+  'slovenia': { code: 'si', dialCode: '+386', nameUg: 'سىلوۋېنىيە' },
+  'somalia': { code: 'so', dialCode: '+252', nameUg: 'سومالى' },
+  'south africa': { code: 'za', dialCode: '+27', nameUg: 'جەنۇبىي ئافرىقا' },
+  'south korea': { code: 'kr', dialCode: '+82', nameUg: 'جەنۇبىي كورىيە' },
+  'south sudan': { code: 'ss', dialCode: '+211', nameUg: 'جەنۇبىي سۇدان' },
+  'spain': { code: 'es', dialCode: '+34', nameUg: 'ئىسپانىيە' },
+  'sri lanka': { code: 'lk', dialCode: '+94', nameUg: 'سىرىلانكا' },
+  'suriname': { code: 'sr', dialCode: '+597', nameUg: 'سۇرىنام' },
+  'swaziland': { code: 'sz', dialCode: '+268', nameUg: 'ئېسۋاتىنى' },
+  'switzerland': { code: 'ch', dialCode: '+41', nameUg: 'شىۋېتسارىيە' },
+  'taiwan': { code: 'tw', dialCode: '+886', nameUg: 'تەيۋەن' },
+  'tajikistan': { code: 'tj', dialCode: '+992', nameUg: 'تاجىكىستان' },
+  'tanzania': { code: 'tz', dialCode: '+255', nameUg: 'تانزانىيە' },
+  'thailand': { code: 'th', dialCode: '+66', nameUg: 'تايلاند' },
+  'timor-leste': { code: 'tl', dialCode: '+670', nameUg: 'شەرقىي تىمور' },
+  'togo': { code: 'tg', dialCode: '+228', nameUg: 'توگو' },
+  'tonga': { code: 'to', dialCode: '+676', nameUg: 'تونگا' },
+  'trinidad and tobago': { code: 'tt', dialCode: '+1868', nameUg: 'ترىنىداد ۋە توباگو' },
+  'tunisia': { code: 'tn', dialCode: '+216', nameUg: 'تۇنىس' },
+  'turkmenistan': { code: 'tm', dialCode: '+993', nameUg: 'تۈركمەنىستان' },
+  'uganda': { code: 'ug', dialCode: '+256', nameUg: 'ئۇگاندا' },
+  'uruguay': { code: 'uy', dialCode: '+598', nameUg: 'ئۇرۇگۋاي' },
+  'vanuatu': { code: 'vu', dialCode: '+678', nameUg: 'ۋانۇئاتۇ' },
+  'venezuela': { code: 've', dialCode: '+58', nameUg: 'ۋېنېسۇئېلا' },
+  'vietnam': { code: 'vn', dialCode: '+84', nameUg: 'ۋىيېتنام' },
+  'yemen': { code: 'ye', dialCode: '+967', nameUg: 'يەمەن' },
+  'zambia': { code: 'zm', dialCode: '+260', nameUg: 'زامبىيە' },
+  'zimbabwe': { code: 'zw', dialCode: '+263', nameUg: 'زىمبابۋې' },
 };
 
-// 2. Comprehensive Service/App Metadata
+// 2. Comprehensive Service/App Metadata with verified brand colors and names
 export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
   tg: {
     code: 'tg',
@@ -135,7 +267,6 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'تېلېگرام',
     category: 'messaging',
     color: '#229ED9',
-    iconUrl: 'https://cdn.simpleicons.org/telegram/229ED9',
     popular: true,
   },
   wa: {
@@ -144,7 +275,6 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'ۋاتساپ',
     category: 'messaging',
     color: '#25D366',
-    iconUrl: 'https://cdn.simpleicons.org/whatsapp/25D366',
     popular: true,
   },
   go: {
@@ -153,7 +283,6 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'گۇگۇل / جىمېيل',
     category: 'tech',
     color: '#EA4335',
-    iconUrl: 'https://cdn.simpleicons.org/google/EA4335',
     popular: true,
   },
   oi: {
@@ -162,7 +291,6 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'ChatGPT / سۈنئىي ئەقىل',
     category: 'ai',
     color: '#10A37F',
-    iconUrl: 'https://cdn.simpleicons.org/openai/10A37F',
     popular: true,
   },
   ig: {
@@ -171,7 +299,6 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'ئىنستاگرام',
     category: 'social',
     color: '#E4405F',
-    iconUrl: 'https://cdn.simpleicons.org/instagram/E4405F',
     popular: true,
   },
   fb: {
@@ -180,7 +307,14 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'فەيسىبۇك',
     category: 'social',
     color: '#1877F2',
-    iconUrl: 'https://cdn.simpleicons.org/facebook/1877F2',
+    popular: true,
+  },
+  lf: {
+    code: 'lf',
+    name: 'TikTok',
+    nameUg: 'تىكتوك',
+    category: 'social',
+    color: '#FE2C55',
     popular: true,
   },
   tt: {
@@ -189,8 +323,23 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'تىكتوك',
     category: 'social',
     color: '#FE2C55',
-    iconUrl: 'https://cdn.simpleicons.org/tiktok/FE2C55',
     popular: true,
+  },
+  ctkt: {
+    code: 'ctkt',
+    name: 'Douyin (TikTok)',
+    nameUg: 'دويىن (تىكتوك)',
+    category: 'social',
+    color: '#FE2C55',
+    popular: false,
+  },
+  gr_tk: {
+    code: 'gr_tk',
+    name: 'Douyin (TikTok)',
+    nameUg: 'دويىن (تىكتوك)',
+    category: 'social',
+    color: '#FE2C55',
+    popular: false,
   },
   tw: {
     code: 'tw',
@@ -198,7 +347,6 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'X (تۋىتتېر)',
     category: 'social',
     color: '#1DA1F2',
-    iconUrl: 'https://cdn.simpleicons.org/x/FFFFFF',
     popular: true,
   },
   ds: {
@@ -207,7 +355,6 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'دىسكورد',
     category: 'messaging',
     color: '#5865F2',
-    iconUrl: 'https://cdn.simpleicons.org/discord/5865F2',
     popular: true,
   },
   sn: {
@@ -216,7 +363,6 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'سناپچات',
     category: 'social',
     color: '#FFFC00',
-    iconUrl: 'https://cdn.simpleicons.org/snapchat/FFFC00',
     popular: true,
   },
   vi: {
@@ -225,16 +371,14 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'ۋايبېر',
     category: 'messaging',
     color: '#7360F2',
-    iconUrl: 'https://cdn.simpleicons.org/viber/7360F2',
     popular: false,
   },
   wb: {
     code: 'wb',
-    name: 'WeChat (ۋېيشىن)',
+    name: 'WeChat',
     nameUg: 'ئۈندىدار (ۋېيشىن)',
     category: 'messaging',
     color: '#07C160',
-    iconUrl: 'https://cdn.simpleicons.org/wechat/07C160',
     popular: true,
   },
   nf: {
@@ -243,7 +387,6 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'نېتفلىكىس',
     category: 'entertainment',
     color: '#E50914',
-    iconUrl: 'https://cdn.simpleicons.org/netflix/E50914',
     popular: false,
   },
   sp: {
@@ -252,7 +395,6 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'سپوتىفاي',
     category: 'entertainment',
     color: '#1ED760',
-    iconUrl: 'https://cdn.simpleicons.org/spotify/1ED760',
     popular: false,
   },
   st: {
@@ -261,7 +403,6 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'ستېئام',
     category: 'gaming',
     color: '#66C0F4',
-    iconUrl: 'https://cdn.simpleicons.org/steam/66C0F4',
     popular: false,
   },
   mb: {
@@ -270,7 +411,6 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'مايكروسوفت',
     category: 'tech',
     color: '#00A4EF',
-    iconUrl: 'https://cdn.simpleicons.org/microsoft/00A4EF',
     popular: false,
   },
   am: {
@@ -279,7 +419,6 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'ئامازون',
     category: 'shopping',
     color: '#FF9900',
-    iconUrl: 'https://cdn.simpleicons.org/amazon/FF9900',
     popular: false,
   },
   ap: {
@@ -288,7 +427,6 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'ئالما (Apple ID)',
     category: 'tech',
     color: '#A2AAAD',
-    iconUrl: 'https://cdn.simpleicons.org/apple/A2AAAD',
     popular: false,
   },
   ub: {
@@ -297,7 +435,6 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'ئۇبېر',
     category: 'tech',
     color: '#000000',
-    iconUrl: 'https://cdn.simpleicons.org/uber/FFFFFF',
     popular: false,
   },
   ka: {
@@ -306,7 +443,6 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'كاكاۋتوك',
     category: 'messaging',
     color: '#FEE500',
-    iconUrl: 'https://cdn.simpleicons.org/kakaotalk/FEE500',
     popular: false,
   },
   li: {
@@ -315,7 +451,6 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'لىنكىدىن',
     category: 'social',
     color: '#0A66C2',
-    iconUrl: 'https://cdn.simpleicons.org/linkedin/0A66C2',
     popular: false,
   },
   yl: {
@@ -324,7 +459,38 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'ياندېكىس',
     category: 'tech',
     color: '#FC3F1D',
-    iconUrl: 'https://cdn.simpleicons.org/yandex/FC3F1D',
+    popular: false,
+  },
+  me: {
+    code: 'me',
+    name: 'LINE',
+    nameUg: 'لايىن',
+    category: 'messaging',
+    color: '#00C300',
+    popular: false,
+  },
+  vk: {
+    code: 'vk',
+    name: 'VKontakte',
+    nameUg: 'ۋىكونتاكتې',
+    category: 'social',
+    color: '#0077FF',
+    popular: false,
+  },
+  ts: {
+    code: 'ts',
+    name: 'PayPal',
+    nameUg: 'پەيپال',
+    category: 'shopping',
+    color: '#003087',
+    popular: false,
+  },
+  rd: {
+    code: 'rd',
+    name: 'Reddit',
+    nameUg: 'رېددىت',
+    category: 'social',
+    color: '#FF4500',
     popular: false,
   },
   ot: {
@@ -333,32 +499,33 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
     nameUg: 'باشقا بارلىق ئەپلەر',
     category: 'other',
     color: '#F59E0B',
-    iconUrl: '',
     popular: true,
   },
 };
 
 /**
- * Returns enriched country information
+ * Returns enriched country information with verified ISO code, dial code, flag image URL and Uyghur name
  */
 export function getEnrichedCountry(rawCountry: { id: number | string; name: string; code?: any; flag?: string }): CountryMeta {
-  const idStr = String(rawCountry.id);
+  const idStr = String(rawCountry.id).trim();
   const nameLower = (rawCountry.name || '').toLowerCase().trim();
-  const meta = COUNTRY_META_MAP[idStr] || COUNTRY_META_MAP[nameLower];
 
-  const code = meta?.code || (typeof rawCountry.code === 'string' && rawCountry.code.length === 2 ? rawCountry.code.toLowerCase() : 'globe');
-  const flag = meta?.flag || rawCountry.flag || '🌐';
+  // Lookup in unified map
+  const meta = ALL_COUNTRIES_MAP[idStr] || ALL_COUNTRIES_MAP[nameLower];
+
+  const code = meta?.code || (typeof rawCountry.code === 'string' && rawCountry.code.length === 2 ? rawCountry.code.toLowerCase() : 'tr');
   const dialCode = meta?.dialCode || '';
   const nameUg = meta?.nameUg || rawCountry.name;
+  const flagUrl = `https://flagcdn.com/w80/${code}.png`;
 
   return {
     id: Number(rawCountry.id),
     name: rawCountry.name,
     nameUg,
     code,
-    flag,
     dialCode,
-    popular: ['62', '12', '16', '43', '0', '1', '2', '40', '53', '95', '110', '47', '21', '6'].includes(idStr),
+    flagUrl,
+    popular: Boolean(meta?.popular),
   };
 }
 
@@ -374,7 +541,6 @@ export function getEnrichedService(rawService: { service_code: string; name: str
   count: number;
   category: string;
   color: string;
-  iconUrl?: string;
   popular: boolean;
 } {
   const code = (rawService.service_code || '').toLowerCase().trim();
@@ -393,7 +559,6 @@ export function getEnrichedService(rawService: { service_code: string; name: str
     count: Number(rawService.count || 0),
     category: meta?.category || 'other',
     color: meta?.color || '#38BDF8',
-    iconUrl: meta?.iconUrl,
     popular: Boolean(meta?.popular),
   };
 }
