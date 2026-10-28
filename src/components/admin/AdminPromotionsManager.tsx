@@ -146,6 +146,18 @@ export default function AdminPromotionsManager() {
     );
   };
 
+  // Bulk Apply Percent Discount with automatic wholesale cost floor guard
+  const handleBulkApplyPercent = (percent: number) => {
+    setPackageRows((prev) =>
+      prev.map((row) => {
+        if (!row.selected) return row;
+        const discounted = row.regularPrice * (1 - percent / 100);
+        const safePrice = Math.max(row.costPrice + 0.05, discounted);
+        return { ...row, promoPrice: safePrice.toFixed(2) };
+      })
+    );
+  };
+
   // Toggle select all
   const allSelected = packageRows.length > 0 && packageRows.every((r) => r.selected);
   const handleToggleSelectAll = (select: boolean) => {
@@ -179,6 +191,17 @@ export default function AdminPromotionsManager() {
         if (idx !== originalIndex) return r;
         const newPromo = (r.costPrice + margin).toFixed(2);
         return { ...r, promoPrice: newPromo, selected: true };
+      })
+    );
+  };
+
+  const handleSetRowPercent = (originalIndex: number, percent: number) => {
+    setPackageRows((prev) =>
+      prev.map((r, idx) => {
+        if (idx !== originalIndex) return r;
+        const discounted = r.regularPrice * (1 - percent / 100);
+        const safePrice = Math.max(r.costPrice + 0.05, discounted);
+        return { ...r, promoPrice: safePrice.toFixed(2), selected: true };
       })
     );
   };
@@ -521,21 +544,40 @@ export default function AdminPromotionsManager() {
                     />
                   </div>
 
-                  {/* Bulk Margin Quick Adder */}
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[11px] text-amber-300 font-bold font-alkatip">
-                      ⚡️ تاللانغانلارغا پايدا قوشۇش:
-                    </span>
-                    {[0.05, 0.10, 0.20, 0.30, 0.50, 1.00].map((m) => (
-                      <button
-                        key={m}
-                        type="button"
-                        onClick={() => handleBulkApplyMargin(m)}
-                        className="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-mono font-bold border border-amber-500/30 transition active:scale-95"
-                      >
-                        +{m}$
-                      </button>
-                    ))}
+                  {/* Bulk Margin Quick Adder & Percent Off */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-1">
+                      <span className="text-[11px] text-amber-300 font-bold font-alkatip">
+                        ⚡️ تەننەرخكە پايدا قوشۇش:
+                      </span>
+                      {[0.05, 0.10, 0.20, 0.50, 1.00].map((m) => (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() => handleBulkApplyMargin(m)}
+                          className="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-mono font-bold border border-amber-500/30 transition active:scale-95"
+                        >
+                          +{m}$
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <span className="text-[11px] text-cyan-300 font-bold font-alkatip">
+                        🏷️ ئىتىبار:
+                      </span>
+                      {[5, 10, 15, 20].map((pct) => (
+                        <button
+                          key={pct}
+                          type="button"
+                          onClick={() => handleBulkApplyPercent(pct)}
+                          className="px-2 py-0.5 rounded bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 text-xs font-mono font-bold border border-cyan-500/30 transition active:scale-95"
+                          title={`ئەسلى باھادىن -${pct}% ئېتىبار قىلىش (تەننەرختىن تۆۋەن چۈشۈپ كەتمەيدۇ)`}
+                        >
+                          -{pct}%
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -652,8 +694,8 @@ export default function AdminPromotionsManager() {
                                     dir="ltr"
                                   />
                                   {/* Quick row-level margin chips */}
-                                  <div className="flex items-center gap-1">
-                                    {[0.05, 0.10, 0.20, 0.50].map((m) => (
+                                  <div className="flex items-center gap-1 flex-wrap">
+                                    {[0.05, 0.10, 0.20].map((m) => (
                                       <button
                                         key={m}
                                         type="button"
@@ -664,6 +706,14 @@ export default function AdminPromotionsManager() {
                                         +{m}$
                                       </button>
                                     ))}
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSetRowPercent(originalIndex, 10)}
+                                      className="text-[10px] font-mono px-1 py-0.5 rounded bg-cyan-950/60 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-700/60 transition"
+                                      title="ئەسلى باھادىن -10% ئېتىبار (تەننەرختىن تۆۋەنلىمەيدۇ)"
+                                    >
+                                      -10%
+                                    </button>
                                   </div>
                                 </div>
                               </td>

@@ -1116,11 +1116,11 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
 
             const targetQty = session.providerQty ?? 1;
             const totalCost = liveCheck.product.costPrice * targetQty;
-            if (totalCost > session.price) {
+            if (totalCost >= session.price) {
               await showOrEditMessage(
                 chatId,
                 messageId,
-                `⚠️ <b>تەمىنلىگۈچىنىڭ تەننەرخ باھاسى ئۆزگەردى</b>\n\nھېساباتىڭىزدىن ھېچقانداق پۇل تۇتۇلمىدى. يېڭى باھا بويىچە دۇكاندىن قايتا زاكاز بېرىڭ.`,
+                `⚠️ <b>تەمىنلىگۈچىنىڭ تەننەرخ باھاسى ئۆزگەردى</b>\n\nتەننەرخ: $${totalCost.toFixed(2)} | سېتىلىش باھاسى: $${session.price.toFixed(2)}\nسىزنىڭ زىيان تارتماسلىقىڭىز ئۈچۈن ھېساباتتىن پۇل تۇتۇلمىدى. يېڭى باھا بويىچە دۇكاندىن قايتا زاكاز بېرىڭ.`,
                 {
                   inline_keyboard: [[{ text: '🔙 دۇكان بۆلۈملىرىگە قايتىش ↩️', callback_data: 'tg_shop_categories' }]],
                 }

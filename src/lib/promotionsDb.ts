@@ -103,7 +103,49 @@ export async function getPromotionsListAsync(): Promise<ActivePromotion[]> {
 
 function filterActive(list: ActivePromotion[]): ActivePromotion[] {
   const now = Date.now();
-  return list.filter((p) => p.enabled !== false && new Date(p.endsAt).getTime() > now);
+  return list.filter((p) => {
+    if (p.enabled === false) return false;
+    if (new Date(p.endsAt).getTime() <= now) return false;
+    // Strict Anti-Loss Guard: Auto-deactivate any promotion if promoPrice <= costPrice
+    if (p.costPrice && p.promoPrice <= p.costPrice) return false;
+    return true;
+  });
+}
+
+/**
+ * Unified calculation of wholesale cost price for any service package.
+ * Used identically across admin display, validation, and real-time order guards.
+ */
+export function resolvePackageCostPrice(pkg: any): number {
+  if (!pkg) return 0;
+
+  // 1. Explicit costPrice on package
+  const directCost = Number(pkg.costPrice);
+  if (Number.isFinite(directCost) && directCost > 0) {
+    return Number(directCost.toFixed(2));
+  }
+
+  // 2. Check provider catalog for matching providerProductId
+  if (pkg.providerProductId) {
+    try {
+      const catalogPath = path.join(process.cwd(), 'data', 'provider_catalog.json');
+      if (fs.existsSync(catalogPath)) {
+        const cat = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
+        const found = (cat.products || []).find((pr: any) => pr.id === pkg.providerProductId);
+        if (found && Number(found.costPrice) > 0) {
+          return Number(Number(found.costPrice).toFixed(2));
+        }
+      }
+    } catch {}
+  }
+
+  // 3. Standard store wholesale base: price / 1.15 (15% standard retail markup)
+  const regularPrice = Number(pkg.regularPrice || pkg.price);
+  if (Number.isFinite(regularPrice) && regularPrice > 0) {
+    return Number((regularPrice / 1.15).toFixed(2));
+  }
+
+  return 0;
 }
 
 export async function savePromotionsListAsync(promos: ActivePromotion[]): Promise<void> {
@@ -167,26 +209,8 @@ export async function createOrUpdatePromotion(input: {
     return { success: false, error: 'تاللانغان بولاق تېپىلمىدى' };
   }
 
-  // Determine wholesale cost floor
-  let costPrice = Number((pkg as any).costPrice);
-  if (!Number.isFinite(costPrice) || costPrice <= 0) {
-    // Check provider catalog if available
-    try {
-      const catalogPath = path.join(process.cwd(), 'data', 'provider_catalog.json');
-      if (fs.existsSync(catalogPath)) {
-        const cat = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
-        const found = (cat.products || []).find((pr: any) => pr.id === pkg.providerProductId);
-        if (found && Number(found.costPrice) > 0) {
-          costPrice = Number(found.costPrice);
-        }
-      }
-    } catch {}
-  }
-
-  if (!Number.isFinite(costPrice) || costPrice <= 0) {
-    costPrice = Number(pkg.price) * 0.9; // Fallback safety floor
-  }
-
+  // Determine wholesale cost floor using unified calculation
+  const costPrice = resolvePackageCostPrice(pkg);
   const promoPrice = Number(Number(input.promoPrice).toFixed(2));
   const regularPrice = Number(Number((pkg as any).regularPrice || pkg.price).toFixed(2));
 
@@ -197,7 +221,7 @@ export async function createOrUpdatePromotion(input: {
     const minSafePrice = (costPrice + 0.01).toFixed(2);
     return {
       success: false,
-      error: `⚠️ زىيان تارتىش خەۋپى بار! پائالىيەت باھاسى ($${promoPrice}) باش مۇلازىمەتچىنىڭ تەننەرخىدىن ($${costPrice.toFixed(2)}) تۆۋەن ياكى تەڭ بولۇپ قالدى. ئەڭ تۆۋەن بىخەتەر سېتىش باھاسى: $${minSafePrice}`,
+      error: `⚠️ زىيان تارتىش خەۋپى بار! «${pkg.title}» بولىقىنىڭ پائالىيەت باھاسى ($${promoPrice}) باش مۇلازىمەتچىنىڭ تەننەرخىدىن ($${costPrice.toFixed(2)}) تۆۋەن ياكى تەڭ بولۇپ قالدى. ئەڭ تۆۋەن بىخەتەر سېتىش باھاسى: $${minSafePrice}`,
     };
   }
 
@@ -320,24 +344,13 @@ export async function createOrUpdatePromotionsBulk(input: {
     const pkg = service.packages?.find((p) => p.id === item.packageId);
     if (!pkg) continue;
 
-    let costPrice = Number((pkg as any).costPrice);
-    if (!Number.isFinite(costPrice) || costPrice <= 0) {
-      if (catalog && catalog.products) {
-        const found = catalog.products.find((pr: any) => pr.id === pkg.providerProductId);
-        if (found && Number(found.costPrice) > 0) {
-          costPrice = Number(found.costPrice);
-        }
-      }
-    }
-    if (!Number.isFinite(costPrice) || costPrice <= 0) {
-      costPrice = Number(pkg.price) * 0.9;
-    }
-
+    const costPrice = resolvePackageCostPrice(pkg);
     const promoPrice = Number(Number(item.promoPrice).toFixed(2));
     if (promoPrice <= costPrice) {
+      const minSafePrice = (costPrice + 0.01).toFixed(2);
       return {
         success: false,
-        error: `⛔️ زىيان تارتىش خەۋپى بار! «${pkg.title}» بولىقىنىڭ پائالىيەت باھاسى ($${promoPrice}) باش مۇلازىمەتچى تەننەرخىدىن ($${costPrice.toFixed(2)}) تۆۋەن ياكى تەڭ بولۇپ قالدى!`,
+        error: `⛔️ زىيان تارتىش خەۋپى بار! «${pkg.title}» بولىقىنىڭ پائالىيەت باھاسى ($${promoPrice}) باش مۇلازىمەتچى تەننەرخىدىن ($${costPrice.toFixed(2)}) تۆۋەن ياكى تەڭ بولۇپ قالدى! ئەڭ تۆۋەن بىخەتەر باھا: $${minSafePrice}`,
       };
     }
   }
@@ -347,18 +360,7 @@ export async function createOrUpdatePromotionsBulk(input: {
     const pkg = service.packages?.find((p) => p.id === item.packageId);
     if (!pkg) continue;
 
-    let costPrice = Number((pkg as any).costPrice);
-    if (!Number.isFinite(costPrice) || costPrice <= 0) {
-      if (catalog && catalog.products) {
-        const found = catalog.products.find((pr: any) => pr.id === pkg.providerProductId);
-        if (found && Number(found.costPrice) > 0) {
-          costPrice = Number(found.costPrice);
-        }
-      }
-    }
-    if (!Number.isFinite(costPrice) || costPrice <= 0) {
-      costPrice = Number(pkg.price) * 0.9;
-    }
+    const costPrice = resolvePackageCostPrice(pkg);
 
     const promoPrice = Number(Number(item.promoPrice).toFixed(2));
     const regularPrice = Number(Number((pkg as any).regularPrice || pkg.price).toFixed(2));

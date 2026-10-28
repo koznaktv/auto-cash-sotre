@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
   getPromotionsListAsync,
   createOrUpdatePromotion,
+  createOrUpdatePromotionsBulk,
   removePromotion,
+  resolvePackageCostPrice,
 } from '@/lib/promotionsDb';
 import { getServicesListAsync } from '@/lib/servicesDb';
 
@@ -38,7 +40,7 @@ export async function GET() {
         id: p.id,
         title: p.title,
         price: Number(p.price),
-        costPrice: Number((p as any).costPrice || (p.price * 0.85).toFixed(2)),
+        costPrice: resolvePackageCostPrice(p),
         originalPrice: p.originalPrice ? Number(p.originalPrice) : undefined,
         providerProductId: p.providerProductId,
       })),

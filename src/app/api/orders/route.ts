@@ -208,11 +208,11 @@ export async function POST(req: Request) {
             const targetQty = (pkg as any).providerQty ?? (pkg as any).qty ?? (qty ? Number(qty) : 1);
             const totalWholesaleCost = liveCost * targetQty;
 
-            if (totalWholesaleCost > price) {
+            if (totalWholesaleCost >= price) {
               return NextResponse.json(
                 {
                   success: false,
-                  message: `تەمىنلىگۈچىنىڭ تەننەرخ باھاسى ئۆزگەردى (تەننەرخ: ${totalWholesaleCost.toFixed(2)}). زىيان تارتماسلىق ئۈچۈن زاكاز پۇلى تۇتۇلمىدى، بەتنى يېڭىلاپ قايتا سېتىۋېلىڭ.`,
+                  message: `تەمىنلىگۈچىنىڭ تەننەرخ باھاسى ئۆزگەردى (ھازىرقى تەننەرخ: $${totalWholesaleCost.toFixed(2)}). زىياندىن ساقلىنىش ئۈچۈن زاكاز پۇلى تۇتۇلمىدى، بەتنى يېڭىلاپ قايتا سېتىۋېلىڭ.`,
                   priceChanged: true,
                   newCost: liveCost,
                 },
