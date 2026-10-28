@@ -44,6 +44,8 @@ export default function AdminPromotionsManager() {
   const [packageRows, setPackageRows] = useState<PackagePromoRow[]>([]);
   const [endsAtInput, setEndsAtInput] = useState('');
   const [broadcastToChannel, setBroadcastToChannel] = useState(true);
+  const [packageSearchQuery, setPackageSearchQuery] = useState('');
+  const [filterMode, setFilterMode] = useState<'all' | 'selected' | 'unselected'>('all');
 
   const fetchPromotionsData = async () => {
     setLoading(true);
@@ -85,10 +87,12 @@ export default function AdminPromotionsManager() {
           costPrice: Number(p.costPrice),
           regularPrice: Number(p.price),
           promoPrice: defaultPromo,
-          selected: true, // Selected by default so admin can do all or filter
+          selected: true, // Selected by default, can be cherry-picked freely
         };
       });
       setPackageRows(rows);
+      setPackageSearchQuery('');
+      setFilterMode('all');
     } else {
       setPackageRows([]);
     }
@@ -144,12 +148,40 @@ export default function AdminPromotionsManager() {
 
   // Toggle select all
   const allSelected = packageRows.length > 0 && packageRows.every((r) => r.selected);
-  const handleToggleSelectAll = () => {
-    setPackageRows((prev) => prev.map((r) => ({ ...r, selected: !allSelected })));
+  const handleToggleSelectAll = (select: boolean) => {
+    setPackageRows((prev) => prev.map((r) => ({ ...r, selected: select })));
   };
 
   // Check if any selected row has loss risk
   const selectedRows = useMemo(() => packageRows.filter((r) => r.selected), [packageRows]);
+  const unselectedCount = packageRows.length - selectedRows.length;
+
+  // Filtered rows for cherry-picking
+  const displayRows = useMemo(() => {
+    return packageRows
+      .map((row, originalIndex) => ({ row, originalIndex }))
+      .filter(({ row }) => {
+        // Mode filter
+        if (filterMode === 'selected' && !row.selected) return false;
+        if (filterMode === 'unselected' && row.selected) return false;
+        // Search filter
+        if (packageSearchQuery.trim()) {
+          const q = packageSearchQuery.toLowerCase();
+          return row.title.toLowerCase().includes(q) || row.packageId.toLowerCase().includes(q);
+        }
+        return true;
+      });
+  }, [packageRows, filterMode, packageSearchQuery]);
+
+  const handleSetRowMargin = (originalIndex: number, margin: number) => {
+    setPackageRows((prev) =>
+      prev.map((r, idx) => {
+        if (idx !== originalIndex) return r;
+        const newPromo = (r.costPrice + margin).toFixed(2);
+        return { ...r, promoPrice: newPromo, selected: true };
+      })
+    );
+  };
 
   const hasAnyLoss = useMemo(() => {
     return selectedRows.some((r) => {
@@ -422,54 +454,106 @@ export default function AdminPromotionsManager() {
                 </select>
               </div>
 
-              {/* 2. Bulk Margin Buttons & Select All */}
-              <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleToggleSelectAll}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 border border-slate-700 transition"
-                  >
-                    {allSelected ? <CheckSquare className="w-4 h-4 text-amber-400" /> : <Square className="w-4 h-4 text-slate-500" />}
-                    <span>{allSelected ? 'ھەممىسىنى بىكار قىلىش' : 'ھەممىسىنى تاللاش'}</span>
-                  </button>
-                  <span className="text-xs text-slate-400 font-mono">
-                    ({selectedRows.length} / {packageRows.length} بولاق تاللانغان)
-                  </span>
+              {/* 2. Cherry-Picking Toolbar: Select/Deselect, Search & Quick Margin */}
+              <div className="space-y-2.5 p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
+                <div className="flex flex-wrap items-center justify-between gap-2.5">
+                  {/* Select All / Clear Selection */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleSelectAll(true)}
+                      className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-emerald-400 border border-slate-700 transition flex items-center gap-1.5"
+                    >
+                      <CheckSquare className="w-3.5 h-3.5" />
+                      <span>بارلىقىنى تاللاش</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleSelectAll(false)}
+                      className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-400 border border-slate-700 transition flex items-center gap-1.5"
+                    >
+                      <Square className="w-3.5 h-3.5" />
+                      <span>تاللاشنى تازىلاش</span>
+                    </button>
+                  </div>
+
+                  {/* Filter tabs */}
+                  <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs font-alkatip">
+                    <button
+                      type="button"
+                      onClick={() => setFilterMode('all')}
+                      className={`px-2.5 py-1 rounded-md font-bold transition ${
+                        filterMode === 'all' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      ھەممىسى ({packageRows.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFilterMode('selected')}
+                      className={`px-2.5 py-1 rounded-md font-bold transition ${
+                        filterMode === 'selected' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      تاللانغانلار ({selectedRows.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFilterMode('unselected')}
+                      className={`px-2.5 py-1 rounded-md font-bold transition ${
+                        filterMode === 'unselected' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      تاللانمىغانلار ({unselectedCount})
+                    </button>
+                  </div>
                 </div>
 
-                {/* Bulk Margin Quick Adder */}
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-xs text-amber-300 font-bold font-alkatip">
-                    ⚡️ ھەممىسىگە پايدا قوشۇپ تەڭشەش:
-                  </span>
-                  {[0.05, 0.10, 0.20, 0.30, 0.50, 1.00].map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => handleBulkApplyMargin(m)}
-                      className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-mono font-bold border border-amber-500/30 transition active:scale-95"
-                    >
-                      +{m}$
-                    </button>
-                  ))}
+                {/* Search Bar & Global Bulk Margins */}
+                <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2 border-t border-slate-800/80">
+                  <div className="flex-1 min-w-[220px]">
+                    <input
+                      type="text"
+                      placeholder="🔍 بولاق ئىزدەش (مەسىلەن: Weekly, Pass, 60)..."
+                      value={packageSearchQuery}
+                      onChange={(e) => setPackageSearchQuery(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 font-alkatip"
+                    />
+                  </div>
+
+                  {/* Bulk Margin Quick Adder */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[11px] text-amber-300 font-bold font-alkatip">
+                      ⚡️ تاللانغانلارغا پايدا قوشۇش:
+                    </span>
+                    {[0.05, 0.10, 0.20, 0.30, 0.50, 1.00].map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => handleBulkApplyMargin(m)}
+                        className="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-mono font-bold border border-amber-500/30 transition active:scale-95"
+                      >
+                        +{m}$
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
               {/* 3. Package Price Comparison Table */}
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-2 font-alkatip flex items-center justify-between">
-                  <span>2. مەزكۇر مەھسۇلاتنىڭ بارلىق بولاقلىرى ۋە تەننەرخ، باھا، پايدا سېلىشتۇرمىسى:</span>
-                  <span className="text-[11px] text-slate-400 font-normal">
-                    (ھەر بىر بولاقنىڭ پائالىيەت باھاسىنى ئايرىم-ئايرىممۇ تەڭشىيەلەيسىز)
+                  <span>2. مەزكۇر مەھسۇلاتنىڭ بارلىق بولاقلىرى — تاللاپ باھا بەلگىلەش:</span>
+                  <span className="text-[11px] text-amber-400 font-bold font-mono">
+                    {selectedRows.length} بولاق تاللانغان (كۆرسىتىلگىنى: {displayRows.length})
                   </span>
                 </label>
 
-                <div className="border border-slate-800 rounded-xl overflow-hidden shadow-inner max-h-72 overflow-y-auto">
+                <div className="border border-slate-800 rounded-xl overflow-hidden shadow-inner max-h-80 overflow-y-auto">
                   <table className="w-full text-right text-xs">
-                    <thead className="bg-slate-800/80 text-slate-300 font-bold sticky top-0 z-10 font-alkatip border-b border-slate-700">
+                    <thead className="bg-slate-800/90 text-slate-300 font-bold sticky top-0 z-10 font-alkatip border-b border-slate-700">
                       <tr>
-                        <th className="py-2.5 px-3 w-10 text-center">تاللاش</th>
+                        <th className="py-2.5 px-3 w-28 text-center">تاللاش ھالىتى</th>
                         <th className="py-2.5 px-3">بولاق نامى</th>
                         <th className="py-2.5 px-3">🏢 باش تەننەرخ</th>
                         <th className="py-2.5 px-3">🛒 ھازىرقى توربەت باھاسى</th>
@@ -478,87 +562,132 @@ export default function AdminPromotionsManager() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800">
-                      {packageRows.map((row, idx) => {
-                        const numPromo = Number(row.promoPrice);
-                        const isNumValid = !isNaN(numPromo) && numPromo > 0;
-                        const isRowLoss = isNumValid && numPromo <= row.costPrice;
-                        const profit = isNumValid ? numPromo - row.costPrice : 0;
-                        const discount = isNumValid && row.regularPrice > numPromo
-                          ? Math.round(((row.regularPrice - numPromo) / row.regularPrice) * 100)
-                          : 0;
+                      {displayRows.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="py-8 text-center text-slate-500 font-alkatip">
+                            ماس كېلىدىغان بولاق تېپىلمىدى
+                          </td>
+                        </tr>
+                      ) : (
+                        displayRows.map(({ row, originalIndex }) => {
+                          const numPromo = Number(row.promoPrice);
+                          const isNumValid = !isNaN(numPromo) && numPromo > 0;
+                          const isRowLoss = isNumValid && numPromo <= row.costPrice;
+                          const profit = isNumValid ? numPromo - row.costPrice : 0;
+                          const discount = isNumValid && row.regularPrice > numPromo
+                            ? Math.round(((row.regularPrice - numPromo) / row.regularPrice) * 100)
+                            : 0;
 
-                        return (
-                          <tr
-                            key={row.packageId}
-                            className={`transition ${
-                              !row.selected
-                                ? 'opacity-40 bg-slate-950/40'
-                                : isRowLoss
-                                ? 'bg-rose-950/40 border-l-4 border-l-rose-500'
-                                : 'hover:bg-slate-800/40'
-                            }`}
-                          >
-                            <td className="py-2.5 px-3 text-center">
-                              <input
-                                type="checkbox"
-                                checked={row.selected}
-                                onChange={(e) => {
-                                  const checked = e.target.checked;
-                                  setPackageRows((prev) =>
-                                    prev.map((r, i) => (i === idx ? { ...r, selected: checked } : r))
-                                  );
-                                }}
-                                className="w-4 h-4 rounded accent-amber-500 cursor-pointer"
-                              />
-                            </td>
-                            <td className="py-2.5 px-3 font-bold text-white font-alkatip">
-                              {row.title}
-                            </td>
-                            <td className="py-2.5 px-3 font-mono text-cyan-400" dir="ltr">
-                              ${formatSmartPrice(row.costPrice)}
-                            </td>
-                            <td className="py-2.5 px-3 font-mono text-slate-400" dir="ltr">
-                              ${formatSmartPrice(row.regularPrice)}
-                            </td>
-                            <td className="py-2 px-3">
-                              <input
-                                type="number"
-                                step="0.01"
-                                disabled={!row.selected}
-                                value={row.promoPrice}
-                                onChange={(e) => {
-                                  const val = e.target.value;
-                                  setPackageRows((prev) =>
-                                    prev.map((r, i) => (i === idx ? { ...r, promoPrice: val } : r))
-                                  );
-                                }}
-                                className={`w-28 bg-slate-800 border rounded-lg px-2 py-1 text-xs font-mono font-bold text-white focus:outline-none ${
-                                  isRowLoss
-                                    ? 'border-rose-500 bg-rose-950/30 text-rose-300'
-                                    : 'border-slate-700 focus:border-amber-400'
-                                }`}
-                                dir="ltr"
-                              />
-                            </td>
-                            <td className="py-2.5 px-3 font-mono" dir="ltr">
-                              {isRowLoss ? (
-                                <span className="px-2 py-0.5 rounded bg-rose-950 text-rose-300 text-[10px] font-bold border border-rose-500/50">
-                                  ⛔️ زىيان! (-${(row.costPrice - numPromo).toFixed(2)})
-                                </span>
-                              ) : (
-                                <span className="flex items-center gap-1">
-                                  <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 text-[11px] font-bold border border-emerald-500/30">
-                                    +${profit.toFixed(2)}
-                                  </span>
-                                  {discount > 0 && (
-                                    <span className="text-[10px] text-red-400">(-{discount}%)</span>
+                          return (
+                            <tr
+                              key={row.packageId}
+                              className={`transition ${
+                                !row.selected
+                                  ? 'opacity-60 bg-slate-950/30 hover:opacity-100 hover:bg-slate-900/60'
+                                  : isRowLoss
+                                  ? 'bg-rose-950/40 border-l-4 border-l-rose-500'
+                                  : 'bg-amber-500/5 hover:bg-amber-500/10 border-l-2 border-l-amber-400'
+                              }`}
+                            >
+                              {/* Cherry Pick Toggle Cell */}
+                              <td className="py-2.5 px-3 text-center">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setPackageRows((prev) =>
+                                      prev.map((r, i) => (i === originalIndex ? { ...r, selected: !r.selected } : r))
+                                    );
+                                  }}
+                                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold font-alkatip transition flex items-center justify-center gap-1 mx-auto w-full max-w-[100px] ${
+                                    row.selected
+                                      ? 'bg-amber-500 text-slate-950 shadow-sm shadow-amber-500/30'
+                                      : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700'
+                                  }`}
+                                >
+                                  {row.selected ? (
+                                    <>
+                                      <CheckCircle className="w-3.5 h-3.5" />
+                                      <span>تاللاندى</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Plus className="w-3.5 h-3.5" />
+                                      <span>تاللاش</span>
+                                    </>
                                   )}
-                                </span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
+                                </button>
+                              </td>
+
+                              <td className="py-2.5 px-3 font-bold text-white font-alkatip">
+                                <div>{row.title}</div>
+                              </td>
+
+                              <td className="py-2.5 px-3 font-mono text-cyan-400" dir="ltr">
+                                ${formatSmartPrice(row.costPrice)}
+                              </td>
+
+                              <td className="py-2.5 px-3 font-mono text-slate-400" dir="ltr">
+                                ${formatSmartPrice(row.regularPrice)}
+                              </td>
+
+                              {/* Promo Price Input & Per-Row Quick Margins */}
+                              <td className="py-2 px-3">
+                                <div className="space-y-1">
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    disabled={!row.selected}
+                                    value={row.promoPrice}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setPackageRows((prev) =>
+                                        prev.map((r, i) => (i === originalIndex ? { ...r, promoPrice: val } : r))
+                                      );
+                                    }}
+                                    className={`w-28 bg-slate-800 border rounded-lg px-2 py-1 text-xs font-mono font-bold text-white focus:outline-none ${
+                                      isRowLoss
+                                        ? 'border-rose-500 bg-rose-950/30 text-rose-300'
+                                        : 'border-slate-700 focus:border-amber-400'
+                                    }`}
+                                    dir="ltr"
+                                  />
+                                  {/* Quick row-level margin chips */}
+                                  <div className="flex items-center gap-1">
+                                    {[0.05, 0.10, 0.20, 0.50].map((m) => (
+                                      <button
+                                        key={m}
+                                        type="button"
+                                        onClick={() => handleSetRowMargin(originalIndex, m)}
+                                        className="text-[10px] font-mono px-1 py-0.5 rounded bg-slate-800 hover:bg-amber-500/20 text-slate-400 hover:text-amber-300 border border-slate-700 transition"
+                                        title={`تەننەرخكە +$${m} پايدا قوشۇپ تاللاش`}
+                                      >
+                                        +{m}$
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              </td>
+
+                              <td className="py-2.5 px-3 font-mono" dir="ltr">
+                                {isRowLoss ? (
+                                  <span className="px-2 py-0.5 rounded bg-rose-950 text-rose-300 text-[10px] font-bold border border-rose-500/50">
+                                    ⛔️ زىيان! (-${(row.costPrice - numPromo).toFixed(2)})
+                                  </span>
+                                ) : (
+                                  <span className="flex items-center gap-1">
+                                    <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 text-[11px] font-bold border border-emerald-500/30">
+                                      +${profit.toFixed(2)}
+                                    </span>
+                                    {discount > 0 && (
+                                      <span className="text-[10px] text-red-400">(-{discount}%)</span>
+                                    )}
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
                     </tbody>
                   </table>
                 </div>

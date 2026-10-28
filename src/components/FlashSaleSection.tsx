@@ -117,23 +117,72 @@ export default function FlashSaleSection({
           </div>
         </div>
 
-        {/* Live Countdown Box */}
-        <div className="flex items-center gap-1.5 bg-slate-950/80 border border-amber-500/40 rounded-xl px-3 py-1.5 shadow-inner" dir="ltr">
-          <span className="text-amber-400 text-xs font-semibold uppercase tracking-wider mr-1">
-            ⏳ {lang === 'ug' ? 'قالدۇق ۋاقىت' : 'Ends in'}:
-          </span>
-          <div className="flex items-center gap-1 font-mono text-sm font-bold text-amber-300">
-            <span className="bg-amber-950/80 border border-amber-500/30 px-1.5 py-0.5 rounded text-white min-w-[28px] text-center">
-              {pad(timeLeft.hours)}
+        {/* Luxury Grand VIP Countdown Clock */}
+        <div className="relative flex items-center gap-3 bg-gradient-to-r from-slate-950 via-amber-950/40 to-slate-950 border-2 border-amber-400/50 rounded-2xl px-4 py-2 shadow-[0_0_25px_rgba(245,158,11,0.25)] backdrop-blur-md">
+          {/* Subtle gold shimmer edge */}
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-amber-400/10 via-transparent to-transparent pointer-events-none" />
+
+          {/* RTL Label Side */}
+          <div className="flex flex-col items-start gap-0.5 text-right font-alkatip">
+            <div className="flex items-center gap-1.5">
+              <span className="inline-block w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#f59e0b] animate-pulse" />
+              <span className="text-amber-200 text-xs sm:text-sm font-black tracking-wide">
+                {lang === 'ug' ? 'ئاخىرلىشىشقا قالدى' : 'Sale Ends In'}
+              </span>
+            </div>
+            <span className="text-[10px] text-amber-400/70 font-mono">
+              ⚡️ {lang === 'ug' ? 'چەكلىك پۇرسەت' : 'LIMITED TIME'}
             </span>
-            <span className="text-amber-400 animate-ping">:</span>
-            <span className="bg-amber-950/80 border border-amber-500/30 px-1.5 py-0.5 rounded text-white min-w-[28px] text-center">
-              {pad(timeLeft.minutes)}
-            </span>
-            <span className="text-amber-400 animate-ping">:</span>
-            <span className="bg-amber-950/80 border border-amber-500/30 px-1.5 py-0.5 rounded text-amber-400 min-w-[28px] text-center">
-              {pad(timeLeft.seconds)}
-            </span>
+          </div>
+
+          <div className="h-8 w-px bg-gradient-to-b from-transparent via-amber-400/40 to-transparent mx-1" />
+
+          {/* LTR Digital Flip Cards */}
+          <div className="flex items-center gap-1.5" dir="ltr">
+            {/* Hours */}
+            <div className="flex flex-col items-center">
+              <div className="relative min-w-[38px] sm:min-w-[44px] h-10 sm:h-11 rounded-xl bg-gradient-to-b from-slate-900 via-amber-950/60 to-black border border-amber-400/40 shadow-inner flex items-center justify-center px-1.5">
+                <span className="font-mono text-base sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-300 to-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                  {pad(timeLeft.hours)}
+                </span>
+                <div className="absolute top-0 inset-x-0 h-px bg-amber-300/40 rounded-t-xl" />
+              </div>
+              <span className="text-[9px] font-bold text-amber-300/80 font-alkatip mt-1">
+                {lang === 'ug' ? 'سائەت' : 'HRS'}
+              </span>
+            </div>
+
+            {/* Pulsing separator */}
+            <span className="text-amber-400 font-mono font-black text-sm sm:text-base animate-pulse -mt-3.5">:</span>
+
+            {/* Minutes */}
+            <div className="flex flex-col items-center">
+              <div className="relative min-w-[38px] sm:min-w-[44px] h-10 sm:h-11 rounded-xl bg-gradient-to-b from-slate-900 via-amber-950/60 to-black border border-amber-400/40 shadow-inner flex items-center justify-center px-1.5">
+                <span className="font-mono text-base sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-300 to-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                  {pad(timeLeft.minutes)}
+                </span>
+                <div className="absolute top-0 inset-x-0 h-px bg-amber-300/40 rounded-t-xl" />
+              </div>
+              <span className="text-[9px] font-bold text-amber-300/80 font-alkatip mt-1">
+                {lang === 'ug' ? 'مىنۇت' : 'MIN'}
+              </span>
+            </div>
+
+            {/* Pulsing separator */}
+            <span className="text-amber-400 font-mono font-black text-sm sm:text-base animate-pulse -mt-3.5">:</span>
+
+            {/* Seconds */}
+            <div className="flex flex-col items-center">
+              <div className="relative min-w-[38px] sm:min-w-[44px] h-10 sm:h-11 rounded-xl bg-gradient-to-b from-slate-900 via-amber-950/60 to-black border border-amber-400/40 shadow-inner flex items-center justify-center px-1.5">
+                <span className="font-mono text-base sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-orange-400 to-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                  {pad(timeLeft.seconds)}
+                </span>
+                <div className="absolute top-0 inset-x-0 h-px bg-amber-300/40 rounded-t-xl" />
+              </div>
+              <span className="text-[9px] font-bold text-amber-300/80 font-alkatip mt-1">
+                {lang === 'ug' ? 'سېكۇنت' : 'SEC'}
+              </span>
+            </div>
           </div>
         </div>
       </div>
