@@ -404,6 +404,10 @@ export default function HomePage() {
   };
 
   const handleSelectCategory = (catId: string) => {
+    if (catId === 'numbers') {
+      window.location.href = '/numbers';
+      return;
+    }
     setSelectedCat(catId);
     setSearchQuery('');
     try {
@@ -473,8 +477,8 @@ export default function HomePage() {
           const parsedCats = JSON.parse(cachedCats);
           if (Array.isArray(parsedCats) && parsedCats.length > 0) {
             return parsedCats.map((c: any) => {
-              if (c.id === 'numbers' && (c.name === 'مەۋھۇم نومۇر' || !c.name.includes('ئەزالىق'))) {
-                return { ...c, name: 'تېلېگرام ئەزالىق', count: 'Telegram Premium', image: '/images/services/telegram.jpg' };
+              if (c.id === 'numbers') {
+                return { ...c, name: 'مەۋھۇم نومۇر (SMS)', count: 'Telegram, WhatsApp, etc.', image: '/images/services/whatsapp.jpg' };
               }
               if (c.id === 'cards' && (c.name === 'كارتىلار ۋە VCC' || c.name === 'كارتىلار' || !c.name.includes('تىلفۇن'))) {
                 return { ...c, name: 'تىلفۇن كارتىلىرىغا پۇل قاچىلاش', count: 'Turkcell', image: '/images/services/turkcell.jpg' };

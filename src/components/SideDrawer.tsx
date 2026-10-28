@@ -453,6 +453,22 @@ export default function SideDrawer({
             </Link>
 
             <Link
+              href="/numbers"
+              onClick={handleNavigate('/numbers')}
+              className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-cyan-500/15 via-blue-500/10 to-transparent hover:from-cyan-500/25 hover:via-blue-500/20 border border-cyan-500/30 transition group"
+            >
+              <div className="flex items-center gap-3">
+                <span className="animate-soft-float">
+                  <Smartphone className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition" />
+                </span>
+                <span className="font-bold text-cyan-200 group-hover:text-cyan-100">مەۋھۇم نومۇر (SMS)</span>
+              </div>
+              <span className="px-2 py-0.5 rounded-md bg-cyan-950/80 border border-cyan-500/40 text-[10px] text-cyan-300 font-bold">
+                يېڭى
+              </span>
+            </Link>
+
+            <Link
               href="/deposit"
               onClick={handleNavigate('/deposit')}
               className="flex items-center gap-3 p-3 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900 border border-transparent hover:border-amber-500/20 transition group"

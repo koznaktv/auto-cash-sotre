@@ -55,7 +55,7 @@ export const CATEGORIES_9 = [
   { id: 'wifi', name: 'Wi-Fi تور كارتىلىرى', icon: 'Wifi', count: 'شبكات واي فاي', image: 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg' },
   { id: 'apps', name: 'ئەپلەر', icon: 'Smartphone', count: 'ئەپلەر', image: '/images/services/picsart.jpg' },
   { id: 'ai', name: 'سۈنئىي ئەقىل', icon: 'Bot', count: 'AI مۇلازىمەت', image: '/images/services/google_gemini.jpg' },
-  { id: 'numbers', name: 'تېلېگرام ئەزالىق', icon: 'MessageSquareShare', count: 'Telegram Premium', image: '/images/services/telegram.jpg' },
+  { id: 'numbers', name: 'مەۋھۇم نومۇر (SMS)', icon: 'Smartphone', count: 'Telegram, WhatsApp, etc.', image: '/images/services/whatsapp.jpg' },
   { id: 'cards', name: 'تىلفۇن كارتىلىرىغا پۇل قاچىلاش', icon: 'CreditCard', count: 'Turkcell', image: '/images/services/turkcell.jpg' },
   { id: 'games', name: 'ئويۇنلار تۈرى ', icon: 'Gamepad2', count: 'تىلىفۇن ئۇيۇنلىرى', image: '/images/services/pubg_mobile.jpg' },
   { id: 'accounts', name: 'تەييار ھېساباتلار', icon: 'KeyRound', count: 'ھېساباتلار', image: '/images/services/cursor_pro.jpg' },

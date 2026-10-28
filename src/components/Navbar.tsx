@@ -283,6 +283,10 @@ export default function Navbar({
                 <CreditCard className="w-4 h-4 text-amber-400" />
                 <span>{t('deposit')}</span>
               </Link>
+              <Link href="/numbers" className="hover:text-cyan-300 transition-colors flex items-center gap-1 text-cyan-300">
+                <Smartphone className="w-4 h-4 text-cyan-400" />
+                <span>مەۋھۇم نومۇر</span>
+              </Link>
               <Link href="/membership" className="hover:text-amber-400 transition-colors flex items-center gap-1 text-amber-300">
                 <Crown className="w-4 h-4 text-amber-400 animate-crown-wiggle" />
                 <span>{t('vipMembership')}</span>
