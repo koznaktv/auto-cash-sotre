@@ -746,8 +746,15 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                           )
                         )}
                       </div>
-                      <div className="font-bold text-cyan-400 font-mono shrink-0" dir="ltr">
-                        {pkg.productType === 'amount' ? `${t('fromPrice')} ` : ''}${formatSmartPrice(pkg.price)}
+                      <div className="font-bold font-mono shrink-0 flex items-center gap-1.5" dir="ltr">
+                        {pkg.originalPrice && pkg.originalPrice > pkg.price && (
+                          <span className="text-[11px] text-slate-500 line-through font-normal">
+                            ${formatSmartPrice(pkg.originalPrice)}
+                          </span>
+                        )}
+                        <span className="text-cyan-400">
+                          {pkg.productType === 'amount' ? `${t('fromPrice')} ` : ''}${formatSmartPrice(pkg.price)}
+                        </span>
                       </div>
                     </button>
                   );

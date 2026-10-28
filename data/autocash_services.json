@@ -548,23 +548,31 @@
         "id": "pkg_ml_gpass_423",
         "subCategoryId": "ml_global_passes",
         "title": "Weekly Elite Bundle (ھەپتىلىك ئېلىت بولاق)",
-        "price": 0.86,
+        "price": 0.87,
         "originalPrice": 0.99,
         "providerProductId": 423,
         "productType": "package",
         "available": true,
-        "instructions": "الخدمة تعمل بشكل تلقائي على مدار 24 ساعةيرجى عدم اضافة () في السيرفر ارسل الرقم فقط"
+        "instructions": "الخدمة تعمل بشكل تلقائي على مدار 24 ساعةيرجى عدم اضافة () في السيرفر ارسل الرقم فقط",
+        "regularPrice": 0.86,
+        "promoPrice": 0.87,
+        "regularOriginalPrice": 0.99,
+        "promoEndsAt": "2026-10-28T23:59:59+03:00"
       },
       {
         "id": "pkg_ml_gpass_425",
         "subCategoryId": "ml_global_passes",
         "title": "Weekly Diamond Pass (ھەپتىلىك ئالماس پاس كارتىسى)",
-        "price": 1.65,
-        "originalPrice": 1.9,
+        "price": 1.55,
+        "originalPrice": 1.65,
         "providerProductId": 425,
         "productType": "package",
         "available": true,
-        "instructions": "الخدمة تعمل بشكل تلقائي على مدار 24 ساعةيرجى عدم اضافة () في السيرفر ارسل الرقم فقط"
+        "instructions": "الخدمة تعمل بشكل تلقائي على مدار 24 ساعةيرجى عدم اضافة () في السيرفر ارسل الرقم فقط",
+        "regularPrice": 1.65,
+        "promoPrice": 1.55,
+        "regularOriginalPrice": 1.9,
+        "promoEndsAt": "2026-10-28T23:59:59+03:00"
       },
       {
         "id": "pkg_ml_gpass_424",
@@ -603,12 +611,16 @@
         "id": "pkg_ml_tr_437",
         "subCategoryId": "ml_turkish_server",
         "title": "Weekly Elite Pack TR (تۈركىيە ھەپتىلىك ئېلىت)",
-        "price": 0.91,
+        "price": 0.94,
         "originalPrice": 1.05,
         "providerProductId": 437,
         "productType": "package",
         "available": true,
-        "instructions": "Mobile Legends Turkish"
+        "instructions": "Mobile Legends Turkish",
+        "regularPrice": 0.91,
+        "promoPrice": 0.94,
+        "regularOriginalPrice": 1.05,
+        "promoEndsAt": "2026-10-28T23:59:59+03:00"
       },
       {
         "id": "pkg_ml_tr_428",
@@ -625,12 +637,16 @@
         "id": "pkg_ml_tr_438",
         "subCategoryId": "ml_turkish_server",
         "title": "Weekly Pass TR (تۈركىيە ھەپتىلىك كارتىسى)",
-        "price": 2.09,
-        "originalPrice": 2.4,
+        "price": 2.03,
+        "originalPrice": 2.09,
         "providerProductId": 438,
         "productType": "package",
         "available": true,
-        "instructions": "Mobile Legends Turkish"
+        "instructions": "Mobile Legends Turkish",
+        "regularPrice": 2.09,
+        "promoPrice": 2.03,
+        "regularOriginalPrice": 2.4,
+        "promoEndsAt": "2026-10-28T23:59:59+03:00"
       },
       {
         "id": "pkg_ml_tr_429",

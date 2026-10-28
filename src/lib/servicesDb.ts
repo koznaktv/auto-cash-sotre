@@ -62,11 +62,55 @@ function saveDeletedServiceIds(set: Set<string>): void {
   }
 }
 
+export function applyActivePromotions(services: ServiceItem[]): ServiceItem[] {
+  const now = Date.now();
+  return services.map((service) => {
+    if (!service.packages || !Array.isArray(service.packages)) return service;
+    let changed = false;
+    const packages = service.packages.map((pkg) => {
+      const p = pkg as any;
+      if (p.promoPrice !== undefined && p.promoEndsAt) {
+        const promoEnds = typeof p.promoEndsAt === 'number' ? p.promoEndsAt : new Date(p.promoEndsAt).getTime();
+        if (now < promoEnds) {
+          // Promo is active!
+          const targetPrice = Number(p.promoPrice);
+          const targetOriginal = p.originalPrice !== undefined ? Number(p.originalPrice) : (p.regularPrice !== undefined ? Number(p.regularPrice) : undefined);
+          if (pkg.price !== targetPrice || (targetOriginal && pkg.originalPrice !== targetOriginal)) {
+            changed = true;
+            return {
+              ...pkg,
+              price: targetPrice,
+              originalPrice: targetOriginal ?? pkg.originalPrice,
+              isPromoActive: true,
+              promoEndsAt: p.promoEndsAt,
+            };
+          }
+        } else {
+          // Promo has expired! Revert to regular price
+          const regPrice = p.regularPrice !== undefined ? Number(p.regularPrice) : undefined;
+          const regOriginal = p.regularOriginalPrice !== undefined ? Number(p.regularOriginalPrice) : undefined;
+          if (regPrice !== undefined && pkg.price !== regPrice) {
+            changed = true;
+            return {
+              ...pkg,
+              price: regPrice,
+              originalPrice: regOriginal ?? pkg.originalPrice,
+              isPromoActive: false,
+            };
+          }
+        }
+      }
+      return pkg;
+    });
+    return changed ? { ...service, packages } : service;
+  });
+}
+
 export function getServicesList(): ServiceItem[] {
   const deleted = getDeletedServiceIds();
 
   if (cachedServices && cachedServices.length > 0) {
-    return cachedServices.filter((s) => !deleted.has(s.id));
+    return applyActivePromotions(cachedServices.filter((s) => !deleted.has(s.id)));
   }
 
   try {
@@ -87,7 +131,7 @@ export function getServicesList(): ServiceItem[] {
               fs.writeFileSync(SERVICES_FILE, JSON.stringify(filtered, null, 2), 'utf-8');
             }
           } catch {}
-          return [...filtered];
+          return applyActivePromotions([...filtered]);
         }
       } catch (e) {
         console.warn('Error reading BUNDLED_SERVICES_FILE:', e);
@@ -102,7 +146,7 @@ export function getServicesList(): ServiceItem[] {
         if (Array.isArray(parsed)) {
           const filtered = parsed.filter((s) => !deleted.has(s.id));
           cachedServices = filtered;
-          return [...filtered];
+          return applyActivePromotions([...filtered]);
         }
       } catch (e) {
         console.warn('Error reading SERVICES_FILE:', e);
@@ -112,13 +156,13 @@ export function getServicesList(): ServiceItem[] {
     // 3. Fallback to hardcoded SERVICES_DATA
     const fallback = SERVICES_DATA.filter((s) => !deleted.has(s.id));
     cachedServices = fallback;
-    return [...fallback];
+    return applyActivePromotions([...fallback]);
   } catch (err) {
     console.error('Error reading services file:', err);
     if (cachedServices) {
-      return cachedServices.filter((s) => !deleted.has(s.id));
+      return applyActivePromotions(cachedServices.filter((s) => !deleted.has(s.id)));
     }
-    return SERVICES_DATA.filter((s) => !deleted.has(s.id));
+    return applyActivePromotions(SERVICES_DATA.filter((s) => !deleted.has(s.id)));
   }
 }
 
