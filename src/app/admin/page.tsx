@@ -5860,14 +5860,25 @@ export default function AdminPage() {
                       </span>
                     </div>
 
+                    <a
+                      href="https://app.phonecash.sy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3.5 py-2.5 rounded-xl bg-[#09223d] hover:bg-[#0d2f53] border border-cyan-500/40 text-cyan-300 font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-md font-alkatip shrink-0"
+                      title="PhoneCash رەسمىي سۇپىسىغا كىرىپ قالدۇق كۆرۈش ياكى پۇل قاچىلاش"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>PhoneCash كابىنېتى</span>
+                    </a>
+
                     <button
                       type="button"
                       onClick={checkSmsProviderLive}
                       disabled={checkingSmsProvider}
-                      className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 cursor-pointer disabled:opacity-50"
+                      className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 cursor-pointer disabled:opacity-50 font-alkatip shrink-0"
                     >
                       <RefreshCw className={`w-3.5 h-3.5 ${checkingSmsProvider ? 'animate-spin' : ''}`} />
-                      <span>{checkingSmsProvider ? 'سىناۋاتىدۇ...' : 'قالدۇقنى سىناش'}</span>
+                      <span>{checkingSmsProvider ? 'سىناۋاتىدۇ...' : 'ھالەتنى تەكشۈرۈش'}</span>
                     </button>
                   </div>
                 </div>
