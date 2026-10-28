@@ -69,9 +69,10 @@ export async function GET(req: Request) {
     }
 
     // Default: wholesale balance & connection status for Othman Store
+    const force = searchParams.get('force') === '1' || searchParams.get('force') === 'true';
     const [resolvedConfig, profile, serverPublicIp, catalogSettings] = await Promise.all([
       othmanStoreProvider.getResolvedConfig(),
-      othmanStoreProvider.getProfile(),
+      othmanStoreProvider.getProfile(force),
       fetchServerPublicIp(),
       getProviderSettings().catch(() => null),
     ]);
@@ -87,18 +88,28 @@ export async function GET(req: Request) {
         ? catalogSettings.lastBalance
         : undefined;
 
+    const rawError = profile.error?.message || '';
+    let friendlyError = rawError;
+    const isRateLimited = /rate\s*limit/i.test(rawError);
+    if (isRateLimited) {
+      friendlyError = 'تەمىنلىگۈچى API نى زىيارەت قىلىش سۈرئىتى چەكلەندى (Rate Limit). 1 مىنۇتتىن كېيىن ئۆزلۈكىدىن ئەسلىگە كېلىدۇ.';
+    } else if (/ip\s*(not\s*allowed|blocked|invalid|address)/i.test(rawError)) {
+      friendlyError = `مۇلازىمېتىر IP سى (${serverPublicIp}) تەمىنلىگۈچىدە تېخى ئاق تىزىملىككە كىرگۈزۈلمىگەن`;
+    }
+
     return NextResponse.json({
       activeProvider: 'othman',
       success: profile.success,
       isConfigured: await othmanStoreProvider.hasLiveConfig(),
       balance: effectiveBalance,
       isLiveBalance: profile.success,
+      isRateLimited,
       lastBalanceAt: catalogSettings?.lastBalanceAt,
       currency: profile.currency || 'USD',
       userName: profile.userName || 'Othman Store',
       serverPublicIp: serverPublicIp || 'ئېنىقلانمىدى',
-      isIpBlocked: false,
-      errorMessage: profile.error?.message,
+      isIpBlocked: Boolean(profile.error?.kind === 'ip'),
+      errorMessage: friendlyError,
       lowBalance: Boolean(catalogSettings && effectiveBalance !== undefined && effectiveBalance < catalogSettings.lowBalanceThresholdUsd),
       config: {
         providerApiUrl: resolvedConfig.baseUrl,
@@ -113,7 +124,8 @@ export async function GET(req: Request) {
         balance: effectiveBalance,
         currency: profile.currency || 'USD',
         userName: profile.userName || 'Othman Store',
-        errorMessage: profile.error?.message,
+        errorMessage: friendlyError,
+        isRateLimited,
         config: {
           apiUrl: resolvedConfig.baseUrl,
           apiKey: resolvedConfig.apiToken ? `${resolvedConfig.apiToken.slice(0, 4)}...${resolvedConfig.apiToken.slice(-4)}` : '',

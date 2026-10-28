@@ -224,7 +224,8 @@ export class Syria4GameProvider {
         clearTimeout(timer);
       }
 
-      const retryable = result.httpStatus === 0 || result.httpStatus >= 500 || result.httpStatus === 429;
+      const isRateLimit = result.httpStatus === 429 || /rate\s*limit/i.test(result.text || "");
+      const retryable = !isRateLimit && (result.httpStatus === 0 || result.httpStatus >= 500);
       if (!retryable || attempt === attempts - 1) break;
     }
 
@@ -279,7 +280,7 @@ export class Syria4GameProvider {
       : { success: false, error: this.failure(res) };
   }
 
-  async getProfile(): Promise<{
+  async getProfile(forceFresh: boolean = false): Promise<{
     success: boolean;
     balance: number | null;
     currency: string;
@@ -287,6 +288,10 @@ export class Syria4GameProvider {
     error?: ProviderError;
     raw?: unknown;
   }> {
+    const now = Date.now();
+    if (!forceFresh && this.cachedProfileResult && (now - this.cachedProfileResult.timestamp < 30000)) {
+      return this.cachedProfileResult.result;
+    }
     const config = await this.getResolvedConfig();
     if (!config.enabled) {
       return { success: false, balance: null, currency: 'USD', error: { kind: 'auth', message: 'تەمىنلىگۈچى API تاقالغان (Disabled)' } };
@@ -326,10 +331,25 @@ export class Syria4GameProvider {
       // Fallback try root or /client/api/profile
     }
 
-    // Default: Syria4Game protocol
-    const res = await this.request('/client/api/profile', { endpoint: 'profile', timeoutMs: 10000, retries: 2 });
-    if (!this.isSuccess(res)) return { success: false, balance: null, currency: 'USD', error: this.failure(res) };
-    return { success: true, ...parseProfile(res.data), raw: res.data };
+    // Default: Syria4Game protocol - single try without retry on rate-limit
+    const res = await this.request('/client/api/profile', { endpoint: 'profile', timeoutMs: 10000, retries: 0 });
+    if (!this.isSuccess(res)) {
+      const failError = this.failure(res);
+      const isRateLimited = res.httpStatus === 429 || /rate\s*limit/i.test(failError.message || '') || /rate\s*limit/i.test(res.text || '');
+      if (isRateLimited && this.cachedProfileResult?.result.success) {
+        return {
+          ...this.cachedProfileResult.result,
+          error: {
+            kind: 'rate_limit' as any,
+            message: 'تەمىنلىگۈچى API زىيارەت سانى چەكلەندى (Rate Limit)، 1 مىنۇتتىن كېيىن ئۆزلۈكىدىن ئەسلىگە كېلىدۇ',
+          },
+        };
+      }
+      return { success: false, balance: null, currency: 'USD', error: failError };
+    }
+    const profileResult = { success: true, ...parseProfile(res.data), raw: res.data };
+    this.cachedProfileResult = { result: profileResult, timestamp: Date.now() };
+    return profileResult;
   }
 
   /** Full catalog in one direct call to /products (completes in ~1s). */

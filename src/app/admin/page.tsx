@@ -183,6 +183,7 @@ interface ProviderStatus {
   errorMessage?: string;
   serverPublicIp?: string;
   isIpBlocked?: boolean;
+  isRateLimited?: boolean;
   isLiveBalance?: boolean;
   lastBalanceAt?: string;
   config?: {
@@ -727,7 +728,7 @@ export default function AdminPage() {
     setCheckingProvider(true);
     try {
       const token = sessionStorage.getItem('autocash_admin_token');
-      const res = await fetch('/api/admin/provider?action=balance', {
+      const res = await fetch('/api/admin/provider?action=balance&force=1', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -3415,12 +3416,16 @@ export default function AdminPage() {
                       <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold ${
                         providerStatus?.success
                           ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                          : providerStatus?.isRateLimited || /rate\s*limit/i.test(providerStatus?.errorMessage || '')
+                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                           : providerStatus?.errorMessage
                           ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
                           : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                       }`}>
                         {providerStatus?.success
                           ? '● نەق ئۇلاندى (Live Active)'
+                          : providerStatus?.isRateLimited || /rate\s*limit/i.test(providerStatus?.errorMessage || '')
+                          ? '⏳ سۈرئەت چەكلەندى (1 مىنۇت كۈتۈڭ)'
                           : providerStatus?.errorMessage
                           ? `✕ ئۇلانمىدى (${providerStatus.errorMessage})`
                           : '○ كۈتۈلمەكتە'}
@@ -5526,18 +5531,34 @@ export default function AdminPage() {
 
                 {/* 2. Connection Status */}
                 <div className={`p-5 rounded-2xl ${themeClasses.card} border ${
-                  providerStatus?.success ? 'border-emerald-500/40' : 'border-rose-500/40'
+                  providerStatus?.success
+                    ? 'border-emerald-500/40'
+                    : providerStatus?.isRateLimited || /rate\s*limit/i.test(providerStatus?.errorMessage || '')
+                    ? 'border-amber-500/40'
+                    : 'border-rose-500/40'
                 }`}>
                   <span className={`text-xs ${themeClasses.subtext} block mb-1`}>API ئۇلىنىش ھالىتى</span>
                   <div className="mt-2 flex items-center gap-2">
-                    <span className={`w-3 h-3 rounded-full ${providerStatus?.success ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}`} />
+                    <span className={`w-3 h-3 rounded-full ${
+                      providerStatus?.success
+                        ? 'bg-emerald-400 animate-pulse'
+                        : providerStatus?.isRateLimited || /rate\s*limit/i.test(providerStatus?.errorMessage || '')
+                        ? 'bg-amber-400 animate-pulse'
+                        : 'bg-rose-400'
+                    }`} />
                     <span className="text-base sm:text-lg font-bold text-white">
-                      {providerStatus?.success ? 'نەق ئۇلاندى' : 'ئۇلانمىدى'}
+                      {providerStatus?.success
+                        ? 'نەق ئۇلاندى'
+                        : providerStatus?.isRateLimited || /rate\s*limit/i.test(providerStatus?.errorMessage || '')
+                        ? 'سۈرئەت چەكلەندى'
+                        : 'ئۇلانمىدى'}
                     </span>
                   </div>
                   <span className="text-[11px] text-slate-400 mt-1 block truncate" title={providerStatus?.errorMessage}>
                     {providerStatus?.success
                       ? 'ھەقىقىي زاكازلار سۇپىغا ئەۋەتىلىدۇ'
+                      : providerStatus?.isRateLimited || /rate\s*limit/i.test(providerStatus?.errorMessage || '')
+                      ? '1 مىنۇتتىن كېيىن ئۆزلۈكىدىن ئەسلىگە كېلىدۇ'
                       : providerStatus?.errorMessage || 'Token ياكى IP نى قايتا تەكشۈرۈڭ'}
                   </span>
                 </div>
