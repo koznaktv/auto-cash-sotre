@@ -20,6 +20,40 @@ export async function GET(req: Request) {
       limit: 50,
       housekeeping: true,
     });
+
+    // Also follow-up in-flight SMS activations
+    try {
+      const { getInFlightProviderOrdersAsync, updateOrderAsync } = await import('@/lib/db');
+      const { phonecashProvider } = await import('@/lib/providers/phonecashProvider');
+      const { postOrderCompletedToChannel } = await import('@/lib/telegram');
+      const inFlightOrders = await getInFlightProviderOrdersAsync(20).catch(() => []);
+      const smsOrders = inFlightOrders.filter((o) => o.details?.isSmsActivation && o.details?.activationId);
+
+      for (const order of smsOrders) {
+        const activationId = order.details?.activationId;
+        if (!activationId) continue;
+
+        const check = await phonecashProvider.checkStatus(activationId, 1);
+        if (check.status === 'RECEIVED' && check.code) {
+          await updateOrderAsync(order.id, {
+            status: 'completed',
+            detailsPatch: { code: check.code, completedAt: new Date().toISOString() },
+          });
+          phonecashProvider.finishActivation(activationId).catch(() => null);
+          postOrderCompletedToChannel({
+            id: order.id,
+            serviceName: order.serviceName,
+            packageTitle: order.packageTitle,
+            amount: order.amount,
+            targetAccount: order.targetAccount,
+            userEmail: order.userEmail,
+          }).catch(() => null);
+        }
+      }
+    } catch (smsErr: any) {
+      console.warn('[Cron SMS Poll]:', smsErr?.message);
+    }
+
     return NextResponse.json({ success: true, summary, timestamp: new Date().toISOString() });
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err?.message || 'poll failed' }, { status: 500 });

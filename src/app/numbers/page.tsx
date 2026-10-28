@@ -171,32 +171,49 @@ export default function NumbersPage() {
     return () => clearInterval(timer);
   }, [activeSession]);
 
-  // Status Poller for active session
+  // Status Poller for active session (checked strictly every 5 seconds)
+  const [isCheckingNow, setIsCheckingNow] = useState(false);
+  const [lastCheckedText, setLastCheckedText] = useState('ھازىرلا');
+
+  const checkCodeStatus = async () => {
+    if (!activeSession || activeSession.status !== 'waiting') return;
+    setIsCheckingNow(true);
+    try {
+      const res = await fetch(
+        `/api/sms/check?orderId=${activeSession.orderId}&activationId=${activeSession.activationId}`
+      );
+      const data = await res.json();
+
+      setLastCheckedText('ھازىرلا');
+
+      if (data.success && data.status === 'RECEIVED' && data.code) {
+        setActiveSession((prev) => (prev ? { ...prev, code: data.code, status: 'received' } : null));
+
+        // Refresh user balance & notify
+        fetch('/api/auth/me')
+          .then((r) => r.json())
+          .then((d) => {
+            if (d.success && d.user) setUser(d.user);
+          })
+          .catch(() => null);
+      }
+    } catch (err) {
+      console.warn('[SMS Poll Warning]:', err);
+    } finally {
+      setIsCheckingNow(false);
+    }
+  };
+
   useEffect(() => {
     if (!activeSession || activeSession.status !== 'waiting') return;
 
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch(
-          `/api/sms/check?orderId=${activeSession.orderId}&activationId=${activeSession.activationId}`
-        );
-        const data = await res.json();
+    // Run immediately
+    checkCodeStatus();
 
-        if (data.success && data.status === 'RECEIVED' && data.code) {
-          setActiveSession((prev) => (prev ? { ...prev, code: data.code, status: 'received' } : null));
-
-          // Refresh user balance & notify
-          fetch('/api/auth/me')
-            .then((r) => r.json())
-            .then((d) => {
-              if (d.success && d.user) setUser(d.user);
-            })
-            .catch(() => null);
-        }
-      } catch (err) {
-        console.warn('[SMS Poll Warning]:', err);
-      }
-    }, 3500);
+    // Poll strictly every 5 seconds
+    const interval = setInterval(() => {
+      checkCodeStatus();
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [activeSession]);
@@ -517,15 +534,31 @@ export default function NumbersPage() {
                 <div className="relative w-16 h-16 mx-auto mb-3 flex items-center justify-center">
                   <div className="absolute inset-0 rounded-full border-2 border-cyan-400/40 animate-ping" />
                   <div className="w-12 h-12 rounded-full bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-cyan-300">
-                    <RefreshCw className="w-5 h-5 animate-spin text-cyan-400" />
+                    <RefreshCw className={`w-5 h-5 text-cyan-400 ${isCheckingNow ? 'animate-spin' : ''}`} />
                   </div>
                 </div>
-                <h4 className="text-sm font-bold text-white mb-1">
+
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-[11px] font-bold mb-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>تەمىنلىگۈچىدىن ھەر 5 سېكۇنتتا كود قوغلاپ تەكشۈرۈلمەكتە</span>
+                </div>
+
+                <h4 className="text-base font-bold text-white mb-1">
                   SMS كودى كۈتۈلمەكتە...
                 </h4>
-                <p className="text-xs text-cyan-200/60 max-w-md mx-auto leading-relaxed">
+                <p className="text-xs text-cyan-200/70 max-w-md mx-auto leading-relaxed mb-4">
                   نومۇرنى ئەپكە كىرگۈزۈپ «كود ئەۋەتىش» نى بېسىڭ. SMS كەلگەن دەقىقىدە بەتتە ئاپتوماتىك پەيدا بولىدۇ.
                 </p>
+
+                <button
+                  type="button"
+                  onClick={checkCodeStatus}
+                  disabled={isCheckingNow}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-950/90 hover:bg-cyan-900/80 border border-cyan-500/50 text-cyan-300 text-xs font-bold transition shadow-md cursor-pointer hover:scale-105 active:scale-95 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${isCheckingNow ? 'animate-spin' : ''}`} />
+                  <span>{isCheckingNow ? 'تەكشۈرۈلىۋاتىدۇ...' : 'ھازىرلا تەكشۈرۈش'}</span>
+                </button>
               </div>
             )}
 
