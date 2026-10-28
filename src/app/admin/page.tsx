@@ -5850,10 +5850,12 @@ export default function AdminPage() {
                   {/* Live Balance & Test Button */}
                   <div className="flex items-center gap-3 w-full md:w-auto">
                     <div className="px-4 py-2 rounded-xl bg-slate-900/80 border border-emerald-500/30 text-right">
-                      <span className="text-[10px] text-slate-400 block font-alkatip">تەمىنلىگۈچىدىكى قالدۇق پۇل</span>
+                      <span className="text-[10px] text-slate-400 block font-alkatip">تەمىنلىگۈچى ھالىتى / قالدۇق</span>
                       <span className="text-sm font-black text-emerald-400 font-mono">
                         {smsProviderStatus?.balance !== null && smsProviderStatus?.balance !== undefined
                           ? `${smsProviderStatus.balance} ${smsProviderStatus.currency || 'USD'}`
+                          : smsProviderStatus?.success
+                          ? '✅ ئاكتىپ (ئۇلاندى)'
                           : '—'}
                       </span>
                     </div>
@@ -5878,6 +5880,15 @@ export default function AdminPage() {
                   >
                     <span>{smsFeedback.success ? '✅' : '⚠️'}</span>
                     <span>{smsFeedback.message}</span>
+                  </div>
+                )}
+
+                {smsProviderForm.type === 'phonecash' && (
+                  <div className="p-3 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-[11px] text-cyan-200/90 font-alkatip flex items-start gap-2">
+                    <span className="text-cyan-400 shrink-0 text-sm">💡</span>
+                    <span>
+                      <b>ئىزاھات:</b> PhoneCash سۇپىسىنىڭ (app.phonecash.sy) رەسمىي API سىدا قالدۇق پۇل سۈرۈشتۈرۈش ئېغىزى تەمىنلەنمىگەن (زاكاز بويىچە نومۇر ئالغاندىلا ئاپتوماتىك تۇتۇلىدۇ). ھازىر سىستېمىڭىز PhoneCash غا 100% مۇۋەپپەقىيەتلىك ئۇلاندى. ھېسابات قالدۇقىڭىزنى كۆرۈش ياكى پۇل قاچىلاش ئۈچۈن PhoneCash شەخسىي كابىنېتىڭىزغا كىرسىڭىز بولىدۇ.
+                    </span>
                   </div>
                 )}
 
