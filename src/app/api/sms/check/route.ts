@@ -50,6 +50,7 @@ export async function GET(req: Request) {
       const updatedDetails = {
         ...(order.details || {}),
         code: statusRes.code,
+        smsCode: statusRes.code,
         statusText: statusRes.statusText,
         completedAt: new Date().toISOString(),
       };

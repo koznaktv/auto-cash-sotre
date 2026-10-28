@@ -11,12 +11,28 @@ import { notifyNewOrder } from '@/lib/telegram';
 
 export const dynamic = 'force-dynamic';
 
+// In-memory user buy lock to strictly prevent duplicate rapid order clicks
+const activeBuyLocks = new Map<string, number>();
+
 export async function POST(req: Request) {
+  let userId = '';
   try {
     const user = await getSessionUser(req);
     if (!user) {
       return unauthorizedResponse();
     }
+    userId = user.id;
+
+    // Reject rapid repeated clicks within 4 seconds
+    const lastBuy = activeBuyLocks.get(user.id);
+    const now = Date.now();
+    if (lastBuy && now - lastBuy < 4000) {
+      return NextResponse.json(
+        { success: false, message: 'زاكازىڭىز بىر تەرەپ قىلىنىۋاتىدۇ، تەكرار باسماڭ' },
+        { status: 429 }
+      );
+    }
+    activeBuyLocks.set(user.id, now);
 
     const body = await req.json().catch(() => null);
     if (!body) {
@@ -124,6 +140,8 @@ export async function POST(req: Request) {
       ...(atomicRes.order.details || {}),
       activationId: buyRes.activationId,
       phone: buyRes.phone,
+      virtualNumber: buyRes.phone,
+      isSmsActivation: true,
       allocatedAt: new Date().toISOString(),
     };
 

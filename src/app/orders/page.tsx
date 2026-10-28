@@ -18,7 +18,8 @@ import {
   Clock,
   X,
   ExternalLink,
-  Sparkles
+  Sparkles,
+  Phone
 } from 'lucide-react';
 import { isOrderInProgress, type Order } from '@/lib/orders';
 import { getCachedBalance, getCachedUser, storeLocalAuth, ClientUser } from '@/lib/clientAuth';
@@ -46,6 +47,34 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'failed' | 'processing'>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [checkingSmsId, setCheckingSmsId] = useState<string | null>(null);
+  const [cancelingSmsId, setCancelingSmsId] = useState<string | null>(null);
+
+  // Dedicated 5s SMS Code Poller for in-flight virtual numbers
+  useEffect(() => {
+    const inProgressSms = orders.filter(
+      (o) => isOrderInProgress(o.status) && (o.details?.isSmsActivation || o.details?.activationId || o.serviceId?.startsWith('sms_'))
+    );
+    if (!inProgressSms.length) return;
+
+    const timer = setInterval(() => {
+      inProgressSms.forEach((o) => {
+        const actId = o.details?.activationId;
+        if (actId) {
+          fetch(`/api/sms/check?orderId=${o.id}&activationId=${actId}`)
+            .then((r) => r.json())
+            .then((d) => {
+              if (d.success && d.status === 'RECEIVED') {
+                fetchOrders();
+              }
+            })
+            .catch(() => null);
+        }
+      });
+    }, 5000);
+
+    return () => clearInterval(timer);
+  }, [orders]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // While a provider order is still in progress, refresh swiftly so delivered codes appear automatically
   useEffect(() => {
@@ -107,6 +136,46 @@ export default function OrdersPage() {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const checkSmsOrder = async (orderId: string, activationId?: string) => {
+    if (!activationId || checkingSmsId) return;
+    setCheckingSmsId(orderId);
+    try {
+      const res = await fetch(`/api/sms/check?orderId=${orderId}&activationId=${activationId}`);
+      const data = await res.json();
+      if (data.success && data.status === 'RECEIVED') {
+        fetchOrders();
+      }
+    } catch (e) {
+      console.warn('SMS check failed:', e);
+    } finally {
+      setCheckingSmsId(null);
+    }
+  };
+
+  const cancelSmsOrder = async (orderId: string, activationId?: string) => {
+    if (!activationId || cancelingSmsId) return;
+    if (!confirm(lang === 'ug' ? 'نومۇرنى بىكار قىلىپ، پۇلىڭىزنى ھېساباتىڭىزغا قايتۇرامسىز؟' : 'Cancel number and refund to balance?')) return;
+    setCancelingSmsId(orderId);
+    try {
+      const res = await fetch('/api/sms/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId, activationId, reason: 'خېرىدار بىكار قىلدى' }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (data.newBalance !== undefined) setBalance(data.newBalance);
+        fetchOrders();
+      } else {
+        alert(data.message || 'بىكار قىلىش مەغلۇپ بولدى');
+      }
+    } catch (e: any) {
+      alert(e?.message || 'بىكار قىلىش مەغلۇپ بولدى');
+    } finally {
+      setCancelingSmsId(null);
+    }
   };
 
   const filteredOrders = orders.filter((order) => {
@@ -452,7 +521,16 @@ export default function OrdersPage() {
                       (!rawActivationUrl && typeof d.providerReply === 'string' && d.providerReply) ||
                       (!rawActivationUrl && typeof d.reply === 'string' && d.reply);
 
+                    const isSms = Boolean(
+                      d.isSmsActivation ||
+                      d.activationId ||
+                      order.serviceId?.startsWith('sms_') ||
+                      d.virtualNumber ||
+                      d.smsCode
+                    );
+
                     const hasDetails =
+                      isSms ||
                       d.wifiCard ||
                       rawActivationUrl ||
                       textReply ||
@@ -467,7 +545,110 @@ export default function OrdersPage() {
 
                     return (
                       <div className="mt-2.5 space-y-2 font-alkatip">
-                        {/* 0. Dedicated Wi-Fi Voucher Card (Fursan Net & Azez Net) */}
+                        {/* 0. Dedicated Virtual SMS Verification Card */}
+                        {isSms && (
+                          <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[#061e38] via-[#05172b] to-[#040e1b] border-2 border-cyan-500/60 shadow-xl space-y-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300">
+                                  <Phone className="w-4 h-4" />
+                                </div>
+                                <div>
+                                  <span className="text-white font-bold text-xs sm:text-sm block">
+                                    {lang === 'ug' ? 'مەۋھۇم تېلېفون نومۇرى' : 'Virtual Phone Number'}
+                                  </span>
+                                  <span className="text-[10px] text-cyan-300/70">
+                                    {d.countryName || ''} {d.serviceName ? `• ${d.serviceName}` : ''}
+                                  </span>
+                                </div>
+                              </div>
+                              <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold border ${
+                                order.status === 'completed'
+                                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                                  : order.status === 'cancelled' || order.status === 'refunded'
+                                  ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                                  : 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 animate-pulse'
+                              }`}>
+                                {order.status === 'completed'
+                                  ? (lang === 'ug' ? 'تەستىقلاندى' : 'Completed')
+                                  : order.status === 'cancelled' || order.status === 'refunded'
+                                  ? (lang === 'ug' ? 'پۇل قايتۇرۇلدى' : 'Refunded')
+                                  : (lang === 'ug' ? 'SMS كۈتۈلمەكتە' : 'Waiting for SMS')}
+                              </span>
+                            </div>
+
+                            {/* Phone number */}
+                            <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-black/60 border border-cyan-500/30">
+                              <div>
+                                <span className="text-[10px] text-cyan-200/70 block mb-0.5">
+                                  {lang === 'ug' ? 'ئەپكە كىرگۈزىدىغان نومۇر:' : 'Phone Number:'}
+                                </span>
+                                <span className="text-lg sm:text-2xl font-black font-mono tracking-widest text-white" dir="ltr">
+                                  {d.virtualNumber || d.phone || order.targetAccount}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => copyText(d.virtualNumber || d.phone || order.targetAccount, `phone-${order.id}`)}
+                                className="px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs transition flex items-center gap-1.5 cursor-pointer shadow-md active:scale-95"
+                              >
+                                {copiedId === `phone-${order.id}` ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                                <span>{copiedId === `phone-${order.id}` ? (lang === 'ug' ? 'كۆچۈرۈلدى' : 'Copied') : (lang === 'ug' ? 'كۆچۈرۈش' : 'Copy')}</span>
+                              </button>
+                            </div>
+
+                            {/* Verification Code Box (If Received) */}
+                            {(d.smsCode || d.code) ? (
+                              <div className="p-3.5 rounded-xl bg-gradient-to-r from-emerald-950/90 via-[#062c20] to-emerald-950/90 border-2 border-emerald-400 text-center shadow-lg space-y-1">
+                                <span className="text-xs text-emerald-200 font-bold block flex items-center justify-center gap-1.5">
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                                  <span>{lang === 'ug' ? 'تەستىق كودى قوبۇل قىلىندى (SMS Verification Code):' : 'SMS Code Received:'}</span>
+                                </span>
+                                <div className="text-3xl sm:text-4xl font-black font-mono tracking-[0.25em] text-white my-1" dir="ltr">
+                                  {d.smsCode || d.code}
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => copyText(d.smsCode || d.code, `code-${order.id}`)}
+                                  className="mt-1 px-5 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black text-xs transition inline-flex items-center gap-1.5 cursor-pointer shadow-lg active:scale-95"
+                                >
+                                  {copiedId === `code-${order.id}` ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                                  <span>{copiedId === `code-${order.id}` ? (lang === 'ug' ? 'كود كۆچۈرۈلدى!' : 'Copied!') : (lang === 'ug' ? 'كودنى كۆچۈرۈۋېلىش' : 'Copy Code')}</span>
+                                </button>
+                              </div>
+                            ) : order.status === 'processing' ? (
+                              /* Waiting state with live radar and cancel button */
+                              <div className="p-3 rounded-xl bg-black/40 border border-cyan-500/25 text-center space-y-2.5">
+                                <div className="flex items-center justify-center gap-2 text-xs text-cyan-300">
+                                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-cyan-400" />
+                                  <span>{lang === 'ug' ? 'SMS كودى كۈتۈلمەكتە (ھەر 5 سېكۇنتتا ئاپتوماتىك قوغلاپ تەكشۈرۈلىدۇ)...' : 'Waiting for SMS code (polling every 5s)...'}</span>
+                                </div>
+                                <div className="flex items-center justify-center gap-2 pt-1 flex-wrap">
+                                  <button
+                                    type="button"
+                                    onClick={() => checkSmsOrder(order.id, d.activationId)}
+                                    disabled={checkingSmsId === order.id}
+                                    className="px-3.5 py-1.5 rounded-xl bg-cyan-950 hover:bg-cyan-900 border border-cyan-500/50 text-cyan-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer active:scale-95 disabled:opacity-50"
+                                  >
+                                    <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${checkingSmsId === order.id ? 'animate-spin' : ''}`} />
+                                    <span>{checkingSmsId === order.id ? (lang === 'ug' ? 'تەكشۈرۈلىۋاتىدۇ...' : 'Checking...') : (lang === 'ug' ? 'ھازىرلا تەكشۈرۈش' : 'Check Now')}</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => cancelSmsOrder(order.id, d.activationId)}
+                                    disabled={cancelingSmsId === order.id}
+                                    className="px-3.5 py-1.5 rounded-xl border border-rose-500/40 hover:bg-rose-950/60 text-rose-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer active:scale-95 disabled:opacity-50"
+                                  >
+                                    <X className="w-3.5 h-3.5 text-rose-400" />
+                                    <span>{cancelingSmsId === order.id ? (lang === 'ug' ? 'بىكار قىلىنىۋاتىدۇ...' : 'Canceling...') : (lang === 'ug' ? 'بىكار قىلىش ۋە پۇلنى قايتۇرۇش' : 'Cancel & Refund')}</span>
+                                  </button>
+                                </div>
+                              </div>
+                            ) : null}
+                          </div>
+                        )}
+
+                        {/* 1. Dedicated Wi-Fi Voucher Card (Fursan Net & Azez Net) */}
                         {d.wifiCard && (
                           <div className="pt-1 pb-2">
                             <WifiVoucherCard card={d.wifiCard} />

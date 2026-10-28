@@ -43,6 +43,15 @@ export interface Order {
       purchaseDate: string;
       validity: string;
     };
+    // SMS Activations
+    isSmsActivation?: boolean;
+    activationId?: string;
+    phone?: string;
+    code?: string;
+    serviceCode?: string;
+    countryName?: string;
+    countryId?: number | string;
+    expiresAt?: string;
     // Legacy orders
     smsCode?: string;
     virtualNumber?: string;
@@ -76,6 +85,15 @@ const BUYER_DETAIL_KEYS = [
   'providerReply',
   'reply',
   'message',
+  'isSmsActivation',
+  'activationId',
+  'phone',
+  'code',
+  'serviceCode',
+  'serviceName',
+  'countryName',
+  'countryId',
+  'expiresAt',
 ] as const;
 
 /** What a buyer may see of their order: no cost, provider ids, raw errors or review notes. */

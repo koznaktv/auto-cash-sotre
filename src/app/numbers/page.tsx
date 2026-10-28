@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import BottomNav from '@/components/BottomNav';
 import AuthModal from '@/components/AuthModal';
@@ -60,7 +61,13 @@ interface ActiveSession {
 }
 
 export default function NumbersPage() {
+  const router = useRouter();
   const { lang, t, isRTL } = useLanguage();
+
+  // Synchronous lock against double clicks and fast repeated taps
+  const isBuyingRef = useRef(false);
+  // Ref for smooth scrolling directly to the purchase hero section
+  const purchaseHeroRef = useRef<HTMLDivElement>(null);
 
   // User state
   const [user, setUser] = useState<{ id?: string; name: string; email: string; balance?: number } | null>(null);
@@ -69,6 +76,14 @@ export default function NumbersPage() {
   // Data state
   const [countries, setCountries] = useState<CountryMeta[]>([]);
   const [selectedCountry, setSelectedCountry] = useState<CountryMeta | null>(null);
+
+  // Smooth scroll handler when a country is picked
+  const handleSelectCountry = (country: CountryMeta) => {
+    setSelectedCountry(country);
+    setTimeout(() => {
+      purchaseHeroRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 60);
+  };
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [loadingCountries, setLoadingCountries] = useState(true);
   const [loadingServices, setLoadingServices] = useState(false);
@@ -325,8 +340,14 @@ export default function NumbersPage() {
     return filteredServices.slice(0, displayLimit);
   }, [filteredServices, serviceSearch, displayLimit]);
 
-  // Buy Number Handler
+  // Buy Number Handler with Anti-Double-Click Lock & Instant Jump to /orders
   const handleBuyNumber = async (service: ServiceItem) => {
+    // Instant synchronous check to block double-taps
+    if (isBuyingRef.current || buying) {
+      console.warn('Purchase already in flight, ignoring repeated tap.');
+      return;
+    }
+
     if (!user) {
       setAuthModalOpen(true);
       return;
@@ -339,6 +360,8 @@ export default function NumbersPage() {
       return;
     }
 
+    // Lock immediately
+    isBuyingRef.current = true;
     setBuying(true);
     setActionError(null);
 
@@ -357,27 +380,20 @@ export default function NumbersPage() {
       const data = await res.json();
       if (!res.ok || !data.success) {
         setActionError(data.message || 'نومۇر ئېلىش مەغلۇپ بولدى');
+        isBuyingRef.current = false;
+        setBuying(false);
         return;
       }
 
-      // Successful purchase! Start active session
-      setActiveSession({
-        orderId: data.orderId,
-        activationId: data.activationId,
-        phone: data.phone,
-        serviceCode: service.service_code,
-        serviceName: service.name,
-        countryName: selectedCountry.nameUg,
-        sellPrice: data.sellPrice,
-        expiresAt: data.expiresAt || Date.now() + 15 * 60 * 1000,
-        status: 'waiting',
-      });
-
-      // Update user balance locally
+      // Successful purchase! Update user balance locally
       setUser((prev) => (prev ? { ...prev, balance: (prev.balance || 0) - data.sellPrice } : null));
+
+      // As requested by user: "باسقان ھامانلا مىنىڭ تەلەپلىرىم بىتىگە سەكرەيدىغان قىلىڭ"
+      // Jump immediately to /orders (مېنىڭ تەلەپلىرىم)
+      router.push('/orders');
     } catch (err: any) {
       setActionError(err?.message || 'تور ئۇلىنىشىدا خاتالىق كۆرۈلدى');
-    } finally {
+      isBuyingRef.current = false;
       setBuying(false);
     }
   };
@@ -748,7 +764,9 @@ export default function NumbersPage() {
                       type="button"
                       onClick={() => {
                         setSelectedApp(app);
-                        window.scrollTo({ top: 320, behavior: 'smooth' });
+                        setTimeout(() => {
+                          purchaseHeroRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 100);
                       }}
                       className="group relative p-4 rounded-2xl bg-gradient-to-b from-[#071b30] via-[#051426] to-[#040e1b] border border-amber-500/20 hover:border-amber-400/80 transition-all duration-200 hover:scale-[1.02] active:scale-95 text-right flex flex-col justify-between shadow-lg hover:shadow-amber-500/10 cursor-pointer overflow-hidden min-h-[145px]"
                     >
@@ -842,7 +860,11 @@ export default function NumbersPage() {
                 </div>
 
                 {/* Active Country Purchase Hero Card */}
-                <div className="rounded-3xl bg-gradient-to-br from-[#081f38] via-[#061628] to-[#040e1b] border-2 border-cyan-500/40 p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+                <div
+                  ref={purchaseHeroRef}
+                  id="purchase-hero-card"
+                  className="rounded-3xl bg-gradient-to-br from-[#081f38] via-[#061628] to-[#040e1b] border-2 border-cyan-500/40 p-6 sm:p-8 shadow-2xl relative overflow-hidden"
+                >
                   <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
                   <div className="absolute bottom-0 left-0 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -902,10 +924,10 @@ export default function NumbersPage() {
                       <button
                         type="button"
                         onClick={() => currentService && handleBuyNumber(currentService)}
-                        disabled={buying || loadingServices || !currentService || currentService.count <= 0}
+                        disabled={buying || isBuyingRef.current || loadingServices || !currentService || currentService.count <= 0}
                         className={`w-full py-4 px-6 rounded-2xl font-black text-base transition-all duration-200 flex items-center justify-center gap-2.5 shadow-xl cursor-pointer ${
-                          !currentService || currentService.count <= 0 || loadingServices
-                            ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
+                          !currentService || currentService.count <= 0 || loadingServices || buying
+                            ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed pointer-events-none'
                             : 'bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 shadow-amber-500/30 hover:scale-[1.02] active:scale-95'
                         }`}
                       >
@@ -967,7 +989,7 @@ export default function NumbersPage() {
                             const found = countries.find(
                               (c) => c.code === pop.code || String(c.id) === String(pop.id)
                             );
-                            if (found) setSelectedCountry(found);
+                            if (found) handleSelectCountry(found);
                           }}
                           className={`p-2.5 rounded-2xl flex items-center justify-between gap-2 transition-all cursor-pointer text-xs ${
                             isSelected
@@ -1013,7 +1035,7 @@ export default function NumbersPage() {
                           <button
                             key={c.id}
                             type="button"
-                            onClick={() => setSelectedCountry(c)}
+                            onClick={() => handleSelectCountry(c)}
                             className={`p-2 rounded-xl flex items-center justify-between text-xs transition cursor-pointer ${
                               isSelected
                                 ? 'bg-amber-500/25 border border-amber-400 text-white font-bold'
