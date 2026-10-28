@@ -66,12 +66,24 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { smsProviderType, smsApiUrl, smsApiKey, smsEnabled } = body;
+    let { smsProviderType, smsApiUrl, smsApiKey, smsEnabled } = body;
 
     const updates: any = {};
+    if (smsApiUrl !== undefined) {
+      let cleanUrl = String(smsApiUrl).trim();
+      if (cleanUrl.includes('phonecash.sy')) {
+        smsProviderType = 'phonecash';
+        if (!cleanUrl.endsWith('.php')) {
+          cleanUrl = cleanUrl.replace(/\/+$/, '') + '/api.php';
+        }
+      }
+      updates.smsApiUrl = cleanUrl;
+    }
+
     if (smsProviderType !== undefined) updates.smsProviderType = smsProviderType;
-    if (smsApiUrl !== undefined) updates.smsApiUrl = String(smsApiUrl).trim();
-    if (smsApiKey !== undefined) updates.smsApiKey = String(smsApiKey).trim();
+    if (smsApiKey !== undefined && String(smsApiKey).trim().length > 0) {
+      updates.smsApiKey = String(smsApiKey).trim();
+    }
     if (smsEnabled !== undefined) updates.smsEnabled = Boolean(smsEnabled);
 
     // 1. Save persistently to file & memory

@@ -1,15 +1,17 @@
 /**
  * Universal SMS / Virtual Number Provider Service for AUTO CASH
  * Supports standard protocols:
- * 1. SMS-Activate protocol (handler_api.php): Used by SMS-Activate, Grizzly SMS, SMS-Man, Vak-SMS, Tiger-SMS, etc.
- * 2. 5sim JSON API (https://5sim.net/v1/)
- * 3. Custom REST JSON API
+ * 1. PhoneCash JSON API (https://app.phonecash.sy/api/api.php)
+ * 2. SMS-Activate protocol (handler_api.php): Used by SMS-Activate, Grizzly SMS, SMS-Man, Vak-SMS, Tiger-SMS, etc.
+ * 3. 5sim JSON API (https://5sim.net/v1/)
+ * 4. Custom REST JSON API
  */
 
 import { loadStoredProviderConfig } from '../provider/providerConfigStore';
+import { phonecashProvider } from './phonecashProvider';
 
 export interface SmsProviderConfig {
-  type: 'sms_activate' | '5sim' | 'custom_rest';
+  type: 'phonecash' | 'sms_activate' | '5sim' | 'custom_rest';
   baseUrl: string;
   apiKey: string;
   enabled: boolean;
@@ -38,14 +40,24 @@ export class SmsProvider {
    */
   async getConfig(): Promise<SmsProviderConfig> {
     const stored = loadStoredProviderConfig();
-    const envUrl = process.env.SMS_API_URL || process.env.SMS_PROVIDER_URL || '';
-    const envKey = process.env.SMS_API_KEY || process.env.SMS_PROVIDER_API_KEY || '';
-    const envType = (process.env.SMS_PROVIDER_TYPE || 'sms_activate') as any;
+    const envUrl = process.env.PHONECASH_BASE_URL || process.env.SMS_API_URL || process.env.SMS_PROVIDER_URL || '';
+    const envKey = process.env.PHONECASH_API_KEY || process.env.SMS_API_KEY || process.env.SMS_PROVIDER_API_KEY || '';
+    const envType = (process.env.SMS_PROVIDER_TYPE || 'phonecash') as any;
 
-    const baseUrl = (stored.smsApiUrl || envUrl || 'https://api.sms-activate.org/stubs/handler_api.php').trim();
-    const apiKey = (stored.smsApiKey || envKey || '').trim();
-    const type = stored.smsProviderType || envType || 'sms_activate';
-    const enabled = stored.smsEnabled !== undefined ? Boolean(stored.smsEnabled) : Boolean(apiKey);
+    let baseUrl = (stored.smsApiUrl || envUrl || 'https://app.phonecash.sy/api/api.php').trim();
+    let apiKey = (stored.smsApiKey || envKey || 'a4f8c2b1e9d37560').trim();
+    let type: SmsProviderConfig['type'] = stored.smsProviderType || envType || 'phonecash';
+
+    // Auto-detect PhoneCash if URL points to phonecash.sy
+    if (baseUrl.includes('phonecash.sy')) {
+      type = 'phonecash';
+      // Normalize base URL so https://app.phonecash.sy/api/ becomes https://app.phonecash.sy/api/api.php
+      if (!baseUrl.endsWith('.php')) {
+        baseUrl = baseUrl.replace(/\/+$/, '') + '/api.php';
+      }
+    }
+
+    const enabled = stored.smsEnabled !== undefined ? Boolean(stored.smsEnabled) : true;
 
     return { type, baseUrl, apiKey, enabled };
   }
@@ -70,6 +82,37 @@ export class SmsProvider {
     }
 
     try {
+      // 1. PhoneCash Protocol
+      if (config.type === 'phonecash' || config.baseUrl.includes('phonecash.sy')) {
+        let cleanUrl = config.baseUrl;
+        if (!cleanUrl.endsWith('.php')) {
+          cleanUrl = cleanUrl.replace(/\/+$/, '') + '/api.php';
+        }
+
+        const url = `${cleanUrl}?action=getCountries&api_key=${encodeURIComponent(config.apiKey)}`;
+        const res = await fetch(url, { cache: 'no-store' });
+        const data = await res.json().catch(() => null);
+
+        if (res.ok && data && data.success && Array.isArray(data.data)) {
+          return {
+            success: true,
+            balance: null,
+            currency: 'USD',
+            userName: `PhoneCash (${data.data.length} دۆلەت ئۇلاندى)`,
+            raw: data,
+          };
+        }
+
+        return {
+          success: false,
+          balance: null,
+          currency: 'USD',
+          error: data?.message || 'PhoneCash API ئاچقۇچى خاتا ياكى مۇلازىمېتىر ئۇلانمىدى',
+          raw: data,
+        };
+      }
+
+      // 2. 5sim Protocol
       if (config.type === '5sim') {
         const url = config.baseUrl.replace(/\/+$/, '') + '/user/profile';
         const res = await fetch(url, {
@@ -92,6 +135,7 @@ export class SmsProvider {
         return { success: false, balance: null, currency: 'RUB', error: data?.msg || data?.error || '5sim connection failed' };
       }
 
+      // 3. Custom REST JSON
       if (config.type === 'custom_rest') {
         const url = `${config.baseUrl.replace(/\/+$/, '')}/balance?key=${encodeURIComponent(config.apiKey)}`;
         const res = await fetch(url, { cache: 'no-store' });
@@ -109,7 +153,7 @@ export class SmsProvider {
         return { success: false, balance: null, currency: 'USD', error: data?.message || 'REST API connection failed' };
       }
 
-      // Default: SMS-Activate standard handler protocol (action=getBalance)
+      // 4. SMS-Activate standard handler protocol (action=getBalance)
       let separator = config.baseUrl.includes('?') ? '&' : '?';
       let url = `${config.baseUrl}${separator}api_key=${encodeURIComponent(config.apiKey)}&action=getBalance`;
 
@@ -168,7 +212,7 @@ export class SmsProvider {
    */
   async getNumber(params: {
     service: string;   // e.g. 'tg' (Telegram), 'wa' (WhatsApp), 'oi' (OpenAI), 'go' (Google)
-    country?: string | number; // e.g. '0' (Russia), '12' (USA), 'uk'
+    country?: string | number; // e.g. '62' (Turkey), '12' (USA), '0' (Russia)
   }): Promise<SmsActivationResult> {
     const config = await this.getConfig();
     if (!config.enabled || !config.apiKey) {
@@ -176,6 +220,20 @@ export class SmsProvider {
     }
 
     try {
+      if (config.type === 'phonecash' || config.baseUrl.includes('phonecash.sy')) {
+        const countryId = Number(params.country || 62);
+        const buyRes = await phonecashProvider.buyNumber(params.service, countryId);
+        if (!buyRes.success) {
+          return { success: false, error: buyRes.error || 'نومۇر ئېلىش مەغلۇپ بولدى' };
+        }
+        return {
+          success: true,
+          activationId: buyRes.activationId,
+          phone: buyRes.phone,
+          cost: buyRes.costPrice,
+        };
+      }
+
       if (config.type === '5sim') {
         const country = params.country || 'any';
         const operator = 'any';
@@ -240,6 +298,17 @@ export class SmsProvider {
     }
 
     try {
+      if (config.type === 'phonecash' || config.baseUrl.includes('phonecash.sy')) {
+        const statusRes = await phonecashProvider.checkStatus(activationId, 1);
+        return {
+          success: statusRes.success,
+          status: statusRes.status,
+          code: statusRes.code,
+          fullSms: statusRes.rawResponse,
+          error: statusRes.error,
+        };
+      }
+
       if (config.type === '5sim') {
         const url = `${config.baseUrl.replace(/\/+$/, '')}/user/check/${encodeURIComponent(activationId)}`;
         const res = await fetch(url, {
@@ -303,6 +372,11 @@ export class SmsProvider {
     if (!config.enabled || !config.apiKey) return { success: false, error: 'API ئاكتىپ ئەمەس' };
 
     try {
+      if (config.type === 'phonecash' || config.baseUrl.includes('phonecash.sy')) {
+        const ok = await phonecashProvider.cancelActivation(activationId);
+        return { success: ok };
+      }
+
       if (config.type === '5sim') {
         const url = `${config.baseUrl.replace(/\/+$/, '')}/user/cancel/${encodeURIComponent(activationId)}`;
         const res = await fetch(url, {

@@ -13,7 +13,7 @@ export interface StoredProviderConfig {
   othmanApiType?: 'syria4game' | 'smm' | 'custom_rest';
   othmanApiSecret?: string;
   othmanEnabled?: boolean;
-  smsProviderType?: 'sms_activate' | '5sim' | 'custom_rest';
+  smsProviderType?: 'phonecash' | 'sms_activate' | '5sim' | 'custom_rest';
   smsApiUrl?: string;
   smsApiKey?: string;
   smsEnabled?: boolean;
@@ -89,10 +89,10 @@ export function loadStoredProviderConfig(): StoredProviderConfig {
           othmanApiType: 'syria4game',
           othmanApiSecret: '',
           othmanEnabled: true,
-          smsProviderType: parsed.smsProviderType || (process.env.SMS_PROVIDER_TYPE as any) || 'sms_activate',
-          smsApiUrl: (parsed.smsApiUrl || process.env.SMS_API_URL || process.env.SMS_PROVIDER_URL || 'https://api.sms-activate.org/stubs/handler_api.php').trim(),
-          smsApiKey: (parsed.smsApiKey !== undefined ? parsed.smsApiKey : (process.env.SMS_API_KEY || process.env.SMS_PROVIDER_API_KEY || '')).trim(),
-          smsEnabled: parsed.smsEnabled !== undefined ? Boolean(parsed.smsEnabled) : Boolean(process.env.SMS_API_KEY || process.env.SMS_PROVIDER_API_KEY),
+          smsProviderType: parsed.smsProviderType || (process.env.SMS_PROVIDER_TYPE as any) || 'phonecash',
+          smsApiUrl: (parsed.smsApiUrl || process.env.PHONECASH_BASE_URL || process.env.SMS_API_URL || process.env.SMS_PROVIDER_URL || 'https://app.phonecash.sy/api/api.php').trim(),
+          smsApiKey: (parsed.smsApiKey !== undefined ? parsed.smsApiKey : (process.env.PHONECASH_API_KEY || process.env.SMS_API_KEY || process.env.SMS_PROVIDER_API_KEY || 'a4f8c2b1e9d37560')).trim(),
+          smsEnabled: parsed.smsEnabled !== undefined ? Boolean(parsed.smsEnabled) : true,
         };
         return { ...memoryCachedConfig };
       }
@@ -114,10 +114,10 @@ export function loadStoredProviderConfig(): StoredProviderConfig {
     othmanApiType: 'syria4game',
     othmanApiSecret: '',
     othmanEnabled: true,
-    smsProviderType: (process.env.SMS_PROVIDER_TYPE as any) || 'sms_activate',
-    smsApiUrl: (process.env.SMS_API_URL || process.env.SMS_PROVIDER_URL || 'https://api.sms-activate.org/stubs/handler_api.php').trim(),
-    smsApiKey: (process.env.SMS_API_KEY || process.env.SMS_PROVIDER_API_KEY || '').trim(),
-    smsEnabled: Boolean(process.env.SMS_API_KEY || process.env.SMS_PROVIDER_API_KEY),
+    smsProviderType: (process.env.SMS_PROVIDER_TYPE as any) || 'phonecash',
+    smsApiUrl: (process.env.PHONECASH_BASE_URL || process.env.SMS_API_URL || process.env.SMS_PROVIDER_URL || 'https://app.phonecash.sy/api/api.php').trim(),
+    smsApiKey: (process.env.PHONECASH_API_KEY || process.env.SMS_API_KEY || process.env.SMS_PROVIDER_API_KEY || 'a4f8c2b1e9d37560').trim(),
+    smsEnabled: true,
   };
 
   try {

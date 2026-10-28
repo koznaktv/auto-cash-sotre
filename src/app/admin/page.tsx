@@ -468,13 +468,13 @@ export default function AdminPage() {
 
   // SMS Virtual Numbers Provider State
   const [smsProviderForm, setSmsProviderForm] = useState<{
-    type: 'sms_activate' | '5sim' | 'custom_rest';
+    type: 'phonecash' | 'sms_activate' | '5sim' | 'custom_rest';
     baseUrl: string;
     apiKey: string;
     enabled: boolean;
   }>({
-    type: 'sms_activate',
-    baseUrl: 'https://api.sms-activate.org/stubs/handler_api.php',
+    type: 'phonecash',
+    baseUrl: 'https://app.phonecash.sy/api/api.php',
     apiKey: '',
     enabled: true,
   });
@@ -855,9 +855,17 @@ export default function AdminPage() {
     setSmsFeedback(null);
     try {
       const token = sessionStorage.getItem('autocash_admin_token');
+      let cleanUrl = smsProviderForm.baseUrl.trim();
+      let cleanType = smsProviderForm.type;
+      if (cleanUrl.includes('phonecash.sy')) {
+        cleanType = 'phonecash';
+        if (!cleanUrl.endsWith('.php')) {
+          cleanUrl = cleanUrl.replace(/\/+$/, '') + '/api.php';
+        }
+      }
       const payload: any = {
-        smsProviderType: smsProviderForm.type,
-        smsApiUrl: smsProviderForm.baseUrl.trim(),
+        smsProviderType: cleanType,
+        smsApiUrl: cleanUrl,
         smsEnabled: smsProviderForm.enabled,
       };
       if (smsProviderForm.apiKey.trim()) {
@@ -5880,15 +5888,27 @@ export default function AdminPage() {
                       <label className="text-xs font-bold text-slate-300 font-alkatip">API پىروتوكولى (Provider Protocol)</label>
                       <select
                         value={smsProviderForm.type}
-                        onChange={(e) => setSmsProviderForm({ ...smsProviderForm, type: e.target.value as any })}
+                        onChange={(e) => {
+                          const val = e.target.value as any;
+                          let newUrl = smsProviderForm.baseUrl;
+                          if (val === 'phonecash') {
+                            newUrl = 'https://app.phonecash.sy/api/api.php';
+                          } else if (val === 'sms_activate') {
+                            newUrl = 'https://api.sms-activate.org/stubs/handler_api.php';
+                          } else if (val === '5sim') {
+                            newUrl = 'https://5sim.net/v1';
+                          }
+                          setSmsProviderForm({ ...smsProviderForm, type: val, baseUrl: newUrl });
+                        }}
                         className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-emerald-500 font-mono"
                       >
+                        <option value="phonecash">PhoneCash API (https://app.phonecash.sy/api/api.php) - تەۋسىيە قىلىنىدۇ</option>
                         <option value="sms_activate">SMS-Activate Protocol (SMS-Activate, Grizzly SMS, SMS-Man, Vak-SMS)</option>
                         <option value="5sim">5sim REST API (https://5sim.net/v1/)</option>
                         <option value="custom_rest">Custom JSON REST API</option>
                       </select>
                       <p className="text-[10px] text-slate-400 font-alkatip">
-                        كۆپ ساندىكى قىسقا ئۇچۇر توربەتلىرى SMS-Activate نىڭ ئۆلچەملىك handler_api.php نى ئىشلىتىدۇ.
+                        PhoneCash API پۈتۈن دۇنيا دۆلەتلىرى ۋە 100+ ئەپلەرنى نەق مەيدان كود بىلەن تەمىنلەيدۇ.
                       </p>
                     </div>
 
@@ -5917,8 +5937,20 @@ export default function AdminPage() {
                       <input
                         type="text"
                         value={smsProviderForm.baseUrl}
-                        onChange={(e) => setSmsProviderForm({ ...smsProviderForm, baseUrl: e.target.value })}
-                        placeholder="https://api.sms-activate.org/stubs/handler_api.php"
+                        onChange={(e) => {
+                          let val = e.target.value;
+                          setSmsProviderForm({ ...smsProviderForm, baseUrl: val });
+                        }}
+                        onBlur={() => {
+                          if (smsProviderForm.baseUrl.includes('phonecash.sy') && !smsProviderForm.baseUrl.endsWith('.php')) {
+                            setSmsProviderForm((prev) => ({
+                              ...prev,
+                              type: 'phonecash',
+                              baseUrl: prev.baseUrl.replace(/\/+$/, '') + '/api.php',
+                            }));
+                          }
+                        }}
+                        placeholder="https://app.phonecash.sy/api/api.php"
                         className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-emerald-500 font-mono"
                         dir="ltr"
                       />
@@ -5941,14 +5973,18 @@ export default function AdminPage() {
                   </div>
 
                   {/* Vercel Environment Variables Tip */}
-                  <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px] text-slate-400 space-y-1 font-alkatip">
+                  <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px] text-slate-400 space-y-1.5 font-alkatip">
                     <div className="flex items-center gap-1.5 text-cyan-300 font-bold">
                       <Zap className="w-3.5 h-3.5" />
                       <span>ۋىرسىل (Vercel) دا مەڭگۈ مۇقىم ساقلاش ئۇسۇلى:</span>
                     </div>
                     <p>
-                      باشقۇرۇش كۆزنىكىدىن ساقلىسىڭىزمۇ دەرھال ئىشلەيدۇ. تېخىمۇ مەڭگۈلۈك بولسۇن دېسىڭىز، Vercel Project Settings → <b>Environment Variables</b> بۆلىكىگە بېرىپ <code>SMS_PROVIDER_API_KEY</code> ۋە <code>SMS_PROVIDER_URL</code> قىلىپ قوشۇپ قويسىڭىز، سىستېما سانداندىنمۇ ئۈستۈن كۆرۈپ مەڭگۈ ئوقۇيدۇ.
+                      باشقۇرۇش كۆزنىكىدىن ساقلىسىڭىزمۇ دەرھال ئىشلەيدۇ. ۋىرسىلدا مەڭگۈ كۈچكە ئىگە بولۇشى ئۈچۈن Vercel Project Settings → <b>Environment Variables</b> بۆلىكىگە بېرىپ تۆۋەندىكى ئىككىسىنى قوشۇپ قويسىڭىز، مەڭگۈ ئەسلىگە كېلىپ تۇرىدۇ:
                     </p>
+                    <div className="flex flex-col gap-1 font-mono text-[10px] text-amber-300 bg-slate-950 p-2 rounded-lg border border-slate-800" dir="ltr">
+                      <div><b>PHONECASH_BASE_URL</b> = https://app.phonecash.sy/api/api.php</div>
+                      <div><b>PHONECASH_API_KEY</b> = a4f8c2b1e9d37560</div>
+                    </div>
                   </div>
 
                   <div className="flex items-center justify-end gap-3 pt-2">
