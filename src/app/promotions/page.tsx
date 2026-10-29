@@ -12,7 +12,7 @@ import CheckoutModal from '@/components/CheckoutModal';
 import { useLanguage } from '@/context/LanguageContext';
 import { SERVICES_DATA, ServiceItem } from '@/lib/data';
 import { ActivePromotion } from '@/lib/promotionsDb';
-import { formatSmartPrice } from '@/lib/formatMoney';
+import { formatSmartPrice, extractCleanPackageQuantity } from '@/lib/formatMoney';
 import { getCachedBalance, getCachedUser, logout, type ClientUser } from '@/lib/clientAuth';
 import {
   Flame,
@@ -439,12 +439,18 @@ export default function PromotionsPage() {
                           />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h3 className="text-base sm:text-lg font-black text-white truncate" title={promo.serviceName}>
+                          <h3 className="text-sm sm:text-base font-black text-white truncate" title={promo.serviceName}>
                             {promo.serviceName}
                           </h3>
-                          <p className="text-xs text-slate-400 truncate mt-0.5" title={promo.packageTitle}>
-                            {promo.packageTitle}
-                          </p>
+                          <div className="mt-1 flex items-center">
+                            <span
+                              className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-400/15 border border-amber-400/40 text-amber-300 font-mono font-black text-xs sm:text-sm tracking-wide shadow-sm"
+                              dir="ltr"
+                              title={promo.packageTitle}
+                            >
+                              ⚡ {extractCleanPackageQuantity(promo.packageTitle)}
+                            </span>
+                          </div>
                         </div>
                       </div>
 

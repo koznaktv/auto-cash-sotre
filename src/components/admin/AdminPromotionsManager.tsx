@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { ActivePromotion } from '@/lib/promotionsDb';
 import { Flame, Clock, Plus, Trash2, AlertTriangle, CheckCircle, Send, Sparkles, RefreshCw, CheckSquare, Square } from 'lucide-react';
-import { formatSmartPrice } from '@/lib/formatMoney';
+import { formatSmartPrice, extractCleanPackageQuantity } from '@/lib/formatMoney';
 
 interface ServicePackageOption {
   serviceId: string;
@@ -429,7 +429,9 @@ export default function AdminPromotionsManager() {
                           )}
                           <div>
                             <div className="font-bold text-white">{p.serviceName}</div>
-                            <div className="text-[11px] text-amber-300/80 font-alkatip">{p.packageTitle}</div>
+                            <div className="text-[11px] text-amber-300 font-mono font-bold flex items-center gap-1.5 mt-0.5" dir="ltr">
+                              <span className="px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300">⚡ {extractCleanPackageQuantity(p.packageTitle)}</span>
+                            </div>
                           </div>
                         </div>
                       </td>

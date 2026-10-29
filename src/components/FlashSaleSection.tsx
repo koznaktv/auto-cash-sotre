@@ -4,7 +4,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import Image from 'next/image';
 import { ActivePromotion } from '@/lib/promotionsDb';
 import { ServiceItem } from '@/lib/data';
-import { formatSmartPrice } from '@/lib/formatMoney';
+import { formatSmartPrice, extractCleanPackageQuantity } from '@/lib/formatMoney';
 
 interface FlashSaleSectionProps {
   services: ServiceItem[];
@@ -238,9 +238,15 @@ export default function FlashSaleSection({
                   <h4 className="text-xs font-semibold text-slate-300 truncate" title={promo.serviceName}>
                     {promo.serviceName}
                   </h4>
-                  <p className="text-xs font-bold text-white truncate font-alkatip mt-0.5" title={promo.packageTitle}>
-                    {promo.packageTitle}
-                  </p>
+                  <div className="mt-1 flex items-center">
+                    <span
+                      className="inline-flex items-center px-1.5 py-0.5 rounded bg-amber-400/15 border border-amber-400/35 text-amber-300 font-mono font-bold text-[11px] tracking-wide"
+                      dir="ltr"
+                      title={promo.packageTitle}
+                    >
+                      ⚡ {extractCleanPackageQuantity(promo.packageTitle)}
+                    </span>
+                  </div>
                 </div>
               </div>
 
