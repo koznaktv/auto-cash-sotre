@@ -9,7 +9,6 @@ import AuthModal from '@/components/AuthModal';
 import AppDownloadModal from '@/components/AppDownloadModal';
 import LanguageFlag from '@/components/LanguageFlag';
 import { useLanguage } from '@/context/LanguageContext';
-import { useTheme } from '@/context/ThemeContext';
 import {
   Zap,
   Wallet,
@@ -21,8 +20,6 @@ import {
   User,
   Globe2,
   Smartphone,
-  Sun,
-  Moon,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -39,7 +36,6 @@ export default function Navbar({
   user: externalUser,
 }: NavbarProps) {
   const { lang, setLang, t, isRTL } = useLanguage();
-  const { theme, toggleTheme } = useTheme();
   const [internalDrawerOpen, setInternalDrawerOpen] = useState(false);
   const [internalAuthOpen, setInternalAuthOpen] = useState(false);
   const [internalUser, setInternalUser] = useState<{ name: string; email: string; id?: string; balance?: number; avatarUrl?: string } | null>(() => {
@@ -266,21 +262,6 @@ export default function Navbar({
                 </>
               )}
             </div>
-
-            {/* 3.5. Theme Toggle Button (☀️ Sun in Light mode / 🌙 Moon in Dark mode) */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-slate-900/90 border border-amber-500/35 hover:border-amber-400 flex items-center justify-center text-amber-300 hover:text-white transition shadow-sm cursor-pointer active:scale-95 shrink-0"
-              title={theme === 'dark' ? (lang === 'ug' ? 'نۇرلۇق ئاق ئۇسلۇبقا ئۆزگەرتىش' : 'Switch to Light Mode') : (lang === 'ug' ? 'قاراڭغۇ ئۇسلۇبقا ئۆزگەرتىش' : 'Switch to Dark Mode')}
-              aria-label="Toggle Theme"
-            >
-              {theme === 'dark' ? (
-                <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 hover:rotate-12 transition-transform" />
-              ) : (
-                <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500 hover:rotate-45 transition-transform" />
-              )}
-            </button>
 
             {/* 4. Brand Name - Displayed on md+ screens so logos have generous room on mobile */}
             <Link
