@@ -27,7 +27,9 @@ import {
 import {
   BotLanguage,
   getUserLanguage,
+  getUserLanguageAsync,
   setUserLanguage,
+  setUserLanguageAsync,
   BOT_I18N,
   getLanguageSelectionKeyboard,
   LANGUAGE_SELECTION_BANNER,
@@ -2241,8 +2243,10 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     if (data.startsWith('bot_set_lang:')) {
       const selectedLang = data.split(':')[1] as BotLanguage;
       if (['ug', 'ar', 'tr', 'en', 'uz', 'ru'].includes(selectedLang)) {
-        setUserLanguage(fromId, selectedLang);
-        if (chatId) setUserLanguage(chatId, selectedLang);
+        await setUserLanguageAsync(fromId, selectedLang);
+        if (chatId && String(chatId) !== String(fromId)) {
+          await setUserLanguageAsync(chatId, selectedLang);
+        }
 
         const alertMsg = BOT_I18N.langChangedAlert[selectedLang] || 'Language updated!';
         await answerCallbackQuery(cqId, alertMsg, false);
@@ -2258,7 +2262,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       const isSub = await isUserSubscribedToChannel(fromId);
       if (isSub) {
         await answerCallbackQuery(cqId, '🎉 تەبرىكلەيمىز! قانال ئەزالىقىڭىز مۇۋەپپەقىيەتلىك دەلىللەندى.');
-        const userLang = getUserLanguage(fromId) || 'ug';
+        const userLang = (await getUserLanguageAsync(fromId)) || 'ug';
         const welcomeText = getWelcomeMessage(cq.from?.first_name, userLang);
         await showOrEditMessage(chatId, messageId, welcomeText, getStoreInlineKeyboard(userLang));
       } else {
@@ -2872,7 +2876,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
         const adminWelcome = getAdminWelcomeMessage(fromUser || cq.from?.first_name);
         await showOrEditMessage(chatId, messageId, adminWelcome, getAdminInlineKeyboard());
       } else {
-        const userLang = getUserLanguage(fromId) || 'ug';
+        const userLang = (await getUserLanguageAsync(fromId)) || 'ug';
         const welcomeText = getWelcomeMessage(cq.from?.first_name, userLang);
         await showOrEditMessage(chatId, messageId, welcomeText, getStoreInlineKeyboard(userLang));
       }
@@ -3050,7 +3054,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       return;
     }
 
-    const userLang = getUserLanguage(from?.id || chatId);
+    const userLang = await getUserLanguageAsync(from?.id || chatId);
     if (!userLang) {
       // First time entering bot -> Prompt language selection first!
       await sendTelegramMessage(chatId, LANGUAGE_SELECTION_BANNER, {

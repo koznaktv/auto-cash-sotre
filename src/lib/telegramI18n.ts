@@ -11,6 +11,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { getSupabase } from './supabase';
 
 export type BotLanguage = 'ug' | 'ar' | 'tr' | 'en' | 'uz' | 'ru';
 
@@ -30,22 +31,37 @@ export const BOT_LANGUAGES: LanguageInfo[] = [
   { code: 'ru', label: '🇷🇺 Русский', flag: '🇷🇺', nativeName: 'Русский' },
 ];
 
-const LANGS_FILE_PATH = path.join(process.cwd(), 'data', 'telegram_user_langs.json');
+const IS_SERVERLESS = Boolean(
+  process.env.VERCEL ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  (typeof process.cwd === 'function' && process.cwd().startsWith('/var/task'))
+);
+const DATA_DIR = IS_SERVERLESS ? '/tmp' : path.join(process.cwd(), 'data');
+const BUNDLED_DATA_DIR = path.join(process.cwd(), 'data');
+const LANGS_FILE = path.join(DATA_DIR, 'telegram_user_langs.json');
+const BUNDLED_LANGS_FILE = path.join(BUNDLED_DATA_DIR, 'telegram_user_langs.json');
 
 // In-memory cache for sub-millisecond lookups
 const userLanguageCache = new Map<string, BotLanguage>();
 let isLoaded = false;
+let lastSupabaseFetch = 0;
 
-function loadUserLanguages(): void {
+function loadUserLanguagesSync(): void {
   if (isLoaded) return;
   try {
-    if (fs.existsSync(LANGS_FILE_PATH)) {
-      const raw = fs.readFileSync(LANGS_FILE_PATH, 'utf-8');
+    const fileToRead = fs.existsSync(LANGS_FILE)
+      ? LANGS_FILE
+      : fs.existsSync(BUNDLED_LANGS_FILE)
+      ? BUNDLED_LANGS_FILE
+      : null;
+
+    if (fileToRead) {
+      const raw = fs.readFileSync(fileToRead, 'utf-8');
       const data = JSON.parse(raw);
       if (data && typeof data === 'object') {
         for (const [k, v] of Object.entries(data)) {
           if (['ug', 'ar', 'tr', 'en', 'uz', 'ru'].includes(v as string)) {
-            userLanguageCache.set(k, v as BotLanguage);
+            userLanguageCache.set(String(k), v as BotLanguage);
           }
         }
       }
@@ -57,37 +73,108 @@ function loadUserLanguages(): void {
   }
 }
 
-function persistUserLanguages(): void {
+function persistUserLanguagesLocal(): void {
   try {
     const obj: Record<string, string> = {};
     userLanguageCache.forEach((v, k) => {
       obj[k] = v;
     });
-    const dir = path.dirname(LANGS_FILE_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
     }
-    fs.writeFileSync(LANGS_FILE_PATH, JSON.stringify(obj, null, 2), 'utf-8');
+    const temp = `${LANGS_FILE}.${Date.now()}.tmp`;
+    fs.writeFileSync(temp, JSON.stringify(obj, null, 2), 'utf-8');
+    fs.renameSync(temp, LANGS_FILE);
+
+    if (BUNDLED_LANGS_FILE !== LANGS_FILE && fs.existsSync(BUNDLED_DATA_DIR)) {
+      try {
+        fs.writeFileSync(BUNDLED_LANGS_FILE, JSON.stringify(obj, null, 2), 'utf-8');
+      } catch {}
+    }
   } catch (err) {
-    console.error('Failed to persist telegram_user_langs.json:', err);
+    console.error('Failed to persist telegram_user_langs.json locally:', err);
   }
+}
+
+export async function getUserLanguageAsync(userId?: number | string): Promise<BotLanguage | null> {
+  if (!userId) return null;
+  const key = String(userId);
+
+  loadUserLanguagesSync();
+  const cached = userLanguageCache.get(key);
+  if (cached) return cached;
+
+  // If not in local cache, query Supabase cloud storage (never lost across Vercel deployments)
+  const sb = getSupabase();
+  if (sb && Date.now() - lastSupabaseFetch > 10_000) {
+    try {
+      lastSupabaseFetch = Date.now();
+      const { data, error } = await sb
+        .from('system_settings')
+        .select('site_name')
+        .eq('id', 'telegram_user_langs')
+        .single();
+
+      if (!error && data?.site_name) {
+        const parsed = JSON.parse(data.site_name);
+        if (parsed && typeof parsed === 'object') {
+          for (const [k, v] of Object.entries(parsed)) {
+            if (['ug', 'ar', 'tr', 'en', 'uz', 'ru'].includes(v as string)) {
+              userLanguageCache.set(String(k), v as BotLanguage);
+            }
+          }
+          persistUserLanguagesLocal();
+          return userLanguageCache.get(key) || null;
+        }
+      }
+    } catch (e: any) {
+      console.warn('Supabase getUserLanguageAsync notice:', e?.message);
+    }
+  }
+
+  return userLanguageCache.get(key) || null;
 }
 
 export function getUserLanguage(userId?: number | string): BotLanguage | null {
   if (!userId) return null;
-  loadUserLanguages();
-  const found = userLanguageCache.get(String(userId));
-  return found || null;
+  loadUserLanguagesSync();
+  return userLanguageCache.get(String(userId)) || null;
 }
 
 export function hasUserChosenLanguage(userId?: number | string): boolean {
   return getUserLanguage(userId) !== null;
 }
 
+export async function setUserLanguageAsync(userId: number | string, lang: BotLanguage): Promise<void> {
+  const key = String(userId);
+  loadUserLanguagesSync();
+  userLanguageCache.set(key, lang);
+  persistUserLanguagesLocal();
+
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const obj: Record<string, string> = {};
+      userLanguageCache.forEach((v, k) => {
+        obj[k] = v;
+      });
+      await sb.from('system_settings').upsert({
+        id: 'telegram_user_langs',
+        site_name: JSON.stringify(obj),
+        admin_pin: 'LANGS_BACKUP',
+        shamcash_address: 'META',
+        whatsapp_number: 'META',
+        telegram_username: 'META',
+      });
+    } catch (err: any) {
+      console.warn('Supabase setUserLanguageAsync catch:', err?.message);
+    }
+  }
+}
+
 export function setUserLanguage(userId: number | string, lang: BotLanguage): void {
-  loadUserLanguages();
-  userLanguageCache.set(String(userId), lang);
-  persistUserLanguages();
+  setUserLanguageAsync(userId, lang).catch(() => {});
 }
 
 /**
