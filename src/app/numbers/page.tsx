@@ -780,22 +780,41 @@ export default function NumbersPage() {
                 </button>
               </div>
             ) : (
-              <div className="p-4 rounded-2xl bg-[#081a2e]/90 border border-cyan-500/30 flex items-center justify-between gap-3 text-cyan-300 shadow-md">
-                <div className="flex items-center gap-3 min-w-0">
-                  <RefreshCw className="w-5 h-5 text-cyan-400 animate-spin shrink-0" style={{ animationDuration: '3s' }} />
-                  <div className="min-w-0">
-                    <span className="font-bold text-xs sm:text-sm block text-white truncate">جارٍ انتظار رمز SMS...</span>
-                    <span className="text-[11px] text-cyan-200/70 block truncate">ھەر 5 سېكۇنتتا بىر تەمىنلىگۈچىدىن ئاپتوماتىك تەكشۈرۈلىۋاتىدۇ</span>
+              <div className="space-y-3">
+                <div className="p-4 rounded-2xl bg-[#081a2e]/90 border border-cyan-500/30 flex items-center justify-between gap-3 text-cyan-300 shadow-md">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <RefreshCw className="w-5 h-5 text-cyan-400 animate-spin shrink-0" style={{ animationDuration: '3s' }} />
+                    <div className="min-w-0">
+                      <span className="font-bold text-xs sm:text-sm block text-white truncate">جارٍ انتظار رمز SMS...</span>
+                      <span className="text-[11px] text-cyan-200/70 block truncate">ھەر 5 سېكۇنتتا بىر تەمىنلىگۈچىدىن ئاپتوماتىك تەكشۈرۈلىۋاتىدۇ</span>
+                    </div>
                   </div>
+                  <button
+                    type="button"
+                    onClick={checkCodeStatus}
+                    disabled={isCheckingNow}
+                    className="px-3.5 py-1.5 rounded-xl bg-cyan-950 hover:bg-cyan-900 border border-cyan-500/50 text-cyan-300 text-xs font-bold transition cursor-pointer shrink-0 active:scale-95 disabled:opacity-50"
+                  >
+                    {isCheckingNow ? 'تەكشۈرۈلىۋاتىدۇ...' : 'ھازىرلا تەكشۈرۈش'}
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={checkCodeStatus}
-                  disabled={isCheckingNow}
-                  className="px-3.5 py-1.5 rounded-xl bg-cyan-950 hover:bg-cyan-900 border border-cyan-500/50 text-cyan-300 text-xs font-bold transition cursor-pointer shrink-0 active:scale-95 disabled:opacity-50"
-                >
-                  {isCheckingNow ? 'تەكشۈرۈلىۋاتىدۇ...' : 'ھازىرلا تەكشۈرۈش'}
-                </button>
+
+                {/* Direct Cancel & Instant Refund Button right where user is watching */}
+                <div className="p-3.5 rounded-2xl bg-rose-950/40 border border-rose-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-right shadow-sm">
+                  <div className="text-xs text-rose-200/90 leading-relaxed">
+                    <span className="font-bold text-rose-300 block">💡 كود كەلمىدىمۇ؟</span>
+                    <span>ئەگەر كود كەلمىسە نومۇرنى بىكار قىلسىڭىز، پۇلىڭىز ھەميانغا دەرھال تولۇق قايتىدۇ.</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCancelSession}
+                    disabled={canceling}
+                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-rose-950 transition cursor-pointer active:scale-95 disabled:opacity-50 shrink-0"
+                  >
+                    <XCircle className="w-4 h-4" />
+                    <span>{canceling ? 'بىكار قىلىنىۋاتىدۇ...' : 'نومۇرنى بىكار قىلىش (پۇلنى قايتۇرۇش)'}</span>
+                  </button>
+                </div>
               </div>
             )}
 
