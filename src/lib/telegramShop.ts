@@ -723,22 +723,20 @@ export async function handleShopCallbackQuery(
       lang === 'ru' ? '💡 Этот раздел пока пуст, скоро будут добавлены услуги Wi-Fi...' :
       '💡 بۇ بۆلۈم ھازىرچە بوش، پات يېقىندا يېڭى Wi-Fi تور كارتىلىرى قوشۇلىدۇ...';
 
-    let catText = '';
-    if (catKey === 'games' && (lang === 'ug' || !lang)) {
-      catText = [
-        '» » ༒•|-- ( <b>ئويۇن مەھسۇلاتلىرى</b> ) --|•༒ « «',
-        '',
-        '📌 <b>سېتىۋالماقچى بولغان ئويۇننى تاللاڭ:</b>',
-        '___________________',
-      ].join('\n');
-    } else {
-      catText = `
-🌟 <b>${catTitle}</b>
+    const catHeaderIcon =
+      catKey === 'games' ? '🎮' :
+      catKey === 'numbers' ? '📱' :
+      catKey === 'cards' ? '💳' :
+      catKey === 'wifi' ? '📶' :
+      catKey === 'programs' ? '💻' :
+      catKey === 'subscriptions' ? '⭐️' :
+      catKey === 'social' ? '🌐' : '🌟';
+
+    const catText = `
+${catHeaderIcon} <b>${catTitle}</b>
 
 ${isEmpty ? emptyNotice : `📌 <b>${choosePrompt}</b>\n<i>${countPrompt}</i>`}
-
 `.trim();
-    }
     await showOrEditMessage(chatId, messageId, catText, getCategoryProductsKeyboard(catKey, page, lang));
     return true;
   }
