@@ -1586,20 +1586,20 @@ export async function syncBotDescriptions(): Promise<{ ok: boolean; description?
 }
 
 /**
- * Helper to build rich interactive store inline keyboard with vibrant animated-feel badges
+ * Helper to build rich interactive store inline keyboard matching user's design template (Image 1)
  */
 export function getStoreInlineKeyboard(lang: BotLanguage = 'ug') {
   const b = BOT_I18N.storeButtons;
   return {
     inline_keyboard: [
-      // Row 1: Primary Hero Button (Open Store directly inside Telegram WebApp)
+      // Row 1: Image 1 top button ("🌐 توربەتكە كىرىش" replacing "قولاي تور سودىسى")
       [
         {
           text: b.webApp[lang] || b.webApp.ug,
           web_app: { url: TELEGRAM_CONFIG.storeUrl },
         },
       ],
-      // Row 2: In-Bot Quick Shop & Balance
+      // Row 2: Image 1 row 2 ("🛒 ✤ مەھسۇلاتلار دۇكىنى •" and "👤 ✤ شەخسىي ھېساباتىم •")
       [
         {
           text: b.shopCategories[lang] || b.shopCategories.ug,
@@ -1610,29 +1610,43 @@ export function getStoreInlineKeyboard(lang: BotLanguage = 'ug') {
           callback_data: 'tg_my_account',
         },
       ],
-      // Row 3: Deposit & Track Orders
+      // Row 3: Image 1 row 3 ("💳 ✤ پۇل قاچىلاش •" and "👨‍💻 ✤ مۇلازىمەت سەھىپىسى •")
       [
         {
           text: b.deposit[lang] || b.deposit.ug,
           callback_data: 'quick_deposit',
         },
         {
+          text: b.services[lang] || b.services.ug,
+          callback_data: 'quick_services',
+        },
+      ],
+      // Row 4: Image 1 row 4 ("📬 ✤ زاكازلىرىم / نومۇر •" and "✍️ ✤ پىكىر-تەكلىپ •", friends invite removed)
+      [
+        {
           text: b.trackOrders[lang] || b.trackOrders.ug,
           callback_data: 'quick_track',
         },
+        {
+          text: b.feedback[lang] || b.feedback.ug,
+          callback_data: 'quick_feedback',
+        },
       ],
-      // Row 4: 24/7 Support & Official Channel
+      // Row 5: Image 1 row 5 ("📞 ✤ باشقۇرغۇچى بىلەن ئالاقە •")
       [
         {
-          text: b.support[lang] || b.support.ug,
+          text: b.contactAdmin[lang] || b.contactAdmin.ug,
           url: TELEGRAM_CONFIG.supportUrl,
         },
+      ],
+      // Row 6: Image 1 row 6 ("📖 ✤ ئىشلىتىش قوللانمىسى •")
+      [
         {
-          text: b.channel[lang] || b.channel.ug,
-          url: TELEGRAM_CONFIG.channelUrl,
+          text: b.guide[lang] || b.guide.ug,
+          callback_data: 'quick_guide',
         },
       ],
-      // Row 5: Change Language
+      // Row 7: Image 1 row 7 ("🌐 تىل تاللاش / Language")
       [
         {
           text: b.changeLanguage[lang] || b.changeLanguage.ug,
@@ -1834,67 +1848,215 @@ function getAdminInlineKeyboard() {
 }
 
 /**
- * Step-by-step Interactive Tutorial / How-to Guide
+ * Interactive User Guide Menu matching Image 2
  */
-function getTutorialGuideMessage(firstName?: string): string {
-  const customerName = firstName ? `<b>${firstName}</b>` : 'ھۆرمەتلىك خېرىدارىمىز';
+function getUserGuideMenuMessage(): string {
   return `
-💡 <b>AUTO CASH قولايلىق ئىشلىتىش قوللانمىسى</b> 💡
-     🚀 <i>تېز، ئاددىي ۋە 1 مىنۇتتا پۇل قاچىلاش سىرلىرى</i> 🚀
+📖 <b>ئىشلىتىش قوللانمىسى</b>
 
-👋 <b>ئەسسالامۇ ئەلەيكۇم، ${customerName}!</b>
-سۇپىمىزدىن مال سېتىۋېلىش پەقەت 4 تاللا ئاددىي باسقۇچ:
-
-① 🛍️ <b>1-قەدەم: دۇكاننى ئېچىش</b> ➔
-• تۆۋەندىكى <b>«🛍️✨ 1-قەدەم: دۇكاننى ئېچىش»</b> كۇنۇپكىسىنى بېسىڭ. تېلېگرام ئىچىدىلا دۇكان ئېچىلىدۇ!
-
-② 🎯 <b>2-قەدەم: مەھسۇلات ۋە ID كىرگۈزۈش</b>
-• قاچىلىماقچى بولغان مەھسۇلات ياكى ئەپنى تاللاپ، ئېھتىياجلىق ID نومۇرىڭىزنى چاپلاڭ.
-
-③ 💎 <b>3-قەدەم: شامكەشتىن پۇل سېلىش</b> 💳
-• <b>«💎💳 2-قەدەم: شامكەش ئادرېسى ئېلىش»</b> كۇنۇپكىسىنى باسسىڭىز شامكەش نومۇرىمىز چىقىدۇ. پۇل ئەۋەتكەندىن كېيىن تالون نومۇرى (TxID) نى دۇكاندا دەلىللىسىڭىز، سېكۇنتتا ھەميانغا چۈشىدۇ!
-
-④ ⚡️ <b>4-قەدەم: سېكۇنتتا ئاپتوماتىك قاچىلاش</b> 🚀
-• ھەميان قالدۇقىڭىز بىلەن «سېتىۋېلىش»نى باسسىڭىز، سىستېما سېكۇنت ئىچىدە ھېساباتىڭىزغا ئۇدۇل يەتكۈزۈپ بېرىدۇ!
-
-👇 <b>سىناپ كۆرۈش ئۈچۈن تۆۋەندىكى كۇنۇپكىلارنىڭ بىرىنى بېسىڭ:</b>
+كۆرمەكچى بولغان قوللانمىنى تاللاڭ:
 `.trim();
 }
 
-function getTutorialInlineKeyboard() {
+function getUserGuideMenuKeyboard() {
   return {
     inline_keyboard: [
       [
-        {
-          text: '🛍️✨ 1-قەدەم: دۇكاننى ئېچىش | Open Store ➔',
-          web_app: { url: TELEGRAM_CONFIG.storeUrl },
-        },
+        { text: '⚡️ Sham Cash تىن بوتقا پۇل قاچىلاش', callback_data: 'guide_shamcash' },
       ],
       [
-        {
-          text: '💎💳 2-قەدەم: شامكەش ئادرېسى ئېلىش ⚡️',
-          callback_data: 'quick_deposit',
-        },
-        {
-          text: '🔥🎮 3-قەدەم: ئالقىشلىق مەھسۇلاتلار 🚀',
-          callback_data: 'quick_catalog',
-        },
+        { text: '⚡️ بوتقا پۇل قاچىلاش', callback_data: 'guide_deposit' },
       ],
       [
-        {
-          text: '💬✨ خېرىدارلار مۇلازىمىتىگە يېزىش 👨‍💻',
-          url: TELEGRAM_CONFIG.supportUrl,
-        },
-        {
-          text: '📢🔥 رەسمىي تېلېگرام قانال 🪐',
-          url: TELEGRAM_CONFIG.channelUrl,
-        },
+        { text: '💎 ئويۇنغا ئالماس قاچىلاش', callback_data: 'guide_games' },
       ],
       [
-        {
-          text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️',
-          callback_data: 'back_to_main',
-        },
+        { text: '📱 مەۋھۇم نومۇر سېتىۋېلىش', callback_data: 'guide_sms' },
+      ],
+      [
+        { text: '💵 كارتىغا پۇل قاچىلاش', callback_data: 'guide_cards' },
+      ],
+      [
+        { text: '🏠 باش بەتكە', callback_data: 'back_to_main' },
+      ],
+    ],
+  };
+}
+
+function getTutorialGuideMessage(_firstName?: string): string {
+  return getUserGuideMenuMessage();
+}
+
+function getTutorialInlineKeyboard() {
+  return getUserGuideMenuKeyboard();
+}
+
+function getGuideBackKeyboard(actionBtn?: { text: string; callback_data?: string; url?: string; web_app?: { url: string } }) {
+  const rows: any[][] = [];
+  if (actionBtn) {
+    rows.push([actionBtn]);
+  }
+  rows.push([
+    { text: '🔙 قوللانمىغا قايتىش', callback_data: 'quick_guide' },
+    { text: '🏠 باش بەتكە', callback_data: 'back_to_main' },
+  ]);
+  return { inline_keyboard: rows };
+}
+
+function getShamcashGuideText(): string {
+  return `
+⚡️ <b>Sham Cash تىن بوتقا پۇل قاچىلاش قوللانمىسى</b>
+━━━━━━━━━━━━━━━━━━━
+<i>شامكەش تالون نومۇرى (رقم العملية) ئارقىلىق 24/7 سېكۇنتتا پۇل كىرگۈزۈش</i>
+
+1️⃣ <b>شامكەش ھېسابات نومۇرىنى ئېلىش:</b>
+• بوت باش بېتىدىكى <b>«💳 ✤ پۇل قاچىلاش •»</b> كۇنۇپكىسىنى بېسىڭ.
+• سىستېما كۆرسەتكەن شامكەش نومۇرىمىزنى بېسىپلا كۆچۈرۈۋېلىڭ.
+
+2️⃣ <b>Sham Cash ئەپىدىن پۇل يۆتكەش:</b>
+• يانفونىڭىزدىكى Sham Cash ئەپىنى ئېچىپ، كۆچۈرۈۋالغان ھېساباتىمىزغا پۇلنى يۆتكەڭ (تحويل).
+• پۇل ئەۋەتىلگەندىن كېيىن، ئېكراندا چىققان تالوندىكى <b>«رقم العملية» (تالون نومۇرى)</b> نى كۆچۈرۈڭ (مەسىلەن: 12345678).
+
+3️⃣ <b>تالون نومۇرىنى بوتقا كىرگۈزۈش:</b>
+• بوتقا قايتىپ <b>«💎 تالون نومۇرى بىلەن دەلىللەش»</b> كۇنۇپكىسىنى بېسىڭ ۋە تالون نومۇرىڭىزنى ئەۋەتىڭ.
+• سىستېما تالوننى ئاپتوماتىك تەكشۈرۈپ، پۇلنى 1-3 سېكۇنتتا ھەميان قالدۇقىڭىزغا قوشۇپ بېرىدۇ!
+
+💡 <i>پۇل كىرگەندىن كېيىن دۇكاندىن خالىغان نەرسىنى دەرھال سېتىۋالالايسىز!</i>
+`.trim();
+}
+
+function getDepositGeneralGuideText(): string {
+  return `
+⚡️ <b>بوتقا پۇل قاچىلاش ئۇسۇللىرى قوللانمىسى</b>
+━━━━━━━━━━━━━━━━━━━
+<i>ھەميانغا بىخەتەر، تېز ۋە قولايلىق پۇل كىرگۈزۈش</i>
+
+1️⃣ <b>ئاپتوماتىك شامكەش (Sham Cash):</b>
+• 24 سائەت توختىماي ئىشلەيدۇ. تالون نومۇرىڭىزنى ئەۋەتسىڭىزلا سېكۇنتتا ھەميانغا پۇل كىرىدۇ.
+
+2️⃣ <b>باشقۇرغۇچى ئارقىلىق كىرگۈزۈش (USDT, بانكا, كرىپتو):</b>
+• ئەگەر باشقا پۇل تۆلەش ئۇسۇللىرىدا پۇل كىرگۈزمەكچى بولسىڭىز، <b>«📞 ✤ باشقۇرغۇچى بىلەن ئالاقە •»</b> كۇنۇپكىسىنى بېسىپ مۇلازىمەتكە خەت يېزىڭ، باشقۇرغۇچى ھېساباتىڭىزغا دەقىقىدە پۇل سالىدۇ.
+
+3️⃣ <b>ھېسابات قالدۇقىنى كۆرۈش:</b>
+• باش بەتتىكى <b>«👤 ✤ شەخسىي ھېساباتىم •»</b> نى باسسىڭىز، قالدۇقىڭىز، جەمئىي خىراجىتىڭىز ۋە VIP دەرىجىڭىز كۆرۈنىدۇ.
+`.trim();
+}
+
+function getGamesTopupGuideText(): string {
+  return `
+💎 <b>ئويۇنغا ئالماس ۋە UC قاچىلاش قوللانمىسى</b>
+━━━━━━━━━━━━━━━━━━━
+<i>PUBG Mobile, Mobile Legends, Free Fire ۋە باشقا بارلىق ئويۇنلار</i>
+
+1️⃣ <b>ئويۇن ۋە بۆلەكنى تاللاش:</b>
+• باش بەتتىكى <b>«🛒 ✤ مەھسۇلاتلار دۇكىنى •»</b> نى بېسىپ، «🎮 ئويۇن مەھسۇلاتلىرى» كۆزنىكىگە كىرىڭ.
+• قاچىلىماقچى بولغان ئويۇنىڭىزنى تاللاڭ.
+
+2️⃣ <b>بولاق تاللاش:</b>
+• مىقدار تىزىملىكىدىن كېرەكلىك UC ياكى ئالماس بولىقىنى بىر چېكىپ تاللاڭ.
+
+3️⃣ <b>ئويۇنچى ID كىرگۈزۈش:</b>
+• ئويۇنچى ID (User ID) نومۇرىڭىزنى كىرگۈزۈڭ.
+• ئەگەر Mobile Legends بولسا، رايون نومۇرى (Zone ID / Server ID) نىمۇ قوشۇپ كىرگۈزۈڭ (مەسىلەن: 1234).
+
+4️⃣ <b>سېكۇنتتا قاچىلاش:</b>
+• «⚡️ جەزملەشتۈرۈپ سېتىۋېلىش» نى باسسىڭىز، سىستېما پۇلنى ھەمياندىن تۇتۇپ، 1-3 سېكۇنتتا ئويۇن ھېساباتىڭىزغا بىۋاسىتە يەتكۈزۈپ بېرىدۇ!
+`.trim();
+}
+
+function getSmsGuideText(): string {
+  return `
+📱 <b>مەۋھۇم نومۇر سېتىۋېلىش قوللانمىسى</b>
+━━━━━━━━━━━━━━━━━━━
+<i>Telegram, WhatsApp, TikTok, OpenAI ئۈچۈن SMS كود نومۇرى ئېلىش</i>
+
+1️⃣ <b>ئەپ ۋە دۆلەتنى تاللاش:</b>
+• <b>«🛒 ✤ مەھسۇلاتلار دۇكىنى •»</b> دىن «📱 مەۋھۇم نومۇرلار» كۆزنىكىگە كىرىپ، قايسى ئەپكە نومۇر ئالماقچى بولسىڭىز شۇنى ۋە كېرەكلىك دۆلەتنى تاللاڭ.
+
+2️⃣ <b>نومۇر سېتىۋېلىش:</b>
+• جەزملەشتۈرۈپ سېتىۋالغاندىن كېيىن، سىستېما سىزگە يېڭى بىر تېلېفون نومۇرىنى دەرھال چىقىرىپ بېرىدۇ.
+
+3️⃣ <b>كود تاپشۇرۇۋېلىش:</b>
+• بېرىلگەن نومۇرنى ئەپكە كىرگۈزۈپ «كود ئەۋەتىش» نى بېسىڭ.
+• بىر نەچچە سېكۇنت ئىچىدە كەلگەن دەلىللەش SMS كودى بوت ئېكرانىدا ئاپتوماتىك كۆرۈنىدۇ.
+
+🛡️ <b>%100 قايتۇرۇش كاپالىتى:</b>
+• ئەگەر كود كەلمىسە ياكى «بىكار قىلىش» كۇنۇپكىسىنى باسسىڭىز، پۇلىڭىز ھەميان قالدۇقىڭىزغا 1 سېكۇنتتا تولۇق قايتۇرۇلىدۇ!
+`.trim();
+}
+
+function getCardsGuideText(): string {
+  return `
+💵 <b>كارتىغا پۇل قاچىلاش قوللانمىسى</b>
+━━━━━━━━━━━━━━━━━━━
+<i>Wi-Fi تور كارتىلىرى، تېلېفون لىنىيەلىرى ۋە رەقەملىك كارتىلار</i>
+
+1️⃣ <b>Wi-Fi تور كارتىلىرى:</b>
+• دۇكاندىن Wi-Fi تور كارتىسىنى تاللاپ سېتىۋالسىڭىز، سىستېما سىزگە دەرھال ئىكراندا 👤 <b>Username</b> ۋە 🔑 <b>Password</b> نى چىقىرىپ بېرىدۇ. بىۋاسىتە كىرىپ تور ئىشلەتسىڭىز بولىدۇ.
+
+2️⃣ <b>تېلېفون لىنىيەلىرى (MTN, Syriatel, Turkcell):</b>
+• دۇكاندىن لىنىيە تۈرىنى تاللاپ تېلېفون نومۇرىڭىزنى كىرگۈزسىڭىز، سىستېما پۇلنى بىۋاسىتە سىمكارتىڭىزغا يەتكۈزۈپ بېرىدۇ.
+
+3️⃣ <b>سوۋغات ۋە ئەپ كارتىلىرى:</b>
+• Google Play، Apple iTunes، ChatGPT Plus، Netflix كارتىلىرىنى سېتىۋالسىڭىز مەخسۇس ئاكتىپلاش كودى بېرىلىدۇ.
+`.trim();
+}
+
+function getServicesMenuMessage(): string {
+  return `
+👨‍💻 <b>AUTO CASH | مۇلازىمەت سەھىپىسى</b>
+━━━━━━━━━━━━━━━━━━━
+🌟 <b>بىزنىڭ ئاساسلىق رەسمىي مۇلازىمەتلىرىمىز:</b>
+
+① 🎮 <b>ئويۇن مەھسۇلاتلىرى:</b> PUBG Mobile (UC), Mobile Legends, Free Fire, Call of Duty, Honor of Kings قاتارلىقلار.
+② 📱 <b>مەۋھۇم نومۇرلار (SMS):</b> Telegram, WhatsApp, TikTok, OpenAI خەلقئارالىق تېز كود نومۇرلىرى.
+③ 📶 <b>Wi-Fi ۋە لىنىيە كارتىلىرى:</b> Wi-Fi تور كارتىلىرى، تۈركىيە Turkcell، سۈرىيە MTN & Syriatel لىنىيەلىرى.
+④ 🤖 <b>سۈنئىي ئەقىل (AI) & ئەپلەر:</b> ChatGPT Plus, Grok Plus, Canva Pro, Telegram Premium.
+⑤ 💳 <b>شامكەش (Sham Cash):</b> تالون نومۇرى بىلەن سېكۇنتتا ھەميانغا پۇل كىرىش كاپالىتى.
+
+⚡️ <i>بارلىق مۇلازىمەتلەر تولۇق ئاپتوماتلاشقان، 24/7 سېكۇنتتا قاچىلىنىدۇ!</i>
+`.trim();
+}
+
+function getServicesMenuKeyboard() {
+  return {
+    inline_keyboard: [
+      [
+        { text: '💱 پۇل پېرېۋوت باھاسى 📊', callback_data: 'quick_rates' },
+        { text: '❓ كۆپ سورىلىدىغان سوئاللار 💡', callback_data: 'quick_faq' },
+      ],
+      [
+        { text: '👑 VIP ئەزالىق تۈزۈمى 🌟', callback_data: 'quick_vip' },
+        { text: '💬 خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl },
+      ],
+      [
+        { text: '🔙 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' },
+      ],
+    ],
+  };
+}
+
+function getFeedbackMessage(): string {
+  return `
+✍️ <b>پىكىر-تەكلىپ بېرىش</b>
+━━━━━━━━━━━━━━━━━━━
+ھۆرمەتلىك خېرىدارىمىز!
+<b>AUTO CASH</b> سۇپىسىنى تاللىغىنىڭىزغا رەھمەت! بىزنىڭ مۇلازىمىتىمىزنى ياخشىلاشقا دائىر تەكلىپ-پىكىرلىرىڭىز بىز ئۈچۈن ئىنتايىن قىممەتلىك.
+
+💡 <b>تەكلىپ ئەۋەتىش ئۇسۇللىرى:</b>
+1️⃣ تۆۋەندىكى كۇنۇپكىنى بېسىپ بىۋاسىتە باشقۇرغۇچىغا خەت يازسىڭىز دەرھال كۆرىدۇ.
+2️⃣ ياكى مۇشۇ يەرگىلا <code>/feedback سىزنىڭ پىكىرىڭىز</code> دەپ يېزىپ ئەۋەتسىڭىز، سىستېما ئۇچۇرىڭىزنى باشقۇرغۇچىغا دەرھال يەتكۈزۈپ بېرىدۇ.
+`.trim();
+}
+
+function getFeedbackKeyboard() {
+  return {
+    inline_keyboard: [
+      [
+        { text: '💬 باشقۇرغۇچىغا بىۋاسىتە خەت يېزىش 👨‍💻', url: TELEGRAM_CONFIG.supportUrl },
+      ],
+      [
+        { text: '🔙 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' },
       ],
     ],
   };
@@ -2711,11 +2873,90 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       return;
     }
 
-    // 7. Quick Guide / Tutorial
+    // 7. Quick Guide Menu (Image 2)
     if (data === 'quick_guide') {
       await answerCallbackQuery(cqId);
-      const guideText = getTutorialGuideMessage(cq.from?.first_name);
-      await showOrEditMessage(chatId, messageId, guideText, getTutorialInlineKeyboard());
+      const guideText = getUserGuideMenuMessage();
+      await showOrEditMessage(chatId, messageId, guideText, getUserGuideMenuKeyboard());
+      return;
+    }
+
+    if (data === 'guide_shamcash') {
+      await answerCallbackQuery(cqId);
+      await showOrEditMessage(
+        chatId,
+        messageId,
+        getShamcashGuideText(),
+        getGuideBackKeyboard({ text: '💳 شامكەش ئادرېسى ئېلىش ⚡️', callback_data: 'quick_deposit' })
+      );
+      return;
+    }
+
+    if (data === 'guide_deposit') {
+      await answerCallbackQuery(cqId);
+      await showOrEditMessage(
+        chatId,
+        messageId,
+        getDepositGeneralGuideText(),
+        getGuideBackKeyboard({ text: '💳 ھازىرلا پۇل كىرگۈزۈش ⚡️', callback_data: 'quick_deposit' })
+      );
+      return;
+    }
+
+    if (data === 'guide_games') {
+      await answerCallbackQuery(cqId);
+      await showOrEditMessage(
+        chatId,
+        messageId,
+        getGamesTopupGuideText(),
+        getGuideBackKeyboard({ text: '🛒 ئويۇن تۈرلىرىگە كىرىش 🎮', callback_data: 'tg_shop_categories' })
+      );
+      return;
+    }
+
+    if (data === 'guide_sms') {
+      await answerCallbackQuery(cqId);
+      await showOrEditMessage(
+        chatId,
+        messageId,
+        getSmsGuideText(),
+        getGuideBackKeyboard({ text: '🛒 مەۋھۇم نومۇر سېتىۋېلىش 📱', callback_data: 'tg_shop_categories' })
+      );
+      return;
+    }
+
+    if (data === 'guide_cards') {
+      await answerCallbackQuery(cqId);
+      await showOrEditMessage(
+        chatId,
+        messageId,
+        getCardsGuideText(),
+        getGuideBackKeyboard({ text: '🛒 كارتىلارنى كۆرۈش 💵', callback_data: 'tg_shop_categories' })
+      );
+      return;
+    }
+
+    // 7.1 Services Menu
+    if (data === 'quick_services') {
+      await answerCallbackQuery(cqId);
+      await showOrEditMessage(
+        chatId,
+        messageId,
+        getServicesMenuMessage(),
+        getServicesMenuKeyboard()
+      );
+      return;
+    }
+
+    // 7.2 Feedback Menu
+    if (data === 'quick_feedback') {
+      await answerCallbackQuery(cqId);
+      await showOrEditMessage(
+        chatId,
+        messageId,
+        getFeedbackMessage(),
+        getFeedbackKeyboard()
+      );
       return;
     }
 
@@ -3088,7 +3329,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     return;
   }
 
-  // 1.1 Command /guide, /how, /ogren (Interactive Teaching & How-To Mode)
+  // 1.1 Command /guide, /how, /ogren (Interactive User Guide Menu matching Image 2)
   if (
     text.startsWith('/guide') ||
     text.startsWith('/how') ||
@@ -3096,10 +3337,68 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     text.startsWith('/tutorial') ||
     text.startsWith('/kollanma')
   ) {
-    const guideText = getTutorialGuideMessage(from?.first_name);
+    const guideText = getUserGuideMenuMessage();
     await sendTelegramMessage(chatId, guideText, {
       parse_mode: 'HTML',
-      reply_markup: getTutorialInlineKeyboard(),
+      reply_markup: getUserGuideMenuKeyboard(),
+    });
+    return;
+  }
+
+  // 1.2 Command /services (Services section)
+  if (text.startsWith('/services') || text.startsWith('/mulazimet')) {
+    await sendTelegramMessage(chatId, getServicesMenuMessage(), {
+      parse_mode: 'HTML',
+      reply_markup: getServicesMenuKeyboard(),
+    });
+    return;
+  }
+
+  // 1.3 Command /feedback, /tarih, /fikir (Customer Feedback & Suggestions)
+  if (
+    text.startsWith('/feedback') ||
+    text.startsWith('/fikir') ||
+    text.startsWith('/taklif') ||
+    text.startsWith('/pikir')
+  ) {
+    const content = text.replace(/^\/(feedback|fikir|taklif|pikir)/i, '').trim();
+    if (!content) {
+      await sendTelegramMessage(chatId, getFeedbackMessage(), {
+        parse_mode: 'HTML',
+        reply_markup: getFeedbackKeyboard(),
+      });
+      return;
+    }
+    // Forward feedback directly to admin
+    const adminChatId = 7575664493;
+    const fromInfo = from?.username ? `@${from.username} (${from.first_name || ''})` : `${from?.first_name || 'خېرىدار'} [ID: ${from?.id || chatId}]`;
+    const cleanContent = content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const adminMsg = `
+✍️ <b>يېڭى خېرىدار پىكىر-تەكلىپى:</b>
+━━━━━━━━━━━━━━━━━━━
+👤 <b>خېرىدار:</b> ${fromInfo}
+🆔 <b>Chat ID:</b> <code>${chatId}</code>
+⏰ <b>ۋاقتى:</b> ${new Date().toLocaleString()}
+
+📝 <b>مەزمۇنى:</b>
+${cleanContent}
+    `.trim();
+    try {
+      await sendTelegramMessage(adminChatId, adminMsg);
+    } catch (e) {
+      console.warn('Failed forwarding feedback to admin:', e);
+    }
+    await sendTelegramMessage(chatId, `
+✅ <b>تەكلىپ-پىكىرىڭىز قوبۇل قىلىندى!</b>
+━━━━━━━━━━━━━━━━━━━
+ھۆرمەتلىك خېرىدارىمىز، پىكىرىڭىز مەسئۇل باشقۇرغۇچىغا دەرھال يەتكۈزۈلدى. بىزنى قوللىغىنىڭىزغا كۆپ تەشەككۈر! 🌟
+    `.trim(), {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '🏠 باش بەتكە قايتىش', callback_data: 'back_to_main' }],
+        ],
+      },
     });
     return;
   }
