@@ -245,62 +245,62 @@ export function formatCleanGameTitle(serviceId: string, rawName: string): string
   const name = (rawName || '').toLowerCase();
 
   if (id.includes('mobile_legends') || name.includes('mobile legends')) {
-    return '💎 ✤ Mobile Legends •';
+    return '💎 Mobile Legends';
   }
   if (id.includes('pubg') || name.includes('pubg')) {
-    return '🌕 ✤ PUBG Mobile •';
+    return '🎮 PUBG Mobile (پابجى)';
   }
   if (id.includes('free_fire') || id.includes('freefire') || name.includes('free fire')) {
-    return '💎 ✤ Free Fire •';
+    return '🔥 Free Fire';
   }
   if (id.includes('call_of_duty') || id.includes('cod') || name.includes('call of duty')) {
-    return '✤ Call of Duty 🔫•';
+    return '🔫 Call of Duty';
   }
   if (id.includes('honor_of_kings') || id.includes('hok') || name.includes('honor of kings')) {
-    return '✤ Honor of Kings 💠•';
+    return '💠 Honor of Kings';
   }
   if (id.includes('blood_strike') || name.includes('blood strike')) {
-    return '🌕 ✤ Blood Strike •';
+    return '🎯 Blood Strike';
   }
   if (id.includes('arena_breakout') || name.includes('arena breakout')) {
-    return '✤ Arena Breakout 🗃•';
+    return '🗃️ Arena Breakout';
   }
   if (id.includes('delta_force') || name.includes('delta force')) {
-    return '🎯 ✤ Delta Force •';
+    return '🎯 Delta Force';
   }
   if (id.includes('genshin') || name.includes('genshin')) {
-    return '✨ ✤ Genshin Impact •';
+    return '✨ Genshin Impact';
   }
   if (id.includes('whiteout') || name.includes('whiteout')) {
-    return '❄️ ✤ Whiteout Survival •';
+    return '❄️ Whiteout Survival';
   }
   if (id.includes('efootball') || name.includes('efootball')) {
-    return '⚽ ✤ eFootball •';
+    return '⚽ eFootball';
   }
   if (id.includes('ball_pool') || name.includes('8 ball pool')) {
-    return '🎱 ✤ 8 Ball Pool •';
+    return '🎱 8 Ball Pool';
   }
   if (id.includes('yalla_ludo') || name.includes('yalla ludo')) {
-    return '🎲 ✤ Yalla Ludo •';
+    return '🎲 Yalla Ludo';
   }
   if (id.includes('jawaker') || name.includes('jawaker')) {
-    return '🃏 ✤ Jawaker •';
+    return '🃏 Jawaker';
   }
   if (id.includes('clash_of_clans') || name.includes('clash of clans')) {
-    return '⚔️ ✤ Clash of Clans •';
+    return '⚔️ Clash of Clans';
   }
   if (id.includes('brawl_stars') || name.includes('brawl stars')) {
-    return '⭐ ✤ Brawl Stars •';
+    return '⭐ Brawl Stars';
   }
   if (id.includes('roblox') || name.includes('roblox')) {
-    return '🟥 ✤ Roblox •';
+    return '🟥 Roblox';
   }
 
   const clean = rawName
     .replace(/\s*\([^)]*\)/g, '')
     .replace(/شحن فوري ومباشر|شحن فوري|عن طريق الايدي|برقم الايدي|\(شەن\)|\(شەدەن\)/gi, '')
     .trim();
-  return `🎮 ✤ ${clean || rawName} •`;
+  return `🎮 ${clean || rawName}`;
 }
 
 export function formatCleanGameBaseName(serviceId: string, rawName: string): string {

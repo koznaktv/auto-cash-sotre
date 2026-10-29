@@ -1590,72 +1590,51 @@ export function getStoreInlineKeyboard(lang: BotLanguage = 'ug') {
   const b = BOT_I18N.storeButtons;
   return {
     inline_keyboard: [
-      [
-        {
-          text: b.shopCategories[lang] || b.shopCategories.ug,
-          callback_data: 'tg_shop_categories',
-        },
-      ],
+      // Row 1: Primary Hero Button (Open Store directly inside Telegram WebApp)
       [
         {
           text: b.webApp[lang] || b.webApp.ug,
           web_app: { url: TELEGRAM_CONFIG.storeUrl },
         },
       ],
+      // Row 2: In-Bot Quick Shop & Balance
       [
+        {
+          text: b.shopCategories[lang] || b.shopCategories.ug,
+          callback_data: 'tg_shop_categories',
+        },
         {
           text: b.myAccount[lang] || b.myAccount.ug,
           callback_data: 'tg_my_account',
         },
+      ],
+      // Row 3: Deposit & Track Orders
+      [
         {
           text: b.deposit[lang] || b.deposit.ug,
           callback_data: 'quick_deposit',
         },
-      ],
-      [
         {
           text: b.trackOrders[lang] || b.trackOrders.ug,
           callback_data: 'quick_track',
         },
-        {
-          text: b.rates[lang] || b.rates.ug,
-          callback_data: 'quick_rates',
-        },
       ],
+      // Row 4: 24/7 Support & Official Channel
       [
         {
-          text: b.faq[lang] || b.faq.ug,
-          callback_data: 'quick_faq',
+          text: b.support[lang] || b.support.ug,
+          url: TELEGRAM_CONFIG.supportUrl,
         },
-        {
-          text: b.vip[lang] || b.vip.ug,
-          callback_data: 'quick_vip',
-        },
-      ],
-      [
-        {
-          text: b.guide[lang] || b.guide.ug,
-          callback_data: 'quick_guide',
-        },
-        {
-          text: b.download[lang] || b.download.ug,
-          callback_data: 'quick_download',
-        },
-      ],
-      [
-        {
-          text: b.changeLanguage[lang] || b.changeLanguage.ug,
-          callback_data: 'bot_lang_menu',
-        },
-      ],
-      [
         {
           text: b.channel[lang] || b.channel.ug,
           url: TELEGRAM_CONFIG.channelUrl,
         },
+      ],
+      // Row 5: Change Language
+      [
         {
-          text: b.support[lang] || b.support.ug,
-          url: TELEGRAM_CONFIG.supportUrl,
+          text: b.changeLanguage[lang] || b.changeLanguage.ug,
+          callback_data: 'bot_lang_menu',
         },
       ],
     ],
