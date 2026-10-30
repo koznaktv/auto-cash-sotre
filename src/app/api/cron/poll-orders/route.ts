@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import '@/lib/serverKeepAlive';
 import { verifyCronRequest } from '@/lib/cronAuth';
 import { pollProviderOrders } from '@/lib/provider/orderPoller';
 

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import '@/lib/serverKeepAlive';
 import { verifyAdminToken } from '@/lib/adminAuth';
 import {
   handleTelegramWebhook,
