@@ -111,7 +111,7 @@ export async function getTsaConfig(): Promise<{
   maxAgeMinutes: number;
 }> {
   const settings = await getSystemSettingsAsync();
-  const apiKey = (settings.tsaApiKey || process.env.TSA_API_KEY || '').trim();
+  const apiKey = (settings.tsaApiKey || process.env.SHAM_CASH_API_KEY || process.env.TSA_API_KEY || '').trim();
   const shamcashAddress = (settings.shamcashAddress || process.env.SHAMCASH_ADDRESS || '').trim();
   const autoDepositEnabled =
     settings.tsaAutoDepositEnabled !== undefined

@@ -112,7 +112,7 @@ export async function POST(req: Request) {
       let accountAddress = body.accountAddress ? String(body.accountAddress).trim() : undefined;
 
       const currentSettings = await getSystemSettingsAsync();
-      const testKey = apiKey || currentSettings.tsaApiKey || process.env.TSA_API_KEY || '';
+      const testKey = apiKey || currentSettings.tsaApiKey || process.env.SHAM_CASH_API_KEY || process.env.TSA_API_KEY || '';
       let testAddress = accountAddress || currentSettings.shamcashAddress || process.env.SHAMCASH_ADDRESS || '';
 
       if (!testKey) {

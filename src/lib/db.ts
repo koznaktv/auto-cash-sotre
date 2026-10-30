@@ -140,7 +140,7 @@ const initialDefaultData: DatabaseSchema = {
     providerApiType: 'syria4game',
     providerApiSecret: '',
     providerEnabled: true,
-    tsaApiKey: process.env.TSA_API_KEY || '',
+    tsaApiKey: process.env.SHAM_CASH_API_KEY || process.env.TSA_API_KEY || '',
     tsaAutoDepositEnabled: true,
     shamcashExchangeRate: Number(process.env.SHAMCASH_EXCHANGE_RATE || 143),
   },
@@ -313,7 +313,7 @@ function mapSupabaseSettings(row: any): SystemSettings {
     providerApiType: row.provider_api_type ?? undefined,
     providerApiSecret: row.provider_api_secret ?? undefined,
     providerEnabled: row.provider_enabled !== undefined ? Boolean(row.provider_enabled) : undefined,
-    tsaApiKey: row.tsa_api_key ?? process.env.TSA_API_KEY ?? undefined,
+    tsaApiKey: row.tsa_api_key ?? process.env.SHAM_CASH_API_KEY ?? process.env.TSA_API_KEY ?? undefined,
     tsaAutoDepositEnabled: row.tsa_auto_deposit !== undefined ? Boolean(row.tsa_auto_deposit) : undefined,
     shamcashExchangeRate: row.shamcash_exchange_rate ? Number(row.shamcash_exchange_rate) : undefined,
   };
