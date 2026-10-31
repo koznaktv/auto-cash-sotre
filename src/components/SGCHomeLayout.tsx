@@ -334,10 +334,9 @@ const ProductRowCarousel = React.memo(function ProductRowCarousel({
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
-        className="flex gap-2.5 sm:gap-3.5 overflow-x-auto pb-3 pt-1 scrollbar-none select-none overscroll-x-contain -mx-3.5 px-3.5 sm:mx-0 sm:px-0 cursor-grab active:cursor-grabbing"
+        className="flex gap-2.5 sm:gap-3.5 overflow-x-auto pb-3 pt-1 scrollbar-none select-none -mx-3.5 px-3.5 sm:mx-0 sm:px-0 cursor-grab active:cursor-grabbing"
         style={{
           WebkitOverflowScrolling: 'touch',
-          touchAction: 'pan-x',
         }}
       >
         {visibleItems.map((item) => (
@@ -650,7 +649,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
     }
 
     return list;
-  }, [activeCategory, appsList, aiList, wifiList, cardsList, socialList, gamesList, searchQuery, serverServices]);
+  }, [activeCategory, appsList, aiList, numbersList, wifiList, cardsList, socialList, gamesList, searchQuery, serverServices]);
 
   const handleBannerAction = (slide: typeof promoSlides[0] & { targetId?: string }) => {
     if (slide.targetRoute) {
@@ -1719,10 +1718,9 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
             onMouseMove={handleCategoryMouseMove}
             onMouseUp={handleCategoryMouseUp}
             onMouseLeave={handleCategoryMouseUp}
-            className="flex-1 flex gap-2 sm:gap-2.5 overflow-x-auto pb-2 pt-1 scrollbar-none select-none overscroll-x-contain cursor-grab active:cursor-grabbing"
+            className="flex-1 flex gap-2 sm:gap-2.5 overflow-x-auto pb-2 pt-1 scrollbar-none select-none cursor-grab active:cursor-grabbing"
             style={{
               WebkitOverflowScrolling: 'touch',
-              touchAction: 'pan-x'
             }}
           >
             {/* 1. ئەپلەر */}
