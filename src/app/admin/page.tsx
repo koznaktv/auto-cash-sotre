@@ -301,6 +301,7 @@ export default function AdminPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [userSortBy, setUserSortBy] = useState<'deposits' | 'profit' | 'balance' | 'spent'>('deposits');
 
   // Categories State
   const [categoriesList, setCategoriesList] = useState<CategoryItem[]>([]);
@@ -3065,15 +3066,50 @@ export default function AdminPage() {
     setCurrentPage(1);
   }, [categoryFilter, searchQuery, productSourceFilter]);
 
-  // Filtered Users
+  // Filtered & Sorted Users (Default: Most Deposited first, then Highest Customer Profit)
   const filteredUsers = useMemo(() => {
-    return users.filter(
+    const list = users.filter(
       (u) =>
         u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (u.phone && u.phone.includes(searchQuery))
     );
-  }, [users, searchQuery]);
+
+    return [...list].sort((a, b) => {
+      const stA = userStatsMap.get(a.id) || { totalDeposited: 0, totalSpent: a.totalSpent || 0, customerProfit: 0, orderCount: 0 };
+      const stB = userStatsMap.get(b.id) || { totalDeposited: 0, totalSpent: b.totalSpent || 0, customerProfit: 0, orderCount: 0 };
+
+      if (userSortBy === 'profit') {
+        if (stB.customerProfit !== stA.customerProfit) {
+          return stB.customerProfit - stA.customerProfit;
+        }
+        return stB.totalDeposited - stA.totalDeposited;
+      }
+
+      if (userSortBy === 'balance') {
+        const balA = Number(a.balance || 0);
+        const balB = Number(b.balance || 0);
+        if (balB !== balA) return balB - balA;
+        return stB.totalDeposited - stA.totalDeposited;
+      }
+
+      if (userSortBy === 'spent') {
+        if (stB.totalSpent !== stA.totalSpent) {
+          return stB.totalSpent - stA.totalSpent;
+        }
+        return stB.totalDeposited - stA.totalDeposited;
+      }
+
+      // Default: 'deposits' (ئەڭ جىق پۇل قاچىلىغان، ئەڭ كۆپ پايدا بەرگەن بويىچە ئۈستىدىن ئاستىغا)
+      if (stB.totalDeposited !== stA.totalDeposited) {
+        return stB.totalDeposited - stA.totalDeposited;
+      }
+      if (stB.customerProfit !== stA.customerProfit) {
+        return stB.customerProfit - stA.customerProfit;
+      }
+      return (Number(b.balance || 0)) - (Number(a.balance || 0));
+    });
+  }, [users, searchQuery, userStatsMap, userSortBy]);
 
   // If NOT authenticated, render Secure PIN screen
   if (!isAuthenticated) {
@@ -4808,8 +4844,8 @@ export default function AdminPage() {
           {/* ================= TAB 5: USERS MANAGEMENT ================= */}
           {activeTab === 'users' && (
             <div className="space-y-4 animate-in fade-in duration-300">
-              <div className={`p-4 rounded-2xl ${themeClasses.card} flex flex-col sm:flex-row items-center justify-between gap-3`}>
-                <div className="relative w-full sm:w-80">
+              <div className={`p-4 rounded-2xl ${themeClasses.card} flex flex-col md:flex-row items-center justify-between gap-3`}>
+                <div className="relative w-full md:w-72">
                   <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="text"
@@ -4820,7 +4856,45 @@ export default function AdminPage() {
                   />
                 </div>
 
-                <div className="text-xs text-slate-400">
+                {/* Quick Sort Options */}
+                <div className="flex flex-wrap items-center gap-1.5 text-xs w-full md:w-auto">
+                  <span className="text-slate-400 text-[11px] ml-1">تەرتىپلەش:</span>
+                  <button
+                    type="button"
+                    onClick={() => setUserSortBy('deposits')}
+                    className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1 cursor-pointer ${
+                      userSortBy === 'deposits'
+                        ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/60 shadow-sm shadow-cyan-500/20'
+                        : 'bg-slate-800/60 text-slate-400 hover:text-white border border-slate-700/50'
+                    }`}
+                  >
+                    📥 ئەڭ كۆپ قاچىلىغانلار
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUserSortBy('profit')}
+                    className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1 cursor-pointer ${
+                      userSortBy === 'profit'
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/60 shadow-sm shadow-emerald-500/20'
+                        : 'bg-slate-800/60 text-slate-400 hover:text-white border border-slate-700/50'
+                    }`}
+                  >
+                    💎 ئەڭ كۆپ پايدا بەرگەنلەر
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUserSortBy('balance')}
+                    className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1 cursor-pointer ${
+                      userSortBy === 'balance'
+                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/60 shadow-sm shadow-amber-500/20'
+                        : 'bg-slate-800/60 text-slate-400 hover:text-white border border-slate-700/50'
+                    }`}
+                  >
+                    💰 قالدۇق پۇلى كۆپلەر
+                  </button>
+                </div>
+
+                <div className="text-xs text-slate-400 shrink-0">
                   جەمئىي ئەزالار: <span className="font-mono font-bold text-white">{users.length}</span> نەپەر
                 </div>
               </div>
@@ -4924,7 +4998,7 @@ export default function AdminPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredUsers.map((user) => {
+                      {filteredUsers.map((user, index) => {
                         const st = userStatsMap.get(user.id) || { totalDeposited: 0, totalSpent: user.totalSpent || 0, customerProfit: 0, orderCount: 0 };
                         const avatarImg = user.avatarUrl || user.image || user.avatar;
                         const initialLetter = (user.name || user.email || 'U').charAt(0).toUpperCase();
@@ -4934,6 +5008,28 @@ export default function AdminPage() {
                           {/* User Avatar & Name & ID */}
                           <td className="py-3 px-3">
                             <div className="flex items-center gap-2.5">
+                              {/* Rank medal badge */}
+                              {index === 0 && (
+                                <span className="w-5 h-5 rounded-full bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center shrink-0 shadow-md shadow-amber-400/40" title="1-ئورۇن (TOP 1)">
+                                  🥇
+                                </span>
+                              )}
+                              {index === 1 && (
+                                <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-950 font-black text-xs flex items-center justify-center shrink-0 shadow-md shadow-slate-300/40" title="2-ئورۇن (TOP 2)">
+                                  🥈
+                                </span>
+                              )}
+                              {index === 2 && (
+                                <span className="w-5 h-5 rounded-full bg-amber-700 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-md shadow-amber-800/40" title="3-ئورۇن (TOP 3)">
+                                  🥉
+                                </span>
+                              )}
+                              {index > 2 && (
+                                <span className="w-5 h-5 rounded-full bg-slate-800/80 text-slate-400 font-mono text-[10px] flex items-center justify-center shrink-0 border border-slate-700/50">
+                                  {index + 1}
+                                </span>
+                              )}
+
                               <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-600 to-amber-500 flex items-center justify-center text-white font-black text-xs shrink-0 overflow-hidden shadow-md border border-white/10">
                                 {avatarImg ? (
                                   <img src={avatarImg} alt="" className="w-full h-full object-cover" onError={(e) => ((e.target as any).style.display = 'none')} />
