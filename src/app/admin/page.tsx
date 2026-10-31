@@ -11,6 +11,7 @@ import { detectServiceInputs, getServiceDefaultBio } from '@/lib/catalog/product
 import DynamicIcon from '@/components/DynamicIcon';
 import AdminWifiInventory from '@/components/admin/AdminWifiInventory';
 import AdminPromotionsManager from '@/components/admin/AdminPromotionsManager';
+import AdminPricingManager from '@/components/admin/AdminPricingManager';
 import {
   LayoutDashboard,
   Flame,
@@ -264,7 +265,7 @@ export default function AdminPage() {
 
   // Navigation tab
   const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'orders' | 'provider' | 'sms' | 'promotions' | 'banners' | 'deposits' | 'users' | 'finance' | 'settings' | 'wifi'
+    'dashboard' | 'orders' | 'pricing' | 'provider' | 'sms' | 'promotions' | 'banners' | 'deposits' | 'users' | 'finance' | 'settings' | 'wifi'
   >('dashboard');
 
   // Main Data States
@@ -3151,6 +3152,7 @@ export default function AdminPage() {
                 group: 'ئاساسىي مەركەز',
                 items: [
                   { id: 'dashboard', label: 'باش تاختا (Dashboard)', icon: LayoutDashboard },
+                  { id: 'pricing', label: '💰 باھا ۋە ساپ پايدا باشقۇرۇش', icon: DollarSign, badgeColor: 'bg-emerald-600 text-white font-bold' },
                   { id: 'orders', label: 'زاكازلارنى باشقۇرۇش', icon: ShoppingBag, badge: metrics.processingCount, badgeColor: 'bg-amber-500 text-slate-950 font-bold' },
                   { id: 'deposits', label: 'ھەميان كىرىملىرى (شامكەش)', icon: Wallet, badge: metrics.pendingDepCount, badgeColor: 'bg-emerald-600 text-white font-bold' },
                 ]
@@ -3263,6 +3265,7 @@ export default function AdminPage() {
             </button>
             <h2 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
               {activeTab === 'dashboard' && '📊 باش تاختا كۆرسەتكۈچلىرى'}
+              {activeTab === 'pricing' && '💰 باھا ۋە ساپ پايدا باشقۇرۇش مەركىزى'}
               {activeTab === 'orders' && '🛒 زاكازلارنى باشقۇرۇش مەركىزى'}
               {activeTab === 'promotions' && '⚡️ چەكلىك ۋاقىتلىق ئېتىبار پائالىيىتى مەركىزى (Flash Sale)'}
               {activeTab === 'provider' && '⚡️ API تەمىنلىگۈچى تەڭشىكى (Othman Store)'}
@@ -4420,6 +4423,11 @@ export default function AdminPage() {
                 </div>
               )}
             </div>
+          )}
+
+          {/* ================= TAB: PRICING & NET PROFIT MANAGEMENT ================= */}
+          {activeTab === 'pricing' && (
+            <AdminPricingManager />
           )}
 
           {/* ================= TAB 4: DEPOSITS MANAGEMENT ================= */}
