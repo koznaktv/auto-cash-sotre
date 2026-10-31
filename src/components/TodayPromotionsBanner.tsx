@@ -7,7 +7,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { Flame, Sparkles, ChevronLeft, ChevronRight, Zap, ArrowLeft, ArrowRight } from 'lucide-react';
 import FlipCountdownClock from './FlipCountdownClock';
 
-export default function TodayPromotionsBanner() {
+function TodayPromotionsBannerComponent() {
   const { lang, isRTL } = useLanguage();
   const [promotions, setPromotions] = useState<ActivePromotion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -94,11 +94,11 @@ export default function TodayPromotionsBanner() {
     <section className="max-w-[1200px] mx-auto px-3.5 sm:px-4 my-3 sm:my-4">
       <Link
         href="/promotions"
-        className="group relative block overflow-hidden rounded-2xl sm:rounded-3xl border-2 border-amber-500/60 dark:border-amber-400/50 bg-gradient-to-br from-[#1c1206] via-[#0d1627] to-[#040e1b] p-3.5 sm:p-5 shadow-[0_12px_36px_rgba(245,158,11,0.22)] transition-all duration-300 hover:border-amber-400 hover:shadow-[0_16px_45px_rgba(245,158,11,0.35)] active:scale-[0.99] animate-flame-glow-box"
+        className="group relative block overflow-hidden rounded-2xl sm:rounded-3xl border-2 border-amber-500/60 dark:border-amber-400/50 bg-gradient-to-br from-[#1c1206] via-[#0d1627] to-[#040e1b] p-3.5 sm:p-5 shadow-[0_12px_36px_rgba(245,158,11,0.22)] transition-all duration-300 hover:border-amber-400 hover:shadow-[0_16px_45px_rgba(245,158,11,0.35)] active:scale-[0.99]"
       >
         {/* Ambient background glows */}
-        <div className="absolute -top-12 -left-12 w-48 h-48 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-orange-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-12 -left-12 w-48 h-48 bg-amber-500/15 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-orange-600/15 rounded-full blur-2xl pointer-events-none" />
 
         {/* Laser Top Shimmer Line */}
         <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent pointer-events-none" />
@@ -159,3 +159,6 @@ export default function TodayPromotionsBanner() {
     </section>
   );
 }
+
+const TodayPromotionsBanner = React.memo(TodayPromotionsBannerComponent);
+export default TodayPromotionsBanner;

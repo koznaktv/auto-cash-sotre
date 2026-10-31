@@ -54,6 +54,308 @@ import {
   Plus
 } from 'lucide-react';
 
+/* =========================================================================
+   PURE HELPER: GET CATEGORY NAME
+========================================================================= */
+function getCategoryName(cat?: string): string {
+  if (!cat) return 'AUTO CASH';
+  const c = cat.toLowerCase();
+  if (c === 'apps' || c.includes('app') || c.includes('تطبيق') || c.includes('ئەپ')) return 'ئەپلەر';
+  if (c === 'ai' || c.includes('ai') || c.includes('ذكاء') || c.includes('سۈنئىي')) return 'سۈنئىي ئەقىل';
+  if (c === 'numbers' || c.includes('number') || c.includes('رقم') || c.includes('نومۇر')) return 'مەۋھۇم نومۇر';
+  if (c === 'wifi' || c.includes('wifi') || c.includes('واي') || c.includes('تور')) return 'Wi-Fi كارتىلىرى';
+  if (c === 'cards' || c.includes('card') || c.includes('بطاق') || c.includes('سيريتل') || c.includes('syriatel') || c.includes('كارت')) return 'كارتىغا پۇل قاچىلاش';
+  if (c === 'games' || c.includes('game') || c.includes('لعب') || c.includes('ئويۇن')) return 'ئويۇنلار';
+  if (c === 'social' || c.includes('social') || c.includes('تواصل') || c.includes('ئىجتىمائىي')) return 'ئىجتىمائىي تاراتقۇ';
+  if (c === 'crypto' || c.includes('crypto')) return 'كۆچمە پۇل';
+  if (c === 'accounts' || c.includes('account')) return 'ھېساباتلار';
+  if (c === 'balance' || c.includes('balance') || c.includes('كاش')) return 'ھەميان كاش';
+  return 'AUTO CASH';
+}
+
+/* =========================================================================
+   ISOLATED COUNTDOWN BUTTON: Re-renders ONLY this 80px button every second,
+   ZERO re-renders to the rest of SGCHomeLayout (100% 60FPS Lag-Free)
+========================================================================= */
+const ActionCountdownButton = React.memo(function ActionCountdownButton({ theme }: { theme: 'light' | 'dark' }) {
+  const { timeLeft } = useFlashCountdown();
+
+  return (
+    <Link
+      href="/promotions"
+      className={`flex items-center justify-between gap-1 sm:gap-1.5 py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl border transition-all active:scale-95 relative overflow-hidden group shadow-xs ${
+        theme === 'dark'
+          ? 'bg-[#18233a] border-amber-500/40 hover:border-amber-400 text-slate-200 hover:text-white'
+          : 'bg-gradient-to-r from-amber-50/90 to-orange-50/90 border-amber-300 hover:border-amber-400 text-slate-800 hover:text-amber-700'
+      }`}
+      title="بۈگۈنكى پائالىيەتلەر ۋە ئالاھىدە ئېتىبارلار"
+    >
+      <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
+        <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-500 shrink-0 fill-current animate-icon-sparkle drop-shadow-[0_0_8px_rgba(249,115,22,0.85)] group-hover:scale-110 transition-transform" />
+        <span className="text-[10.5px] sm:text-xs font-black truncate">بۈگۈنكى پائالىيەتلەر</span>
+      </div>
+      {timeLeft && (
+        <span className="px-1.5 py-0.5 rounded-md bg-amber-500/15 dark:bg-amber-400/20 text-amber-600 dark:text-amber-300 font-mono text-[9px] sm:text-[10.5px] font-black border border-amber-500/30 shrink-0" dir="ltr">
+          {timeLeft.hours}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}
+        </span>
+      )}
+    </Link>
+  );
+});
+
+/* =========================================================================
+   MEMOIZED PRODUCT CARD: 60FPS Hardware Accelerated (No backdrop-blur lags)
+========================================================================= */
+interface ProductCardProps {
+  service: ServiceItem;
+  isCarousel?: boolean;
+  theme: 'light' | 'dark';
+  onSelect: (service: ServiceItem) => void;
+  onNavigateNumbers: () => void;
+  movedRef?: React.MutableRefObject<boolean>;
+}
+
+const ProductCard = React.memo(function ProductCard({
+  service,
+  isCarousel = true,
+  theme,
+  onSelect,
+  onNavigateNumbers,
+  movedRef,
+}: ProductCardProps) {
+  const handleClick = () => {
+    if (movedRef?.current) return;
+    if (service.category === 'numbers' || /virtual|sms|نومۇر|دەلىللەش/i.test(service.id + (service.name || '') + ((service as any).title || ''))) {
+      onNavigateNumbers();
+      return;
+    }
+    onSelect(service);
+  };
+
+  return (
+    <div
+      onClick={handleClick}
+      className={`group ${
+        isCarousel
+          ? 'flex-none w-[148px] sm:w-[178px] md:w-[200px] shrink-0'
+          : 'w-full'
+      } rounded-3xl border overflow-hidden cursor-pointer transition-all duration-200 active:scale-95 flex flex-col ${
+        theme === 'dark'
+          ? 'bg-[#131b2e] border-white/10 hover:border-emerald-400 shadow-[0_4px_16px_rgba(0,0,0,0.3)]'
+          : 'bg-white border-slate-200/90 shadow-[0_2px_10px_rgba(0,0,0,0.05)] hover:shadow-lg hover:border-emerald-300'
+      }`}
+    >
+      {/* 1. TOP ARTWORK */}
+      <div className="relative aspect-square w-full bg-gradient-to-br from-[#d1fae5] via-[#a7f3d0] to-[#6ee7b7] p-2.5 flex items-center justify-center overflow-hidden">
+        
+        {/* Pattern */}
+        <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#059669_1.2px,transparent_1.2px)] [background-size:12px_12px]" />
+
+        {/* Top-Left: Brand Lockup */}
+        <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-white/95 dark:bg-slate-950/90 px-1.5 py-0.5 rounded-full border border-white/60 shadow-xs">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981] inline-block shrink-0" />
+          <span className="text-[7.5px] sm:text-[8px] font-black tracking-tight text-slate-800 dark:text-white">
+            AUTO CASH
+          </span>
+        </div>
+
+        {/* Top-Right: SGC-style Dual Badges */}
+        <div className="absolute top-2 right-2 z-10 flex flex-col items-end gap-1">
+          <div className="bg-[#ef4444] text-white text-[7px] sm:text-[7.5px] font-black px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
+            <Flame className="w-2 h-2 fill-current" />
+            <span>ئەڭ كۆپ ئېلىنغىنى</span>
+          </div>
+          <div className="bg-[#059669] text-white text-[7px] sm:text-[7.5px] font-black px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
+            <Zap className="w-2 h-2 text-amber-300 fill-current" />
+            <span>دەرھال</span>
+          </div>
+        </div>
+
+        {/* Diagonal Swoosh Graphics */}
+        <div className="absolute -bottom-2 -left-2 z-0 pointer-events-none">
+          <svg width="55" height="55" viewBox="0 0 60 60" fill="none">
+            <path d="M-5 50L30 15C34 11 40 11 44 15C48 19 48 25 44 29L10 63H-5V50Z" fill="#059669" opacity="0.9" />
+            <path d="M-10 65L20 35C24 31 30 31 34 35C38 39 38 45 34 49L5 78H-10V65Z" fill="#111827" opacity="0.95" />
+          </svg>
+        </div>
+
+        {/* CENTER WRAPPING LOGO FRAME & PRODUCT PICTURE */}
+        <div className="relative z-10 w-[64%] h-[64%] flex items-center justify-center">
+          <div className="absolute -inset-2.5 pointer-events-none">
+            <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md" fill="none">
+              <path
+                d="M32 9H70C81 9 91 19 91 30V68"
+                stroke="#059669"
+                strokeWidth="7"
+                strokeLinecap="round"
+              />
+              <path
+                d="M68 91H30C19 91 9 81 9 70V32"
+                stroke="#111827"
+                strokeWidth="7"
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
+
+          <div className="relative w-full h-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border-[2.5px] sm:border-[3px] border-white/95 bg-slate-900 group-hover:scale-105 transition-transform duration-300">
+            <img
+              src={service.image || '/brand_logo.png'}
+              alt={service.name || 'Service'}
+              className="w-full h-full object-cover"
+              onError={(e) => { (e.target as any).src = '/brand_logo.png'; }}
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </div>
+
+        {/* Category Name Badge */}
+        <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 z-10 max-w-[70%] text-center pointer-events-none">
+          <div className="px-2 py-0.5 rounded-full bg-white/95 dark:bg-[#0c1424]/95 border border-emerald-500/40 shadow-xs flex items-center justify-center">
+            <span className="text-[8px] sm:text-[9.5px] font-black gold-title-shine truncate max-w-full font-alkatip">
+              {getCategoryName(service.category)}
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      {/* 2. BOTTOM CARD BODY */}
+      <div className="p-2 sm:p-2.5 text-right flex flex-col justify-between flex-1">
+        <h3 className="font-extrabold text-xs sm:text-sm gold-title-shine transition">
+          {service.name}
+        </h3>
+        <div className="mt-1 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
+          <span className="text-slate-400 dark:text-slate-500 flex items-center gap-1 font-medium">
+            <Globe className="w-3 h-3 text-slate-400 shrink-0" />
+            <span>دۇنياۋى</span>
+          </span>
+          <span className="text-[#059669] font-black font-mono">
+            {service.packages && service.packages.length > 0 && typeof service.packages[0].price === 'number' && service.packages[0].price > 0
+              ? `$${service.packages[0].price.toFixed(2)}`
+              : 'ئاپتوماتىك'}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+/* =========================================================================
+   MEMOIZED PRODUCT ROW CAROUSEL: Zero re-renders during mouse or touch swipes
+========================================================================= */
+interface ProductRowCarouselProps {
+  items: ServiceItem[];
+  theme: 'light' | 'dark';
+  onSelect: (service: ServiceItem) => void;
+  onNavigateNumbers: () => void;
+}
+
+const ProductRowCarousel = React.memo(function ProductRowCarousel({
+  items,
+  theme,
+  onSelect,
+  onNavigateNumbers,
+}: ProductRowCarouselProps) {
+  const rowRef = React.useRef<HTMLDivElement>(null);
+  const isDraggingRef = React.useRef(false);
+  const startXRef = React.useRef(0);
+  const scrollLeftRef = React.useRef(0);
+  const movedRef = React.useRef(false);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!rowRef.current) return;
+    isDraggingRef.current = true;
+    movedRef.current = false;
+    startXRef.current = e.pageX;
+    scrollLeftRef.current = rowRef.current.scrollLeft;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDraggingRef.current || !rowRef.current) return;
+    const dx = e.pageX - startXRef.current;
+    if (Math.abs(dx) > 6) {
+      movedRef.current = true;
+    }
+    rowRef.current.scrollLeft = scrollLeftRef.current - dx;
+  };
+
+  const handleMouseUp = () => {
+    isDraggingRef.current = false;
+    setTimeout(() => {
+      movedRef.current = false;
+    }, 70);
+  };
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (!rowRef.current) return;
+    const el = rowRef.current;
+    const amount = 300;
+    const prev = el.scrollLeft;
+    el.scrollBy({ left: direction === 'left' ? -amount : amount, behavior: 'smooth' });
+    setTimeout(() => {
+      if (el && el.scrollLeft === prev) {
+        el.scrollBy({ left: direction === 'left' ? amount : -amount, behavior: 'smooth' });
+      }
+    }, 50);
+  };
+
+  const visibleItems = React.useMemo(() => items.slice(0, 16), [items]);
+
+  return (
+    <div className="relative group/carousel">
+      {/* Floating Left Button */}
+      <button
+        type="button"
+        onClick={() => scroll('left')}
+        className="absolute left-1 sm:-left-3.5 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/95 dark:bg-[#0c1424]/95 border border-slate-200 dark:border-white/15 shadow-[0_4px_20px_rgba(0,0,0,0.22)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.7)] flex items-center justify-center text-slate-800 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 hover:scale-110 active:scale-90 transition-all cursor-pointer opacity-95 sm:opacity-0 sm:group-hover/carousel:opacity-100"
+        title="سولغا يۆتكەش"
+        aria-label="سولغا سىيرىش"
+      >
+        <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
+      </button>
+
+      {/* Floating Right Button */}
+      <button
+        type="button"
+        onClick={() => scroll('right')}
+        className="absolute right-1 sm:-right-3.5 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/95 dark:bg-[#0c1424]/95 border border-slate-200 dark:border-white/15 shadow-[0_4px_20px_rgba(0,0,0,0.22)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.7)] flex items-center justify-center text-slate-800 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 hover:scale-110 active:scale-90 transition-all cursor-pointer opacity-95 sm:opacity-0 sm:group-hover/carousel:opacity-100"
+        title="ئوڭغا يۆتكەش"
+        aria-label="ئوڭغا سىيرىش"
+      >
+        <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
+      </button>
+
+      {/* Horizontal Swipeable Track */}
+      <div
+        ref={rowRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        className="flex gap-2.5 sm:gap-3.5 overflow-x-auto pb-3 pt-1 scroll-smooth scrollbar-none select-none overscroll-x-contain -mx-3.5 px-3.5 sm:mx-0 sm:px-0 cursor-grab active:cursor-grabbing"
+        style={{
+          WebkitOverflowScrolling: 'touch',
+          touchAction: 'pan-x',
+        }}
+      >
+        {visibleItems.map((item) => (
+          <ProductCard
+            key={item.id}
+            service={item}
+            isCarousel={true}
+            theme={theme}
+            onSelect={onSelect}
+            onNavigateNumbers={onNavigateNumbers}
+            movedRef={movedRef}
+          />
+        ))}
+      </div>
+    </div>
+  );
+});
+
 interface SGCHomeLayoutProps {
   onSelectService: (service: ServiceItem) => void;
   onOpenAuth: () => void;
@@ -69,7 +371,6 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
   const [user, setUser] = useState<ClientUser | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showApiModal, setShowApiModal] = useState(false);
-  const { timeLeft } = useFlashCountdown();
 
   // Live Server Catalog State
   const [serverServices, setServerServices] = useState<ServiceItem[]>(SERVICES_DATA);
@@ -222,32 +523,32 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
     setTouchEnd(null);
   };
 
-  // Category Carousel Horizontal Scroll & Drag Controls
+  // Category Carousel Horizontal Scroll & Drag Controls (High-performance 60FPS Ref-based Drag)
   const categoryScrollRef = React.useRef<HTMLDivElement>(null);
-  const [isCategoryDragging, setIsCategoryDragging] = useState(false);
-  const [dragStartX, setDragStartX] = useState(0);
-  const [dragScrollLeft, setDragScrollLeft] = useState(0);
+  const isCategoryDraggingRef = React.useRef(false);
+  const dragStartXRef = React.useRef(0);
+  const dragScrollLeftRef = React.useRef(0);
   const hasMovedRef = React.useRef(false);
 
   const handleCategoryMouseDown = (e: React.MouseEvent) => {
     if (!categoryScrollRef.current) return;
-    setIsCategoryDragging(true);
+    isCategoryDraggingRef.current = true;
     hasMovedRef.current = false;
-    setDragStartX(e.pageX);
-    setDragScrollLeft(categoryScrollRef.current.scrollLeft);
+    dragStartXRef.current = e.pageX;
+    dragScrollLeftRef.current = categoryScrollRef.current.scrollLeft;
   };
 
   const handleCategoryMouseMove = (e: React.MouseEvent) => {
-    if (!isCategoryDragging || !categoryScrollRef.current) return;
-    const dx = e.pageX - dragStartX;
+    if (!isCategoryDraggingRef.current || !categoryScrollRef.current) return;
+    const dx = e.pageX - dragStartXRef.current;
     if (Math.abs(dx) > 5) {
       hasMovedRef.current = true;
     }
-    categoryScrollRef.current.scrollLeft = dragScrollLeft - dx;
+    categoryScrollRef.current.scrollLeft = dragScrollLeftRef.current - dx;
   };
 
   const handleCategoryMouseUp = () => {
-    setIsCategoryDragging(false);
+    isCategoryDraggingRef.current = false;
     setTimeout(() => {
       hasMovedRef.current = false;
     }, 60);
@@ -376,242 +677,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
     onOpenAuth();
   };
 
-  // Drag lock ref so dragging products does not trigger service clicks accidentally
-  const productRowDragMovedRef = React.useRef(false);
-
-  const getCategoryName = (cat?: string): string => {
-    if (!cat) return 'AUTO CASH';
-    const c = cat.toLowerCase();
-    if (c === 'apps' || c.includes('app') || c.includes('تطبيق') || c.includes('ئەپ')) return 'ئەپلەر';
-    if (c === 'ai' || c.includes('ai') || c.includes('ذكاء') || c.includes('سۈنئىي')) return 'سۈنئىي ئەقىل';
-    if (c === 'numbers' || c.includes('number') || c.includes('رقم') || c.includes('نومۇر')) return 'مەۋھۇم نومۇر';
-    if (c === 'wifi' || c.includes('wifi') || c.includes('واي') || c.includes('تور')) return 'Wi-Fi كارتىلىرى';
-    if (c === 'cards' || c.includes('card') || c.includes('بطاق') || c.includes('سيريتل') || c.includes('syriatel') || c.includes('كارت')) return 'كارتىغا پۇل قاچىلاش';
-    if (c === 'games' || c.includes('game') || c.includes('لعب') || c.includes('ئويۇن')) return 'ئويۇنلار';
-    if (c === 'social' || c.includes('social') || c.includes('تواصل') || c.includes('ئىجتىمائىي')) return 'ئىجتىمائىي تاراتقۇ';
-    if (c === 'crypto' || c.includes('crypto')) return 'كۆچمە پۇل';
-    if (c === 'accounts' || c.includes('account')) return 'ھېساباتلار';
-    if (c === 'balance' || c.includes('balance') || c.includes('كاش')) return 'ھەميان كاش';
-    return 'AUTO CASH';
-  };
-
-  const renderProductCard = (service: ServiceItem, isCarousel = true) => (
-    <div
-      key={service.id}
-      onClick={() => {
-        if (!productRowDragMovedRef.current) {
-          if (service.category === 'numbers' || /virtual|sms|نومۇر|دەلىللەش/i.test(service.id + (service.name || '') + ((service as any).title || ''))) {
-            router.push('/numbers');
-            return;
-          }
-          onSelectService(service);
-        }
-      }}
-      className={`group ${
-        isCarousel
-          ? 'flex-none w-[148px] sm:w-[178px] md:w-[200px] shrink-0'
-          : 'w-full'
-      } rounded-3xl border overflow-hidden cursor-pointer transition-all duration-200 active:scale-95 flex flex-col ${
-        theme === 'dark'
-          ? 'bg-[#131b2e] border-white/10 hover:border-emerald-400 shadow-[0_4px_16px_rgba(0,0,0,0.3)]'
-          : 'bg-white border-slate-200/90 shadow-[0_2px_10px_rgba(0,0,0,0.05)] hover:shadow-lg hover:border-emerald-300'
-      }`}
-    >
-      {/* 1. TOP ARTWORK (Aspect 1:1 Square with Logo Frame & Graphic Elements) */}
-      <div className="relative aspect-square w-full bg-gradient-to-br from-[#d1fae5] via-[#a7f3d0] to-[#6ee7b7] p-2.5 flex items-center justify-center overflow-hidden">
-        
-        {/* Subtle Background Pattern */}
-        <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#059669_1.2px,transparent_1.2px)] [background-size:12px_12px]" />
-
-        {/* Top-Left: Brand Lockup */}
-        <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-white/90 dark:bg-slate-950/80 backdrop-blur-sm px-1.5 py-0.5 rounded-full border border-white/60 shadow-xs">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981] inline-block shrink-0" />
-          <span className="text-[7.5px] sm:text-[8px] font-black tracking-tight text-slate-800 dark:text-white">
-            AUTO CASH
-          </span>
-        </div>
-
-        {/* Top-Right: SGC-style Dual Badges */}
-        <div className="absolute top-2 right-2 z-10 flex flex-col items-end gap-1">
-          <div className="bg-[#ef4444] text-white text-[7px] sm:text-[7.5px] font-black px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
-            <Flame className="w-2 h-2 fill-current" />
-            <span>ئەڭ كۆپ ئېلىنغىنى</span>
-          </div>
-          <div className="bg-[#059669] text-white text-[7px] sm:text-[7.5px] font-black px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
-            <Zap className="w-2 h-2 text-amber-300 fill-current" />
-            <span>دەرھال</span>
-          </div>
-        </div>
-
-        {/* Diagonal Swoosh Graphics in Bottom-Left (Matching Logo Brackets!) */}
-        <div className="absolute -bottom-2 -left-2 z-0 pointer-events-none">
-          <svg width="55" height="55" viewBox="0 0 60 60" fill="none">
-            <path d="M-5 50L30 15C34 11 40 11 44 15C48 19 48 25 44 29L10 63H-5V50Z" fill="#059669" opacity="0.9" />
-            <path d="M-10 65L20 35C24 31 30 31 34 35C38 39 38 45 34 49L5 78H-10V65Z" fill="#111827" opacity="0.95" />
-          </svg>
-        </div>
-
-        {/* CENTER WRAPPING LOGO FRAME & PRODUCT PICTURE */}
-        <div className="relative z-10 w-[64%] h-[64%] flex items-center justify-center">
-          
-          {/* Logo Wrapping Wings / Brackets Behind the Image */}
-          <div className="absolute -inset-2.5 pointer-events-none">
-            <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md" fill="none">
-              {/* Top-Right Emerald Green Hand Bracket */}
-              <path
-                d="M32 9H70C81 9 91 19 91 30V68"
-                stroke="#059669"
-                strokeWidth="7"
-                strokeLinecap="round"
-              />
-              {/* Bottom-Left Obsidian Hand Bracket */}
-              <path
-                d="M68 91H30C19 91 9 81 9 70V32"
-                stroke="#111827"
-                strokeWidth="7"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-
-          {/* Central Product Image Container with Thick White Bezel */}
-          <div className="relative w-full h-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border-[2.5px] sm:border-[3px] border-white/95 bg-slate-900 group-hover:scale-105 transition-transform duration-300">
-            <img
-              src={service.image || '/brand_logo.png'}
-              alt={service.name || 'Service'}
-              className="w-full h-full object-cover"
-              onError={(e) => { (e.target as any).src = '/brand_logo.png'; }}
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-
-        </div>
-
-        {/* Category Name Badge in Empty Space (مۇشۇ بىكار ئورۇنغا شۇ تۈرنىڭ ئىسمى) */}
-        <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 z-10 max-w-[70%] text-center pointer-events-none">
-          <div className="px-2 py-0.5 rounded-full bg-white/95 dark:bg-[#0c1424]/90 backdrop-blur-sm border border-emerald-500/40 shadow-xs flex items-center justify-center">
-            <span className="text-[8px] sm:text-[9.5px] font-black gold-title-shine truncate max-w-full font-alkatip">
-              {getCategoryName(service.category)}
-            </span>
-          </div>
-        </div>
-
-      </div>
-
-      {/* 2. BOTTOM CARD BODY */}
-      <div className="p-2 sm:p-2.5 text-right flex flex-col justify-between flex-1">
-        <h3 className="font-extrabold text-xs sm:text-sm gold-title-shine transition">
-          {service.name}
-        </h3>
-        <div className="mt-1 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
-          <span className="text-slate-400 dark:text-slate-500 flex items-center gap-1 font-medium">
-            <Globe className="w-3 h-3 text-slate-400 shrink-0" />
-            <span>دۇنياۋى</span>
-          </span>
-          <span className="text-[#059669] font-black font-mono">
-            {service.packages && service.packages.length > 0 && typeof service.packages[0].price === 'number' && service.packages[0].price > 0
-              ? `$${service.packages[0].price.toFixed(2)}`
-              : 'ئاپتوماتىك'}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Reusable Horizontal Smooth Swipeable & Button-controlled Carousel for Products
-  const ProductRowCarousel = ({
-    items,
-  }: {
-    items: ServiceItem[];
-  }) => {
-    const rowRef = React.useRef<HTMLDivElement>(null);
-    const [isDragging, setIsDragging] = useState(false);
-    const [startX, setStartX] = useState(0);
-    const [scrollLeftState, setScrollLeftState] = useState(0);
-
-    const handleMouseDown = (e: React.MouseEvent) => {
-      if (!rowRef.current) return;
-      setIsDragging(true);
-      productRowDragMovedRef.current = false;
-      setStartX(e.pageX);
-      setScrollLeftState(rowRef.current.scrollLeft);
-    };
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-      if (!isDragging || !rowRef.current) return;
-      const dx = e.pageX - startX;
-      if (Math.abs(dx) > 6) {
-        productRowDragMovedRef.current = true;
-      }
-      rowRef.current.scrollLeft = scrollLeftState - dx;
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-      setTimeout(() => {
-        productRowDragMovedRef.current = false;
-      }, 70);
-    };
-
-    const scroll = (direction: 'left' | 'right') => {
-      if (!rowRef.current) return;
-      const el = rowRef.current;
-      const amount = 300;
-      const prev = el.scrollLeft;
-      // In RTL, left button moves to the left (-amount)
-      el.scrollBy({ left: direction === 'left' ? -amount : amount, behavior: 'smooth' });
-      setTimeout(() => {
-        if (el && el.scrollLeft === prev) {
-          el.scrollBy({ left: direction === 'left' ? amount : -amount, behavior: 'smooth' });
-        }
-      }, 50);
-    };
-
-    return (
-      <div className="relative group/carousel">
-        {/* Floating Left Button (سولغا سىيرىش - مەھسۇلاتلارنى ئالدىغا يۆتكەش) */}
-        <button
-          type="button"
-          onClick={() => scroll('left')}
-          className="absolute left-1 sm:-left-3.5 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/95 dark:bg-[#0c1424]/95 border border-slate-200 dark:border-white/15 shadow-[0_4px_20px_rgba(0,0,0,0.22)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.7)] flex items-center justify-center text-slate-800 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 hover:scale-110 active:scale-90 transition-all cursor-pointer backdrop-blur-md opacity-95 sm:opacity-0 sm:group-hover/carousel:opacity-100"
-          title="سولغا يۆتكەش"
-          aria-label="سولغا سىيرىش"
-        >
-          <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
-        </button>
-
-        {/* Floating Right Button (ئوڭغا سىيرىش - مەھسۇلاتلارنى كەينىگە قايتۇرۇش) */}
-        <button
-          type="button"
-          onClick={() => scroll('right')}
-          className="absolute right-1 sm:-right-3.5 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/95 dark:bg-[#0c1424]/95 border border-slate-200 dark:border-white/15 shadow-[0_4px_20px_rgba(0,0,0,0.22)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.7)] flex items-center justify-center text-slate-800 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 hover:scale-110 active:scale-90 transition-all cursor-pointer backdrop-blur-md opacity-95 sm:opacity-0 sm:group-hover/carousel:opacity-100"
-          title="ئوڭغا يۆتكەش"
-          aria-label="ئوڭغا سىيرىش"
-        >
-          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
-        </button>
-
-        {/* Horizontal Swipeable & Draggable Track */}
-        <div
-          ref={rowRef}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          className={`flex gap-2.5 sm:gap-3.5 overflow-x-auto pb-3 pt-1 scroll-smooth scrollbar-none select-none overscroll-x-contain -mx-3.5 px-3.5 sm:mx-0 sm:px-0 ${
-            isDragging ? 'cursor-grabbing' : 'cursor-grab'
-          }`}
-          style={{
-            WebkitOverflowScrolling: 'touch',
-            touchAction: 'pan-x',
-          }}
-        >
-          {items.slice(0, 16).map((item) => renderProductCard(item, true))}
-        </div>
-      </div>
-    );
-  };
+  // Subcomponents memoized externally for 60FPS zero-lag rendering
 
   return (
     <div
@@ -1171,26 +1237,8 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 <span className="text-[11px] sm:text-xs font-bold truncate">تەلەپلىرىم</span>
               </Link>
 
-              {/* 3. بۈگۈنكى پائالىيەتلەر (Image 4: Live Countdown Clock Badge) */}
-              <Link
-                href="/promotions"
-                className={`flex items-center justify-between gap-1 sm:gap-1.5 py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl border transition-all active:scale-95 relative overflow-hidden group shadow-xs ${
-                  theme === 'dark'
-                    ? 'bg-[#18233a] border-amber-500/40 hover:border-amber-400 text-slate-200 hover:text-white'
-                    : 'bg-gradient-to-r from-amber-50/90 to-orange-50/90 border-amber-300 hover:border-amber-400 text-slate-800 hover:text-amber-700'
-                }`}
-                title="بۈگۈنكى پائالىيەتلەر ۋە ئالاھىدە ئېتىبارلار"
-              >
-                <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
-                  <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-500 shrink-0 fill-current animate-icon-sparkle drop-shadow-[0_0_8px_rgba(249,115,22,0.85)] group-hover:scale-110 transition-transform" />
-                  <span className="text-[10.5px] sm:text-xs font-black truncate">بۈگۈنكى پائالىيەتلەر</span>
-                </div>
-                {timeLeft && (
-                  <span className="px-1.5 py-0.5 rounded-md bg-amber-500/15 dark:bg-amber-400/20 text-amber-600 dark:text-amber-300 font-mono text-[9px] sm:text-[10.5px] font-black border border-amber-500/30 shrink-0" dir="ltr">
-                    {timeLeft.hours}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}
-                  </span>
-                )}
-              </Link>
+              {/* 3. بۈگۈنكى پائالىيەتلەر (Image 4: Isolated 60FPS Live Countdown Button) */}
+              <ActionCountdownButton theme={theme} />
 
               {/* 4. ئەزالىق */}
               <Link
@@ -1672,7 +1720,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
             onMouseUp={handleCategoryMouseUp}
             onMouseLeave={handleCategoryMouseUp}
             className={`flex-1 flex gap-2 sm:gap-2.5 overflow-x-auto pb-2 pt-1 scroll-smooth scrollbar-none select-none overscroll-x-contain ${
-              isCategoryDragging ? 'cursor-grabbing' : 'cursor-grab'
+              'cursor-grab active:cursor-grabbing'
             }`}
             style={{
               WebkitOverflowScrolling: 'touch',
@@ -1976,7 +2024,16 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-3.5">
-              {filteredActiveList.map((service) => renderProductCard(service, false))}
+              {filteredActiveList.map((service) => (
+                <ProductCard
+                  key={service.id}
+                  service={service}
+                  isCarousel={false}
+                  theme={theme}
+                  onSelect={onSelectService}
+                  onNavigateNumbers={() => router.push('/numbers')}
+                />
+              ))}
             </div>
           )}
         </section>
@@ -2012,7 +2069,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
               </button>
             </div>
 
-            <ProductRowCarousel items={appsList} />
+            <ProductRowCarousel items={appsList} theme={theme} onSelect={onSelectService} onNavigateNumbers={() => router.push('/numbers')} />
           </section>
 
 
@@ -2034,7 +2091,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
               </button>
             </div>
 
-            <ProductRowCarousel items={aiList} />
+            <ProductRowCarousel items={aiList} theme={theme} onSelect={onSelectService} onNavigateNumbers={() => router.push('/numbers')} />
           </section>
 
 
@@ -2055,7 +2112,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
               </Link>
             </div>
 
-            <ProductRowCarousel items={numbersList} />
+            <ProductRowCarousel items={numbersList} theme={theme} onSelect={onSelectService} onNavigateNumbers={() => router.push('/numbers')} />
           </section>
 
 
@@ -2077,7 +2134,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
               </button>
             </div>
 
-            <ProductRowCarousel items={wifiList} />
+            <ProductRowCarousel items={wifiList} theme={theme} onSelect={onSelectService} onNavigateNumbers={() => router.push('/numbers')} />
           </section>
 
 
@@ -2099,7 +2156,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
               </button>
             </div>
 
-            <ProductRowCarousel items={cardsList} />
+            <ProductRowCarousel items={cardsList} theme={theme} onSelect={onSelectService} onNavigateNumbers={() => router.push('/numbers')} />
           </section>
 
 
@@ -2121,7 +2178,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
               </button>
             </div>
 
-            <ProductRowCarousel items={socialList} />
+            <ProductRowCarousel items={socialList} theme={theme} onSelect={onSelectService} onNavigateNumbers={() => router.push('/numbers')} />
           </section>
 
 
@@ -2143,7 +2200,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
               </button>
             </div>
 
-            <ProductRowCarousel items={gamesList} />
+            <ProductRowCarousel items={gamesList} theme={theme} onSelect={onSelectService} onNavigateNumbers={() => router.push('/numbers')} />
           </section>
 
         </div>
