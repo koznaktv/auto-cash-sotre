@@ -671,9 +671,12 @@ export async function sendOrderDelayNoticeToCustomer(params: {
   }
 }
 
+const postedChannelOrders = new Set<string>();
+
 /**
  * 1.1 Automatically broadcast completed / fulfilled orders to the official channel (@autocash_cannel)
  * Builds trust, transparency, and social proof for visitors and customers.
+ * Protected with strict in-memory and database deduplication to prevent double posting.
  */
 export async function postOrderCompletedToChannel(order: {
   id: string;
@@ -683,7 +686,21 @@ export async function postOrderCompletedToChannel(order: {
   targetAccount?: string;
   userName?: string;
   userEmail?: string;
+  details?: Record<string, any>;
 }): Promise<boolean> {
+  if (!order || !order.id) return false;
+  const normalizedId = String(order.id).trim();
+
+  // Deduplication guard: never broadcast the same order twice
+  if (postedChannelOrders.has(normalizedId) || order.details?.channelBroadcasted) {
+    return true;
+  }
+  postedChannelOrders.add(normalizedId);
+  if (postedChannelOrders.size > 5000) {
+    const oldest = postedChannelOrders.values().next().value;
+    if (oldest) postedChannelOrders.delete(oldest);
+  }
+
   const token = getBotToken();
   if (!token) return false;
 
@@ -745,6 +762,13 @@ export async function postOrderCompletedToChannel(order: {
       }),
     });
     const data = await res.json();
+    if (data.ok) {
+      import('@/lib/db')
+        .then(({ updateOrderAsync }) => {
+          updateOrderAsync(order.id, { detailsPatch: { channelBroadcasted: true } }).catch(() => {});
+        })
+        .catch(() => {});
+    }
     return Boolean(data.ok);
   } catch (err: any) {
     console.error('[Telegram] postOrderCompletedToChannel error:', err?.message);

@@ -439,17 +439,7 @@ export async function POST(req: Request) {
               ...(activationUrl ? { activationUrl, activationLink: activationUrl } : {}),
             });
             order.status = completed ? 'completed' : 'pending_provider';
-            if (completed) {
-              postOrderCompletedToChannel({
-                id: order.id,
-                serviceName: order.serviceName,
-                packageTitle: order.packageTitle,
-                amount: order.amount,
-                targetAccount: (order as any).targetAccount || order.details?.targetAccount || order.details?.playerId || rawTarget,
-                userName: user.name,
-                userEmail: order.userEmail || user.email,
-              }).catch(() => {});
-            } else if (order.id) {
+            if (!completed && order.id) {
               // Rapid non-blocking follow-up check at 6s for quick fulfillment
               setTimeout(async () => {
                 try {
