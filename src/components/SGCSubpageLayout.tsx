@@ -28,7 +28,7 @@ import {
   Headphones,
   Smartphone,
 } from 'lucide-react';
-import { getCachedBalance, getCachedUser, clearLocalAuth, ClientUser } from '@/lib/clientAuth';
+import { getCachedBalance, getCachedUser, clearLocalAuth, logout, ClientUser } from '@/lib/clientAuth';
 import { useLanguage } from '@/context/LanguageContext';
 import LanguageFlag from '@/components/LanguageFlag';
 
@@ -109,12 +109,12 @@ export default function SGCSubpageLayout({
     document.documentElement.classList.toggle('dark', nextTheme === 'dark');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     clearLocalAuth();
     setUser(null);
     setBalance(0.0);
     setMobileMenuOpen(false);
-    window.dispatchEvent(new Event('autocash-auth-changed'));
+    await logout();
     router.push('/');
   };
 

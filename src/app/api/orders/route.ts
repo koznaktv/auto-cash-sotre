@@ -291,6 +291,33 @@ export async function POST(req: Request) {
       }
     }
 
+    const isReadyAccountService = Boolean(
+      (service as any).isReadyAccount ||
+      (service as any).deliveryType === 'account' ||
+      service.id === 'othman_proton_vpn' ||
+      service.id === 'othman_express_vpn' ||
+      service.id === 'othman_nord_vpn' ||
+      service.id === 'othman_shield_vpn' ||
+      service.id === 'othman_pure_vpn' ||
+      service.id === 'othman_chatgpt' ||
+      service.id === 'othman_super_grok' ||
+      service.id === 'othman_cursor_pro' ||
+      service.id === 'othman_invideo' ||
+      service.id === 'othman_netflix' ||
+      service.id === 'othman_osn_plus'
+    );
+    const isRedemptionService = Boolean(
+      (service as any).isRedemptionCode ||
+      (service as any).deliveryType === 'code' ||
+      service.id === 'othman_gearup_booster' ||
+      service.id === 'othman_roblox_cards' ||
+      service.id === 'othman_steam_wallet' ||
+      service.id === 'othman_google_play' ||
+      service.id === 'othman_apple_itunes' ||
+      service.id === 'othman_visa_cards' ||
+      service.id === 'othman_microsoft_services'
+    );
+
     const atomicRes = await deductBalanceAndCreateOrderAtomicAsync({
       idempotencyKey,
       userId: user.id,
@@ -299,7 +326,7 @@ export async function POST(req: Request) {
       serviceName: service.name,
       packageTitle: pkg.title,
       amount: price,
-      targetAccount: rawTarget || (isWifiService ? 'Wi-Fi كارتىسى' : 'تەلەپ قىلىنمىغان'),
+      targetAccount: rawTarget || (isWifiService ? 'Wi-Fi كارتىسى' : isReadyAccountService ? 'تەييار ھېسابات (Ready Account)' : isRedemptionService ? 'كود تالونى (Redemption Code)' : 'تەلەپ قىلىنمىغان'),
       orderId: prospectiveOrderId,
       initialStatus: (isWifiService && claimedWifiCard) ? 'completed' : 'processing',
       details: isWifiService && claimedWifiCard ? {
@@ -381,7 +408,12 @@ export async function POST(req: Request) {
           const targetQty = (pkg as any).providerQty ?? (pkg as any).qty ?? (qty ? Number(qty) : 1);
           const isRedemptionOrCard =
             Boolean((service as any).isRedemptionCode ||
+            (service as any).isReadyAccount ||
             (service as any).requiresInput === false ||
+            (service as any).deliveryType === 'account' ||
+            (service as any).deliveryType === 'code' ||
+            isReadyAccountService ||
+            isRedemptionService ||
             service.id === 'othman_gearup_booster' ||
             service.id.toLowerCase().includes('gearup') ||
             (service.name || '').toLowerCase().includes('gearup') ||
@@ -426,6 +458,7 @@ export async function POST(req: Request) {
             const replyMsg = providerRes.message || deliv?.reply || deliv?.text;
             const activationUrl = deliv?.activationUrl || (deliv?.codes?.find((c: string) => /^https?:\/\//i.test(c))) || (replyMsg?.match(/https?:\/\/[^\s"'<>]+/i)?.[0]);
             const redCode = deliv?.codes?.find((c: string) => !/^https?:\/\//i.test(c)) || (deliv as any)?.code || (deliv as any)?.pin || (deliv as any)?.card_code;
+            const accountCredentials = (deliv as any)?.accountCredentials || (deliv as any)?.account_credentials || (deliv as any)?.credentials || (deliv as any)?.account;
 
             const updatedOrder = await transitionOrderAsync(order.id, ['processing', 'pending'], completed ? 'completed' : 'pending_provider', {
               providerOrderId: providerRes.providerOrderId,
@@ -435,6 +468,7 @@ export async function POST(req: Request) {
               providerCheckedAt: now,
               ...(deliv ? { delivery: deliv } : {}),
               ...(redCode ? { redemptionCode: redCode, cardCode: redCode } : {}),
+              ...(accountCredentials ? { accountCredentials } : {}),
               ...(replyMsg ? { providerReply: replyMsg, reply: replyMsg } : {}),
               ...(activationUrl ? { activationUrl, activationLink: activationUrl } : {}),
             });
@@ -516,11 +550,18 @@ export async function POST(req: Request) {
       (order.details as any)?.delivery?.code ||
       (order.details as any)?.delivery?.pin;
 
+    const finalAccountCredentials =
+      order.details?.accountCredentials ||
+      (order.details as any)?.delivery?.account_credentials ||
+      (order.details as any)?.delivery?.credentials ||
+      (order.details as any)?.delivery?.account;
+
     return NextResponse.json({
       success: true,
       order: toBuyerOrder(order),
       newBalance: atomicRes.newBalance,
       redemptionCode: finalRedCode,
+      accountCredentials: finalAccountCredentials,
       delivery: order.details?.delivery,
     });
   } catch (err: any) {

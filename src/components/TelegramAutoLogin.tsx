@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { storeLocalAuth } from '@/lib/clientAuth';
+import { storeLocalAuth, notifyAuthChanged } from '@/lib/clientAuth';
 
 export default function TelegramAutoLogin() {
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function TelegramAutoLogin() {
         .then((data) => {
           if (data.success && data.user) {
             storeLocalAuth(data.user);
-            window.dispatchEvent(new Event('autocash_auth_changed'));
+            notifyAuthChanged();
           }
         })
         .catch(() => {});

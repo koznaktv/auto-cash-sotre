@@ -1246,8 +1246,8 @@
     "image": "/images/services/roblox.jpg",
     "description": "روبلوكس ئويۇنى دۇنياۋى سوۋغات كارتىلىرى (USD، SAR، AED، EUR، CAD). كود دەرھال تەمىنلىنىدۇ.",
     "badge": "🎮 سوۋغات كارتىسى",
-    "inputLabel": "ئېلخەت ئادرېسىڭىز ياكى تېلېفون نومۇرىڭىز",
-    "inputPlaceholder": "مەسىلەن: user@gmail.com",
+    "inputLabel": "",
+    "inputPlaceholder": "",
     "requiresZoneId": false,
     "source": "provider",
     "published": true,
@@ -1283,7 +1283,9 @@
         "providerProductId": 898,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_899",
@@ -1294,7 +1296,9 @@
         "providerProductId": 899,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_900",
@@ -1305,7 +1309,9 @@
         "providerProductId": 900,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_901",
@@ -1316,7 +1322,9 @@
         "providerProductId": 901,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_902",
@@ -1327,7 +1335,9 @@
         "providerProductId": 902,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_903",
@@ -1338,7 +1348,9 @@
         "providerProductId": 903,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_904",
@@ -1349,7 +1361,9 @@
         "providerProductId": 904,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_905",
@@ -1360,7 +1374,9 @@
         "providerProductId": 905,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_906",
@@ -1371,7 +1387,9 @@
         "providerProductId": 906,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_907",
@@ -1382,7 +1400,9 @@
         "providerProductId": 907,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_908",
@@ -1393,7 +1413,9 @@
         "providerProductId": 908,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_909",
@@ -1404,7 +1426,9 @@
         "providerProductId": 909,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_910",
@@ -1415,7 +1439,9 @@
         "providerProductId": 910,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_911",
@@ -1426,7 +1452,9 @@
         "providerProductId": 911,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_912",
@@ -1437,7 +1465,9 @@
         "providerProductId": 912,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_913",
@@ -1448,7 +1478,9 @@
         "providerProductId": 913,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_920",
@@ -1459,7 +1491,9 @@
         "providerProductId": 920,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_921",
@@ -1470,7 +1504,9 @@
         "providerProductId": 921,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_922",
@@ -1481,7 +1517,9 @@
         "providerProductId": 922,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_923",
@@ -1492,7 +1530,9 @@
         "providerProductId": 923,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_924",
@@ -1503,7 +1543,9 @@
         "providerProductId": 924,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_925",
@@ -1514,7 +1556,9 @@
         "providerProductId": 925,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_914",
@@ -1525,7 +1569,9 @@
         "providerProductId": 914,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_915",
@@ -1536,7 +1582,9 @@
         "providerProductId": 915,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_916",
@@ -1547,7 +1595,9 @@
         "providerProductId": 916,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_917",
@@ -1558,7 +1608,9 @@
         "providerProductId": 917,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_918",
@@ -1569,7 +1621,9 @@
         "providerProductId": 918,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg_rbx_919",
@@ -1580,10 +1634,15 @@
         "providerProductId": 919,
         "productType": "package",
         "available": true,
-        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+        "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+        "requiresInput": false,
+        "isRedemptionCode": true
       }
     ],
-    "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب"
+    "instructions": "بطاقة شحن روبلوكس بعد الشراء يتم سيتم استلام كود البطاقة ضمن الرد داخل الطلب",
+    "requiresInput": false,
+    "isRedemptionCode": true,
+    "deliveryType": "code"
   },
   {
     "id": "othman_mtn",
@@ -2728,8 +2787,8 @@
     "image": "/images/services/visa_card.jpg",
     "description": "توردىن خەلقئارالىق سېتىۋېلىشلار، Google Play ۋە ئىچكى ئەزالىقلار ئۈچۈن. كود ئاپتوماتىك دەرھال چىقىدۇ. كارتىنى wallet.google.com غا باغلاپ ئىشلىتىڭ.",
     "badge": "💳 دەرھال كود",
-    "inputLabel": "ئېلخەت ياكى تېلېفون نومۇرى",
-    "inputPlaceholder": "ۋىزا كارت ئۇچۇرى ئەۋەتىلىدىغان ئېلخەت ياكى تېلېفون",
+    "inputLabel": "",
+    "inputPlaceholder": "",
     "packages": [
       {
         "id": "pkg-othman-894",
@@ -2740,7 +2799,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "تنبيه:اذا كنت لا تعلم طريقة استخدام البطاقة الرجاء عدم شرائها يتم التسليم بشكل تلقائي ⚡البطاقة تعمل لخدمات جوجل والاشتراكات الداخلية.....البطاقة سليمة 100%يجب اضافة البطاقة هنا لتعمل بشكل سليم ضمن حسابكم 🌟https://wallet.google.com"
+        "instructions": "تنبيه:اذا كنت لا تعلم طريقة استخدام البطاقة الرجاء عدم شرائها يتم التسليم بشكل تلقائي ⚡البطاقة تعمل لخدمات جوجل والاشتراكات الداخلية.....البطاقة سليمة 100%يجب اضافة البطاقة هنا لتعمل بشكل سليم ضمن حسابكم 🌟https://wallet.google.com",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg-othman-896",
@@ -2751,13 +2812,18 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "تنبيه:اذا كنت لا تعلم طريقة استخدام البطاقة الرجاء عدم شرائها يتم التسليم بشكل تلقائي ⚡البطاقة تعمل لخدمات جوجل والاشتراكات الداخلية.....البطاقة سليمة 100%يجب اضافة البطاقة هنا لتعمل بشكل سليم ضمن حسابكم 🌟https://wallet.google.com"
+        "instructions": "تنبيه:اذا كنت لا تعلم طريقة استخدام البطاقة الرجاء عدم شرائها يتم التسليم بشكل تلقائي ⚡البطاقة تعمل لخدمات جوجل والاشتراكات الداخلية.....البطاقة سليمة 100%يجب اضافة البطاقة هنا لتعمل بشكل سليم ضمن حسابكم 🌟https://wallet.google.com",
+        "requiresInput": false,
+        "isRedemptionCode": true
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "تنبيه:اذا كنت لا تعلم طريقة استخدام البطاقة الرجاء عدم شرائها يتم التسليم بشكل تلقائي ⚡البطاقة تعمل لخدمات جوجل والاشتراكات الداخلية.....البطاقة سليمة 100%يجب اضافة البطاقة هنا لتعمل بشكل سليم ضمن حسابكم 🌟https://wallet.google.com"
+    "instructions": "تنبيه:اذا كنت لا تعلم طريقة استخدام البطاقة الرجاء عدم شرائها يتم التسليم بشكل تلقائي ⚡البطاقة تعمل لخدمات جوجل والاشتراكات الداخلية.....البطاقة سليمة 100%يجب اضافة البطاقة هنا لتعمل بشكل سليم ضمن حسابكم 🌟https://wallet.google.com",
+    "requiresInput": false,
+    "isRedemptionCode": true,
+    "deliveryType": "code"
   },
   {
     "id": "othman_efootball",
@@ -2806,8 +2872,8 @@
     "image": "/images/services/microsoft.jpg",
     "description": "Microsoft Office 2016/2021 Pro Plus مەڭگۈلۈك ئاكتىپلاش ۋە Windows 11/10 Pro OEM كودلىرى.",
     "badge": "💻 مەڭگۈلۈك",
-    "inputLabel": "ئېلخەت ياكى تېلېفون نومۇرى",
-    "inputPlaceholder": "ئاكتىپلاش كودى تاپشۇرۇۋالىدىغان ئېلخەت ياكى تېلېفون",
+    "inputLabel": "",
+    "inputPlaceholder": "",
     "packages": [
       {
         "id": "pkg-othman-932",
@@ -2818,7 +2884,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "خدمات مايكروسوفت"
+        "instructions": "خدمات مايكروسوفت",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg-othman-936",
@@ -2829,7 +2897,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Microsoft Office 2021 pro plus (Life Time)احصل على رمز تفعيل أصلي مدى الحياة لبرنامج Microsoft Office 2021 Pro Plus، واستمتع بالوصول الكامل إلى تطبيقات Office الأساسية (Word، Excel، PowerPoint، Outlook، وغيرها). بمجرد التفعيل، سيظل ترخيص حزمة Office ساريًا بشكل دائم دون الحاجة إلى تجديد. ملاحظات هامة: تفعيل أصلي ودائم (مدى الحياة). يدعم جميع تحديثات Office 2016 Pro Plus الرسمية. صالح لجهاز واحد فقط."
+        "instructions": "Microsoft Office 2021 pro plus (Life Time)احصل على رمز تفعيل أصلي مدى الحياة لبرنامج Microsoft Office 2021 Pro Plus، واستمتع بالوصول الكامل إلى تطبيقات Office الأساسية (Word، Excel، PowerPoint، Outlook، وغيرها). بمجرد التفعيل، سيظل ترخيص حزمة Office ساريًا بشكل دائم دون الحاجة إلى تجديد. ملاحظات هامة: تفعيل أصلي ودائم (مدى الحياة). يدعم جميع تحديثات Office 2016 Pro Plus الرسمية. صالح لجهاز واحد فقط.",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg-othman-934",
@@ -2840,13 +2910,18 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Microsoft Office 2021 pro plus (Life Time)احصل على رمز تفعيل أصلي مدى الحياة لبرنامج Microsoft Office 2021 Pro Plus، واستمتع بالوصول الكامل إلى تطبيقات Office الأساسية (Word، Excel، PowerPoint، Outlook، وغيرها). بمجرد التفعيل، سيظل ترخيص حزمة Office ساريًا بشكل دائم دون الحاجة إلى تجديد. ملاحظات هامة: تفعيل أصلي ودائم (مدى الحياة). يدعم جميع تحديثات Office 2016 Pro Plus الرسمية. صالح لجهاز واحد فقط."
+        "instructions": "Microsoft Office 2021 pro plus (Life Time)احصل على رمز تفعيل أصلي مدى الحياة لبرنامج Microsoft Office 2021 Pro Plus، واستمتع بالوصول الكامل إلى تطبيقات Office الأساسية (Word، Excel، PowerPoint، Outlook، وغيرها). بمجرد التفعيل، سيظل ترخيص حزمة Office ساريًا بشكل دائم دون الحاجة إلى تجديد. ملاحظات هامة: تفعيل أصلي ودائم (مدى الحياة). يدعم جميع تحديثات Office 2016 Pro Plus الرسمية. صالح لجهاز واحد فقط.",
+        "requiresInput": false,
+        "isRedemptionCode": true
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "Microsoft Office 2021 pro plus (Life Time)احصل على رمز تفعيل أصلي مدى الحياة لبرنامج Microsoft Office 2021 Pro Plus، واستمتع بالوصول الكامل إلى تطبيقات Office الأساسية (Word، Excel، PowerPoint، Outlook، وغيرها). بمجرد التفعيل، سيظل ترخيص حزمة Office ساريًا بشكل دائم دون الحاجة إلى تجديد. ملاحظات هامة: تفعيل أصلي ودائم (مدى الحياة). يدعم جميع تحديثات Office 2016 Pro Plus الرسمية. صالح لجهاز واحد فقط."
+    "instructions": "Microsoft Office 2021 pro plus (Life Time)احصل على رمز تفعيل أصلي مدى الحياة لبرنامج Microsoft Office 2021 Pro Plus، واستمتع بالوصول الكامل إلى تطبيقات Office الأساسية (Word، Excel، PowerPoint، Outlook، وغيرها). بمجرد التفعيل، سيظل ترخيص حزمة Office ساريًا بشكل دائم دون الحاجة إلى تجديد. ملاحظات هامة: تفعيل أصلي ودائم (مدى الحياة). يدعم جميع تحديثات Office 2016 Pro Plus الرسمية. صالح لجهاز واحد فقط.",
+    "requiresInput": false,
+    "isRedemptionCode": true,
+    "deliveryType": "code"
   },
   {
     "id": "othman_king_shot",
@@ -4021,8 +4096,8 @@
     "image": "/images/services/chatgpt.jpg",
     "description": "OpenAI نىڭ ئەڭ يۇقىرى دەرىجىلىك GPT-4o ئەقلىي ئىقتىدارلىرىغا ئايلىق رەسمىي تەييار ھېسابات.",
     "badge": "⚡ تەييار ھېسابات",
-    "inputLabel": "ئېلخەت ئادرېسى (Email Address)",
-    "inputPlaceholder": "ئېلخېتىڭىزنى كىرگۈزۈڭ",
+    "inputLabel": "",
+    "inputPlaceholder": "",
     "packages": [
       {
         "id": "pkg-othman-761",
@@ -4033,13 +4108,18 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "ChatGPT - Plus"
+        "instructions": "ChatGPT - Plus",
+        "requiresInput": false,
+        "isReadyAccount": true
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "ChatGPT - Plus"
+    "instructions": "ChatGPT - Plus",
+    "requiresInput": false,
+    "isReadyAccount": true,
+    "deliveryType": "account"
   },
   {
     "id": "othman_turkcell",
@@ -4997,8 +5077,8 @@
     "image": "/images/services/shield_vpn.jpg",
     "description": "Shield VPN تەييار ھېساباتلار (3، 6، 12 ئاي).",
     "badge": "🛡️ تېز تور",
-    "inputLabel": "ئېلخەت ئادرېسى",
-    "inputPlaceholder": "ئېلخېتىڭىزنى كىرگۈزۈڭ",
+    "inputLabel": "",
+    "inputPlaceholder": "",
     "packages": [
       {
         "id": "pkg-othman-619",
@@ -5009,7 +5089,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️",
+        "requiresInput": false,
+        "isReadyAccount": true
       },
       {
         "id": "pkg-othman-620",
@@ -5020,7 +5102,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️",
+        "requiresInput": false,
+        "isReadyAccount": true
       },
       {
         "id": "pkg-othman-621",
@@ -5031,7 +5115,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️",
+        "requiresInput": false,
+        "isReadyAccount": true
       },
       {
         "id": "pkg-othman-622",
@@ -5042,13 +5128,18 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️",
+        "requiresInput": false,
+        "isReadyAccount": true
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️"
+    "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️",
+    "requiresInput": false,
+    "isReadyAccount": true,
+    "deliveryType": "account"
   },
   {
     "id": "othman_pure_vpn",
@@ -5058,8 +5149,8 @@
     "image": "/images/services/pure_vpn.jpg",
     "description": "PureVPN تەييار تولۇق كاپالەتلىك ھېساباتلار (3، 6، 12 ئاي).",
     "badge": "⚡ كاپالەتلىك",
-    "inputLabel": "ئېلخەت ئادرېسى",
-    "inputPlaceholder": "ئېلخېتىڭىزنى كىرگۈزۈڭ",
+    "inputLabel": "",
+    "inputPlaceholder": "",
     "packages": [
       {
         "id": "pkg-othman-614",
@@ -5070,7 +5161,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️",
+        "requiresInput": false,
+        "isReadyAccount": true
       },
       {
         "id": "pkg-othman-613",
@@ -5081,7 +5174,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️",
+        "requiresInput": false,
+        "isReadyAccount": true
       },
       {
         "id": "pkg-othman-612",
@@ -5092,7 +5187,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️",
+        "requiresInput": false,
+        "isReadyAccount": true
       },
       {
         "id": "pkg-othman-611",
@@ -5103,13 +5200,18 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️",
+        "requiresInput": false,
+        "isReadyAccount": true
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️"
+    "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 11 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 45 دقيقة ✅️",
+    "requiresInput": false,
+    "isReadyAccount": true,
+    "deliveryType": "account"
   },
   {
     "id": "othman_gearup_booster",
@@ -5132,7 +5234,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "كود تالونى (Redemption Code) — ئەپكە كىرگۈزۈپ قوزغىتىۋېلىش كېرەك"
+        "instructions": "كود تالونى (Redemption Code) — ئەپكە كىرگۈزۈپ قوزغىتىۋېلىش كېرەك",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg-othman-605",
@@ -5143,13 +5247,17 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "كود تالونى (Redemption Code) — ئەپكە كىرگۈزۈپ قوزغىتىۋېلىش كېرەك"
+        "instructions": "كود تالونى (Redemption Code) — ئەپكە كىرگۈزۈپ قوزغىتىۋېلىش كېرەك",
+        "requiresInput": false,
+        "isRedemptionCode": true
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "⚡ سېتىۋالغاندىن كېيىن سىستېما سىزگە قوزغىتىش كودى (Redemption Code) بېرىدۇ. تېلېفوندىكى GearUP Booster ئەپىگە كىرىپ، «استرداد الرمز / Redeem Code» بۆلىكىگە بۇ كودنى كىرگۈزۈپ ئەزالىقىڭىزنى دەرھال ئاكتىپلىۋېلىڭ."
+    "instructions": "⚡ سېتىۋالغاندىن كېيىن سىستېما سىزگە قوزغىتىش كودى (Redemption Code) بېرىدۇ. تېلېفوندىكى GearUP Booster ئەپىگە كىرىپ، «استرداد الرمز / Redeem Code» بۆلىكىگە بۇ كودنى كىرگۈزۈپ ئەزالىقىڭىزنى دەرھال ئاكتىپلىۋېلىڭ.",
+    "inputLabel": "",
+    "inputPlaceholder": ""
   },
   {
     "id": "othman_proton_vpn",
@@ -5159,8 +5267,8 @@
     "image": "/images/services/proton_vpn.jpg",
     "description": "ProtonVPN رەسمىي پرېمىئۇم 1 ئۈسكۈنە (3، 6، 12 ئاي).",
     "badge": "🇨🇭 شىۋېتسارىيە",
-    "inputLabel": "ئېلخەت ئادرېسى",
-    "inputPlaceholder": "ئېلخېتىڭىزنى كىرگۈزۈڭ",
+    "inputLabel": "",
+    "inputPlaceholder": "",
     "packages": [
       {
         "id": "pkg-othman-598",
@@ -5171,7 +5279,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 1 ساعة ✅️● حسابات جاهزة● لا يمكنك تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 1 ساعة ✅️● حسابات جاهزة● لا يمكنك تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء",
+        "requiresInput": false,
+        "isReadyAccount": true
       },
       {
         "id": "pkg-othman-600",
@@ -5182,7 +5292,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 1 ساعة ✅️● حسابات جاهزة● لا يمكنك تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 1 ساعة ✅️● حسابات جاهزة● لا يمكنك تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء",
+        "requiresInput": false,
+        "isReadyAccount": true
       },
       {
         "id": "pkg-othman-601",
@@ -5193,7 +5305,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 1 ساعة ✅️● حسابات جاهزة● لا يمكنك تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 1 ساعة ✅️● حسابات جاهزة● لا يمكنك تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء",
+        "requiresInput": false,
+        "isReadyAccount": true
       },
       {
         "id": "pkg-othman-602",
@@ -5204,13 +5318,18 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 1 ساعة ✅️● حسابات جاهزة● لا يمكنك تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 1 ساعة ✅️● حسابات جاهزة● لا يمكنك تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء",
+        "requiresInput": false,
+        "isReadyAccount": true
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 1 ساعة ✅️● حسابات جاهزة● لا يمكنك تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء"
+    "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 1 ساعة ✅️● حسابات جاهزة● لا يمكنك تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء",
+    "requiresInput": false,
+    "isReadyAccount": true,
+    "deliveryType": "account"
   },
   {
     "id": "othman_express_vpn",
@@ -5220,8 +5339,8 @@
     "image": "/images/services/express_vpn.jpg",
     "description": "ExpressVPN يۇقىرى سۈرئەتلىك، يۇقىرى مەخپىيەتلىككە ئىگە ئەڭ ئىشەنچلىك VPN ئەزالىقى (3، 6، 12 ئاي).",
     "badge": "🔒 مەخپىيەتلىك",
-    "inputLabel": "ئېلخەت ئادرېسى",
-    "inputPlaceholder": "كود ئەۋەتىلىدىغان ئېلخېتىڭىزنى كىرگۈزۈڭ",
+    "inputLabel": "",
+    "inputPlaceholder": "",
     "packages": [
       {
         "id": "pkg-othman-594",
@@ -5232,7 +5351,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 6 ساعات ✅️● حسابات جاهزة● يرجى عدم تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء● الخدمة للهاتف فقط"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 6 ساعات ✅️● حسابات جاهزة● يرجى عدم تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء● الخدمة للهاتف فقط",
+        "requiresInput": false,
+        "isReadyAccount": true
       },
       {
         "id": "pkg-othman-595",
@@ -5243,7 +5364,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 6 ساعات ✅️● حسابات جاهزة● يرجى عدم تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء● الخدمة للهاتف فقط"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 6 ساعات ✅️● حسابات جاهزة● يرجى عدم تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء● الخدمة للهاتف فقط",
+        "requiresInput": false,
+        "isReadyAccount": true
       },
       {
         "id": "pkg-othman-596",
@@ -5254,7 +5377,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 6 ساعات ✅️● حسابات جاهزة● يرجى عدم تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء● الخدمة للهاتف فقط"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 6 ساعات ✅️● حسابات جاهزة● يرجى عدم تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء● الخدمة للهاتف فقط",
+        "requiresInput": false,
+        "isReadyAccount": true
       },
       {
         "id": "pkg-othman-597",
@@ -5265,13 +5390,18 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 6 ساعات ✅️● حسابات جاهزة● يرجى عدم تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء● الخدمة للهاتف فقط"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 6 ساعات ✅️● حسابات جاهزة● يرجى عدم تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء● الخدمة للهاتف فقط",
+        "requiresInput": false,
+        "isReadyAccount": true
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 6 ساعات ✅️● حسابات جاهزة● يرجى عدم تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء● الخدمة للهاتف فقط"
+    "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 6 ساعات ✅️● حسابات جاهزة● يرجى عدم تغيير معلومات الحساب● لايمكن الغاء الطلب بعد الشراء● الخدمة للهاتف فقط",
+    "requiresInput": false,
+    "isReadyAccount": true,
+    "deliveryType": "account"
   },
   {
     "id": "othman_nord_vpn",
@@ -5281,8 +5411,8 @@
     "image": "/images/services/nord_vpn.jpg",
     "description": "NordVPN Global دۇنياۋى پرېمىئۇم بىخەتەر تور ئاكتىپلاش.",
     "badge": "🛡️ بىخەتەر",
-    "inputLabel": "ئېلخەت ئادرېسى",
-    "inputPlaceholder": "ئېلخېتىڭىزنى كىرگۈزۈڭ",
+    "inputLabel": "",
+    "inputPlaceholder": "",
     "packages": [
       {
         "id": "pkg-othman-591",
@@ -5293,13 +5423,18 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "حسابات جاهزة بعد الشراء اطلب كود التفعيل من قسم الدعم ✅"
+        "instructions": "حسابات جاهزة بعد الشراء اطلب كود التفعيل من قسم الدعم ✅",
+        "requiresInput": false,
+        "isReadyAccount": true
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "حسابات جاهزة بعد الشراء اطلب كود التفعيل من قسم الدعم ✅"
+    "instructions": "حسابات جاهزة بعد الشراء اطلب كود التفعيل من قسم الدعم ✅",
+    "requiresInput": false,
+    "isReadyAccount": true,
+    "deliveryType": "account"
   },
   {
     "id": "othman_invideo",
@@ -5309,8 +5444,8 @@
     "image": "/images/services/invideo.jpg",
     "description": "InVideo كەسپىي سىن تەھرىرلەش ۋە سۈنئىي ئەقىل سىن ھاسىللاش مۇلازىمىتى.",
     "badge": "🎬 تېز ھېسابات",
-    "inputLabel": "ئېلخەت ياكى تېلېفون",
-    "inputPlaceholder": "ئۇچۇرىڭىزنى كىرگۈزۈڭ",
+    "inputLabel": "",
+    "inputPlaceholder": "",
     "packages": [
       {
         "id": "pkg-othman-589",
@@ -5321,7 +5456,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 11 مساءً ✔️يتم تنفيذ الطلب خلال 30 دقيقة ✅️مشترك ?"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 11 مساءً ✔️يتم تنفيذ الطلب خلال 30 دقيقة ✅️مشترك ?",
+        "requiresInput": false,
+        "isReadyAccount": true
       },
       {
         "id": "pkg-othman-590",
@@ -5332,13 +5469,18 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 11 مساءً ✔️يتم تنفيذ الطلب خلال 30 دقيقة ✅️مشترك ?"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 11 مساءً ✔️يتم تنفيذ الطلب خلال 30 دقيقة ✅️مشترك ?",
+        "requiresInput": false,
+        "isReadyAccount": true
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 11 مساءً ✔️يتم تنفيذ الطلب خلال 30 دقيقة ✅️مشترك ?"
+    "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 11 مساءً ✔️يتم تنفيذ الطلب خلال 30 دقيقة ✅️مشترك ?",
+    "requiresInput": false,
+    "isReadyAccount": true,
+    "deliveryType": "account"
   },
   {
     "id": "othman_flaticon",
@@ -5526,8 +5668,8 @@
     "image": "/images/services/cursor_pro.jpg",
     "description": "دۇنيا بويىچە ئەڭ ئالقىشلانغان AI كود يېزىش تەھرىرلىگۈچىسى Cursor Pro 1 ئايلىق ھېسابات.",
     "badge": "💻 پىروگراممېرلار",
-    "inputLabel": "ئېلخەت ئادرېسى",
-    "inputPlaceholder": "example@gmail.com",
+    "inputLabel": "",
+    "inputPlaceholder": "",
     "packages": [
       {
         "id": "pkg-othman-578",
@@ -5538,13 +5680,18 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 30 دقيقة ✅️"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 30 دقيقة ✅️",
+        "requiresInput": false,
+        "isReadyAccount": true
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 30 دقيقة ✅️"
+    "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 30 دقيقة ✅️",
+    "requiresInput": false,
+    "isReadyAccount": true,
+    "deliveryType": "account"
   },
   {
     "id": "othman_google_gemini",
@@ -5615,8 +5762,8 @@
     "image": "/images/services/super_grok.jpg",
     "description": "Elon Musk نىڭ xAI شىركىتى تەرىپىدىن ئىشلەنگەن Super Grok تولۇق كاپالەتلىك تەييار ھېسابات.",
     "badge": "🤖 يېڭى",
-    "inputLabel": "ئېلخەت ياكى تېلېفون نومۇرى",
-    "inputPlaceholder": "ئۇچۇرىڭىزنى كىرگۈزۈڭ",
+    "inputLabel": "",
+    "inputPlaceholder": "",
     "packages": [
       {
         "id": "pkg-othman-573",
@@ -5627,13 +5774,18 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 30 دقيقة ✅️"
+        "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 30 دقيقة ✅️",
+        "requiresInput": false,
+        "isReadyAccount": true
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 30 دقيقة ✅️"
+    "instructions": "هذا المنتج يعمل بشكل يدوي من الساعة 10 صباحاً حتى 12 مساءً ✔️يتم تنفيذ الطلب خلال 30 دقيقة ✅️",
+    "requiresInput": false,
+    "isReadyAccount": true,
+    "deliveryType": "account"
   },
   {
     "id": "othman_youtube_premium",
@@ -6866,8 +7018,8 @@
     "image": "/images/services/osn_plus.jpg",
     "description": "HBO، Paramount ۋە رەسمىي دۇنيا كىنولىرىنى كۆرۈش تولۇق ھېساباتى.",
     "badge": "🎬 تولۇق ھېسابات",
-    "inputLabel": "ئېلخەت ياكى تېلېفون",
-    "inputPlaceholder": "ئۇچۇرىڭىزنى كىرگۈزۈڭ",
+    "inputLabel": "",
+    "inputPlaceholder": "",
     "packages": [
       {
         "id": "pkg-othman-501",
@@ -6878,7 +7030,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "OSN Plus"
+        "instructions": "OSN Plus",
+        "requiresInput": false,
+        "isReadyAccount": true
       },
       {
         "id": "pkg-othman-502",
@@ -6889,13 +7043,18 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "OSN Plus"
+        "instructions": "OSN Plus",
+        "requiresInput": false,
+        "isReadyAccount": true
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "OSN Plus"
+    "instructions": "OSN Plus",
+    "requiresInput": false,
+    "isReadyAccount": true,
+    "deliveryType": "account"
   },
   {
     "id": "othman_iptv",
@@ -6961,8 +7120,8 @@
     "image": "/images/services/netflix.jpg",
     "description": "دۇنياۋى كىنو ۋە تىياتىرلارنى ئەڭ يۇقىرى 4K سۈپەتتە كۆرۈش تولۇق كاپالەتلىك ھېساباتى.",
     "badge": "🍿 4K Ultra HD",
-    "inputLabel": "قوبۇل قىلغۇچى ئېلخەت ياكى تېلېفون",
-    "inputPlaceholder": "ھېسابات ئۇچۇرى ئەۋەتىلىدىغان ئېلخەت ياكى تېلېفون",
+    "inputLabel": "",
+    "inputPlaceholder": "",
     "packages": [
       {
         "id": "pkg-othman-495",
@@ -6973,7 +7132,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "✅️ حساب نظامي ١٠٠٪حساب خاص بكم فقط لايوجد مشتركينلا توجد مشاكل في الدفعحساب مكفول"
+        "instructions": "✅️ حساب نظامي ١٠٠٪حساب خاص بكم فقط لايوجد مشتركينلا توجد مشاكل في الدفعحساب مكفول",
+        "requiresInput": false,
+        "isReadyAccount": true
       },
       {
         "id": "pkg-othman-496",
@@ -6984,13 +7145,18 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "✅️ حساب نظامي ١٠٠٪حساب خاص بكم فقط لايوجد مشتركينلا توجد مشاكل في الدفعحساب مكفول"
+        "instructions": "✅️ حساب نظامي ١٠٠٪حساب خاص بكم فقط لايوجد مشتركينلا توجد مشاكل في الدفعحساب مكفول",
+        "requiresInput": false,
+        "isReadyAccount": true
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "✅️ حساب نظامي ١٠٠٪حساب خاص بكم فقط لايوجد مشتركينلا توجد مشاكل في الدفعحساب مكفول"
+    "instructions": "✅️ حساب نظامي ١٠٠٪حساب خاص بكم فقط لايوجد مشتركينلا توجد مشاكل في الدفعحساب مكفول",
+    "requiresInput": false,
+    "isReadyAccount": true,
+    "deliveryType": "account"
   },
   {
     "id": "othman_shahid_vip",
@@ -7028,8 +7194,8 @@
     "image": "/images/services/steam.jpg",
     "description": "Steam سۇپىسىدىكى بارلىق كومپيۇتېر ئويۇنلىرى ئۈچۈن رەسمىي دوللارلىق كارتىلار.",
     "badge": "🎮 دەرھال كود",
-    "inputLabel": "ئېلخەت ياكى تېلېفون نومۇرى",
-    "inputPlaceholder": "كارت كودى ئەۋەتىلىدىغان ئېلخەت ياكى تېلېفون",
+    "inputLabel": "",
+    "inputPlaceholder": "",
     "packages": [
       {
         "id": "pkg-othman-480",
@@ -7040,7 +7206,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Steam Wallet (US)"
+        "instructions": "Steam Wallet (US)",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg-othman-481",
@@ -7050,7 +7218,9 @@
         "providerProductId": 481,
         "productType": "fixed",
         "available": true,
-        "providerKey": "othman"
+        "providerKey": "othman",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg-othman-482",
@@ -7061,7 +7231,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Steam Wallet (US)"
+        "instructions": "Steam Wallet (US)",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg-othman-483",
@@ -7072,7 +7244,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Steam Wallet (US)"
+        "instructions": "Steam Wallet (US)",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg-othman-484",
@@ -7083,13 +7257,18 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Steam Wallet (US)"
+        "instructions": "Steam Wallet (US)",
+        "requiresInput": false,
+        "isRedemptionCode": true
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "Steam Wallet (US)"
+    "instructions": "Steam Wallet (US)",
+    "requiresInput": false,
+    "isRedemptionCode": true,
+    "deliveryType": "code"
   },
   {
     "id": "othman_google_play",
@@ -7099,8 +7278,8 @@
     "image": "/images/services/google_play.jpg",
     "description": "Google Play Store دا ئەپ ۋە ئويۇنلارغا پۇل قاچىلاش كارتىلىرى (TL ۋە باشقا رايونلار).",
     "badge": "⚡ كود كاپالىتى",
-    "inputLabel": "ئېلخەت ياكى تېلېفون نومۇرى",
-    "inputPlaceholder": "كارت كودى ئەۋەتىلىدىغان ئېلخەت ياكى تېلېفون",
+    "inputLabel": "",
+    "inputPlaceholder": "",
     "packages": [
       {
         "id": "pkg-othman-474",
@@ -7111,7 +7290,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "كفالة بطاقة غوغل لا تتضمن الحظرأي في حال ظهرت الرسالة التالية(نحتاج الى معلومات أكثر لتتمكن من تحصيل قيمة بطاقة الهدايا.)يرجى ارسال المزيد من التفاصيل أثناء التحصيلفهي بسبب مشكلة عامة من شركة غوغلوليس لشركة عثمان ستور أي علاقةملاحظة : البطاقة التي تباع لا ترد في حال الحظر"
+        "instructions": "كفالة بطاقة غوغل لا تتضمن الحظرأي في حال ظهرت الرسالة التالية(نحتاج الى معلومات أكثر لتتمكن من تحصيل قيمة بطاقة الهدايا.)يرجى ارسال المزيد من التفاصيل أثناء التحصيلفهي بسبب مشكلة عامة من شركة غوغلوليس لشركة عثمان ستور أي علاقةملاحظة : البطاقة التي تباع لا ترد في حال الحظر",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg-othman-475",
@@ -7122,7 +7303,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "كفالة بطاقة غوغل لا تتضمن الحظرأي في حال ظهرت الرسالة التالية(نحتاج الى معلومات أكثر لتتمكن من تحصيل قيمة بطاقة الهدايا.)يرجى ارسال المزيد من التفاصيل أثناء التحصيلفهي بسبب مشكلة عامة من شركة غوغلوليس لشركة عثمان ستور أي علاقةملاحظة : البطاقة التي تباع لا ترد في حال الحظر"
+        "instructions": "كفالة بطاقة غوغل لا تتضمن الحظرأي في حال ظهرت الرسالة التالية(نحتاج الى معلومات أكثر لتتمكن من تحصيل قيمة بطاقة الهدايا.)يرجى ارسال المزيد من التفاصيل أثناء التحصيلفهي بسبب مشكلة عامة من شركة غوغلوليس لشركة عثمان ستور أي علاقةملاحظة : البطاقة التي تباع لا ترد في حال الحظر",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg-othman-476",
@@ -7133,7 +7316,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "كفالة بطاقة غوغل لا تتضمن الحظرأي في حال ظهرت الرسالة التالية(نحتاج الى معلومات أكثر لتتمكن من تحصيل قيمة بطاقة الهدايا.)يرجى ارسال المزيد من التفاصيل أثناء التحصيلفهي بسبب مشكلة عامة من شركة غوغلوليس لشركة عثمان ستور أي علاقةملاحظة : البطاقة التي تباع لا ترد في حال الحظر"
+        "instructions": "كفالة بطاقة غوغل لا تتضمن الحظرأي في حال ظهرت الرسالة التالية(نحتاج الى معلومات أكثر لتتمكن من تحصيل قيمة بطاقة الهدايا.)يرجى ارسال المزيد من التفاصيل أثناء التحصيلفهي بسبب مشكلة عامة من شركة غوغلوليس لشركة عثمان ستور أي علاقةملاحظة : البطاقة التي تباع لا ترد في حال الحظر",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg-othman-477",
@@ -7144,7 +7329,9 @@
         "productType": "amount",
         "available": true,
         "providerKey": "othman",
-        "instructions": "كفالة بطاقة غوغل لا تتضمن الحظرأي في حال ظهرت الرسالة التالية(نحتاج الى معلومات أكثر لتتمكن من تحصيل قيمة بطاقة الهدايا.)يرجى ارسال المزيد من التفاصيل أثناء التحصيلفهي بسبب مشكلة عامة من شركة غوغلوليس لشركة عثمان ستور أي علاقةملاحظة : البطاقة التي تباع لا ترد في حال الحظر"
+        "instructions": "كفالة بطاقة غوغل لا تتضمن الحظرأي في حال ظهرت الرسالة التالية(نحتاج الى معلومات أكثر لتتمكن من تحصيل قيمة بطاقة الهدايا.)يرجى ارسال المزيد من التفاصيل أثناء التحصيلفهي بسبب مشكلة عامة من شركة غوغلوليس لشركة عثمان ستور أي علاقةملاحظة : البطاقة التي تباع لا ترد في حال الحظر",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg-othman-478",
@@ -7155,7 +7342,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "كفالة بطاقة غوغل لا تتضمن الحظرأي في حال ظهرت الرسالة التالية(نحتاج الى معلومات أكثر لتتمكن من تحصيل قيمة بطاقة الهدايا.)يرجى ارسال المزيد من التفاصيل أثناء التحصيلفهي بسبب مشكلة عامة من شركة غوغلوليس لشركة عثمان ستور أي علاقةملاحظة : البطاقة التي تباع لا ترد في حال الحظر"
+        "instructions": "كفالة بطاقة غوغل لا تتضمن الحظرأي في حال ظهرت الرسالة التالية(نحتاج الى معلومات أكثر لتتمكن من تحصيل قيمة بطاقة الهدايا.)يرجى ارسال المزيد من التفاصيل أثناء التحصيلفهي بسبب مشكلة عامة من شركة غوغلوليس لشركة عثمان ستور أي علاقةملاحظة : البطاقة التي تباع لا ترد في حال الحظر",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg-othman-479",
@@ -7166,13 +7355,18 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "كفالة بطاقة غوغل لا تتضمن الحظرأي في حال ظهرت الرسالة التالية(نحتاج الى معلومات أكثر لتتمكن من تحصيل قيمة بطاقة الهدايا.)يرجى ارسال المزيد من التفاصيل أثناء التحصيلفهي بسبب مشكلة عامة من شركة غوغلوليس لشركة عثمان ستور أي علاقةملاحظة : البطاقة التي تباع لا ترد في حال الحظر"
+        "instructions": "كفالة بطاقة غوغل لا تتضمن الحظرأي في حال ظهرت الرسالة التالية(نحتاج الى معلومات أكثر لتتمكن من تحصيل قيمة بطاقة الهدايا.)يرجى ارسال المزيد من التفاصيل أثناء التحصيلفهي بسبب مشكلة عامة من شركة غوغلوليس لشركة عثمان ستور أي علاقةملاحظة : البطاقة التي تباع لا ترد في حال الحظر",
+        "requiresInput": false,
+        "isRedemptionCode": true
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "كفالة بطاقة غوغل لا تتضمن الحظرأي في حال ظهرت الرسالة التالية(نحتاج الى معلومات أكثر لتتمكن من تحصيل قيمة بطاقة الهدايا.)يرجى ارسال المزيد من التفاصيل أثناء التحصيلفهي بسبب مشكلة عامة من شركة غوغلوليس لشركة عثمان ستور أي علاقةملاحظة : البطاقة التي تباع لا ترد في حال الحظر"
+    "instructions": "كفالة بطاقة غوغل لا تتضمن الحظرأي في حال ظهرت الرسالة التالية(نحتاج الى معلومات أكثر لتتمكن من تحصيل قيمة بطاقة الهدايا.)يرجى ارسال المزيد من التفاصيل أثناء التحصيلفهي بسبب مشكلة عامة من شركة غوغلوليس لشركة عثمان ستور أي علاقةملاحظة : البطاقة التي تباع لا ترد في حال الحظر",
+    "requiresInput": false,
+    "isRedemptionCode": true,
+    "deliveryType": "code"
   },
   {
     "id": "othman_apple_itunes",
@@ -7182,8 +7376,8 @@
     "image": "/images/services/apple_itunes.jpg",
     "description": "Apple ID ھېساباتىغا دوللار قاچىلاش ۋە ئەپ تۈرلىرىنى سېتىۋېلىش كودلىرى.",
     "badge": "🍏 كاپالەتلىك",
-    "inputLabel": "ئېلخەت ياكى تېلېفون نومۇرى",
-    "inputPlaceholder": "كارت كودى ئەۋەتىلىدىغان ئېلخەت ياكى تېلېفون",
+    "inputLabel": "",
+    "inputPlaceholder": "",
     "packages": [
       {
         "id": "pkg-othman-468",
@@ -7194,7 +7388,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "ITUNES DOLLAR"
+        "instructions": "ITUNES DOLLAR",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg-othman-469",
@@ -7205,7 +7401,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "ITUNES DOLLAR"
+        "instructions": "ITUNES DOLLAR",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg-othman-470",
@@ -7216,7 +7414,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "ITUNES DOLLAR"
+        "instructions": "ITUNES DOLLAR",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg-othman-471",
@@ -7227,7 +7427,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "ITUNES DOLLAR"
+        "instructions": "ITUNES DOLLAR",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg-othman-472",
@@ -7238,7 +7440,9 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "ITUNES DOLLAR"
+        "instructions": "ITUNES DOLLAR",
+        "requiresInput": false,
+        "isRedemptionCode": true
       },
       {
         "id": "pkg-othman-473",
@@ -7249,13 +7453,18 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "ITUNES DOLLAR"
+        "instructions": "ITUNES DOLLAR",
+        "requiresInput": false,
+        "isRedemptionCode": true
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "ITUNES DOLLAR"
+    "instructions": "ITUNES DOLLAR",
+    "requiresInput": false,
+    "isRedemptionCode": true,
+    "deliveryType": "code"
   },
   {
     "id": "othman_delta_force",

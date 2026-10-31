@@ -523,6 +523,13 @@ export default function OrdersPage() {
                       d.smsCode
                     );
 
+                    const effectiveCreds =
+                      d.accountCredentials ||
+                      d.delivery?.accountCredentials ||
+                      d.delivery?.account_credentials ||
+                      d.delivery?.credentials ||
+                      d.delivery?.account;
+
                     const hasDetails =
                       isSms ||
                       d.wifiCard ||
@@ -530,7 +537,7 @@ export default function OrdersPage() {
                       textReply ||
                       nonUrlCodes.length > 0 ||
                       d.refundReason ||
-                      d.accountCredentials ||
+                      effectiveCreds ||
                       d.cardDetails ||
                       d.virtualNumber ||
                       d.smsCode;
@@ -764,15 +771,15 @@ export default function OrdersPage() {
                               </div>
                             )}
 
-                            {d.accountCredentials && (
+                            {effectiveCreds && (
                               <div className="flex items-center justify-between">
                                 <span className="text-slate-400 text-[11px]">{t('credentialsLabel')}</span>
                                 <div className="flex items-center gap-1.5">
                                   <span className="text-emerald-300 font-bold font-mono" dir="ltr">
-                                    {d.accountCredentials}
+                                    {effectiveCreds}
                                   </span>
                                   <button
-                                    onClick={() => copyText(d.accountCredentials!, `cred-${order.id}`)}
+                                    onClick={() => copyText(effectiveCreds, `cred-${order.id}`)}
                                     className="text-slate-400 hover:text-white cursor-pointer"
                                   >
                                     {copiedId === `cred-${order.id}` ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}

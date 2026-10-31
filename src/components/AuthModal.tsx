@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import { getBrowserSupabase } from '@/lib/supabaseBrowser';
-import { storeLocalAuth } from '@/lib/clientAuth';
+import { storeLocalAuth, notifyAuthChanged } from '@/lib/clientAuth';
 
 export interface UserSessionData {
   id: string;
@@ -120,10 +120,11 @@ export default function AuthModal({
         return;
       }
       const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      const nextPath = typeof window !== 'undefined' ? window.location.pathname : '/';
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${origin}/auth/callback?next=/`,
+          redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
           queryParams: { access_type: 'offline', prompt: 'consent' },
         },
       });
@@ -170,7 +171,7 @@ export default function AuthModal({
             setTgLoading(false);
             setTgPollingToken(null);
             storeLocalAuth(pollData.user);
-            window.dispatchEvent(new Event('autocash_auth_changed'));
+            notifyAuthChanged();
             showToast('مۇۋەپپەقىيەتلىك كىردىڭىز! قارشى ئالىمىز', 'success');
             setTimeout(() => {
               onSuccess?.(pollData.user);
@@ -212,7 +213,7 @@ export default function AuthModal({
 
       showToast(`كىرىش مۇۋەپپەقىيەتلىك بولدى! قارشى ئالىمىز، ${data.user?.name || loginEmail}`, 'success');
       storeLocalAuth(data.user);
-      window.dispatchEvent(new Event('autocash_auth_changed'));
+      notifyAuthChanged();
 
       setTimeout(() => {
         onSuccess?.(data.user);
@@ -270,7 +271,7 @@ export default function AuthModal({
 
       showToast(`ھۆرمەتلىك ${regName}، تىزىملىتىش مۇۋەپپەقىيەتلىك تاماملاندى!`, 'success');
       storeLocalAuth(data.user);
-      window.dispatchEvent(new Event('autocash_auth_changed'));
+      notifyAuthChanged();
 
       setTimeout(() => {
         onSuccess?.(data.user);

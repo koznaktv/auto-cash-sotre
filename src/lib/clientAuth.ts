@@ -11,7 +11,15 @@ export interface ClientUser {
   role?: string;
 }
 
+export function notifyAuthChanged(): void {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('autocash-auth-changed'));
+    window.dispatchEvent(new Event('autocash_auth_changed'));
+  }
+}
+
 export function storeLocalAuth(user: ClientUser): void {
+  if (typeof window === 'undefined') return;
   localStorage.setItem('autocash_is_logged_in', 'true');
   localStorage.setItem('autocash_username', user.name);
   localStorage.setItem('autocash_email', user.email);
@@ -25,9 +33,11 @@ export function storeLocalAuth(user: ClientUser): void {
   if (user.vipTier) localStorage.setItem('autocash_vipTier', user.vipTier);
   if (typeof user.totalSpent === 'number') localStorage.setItem('autocash_totalSpent', String(user.totalSpent));
   if (user.role) localStorage.setItem('autocash_role', user.role);
+  notifyAuthChanged();
 }
 
 export function clearLocalAuth(): void {
+  if (typeof window === 'undefined') return;
   localStorage.setItem('autocash_is_logged_in', 'false');
   localStorage.removeItem('autocash_username');
   localStorage.removeItem('autocash_email');
@@ -38,6 +48,7 @@ export function clearLocalAuth(): void {
   localStorage.removeItem('autocash_vipTier');
   localStorage.removeItem('autocash_totalSpent');
   localStorage.removeItem('autocash_role');
+  notifyAuthChanged();
 }
 
 export function getCachedBalance(): number {
@@ -80,16 +91,25 @@ export function formatCurrencyAmount(val: number | string | null | undefined): s
 
 /** Ends the server session, the local cache and any Supabase (Google) session. */
 export async function logout(): Promise<void> {
-  // Supabase first: while its session exists, the home page would sync it straight back in
-  const { getBrowserSupabase } = await import('./supabaseBrowser');
-  const sb = getBrowserSupabase();
-  if (sb) {
-    const { error } = await sb.auth.signOut().catch((e) => ({ error: e }));
-    // Offline / server error: still drop the local Supabase session
-    if (error) await sb.auth.signOut({ scope: 'local' }).catch(() => {});
-  }
+  // 1. Immediately wipe local auth state and notify listeners synchronously
   clearLocalAuth();
-  await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+  notifyAuthChanged();
+
+  // 2. Clear backend session cookie
+  const logoutPromise = fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+
+  // 3. Drop Supabase session so it cannot re-sync in background
+  try {
+    const { getBrowserSupabase } = await import('./supabaseBrowser');
+    const sb = getBrowserSupabase();
+    if (sb) {
+      await sb.auth.signOut({ scope: 'local' }).catch(() => {});
+      await sb.auth.signOut().catch(() => {});
+    }
+  } catch {}
+
+  await logoutPromise;
+  notifyAuthChanged();
 }
 
 /** Exchanges a Supabase access token for an AUTO CASH session cookie. */

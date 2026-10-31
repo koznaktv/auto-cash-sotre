@@ -271,25 +271,26 @@ export default function AccountPage() {
       setTelegramLink(null);
     }
 
-    // Always fetch authentic Google account photo directly from Google OAuth session
-    try {
-      const { getBrowserSupabase } = await import('@/lib/supabaseBrowser');
-      const sb = getBrowserSupabase();
-      if (sb) {
-        const { data: { session } } = await sb.auth.getSession();
-        const meta = session?.user?.user_metadata;
-        const gAvatar =
-          meta?.avatar_url ||
-          meta?.picture ||
-          session?.user?.identities?.[0]?.identity_data?.avatar_url ||
-          session?.user?.identities?.[0]?.identity_data?.picture;
-        if (gAvatar) {
-          setAvatarUrl(gAvatar);
-          localStorage.setItem('autocash_avatar', gAvatar);
-          window.dispatchEvent(new Event('autocash-auth-changed'));
+    // Only fetch Google account photo when user is actually logged in
+    if (loggedInVal === 'true') {
+      try {
+        const { getBrowserSupabase } = await import('@/lib/supabaseBrowser');
+        const sb = getBrowserSupabase();
+        if (sb) {
+          const { data: { session } } = await sb.auth.getSession();
+          const meta = session?.user?.user_metadata;
+          const gAvatar =
+            meta?.avatar_url ||
+            meta?.picture ||
+            session?.user?.identities?.[0]?.identity_data?.avatar_url ||
+            session?.user?.identities?.[0]?.identity_data?.picture;
+          if (gAvatar && gAvatar !== avatarUrl) {
+            setAvatarUrl(gAvatar);
+            localStorage.setItem('autocash_avatar', gAvatar);
+          }
         }
-      }
-    } catch {}
+      } catch {}
+    }
 
     fetchOrdersCount();
   };
@@ -370,32 +371,34 @@ export default function AccountPage() {
     }
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
     setIsLoggedIn(false);
+    setName('');
+    setEmail('');
+    setUserId('');
+    setPhone('');
     setAvatarUrl('');
     setBalance(0.0);
     setTotalPurchases(0.0);
     setTotalOrders(0);
     setTelegramLink(null);
+    clearLocalAuth();
+    await logout();
   };
 
   const handleAuthSuccess = (usr: any) => {
-    localStorage.setItem('autocash_is_logged_in', 'true');
-    localStorage.setItem('autocash_username', usr.name);
-    localStorage.setItem('autocash_email', usr.email);
-    if (usr.id) localStorage.setItem('autocash_userId', usr.id);
-    if (usr.avatarUrl) {
-      localStorage.setItem('autocash_avatar', usr.avatarUrl);
-      setAvatarUrl(usr.avatarUrl);
-    }
+    storeLocalAuth(usr);
     setName(usr.name);
     setEmail(usr.email);
-    setUserId(usr.id);
+    setUserId(usr.id || '');
+    if (usr.avatarUrl) {
+      setAvatarUrl(usr.avatarUrl);
+    }
     setBalance(usr.balance || 0.0);
     setIsLoggedIn(true);
+    setIsAuthOpen(false);
     fetchOrdersCount();
-    router.replace('/');
+    if (usr.id) fetchTelegramLink(usr.id);
   };
 
   return (
@@ -871,6 +874,13 @@ export default function AccountPage() {
           </form>
         </div>
       </div>
+
+      {/* Global Auth Modal for instant 1-Click Login / Register directly on Account Page */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        onSuccess={handleAuthSuccess}
+      />
     </SGCSubpageLayout>
   );
 }

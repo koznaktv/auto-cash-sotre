@@ -47,16 +47,44 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
         (service.name || '').toLowerCase().includes('واي فاي'))
   );
 
+  const isReadyAccountService = Boolean(
+    service &&
+      ((service as any).isReadyAccount ||
+        (service as any).deliveryType === 'account' ||
+        service.id === 'othman_proton_vpn' ||
+        service.id === 'othman_express_vpn' ||
+        service.id === 'othman_nord_vpn' ||
+        service.id === 'othman_shield_vpn' ||
+        service.id === 'othman_pure_vpn' ||
+        service.id === 'othman_chatgpt' ||
+        service.id === 'othman_super_grok' ||
+        service.id === 'othman_cursor_pro' ||
+        service.id === 'othman_invideo' ||
+        service.id === 'othman_netflix' ||
+        service.id === 'othman_osn_plus' ||
+        ((service as any).instructions || '').includes('حسابات جاهزة') ||
+        ((service as any).instructions || '').includes('حساب جاهز'))
+  );
+
   const isRedemptionService = Boolean(
     service &&
+      !isReadyAccountService &&
       ((service as any).isRedemptionCode ||
         (service as any).requiresInput === false ||
         (service as any).deliveryType === 'code' ||
         service.id === 'othman_gearup_booster' ||
+        service.id === 'othman_roblox_cards' ||
+        service.id === 'othman_steam_wallet' ||
+        service.id === 'othman_google_play' ||
+        service.id === 'othman_apple_itunes' ||
+        service.id === 'othman_visa_cards' ||
+        service.id === 'othman_microsoft_services' ||
         service.id.toLowerCase().includes('gearup') ||
         (service.name || '').toLowerCase().includes('gearup') ||
         (service.category === 'cards' && !service.inputLabel))
   );
+
+  const isNoInputService = isWifiService || isRedemptionService || isReadyAccountService || (service as any)?.requiresInput === false;
 
   const [detail, setDetail] = useState<ServiceItem | null>(service || null);
   const [detailError, setDetailError] = useState('');
@@ -74,6 +102,8 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
   const [purchasedWifiCard, setPurchasedWifiCard] = useState<any | null>(null);
   const [purchasedRedCode, setPurchasedRedCode] = useState<string | null>(null);
   const [copiedRedCode, setCopiedRedCode] = useState(false);
+  const [purchasedAccountCredentials, setPurchasedAccountCredentials] = useState<string | null>(null);
+  const [copiedAccountCreds, setCopiedAccountCreds] = useState(false);
   const [wifiStockMap, setWifiStockMap] = useState<Record<string, number> | null>(null);
   const [loadingStock, setLoadingStock] = useState(false);
   const isSubmittingRef = useRef(false);
@@ -329,7 +359,13 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
     setInfoMsg('');
     try {
       const targetStr = (customTarget ?? accountInput).trim();
-      const effectiveTarget = targetStr || (isRedemptionService ? (isRTL ? 'كود تالونى (Redemption Code)' : 'Redemption Code') : '');
+      const effectiveTarget = targetStr || (
+        isReadyAccountService
+          ? (isRTL ? 'تەييار ھېسابات (Ready Account)' : 'Ready Account')
+          : isRedemptionService
+          ? (isRTL ? 'كود تالونى (Redemption Code)' : 'Redemption Code')
+          : ''
+      );
       const body = isProvider
         ? {
             serviceId: service.id,
@@ -376,6 +412,22 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
         setPurchasedWifiCard(data.wifiCard);
         onSuccess(data.order, data.newBalance);
         return;
+      }
+
+      const receivedCreds =
+        data.accountCredentials ||
+        data.order?.details?.accountCredentials ||
+        (data.order?.details?.delivery as any)?.account_credentials ||
+        (data.order?.details?.delivery as any)?.credentials ||
+        (data.order?.details?.delivery as any)?.account;
+
+      if (receivedCreds || isReadyAccountService) {
+        if (receivedCreds) {
+          setPurchasedAccountCredentials(receivedCreds);
+          setButtonState('success');
+          onSuccess(data.order, data.newBalance);
+          return;
+        }
       }
 
       const receivedCode =
@@ -474,13 +526,15 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
       }
       const updatedFields = {
         ...fieldValues,
-        ...(accountInput.trim() ? { playerId: accountInput.trim() } : {}),
-        ...(zoneInput.trim() ? { zoneId: zoneInput.trim() } : {}),
+        ...(!isNoInputService && accountInput.trim() ? { playerId: accountInput.trim() } : {}),
+        ...(!isNoInputService && zoneInput.trim() ? { zoneId: zoneInput.trim() } : {}),
       };
-      const fieldCheck = validateOrderFields(updatedFields, selectedPkg.fields || []);
-      if (!fieldCheck.ok) {
-        setErrorMsg(fieldCheck.message || t('invalidIdFormat'));
-        return;
+      if (!isNoInputService) {
+        const fieldCheck = validateOrderFields(updatedFields, selectedPkg.fields || []);
+        if (!fieldCheck.ok) {
+          setErrorMsg(fieldCheck.message || t('invalidIdFormat'));
+          return;
+        }
       }
       const qtyCheck = validateQty(qty, selectedPkg.qty);
       if (!qtyCheck.ok) {
@@ -490,7 +544,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
       const combined = requiresZoneId && zoneInput.trim()
         ? `${accountInput.trim()} (${zoneInput.trim()})`
         : accountInput.trim();
-      await submitOrder(confirmTotal ?? estimatedTotal, combined);
+      await submitOrder(confirmTotal ?? estimatedTotal, isNoInputService ? undefined : combined);
       return;
     }
 
@@ -498,18 +552,18 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
       ? `${accountInput.trim()} (${zoneInput.trim()})`
       : accountInput.trim();
 
-    if (!isRedemptionService && service.inputLabel && !combinedAccount) {
+    if (!isNoInputService && service.inputLabel && !combinedAccount) {
       setErrorMsg(`${translateInputLabel(service.inputLabel) || 'ID'} ${t('accountInputFallbackPlaceholder')}`);
       return;
     }
-    if (!isRedemptionService && (service.category === 'games' || service.inputLabel || requiresZoneId)) {
+    if (!isNoInputService && (service.category === 'games' || service.inputLabel || requiresZoneId)) {
       const val = validateGameAccount(service.id, combinedAccount);
       if (!val.isValid) {
         setErrorMsg(val.message || t('invalidIdFormat'));
         return;
       }
     }
-    await submitOrder(selectedPkg.price, combinedAccount);
+    await submitOrder(selectedPkg.price, isNoInputService ? undefined : combinedAccount);
   };
 
   const displayTotal = confirmTotal ?? estimatedTotal;
@@ -670,6 +724,118 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                 type="button"
                 onClick={onClose}
                 className="py-3 px-5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-xl text-xs sm:text-sm transition"
+              >
+                تامام
+              </button>
+            </div>
+          </div>
+        ) : purchasedAccountCredentials ? (
+          <div className="space-y-4 pt-2 font-alkatip">
+            <div className="text-center space-y-1.5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/40 text-xs font-bold">
+                🎉 سېتىۋېلىش مۇۋەپپەقىيەتلىك بولدى!
+              </span>
+              <h3 className="text-base sm:text-lg font-bold text-white">
+                {service.name} ھېسابات ئۇچۇرى (Account Credentials)
+              </h3>
+              <p className="text-xs text-slate-400">
+                {lang === 'ug'
+                  ? 'بۇ تەييار ھېسابات ئۇچۇرى ئارقىلىق دەرھال ئەپكە كىرىپ ئىشلەتسىڭىز بولىدۇ'
+                  : 'تم تسليمك بيانات الحساب، يمكنك تسجيل الدخول إلى التطبيق واستخدامه الآن'}
+              </p>
+            </div>
+
+            {/* Glowing Account Credentials Card */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-blue-950/90 via-[#071329] to-slate-900 border-2 border-blue-500/60 shadow-2xl shadow-blue-950/70 space-y-4 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="flex items-center justify-between text-xs text-blue-300/90 border-b border-blue-500/20 pb-2.5">
+                <span className="font-bold flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-blue-400" />
+                  <span>{lang === 'ug' ? 'تەييار ھېسابات تاپشۇرۇلدى' : 'تم استلام بيانات الحساب'}</span>
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-[10px] font-bold border border-blue-500/40">
+                  ⚡ تەييار ھېسابات
+                </span>
+              </div>
+
+              {/* Monospace Credentials Box */}
+              <div className="p-3.5 sm:p-4 rounded-xl bg-slate-950/90 border border-blue-400/50 text-center space-y-1 shadow-inner">
+                <span className="text-[11px] text-slate-400 font-sans tracking-wide block">
+                  ACCOUNT CREDENTIALS (USER : PASS)
+                </span>
+                <div className="text-base sm:text-lg font-black font-mono tracking-wide text-blue-300 select-all break-all py-1 whitespace-pre-wrap" dir="ltr">
+                  {purchasedAccountCredentials}
+                </div>
+              </div>
+
+              {/* Copy Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                    navigator.clipboard.writeText(purchasedAccountCredentials);
+                  }
+                  setCopiedAccountCreds(true);
+                  setTimeout(() => setCopiedAccountCreds(false), 2500);
+                }}
+                className={`w-full py-3 px-4 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-95 ${
+                  copiedAccountCreds
+                    ? 'bg-blue-500 text-slate-950 shadow-blue-500/30'
+                    : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white shadow-blue-500/25'
+                }`}
+              >
+                {copiedAccountCreds ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    <span>{lang === 'ug' ? 'ھېسابات ئۇچۇرى كۆچۈرۈلدى! ✅' : 'تم نسخ بيانات الحساب! ✅'}</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    <span>{lang === 'ug' ? 'ھېسابات ئۇچۇرىنى كۆچۈرۈۋېلىش' : 'نسخ بيانات الحساب'}</span>
+                  </>
+                )}
+              </button>
+
+              {/* Instructions Guide */}
+              <div className="p-3 rounded-xl bg-slate-900/80 border border-blue-500/20 text-xs text-slate-300 space-y-1.5 leading-relaxed">
+                <div className="font-bold text-blue-400 flex items-center gap-1.5">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>{lang === 'ug' ? 'دىققەت قىلىدىغان ئىشلار:' : 'ملاحظات هامة:'}</span>
+                </div>
+                <p className="text-[11px] text-slate-300">
+                  {lang === 'ug'
+                    ? '1. يۇقىرىدىكى ئەزا نامى ۋە مەخپىي نومۇر ئارقىلىق رەسمىي ئەپ ياكى توربەتكە كىرىڭ.'
+                    : '1. استخدم اسم المستخدم وكلمة المرور لتسجيل الدخول في التطبيق الرسمي.'}
+                </p>
+                <p className="text-[11px] text-amber-300">
+                  {lang === 'ug'
+                    ? '2. ھېسابات ئۇچۇرى ياكى مەخپىي نومۇرنى ئۆزگەرتىشكە بولمايدۇ (لا يمكنك تغيير معلومات الحساب).'
+                    : '2. لا يمكنك تغيير معلومات الحساب أو كلمة المرور لضمان استمرار الضمان.'}
+                </p>
+                <p className="text-[11px] text-slate-400">
+                  {lang === 'ug'
+                    ? '3. سىز بۇ ھېسابات ئۇچۇرلىرىنى خالىغان ۋاقىتتا «زاكازلىرىم» بېتىدىنمۇ كۆرەلەيسىز.'
+                    : '3. يمكنك مراجعة هذه البيانات في أي وقت من خلال صفحة «طلباتي».'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  router.push('/orders');
+                }}
+                className="w-full py-3 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-bold rounded-xl text-xs sm:text-sm transition"
+              >
+                📦 بارلىق زاكازلىرىمنى كۆرۈش ➔
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="py-3 px-5 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold rounded-xl text-xs sm:text-sm transition"
               >
                 تامام
               </button>
@@ -1033,7 +1199,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
               ))}
 
             {/* Legacy or custom service account input with UID + Zone ID support */}
-            {(!isProvider || (selectedPkg?.fields || []).length === 0) && (service.inputLabel || requiresZoneId || service.category === 'games' || isRedemptionService) && (
+            {(!isProvider || (selectedPkg?.fields || []).length === 0) && (service.inputLabel || requiresZoneId || service.category === 'games' || isRedemptionService || isReadyAccountService) && (
               <div className="space-y-3">
                 {requiresZoneId ? (
                   <div className="space-y-2">
@@ -1109,6 +1275,35 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                           </div>
                         </div>
                       </div>
+                    ) : isReadyAccountService ? (
+                      <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-blue-950/70 via-slate-900 to-[#07192d] border border-blue-500/50 shadow-lg space-y-2 font-alkatip">
+                        <div className="flex items-center justify-between gap-2 border-b border-blue-500/20 pb-2">
+                          <span className="text-blue-300 font-bold text-xs sm:text-sm flex items-center gap-1.5">
+                            <span>⚡</span>
+                            <span>{lang === 'ug' ? 'تەييار ھېسابات (Ready Account)' : lang === 'ar' ? 'حساب جاهز للتسليم الفوري' : 'Ready Account'}</span>
+                          </span>
+                          <span className="text-[10px] bg-blue-500/20 text-blue-300 border border-blue-500/40 px-2.5 py-0.5 rounded-full font-bold">
+                            {lang === 'ug' ? 'ئېلخەت كىرگۈزۈش ھاجەتسىز' : lang === 'ar' ? 'بدون إدخال إيميل' : 'No Email Required'}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-300 leading-relaxed">
+                          {lang === 'ug'
+                            ? 'بۇ مەھسۇلات تەييار ھېسابات شەكلىدە سېتىلىدۇ. ھېچقانداق ئېلخەت ياكى تېلېفون نومۇرى كىرگۈزۈش ھاجەتسىز. سېتىۋېلىش كۇنۇپكىسىنى باسسىڭىزلا، سىستېما سىزگە تەييار ھېسابات ئۇچۇرى (ئەزا نامى ۋە مەخپىي نومۇر) نى دەرھال تاپشۇرۇپ بېرىدۇ.'
+                            : lang === 'ar'
+                            ? 'هذا المنتج عبارة عن حساب جاهز للتسليم الفوري. لا يتطلب إدخال أي بريد أو كلمة مرور. بمجرد الضغط على «شراء الحساب»، سيتم تسليمك بيانات الحساب (اسم المستخدم وكلمة المرور) فوراً.'
+                            : 'This product is a ready-made account. No email or user input is needed. Click Buy Account to receive your login credentials immediately.'}
+                        </p>
+                        <div className="p-2 rounded-xl bg-slate-950/80 border border-blue-500/25 text-[11px] text-blue-400 font-medium flex items-center gap-1.5">
+                          <span>🔒</span>
+                          <span>
+                            {lang === 'ug'
+                              ? '● تەييار ھېسابات ● ھېسابات ئۇچۇرىنى ئۆزگەرتىشكە بولمايدۇ ● پۇل قايتۇرۇلمايدۇ'
+                              : lang === 'ar'
+                              ? '● حسابات جاهزة ● لا يمكنك تغيير معلومات الحساب ● لا يمكن الغاء الطلب بعد الشراء'
+                              : '● Ready accounts ● Cannot change account info ● Non-refundable after delivery'}
+                          </span>
+                        </div>
+                      </div>
                     ) : isRedemptionService ? (
                       <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-emerald-950/70 via-slate-900 to-[#07192d] border border-emerald-500/50 shadow-lg space-y-2 font-alkatip">
                         <div className="flex items-center justify-between gap-2 border-b border-emerald-500/20 pb-2">
@@ -1131,10 +1326,10 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                           <span>💡</span>
                           <span>
                             {lang === 'ug'
-                              ? 'سېتىۋالغاندىن كېيىن قوزغىتىش كودى ئېكراندا چىقىدۇ، كودنى كۆچۈرۈۋېلىپ GearUP Booster ئەپىدە قوزغىتىۋالالايسىز.'
+                              ? `سېتىۋالغاندىن كېيىن قوزغىتىش كودى ئېكراندا چىقىدۇ، كودنى كۆچۈرۈۋېلىپ ئىشلىتىۋالالايسىز.`
                               : lang === 'ar'
-                              ? 'سيظهر كود التفعيل فوراً بعد إتمام الشراء، يمكنك نسخه وتفعيله داخل تطبيق GearUP Booster.'
-                              : 'The code will be delivered instantly upon purchase. Copy and redeem it inside the GearUP Booster app.'}
+                              ? `سيظهر كود التفعيل فوراً بعد إتمام الشراء، يمكنك نسخه واستخدامه فوراً.`
+                              : 'The code will be delivered instantly upon purchase. Copy and redeem it inside the app.'}
                           </span>
                         </div>
                       </div>
@@ -1367,6 +1562,8 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                   label={
                     confirmTotal !== null
                       ? `${t('confirmNewPrice')} ($${formatSmartPrice(confirmTotal)})`
+                      : isReadyAccountService
+                      ? (lang === 'ug' ? '⚡ ھېساباتنى دەرھال سېتىۋېلىش' : lang === 'ar' ? '⚡ شراء الحساب فوراً' : '⚡ Buy Account Now')
                       : isRedemptionService
                       ? (lang === 'ug' ? '⚡ كودنى دەرھال سېتىۋېلىش' : lang === 'ar' ? '⚡ شراء الكود فوراً' : '⚡ Buy Code Now')
                       : t('confirmAndPay')
