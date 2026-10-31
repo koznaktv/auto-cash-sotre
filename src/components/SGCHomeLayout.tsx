@@ -91,33 +91,30 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
     }
   }, []);
 
-  // Fetch Real Server Services from Database / API
+  // Fetch Real Server Services from Database / API smoothly without UI flash
   useEffect(() => {
     let isMounted = true;
     async function fetchServerCatalog() {
       try {
         const catalogRes = await fetch('/api/catalog').then(r => r.json()).catch(() => null);
-        if (isMounted) {
-          if (catalogRes?.services && Array.isArray(catalogRes.services) && catalogRes.services.length > 0) {
-            const normalized: ServiceItem[] = catalogRes.services.map((s: any) => ({
-              ...s,
-              title: s.title || s.name || s.id,
-              name: s.name || s.title || s.id,
-              image: s.image || '/brand_logo.png',
-              category: s.category || 'other',
-              packages: s.packages || [],
-            }));
-            setServerServices(normalized);
-          } else {
-            const fallback = Object.values(SERVICES_DATA).flat();
-            setServerServices(fallback);
-          }
+        if (isMounted && catalogRes?.services && Array.isArray(catalogRes.services) && catalogRes.services.length > 0) {
+          const normalized: ServiceItem[] = catalogRes.services.map((s: any) => ({
+            ...s,
+            title: s.title || s.name || s.id,
+            name: s.name || s.title || s.id,
+            image: s.image || '/brand_logo.png',
+            category: s.category || 'other',
+            packages: s.packages || [],
+          }));
+          setServerServices((prev) => {
+            if (prev && prev.length === normalized.length && prev[0]?.id === normalized[0]?.id) {
+              return prev;
+            }
+            return normalized;
+          });
         }
       } catch (err) {
-        if (isMounted) {
-          const fallback = Object.values(SERVICES_DATA).flat();
-          setServerServices(fallback);
-        }
+        // Fallback remains active
       } finally {
         if (isMounted) setIsLoading(false);
       }
@@ -424,12 +421,8 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
         <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#059669_1.2px,transparent_1.2px)] [background-size:12px_12px]" />
 
         {/* Top-Left: Brand Lockup */}
-        <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-white/85 dark:bg-black/50 backdrop-blur-sm px-1.5 py-0.5 rounded-full border border-white/60 shadow-xs">
-          <img
-            src="/brand_logo.png"
-            alt="Auto Cash"
-            className="w-3.5 h-3.5 rounded-full object-cover border border-emerald-500"
-          />
+        <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-white/90 dark:bg-slate-950/80 backdrop-blur-sm px-1.5 py-0.5 rounded-full border border-white/60 shadow-xs">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981] inline-block shrink-0" />
           <span className="text-[7.5px] sm:text-[8px] font-black tracking-tight text-slate-800 dark:text-white">
             AUTO CASH
           </span>
@@ -486,6 +479,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
               className="w-full h-full object-cover"
               onError={(e) => { (e.target as any).src = '/brand_logo.png'; }}
               loading="lazy"
+              decoding="async"
             />
           </div>
 
@@ -610,7 +604,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
             touchAction: 'pan-x',
           }}
         >
-          {items.map((item) => renderProductCard(item, true))}
+          {items.slice(0, 16).map((item) => renderProductCard(item, true))}
         </div>
       </div>
     );
@@ -1223,6 +1217,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
           <img
             src="/images/autocash_hero_banner_rtl.jpg"
             alt="AUTO CASH Official Promotion"
+            fetchPriority="high"
             className="absolute inset-0 w-full h-full object-cover object-center transform scale-[1.01] transition-transform duration-700 ease-out"
           />
 

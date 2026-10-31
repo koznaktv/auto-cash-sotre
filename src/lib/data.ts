@@ -52,7 +52,7 @@ export interface ServiceItem {
 }
 
 export const CATEGORIES_9 = [
-  { id: 'wifi', name: 'Wi-Fi تور كارتىلىرى', icon: 'Wifi', count: 'شبكات واي فاي', image: 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg' },
+  { id: 'wifi', name: 'Wi-Fi تور كارتىلىرى', icon: 'Wifi', count: 'شبكات واي فاي', image: '/images/services/wifi_cards.jpg' },
   { id: 'apps', name: 'ئەپلەر', icon: 'Smartphone', count: 'ئەپلەر', image: '/images/services/picsart.jpg' },
   { id: 'ai', name: 'سۈنئىي ئەقىل', icon: 'Bot', count: 'AI مۇلازىمەت', image: '/images/services/google_gemini.jpg' },
   { id: 'numbers', name: 'مەۋھۇم نومۇر (SMS)', icon: 'Smartphone', count: 'Telegram, WhatsApp, etc.', image: '/images/services/whatsapp.jpg' },

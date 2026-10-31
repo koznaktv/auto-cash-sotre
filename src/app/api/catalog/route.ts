@@ -47,7 +47,8 @@ export async function GET(req: Request) {
         })),
       }));
 
-    const cacheHeader = 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
+    // High-performance Edge CDN caching: cache for 60s, serve stale while revalidating for 10 min
+    const cacheHeader = 'public, s-maxage=60, stale-while-revalidate=600';
 
     return NextResponse.json(
       { success: true, source: 'legacy', minOrderUsd: settings?.minOrderUsd ?? 0.1, services },

@@ -8,7 +8,7 @@ export async function GET() {
     const summary = await getWifiStockSummaryAsync();
     return NextResponse.json(
       { success: true, stock: summary },
-      { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' } }
+      { headers: { 'Cache-Control': 'public, s-maxage=15, stale-while-revalidate=60' } }
     );
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
