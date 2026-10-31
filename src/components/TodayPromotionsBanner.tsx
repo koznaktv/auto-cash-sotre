@@ -133,7 +133,7 @@ export default function TodayPromotionsBanner() {
           </div>
 
           {/* Luxury 3D Flip Clock & CTA Button */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 shrink-0 w-full sm:w-auto justify-center sm:justify-end">
+          <div className="flex flex-col sm:flex-row items-center gap-2.5 sm:gap-4 shrink-0 w-full sm:w-auto justify-center sm:justify-end">
             {/* The 3D Mechanical Split-Flap Flip Clock */}
             <div className="p-1.5 sm:p-2 rounded-2xl bg-black/60 border border-amber-400/40 shadow-inner">
               <FlipCountdownClock
@@ -146,8 +146,8 @@ export default function TodayPromotionsBanner() {
               />
             </div>
 
-            {/* Action Pill Button */}
-            <div className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/30 group-hover:scale-105 active:scale-95 transition-all font-alkatip shrink-0 cursor-pointer">
+            {/* Action Pill Button matching Image 3 */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-black text-[11px] sm:text-xs shadow-lg shadow-amber-500/30 group-hover:scale-105 active:scale-95 transition-all font-alkatip shrink-0 cursor-pointer">
               <Zap className="w-3.5 h-3.5 fill-current" />
               <span>{lang === 'ug' ? 'پائالىيەتكە كىرىش' : 'Enter Deals'}</span>
               <ArrowIcon className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />

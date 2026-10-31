@@ -7,6 +7,8 @@ import { useLanguage } from '@/context/LanguageContext';
 import LanguageFlag from '@/components/LanguageFlag';
 import { SERVICES_DATA, ServiceItem } from '@/lib/data';
 import { getCachedUser, ClientUser } from '@/lib/clientAuth';
+import TodayPromotionsBanner from '@/components/TodayPromotionsBanner';
+import { useFlashCountdown } from '@/lib/useFlashCountdown';
 import {
   Banknote,
   Coins,
@@ -67,6 +69,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
   const [user, setUser] = useState<ClientUser | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showApiModal, setShowApiModal] = useState(false);
+  const { timeLeft } = useFlashCountdown();
 
   // Live Server Catalog State
   const [serverServices, setServerServices] = useState<ServiceItem[]>(SERVICES_DATA);
@@ -1168,18 +1171,25 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 <span className="text-[11px] sm:text-xs font-bold truncate">تەلەپلىرىم</span>
               </Link>
 
-              {/* 3. بۈگۈنكى پائالىيەتلەر */}
+              {/* 3. بۈگۈنكى پائالىيەتلەر (Image 4: Live Countdown Clock Badge) */}
               <Link
                 href="/promotions"
-                className={`flex items-center justify-center gap-1.5 py-1.5 sm:py-2 px-2.5 sm:px-3 rounded-xl border transition-all active:scale-95 relative overflow-hidden group shadow-xs ${
+                className={`flex items-center justify-between gap-1 sm:gap-1.5 py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl border transition-all active:scale-95 relative overflow-hidden group shadow-xs ${
                   theme === 'dark'
                     ? 'bg-[#18233a] border-amber-500/40 hover:border-amber-400 text-slate-200 hover:text-white'
                     : 'bg-gradient-to-r from-amber-50/90 to-orange-50/90 border-amber-300 hover:border-amber-400 text-slate-800 hover:text-amber-700'
                 }`}
                 title="بۈگۈنكى پائالىيەتلەر ۋە ئالاھىدە ئېتىبارلار"
               >
-                <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-500 shrink-0 fill-current animate-icon-sparkle drop-shadow-[0_0_8px_rgba(249,115,22,0.85)] group-hover:scale-110 transition-transform" />
-                <span className="text-[11px] sm:text-xs font-black whitespace-nowrap">بۈگۈنكى پائالىيەتلەر</span>
+                <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
+                  <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-500 shrink-0 fill-current animate-icon-sparkle drop-shadow-[0_0_8px_rgba(249,115,22,0.85)] group-hover:scale-110 transition-transform" />
+                  <span className="text-[10.5px] sm:text-xs font-black truncate">بۈگۈنكى پائالىيەتلەر</span>
+                </div>
+                {timeLeft && (
+                  <span className="px-1.5 py-0.5 rounded-md bg-amber-500/15 dark:bg-amber-400/20 text-amber-600 dark:text-amber-300 font-mono text-[9px] sm:text-[10.5px] font-black border border-amber-500/30 shrink-0" dir="ltr">
+                    {timeLeft.hours}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}
+                  </span>
+                )}
               </Link>
 
               {/* 4. ئەزالىق */}
@@ -1625,6 +1635,10 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
         </div>
       </section>
 
+      {/* =========================================================================
+          2.5 TODAY'S PROMOTIONS BANNER (3D Mechanical Split-Flap Flip Clock - Image 3)
+      ========================================================================= */}
+      <TodayPromotionsBanner />
 
       {/* =========================================================================
           3. CATEGORY SWITCHER (Horizontal Smooth Scrollable & Draggable Strip)

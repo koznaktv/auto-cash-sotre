@@ -218,16 +218,17 @@ export default function PromotionsPage() {
       }
     >
       <div className="space-y-5">
-        {/* 🌟 ULTRA-LUXURIOUS GRAND VIP COUNTDOWN CLOCK 🌟 */}
-        <section className="relative overflow-hidden rounded-3xl border-2 border-amber-400/60 dark:border-amber-400/40 bg-white dark:bg-[#101726] p-4 sm:p-6 shadow-sm">
+        {/* 🌟 ULTRA-LUXURIOUS GRAND VIP COUNTDOWN CLOCK (Image 3 Aesthetic) 🌟 */}
+        <section className="relative overflow-hidden rounded-3xl border-2 border-amber-500/60 dark:border-amber-400/50 bg-gradient-to-br from-[#1c1206] via-[#0d1627] to-[#040e1b] p-4 sm:p-6 shadow-[0_12px_36px_rgba(245,158,11,0.22)] animate-flame-glow-box text-white">
           {/* Ambient Laser Neon Glows */}
-          <div className="absolute -top-20 -left-20 w-64 h-64 bg-amber-500/10 dark:bg-amber-500/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-emerald-600/10 dark:bg-emerald-600/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -top-20 -left-20 w-64 h-64 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-orange-600/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent pointer-events-none" />
 
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-5 text-center md:text-right">
             {/* Left / Title & Flame Avatar */}
             <div className="flex flex-col sm:flex-row items-center gap-3.5">
-              <div className="relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-red-600 shadow-md shadow-amber-500/30 animate-nav-pill-glow">
+              <div className="relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-red-600 shadow-md shadow-amber-500/35 shrink-0">
                 <Flame className="w-8 h-8 sm:w-9 sm:h-9 text-white fill-amber-100 animate-icon-sparkle drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
                 <div className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 rounded-full bg-red-600 border border-white/50 text-[9px] font-black text-white animate-pulse">
                   VIP
@@ -236,16 +237,16 @@ export default function PromotionsPage() {
 
               <div className="flex flex-col items-center sm:items-start text-center sm:text-right">
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-900 dark:text-amber-200 text-base sm:text-lg font-black tracking-wide">
-                    {lang === 'ug' ? 'چەكلىك ۋاقىتلىق ئېتىبار قالدۇقى' : 'Flash Sale Countdown'}
+                  <span className="text-white text-base sm:text-xl font-black tracking-wide drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
+                    {lang === 'ug' ? 'بۈگۈنكى ئالاھىدە پائالىيەتلەر' : 'Today’s Special Flash Deals'}
                   </span>
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-500 dark:text-amber-300 text-xs animate-spin" style={{ animationDuration: '6s' }}>
-                    ⏳
+                  <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-red-600 to-orange-500 text-white text-[9px] sm:text-[10px] font-black uppercase tracking-wider shadow-sm animate-pulse">
+                    FLASH SALE
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-amber-300/80 mt-1 font-alkatip">
+                <p className="text-xs sm:text-sm text-amber-200/90 mt-1 font-alkatip">
                   {lang === 'ug'
-                    ? '⚡️ بۈگۈنكى بارلىق ئېتىبارلار مىنۇت-سېكۇنت سانالماقتا — ۋاقتى توشقاندا ئەسلى باھاسىغا قايتىدۇ!'
+                    ? '⚡️ چەكلىك ۋاقىتلىق ئالاھىدە تەننەرخ باھالار — ۋاقتى توشقاندا ئەسلى باھاسىغا قايتىدۇ!'
                     : '⚡️ Real-time countdown: prices will revert to normal once timer hits zero!'}
                 </p>
               </div>
@@ -253,7 +254,7 @@ export default function PromotionsPage() {
 
             {/* Right / Luxury 3D Mechanical Split-Flap Countdown Clock */}
             {timeLeft ? (
-              <div className="relative p-2.5 sm:p-4 rounded-2xl sm:rounded-3xl bg-slate-100/90 dark:bg-black/90 border-2 border-amber-500/70 dark:border-amber-400/60 shadow-[0_12px_36px_rgba(245,158,11,0.25)] animate-flame-glow-box">
+              <div className="relative p-2.5 sm:p-4 rounded-2xl sm:rounded-3xl bg-black/70 border-2 border-amber-400/60 shadow-[0_12px_36px_rgba(245,158,11,0.25)]">
                 <FlipCountdownClock
                   hours={timeLeft.hours}
                   minutes={timeLeft.minutes}
@@ -264,7 +265,7 @@ export default function PromotionsPage() {
                 />
               </div>
             ) : (
-              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-amber-600 dark:text-amber-300 font-bold text-sm">
+              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-amber-300 font-bold text-sm">
                 ⏳ {lang === 'ug' ? 'پائالىيەت ۋاقتى ئەڭ يېڭى ھالەتتە' : 'Promotions updated'}
               </div>
             )}
