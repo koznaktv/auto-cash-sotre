@@ -6,6 +6,7 @@
 
 import type { ServiceItem, ServicePackage } from '../data';
 import type { SupportedLang } from './smartTranslate';
+import { translateInstruction } from './instructionTranslator';
 
 interface BioEntry {
   matcher: RegExp | ((service: ServiceItem, pkg?: ServicePackage | null) => boolean);
@@ -563,25 +564,10 @@ export function getProductBio(
         content: raw,
       };
     }
-    // For Uyghur / other languages, provide the clean text with clear Uyghur header
-    if (lang === 'ug') {
-      let ugHeader = '📋 تەمىنلىگۈچىنىڭ رەسمىي ئەسكەرتىش ۋە تەلەپلىرى:\n';
-      if (raw.includes('تلقائي')) {
-        ugHeader += '⚡ بۇ مۇلازىمەت دەرھال ۋە ئاپتوماتىك بىر تەرەپ قىلىنىدۇ.\n';
-      } else if (raw.includes('يدوي')) {
-        ugHeader += '⏳ بۇ مۇلازىمەت تەمىنلىگۈچى تەرەپتىن خىزمەت ۋاقتىدا قولدا بىر تەرەپ قىلىنىدۇ.\n';
-      }
-      if (raw.includes('لا يوجد كفالة')) {
-        ugHeader += '⚠️ بۇ خىل مۇلازىمەتكە تەمىنلىگۈچى قايتا تولۇقلاش كاپالىتى بەرمەيدۇ.\n';
-      }
-      return {
-        title: pkgTitle || serviceName,
-        content: `${ugHeader}\n${raw}`,
-      };
-    }
+    const localizedContent = translateInstruction(raw, lang);
     return {
       title: pkgTitle || serviceName,
-      content: raw,
+      content: localizedContent,
     };
   }
 

@@ -1,0 +1,1247 @@
+/* ========================================================
+   ئۇيغۇرچە Neumorphism (Soft UI) كىرىش ۋە تىزىملىتىش ئۇسلۇبى
+   كومپيۇتېر ۋە يانفونغا 100% تولۇق ماسلاشقان
+   ======================================================== */
+
+:root {
+  --bg-color: #f4f7f5;
+  --card-bg: #ffffff;
+  
+  /* Neumorphic يورۇقلۇق ۋە قاراڭغۇلۇق كۆلەڭگىلىرى */
+  --shadow-dark: rgba(163, 177, 198, 0.4);
+  --shadow-light: rgba(255, 255, 255, 0.95);
+  
+  /* SGC نۇرلۇق يۇمۇرۇت يېشىل گرادىيېنت رەڭلىرى */
+  --primary-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --primary-color: #059669;
+  --primary-hover: #047857;
+  --primary-glow: rgba(5, 150, 105, 0.35);
+
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-subtle: rgba(226, 232, 240, 0.9);
+
+  --success: #10b981;
+  --error: #ef4444;
+
+  --radius-lg: 32px;
+  --radius-md: 20px;
+  --radius-sm: 12px;
+
+  --font-uyghur: "ALKATIP Basma Tom", "ALKATIP Basma", "UKIJ Esline", "UKIJ Tuz", "Noto Sans Arabic", "Microsoft Uighur", system-ui, sans-serif;
+  --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* SGC Dark Mode Overrides */
+.dark .neumorphic-auth-root,
+body.dark-theme .neumorphic-auth-root,
+html.dark .neumorphic-auth-root {
+  --bg-color: #0b0f19;
+  --card-bg: #101726;
+  --shadow-dark: rgba(0, 0, 0, 0.55);
+  --shadow-light: rgba(255, 255, 255, 0.04);
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --primary-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --primary-color: #10b981;
+  --primary-hover: #059669;
+  --primary-glow: rgba(16, 185, 129, 0.35);
+}
+
+/* Neumorphic Auth Scoped Layout */
+.neumorphic-auth-root {
+  direction: rtl;
+  font-family: var(--font-uyghur);
+  -webkit-tap-highlight-color: transparent;
+  color: var(--text-main);
+}
+
+.neumorphic-page-container {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  direction: rtl;
+  overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 24px 16px;
+}
+
+.neumorphic-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(11, 15, 25, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.auth-close-btn {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-color);
+  box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 15px;
+  transition: var(--transition);
+  z-index: 25;
+}
+.auth-close-btn:hover {
+  color: var(--error);
+  transform: scale(1.08) rotate(90deg);
+}
+.auth-close-btn:active {
+  transform: scale(0.95);
+}
+
+/* ========================================================
+   ئارقا كۆرۈنۈشتىكى لەيلىمە Neumorphic بېزەك شارچىلار
+   ======================================================== */
+.bg-circle {
+  position: fixed;
+  border-radius: 50%;
+  background: var(--bg-color);
+  box-shadow: 14px 14px 28px var(--shadow-dark),
+              -14px -14px 28px var(--shadow-light);
+  z-index: 0;
+  pointer-events: none;
+  border: 1px solid var(--border-subtle);
+  animation: floatCircle 8s ease-in-out infinite alternate;
+}
+
+.bg-circle.bg1 {
+  width: 220px;
+  height: 220px;
+  top: 6%;
+  right: 12%;
+  animation-duration: 9s;
+}
+
+.bg-circle.bg2 {
+  width: 140px;
+  height: 140px;
+  top: 48%;
+  left: 10%;
+  animation-duration: 7s;
+  animation-delay: -2s;
+}
+
+.bg-circle.bg3 {
+  width: 170px;
+  height: 170px;
+  bottom: 8%;
+  right: 18%;
+  animation-duration: 11s;
+  animation-delay: -4s;
+}
+
+@keyframes floatCircle {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-22px) rotate(6deg);
+  }
+}
+
+/* ========================================================
+   3D پىرقىراش قاچىسى (3D Perspective Container)
+   ======================================================== */
+.card-container {
+  perspective: 1200px;
+  width: 100%;
+  max-width: 485px;
+  position: relative;
+  z-index: 10;
+}
+
+.auth-card {
+  position: relative;
+  width: 100%;
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px 20px;
+  box-shadow: 14px 14px 28px var(--shadow-dark),
+              -14px -14px 28px var(--shadow-light);
+  border: 1px solid var(--border-subtle);
+  transform-style: preserve-3d;
+  will-change: transform, box-shadow;
+  transition: box-shadow 0.35s ease;
+}
+
+/* تىزىملىتىشقا ئۆتكەندىكى پىرقىراش (Spin to Register) */
+.auth-card.spin-to-register {
+  animation: cardSpinToRegister 0.65s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* كىرىشكە قايتقاندىكى پىرقىراش (Spin to Login) */
+.auth-card.spin-to-login {
+  animation: cardSpinToLogin 0.65s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes cardSpinToRegister {
+  0% {
+    transform: rotateY(0deg) scale(1);
+    box-shadow: 14px 14px 28px var(--shadow-dark), -14px -14px 28px var(--shadow-light);
+  }
+  48% {
+    transform: rotateY(-90deg) scale(0.88);
+    box-shadow: 0 25px 45px rgba(163, 177, 198, 0.75), 0 -10px 25px rgba(255, 255, 255, 0.9);
+  }
+  52% {
+    transform: rotateY(90deg) scale(0.88);
+    box-shadow: 0 25px 45px rgba(163, 177, 198, 0.75), 0 -10px 25px rgba(255, 255, 255, 0.9);
+  }
+  100% {
+    transform: rotateY(0deg) scale(1);
+    box-shadow: 14px 14px 28px var(--shadow-dark), -14px -14px 28px var(--shadow-light);
+  }
+}
+
+@keyframes cardSpinToLogin {
+  0% {
+    transform: rotateY(0deg) scale(1);
+    box-shadow: 14px 14px 28px var(--shadow-dark), -14px -14px 28px var(--shadow-light);
+  }
+  48% {
+    transform: rotateY(90deg) scale(0.88);
+    box-shadow: 0 25px 45px rgba(163, 177, 198, 0.75), 0 -10px 25px rgba(255, 255, 255, 0.9);
+  }
+  52% {
+    transform: rotateY(-90deg) scale(0.88);
+    box-shadow: 0 25px 45px rgba(163, 177, 198, 0.75), 0 -10px 25px rgba(255, 255, 255, 0.9);
+  }
+  100% {
+    transform: rotateY(0deg) scale(1);
+    box-shadow: 14px 14px 28px var(--shadow-dark), -14px -14px 28px var(--shadow-light);
+  }
+}
+
+/* كارتىچكا ئۈستۈنكى نىشان بەلگىسى (Brand Lock/Avatar) */
+.card-header {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.brand-icon-box {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 8px;
+  border-radius: 50%;
+  background: var(--bg-color);
+  box-shadow: 5px 5px 11px var(--shadow-dark),
+              -5px -5px 11px var(--shadow-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-subtle);
+  transition: var(--transition);
+}
+
+.brand-icon-inner {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--bg-color);
+  box-shadow: inset 3px 3px 6px var(--shadow-dark),
+              inset -3px -3px 6px var(--shadow-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+  font-size: 18px;
+  transition: var(--transition);
+}
+
+.brand-icon-box:hover .brand-icon-inner {
+  transform: scale(1.08);
+  color: var(--primary-hover);
+}
+
+.header-title {
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 2px;
+  line-height: 1.35;
+}
+
+.header-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+/* ========================================================
+   ئالماشتۇرغۇچ بەلۋاغ (Segmented Tab Switcher)
+   ======================================================== */
+.tab-switcher {
+  position: relative;
+  display: flex;
+  background: var(--bg-color);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  margin-bottom: 10px;
+  box-shadow: inset 4px 4px 8px var(--shadow-dark),
+              inset -4px -4px 8px var(--shadow-light);
+}
+
+.tab-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+  padding: 8px 0;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  z-index: 2;
+  transition: var(--transition);
+}
+
+.tab-btn i {
+  font-size: 15px;
+  transition: var(--transition);
+}
+
+.tab-btn.active {
+  color: var(--primary-color);
+}
+
+.tab-slider {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: calc(50% - 4px);
+  height: calc(100% - 8px);
+  background: var(--bg-color);
+  border-radius: calc(var(--radius-md) - 3px);
+  box-shadow: 4px 4px 8px var(--shadow-dark),
+              -4px -4px 8px var(--shadow-light);
+  border: 1px solid var(--border-subtle);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+}
+
+/* ========================================================
+   جەدۋەللەر قاچىسى (Forms Container)
+   ======================================================== */
+.forms-wrapper {
+  position: relative;
+  overflow: visible;
+  width: 100%;
+  padding-top: 10px;
+}
+
+.form {
+  display: none;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.form.active {
+  display: block;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ========================================================
+   بەلگىلەرنىڭ مىدىرلاپ تۇرۇش ئەنىماتسىيەلىرى (Icon Living Animations)
+   ======================================================== */
+@keyframes iconIdleBreathe {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translateY(-2px) rotate(2.5deg) scale(1.05);
+  }
+  50% {
+    transform: translateY(1.5px) rotate(-2deg) scale(0.97);
+  }
+  75% {
+    transform: translateY(-1px) rotate(1.5deg) scale(1.03);
+  }
+}
+
+@keyframes iconActiveDance {
+  0% {
+    transform: scale(1.15) translateY(0) rotate(0deg);
+    color: #10b981;
+    filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.7));
+  }
+  20% {
+    transform: scale(1.28) translateY(-4px) rotate(-10deg);
+    color: #34d399;
+    filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.9));
+  }
+  40% {
+    transform: scale(1.18) translateY(2px) rotate(8deg);
+    color: #059669;
+  }
+  60% {
+    transform: scale(1.26) translateY(-3px) rotate(-6deg);
+    color: #34d399;
+    filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.8));
+  }
+  80% {
+    transform: scale(1.16) translateY(1.5px) rotate(4deg);
+    color: #10b981;
+  }
+  100% {
+    transform: scale(1.15) translateY(0) rotate(0deg);
+    color: #059669;
+    filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.7));
+  }
+}
+
+/* ھەممە ئاساسىي كۇنۇپكا بەلگىلىرى نورمال ھالەتتە تەبىئىي مىدىرلايدۇ */
+.brand-icon-inner i,
+.tab-btn i,
+.submit-btn i,
+.switch-circle i,
+.social-btn i {
+  display: inline-block;
+  animation: iconIdleBreathe 3.5s ease-in-out infinite;
+  transition: color 0.3s ease, filter 0.3s ease;
+  will-change: transform;
+}
+
+/* كىرگۈزۈش بەلگىلىرى نورمال چاغدا ھەرگىز مىدىرلىمايدۇ */
+.input-icon i,
+.toggle-password i {
+  display: inline-block;
+  animation: none !important;
+  transition: transform 0.3s ease, color 0.3s ease;
+  will-change: transform;
+}
+
+/* ھەرقايسى بەلگىنىڭ ئايرىم ۋاقىت پەرقى */
+.brand-icon-inner i { animation-duration: 4s; }
+.tab-btn i { animation-duration: 3.2s; }
+.submit-btn i { animation-duration: 2.8s; }
+.switch-circle i { animation-duration: 3s; animation-delay: -1s; }
+.social-btn:nth-child(1) i { animation-delay: -0.5s; }
+.social-btn:nth-child(2) i { animation-delay: -1.2s; }
+.social-btn:nth-child(3) i { animation-delay: -1.8s; }
+
+/* تاللانغاندا كىچىك بەلگىنىڭ تەبىئىي، سىلىق مىدىرلاش ئەنىماتسىيەسى */
+@keyframes iconNormalFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1.08);
+    color: var(--primary-color);
+  }
+  50% {
+    transform: translateY(-2.5px) scale(1.14);
+    color: #10b981;
+  }
+}
+
+/* كىرگۈزۈش بۆلىكى تاللانغاندا بەلگە نورمال، سىلىق مىدىرلايدۇ */
+.input-box:focus-within .input-icon i {
+  animation: iconNormalFloat 1.8s ease-in-out infinite !important;
+  color: var(--primary-color);
+}
+
+.brand-icon-box:hover .brand-icon-inner i {
+  animation: iconActiveDance 1.4s ease-in-out infinite !important;
+}
+
+.tab-btn:hover i,
+.tab-btn.active i {
+  animation: iconActiveDance 2s ease-in-out infinite !important;
+}
+
+.submit-btn:hover i {
+  animation: iconActiveDance 1.2s ease-in-out infinite !important;
+}
+
+.switch-circle:hover i {
+  animation: iconActiveDance 1.2s ease-in-out infinite !important;
+}
+
+.social-btn:hover i {
+  animation: iconActiveDance 1.4s ease-in-out infinite !important;
+}
+
+/* ========================================================
+   كىرگۈزۈش ساندۇقچىلىرى ۋە لەيلىمە خەت (Inputs & Floating Labels)
+   ======================================================== */
+.input-group {
+  margin-bottom: 13px;
+}
+
+.input-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-radius: var(--radius-md);
+  background: var(--bg-color);
+  box-shadow: 4px 4px 9px var(--shadow-dark),
+              -4px -4px 9px var(--shadow-light);
+  border: 1.5px solid transparent;
+  transition: var(--transition);
+}
+
+/* تاللانغاندا ئەتراپىغا سىلىق، چىرايلىق نۇر يۈرۈيدۇ (رەڭ تاراپ كەتمەيدۇ) */
+.input-box:focus-within {
+  border-color: rgba(0, 114, 255, 0.45);
+  box-shadow: 0 0 12px rgba(0, 114, 255, 0.22),
+              5px 5px 12px var(--shadow-dark),
+              -5px -5px 12px var(--shadow-light);
+}
+
+.input-box input {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 46px;
+  background: var(--bg-color);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0 44px 0 44px;
+  font-size: 14px;
+  color: var(--text-main);
+  outline: none;
+  direction: rtl;
+  box-shadow: inset 3.5px 3.5px 7px var(--shadow-dark),
+              inset -3.5px -3.5px 7px var(--shadow-light);
+  transition: var(--transition);
+}
+
+.input-box input[type="email"],
+.input-box input[type="password"] {
+  direction: ltr;
+  text-align: right;
+}
+
+.input-box input[type="email"]::placeholder,
+.input-box input[type="password"]::placeholder {
+  direction: rtl;
+  text-align: right;
+}
+
+.input-box input:focus {
+  box-shadow: inset 3px 3px 6px var(--shadow-dark),
+              inset -3px -3px 6px var(--shadow-light);
+}
+
+/* كىرگۈزگۈچ ئاپتوماتىك تولدۇرۇلغاندا ئارقا كۆرۈنۈشنى ساقلاش */
+.input-box input:-webkit-autofill,
+.input-box input:-webkit-autofill:hover,
+.input-box input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px var(--bg-color) inset !important;
+  -webkit-text-fill-color: var(--text-main) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* ========================================================
+   لەيلىمە خەت كۆرۈنۈشى (Floating Label)
+   ======================================================== */
+.floating-label {
+  position: absolute;
+  right: 44px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #8fa0b5;
+  pointer-events: none;
+  background: transparent;
+  padding: 1px 8px;
+  border-radius: 6px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 4;
+  user-select: none;
+  transform-origin: right center;
+  white-space: nowrap;
+}
+
+/* تاللانغاندا، قىممەت كىرگۈزۈلگەندە ياكى ئاپتوماتىك تولدۇرۇلغاندا (Autofill) سىزىقچە ئۈستىگە كۆتۈرۈلۈش */
+.input-box input:focus ~ .floating-label,
+.input-box input:not(:placeholder-shown) ~ .floating-label,
+.input-box input:-webkit-autofill ~ .floating-label,
+.input-box.has-value .floating-label {
+  top: 0;
+  transform: translateY(-50%);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--primary-color);
+  background: var(--bg-color);
+  box-shadow: 0 1px 4px rgba(163, 177, 198, 0.35);
+}
+
+/* تاللانمىغان، ئەمما ئىچىدە قىممەت بار ۋاقىتتا سۇس تۇرۇش */
+.input-box input:not(:focus):not(:placeholder-shown) ~ .floating-label,
+.input-box input:not(:focus):-webkit-autofill ~ .floating-label,
+.input-box.has-value:not(:focus-within) .floating-label {
+  color: var(--text-muted);
+}
+
+/* كىرگۈزۈش بەلگىسى (ئوڭ تەرەپ) */
+.input-icon {
+  position: absolute;
+  right: 14px;
+  color: #a0aec0;
+  font-size: 15px;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  z-index: 6;
+}
+
+/* پارول كۆرسىتىش / يوشۇرۇش (سول تەرەپ) */
+.toggle-password {
+  position: absolute;
+  left: 12px;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  color: #a0aec0;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 50%;
+  transition: var(--transition);
+  z-index: 6;
+}
+
+.toggle-password:hover {
+  color: var(--primary-color);
+}
+
+/* ========================================================
+   تاللاشلار بۆلىكى: ئەستە تۇتۇش ۋە ئۇنتۇش
+   ======================================================== */
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 3px 2px 12px;
+  font-size: 13px;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  gap: 9px;
+  color: var(--text-muted);
+}
+
+.remember-me input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.custom-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--bg-color);
+  box-shadow: inset 2px 2px 4px var(--shadow-dark),
+              inset -2px -2px 4px var(--shadow-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.custom-checkbox::after {
+  content: "\f00c";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 11px;
+  color: #ffffff;
+  display: none;
+}
+
+.remember-me input:checked ~ .custom-checkbox {
+  background: var(--primary-color);
+  box-shadow: 2px 2px 6px var(--primary-glow);
+}
+
+.remember-me input:checked ~ .custom-checkbox::after {
+  display: block;
+}
+
+.forgot-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.forgot-link:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+/* ========================================================
+   ئوقيا ئۇچۇش ئەنىماتسىيەسى (Flying Arrow Animation)
+   ======================================================== */
+@keyframes arrowFlyAway {
+  0% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    filter: none;
+  }
+  18% {
+    /* كەينىگە سەل چېكىنىپ ئوقيا تارتىش (Bowstring draw back) */
+    transform: translateX(12px) scale(0.85);
+    opacity: 1;
+  }
+  38% {
+    /* كۈچ بىلەن ئالدىغا ئېتىلىش */
+    transform: translateX(-40px) scale(1.25);
+    opacity: 0.95;
+    filter: drop-shadow(0 0 10px #34d399);
+  }
+  60% {
+    /* كۇنۇپكىدىن چىقىپ غايىب بولۇش (Shoots out of button) */
+    transform: translateX(-180px) scale(1.6);
+    opacity: 0;
+    filter: drop-shadow(0 0 16px #10b981) blur(2px);
+  }
+  61% {
+    /* ئوڭ تەرەپتىن قايتىپ كىرىشكە تەييارلىنىش */
+    transform: translateX(100px) scale(0.6);
+    opacity: 0;
+  }
+  82% {
+    transform: translateX(14px) scale(1.15);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    filter: none;
+  }
+}
+
+@keyframes btnFlashTrail {
+  0% {
+    transform: translateX(100%);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+.submit-btn {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 46px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  background: var(--primary-gradient);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 8px 20px var(--primary-glow),
+              5px 5px 12px var(--shadow-dark),
+              -5px -5px 12px var(--shadow-light);
+  transition: var(--transition);
+}
+
+.submit-btn.fly-arrow::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  animation: btnFlashTrail 0.75s ease-out;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.submit-btn.fly-arrow i {
+  animation: arrowFlyAway 1.15s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important;
+}
+
+.submit-btn span {
+  position: relative;
+  z-index: 2;
+}
+
+.submit-btn i {
+  position: relative;
+  z-index: 2;
+}
+
+.submit-btn:hover {
+  background: linear-gradient(135deg, #00b4ed 0%, #0060e6 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 114, 255, 0.45),
+              8px 8px 18px var(--shadow-dark),
+              -8px -8px 18px var(--shadow-light);
+}
+
+.submit-btn:active {
+  transform: translateY(1px);
+  box-shadow: inset 3px 3px 6px rgba(0, 70, 160, 0.5),
+              inset -3px -3px 6px rgba(255, 255, 255, 0.3);
+}
+
+/* ========================================================
+   ئايرىغۇچ بۆلىكى (Divider)
+   ======================================================== */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 14px 0 12px;
+  color: #a0aec0;
+  font-size: 12.5px;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #cbd5e1;
+  box-shadow: 0 1px 0 #ffffff;
+}
+
+.divider span {
+  padding: 0 12px;
+}
+
+/* ========================================================
+   ئىجتىمائىي تەمىنلىگۈچىلەر (Social Login)
+   ======================================================== */
+.social-login {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.social-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-color);
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  color: var(--text-main);
+  box-shadow: 4px 4px 8px var(--shadow-dark),
+              -4px -4px 8px var(--shadow-light);
+  transition: var(--transition);
+}
+
+.social-btn:hover {
+  transform: translateY(-2px);
+  color: var(--primary-color);
+  box-shadow: 6px 6px 12px var(--shadow-dark),
+              -6px -6px 12px var(--shadow-light);
+}
+
+.social-btn:active {
+  transform: translateY(0);
+  box-shadow: inset 3px 3px 6px var(--shadow-dark),
+              inset -3px -3px 6px var(--shadow-light);
+}
+
+/* ========================================================
+   سىندىكى ئالاھىدە ئايلانما ئالماشتۇرۇش كۇنۇپكىسى (.switch-circle)
+   ======================================================== */
+.switch-prompt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 13.5px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.switch-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-color);
+  box-shadow: 5px 5px 10px var(--shadow-dark),
+              -5px -5px 10px var(--shadow-light);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--primary-color);
+  font-size: 14px;
+  outline: none;
+  transition: 0.35s ease;
+}
+
+.switch-circle:hover {
+  color: #ffffff;
+  background: var(--primary-color);
+  transform: rotate(180deg) scale(1.08);
+  box-shadow: 0 8px 25px var(--primary-glow);
+}
+
+.switch-circle:active {
+  transform: scale(0.9);
+}
+
+/* ========================================================
+   ئۇچۇر ئەسكەرتىش قەۋىتى (Toast Notification)
+   ======================================================== */
+.toast {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: var(--bg-color);
+  padding: 14px 24px;
+  border-radius: var(--radius-md);
+  box-shadow: 8px 8px 18px var(--shadow-dark),
+              -8px -8px 18px var(--shadow-light);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14.5px;
+  font-weight: 600;
+  z-index: 1000;
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.toast.success .toast-icon {
+  color: var(--success);
+}
+
+.toast.error .toast-icon {
+  color: var(--error);
+}
+
+/* ========================================================
+   يانفون ۋە تاختا كومپيۇتېرلارغا 100% تولۇق ماسلىشىش (Mobile & Responsive Engine)
+   ======================================================== */
+@media (max-width: 540px) {
+  .neumorphic-page-container {
+    padding: 16px 12px calc(24px + env(safe-area-inset-bottom, 16px));
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .neumorphic-modal-overlay {
+    padding: 16px 12px calc(24px + env(safe-area-inset-bottom, 16px));
+    align-items: flex-start;
+  }
+
+  .card-container {
+    width: 100%;
+    max-width: 100%;
+    margin: auto 0;
+  }
+
+  .auth-card {
+    padding: 22px 18px 18px;
+    border-radius: 24px;
+    box-shadow: 10px 10px 22px var(--shadow-dark),
+                -10px -10px 22px var(--shadow-light);
+  }
+
+  .auth-close-btn {
+    top: 14px;
+    left: 14px;
+    width: 34px;
+    height: 34px;
+    font-size: 14px;
+  }
+
+  .card-header {
+    margin-bottom: 12px;
+  }
+
+  .brand-icon-box {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 6px;
+  }
+
+  .brand-icon-inner {
+    width: 36px;
+    height: 36px;
+  }
+
+  .header-title {
+    font-size: 19px;
+    margin-bottom: 2px;
+  }
+
+  .header-subtitle {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .tab-switcher {
+    padding: 3px;
+    margin-bottom: 10px;
+  }
+
+  .tab-btn {
+    padding: 7px 0;
+    font-size: 13.5px;
+    gap: 6px;
+  }
+
+  .tab-slider {
+    top: 3px;
+    right: 3px;
+    width: calc(50% - 3px);
+    height: calc(100% - 6px);
+  }
+
+  .forms-wrapper {
+    padding-top: 6px;
+  }
+
+  .input-group {
+    margin-bottom: 11px;
+  }
+
+  /* iOS تا زوم قىلىۋېلىشنىڭ ئالدىنى ئېلىش ئۈچۈن فونت 16px */
+  .input-box input {
+    height: 46px;
+    font-size: 16px;
+    padding: 0 42px 0 42px;
+    border-radius: 14px;
+  }
+
+  .input-icon {
+    right: 14px;
+    font-size: 15px;
+  }
+
+  .toggle-password {
+    left: 8px;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+  }
+
+  .floating-label {
+    right: 42px;
+    font-size: 13px;
+  }
+
+  .input-box input:focus ~ .floating-label,
+  .input-box input:not(:placeholder-shown) ~ .floating-label,
+  .input-box input:-webkit-autofill ~ .floating-label,
+  .input-box.has-value .floating-label {
+    font-size: 11px;
+  }
+
+  .form-options {
+    margin: 4px 2px 12px;
+    font-size: 12px;
+  }
+
+  .custom-checkbox {
+    width: 17px;
+    height: 17px;
+  }
+
+  .submit-btn {
+    height: 46px;
+    font-size: 14.5px;
+    gap: 8px;
+    border-radius: 14px;
+  }
+
+  .divider {
+    margin: 12px 0 10px;
+    font-size: 11.5px;
+  }
+
+  .divider span {
+    padding: 0 10px;
+  }
+
+  .social-login {
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+
+  .social-btn {
+    width: 42px;
+    height: 42px;
+    font-size: 17px;
+    border-radius: 14px;
+  }
+
+  .switch-prompt {
+    margin-top: 4px;
+    font-size: 12.5px;
+    gap: 8px;
+  }
+
+  .switch-circle {
+    width: 34px;
+    height: 34px;
+    font-size: 13px;
+  }
+
+  .bg-circle.bg1 {
+    width: 130px;
+    height: 130px;
+    top: -25px;
+    right: -25px;
+    opacity: 0.6;
+  }
+
+  .bg-circle.bg2 {
+    width: 80px;
+    height: 80px;
+    left: -15px;
+    top: 50%;
+    opacity: 0.5;
+  }
+
+  .bg-circle.bg3 {
+    width: 90px;
+    height: 90px;
+    bottom: -15px;
+    right: -10px;
+    opacity: 0.5;
+  }
+}
+
+/* 375px ۋە ئۇنىڭدىن كىچىك يانفونلار (iPhone SE، كىچىك ئېكرانلار) */
+@media (max-width: 375px) {
+  .auth-card {
+    padding: 18px 14px 14px;
+    border-radius: 20px;
+  }
+
+  .header-title {
+    font-size: 18px;
+  }
+
+  .input-box input {
+    height: 44px;
+    padding: 0 38px 0 38px;
+  }
+
+  .floating-label {
+    right: 38px;
+    font-size: 12.5px;
+  }
+
+  .input-icon {
+    right: 12px;
+  }
+
+  .social-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 15px;
+  }
+}
+
+/* كۇنۇپكا تاختىسى ئېچىلغاندا ياكى ئېگىزلىكى قىسقا ئېكرانلاردا */
+@media (max-height: 700px) {
+  .neumorphic-modal-overlay,
+  .neumorphic-page-container {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .card-header {
+    margin-bottom: 8px;
+  }
+
+  .brand-icon-box {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 4px;
+  }
+
+  .brand-icon-inner {
+    width: 32px;
+    height: 32px;
+  }
+
+  .header-subtitle {
+    display: none;
+  }
+
+  .input-group {
+    margin-bottom: 8px;
+  }
+
+  .divider {
+    margin: 8px 0 6px;
+  }
+
+  .social-login {
+    margin-bottom: 8px;
+  }
+}

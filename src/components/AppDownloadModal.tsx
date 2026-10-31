@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import { APP_VERSION_CONFIG } from '@/lib/appVersion';
 import {
   X,
   Download,
@@ -115,7 +116,7 @@ export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalPr
               </p>
               <div className="flex flex-wrap items-center gap-2 mt-2 text-[10px] text-slate-400 font-mono">
                 <span className="px-2 py-0.5 rounded-md bg-slate-900 border border-slate-700">
-                  {t('versionLabel')} 1.2.0
+                  {t('versionLabel')} {APP_VERSION_CONFIG.version}
                 </span>
                 <span className="px-2 py-0.5 rounded-md bg-slate-900 border border-slate-700">
                   {t('sizeLabel')} ~4.5 MB

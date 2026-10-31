@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Navbar from '@/components/Navbar';
+import SGCSubpageLayout from '@/components/SGCSubpageLayout';
 import { useLanguage } from '@/context/LanguageContext';
 import { getCachedBalance, getCachedUser, storeLocalAuth, ClientUser } from '@/lib/clientAuth';
 import {
@@ -234,47 +234,39 @@ export default function MembershipVipPage() {
   };
 
   return (
-    <div
-      className={`min-h-screen bg-[#040e1d] text-slate-100 flex flex-col pb-24 md:pb-8 selection:bg-cyan-500 selection:text-white font-alkatip ${
-        isRTL ? 'text-right' : 'text-left'
-      }`}
-      dir={isRTL ? 'rtl' : 'ltr'}
+    <SGCSubpageLayout
+      title={lang === 'ug' ? 'ئەزالىق ۋە ئىمتىياز' : t('membershipTitle')}
+      subtitle={
+        lang === 'ug'
+          ? 'AUTO CASH VIP كۇلۇبى — ئالاھىدە ئېتىبار ۋە ئېشىپ بارىدىغان كاشباك'
+          : t('membershipTiersSubtitle')
+      }
+      headerActions={
+        <Link
+          href="/"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-xs font-bold text-emerald-600 dark:text-emerald-400 transition cursor-pointer"
+        >
+          {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          <span>{t('store')}</span>
+        </Link>
+      }
     >
-      <Navbar balance={balance} user={currentUser} />
-
-      <main className="max-w-3xl mx-auto px-4 py-5 w-full flex-1 space-y-5">
-        {/* Top Header */}
-        <div className="flex items-center justify-between pb-1">
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-400 text-slate-200 hover:text-white text-xs font-bold transition shadow cursor-pointer font-alkatip"
-          >
-            {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-            <span>{t('store')}</span>
-          </Link>
-
-          <div className={isRTL ? 'text-left' : 'text-right'}>
-            <h1 className="font-ukij text-2xl sm:text-3xl font-black text-white gold-text-glow leading-snug">
-              {t('membershipTitle')}
-            </h1>
-          </div>
-        </div>
-
-        {/* Big VIP Card */}
-        <div className="p-5 sm:p-7 rounded-3xl bg-gradient-to-b from-[#092244] via-[#06182f] to-[#041021] border border-amber-500/40 shadow-2xl space-y-5 relative overflow-hidden animate-vip-card-glow">
+      <div className="space-y-5">
+        {/* Big VIP Card - SGC Luxury Emerald & Gold */}
+        <div className="p-5 sm:p-7 rounded-3xl bg-gradient-to-br from-[#064e3b] via-[#047857] to-[#065f46] text-white shadow-xl shadow-emerald-950/20 relative overflow-hidden space-y-5 border border-emerald-500/30">
           {/* Ambient Corner Glows */}
-          <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-72 h-72 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -top-12 -left-12 w-64 h-64 bg-emerald-400/15 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-amber-400/15 rounded-full blur-2xl pointer-events-none" />
 
           {/* Card Top Row */}
           <div className="flex items-center justify-between relative z-10">
-            <span className="font-mono text-xs sm:text-sm font-extrabold text-amber-300/90 tracking-widest uppercase flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-star-twinkle" />
-              <span className="autocash-shimmer">AUTO CASH</span>
-              <span className="text-white">CLUB</span>
+            <span className="font-mono text-xs sm:text-sm font-extrabold text-amber-300 tracking-widest uppercase flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-star-glint" />
+              <span className="animated-brand-title">AUTO CASH</span>
+              <span className="text-emerald-200 font-bold">CLUB</span>
             </span>
 
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/70 border border-emerald-500/50 text-emerald-300 text-xs font-bold shadow-md shadow-emerald-500/20">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/25 border border-white/20 text-emerald-200 text-xs font-bold shadow-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>{t('currentLevel')}</span>
             </div>
@@ -283,16 +275,16 @@ export default function MembershipVipPage() {
           {/* Hero Section */}
           <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-4 pt-1 relative z-10">
             <div className={`space-y-1.5 ${isRTL ? 'text-right' : 'text-left'} flex-1`}>
-              <span className="text-xs text-slate-400 block font-medium">
+              <span className="text-xs text-emerald-200 block font-bold font-alkatip">
                 {t('currentLevel')}:
               </span>
               <h2 className="text-3xl sm:text-5xl font-black font-mono tracking-tight flex items-center gap-2">
-                <span className="bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-500 bg-clip-text text-transparent drop-shadow-md gold-text-glow">
+                <span className="bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-400 bg-clip-text text-transparent drop-shadow-md">
                   {currentTier.name}
                 </span>
-                <span className="animate-vip-crown text-amber-300 text-xl sm:text-2xl">👑</span>
+                <span className="animate-icon-sparkle text-amber-300 text-xl sm:text-2xl">👑</span>
               </h2>
-              <p className="text-xs text-slate-300/90 leading-relaxed pt-1 max-w-md">
+              <p className="text-xs text-emerald-100/90 leading-relaxed pt-1 max-w-md font-alkatip">
                 {t('autoTierUpgradeDesc')}
               </p>
             </div>
@@ -304,43 +296,43 @@ export default function MembershipVipPage() {
 
           {/* 3 Metric Cards inside the Big Card */}
           <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5 pt-3 relative z-10">
-            <div className={`p-3.5 sm:p-4 rounded-2xl bg-[#06172a]/95 border border-slate-700/80 hover:border-cyan-500/40 transition shadow-lg ${isRTL ? 'text-right' : 'text-left'} relative overflow-hidden group`}>
-              <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent" />
-              <span className="text-[10px] sm:text-xs text-slate-400 block mb-1 font-alkatip">
+            <div className={`p-3.5 sm:p-4 rounded-2xl bg-black/25 backdrop-blur-md border border-white/15 shadow-sm ${isRTL ? 'text-right' : 'text-left'} relative overflow-hidden group`}>
+              <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
+              <span className="text-[10px] sm:text-xs text-emerald-200 block mb-1 font-alkatip font-bold">
                 {t('currentDiscount')}
               </span>
-              <span className="text-lg sm:text-2xl font-black text-cyan-400 font-mono tracking-tight">
+              <span className="text-lg sm:text-2xl font-black text-amber-300 font-mono tracking-tight">
                 {currentTier.discount}%
               </span>
             </div>
 
-            <div className={`p-3.5 sm:p-4 rounded-2xl bg-[#06172a]/95 border border-slate-700/80 hover:border-amber-500/40 transition shadow-lg ${isRTL ? 'text-right' : 'text-left'} relative overflow-hidden group`}>
-              <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
-              <span className="text-[10px] sm:text-xs text-slate-400 block mb-1 font-alkatip">
+            <div className={`p-3.5 sm:p-4 rounded-2xl bg-black/25 backdrop-blur-md border border-white/15 shadow-sm ${isRTL ? 'text-right' : 'text-left'} relative overflow-hidden group`}>
+              <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent" />
+              <span className="text-[10px] sm:text-xs text-emerald-200 block mb-1 font-alkatip font-bold">
                 {t('totalSpent')}
               </span>
               <span className="text-lg sm:text-2xl font-black text-white font-mono flex items-center gap-0.5 tracking-tight" dir="ltr">
-                <span className="animate-dollar-float text-amber-400">$</span>
+                <span className="text-amber-300 font-bold">$</span>
                 <span>{userSpent.toFixed(2)}</span>
               </span>
             </div>
 
-            <div className={`p-3.5 sm:p-4 rounded-2xl bg-[#06172a]/95 border border-slate-700/80 hover:border-yellow-500/40 transition shadow-lg ${isRTL ? 'text-right' : 'text-left'} relative overflow-hidden group`}>
+            <div className={`p-3.5 sm:p-4 rounded-2xl bg-black/25 backdrop-blur-md border border-white/15 shadow-sm ${isRTL ? 'text-right' : 'text-left'} relative overflow-hidden group`}>
               <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-yellow-400 to-transparent" />
-              <span className="text-[10px] sm:text-xs text-slate-400 block mb-1 font-alkatip">
+              <span className="text-[10px] sm:text-xs text-emerald-200 block mb-1 font-alkatip font-bold">
                 {t('levelRank')}
               </span>
               <span className="text-lg sm:text-2xl font-black text-amber-300 font-mono tracking-tight flex items-center gap-1">
                 <span>{safeTierIndex + 1}</span>
-                <span className="text-slate-500 text-sm font-normal">/ 5</span>
+                <span className="text-emerald-200/60 text-sm font-normal">/ 5</span>
               </span>
             </div>
           </div>
 
           {/* Progress to Next Level Section */}
-          <div className="p-4 rounded-2xl bg-[#041324]/90 border border-slate-700/70 space-y-2.5 relative z-10 shadow-inner">
+          <div className="p-4 rounded-2xl bg-black/25 backdrop-blur-md border border-white/15 space-y-2.5 relative z-10 shadow-inner">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-300 font-bold font-alkatip">
+              <span className="text-emerald-100 font-bold font-alkatip">
                 {t('nextTierProgress')}
               </span>
               <span className="text-amber-300 font-alkatip text-[11px] font-bold">
@@ -350,31 +342,31 @@ export default function MembershipVipPage() {
               </span>
             </div>
 
-            <div className="w-full h-2.5 rounded-full bg-slate-900 border border-slate-800 overflow-hidden relative p-0.5">
+            <div className="w-full h-2.5 rounded-full bg-black/30 border border-white/10 overflow-hidden relative p-0.5">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-cyan-500 via-amber-400 to-yellow-300 shadow-md shadow-amber-400/30 transition-all duration-700"
+                className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-amber-300 to-yellow-400 shadow-md shadow-amber-400/40 transition-all duration-700"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-1 text-[11px] font-alkatip text-slate-400">
+            <div className="flex flex-wrap items-center justify-between gap-1 text-[11px] font-alkatip text-emerald-200">
               <span className="flex items-center gap-1">
                 <span>{t('spentLabel')}</span>
                 <span className="font-mono font-bold text-white flex items-center gap-0.5" dir="ltr">
-                  <span className="animate-dollar-float text-amber-400">$</span>
+                  <span className="text-amber-300 font-bold">$</span>
                   <span>{userSpent.toFixed(2)}</span>
                 </span>
               </span>
               {nextTier ? (
                 <span className="text-amber-300 font-bold flex items-center gap-1">
                   <span>{`${nextTier.name} ${t('remainingForTier')}`}</span>
-                  <span className="font-mono font-extrabold text-amber-400 flex items-center gap-0.5" dir="ltr">
-                    <span className="animate-dollar-float text-amber-400">$</span>
+                  <span className="font-mono font-extrabold text-white flex items-center gap-0.5" dir="ltr">
+                    <span className="text-amber-300 font-bold">$</span>
                     <span>{remainingForNext.toFixed(2)}</span>
                   </span>
                 </span>
               ) : (
-                <span className="text-amber-400 font-bold flex items-center gap-1">
+                <span className="text-amber-300 font-bold flex items-center gap-1">
                   <span>👑</span>
                   <span>{t('topVipMember')}</span>
                 </span>
@@ -385,44 +377,44 @@ export default function MembershipVipPage() {
 
         {/* 3 Advantage Feature Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className={`p-4 rounded-2xl bg-[#07192d] border border-slate-800 hover:border-amber-500/40 transition ${isRTL ? 'text-right' : 'text-left'} space-y-2 shadow-sm group hover:scale-[1.02] duration-200`}>
+          <div className={`p-4 rounded-2xl bg-white dark:bg-[#101726] border border-slate-200/90 dark:border-white/10 hover:border-emerald-400 dark:hover:border-emerald-600 transition ${isRTL ? 'text-right' : 'text-left'} space-y-2 shadow-xs group hover:scale-[1.02] duration-200`}>
             <div className={`flex ${isRTL ? 'justify-end' : 'justify-start'}`}>
-              <div className="w-10 h-10 rounded-xl bg-cyan-950/70 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shadow-inner group-hover:scale-110 transition">
-                <TrendingUp className="w-5 h-5 animate-normal-icon" />
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-xs animate-nav-pill-glow group-hover:scale-110 transition">
+                <TrendingUp className="w-5 h-5 animate-icon-sparkle anim-delay-1" />
               </div>
             </div>
-            <h3 className="font-bold text-xs sm:text-sm text-white font-alkatip">
+            <h3 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white font-alkatip">
               {t('autoTierUpgradeTitle')}
             </h3>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-alkatip">
               {t('autoTierUpgradeDesc')}
             </p>
           </div>
 
-          <div className={`p-4 rounded-2xl bg-[#07192d] border border-slate-800 hover:border-emerald-500/40 transition ${isRTL ? 'text-right' : 'text-left'} space-y-2 shadow-sm group hover:scale-[1.02] duration-200`}>
+          <div className={`p-4 rounded-2xl bg-white dark:bg-[#101726] border border-slate-200/90 dark:border-white/10 hover:border-emerald-400 dark:hover:border-emerald-600 transition ${isRTL ? 'text-right' : 'text-left'} space-y-2 shadow-xs group hover:scale-[1.02] duration-200`}>
             <div className={`flex ${isRTL ? 'justify-end' : 'justify-start'}`}>
-              <div className="w-10 h-10 rounded-xl bg-emerald-950/70 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shadow-inner group-hover:scale-110 transition">
-                <Percent className="w-5 h-5 animate-floating-icon" />
+              <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-amber-600 dark:text-amber-400 shadow-xs animate-nav-pill-glow group-hover:scale-110 transition">
+                <Percent className="w-5 h-5 animate-icon-sparkle anim-delay-2" />
               </div>
             </div>
-            <h3 className="font-bold text-xs sm:text-sm text-white font-alkatip">
+            <h3 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white font-alkatip">
               {t('instantDiscountTitle')}
             </h3>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-alkatip">
               {t('instantDiscountDesc')}
             </p>
           </div>
 
-          <div className={`p-4 rounded-2xl bg-[#07192d] border border-slate-800 hover:border-yellow-500/40 transition ${isRTL ? 'text-right' : 'text-left'} space-y-2 shadow-sm group hover:scale-[1.02] duration-200`}>
+          <div className={`p-4 rounded-2xl bg-white dark:bg-[#101726] border border-slate-200/90 dark:border-white/10 hover:border-emerald-400 dark:hover:border-emerald-600 transition ${isRTL ? 'text-right' : 'text-left'} space-y-2 shadow-xs group hover:scale-[1.02] duration-200`}>
             <div className={`flex ${isRTL ? 'justify-end' : 'justify-start'}`}>
-              <div className="w-10 h-10 rounded-xl bg-amber-950/70 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-inner group-hover:scale-110 transition">
-                <Sparkles className="w-5 h-5 animate-star-twinkle" />
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-xs animate-nav-pill-glow group-hover:scale-110 transition">
+                <Sparkles className="w-5 h-5 animate-icon-sparkle anim-delay-3" />
               </div>
             </div>
-            <h3 className="font-bold text-xs sm:text-sm text-white font-alkatip">
+            <h3 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white font-alkatip">
               {t('growingPrivilegesTitle')}
             </h3>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-alkatip">
               {t('growingPrivilegesDesc')}
             </p>
           </div>
@@ -431,11 +423,11 @@ export default function MembershipVipPage() {
         {/* Section Header: Membership Tiers */}
         <div className="pt-2 flex items-center justify-between pb-1">
           <div className={isRTL ? 'text-right' : 'text-left'}>
-            <h2 className="font-ukij text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-              <Crown className="w-5 h-5 text-amber-400 animate-vip-crown" />
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 font-alkatip">
+              <Crown className="w-5 h-5 text-amber-500 animate-icon-gleam" />
               <span>{t('membershipTiersTitle')}</span>
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-alkatip">
               {t('membershipTiersSubtitle')}
             </p>
           </div>
@@ -452,17 +444,17 @@ export default function MembershipVipPage() {
                 key={tier.id}
                 className={`p-4 sm:p-5 rounded-2xl border transition-all duration-300 flex items-center justify-between ${
                   isActive
-                    ? 'border-amber-400/80 bg-gradient-to-r from-[#0b2545] via-[#081e38] to-[#051528] shadow-2xl shadow-amber-500/20 ring-1 ring-amber-400/40 relative overflow-hidden'
-                    : 'bg-[#07192d] border-slate-800/90 hover:border-slate-700 hover:bg-[#071d33]'
+                    ? 'border-2 border-emerald-500 bg-emerald-50/90 dark:bg-[#0c1f1c] shadow-lg shadow-emerald-900/10 ring-1 ring-emerald-500/30 relative overflow-hidden'
+                    : 'bg-white dark:bg-[#101726] border-slate-200/90 dark:border-white/10 hover:border-emerald-300 dark:hover:border-emerald-700/60 shadow-xs'
                 }`}
               >
                 <div>
                   {isActive ? (
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500 text-slate-950 font-black flex items-center justify-center shadow-lg shadow-amber-400/30 transition transform hover:scale-105">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-emerald-600 text-white font-black flex items-center justify-center shadow-lg shadow-emerald-500/30 transition transform hover:scale-105 animate-nav-pill-glow">
                       <Check className="w-5 h-5 stroke-[3]" />
                     </div>
                   ) : (
-                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-500 flex items-center justify-center font-bold">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-400 flex items-center justify-center font-bold">
                       <span>—</span>
                     </div>
                   )}
@@ -472,29 +464,29 @@ export default function MembershipVipPage() {
                   <div>
                     <div className="flex items-center gap-2 mb-0.5">
                       {isActive && (
-                        <span className="px-2.5 py-0.5 rounded-full bg-amber-950/80 border border-amber-500/50 text-[10px] text-amber-300 font-bold font-alkatip flex items-center gap-1 shadow-sm">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 border border-emerald-300 dark:border-emerald-700 text-[10px] text-emerald-800 dark:text-emerald-200 font-bold font-alkatip flex items-center gap-1 shadow-xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                           <span>{t('currentLevel')}</span>
                         </span>
                       )}
-                      <h4 className="font-bold text-sm sm:text-base text-white font-mono flex items-center gap-1.5">
-                        <span className={isActive ? 'text-amber-300 font-black' : ''}>{tier.name}</span>
-                        {isActive && <span className="animate-star-twinkle text-xs">✨</span>}
+                      <h4 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white font-mono flex items-center gap-1.5">
+                        <span className={isActive ? 'text-emerald-600 dark:text-emerald-400 font-black' : ''}>{tier.name}</span>
+                        {isActive && <span className="animate-star-glint text-xs text-amber-400">✨</span>}
                       </h4>
                     </div>
 
-                    <span className="text-[11px] text-slate-300 block font-alkatip">
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-alkatip">
                       {formatRequirement(tier.minSpend)}
                     </span>
 
-                    <span className="text-xs font-bold text-amber-400 font-alkatip block mt-1" dir="ltr">
+                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400 font-alkatip block mt-1" dir="ltr">
                       {tier.discount}% {t('tierDiscount')}
                     </span>
                   </div>
 
                   {renderBadge(tier.colorScheme, tier.name, 'md', delayClass)}
 
-                  <span className="font-mono text-xs font-bold text-slate-500 hidden sm:inline-block pl-2">
+                  <span className="font-mono text-xs font-bold text-slate-400 dark:text-slate-500 hidden sm:inline-block pl-2">
                     {tier.num}
                   </span>
                 </div>
@@ -502,7 +494,7 @@ export default function MembershipVipPage() {
             );
           })}
         </div>
-      </main>
-    </div>
+      </div>
+    </SGCSubpageLayout>
   );
 }

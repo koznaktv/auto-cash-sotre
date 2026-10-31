@@ -34,3 +34,7 @@ data/provider_config.json
 generate_data.js
 update_apps.js
 syria4game_extracted.json
+
+# Backups
+src_backup_pre_redesign/
+public_backup_pre_redesign/

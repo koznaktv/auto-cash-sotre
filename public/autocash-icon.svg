@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="bgGrad" cx="50%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="60%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#030712"/>
+    </radialGradient>
+
+    <!-- Cyan Electric Glow Gradient -->
+    <linearGradient id="cyanGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67e8f9"/>
+      <stop offset="50%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#0e7490"/>
+    </linearGradient>
+
+    <!-- Gold Cash Lightning Gradient -->
+    <linearGradient id="goldGlow" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="30%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+
+    <!-- Indigo Shield Gradient -->
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="50%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+
+    <!-- Metallic Edge Stroke -->
+    <linearGradient id="edgeStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.6)"/>
+      <stop offset="50%" stop-color="rgba(99,102,241,0.3)"/>
+      <stop offset="100%" stop-color="rgba(6,182,212,0.5)"/>
+    </linearGradient>
+
+    <!-- Filters for 3D Neon Glow -->
+    <filter id="glowCyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="glowGold" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="10" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Squircle Base -->
+  <rect x="24" y="24" width="464" height="464" rx="110" fill="url(#bgGrad)" stroke="url(#edgeStroke)" stroke-width="4.5"/>
+  
+  <!-- Outer Cybernetic Shield Hexagon -->
+  <polygon points="256,60 410,140 410,372 256,452 102,372 102,140" 
+           fill="none" stroke="url(#cyanGlow)" stroke-width="6" opacity="0.45" stroke-dasharray="16, 8"/>
+           
+  <!-- Inner Shield -->
+  <polygon points="256,84 388,154 388,358 256,428 124,358 124,154" 
+           fill="url(#shieldGrad)" stroke="#67e8f9" stroke-width="2.5" opacity="0.95"/>
+  <polygon points="256,92 380,158 380,352 256,420 132,352 132,158" 
+           fill="#0b0f19" opacity="0.85"/>
+
+  <!-- Stylized "A" Monogram / Outer Wings -->
+  <path d="M 256 120 L 350 330 L 310 330 L 256 210 L 202 330 L 162 330 Z" 
+        fill="url(#cyanGlow)" filter="url(#glowCyan)"/>
+
+  <!-- Stylized "C" Arc Base -->
+  <path d="M 330 230 A 105 105 0 1 1 320 370 L 285 335 A 65 65 0 1 0 295 245 Z" 
+        fill="#818cf8" opacity="0.65"/>
+
+  <!-- Dynamic Electric Gold Lightning Bolt (Cash Power) -->
+  <polygon points="268,130 198,265 246,265 220,385 316,245 264,245" 
+           fill="url(#goldGlow)" filter="url(#glowGold)" stroke="#fff" stroke-width="2"/>
+
+  <!-- Core Highlights / Coin Sparkle -->
+  <polygon points="256,236 261,250 275,256 261,262 256,276 251,262 237,256 251,250" fill="#ffffff" opacity="0.95"/>
+  <circle cx="390" cy="120" r="4" fill="#67e8f9" filter="url(#glowCyan)"/>
+  <circle cx="120" cy="390" r="3" fill="#fbbf24" filter="url(#glowGold)"/>
+</svg>

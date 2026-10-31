@@ -2985,20 +2985,28 @@ export default function AdminPage() {
   if (!isAuthenticated) {
     return (
       <div
-        className="min-h-screen bg-[#030914] flex items-center justify-center p-4 pt-[max(env(safe-area-inset-top,0px),16px)] pb-[max(env(safe-area-inset-bottom,0px),16px)] selection:bg-amber-400 selection:text-slate-950 font-alkatip text-right"
+        className="min-h-screen bg-[#070e1b] flex items-center justify-center p-4 pt-[max(env(safe-area-inset-top,0px),16px)] pb-[max(env(safe-area-inset-bottom,0px),16px)] selection:bg-emerald-500 selection:text-white font-alkatip text-right"
         dir="rtl"
       >
-        <div className="w-full max-w-md bg-gradient-to-b from-[#09182d] to-[#040e1d] border border-amber-500/30 rounded-3xl p-7 sm:p-8 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 left-0 h-1 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600" />
+        <div className="w-full max-w-md bg-[#0b1324]/95 border border-emerald-500/30 rounded-3xl p-7 sm:p-8 shadow-2xl relative overflow-hidden backdrop-blur-xl">
+          <div className="absolute top-0 right-0 left-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600" />
 
-          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mx-auto mb-5 shadow-lg shadow-amber-500/10">
-            <Lock className="w-8 h-8" />
+          {/* Logo / Brand Icon */}
+          <div className="relative w-20 h-20 mx-auto mb-4 p-1 rounded-full border border-emerald-500/40 animate-logo-aura flex items-center justify-center">
+            <img
+              src="/logo.png"
+              alt="Auto Cash"
+              className="w-full h-full rounded-full object-cover shadow-md"
+            />
           </div>
 
-          <h2 className="text-xl font-bold text-center text-white font-ukij mb-2">
-            <span className="autocash-shimmer">AUTO CASH</span> باشقۇرۇش مەركىزى
+          <h2 className="text-xl font-bold text-center text-white mb-1">
+            <span className="animated-brand-title">AUTO CASH</span>
           </h2>
-          <p className="text-xs text-center text-slate-400 mb-6 font-alkatip">
+          <p className="text-xs text-center text-emerald-400 font-bold mb-1">
+            ئاپتوماتىك پۇل قاچىلاش • باشقۇرۇش سۇپىسى
+          </p>
+          <p className="text-[11px] text-center text-slate-400 mb-6">
             سىستېمىنى باشقۇرۇش ۋە سانلىق مەلۇماتلارنى كۆرۈش ئۈچۈن مەخسۇس شىفىرنى (PIN) كىرگۈزۈڭ.
           </p>
 
@@ -3010,14 +3018,14 @@ export default function AdminPage() {
                 onChange={(e) => setPinInput(e.target.value)}
                 placeholder="باشقۇرغۇچى شىفىرى (PIN)..."
                 autoFocus
-                className={`w-full bg-[#051120] border ${
-                  pinError ? 'border-rose-500 ring-2 ring-rose-500/30' : 'border-slate-700/80 focus:border-amber-400'
+                className={`w-full bg-[#070e1a] border ${
+                  pinError ? 'border-rose-500 ring-2 ring-rose-500/30' : 'border-slate-700/80 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
                 } rounded-xl px-4 py-3 text-sm text-center font-mono tracking-widest text-white placeholder-slate-500 focus:outline-none transition`}
               />
               <button
                 type="button"
                 onClick={() => setShowPin(!showPin)}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 cursor-pointer"
               >
                 {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -3032,13 +3040,13 @@ export default function AdminPage() {
             <button
               type="submit"
               disabled={pinSubmitting}
-              className="w-full py-3 rounded-xl gold-shimmer-btn text-xs font-black transition cursor-pointer flex items-center justify-center gap-2 active:scale-95 shadow-lg"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold transition cursor-pointer flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-emerald-950/40"
             >
               {pinSubmitting ? (
-                <RefreshCw className="w-4 h-4 animate-spin text-slate-950" />
+                <RefreshCw className="w-4 h-4 animate-spin text-white" />
               ) : (
                 <>
-                  <Unlock className="w-4 h-4 text-slate-950" />
+                  <Unlock className="w-4 h-4 text-white" />
                   <span>كىرىش (قۇلۇپنى ئېچىش)</span>
                 </>
               )}
@@ -3047,7 +3055,7 @@ export default function AdminPage() {
             <div className="pt-2 text-center">
               <Link
                 href="/"
-                className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-400 transition font-alkatip"
+                className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-emerald-400 transition"
               >
                 <ChevronRight className="w-4 h-4" />
                 <span>باش بەتكە قايتىش</span>
@@ -3059,36 +3067,36 @@ export default function AdminPage() {
     );
   }
 
-  // Color theme styles
+  // Color theme styles (Harmonized with website's SGC Game Emerald aesthetic)
   const themeClasses = isDarkMode
     ? {
-        bg: 'bg-[#030914] text-slate-100',
-        sidebar: 'bg-[#061426] border-slate-800/80',
-        card: 'bg-[#07192d] border-slate-800/90 shadow-md',
-        cardHeader: 'border-slate-800/80',
+        bg: 'bg-[#080d19] text-slate-100',
+        sidebar: 'bg-[#0f172a] border-white/10',
+        card: 'bg-[#131c31] border-white/10 shadow-sm',
+        cardHeader: 'border-white/10',
         subtext: 'text-slate-400',
-        input: 'bg-[#040e1d] border-slate-700/80 text-white placeholder-slate-500',
-        tableHead: 'bg-[#051120] text-slate-300 border-slate-800',
-        tableRow: 'border-slate-800/70 hover:bg-slate-800/30',
-        pillActive: 'bg-amber-400 text-slate-950 font-black',
-        pillInactive: 'bg-slate-800/60 text-slate-300 hover:bg-slate-800',
+        input: 'bg-[#0a101f] border-white/15 text-white placeholder-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500',
+        tableHead: 'bg-[#0b1222] text-slate-300 border-white/10',
+        tableRow: 'border-white/5 hover:bg-white/5',
+        pillActive: 'bg-emerald-600 text-white font-bold shadow-sm',
+        pillInactive: 'bg-white/5 text-slate-300 hover:bg-white/10',
       }
     : {
-        bg: 'bg-[#f4f7fb] text-slate-900',
-        sidebar: 'bg-white border-slate-200 shadow-lg',
-        card: 'bg-white border-slate-200/90 shadow-md',
+        bg: 'bg-[#f4f7f5] text-slate-900',
+        sidebar: 'bg-white border-slate-200/90 shadow-sm',
+        card: 'bg-white border-slate-200/90 shadow-xs',
         cardHeader: 'border-slate-100',
         subtext: 'text-slate-500',
-        input: 'bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400',
-        tableHead: 'bg-slate-100 text-slate-700 border-slate-200',
+        input: 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500',
+        tableHead: 'bg-slate-50 text-slate-700 border-slate-200',
         tableRow: 'border-slate-100 hover:bg-slate-50',
-        pillActive: 'bg-amber-500 text-white font-black',
+        pillActive: 'bg-emerald-600 text-white font-bold shadow-sm',
         pillInactive: 'bg-slate-100 text-slate-600 hover:bg-slate-200',
       };
 
   return (
     <div
-      className={`min-h-screen ${themeClasses.bg} flex font-alkatip selection:bg-amber-400 selection:text-slate-950 transition-colors duration-200`}
+      className={`min-h-screen ${themeClasses.bg} flex font-alkatip selection:bg-emerald-500 selection:text-white transition-colors duration-200`}
       dir="rtl"
     >
       {/* ================= 1. SIDEBAR (DESKTOP & MOBILE DRAWER) ================= */}
@@ -3109,95 +3117,119 @@ export default function AdminPage() {
       >
         <div>
           {/* Logo / Brand */}
-          <div className="p-5 border-b border-slate-800/60 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-md shadow-amber-500/20 shrink-0 overflow-hidden bg-[#04101e] flex items-center justify-center">
+          <div className="p-4 sm:p-5 border-b border-slate-200/80 dark:border-white/10 flex items-center justify-between">
+            <div className="flex items-center gap-3 select-none">
+              <div className="relative shrink-0 p-0.5 rounded-full border border-emerald-500/40 animate-logo-aura">
                 <img
-                  src={settings.siteLogo || '/brand_logo.png?v=2.1.0'}
+                  src="/logo.png"
                   alt="AUTO CASH"
-                  className="w-full h-full object-cover rounded-full"
+                  className="w-10 h-10 rounded-full object-cover shadow-xs"
                 />
               </div>
-              <div>
-                <h1 className="font-ukij font-bold text-sm leading-tight text-white">
-                  <span className="autocash-shimmer">{settings.siteName || 'AUTO CASH'}</span>
-                </h1>
-                <span className="text-[10px] text-amber-400 font-bold block">
-                  باشقۇرۇش مەركىزى (v2.0)
+              <div className="flex flex-col text-right justify-center">
+                <span className="font-black text-sm sm:text-base tracking-wide animated-brand-title">
+                  AUTO CASH
+                </span>
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold block">
+                  باشقۇرۇش سىستېمىسى
                 </span>
               </div>
             </div>
 
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="lg:hidden text-slate-400 hover:text-white p-1"
+              className="lg:hidden text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Nav List */}
-          <nav className="p-3 space-y-1 text-xs">
+          {/* Grouped Nav List (رەتلىك بۆلەكلەر بويىچە) */}
+          <nav className="p-3 space-y-3 text-xs overflow-y-auto max-h-[calc(100vh-190px)] scrollbar-none">
             {[
-              { id: 'dashboard', label: 'باش تاختا (Dashboard)', icon: LayoutDashboard },
-              { id: 'orders', label: 'زاكازلارنى باشقۇرۇش', icon: ShoppingBag, badge: metrics.processingCount },
-              { id: 'promotions', label: '⚡️ چەكلىك ئېتىبار (Flash Sale)', icon: Flame, badgeColor: 'bg-red-500 text-white' },
-              { id: 'provider', label: 'API تەمىنلىگۈچى تەڭشىكى', icon: Zap, badgeColor: 'bg-cyan-500 text-slate-950' },
-              { id: 'sms', label: '📱 مەۋھۇم نومۇر API سى', icon: Smartphone, badgeColor: 'bg-emerald-500 text-white' },
-              { id: 'wifi', label: 'Wi-Fi كارتىلار ئامبىرى', icon: Wifi, badgeColor: 'bg-emerald-500 text-white' },
-              { id: 'banners', label: 'باشبەت ئېلانلىرى (سلايدېر)', icon: ImageIcon, badge: banners.length, badgeColor: 'bg-amber-400 text-slate-950' },
-              { id: 'deposits', label: 'ھەميان كىرىملىرى (شامكەش)', icon: Wallet, badge: metrics.pendingDepCount, badgeColor: 'bg-amber-500 text-slate-950' },
-              { id: 'users', label: 'ئىشلەتكۈچىلەر (ئەزالار)', icon: Users, badge: metrics.userCount },
-              { id: 'finance', label: 'پۇل مۇئامىلە ۋە كىرىم', icon: TrendingUp },
-              { id: 'settings', label: 'سىستېما تەڭشەكلىرى', icon: Settings },
-            ].map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id as any);
-                    setMobileMenuOpen(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition cursor-pointer font-bold ${
-                    isActive
-                      ? 'bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20 font-black'
-                      : isDarkMode
-                      ? 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Icon className="w-4 h-4 shrink-0" />
-                    <span>{item.label}</span>
-                  </div>
-                  {item.badge !== undefined && item.badge > 0 && (
-                    <span
-                      className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
-                        item.badgeColor || (isActive ? 'bg-slate-950 text-amber-300' : 'bg-cyan-950 border border-cyan-500/40 text-cyan-300')
+              {
+                group: 'ئاساسىي مەركەز',
+                items: [
+                  { id: 'dashboard', label: 'باش تاختا (Dashboard)', icon: LayoutDashboard },
+                  { id: 'orders', label: 'زاكازلارنى باشقۇرۇش', icon: ShoppingBag, badge: metrics.processingCount, badgeColor: 'bg-amber-500 text-slate-950 font-bold' },
+                  { id: 'deposits', label: 'ھەميان كىرىملىرى (شامكەش)', icon: Wallet, badge: metrics.pendingDepCount, badgeColor: 'bg-emerald-600 text-white font-bold' },
+                ]
+              },
+              {
+                group: 'مەھسۇلات ۋە پائالىيەت',
+                items: [
+                  { id: 'promotions', label: '⚡️ چەكلىك ئېتىبار (Flash Sale)', icon: Flame, badgeColor: 'bg-red-500 text-white font-bold' },
+                  { id: 'banners', label: 'باشبەت ئېلانلىرى (سلايدېر)', icon: ImageIcon, badge: banners.length, badgeColor: 'bg-teal-600 text-white' },
+                  { id: 'wifi', label: 'Wi-Fi كارتىلار ئامبىرى', icon: Wifi, badgeColor: 'bg-sky-600 text-white' },
+                ]
+              },
+              {
+                group: 'API ۋە تەمىنلىگۈچى',
+                items: [
+                  { id: 'provider', label: 'API تەمىنلىگۈچى (Othman)', icon: Zap, badgeColor: 'bg-cyan-500 text-slate-950 font-bold' },
+                  { id: 'sms', label: '📱 مەۋھۇم نومۇر API سى', icon: Smartphone, badgeColor: 'bg-teal-500 text-white' },
+                ]
+              },
+              {
+                group: 'ئەزالار ۋە تەڭشەك',
+                items: [
+                  { id: 'users', label: 'ئىشلەتكۈچىلەر (ئەزالار)', icon: Users, badge: metrics.userCount, badgeColor: 'bg-slate-200 dark:bg-white/10 text-slate-800 dark:text-white' },
+                  { id: 'finance', label: 'پۇل مۇئامىلە ۋە كىرىم', icon: TrendingUp },
+                  { id: 'settings', label: 'سىستېما تەڭشەكلىرى', icon: Settings },
+                ]
+              }
+            ].map((section) => (
+              <div key={section.group} className="space-y-1">
+                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3 pt-1 flex items-center gap-1.5 select-none">
+                  <span>{section.group}</span>
+                  <div className="flex-1 h-[1px] bg-slate-200/60 dark:bg-white/5" />
+                </div>
+                {section.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setActiveTab(item.id as any);
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition cursor-pointer font-bold ${
+                        isActive
+                          ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/30 font-bold'
+                          : isDarkMode
+                          ? 'text-slate-300 hover:bg-white/5 hover:text-white'
+                          : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
                       }`}
                     >
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+                      <div className="flex items-center gap-2.5">
+                        <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400 dark:text-slate-400'}`} />
+                        <span>{item.label}</span>
+                      </div>
+                      {item.badge !== undefined && item.badge > 0 && (
+                        <span
+                          className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
+                            item.badgeColor || (isActive ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200')
+                          }`}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
           </nav>
         </div>
 
         {/* Footer Actions */}
-        <div className="p-3 border-t border-slate-800/60 space-y-2">
+        <div className="p-3 border-t border-slate-200/80 dark:border-white/10 space-y-2 select-none">
           {/* View Website */}
           <Link
             href="/"
             target="_blank"
-            className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition border ${
-              isDarkMode
-                ? 'bg-slate-900 border-slate-700/80 text-cyan-400 hover:bg-slate-800'
-                : 'bg-slate-100 border-slate-200 text-cyan-700 hover:bg-slate-200'
-            }`}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 cursor-pointer"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             <span>تور بېكەتنى كۆرۈش</span>
@@ -3206,7 +3238,7 @@ export default function AdminPage() {
           {/* Logout */}
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-rose-400 hover:bg-rose-950/40 border border-rose-900/30 transition cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-300/40 dark:border-rose-900/30 transition cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>چېكىنىش (قۇلۇپلاش)</span>
@@ -3225,30 +3257,29 @@ export default function AdminPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-2 rounded-xl bg-slate-800/50 text-slate-300 hover:text-white"
+              className="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <h2 className="font-ukij font-black text-sm sm:text-base text-white">
-              {activeTab === 'dashboard' && 'باش تاختا كۆرسەتكۈچلىرى'}
-              {activeTab === 'orders' && 'زاكازلارنى باشقۇرۇش مەركىزى'}
+            <h2 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+              {activeTab === 'dashboard' && '📊 باش تاختا كۆرسەتكۈچلىرى'}
+              {activeTab === 'orders' && '🛒 زاكازلارنى باشقۇرۇش مەركىزى'}
               {activeTab === 'promotions' && '⚡️ چەكلىك ۋاقىتلىق ئېتىبار پائالىيىتى مەركىزى (Flash Sale)'}
-              {activeTab === 'provider' && 'API تەمىنلىگۈچى تەڭشىكى (Othman Store)'}
+              {activeTab === 'provider' && '⚡️ API تەمىنلىگۈچى تەڭشىكى (Othman Store)'}
               {activeTab === 'sms' && '📱 مەۋھۇم نومۇر (SMS Verification) API مەركىزى'}
-              
-              {activeTab === 'banners' && 'باشبەت ئېلان تاختىسى ۋە سلايدېر تەڭشىكى'}
-              {activeTab === 'deposits' && 'ھەميان كىرىملىرى ۋە تالونلار'}
-              {activeTab === 'users' && 'ئەزالار ۋە ئىشلەتكۈچىلەر باشقۇرۇش'}
-              {activeTab === 'finance' && 'پۇل مۇئامىلە ۋە كىرىم ئانالىزى'}
-              {activeTab === 'settings' && 'سىستېما تەڭشەكلىرى'}
-              {activeTab === 'wifi' && 'Wi-Fi كارتىلار ئامبىرى (Fursan, Azez & Mujahid)'}
+              {activeTab === 'banners' && '🖼️ باشبەت ئېلان تاختىسى ۋە سلايدېر تەڭشىكى'}
+              {activeTab === 'deposits' && '💰 ھەميان كىرىملىرى ۋە تالونلار'}
+              {activeTab === 'users' && '👥 ئەزالار ۋە ئىشلەتكۈچىلەر باشقۇرۇش'}
+              {activeTab === 'finance' && '📈 پۇل مۇئامىلە ۋە كىرىم ئانالىزى'}
+              {activeTab === 'settings' && '⚙️ سىستېما تەڭشەكلىرى'}
+              {activeTab === 'wifi' && '📶 Wi-Fi كارتىلار ئامبىرى (Fursan, Azez & Mujahid)'}
             </h2>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-2.5">
             {/* Realtime Live Sync indicator */}
-            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
               <span>جانلىق ئۇلاندى (Live)</span>
             </div>
 
@@ -3257,7 +3288,7 @@ export default function AdminPage() {
               <button
                 onClick={() => setActiveTab('deposits')}
                 title="تەكشۈرۈشنى كۈتۈۋاتقان ھەميان كىرىملىرى"
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition shadow-sm shadow-amber-500/20 cursor-pointer animate-pulse"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 text-xs font-bold transition shadow-xs cursor-pointer animate-pulse"
               >
                 <Wallet className="w-3.5 h-3.5" />
                 <span>{deposits.filter((d) => d.status === 'pending').length} تالون</span>
@@ -3269,7 +3300,7 @@ export default function AdminPage() {
               <button
                 onClick={() => setActiveTab('orders')}
                 title="بىر تەرەپ قىلىنىۋاتقان زاكازلار"
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-bold transition shadow-sm shadow-cyan-500/20 cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 border border-amber-500/40 text-xs font-bold transition shadow-xs cursor-pointer"
               >
                 <ShoppingBag className="w-3.5 h-3.5" />
                 <span>{orders.filter((o) => o.status === 'processing').length} زاكاز</span>
@@ -3289,7 +3320,7 @@ export default function AdminPage() {
                   : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900'
               }`}
             >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-amber-400' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-emerald-500' : ''}`} />
             </button>
 
             {/* Dark / Light Mode Toggle */}

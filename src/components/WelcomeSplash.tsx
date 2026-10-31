@@ -104,11 +104,11 @@ export default function WelcomeSplash({ onEnter }: { onEnter: () => void }) {
       <div className="relative z-10 max-w-lg mx-auto flex flex-col items-center">
         {/* Crisp High-Definition AUTO CASH Master 3D Emblem */}
         <div className={`relative mb-6 transition-transform duration-500 ${launching ? 'scale-110' : 'hover:scale-105'}`}>
-          {/* Subtle Ambient Glowing Energy Halo */}
-          <div className="absolute -inset-6 rounded-full bg-gradient-to-tr from-amber-500/30 via-cyan-400/25 to-amber-400/20 blur-2xl pointer-events-none animate-pulse" />
+          {/* Royal Emerald & Gold Ambient Glowing Halo */}
+          <div className="absolute -inset-6 rounded-full bg-gradient-to-tr from-emerald-500/35 via-amber-400/30 to-teal-400/25 blur-3xl pointer-events-none animate-pulse" />
 
           {/* Luxury Rim Container */}
-          <div className="relative w-44 h-44 sm:w-52 sm:h-52 rounded-full p-[3px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-[0_0_55px_rgba(245,158,11,0.6)]">
+          <div className="relative w-44 h-44 sm:w-52 sm:h-52 rounded-full p-[3px] bg-gradient-to-tr from-[#047857] via-amber-300 to-[#10b981] shadow-[0_0_55px_rgba(16,185,129,0.45)]">
             <div className="w-full h-full rounded-full overflow-hidden bg-[#030c18] flex items-center justify-center shadow-inner">
               <img
                 src="/brand_logo.png?v=2.1.0"
@@ -128,9 +128,9 @@ export default function WelcomeSplash({ onEnter }: { onEnter: () => void }) {
           <Sparkles className="w-4 h-4 text-amber-400 animate-star-twinkle" />
         </span>
 
-        {/* Brand Name with Golden Shimmer */}
-        <h1 className="font-ukij text-4xl sm:text-6xl font-black tracking-wider text-white mb-3">
-          <span className="autocash-shimmer">
+        {/* Brand Name with Liquid Gold Metallic Shimmer */}
+        <h1 className="text-4xl sm:text-6xl font-black tracking-wider mb-3">
+          <span className="animated-brand-title font-sans">
             AUTO CASH
           </span>
         </h1>
@@ -142,17 +142,17 @@ export default function WelcomeSplash({ onEnter }: { onEnter: () => void }) {
 
         {/* Feature Highlights Pills */}
         <div className="flex items-center justify-center gap-2 sm:gap-3 mb-8 flex-wrap px-2">
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-alkatip">
-            <Zap className="w-3.5 h-3.5 text-amber-400" />
-            <span>تېز سۈرئەتتە يېتىپ كېلىش</span>
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-alkatip shadow-xs">
+            <Zap className="w-3.5 h-3.5 text-emerald-400" />
+            <span>سېكۇنتتا يېتىپ كېلىش</span>
           </div>
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-alkatip">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>بىخەتەر كاپالەت</span>
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-alkatip shadow-xs">
+            <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+            <span>%100 كاپالەتلىك</span>
           </div>
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs font-alkatip">
-            <Diamond className="w-3.5 h-3.5 text-cyan-400" />
-            <span>ئەڭ ئەرزان باھا</span>
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-300 text-xs font-alkatip shadow-xs">
+            <Diamond className="w-3.5 h-3.5 text-teal-400" />
+            <span>ئەڭ ئەرزان ئېتىبار باھا</span>
           </div>
         </div>
 
@@ -160,13 +160,13 @@ export default function WelcomeSplash({ onEnter }: { onEnter: () => void }) {
         <button
           onClick={triggerLaunch}
           disabled={launching}
-          className="relative group overflow-hidden gold-shimmer-btn px-8 sm:px-11 py-3.5 sm:py-4 rounded-full text-xs sm:text-sm font-black flex items-center gap-2.5 shadow-2xl shadow-amber-500/40 hover:scale-105 active:scale-95 transition-all font-alkatip cursor-pointer"
+          className="relative group overflow-hidden px-8 sm:px-11 py-3.5 sm:py-4 rounded-full text-xs sm:text-sm font-black flex items-center gap-2.5 bg-gradient-to-r from-[#047857] via-[#059669] to-[#10b981] hover:from-[#059669] hover:to-[#34d399] text-white shadow-2xl shadow-emerald-600/40 hover:scale-105 active:scale-95 transition-all font-alkatip cursor-pointer border-2 border-emerald-300/80"
         >
           {/* Rotating Beam on Button */}
           <div className="border-beam-pill" />
-          <Sparkles className="w-4 h-4 text-slate-950 animate-star-twinkle" />
+          <Sparkles className="w-4 h-4 text-amber-300 animate-star-twinkle" />
           <span>{t('enterPlatform')}</span>
-          {isRTL ? <ArrowLeft className="w-4 h-4 text-slate-950" /> : <ArrowRight className="w-4 h-4 text-slate-950" />}
+          {isRTL ? <ArrowLeft className="w-4 h-4 text-white" /> : <ArrowRight className="w-4 h-4 text-white" />}
         </button>
       </div>
     </div>

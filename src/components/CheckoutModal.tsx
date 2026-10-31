@@ -13,6 +13,8 @@ import { minQty, validateOrderFields, validateQty } from '@/lib/catalog/fieldVal
 import { estimateTotal } from '@/lib/catalog/pricing';
 import { formatSmartPrice } from '@/lib/formatMoney';
 import { getProductBio } from '@/lib/catalog/productBios';
+import { getPackageBenefit } from '@/lib/catalog/packageDescriptions';
+import { translateInstruction } from '@/lib/catalog/instructionTranslator';
 import WifiVoucherCard from './WifiVoucherCard';
 
 interface CheckoutModalProps {
@@ -166,29 +168,56 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
     };
   }, [isWifiService, service?.id]);
 
-  const subCategories = detail?.subCategories || service?.subCategories || [];
+  const isPassOrBundleTitle = (title: string) =>
+    /pass|bundle|pack\b|card\b|weekly|monthly|quarterly|case\b|privilege|supply|supplies|بطاق|اسبوع|شهر|باقة|بولاق|پاس|كارت|vip|subscription|membership/i.test(title);
+
+  const subCategories = useMemo(() => {
+    const subs = detail?.subCategories || service?.subCategories || [];
+    if (subs.length > 0) return subs;
+
+    // Smart auto-partition: If packages mix diamonds/currency with weekly bundles/passes, split them cleanly
+    const pkgs = detail?.packages || service?.packages || [];
+    if (pkgs.length < 3) return [];
+
+    const hasPasses = pkgs.some(p => isPassOrBundleTitle(p.title));
+    const hasDiamonds = pkgs.some(p => !isPassOrBundleTitle(p.title));
+
+    if (hasPasses && hasDiamonds) {
+      return [
+        { id: 'auto_diamonds', label: '💎 ئالماس / قاچىلاش (Diamonds)' },
+        { id: 'auto_passes', label: '👑 ھەپتىلىك بولاق ۋە پاس (Passes)' },
+      ];
+    }
+
+    return [];
+  }, [detail, service]);
+
   const [activeSubCatId, setActiveSubCatId] = useState<string>(() => {
     const subs = service?.subCategories || [];
     return subs[0]?.id || '';
   });
 
   useEffect(() => {
-    const subs = detail?.subCategories || service?.subCategories || [];
-    if (subs.length > 0 && !subs.some(sc => sc.id === activeSubCatId)) {
-      setActiveSubCatId(subs[0].id);
+    if (subCategories.length > 0 && !subCategories.some(sc => sc.id === activeSubCatId)) {
+      setActiveSubCatId(subCategories[0].id);
     }
-  }, [detail, service, activeSubCatId]);
+  }, [subCategories, activeSubCatId]);
 
   const activeSubCat = useMemo(() => {
-    const subs = detail?.subCategories || service?.subCategories || [];
-    if (!subs.length) return null;
-    return subs.find(s => s.id === activeSubCatId) || subs[0];
-  }, [detail, service, activeSubCatId]);
+    if (!subCategories.length) return null;
+    return subCategories.find(s => s.id === activeSubCatId) || subCategories[0];
+  }, [subCategories, activeSubCatId]);
 
   const allPackages: ServicePackage[] = detail?.packages || service?.packages || [];
 
   const packages: ServicePackage[] = useMemo(() => {
     if (!activeSubCat) return allPackages;
+    if (activeSubCat.id === 'auto_diamonds') {
+      return allPackages.filter(p => !isPassOrBundleTitle(p.title));
+    }
+    if (activeSubCat.id === 'auto_passes') {
+      return allPackages.filter(p => isPassOrBundleTitle(p.title));
+    }
     const filtered = allPackages.filter(p => p.subCategoryId === activeSubCat.id);
     return filtered.length > 0 ? filtered : allPackages;
   }, [allPackages, activeSubCat]);
@@ -453,7 +482,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
   };
 
   const displayTotal = confirmTotal ?? estimatedTotal;
-  const inputClass = `w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition ${
+  const inputClass = `w-full bg-slate-50 dark:bg-[#070e1b] border border-slate-200 dark:border-white/15 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition ${
     isRTL ? 'text-right' : 'text-left'
   }`;
 
@@ -466,10 +495,10 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
       }}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
     >
       <div
-        className={`relative w-full max-w-lg max-h-[92vh] overflow-y-auto bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 sm:p-7 ${
+        className={`relative w-full max-w-lg max-h-[92vh] overflow-y-auto bg-white dark:bg-[#0c1424] border border-slate-200/90 dark:border-white/10 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.35)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.85)] p-5 sm:p-7 ${
           isRTL ? 'text-right' : 'text-left'
         } font-alkatip`}
         dir={isRTL ? 'rtl' : 'ltr'}
@@ -480,16 +509,16 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
           onClick={onClose}
           data-modal-close="true"
           title={t('close')}
-          className={`absolute top-5 ${
-            isRTL ? 'left-5' : 'right-5'
-          } text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer`}
+          className={`absolute top-4 ${
+            isRTL ? 'left-4' : 'right-4'
+          } text-slate-400 hover:text-slate-900 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-white/10`}
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Modal Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700/80 flex items-center justify-center text-cyan-400 shadow-inner shrink-0 overflow-hidden">
+        <div className="flex items-center gap-3.5 mb-6">
+          <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-teal-500/10 border border-emerald-500/25 dark:border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm shrink-0 overflow-hidden">
             {service.image ? (
               <img
                 src={
@@ -526,9 +555,9 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-lg font-bold text-white">{translatePackageTitle(service.name)}</h3>
+              <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-wide">{translatePackageTitle(service.name)}</h3>
               {service.badge && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-black bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 px-2 py-0.5 rounded-full shadow-md font-alkatip">
+                <span className="inline-flex items-center gap-1 text-[10px] font-black bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-2.5 py-0.5 rounded-full shadow-sm font-alkatip">
                   <span className="animate-moving-icon">
                     {service.badge.match(/^([\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF]|\u2B50|\u26A1|\uD83D[\uDE00-\uDFFF]|\uD83C[\uDF00-\uDFFF]|\uD83E[\uDD00-\uDFFF]|⚡|🔥|👑|⭐|💎|🚀|🎉|✨|🔒|🏆|💫|🎮|🤖)/)?.[0] || '⚡'}
                   </span>
@@ -536,7 +565,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                 </span>
               )}
             </div>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               {service.description && service.description !== service.name
                 ? translatePackageTitle(service.description)
                 : isProvider
@@ -619,17 +648,14 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Sub-category / Server Tabs Selector */}
             {subCategories && subCategories.length > 1 && (
-              <div className="p-2.5 rounded-xl bg-slate-950/80 border border-amber-500/30 space-y-2 shadow-inner">
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
+              <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 space-y-2.5 shadow-xs">
+                <div className="flex items-center text-xs font-bold text-slate-700 dark:text-slate-300">
                   <span className="flex items-center gap-1.5 font-alkatip">
-                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
                     <span>{isRTL ? 'مۇلازىمەت تۈرى ياكى سېرۋېرنى تاللاڭ:' : 'Select Server / Option:'}</span>
                   </span>
-                  <span className="text-[10px] text-amber-300 font-bold bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-500/40">
-                    {activeSubCat?.label}
-                  </span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {subCategories.map((sc) => {
                     const isSelected = sc.id === activeSubCatId;
                     return (
@@ -639,10 +665,10 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                         onClick={() => {
                           setActiveSubCatId(sc.id);
                         }}
-                        className={`py-2 px-2 rounded-lg text-xs font-bold font-alkatip transition-all text-center border cursor-pointer leading-tight ${
+                        className={`flex-1 min-w-[130px] sm:min-w-[145px] py-2.5 px-3 rounded-xl text-xs font-bold font-alkatip transition-all text-center border cursor-pointer leading-snug ${
                           isSelected
-                            ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 border-amber-300 shadow-md shadow-amber-500/25 scale-[1.02]'
-                            : 'bg-slate-900/90 hover:bg-slate-800 text-slate-300 border-slate-800 hover:border-slate-700'
+                            ? 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 text-white border-emerald-400/60 shadow-md shadow-emerald-600/30 scale-[1.01]'
+                            : 'bg-white dark:bg-[#070e1b] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-white/10 hover:border-slate-300'
                         }`}
                       >
                         {sc.label}
@@ -655,22 +681,22 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
 
             {/* Package Selection */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-2">{t('selectPackageLabel')}</label>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">{t('selectPackageLabel')}</label>
 
               {allWifiOutOfStock && (
-                <div className="mb-3 p-3 bg-rose-950/70 border border-rose-500/50 rounded-xl flex items-center gap-3 text-rose-200 text-xs shadow-md">
-                  <div className="w-8 h-8 rounded-lg bg-rose-600/40 border border-rose-500/50 text-rose-200 flex items-center justify-center font-bold text-base shrink-0">
+                <div className="mb-3 p-3 bg-rose-50 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-500/50 rounded-2xl flex items-center gap-3 text-rose-700 dark:text-rose-200 text-xs shadow-xs">
+                  <div className="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-600 dark:text-rose-300 flex items-center justify-center font-bold text-base shrink-0">
                     ⚠️
                   </div>
                   <div className="space-y-0.5">
-                    <div className="font-bold text-rose-300 text-xs font-alkatip">
+                    <div className="font-bold text-rose-700 dark:text-rose-300 text-xs font-alkatip">
                       {lang === 'ug'
                         ? 'كارتا تۈگەپ كەتتى، يېقىندا قوشۇلىدۇ'
                         : lang === 'ar'
                         ? 'نفدت البطاقات، سيتم التوفير قريباً'
                         : 'Cards out of stock, coming soon'}
                     </div>
-                    <div className="text-[11px] text-rose-200/90 font-alkatip leading-relaxed">
+                    <div className="text-[11px] text-rose-600/90 dark:text-rose-200/90 font-alkatip leading-relaxed">
                       {lang === 'ug'
                         ? 'بۇ تورنىڭ بارلىق كارتىلىرى ھازىر تۈگەپ كەتتى، باشقۇرغۇچى تەرىپىدىن يېقىندا يېڭى كارتىلار تولۇقلىنىدۇ.'
                         : lang === 'ar'
@@ -683,7 +709,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
 
               {packages.length > PACKAGE_SEARCH_THRESHOLD && (
                 <div className="relative mb-2">
-                  <Search className={`w-3.5 h-3.5 text-slate-500 absolute top-1/2 -translate-y-1/2 ${isRTL ? 'right-3' : 'left-3'}`} />
+                  <Search className={`w-3.5 h-3.5 text-slate-400 absolute top-1/2 -translate-y-1/2 ${isRTL ? 'right-3' : 'left-3'}`} />
                   <input
                     type="text"
                     value={packageQuery}
@@ -693,73 +719,86 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                   />
                 </div>
               )}
-              <div className="grid grid-cols-1 gap-2 max-h-56 overflow-y-auto pr-1">
+              <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto pr-1">
                 {visiblePackages.map((pkg) => {
                   const isSelected = pkg.id === selectedPkgId;
                   const outOfStock = isPkgOutOfStock(pkg);
                   const stockCount = getPkgStockCount(pkg.id);
+                  const packageBenefit = getPackageBenefit(pkg, detail || service, lang);
                   return (
                     <button
                       key={pkg.id}
                       type="button"
                       disabled={outOfStock}
                       onClick={() => !outOfStock && setSelectedPkgId(pkg.id)}
-                      className={`flex items-center justify-between p-3 rounded-xl border text-sm transition ${
+                      className={`group relative flex items-start justify-between p-3 sm:p-3.5 rounded-2xl border text-sm transition-all duration-200 cursor-pointer ${
                         isRTL ? 'text-right' : 'text-left'
                       } ${
                         outOfStock
-                          ? 'opacity-60 cursor-not-allowed bg-rose-950/20 border-rose-900/40 text-slate-400'
+                          ? 'opacity-55 cursor-not-allowed bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/40 text-slate-400'
                           : isSelected
-                          ? 'bg-cyan-950/40 border-cyan-500/80 text-white shadow-sm shadow-cyan-500/10'
-                          : 'bg-slate-800/40 border-slate-800 hover:border-slate-700 text-slate-300'
+                          ? 'bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-500 text-slate-900 dark:text-white shadow-xs ring-1 ring-emerald-500/30'
+                          : 'bg-slate-50/70 dark:bg-white/[0.03] border-slate-200/80 dark:border-white/10 hover:border-emerald-400/50 dark:hover:border-emerald-500/40 text-slate-800 dark:text-slate-200 hover:bg-slate-100/70 dark:hover:bg-white/[0.06]'
                       }`}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-start gap-2.5 min-w-0 flex-1">
                         <div
-                          className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
+                          className={`w-4.5 h-4.5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-all ${
                             outOfStock
-                              ? 'border-rose-800 bg-rose-950/50'
+                              ? 'border-rose-300 dark:border-rose-800 bg-rose-100 dark:bg-rose-950/50'
                               : isSelected
-                              ? 'border-cyan-400 bg-cyan-400'
-                              : 'border-slate-600'
+                              ? 'border-emerald-500 bg-emerald-500 shadow-xs shadow-emerald-500/40'
+                              : 'border-slate-300 dark:border-slate-600 group-hover:border-emerald-400'
                           }`}
                         >
-                          {isSelected && !outOfStock && <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />}
+                          {isSelected && !outOfStock && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                         </div>
-                        <span className={`font-medium ${outOfStock ? 'line-through text-slate-400' : ''}`}>
-                          {translatePackageTitle(pkg.title)}
-                        </span>
-                        {outOfStock ? (
-                          <span className="text-[10px] sm:text-[11px] bg-rose-950/90 border border-rose-500/50 text-rose-300 px-2 py-0.5 rounded font-bold font-alkatip">
-                            {lang === 'ug'
-                              ? '⚠️ كارتا تۈگەپ كەتتى، يېقىندا قوشۇلىدۇ'
-                              : lang === 'ar'
-                              ? '⚠️ نفدت، قريباً'
-                              : '⚠️ Out of stock, coming soon'}
-                          </span>
-                        ) : stockCount !== null && stockCount > 0 ? (
-                          <span className="text-[10px] sm:text-[11px] bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 px-1.5 py-0.5 rounded font-mono font-medium">
-                            قالدۇق: {stockCount}
-                          </span>
-                        ) : (
-                          pkg.duration && (
-                            <span className="text-[11px] bg-slate-800 px-2 py-0.5 rounded text-slate-400">{t('instant')}</span>
-                          )
-                        )}
+                        <div className="flex flex-col min-w-0 flex-1 text-right">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`font-black text-xs sm:text-sm ${outOfStock ? 'line-through text-slate-400' : ''}`}>
+                              {translatePackageTitle(pkg.title)}
+                            </span>
+                            {outOfStock ? (
+                              <span className="text-[10px] bg-rose-500/15 border border-rose-500/40 text-rose-600 dark:text-rose-300 px-2 py-0.5 rounded-full font-bold font-alkatip">
+                                {lang === 'ug' ? '⚠️ تۈگەپ كەتتى' : lang === 'ar' ? '⚠️ نفدت' : '⚠️ Sold Out'}
+                              </span>
+                            ) : stockCount !== null && stockCount > 0 ? (
+                              <span className="text-[10px] bg-emerald-500/15 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full font-mono font-bold">
+                                قالدۇق: {stockCount}
+                              </span>
+                            ) : (
+                              pkg.duration && (
+                                <span className="text-[10px] bg-slate-200/80 dark:bg-slate-800 px-2 py-0.5 rounded-full text-slate-600 dark:text-slate-400 font-bold">{t('instant')}</span>
+                              )
+                            )}
+                          </div>
+
+                          {/* PACKAGE BENEFIT / USE CASE EXPLANATION */}
+                          {packageBenefit && (
+                            <p className={`text-[10px] sm:text-[11px] mt-1 font-alkatip leading-relaxed text-right transition-colors ${
+                              isSelected
+                                ? 'text-emerald-700 dark:text-emerald-300 font-bold'
+                                : 'text-slate-500 dark:text-slate-400'
+                            }`}>
+                              <span className="text-emerald-500 dark:text-emerald-400 font-bold ml-1 select-none">✦</span>
+                              {packageBenefit}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <div className="font-bold font-mono shrink-0 flex items-center gap-1.5" dir="ltr">
+                      <div className="font-black font-mono shrink-0 flex items-center gap-1.5 ms-2" dir="ltr">
                         {Boolean((pkg as any).isPromoActive || (pkg as any).promoPrice !== undefined) &&
                           pkg.originalPrice &&
                           pkg.originalPrice > pkg.price && (
-                            <span className="text-[11px] text-slate-500 line-through font-normal">
+                            <span className="text-[11px] text-slate-400 line-through font-normal">
                               ${formatSmartPrice(pkg.originalPrice)}
                             </span>
                           )}
-                        <span className="text-cyan-400">
+                        <span className="text-emerald-600 dark:text-emerald-400 text-sm sm:text-base">
                           {pkg.productType === 'amount' ? `${t('fromPrice')} ` : ''}${formatSmartPrice(pkg.price)}
                         </span>
                         {Boolean((pkg as any).isPromoActive || (pkg as any).promoPrice !== undefined) && (
-                          <span className="text-[9px] bg-red-600/90 text-white px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
+                          <span className="text-[9px] bg-gradient-to-r from-red-600 to-rose-600 text-white px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider shadow-xs">
                             SALE
                           </span>
                         )}
@@ -1061,8 +1100,18 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                             )}
                           </div>
 
-                          <div className="text-[11px] sm:text-xs text-slate-200 leading-relaxed whitespace-pre-line space-y-1 text-right" dir="rtl">
-                            <p>{String((selectedPkg as any)?.instructions || (service as any)?.instructions || '')}</p>
+                          <div
+                            className={`text-[11px] sm:text-xs text-slate-200 leading-relaxed whitespace-pre-line space-y-1 ${
+                              isRTL ? 'text-right' : 'text-left'
+                            }`}
+                            dir={isRTL ? 'rtl' : 'ltr'}
+                          >
+                            <p>
+                              {translateInstruction(
+                                String((selectedPkg as any)?.instructions || (service as any)?.instructions || ''),
+                                lang
+                              )}
+                            </p>
                           </div>
                         </div>
                     )}
@@ -1087,10 +1136,10 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
             )}
 
             {/* 100% Automatic Refund Guarantee Reassurance */}
-            <div className="rounded-xl bg-cyan-950/30 border border-cyan-800/40 p-2.5 text-xs text-cyan-200/90 leading-relaxed font-alkatip flex items-start gap-2">
-              <span className="text-sm shrink-0">🛡️</span>
+            <div className="rounded-2xl bg-emerald-500/10 dark:bg-emerald-950/30 border border-emerald-500/25 dark:border-emerald-500/30 p-3 text-xs text-emerald-900 dark:text-emerald-200/90 leading-relaxed font-alkatip flex items-start gap-2.5">
+              <span className="text-base shrink-0">🛡️</span>
               <div className="text-[11px] leading-relaxed">
-                <span className="font-bold text-cyan-300">
+                <span className="font-bold text-emerald-700 dark:text-emerald-300">
                   {lang === 'ug' ? '100% قالدۇق كاپالىتى:' : '100% Balance Protection:'}
                 </span>{' '}
                 {lang === 'ug'
@@ -1100,10 +1149,10 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
             </div>
 
             {/* Price Summary & Submit */}
-            <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
+            <div className="pt-3 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
               <div>
-                <span className="text-xs text-slate-400 block">{t('amount')}</span>
-                <span className="text-xl font-extrabold text-cyan-400 font-mono" dir="ltr">
+                <span className="text-xs text-slate-500 dark:text-slate-400 block font-bold">{t('amount')}</span>
+                <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono tracking-tight" dir="ltr">
                   ${formatSmartPrice(displayTotal)}
                 </span>
               </div>
@@ -1115,7 +1164,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                     onClose();
                     if (onOpenAuth) onOpenAuth();
                   }}
-                  className="flex items-center gap-2 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500 hover:opacity-95 text-slate-950 font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-amber-500/20 text-xs sm:text-sm transition cursor-pointer"
+                  className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-500 text-white font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-900/30 text-xs sm:text-sm transition cursor-pointer"
                 >
                   <span>{t('loginRequiredBtn')}</span>
                 </button>
@@ -1123,7 +1172,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition cursor-pointer"
+                  className="px-6 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white text-sm font-semibold transition cursor-pointer"
                 >
                   {t('done')}
                 </button>
@@ -1131,7 +1180,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                 <button
                   type="button"
                   disabled
-                  className="flex items-center gap-2 bg-rose-950/70 border border-rose-600/70 text-rose-300 font-bold px-4 py-2.5 rounded-xl shadow-lg text-xs sm:text-sm cursor-not-allowed opacity-90 font-alkatip"
+                  className="flex items-center gap-2 bg-rose-50 dark:bg-rose-950/70 border border-rose-300 dark:border-rose-600/70 text-rose-700 dark:text-rose-300 font-bold px-4 py-2.5 rounded-xl shadow-sm text-xs sm:text-sm cursor-not-allowed opacity-90 font-alkatip"
                 >
                   <span>
                     {lang === 'ug'
@@ -1155,19 +1204,19 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
               )}
             </div>
 
-            {/* Product Bio & Instructions (matches user screenshot) */}
+            {/* Product Bio & Instructions */}
             {productBio && productBio.content && (
-              <div className="mt-4 pt-3 border-t border-slate-800/80">
+              <div className="mt-4 pt-3 border-t border-slate-200 dark:border-white/10">
                 <div
-                  className={`p-3.5 rounded-xl bg-slate-950/70 border border-slate-800/80 ${
-                    isRTL ? 'border-r-4 border-r-rose-500 text-right' : 'border-l-4 border-l-rose-500 text-left'
+                  className={`p-3.5 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 ${
+                    isRTL ? 'border-r-4 border-r-emerald-500 text-right' : 'border-l-4 border-l-emerald-500 text-left'
                   }`}
                 >
-                  <h4 className="text-xs sm:text-sm font-bold text-rose-400 mb-1.5 font-alkatip flex items-center gap-1.5" dir={isRTL ? 'rtl' : 'ltr'}>
-                    <Info className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                  <h4 className="text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400 mb-1.5 font-alkatip flex items-center gap-1.5" dir={isRTL ? 'rtl' : 'ltr'}>
+                    <Info className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                     <span>{translatePackageTitle(productBio.title)}</span>
                   </h4>
-                  <div className="text-[11px] sm:text-xs text-slate-300 leading-relaxed font-alkatip whitespace-pre-line">
+                  <div className="text-[11px] sm:text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-alkatip whitespace-pre-line">
                     {productBio.content}
                   </div>
                 </div>

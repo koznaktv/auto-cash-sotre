@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from '@/components/Navbar';
-import BottomNav from '@/components/BottomNav';
+import SGCSubpageLayout from '@/components/SGCSubpageLayout';
 import AuthModal from '@/components/AuthModal';
 import { useLanguage } from '@/context/LanguageContext';
 import { getCachedUser, clearLocalAuth, formatCurrencyAmount } from '@/lib/clientAuth';
@@ -483,73 +482,53 @@ export default function NumbersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#051120] text-slate-100 font-alkatip flex flex-col selection:bg-amber-500/30 selection:text-amber-200">
-      <Navbar user={user} balance={user?.balance || 0} />
-
-      {/* Main Container */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-6 pb-28">
-        {/* Top Header Card */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#081f38] via-[#051426] to-[#040e1a] border border-amber-500/30 p-5 sm:p-7 shadow-2xl mb-6">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-xs font-bold mb-3 shadow-inner">
-                <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-spin" style={{ animationDuration: '4s' }} />
-                <span>24/7 سېكۇنتلۇق تېزلىك • پۈتۈن دۇنيا دۆلەتلىرى</span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-white gold-text-glow flex items-center gap-3">
-                <span className="p-2.5 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400">
-                  <Smartphone className="w-6 h-6 sm:w-7 h-7" />
-                </span>
-                <span>مەۋھۇم نومۇر (SMS تەستىق كودى)</span>
-              </h1>
-              <p className="text-xs sm:text-sm text-amber-200/70 mt-2 max-w-xl leading-relaxed">
-                تېلېگرام، ۋاتساپ، ChatGPT، گۇگۇل، تىكتوك ۋە 100+ دۇنيا ئەپلىرىگە دۆلەت مەۋھۇم نومۇرى ئېلىپ، تەستىق كودىنى نەق مەيداندا قوبۇل قىلىڭ. كود كەلمىسە پۇلىڭىز دەرھال قايتۇرۇلىدۇ!
-              </p>
-            </div>
-
-            {/* User Wallet Badge & Navigation Pill */}
-            <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
-              <div className="px-4 py-2.5 rounded-2xl bg-[#091e36]/90 border border-amber-500/40 flex items-center gap-3 shadow-lg">
-                <Wallet className="w-5 h-5 text-amber-400" />
-                <div className="text-right">
-                  <div className="text-[10px] text-amber-200/60 font-semibold">ھەميان قالدۇقى</div>
-                  <div className="text-sm font-black text-amber-300 font-mono">
-                    {user ? `$${(user.balance || 0).toFixed(2)}` : '$0.00'}
-                  </div>
-                </div>
-              </div>
-
-              {/* View Switcher: Buy / History */}
-              <div className="flex rounded-2xl bg-slate-900/90 border border-slate-700/60 p-1">
-                <button
-                  onClick={() => setViewTab('buy')}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                    viewTab === 'buy'
-                      ? 'bg-amber-500 text-slate-950 font-black shadow-md'
-                      : 'text-slate-300 hover:text-white'
-                  }`}
-                >
-                  <Zap className="w-3.5 h-3.5" />
-                  <span>نومۇر ئېلىش</span>
-                </button>
-                <button
-                  onClick={() => setViewTab('history')}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                    viewTab === 'history'
-                      ? 'bg-amber-500 text-slate-950 font-black shadow-md'
-                      : 'text-slate-300 hover:text-white'
-                  }`}
-                >
-                  <History className="w-3.5 h-3.5" />
-                  <span>تارىخ</span>
-                </button>
-              </div>
+    <SGCSubpageLayout
+      title="مەۋھۇم نومۇرلار (SMS دەلىللەش)"
+      subtitle="تېلېگرام، ۋاتساپ، ChatGPT، گۇگۇل، تىكتوك ۋە 180+ ئەپلەرنىڭ نەق مەيدان SMS كود مەۋھۇم نومۇرلىرى"
+      headerActions={
+        <div className="flex items-center gap-2">
+          {/* User Wallet Badge */}
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 shadow-2xs">
+            <Wallet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <div className="text-right">
+              <span className="text-[10px] text-slate-400 block leading-tight">ھەميان</span>
+              <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200">
+                {user ? `$${(user.balance || 0).toFixed(2)}` : '$0.00'}
+              </span>
             </div>
           </div>
+
+          {/* View Switcher: Buy / History */}
+          <div className="flex rounded-xl bg-slate-100 dark:bg-white/10 p-1 border border-slate-200 dark:border-white/10 shadow-xs">
+            <button
+              type="button"
+              onClick={() => setViewTab('buy')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                viewTab === 'buy'
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Zap className="w-3.5 h-3.5" />
+              <span>نومۇر ئېلىش</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewTab('history')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                viewTab === 'history'
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <History className="w-3.5 h-3.5" />
+              <span>تارىخ</span>
+            </button>
+          </div>
         </div>
+      }
+    >
+      <div className="space-y-6">
 
         {/* Global Error Notice if any */}
         {actionError && (
@@ -567,71 +546,71 @@ export default function NumbersPage() {
           </div>
         )}
 
-        {/* -------------------- TAB 1: ACTIVE LIVE ACTIVATION SCREEN (PhoneCash Official Replica) -------------------- */}
+        {/* -------------------- TAB 1: ACTIVE LIVE ACTIVATION SCREEN -------------------- */}
         {activeSession && (
           <div className="max-w-2xl mx-auto space-y-4 mb-10 animate-in fade-in zoom-in-95 duration-300">
             {/* 1. Top Notice Banner: بانتظار رمز التحقق، لم يتم الخصم بعد */}
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-sky-950/90 via-[#0a233f] to-sky-950/90 border border-sky-400/50 text-sky-200 text-xs sm:text-sm flex items-center justify-between gap-3 shadow-xl">
+            <div className="p-4 rounded-2xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-500/30 text-sky-800 dark:text-sky-200 text-xs sm:text-sm flex items-center justify-between gap-3 shadow-xs">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-6 h-6 rounded-full border-2 border-sky-400 border-t-transparent animate-spin shrink-0" />
+                <div className="w-5 h-5 rounded-full border-2 border-sky-500 border-t-transparent animate-spin shrink-0" />
                 <div className="min-w-0">
-                  <div className="font-bold text-sky-100 truncate">
+                  <div className="font-bold text-sky-900 dark:text-sky-100 truncate">
                     بانتظار رمز التحقق، لم يتم الخصم بعد
                   </div>
-                  <div className="text-[11px] text-sky-200/70 mt-0.5 truncate">
+                  <div className="text-[11px] text-sky-700 dark:text-sky-300/80 mt-0.5 truncate">
                     تەستىق كودى كۈتۈلمەكتە، كود كەلمىگۈچە پۇل كېسىلمەيدۇ (كەلمىسە تولۇق ھەميانغا قايتىدۇ)
                   </div>
                 </div>
               </div>
               {activeSession.status === 'waiting' && (
-                <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-sky-900/80 border border-sky-400/40 text-sky-300 font-mono font-bold text-xs shrink-0" dir="ltr">
-                  <Clock className="w-3.5 h-3.5 text-sky-400 animate-spin" style={{ animationDuration: '6s' }} />
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-sky-100 dark:bg-sky-900/60 border border-sky-300 dark:border-sky-400/40 text-sky-800 dark:text-sky-300 font-mono font-bold text-xs shrink-0" dir="ltr">
+                  <Clock className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 animate-spin" style={{ animationDuration: '6s' }} />
                   <span>{formatTimer(timeLeft)}</span>
                 </div>
               )}
             </div>
 
             {/* 2. Main Purchased Number Card: الرقم الذي تم شراؤه */}
-            <div className="p-6 rounded-3xl bg-gradient-to-b from-[#081f38] via-[#06182c] to-[#040e1b] border-2 border-cyan-400/60 shadow-2xl space-y-5 relative overflow-hidden">
-              <div className="flex items-center justify-between pb-1 border-b border-cyan-500/20">
-                <div className="flex items-center gap-2 text-amber-300 font-bold text-xs sm:text-sm">
-                  <Smartphone className="w-4 h-4 text-amber-400" />
+            <div className="p-6 rounded-3xl bg-white dark:bg-[#0c1424] border-2 border-emerald-500/40 shadow-md space-y-5 relative overflow-hidden">
+              <div className="flex items-center justify-between pb-1 border-b border-slate-200 dark:border-white/10">
+                <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-bold text-xs sm:text-sm">
+                  <Smartphone className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>الرقم الذي تم شراؤه (سېتىۋېلىنغان نومۇر)</span>
                 </div>
-                <div className="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-400/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                   <Phone className="w-4 h-4 animate-bounce" />
                 </div>
               </div>
 
               {/* Large Centered Phone Number */}
               <div className="text-center py-2">
-                <div className="text-3xl sm:text-4xl md:text-5xl font-black font-mono tracking-widest text-white text-glow select-all" dir="ltr">
+                <div className="text-3xl sm:text-4xl md:text-5xl font-black font-mono tracking-widest text-slate-900 dark:text-white select-all" dir="ltr">
                   {activeSession.phone}
                 </div>
-                <span className="text-[11px] text-cyan-300/70 mt-1 block">
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">
                   نومۇرنى ئەپكە كىرگۈزۈپ «كود ئەۋەتىش» نى بېسىڭ
                 </span>
               </div>
 
-              {/* Order Stats Grid: Order ID | الحالة | سعر بيع */}
-              <div className="grid grid-cols-3 gap-2 p-3.5 rounded-2xl bg-[#030b15]/90 border border-cyan-500/25 text-center">
+              {/* Order Stats Grid */}
+              <div className="grid grid-cols-3 gap-2 p-3.5 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 text-center">
                 <div>
                   <span className="text-[10px] text-slate-400 block mb-0.5">Order ID / زاكاز</span>
-                  <span className="font-mono text-cyan-300 font-bold text-xs truncate block" dir="ltr">
+                  <span className="font-mono text-slate-700 dark:text-slate-300 font-bold text-xs truncate block" dir="ltr">
                     {activeSession.orderId}
                   </span>
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-400 block mb-0.5">الحالة / ھالىتى</span>
                   <span className={`font-bold text-xs block ${
-                    activeSession.status === 'received' ? 'text-emerald-400 font-black' : 'text-amber-400 animate-pulse'
+                    activeSession.status === 'received' ? 'text-emerald-600 dark:text-emerald-400 font-black' : 'text-amber-500 dark:text-amber-400 animate-pulse'
                   }`}>
                     {activeSession.status === 'received' ? 'RECEIVED' : 'WAITING'}
                   </span>
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-400 block mb-0.5">سعر بيع / باھاسى</span>
-                  <span className="font-mono text-amber-300 font-bold text-xs block" dir="ltr">
+                  <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold text-xs block" dir="ltr">
                     ${activeSession.sellPrice.toFixed(2)}
                   </span>
                 </div>
@@ -642,10 +621,10 @@ export default function NumbersPage() {
                 <button
                   type="button"
                   onClick={() => copyText(activeSession.phone, 'phone')}
-                  className={`py-3.5 px-4 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-xl active:scale-95 ${
+                  className={`py-3.5 px-4 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-xs active:scale-95 ${
                     copiedPhone
-                      ? 'bg-emerald-500 text-slate-950 scale-102'
-                      : 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-950 shadow-cyan-500/30'
+                      ? 'bg-emerald-600 text-white scale-102'
+                      : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-emerald-950/20'
                   }`}
                 >
                   {copiedPhone ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -657,9 +636,9 @@ export default function NumbersPage() {
                     type="button"
                     onClick={handleCancelSession}
                     disabled={canceling}
-                    className="py-3.5 px-4 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition cursor-pointer border-2 border-rose-500/60 hover:bg-rose-950/60 text-rose-300 active:scale-95 disabled:opacity-50"
+                    className="py-3.5 px-4 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition cursor-pointer border border-rose-300 dark:border-rose-500/40 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 text-rose-600 dark:text-rose-300 active:scale-95 disabled:opacity-50"
                   >
-                    <XCircle className="w-4 h-4 text-rose-400" />
+                    <XCircle className="w-4 h-4 text-rose-500" />
                     <span>{canceling ? 'بىكار قىلىنىۋاتىدۇ...' : 'إلغاء الرقم (بىكار قىلىش)'}</span>
                   </button>
                 )}
@@ -668,9 +647,9 @@ export default function NumbersPage() {
                   <button
                     type="button"
                     onClick={() => setActiveSession(null)}
-                    className="py-3.5 px-4 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition cursor-pointer bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 hover:bg-emerald-500/30 active:scale-95"
+                    className="py-3.5 px-4 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition cursor-pointer bg-emerald-600 text-white hover:bg-emerald-500 active:scale-95"
                   >
-                    <Check className="w-4 h-4 text-emerald-400" />
+                    <Check className="w-4 h-4 text-white" />
                     <span>تاماملاش</span>
                   </button>
                 )}
@@ -678,7 +657,7 @@ export default function NumbersPage() {
             </div>
 
             {/* 3. Selected Country Card: الدولة */}
-            <div className="p-4 rounded-2xl bg-[#081a2e]/90 border border-amber-500/25 flex items-center justify-between shadow-lg">
+            <div className="p-4 rounded-2xl bg-white dark:bg-[#0c1424] border border-slate-200 dark:border-white/10 flex items-center justify-between shadow-xs">
               <div className="flex items-center gap-3">
                 <WavingFlag
                   code={activeSession.country?.code || selectedCountry?.code || 'ca'}
@@ -687,26 +666,26 @@ export default function NumbersPage() {
                   animated={true}
                 />
                 <div>
-                  <span className="text-[10px] text-amber-200/60 font-semibold block">الدولة (دۆلەت)</span>
-                  <h4 className="font-bold text-white text-sm">
+                  <span className="text-[10px] text-slate-400 font-semibold block">الدولة (دۆلەت)</span>
+                  <h4 className="font-bold text-slate-900 dark:text-white text-sm">
                     {activeSession.country?.name || activeSession.countryName}
                   </h4>
-                  <span className="text-[11px] text-cyan-300 font-mono" dir="ltr">
+                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono" dir="ltr">
                     {activeSession.country?.name.toLowerCase()} • {activeSession.country?.dialCode || ''}
                   </span>
                 </div>
               </div>
-              <ChevronLeft className="w-4 h-4 text-slate-500" />
+              <ChevronLeft className="w-4 h-4 text-slate-400" />
             </div>
 
             {/* 4. Selected Service Card: الخدمة */}
-            <div className="p-4 rounded-2xl bg-[#081a2e]/90 border border-amber-500/25 flex items-center justify-between shadow-lg">
+            <div className="p-4 rounded-2xl bg-white dark:bg-[#0c1424] border border-slate-200 dark:border-white/10 flex items-center justify-between shadow-xs">
               <div className="flex items-center gap-3">
                 <div
-                  className="w-11 h-11 rounded-2xl p-1 shrink-0 flex items-center justify-center border shadow-md"
+                  className="w-11 h-11 rounded-2xl p-1 shrink-0 flex items-center justify-center border shadow-xs"
                   style={{
-                    backgroundColor: `${activeSession.service?.color || '#3b82f6'}20`,
-                    borderColor: `${activeSession.service?.color || '#3b82f6'}50`,
+                    backgroundColor: `${activeSession.service?.color || '#3b82f6'}18`,
+                    borderColor: `${activeSession.service?.color || '#3b82f6'}40`,
                   }}
                 >
                   <AppIcon
@@ -717,63 +696,32 @@ export default function NumbersPage() {
                   />
                 </div>
                 <div>
-                  <span className="text-[10px] text-amber-200/60 font-semibold block">الخدمة (مۇلازىمەت / ئەپ)</span>
-                  <h4 className="font-bold text-white text-sm">
+                  <span className="text-[10px] text-slate-400 font-semibold block">الخدمة (مۇلازىمەت / ئەپ)</span>
+                  <h4 className="font-bold text-slate-900 dark:text-white text-sm">
                     {activeSession.service?.nameUg || activeSession.serviceName}
                   </h4>
-                  <span className="text-[11px] text-amber-300/80 font-mono" dir="ltr">
+                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono" dir="ltr">
                     ${activeSession.sellPrice.toFixed(2)} • {activeSession.service?.count ? `${activeSession.service.count.toLocaleString()} متاح` : 'متاح'}
                   </span>
                 </div>
               </div>
-              <ChevronLeft className="w-4 h-4 text-slate-500" />
+              <ChevronLeft className="w-4 h-4 text-slate-400" />
             </div>
 
-            {/* 5. Status Summary Grid: الحالة */}
-            <div className="p-4 rounded-2xl bg-[#081a2e]/90 border border-amber-500/20 shadow-lg space-y-3">
-              <span className="text-xs text-amber-300/80 font-bold block">الحالة (ئومۇمىي ئەھۋالى)</span>
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="p-2.5 rounded-xl bg-[#051120] border border-slate-800">
-                  <span className="text-xs font-bold text-white block truncate">
-                    {activeSession.country?.name || activeSession.countryName}
-                  </span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">الدولة</span>
-                </div>
-                <div className="p-2.5 rounded-xl bg-[#051120] border border-slate-800">
-                  <span className="text-xs font-bold text-white block">Any</span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">Operator</span>
-                </div>
-                <div className="p-2.5 rounded-xl bg-[#051120] border border-slate-800">
-                  <span className="text-xs font-bold text-cyan-300 font-mono block">185</span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">الخدمات</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-2 border-t border-slate-800/80">
-                <div className="flex items-center gap-2">
-                  <AppIcon code={activeSession.serviceCode} name={activeSession.serviceName} size={18} />
-                  <span className="text-xs text-slate-200 font-bold">{activeSession.serviceName}</span>
-                </div>
-                <span className="text-xs font-mono font-bold text-amber-300" dir="ltr">
-                  سعر بيع: ${activeSession.sellPrice.toFixed(2)}
-                </span>
-              </div>
-            </div>
-
-            {/* 6. Bottom Verification Code Box: جارٍ انتظار رمز SMS... */}
+            {/* 5. Bottom Verification Code Box */}
             {activeSession.status === 'received' && activeSession.code ? (
-              <div className="p-6 rounded-3xl bg-gradient-to-r from-emerald-950/90 via-[#062c20] to-emerald-950/90 border-2 border-emerald-400 text-center shadow-[0_0_40px_rgba(16,185,129,0.3)] space-y-2 animate-in zoom-in-95 duration-300">
-                <div className="text-xs sm:text-sm text-emerald-200 font-bold flex items-center justify-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+              <div className="p-6 rounded-3xl bg-emerald-50 dark:bg-emerald-950/40 border-2 border-emerald-500 text-center shadow-md space-y-2 animate-in zoom-in-95 duration-300">
+                <div className="text-xs sm:text-sm text-emerald-800 dark:text-emerald-200 font-bold flex items-center justify-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                   <span>رمز التحقق / تەستىق كودى قوبۇل قىلىندى (SMS Verification Code):</span>
                 </div>
-                <div className="text-4xl sm:text-5xl font-black font-mono tracking-[0.25em] text-white my-3 drop-shadow-[0_0_20px_rgba(16,185,129,0.8)]" dir="ltr">
+                <div className="text-4xl sm:text-5xl font-black font-mono tracking-[0.25em] text-emerald-700 dark:text-white my-3" dir="ltr">
                   {activeSession.code}
                 </div>
                 <button
                   type="button"
                   onClick={() => copyText(activeSession.code!, 'code')}
-                  className="px-8 py-3 rounded-2xl bg-gradient-to-r from-amber-400 to-yellow-300 hover:from-amber-300 hover:to-yellow-200 text-slate-950 font-black text-sm flex items-center justify-center gap-2 mx-auto transition cursor-pointer shadow-xl active:scale-95"
+                  className="px-8 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm flex items-center justify-center gap-2 mx-auto transition cursor-pointer shadow-md active:scale-95"
                 >
                   {copiedCode ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
                   <span>{copiedCode ? 'كود كۆچۈرۈۋېلىندى!' : 'كودنى دەرھال كۆچۈرۈش'}</span>
@@ -781,35 +729,35 @@ export default function NumbersPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                <div className="p-4 rounded-2xl bg-[#081a2e]/90 border border-cyan-500/30 flex items-center justify-between gap-3 text-cyan-300 shadow-md">
+                <div className="p-4 rounded-2xl bg-white dark:bg-[#0c1424] border border-slate-200 dark:border-white/10 flex items-center justify-between gap-3 text-slate-800 dark:text-slate-200 shadow-xs">
                   <div className="flex items-center gap-3 min-w-0">
-                    <RefreshCw className="w-5 h-5 text-cyan-400 animate-spin shrink-0" style={{ animationDuration: '3s' }} />
+                    <RefreshCw className="w-5 h-5 text-emerald-600 dark:text-emerald-400 animate-spin shrink-0" style={{ animationDuration: '3s' }} />
                     <div className="min-w-0">
-                      <span className="font-bold text-xs sm:text-sm block text-white truncate">جارٍ انتظار رمز SMS...</span>
-                      <span className="text-[11px] text-cyan-200/70 block truncate">ھەر 5 سېكۇنتتا بىر تەمىنلىگۈچىدىن ئاپتوماتىك تەكشۈرۈلىۋاتىدۇ</span>
+                      <span className="font-bold text-xs sm:text-sm block text-slate-900 dark:text-white truncate">جارٍ انتظار رمز SMS...</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">ھەر 5 سېكۇنتتا بىر تەمىنلىگۈچىدىن ئاپتوماتىك تەكشۈرۈلىۋاتىدۇ</span>
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={checkCodeStatus}
                     disabled={isCheckingNow}
-                    className="px-3.5 py-1.5 rounded-xl bg-cyan-950 hover:bg-cyan-900 border border-cyan-500/50 text-cyan-300 text-xs font-bold transition cursor-pointer shrink-0 active:scale-95 disabled:opacity-50"
+                    className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 border border-slate-200 dark:border-white/10 text-emerald-700 dark:text-emerald-300 text-xs font-bold transition cursor-pointer shrink-0 active:scale-95 disabled:opacity-50"
                   >
                     {isCheckingNow ? 'تەكشۈرۈلىۋاتىدۇ...' : 'ھازىرلا تەكشۈرۈش'}
                   </button>
                 </div>
 
-                {/* Direct Cancel & Instant Refund Button right where user is watching */}
-                <div className="p-3.5 rounded-2xl bg-rose-950/40 border border-rose-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-right shadow-sm">
-                  <div className="text-xs text-rose-200/90 leading-relaxed">
-                    <span className="font-bold text-rose-300 block">💡 كود كەلمىدىمۇ؟</span>
+                {/* Direct Cancel & Instant Refund Button */}
+                <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-500/25 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-right shadow-2xs">
+                  <div className="text-xs text-rose-800 dark:text-rose-200 leading-relaxed">
+                    <span className="font-bold text-rose-700 dark:text-rose-300 block">💡 كود كەلمىدىمۇ؟</span>
                     <span>ئەگەر كود كەلمىسە نومۇرنى بىكار قىلسىڭىز، پۇلىڭىز ھەميانغا دەرھال تولۇق قايتىدۇ.</span>
                   </div>
                   <button
                     type="button"
                     onClick={handleCancelSession}
                     disabled={canceling}
-                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-rose-950 transition cursor-pointer active:scale-95 disabled:opacity-50 shrink-0"
+                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition cursor-pointer active:scale-95 disabled:opacity-50 shrink-0"
                   >
                     <XCircle className="w-4 h-4" />
                     <span>{canceling ? 'بىكار قىلىنىۋاتىدۇ...' : 'نومۇرنى بىكار قىلىش (پۇلنى قايتۇرۇش)'}</span>
@@ -823,7 +771,7 @@ export default function NumbersPage() {
               <button
                 type="button"
                 onClick={() => setActiveSession(null)}
-                className="text-xs text-amber-300 hover:text-amber-200 font-semibold underline underline-offset-4 cursor-pointer"
+                className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline font-semibold cursor-pointer"
               >
                 ← باشقا ئەپكە يەنە مەۋھۇم نومۇر ئېلىش
               </button>
@@ -836,18 +784,18 @@ export default function NumbersPage() {
           <>
             {/* STEP 1: CHOOSE APP FIRST (App Catalog) */}
             {!selectedApp ? (
-              <div className="rounded-3xl bg-[#08182b]/95 border border-amber-500/25 p-5 sm:p-7 shadow-2xl">
+              <div className="rounded-3xl bg-white dark:bg-[#0c1424] border border-slate-200/90 dark:border-white/10 p-5 sm:p-7 shadow-xs">
                 {/* App Catalog Header */}
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6 pb-4 border-b border-amber-500/20">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-200 dark:border-white/10">
                   <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold mb-2">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold mb-2">
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                       <span>1-قەدەم: ئەپنى تاللاڭ</span>
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-black text-white gold-text-glow flex items-center gap-2">
+                    <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
                       <span>قايسى ئەپكە نومۇر ئالماقچى؟</span>
                     </h2>
-                    <p className="text-xs sm:text-sm text-amber-200/60 mt-1">
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
                       ئەڭ كۆپ ئىشلىتىلىدىغان داڭلىق ئەپلەردىن بىرىنى تاللاڭ، ئاندىن خالىغان دۆلەت تەۋەلىكىدىكى مەۋھۇم نومۇرنى سېتىۋېلىڭ.
                     </p>
                   </div>
@@ -868,8 +816,8 @@ export default function NumbersPage() {
                         onClick={() => setAppCategoryTab(tab.id as any)}
                         className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                           appCategoryTab === tab.id
-                            ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black shadow-md shadow-amber-500/30'
-                            : 'bg-slate-900/80 text-slate-300 hover:text-white border border-slate-700/60'
+                            ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black shadow-xs'
+                            : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-white/10'
                         }`}
                       >
                         {tab.label}
@@ -885,16 +833,16 @@ export default function NumbersPage() {
                     value={appSearch}
                     onChange={(e) => setAppSearch(e.target.value)}
                     placeholder="ئەپ ئىزدەش (مەسىلەن: Telegram, WhatsApp, ChatGPT, TikTok, Google, Instagram...)"
-                    className={`w-full bg-[#051120] border border-amber-500/30 focus:border-amber-400 rounded-2xl ${
+                    className={`w-full bg-slate-50 dark:bg-[#070e1b] border border-slate-200 dark:border-white/15 focus:border-emerald-500 rounded-2xl ${
                       isRTL ? 'pl-10 pr-4 text-right' : 'pr-10 pl-4 text-left'
-                    } py-3 text-sm text-white placeholder-amber-200/40 focus:outline-none font-alkatip shadow-inner`}
+                    } py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-alkatip`}
                   />
-                  <Search className={`w-5 h-5 text-amber-400/70 absolute ${isRTL ? 'left-3.5' : 'right-3.5'} top-3.5`} />
+                  <Search className={`w-5 h-5 text-emerald-600 dark:text-emerald-400 absolute ${isRTL ? 'left-3.5' : 'right-3.5'} top-3.5`} />
                   {appSearch && (
                     <button
                       type="button"
                       onClick={() => setAppSearch('')}
-                      className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-3 p-1 text-slate-400 hover:text-white cursor-pointer`}
+                      className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-3 p-1 text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer`}
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -913,42 +861,42 @@ export default function NumbersPage() {
                           purchaseHeroRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }, 100);
                       }}
-                      className="group relative p-4 rounded-2xl bg-gradient-to-b from-[#071b30] via-[#051426] to-[#040e1b] border border-amber-500/20 hover:border-amber-400/80 transition-all duration-200 hover:scale-[1.02] active:scale-95 text-right flex flex-col justify-between shadow-lg hover:shadow-amber-500/10 cursor-pointer overflow-hidden min-h-[145px]"
+                      className="group relative p-4 rounded-2xl bg-white dark:bg-[#0f192b] border border-slate-200/90 dark:border-white/10 hover:border-emerald-500/60 dark:hover:border-emerald-500/50 transition-all duration-200 hover:-translate-y-0.5 active:scale-95 text-right flex flex-col justify-between shadow-xs hover:shadow-md cursor-pointer overflow-hidden min-h-[145px]"
                     >
                       {/* Subtle brand glow on hover */}
                       <div
-                        className="absolute -top-12 -right-12 w-24 h-24 rounded-full blur-2xl opacity-0 group-hover:opacity-30 transition-opacity pointer-events-none"
+                        className="absolute -top-12 -right-12 w-24 h-24 rounded-full blur-2xl opacity-0 group-hover:opacity-20 transition-opacity pointer-events-none"
                         style={{ backgroundColor: app.color }}
                       />
 
                       <div className="flex items-start justify-between gap-2 mb-3">
                         <div
-                          className="w-12 h-12 rounded-2xl p-2 shrink-0 flex items-center justify-center border shadow-md transition-transform group-hover:scale-110"
+                          className="w-12 h-12 rounded-2xl p-2 shrink-0 flex items-center justify-center border shadow-2xs transition-transform group-hover:scale-110"
                           style={{
-                            backgroundColor: `${app.color}18`,
-                            borderColor: `${app.color}45`,
+                            backgroundColor: `${app.color}15`,
+                            borderColor: `${app.color}35`,
                           }}
                         >
                           <AppIcon code={app.code} name={app.name} color={app.color} size={28} />
                         </div>
 
                         {app.popular && (
-                          <span className="px-2 py-0.5 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-black">
+                          <span className="px-2 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-[10px] font-black">
                             ئالقىشلىق
                           </span>
                         )}
                       </div>
 
                       <div>
-                        <h3 className="font-bold text-sm sm:text-base text-white group-hover:text-amber-300 transition truncate">
+                        <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition truncate">
                           {app.nameUg || app.name}
                         </h3>
-                        <span className="text-xs text-amber-200/50 block font-sans truncate mt-0.5">
+                        <span className="text-xs text-slate-400 dark:text-slate-500 block font-sans truncate mt-0.5">
                           {app.name}
                         </span>
                       </div>
 
-                      <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs text-amber-400/80 group-hover:text-amber-300 font-semibold">
+                      <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400 font-bold">
                         <span>دۆلەت تاللاش</span>
                         <ArrowLeft className={`w-3.5 h-3.5 transition-transform group-hover:-translate-x-1 ${!isRTL ? 'rotate-180' : ''}`} />
                       </div>
@@ -960,37 +908,37 @@ export default function NumbersPage() {
               /* STEP 2: COUNTRY & PURCHASE FOR SELECTED APP */
               <div className="space-y-6 animate-in fade-in duration-300">
                 {/* Top Navigation & Selected App Banner */}
-                <div className="rounded-3xl bg-gradient-to-r from-[#0a233f] via-[#07192f] to-[#040e1b] border-2 border-amber-500/40 p-5 sm:p-6 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="rounded-3xl bg-white dark:bg-[#0c1424] border border-slate-200/90 dark:border-white/10 p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     {/* Back button to app catalog */}
                     <button
                       type="button"
                       onClick={() => setSelectedApp(null)}
-                      className="px-3.5 py-2 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-400/50 text-slate-200 hover:text-white text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-md active:scale-95"
+                      className="px-3.5 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 border border-slate-200 dark:border-white/10 text-slate-700 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-2xs active:scale-95"
                     >
-                      <ArrowRight className={`w-4 h-4 text-amber-400 ${!isRTL ? 'rotate-180' : ''}`} />
+                      <ArrowRight className={`w-4 h-4 text-emerald-600 dark:text-emerald-400 ${!isRTL ? 'rotate-180' : ''}`} />
                       <span>باشقا ئەپ تاللاش</span>
                     </button>
 
                     {/* Selected App Badge */}
                     <div className="flex items-center gap-3">
                       <div
-                        className="w-12 h-12 rounded-2xl p-2 shrink-0 flex items-center justify-center border shadow-lg"
+                        className="w-12 h-12 rounded-2xl p-2 shrink-0 flex items-center justify-center border shadow-xs"
                         style={{
-                          backgroundColor: `${selectedApp.color}25`,
-                          borderColor: `${selectedApp.color}60`,
+                          backgroundColor: `${selectedApp.color}15`,
+                          borderColor: `${selectedApp.color}35`,
                         }}
                       >
                         <AppIcon code={selectedApp.code} name={selectedApp.name} color={selectedApp.color} size={28} />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[11px] text-amber-300/80 font-bold">تاللانغان ئەپ:</span>
-                          <span className="px-2 py-0.5 rounded-md bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-[10px] font-mono">
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 font-bold">تاللانغان ئەپ:</span>
+                          <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-[10px] font-mono font-bold">
                             {selectedApp.code.toUpperCase()}
                           </span>
                         </div>
-                        <h2 className="text-lg sm:text-xl font-black text-white">
+                        <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">
                           {selectedApp.nameUg} ({selectedApp.name})
                         </h2>
                       </div>
@@ -998,8 +946,8 @@ export default function NumbersPage() {
                   </div>
 
                   {/* Step 2 Indicator Badge */}
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold">
-                    <Globe className="w-4 h-4 text-amber-400" />
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
+                    <Globe className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                     <span>2-قەدەم: دۆلەت ۋە نومۇر سېتىۋېلىش</span>
                   </div>
                 </div>
@@ -1008,11 +956,8 @@ export default function NumbersPage() {
                 <div
                   ref={purchaseHeroRef}
                   id="purchase-hero-card"
-                  className="rounded-3xl bg-gradient-to-br from-[#081f38] via-[#061628] to-[#040e1b] border-2 border-cyan-500/40 p-6 sm:p-8 shadow-2xl relative overflow-hidden"
+                  className="rounded-3xl bg-white dark:bg-[#0c1424] border-2 border-emerald-500/40 p-6 sm:p-8 shadow-xs relative overflow-hidden"
                 >
-                  <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-                  <div className="absolute bottom-0 left-0 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
                   <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
                     {/* Country Flag & Dial Info */}
                     <div className="md:col-span-5 flex items-center gap-4">
@@ -1021,44 +966,44 @@ export default function NumbersPage() {
                         name={selectedCountry?.name || ''}
                         size="lg"
                         animated={true}
-                        className="shadow-2xl"
+                        className="shadow-sm"
                       />
                       <div>
-                        <div className="text-xs text-amber-300/80 font-bold flex items-center gap-1.5 mb-1">
+                        <div className="text-xs text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1.5 mb-1">
                           <span>تاللانغان دۆلەت:</span>
-                          <span className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-cyan-300 font-mono text-[11px]" dir="ltr">
+                          <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 text-emerald-600 dark:text-emerald-400 font-mono text-[11px]" dir="ltr">
                             {selectedCountry?.dialCode}
                           </span>
                         </div>
-                        <h3 className="text-xl sm:text-2xl font-black text-white">
+                        <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
                           {selectedCountry?.nameUg || selectedCountry?.name}
                         </h3>
-                        <span className="text-xs text-amber-200/50 block font-sans">
+                        <span className="text-xs text-slate-400 dark:text-slate-500 block font-sans">
                           {selectedCountry?.name} ({selectedCountry?.code.toUpperCase()})
                         </span>
                       </div>
                     </div>
 
                     {/* Live Stock & Price for this app */}
-                    <div className="md:col-span-3 text-center md:text-right border-y md:border-y-0 md:border-x border-amber-500/20 py-4 md:py-0 md:px-6">
-                      <div className="text-xs text-slate-300 font-semibold mb-1">سېتىلىش باھاسى:</div>
+                    <div className="md:col-span-3 text-center md:text-right border-y md:border-y-0 md:border-x border-slate-200 dark:border-white/10 py-4 md:py-0 md:px-6">
+                      <div className="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-1">سېتىلىش باھاسى:</div>
                       {loadingServices ? (
-                        <div className="flex items-center gap-2 justify-center md:justify-start text-xs text-amber-300">
+                        <div className="flex items-center gap-2 justify-center md:justify-start text-xs text-emerald-600 dark:text-emerald-400">
                           <RefreshCw className="w-4 h-4 animate-spin" />
                           <span>باھا تەكشۈرۈلىۋاتىدۇ...</span>
                         </div>
                       ) : currentService ? (
                         <>
-                          <div className="text-3xl font-black text-amber-300 font-mono gold-text-glow">
+                          <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono tracking-tight">
                             ${currentService.sellPrice.toFixed(2)}
                           </div>
-                          <div className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-[11px] font-mono">
+                          <div className="mt-1 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-[11px] font-mono font-bold">
                             <span>زاپاستا:</span>
-                            <span className="font-bold">{currentService.count.toLocaleString()} دانە</span>
+                            <span>{currentService.count.toLocaleString()} دانە</span>
                           </div>
                         </>
                       ) : (
-                        <div className="text-xs text-rose-300 bg-rose-950/60 p-2 rounded-xl border border-rose-500/30">
+                        <div className="text-xs text-rose-600 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 p-2 rounded-xl border border-rose-200 dark:border-rose-500/30">
                           بۇ دۆلەتتە نۆۋەتتە زاپاس يوق
                         </div>
                       )}
@@ -1070,10 +1015,10 @@ export default function NumbersPage() {
                         type="button"
                         onClick={() => currentService && handleBuyNumber(currentService)}
                         disabled={buying || isBuyingRef.current || loadingServices || !currentService || currentService.count <= 0}
-                        className={`w-full py-4 px-6 rounded-2xl font-black text-base transition-all duration-200 flex items-center justify-center gap-2.5 shadow-xl cursor-pointer ${
+                        className={`w-full py-4 px-6 rounded-2xl font-black text-base transition-all duration-200 flex items-center justify-center gap-2.5 shadow-md cursor-pointer ${
                           !currentService || currentService.count <= 0 || loadingServices || buying
-                            ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed pointer-events-none'
-                            : 'bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 shadow-amber-500/30 hover:scale-[1.02] active:scale-95'
+                            ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 cursor-not-allowed pointer-events-none'
+                            : 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-emerald-950/20 hover:scale-[1.02] active:scale-95'
                         }`}
                       >
                         {buying ? (
@@ -1092,7 +1037,7 @@ export default function NumbersPage() {
                           </>
                         )}
                       </button>
-                      <span className="text-[11px] text-center text-amber-200/60">
+                      <span className="text-[11px] text-center text-slate-500 dark:text-slate-400">
                         🛡️ كود كەلمىسە پۇلىڭىز ھېساباتىڭىزغا دەل ۋاقتىدا قايتۇرۇلىدۇ
                       </span>
                     </div>
@@ -1100,13 +1045,13 @@ export default function NumbersPage() {
                 </div>
 
                 {/* Popular Countries Quick Switcher */}
-                <div className="rounded-3xl bg-[#08182b]/95 border border-amber-500/25 p-5 sm:p-6 shadow-xl">
-                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/15">
+                <div className="rounded-3xl bg-white dark:bg-[#0c1424] border border-slate-200/90 dark:border-white/10 p-5 sm:p-6 shadow-xs">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-200 dark:border-white/10">
                     <div className="flex items-center gap-2">
-                      <Globe className="w-4 h-4 text-amber-400" />
-                      <h3 className="text-sm font-bold text-white">ئەڭ كۆپ ئىشلىتىلىدىغان دۆلەتلەر (1 چەكمە بىلەن تاللاش)</h3>
+                      <Globe className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-white">ئەڭ كۆپ ئىشلىتىلىدىغان دۆلەتلەر (1 چەكمە بىلەن تاللاش)</h3>
                     </div>
-                    <span className="text-[11px] text-amber-300/70">دۆلەتنى ئالماشتۇرۇش</span>
+                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">دۆلەتنى ئالماشتۇرۇش</span>
                   </div>
 
                   {/* Country Chips Grid */}
@@ -1138,15 +1083,15 @@ export default function NumbersPage() {
                           }}
                           className={`p-2.5 rounded-2xl flex items-center justify-between gap-2 transition-all cursor-pointer text-xs ${
                             isSelected
-                              ? 'bg-amber-400 text-slate-950 font-black shadow-lg shadow-amber-500/30 scale-105'
-                              : 'bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700/60'
+                              ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black shadow-xs scale-102'
+                              : 'bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-white/10'
                           }`}
                         >
                           <div className="flex items-center gap-2">
                             <WavingFlag code={pop.code} name={pop.name} size="sm" animated={isSelected} />
                             <span className="truncate">{pop.name}</span>
                           </div>
-                          <span className={`text-[10px] font-mono ${isSelected ? 'text-slate-900 font-bold' : 'text-cyan-300'}`} dir="ltr">
+                          <span className={`text-[10px] font-mono ${isSelected ? 'text-white font-bold' : 'text-emerald-600 dark:text-emerald-400'}`} dir="ltr">
                             {pop.dial}
                           </span>
                         </button>
@@ -1155,10 +1100,10 @@ export default function NumbersPage() {
                   </div>
 
                   {/* Full 206 Countries Drawer */}
-                  <div className="mt-5 pt-4 border-t border-amber-500/15">
+                  <div className="mt-5 pt-4 border-t border-slate-200 dark:border-white/10">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs text-amber-200/80 font-bold">پۈتۈن دۇنيا دۆلەتلىرىدىن ئىزدەش (206 دۆلەت):</span>
-                      <span className="text-[11px] text-cyan-300 font-mono">{filteredCountries.length} دۆلەت</span>
+                      <span className="text-xs text-slate-700 dark:text-slate-300 font-bold">پۈتۈن دۇنيا دۆلەتلىرىدىن ئىزدەش (206 دۆلەت):</span>
+                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono font-bold">{filteredCountries.length} دۆلەت</span>
                     </div>
                     <div className="relative mb-3">
                       <input
@@ -1166,11 +1111,11 @@ export default function NumbersPage() {
                         value={countrySearch}
                         onChange={(e) => setCountrySearch(e.target.value)}
                         placeholder="باشقا دۆلەت ئىزدەش (مەسىلەن: فرانسىيە، ياپونىيە، كانادا، +33...)"
-                        className={`w-full bg-[#051120] border border-amber-500/30 rounded-2xl ${
+                        className={`w-full bg-slate-50 dark:bg-[#070e1b] border border-slate-200 dark:border-white/15 rounded-2xl ${
                           isRTL ? 'pl-9 pr-3 text-right' : 'pr-9 pl-3 text-left'
-                        } py-2 text-xs text-white placeholder-amber-200/40 focus:outline-none focus:border-amber-400 font-alkatip`}
+                        } py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 font-alkatip`}
                       />
-                      <Search className={`w-4 h-4 text-amber-400/60 absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5`} />
+                      <Search className={`w-4 h-4 text-emerald-600 dark:text-emerald-400 absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5`} />
                     </div>
 
                     <div className="max-h-[260px] overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 pr-1 custom-scrollbar">
@@ -1183,15 +1128,15 @@ export default function NumbersPage() {
                             onClick={() => handleSelectCountry(c)}
                             className={`p-2 rounded-xl flex items-center justify-between text-xs transition cursor-pointer ${
                               isSelected
-                                ? 'bg-amber-500/25 border border-amber-400 text-white font-bold'
-                                : 'bg-[#051222]/60 hover:bg-[#07192f] border border-transparent hover:border-amber-500/20 text-slate-300'
+                                ? 'bg-emerald-500/15 border border-emerald-500 text-emerald-800 dark:text-white font-bold'
+                                : 'bg-slate-50/70 dark:bg-white/[0.03] hover:bg-slate-100 dark:hover:bg-white/[0.06] border border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-slate-300'
                             }`}
                           >
                             <div className="flex items-center gap-2 truncate">
                               <WavingFlag code={c.code} name={c.name} size="sm" animated={isSelected} />
                               <span className="truncate">{c.nameUg || c.name}</span>
                             </div>
-                            <span className="text-[10px] text-cyan-300 font-mono shrink-0" dir="ltr">
+                            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono shrink-0" dir="ltr">
                               {c.dialCode}
                             </span>
                           </button>
@@ -1207,15 +1152,15 @@ export default function NumbersPage() {
 
         {/* -------------------- TAB 3: USER HISTORY -------------------- */}
         {viewTab === 'history' && (
-          <div className="rounded-3xl bg-[#08182b]/95 border border-amber-500/25 p-6 shadow-xl">
-            <h2 className="text-lg font-black text-white mb-4 flex items-center gap-2">
-              <History className="w-5 h-5 text-amber-400" />
+          <div className="rounded-3xl bg-white dark:bg-[#0c1424] border border-slate-200/90 dark:border-white/10 p-6 shadow-xs">
+            <h2 className="text-lg font-black text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <History className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               <span>مېنىڭ مەۋھۇم نومۇر زاكازلىرىم</span>
             </h2>
 
             {loadingHistory ? (
               <div className="py-20 text-center text-xs text-slate-400">
-                <RefreshCw className="w-6 h-6 animate-spin mx-auto text-amber-400 mb-2" />
+                <RefreshCw className="w-6 h-6 animate-spin mx-auto text-emerald-500 mb-2" />
                 <span>تارىخ تەكشۈرۈلىۋاتىدۇ...</span>
               </div>
             ) : historyOrders.length === 0 ? (
@@ -1227,20 +1172,20 @@ export default function NumbersPage() {
                 {historyOrders.map((item) => (
                   <div
                     key={item.id}
-                    className="p-4 rounded-2xl bg-[#051120] border border-amber-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md"
+                    className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs"
                   >
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-white">
+                        <span className="font-bold text-sm text-slate-900 dark:text-white">
                           {item.serviceName}
                         </span>
                         <span
                           className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${
                             item.status === 'completed'
-                              ? 'bg-emerald-950/80 border border-emerald-500/50 text-emerald-300'
+                              ? 'bg-emerald-500/15 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300'
                               : item.status === 'refunded' || item.status === 'cancelled'
-                              ? 'bg-rose-950/80 border border-rose-500/50 text-rose-300'
-                              : 'bg-amber-950/80 border border-amber-500/50 text-amber-300'
+                              ? 'bg-rose-500/15 border border-rose-500/40 text-rose-600 dark:text-rose-300'
+                              : 'bg-amber-500/15 border border-amber-500/40 text-amber-700 dark:text-amber-300'
                           }`}
                         >
                           {item.status === 'completed'
@@ -1250,21 +1195,21 @@ export default function NumbersPage() {
                             : 'كۈتۈلمەكتە'}
                         </span>
                       </div>
-                      <div className="text-xs text-cyan-300 font-mono mt-1" dir="ltr">
+                      <div className="text-xs text-emerald-600 dark:text-emerald-400 font-mono mt-1" dir="ltr">
                         {item.phone}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
                       {item.code ? (
-                        <div className="px-3 py-1.5 rounded-xl bg-emerald-950/90 border border-emerald-500/50 flex items-center gap-2">
-                          <span className="text-xs text-emerald-200">SMS كودى:</span>
-                          <span className="font-mono font-black text-sm text-white tracking-widest" dir="ltr">
+                        <div className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-2">
+                          <span className="text-xs text-emerald-800 dark:text-emerald-200">SMS كودى:</span>
+                          <span className="font-mono font-black text-sm text-emerald-700 dark:text-white tracking-widest" dir="ltr">
                             {item.code}
                           </span>
                           <button
                             onClick={() => copyText(item.code, 'code')}
-                            className="p-1 text-emerald-300 hover:text-white transition"
+                            className="p-1 text-emerald-600 hover:text-emerald-700 dark:text-emerald-300 dark:hover:text-white transition"
                           >
                             <Copy className="w-3.5 h-3.5" />
                           </button>
@@ -1273,7 +1218,7 @@ export default function NumbersPage() {
                         <span className="text-xs text-slate-400">كود قوبۇل قىلىنمىغان</span>
                       )}
 
-                      <span className="font-mono text-sm font-bold text-amber-300">
+                      <span className="font-mono text-sm font-bold text-slate-900 dark:text-white">
                         ${Number(item.price || 0).toFixed(2)}
                       </span>
                     </div>
@@ -1283,9 +1228,7 @@ export default function NumbersPage() {
             )}
           </div>
         )}
-      </main>
-
-      <BottomNav />
+      </div>
 
       {/* Auth Modal if guest clicks buy */}
       {authModalOpen && (
@@ -1303,6 +1246,6 @@ export default function NumbersPage() {
           }}
         />
       )}
-    </div>
+    </SGCSubpageLayout>
   );
 }

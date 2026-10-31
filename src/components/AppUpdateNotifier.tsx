@@ -234,7 +234,7 @@ export default function AppUpdateNotifier() {
           </div>
 
           {/* Title */}
-          <h2 className="font-ukij text-lg sm:text-xl font-black text-white mb-3">
+          <h2 className="font-alkatip text-lg sm:text-xl font-black text-white mb-3">
             {forceMsgs.title}
           </h2>
 
@@ -328,31 +328,31 @@ export default function AppUpdateNotifier() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-300">
       {/* Backdrop */}
       <div className="absolute inset-0" onClick={handleDismiss} />
 
       {/* Royal Update Card */}
       <div
-        className="relative w-full max-w-lg rounded-3xl bg-gradient-to-b from-[#092244] via-[#06182f] to-[#041021] border border-amber-400/60 p-5 sm:p-6 shadow-2xl shadow-amber-500/20 text-white overflow-hidden animate-vip-card-glow"
+        className="relative w-full max-w-lg rounded-3xl bg-gradient-to-b from-[#06182a] via-[#041220] to-[#020b16] border border-emerald-500/40 p-5 sm:p-6 shadow-[0_20px_60px_rgba(0,0,0,0.85)] text-white overflow-hidden"
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         {/* Ambient Corner Glows */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Top Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-amber-500/20 relative z-10">
+        <div className="flex items-center justify-between pb-3 border-b border-white/10 relative z-10">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 flex items-center justify-center text-slate-950 shadow-lg shadow-amber-500/30 animate-vip-float">
-              <Smartphone className="w-5 h-5 text-slate-950" />
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-emerald-600 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
+              <Smartphone className="w-5 h-5 text-white" />
             </div>
             <div>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/60 text-emerald-300 font-mono inline-flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                 <span>v{currentVersion}</span>
               </span>
-              <h3 className="font-ukij font-black text-sm sm:text-base text-white mt-0.5">
+              <h3 className="font-alkatip font-black text-sm sm:text-base text-white mt-0.5">
                 {titleMap[lang] || titleMap.ug}
               </h3>
             </div>
@@ -360,7 +360,7 @@ export default function AppUpdateNotifier() {
 
           <button
             onClick={handleDismiss}
-            className="w-8 h-8 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition border border-slate-700/80 cursor-pointer shrink-0"
+            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition border border-white/10 cursor-pointer shrink-0"
             title={t('close')}
           >
             <X className="w-4 h-4" />
@@ -369,7 +369,7 @@ export default function AppUpdateNotifier() {
 
         {/* Body content */}
         <div className="py-4 space-y-3 relative z-10 text-xs sm:text-sm text-slate-200 font-alkatip leading-relaxed">
-          <p className="bg-[#051426]/80 p-3.5 rounded-2xl border border-slate-800/90 text-slate-300">
+          <p className="bg-white/[0.04] p-3.5 rounded-2xl border border-white/10 text-slate-300">
             {releaseNote}
           </p>
 
@@ -383,7 +383,7 @@ export default function AppUpdateNotifier() {
         <div className="pt-2 flex flex-col sm:flex-row items-center gap-2.5 relative z-10">
           <button
             onClick={handleDownload}
-            className="w-full sm:flex-1 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xl shadow-amber-500/25 transition transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer font-alkatip"
+            className="w-full sm:flex-1 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#047857] via-[#059669] to-[#10b981] hover:from-[#059669] hover:to-[#34d399] text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/30 transition transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer font-alkatip"
           >
             <Download className="w-4 h-4" />
             <span>{updateBtnMap[lang] || updateBtnMap.ug}</span>
@@ -391,7 +391,7 @@ export default function AppUpdateNotifier() {
 
           <button
             onClick={handleDismiss}
-            className="w-full sm:w-auto py-3 px-5 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white font-bold text-xs transition border border-slate-700/80 cursor-pointer font-alkatip"
+            className="w-full sm:w-auto py-3 px-5 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white font-bold text-xs transition border border-white/10 cursor-pointer font-alkatip"
           >
             <span>{dismissBtnMap[lang] || dismissBtnMap.ug}</span>
           </button>

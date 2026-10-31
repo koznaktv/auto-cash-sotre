@@ -6,13 +6,16 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import PromoCarousel from '@/components/PromoCarousel';
-import TodayPromotionsBanner from '@/components/TodayPromotionsBanner';
 import DynamicIcon from '@/components/DynamicIcon';
 import CheckoutModal from '@/components/CheckoutModal';
 import OrdersList from '@/components/OrdersList';
 import WelcomeSplash from '@/components/WelcomeSplash';
 import AuthModal from '@/components/AuthModal';
 import SideDrawer from '@/components/SideDrawer';
+import AutoCashLogo from '@/components/AutoCashLogo';
+import CyberHero3D from '@/components/CyberHero3D';
+import CyberFeatures from '@/components/CyberFeatures';
+import SGCHomeLayout from '@/components/SGCHomeLayout';
 import { useLanguage } from '@/context/LanguageContext';
 import { CATEGORIES_9, SERVICES_DATA, ServiceItem } from '@/lib/data';
 import type { Order } from '@/lib/orders';
@@ -733,6 +736,71 @@ export default function HomePage() {
     return list;
   }, [effectiveCategories, serviceCountByCategory]);
 
+  // Pre-selected hot services for the featured grid (matching user's mockup)
+  const hotServices = useMemo(() => {
+    if (!services || services.length === 0) return [];
+    const keywords = [
+      { key: 'capcut', tag: 'ئەپ', defaultTitle: 'CapCut Pro ئەزالىق', defaultSub: 'تولۇق كۈتۈپخانا ئېچىش', icon: 'CP', iconBg: '#000', iconColor: '#fff' },
+      { key: 'apple', tag: 'كارتا', defaultTitle: 'Apple Store كارتىسى', defaultSub: 'ئامېرىكا / كود چىقىرىش', icon: '🍎', iconBg: '#000', iconColor: '#fff' },
+      { key: 'chatgpt', tag: 'ئەزالىق', defaultTitle: 'ChatGPT Plus ئەزالىق', defaultSub: 'تېز قاچىلاش / ھېسابات', icon: 'AI', iconBg: '#10a37f', iconColor: '#fff' },
+      { key: 'telegram', tag: 'نومۇر', defaultTitle: 'Telegram قوزغىتىش', defaultSub: 'مەۋھۇم نومۇر / تەستىق كود', icon: '✈️', iconBg: '#2563eb', iconColor: '#fff' },
+      { key: 'pubg', tag: 'ئويۇن', defaultTitle: 'PUBG Mobile UC', defaultSub: 'Player ID بىۋاسىتە قاچىلاش', icon: 'PUBG', iconBg: '#f97316', iconColor: '#fff' },
+      { key: 'honor', tag: 'ئويۇن', defaultTitle: 'Honor of Kings پۇلى', defaultSub: 'تېز ئاپتوماتىك كىرىش', icon: 'HOK', iconBg: '#d97706', iconColor: '#fff' },
+      { key: 'free fire', tag: 'ئويۇن', defaultTitle: 'Free Fire ئالماس', defaultSub: 'Player ID بىلەن دەرھال', icon: 'FF', iconBg: '#dc2626', iconColor: '#fff' },
+      { key: 'brawl', tag: 'ئويۇن', defaultTitle: 'Brawl Stars گۆھەر', defaultSub: 'ئاپتوماتىك قاچىلاش', icon: 'BS', iconBg: '#7c3aed', iconColor: '#fff' },
+    ];
+
+    const results: { service: ServiceItem; meta: typeof keywords[0] }[] = [];
+    const usedIds = new Set<string>();
+
+    for (const kw of keywords) {
+      const match = services.find((s) => !usedIds.has(s.id) && s.name.toLowerCase().includes(kw.key));
+      if (match) {
+        usedIds.add(match.id);
+        results.push({ service: match, meta: kw });
+      }
+    }
+
+    // If some keywords didn't match, pick top services as fallback
+    if (results.length < 6) {
+      for (const s of services) {
+        if (!usedIds.has(s.id)) {
+          usedIds.add(s.id);
+          results.push({
+            service: s,
+            meta: {
+              key: s.id,
+              tag: s.category === 'games' ? 'ئويۇن' : s.category === 'cards' ? 'كارتا' : s.category === 'numbers' ? 'نومۇر' : 'ئەپ',
+              defaultTitle: s.name,
+              defaultSub: s.description || 'تېز يەتكۈزۈش',
+              icon: '⚡',
+              iconBg: '#4f46e5',
+              iconColor: '#fff',
+            },
+          });
+        }
+        if (results.length >= 8) break;
+      }
+    }
+
+    return results;
+  }, [services]);
+
+  // Top Popular Games for the dedicated Games Section (SGC Style: الألعاب الأكثر مبيعاً)
+  const popularGames = useMemo(() => {
+    if (!services || services.length === 0) return [];
+    return services.filter((s) => s.category === 'games').slice(0, 6);
+  }, [services]);
+
+  // 5 Signature Categories matching user mockup
+  const MAIN_5_CATEGORIES = [
+    { id: 'apps', name: 'ئەپلەر', icon: '📱', color: '#6366f1' },
+    { id: 'cards', name: 'كارتىلار', icon: '💳', color: '#0284c7' },
+    { id: 'accounts', name: 'ئەزالىقلار', icon: '👑', color: '#e11d48' },
+    { id: 'numbers', name: 'مەۋھۇم نومۇر', icon: '💬', color: '#059669' },
+    { id: 'games', name: 'ئويۇنلار', icon: '🎮', color: '#ea580c' },
+  ];
+
   // Only open products when a category is explicitly clicked, or searching
   const isProductsOpen = selectedCat !== null || searchQuery.trim() !== '';
 
@@ -749,15 +817,19 @@ export default function HomePage() {
 
   return (
     <div
-      className={`min-h-screen bg-[#040d1a] text-slate-100 flex flex-col pb-20 md:pb-8 selection:bg-amber-400 selection:text-slate-950 font-alkatip ${
+      className={`min-h-screen font-alkatip ${
         isRTL ? 'text-right' : 'text-left'
       }`}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
-      {/* 1. Welcome Splash Screen */}
-      {showSplash && <WelcomeSplash onEnter={handleDismissSplash} />}
+      {/* 1. Auth Modal */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        onSuccess={handleAuthSuccess}
+      />
 
-      {/* 2. Side Drawer (Triggered by Menu button or AUTO CASH Logo) */}
+      {/* 2. Side Drawer */}
       <SideDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
@@ -766,589 +838,7 @@ export default function HomePage() {
         onLogout={handleLogout}
       />
 
-      {/* 3. Auth Modal */}
-      <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        onSuccess={handleAuthSuccess}
-      />
-
-      {/* 4. Navbar with Menu, Logo & Drawer Hook (Safe area at top) */}
-      <Navbar
-        balance={userBalance}
-        onOpenDrawer={() => setIsDrawerOpen(true)}
-        onOpenAuth={() => setIsAuthOpen(true)}
-        user={currentUser}
-      />
-
-      {/* 5. Live Golden Ticker - Refined Rounded Card */}
-      <div className="max-w-7xl mx-3.5 sm:mx-auto my-2.5 rounded-2xl bg-[#051322] border border-amber-500/25 py-2 px-3 sm:px-4 text-xs sm:text-sm overflow-hidden select-none shadow-md">
-        <div className="flex items-center gap-3 w-full">
-          {/* Fixed Badge */}
-          <div className="flex items-center gap-1.5 text-amber-300 font-bold shrink-0 gold-badge px-3 py-1 rounded-full font-alkatip text-xs sm:text-sm z-10 shadow-md">
-            <Zap className="w-3.5 h-3.5 fill-amber-300 text-amber-400 animate-zap-wiggle" />
-            <span>
-              <span className="autocash-shimmer font-bold mr-1">AUTO CASH</span>{' '}
-              {lang === 'ug'
-                ? 'نەق مەيدان:'
-                : lang === 'ar'
-                ? 'مباشر:'
-                : 'Live:'}
-            </span>
-          </div>
-
-          {/* Continuous Marquee */}
-          <div className="overflow-hidden whitespace-nowrap flex-1 relative">
-            <div className="animate-marquee-uyghur flex items-center gap-12 font-alkatip text-xs sm:text-sm text-amber-100 font-medium tracking-normal">
-              {lang === 'ug' ? (
-                <>
-                  <div className="flex items-center gap-8 shrink-0">
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-amber-400">🌟</span>
-                      <span><span className="autocash-shimmer font-bold">AUTO CASH</span> پىلاتفورمىسىغا كەلگەنلىكىڭىزنى قىزغىن قارشى ئالىمىز!</span>
-                    </span>
-                    <span className="text-amber-500/50">•</span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-cyan-400">⚡</span>
-                      <span>بارلىق ئويۇن، ئەپ، سۈنئىي ئەقىل ۋە مەۋھۇم نومۇرلارغا دەرھال پۇل قاچىلاش مۇلازىمىتى ئاكتىپ.</span>
-                    </span>
-                    <span className="text-amber-500/50">•</span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-emerald-400">💎</span>
-                      <span>شامكەش (Sham Cash) ۋە USDT ئارقىلىق تېز ئاپتوماتىك دەلىللەش كاپالىتى.</span>
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-8 shrink-0">
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-amber-400">🌟</span>
-                      <span><span className="autocash-shimmer font-bold">AUTO CASH</span> پىلاتفورمىسىغا كەلگەنلىكىڭىزنى قىزغىن قارشى ئالىمىز!</span>
-                    </span>
-                    <span className="text-amber-500/50">•</span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-cyan-400">⚡</span>
-                      <span>بارلىق ئويۇن، ئەپ، سۈنئىي ئەقىل ۋە مەۋھۇم نومۇرلارغا دەرھال پۇل قاچىلاش مۇلازىمىتى ئاكتىپ.</span>
-                    </span>
-                    <span className="text-amber-500/50">•</span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-emerald-400">💎</span>
-                      <span>شامكەش (Sham Cash) ۋە USDT ئارقىلىق تېز ئاپتوماتىك دەلىللەش كاپالىتى.</span>
-                    </span>
-                  </div>
-                </>
-              ) : lang === 'ar' ? (
-                <>
-                  <div className="flex items-center gap-8 shrink-0">
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-amber-400">🌟</span>
-                      <span>أهلاً بكم في منصة <span className="autocash-shimmer font-bold">AUTO CASH</span> لشحن الألعاب والتطبيقات!</span>
-                    </span>
-                    <span className="text-amber-500/50">•</span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-cyan-400">⚡</span>
-                      <span>شحن فوري ومباشر لجميع الألعاب والاشتراكات والأرقام الوهمية.</span>
-                    </span>
-                    <span className="text-amber-500/50">•</span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-emerald-400">💎</span>
-                      <span>دفع آمن وسريع عبر شام كاش (Sham Cash) و USDT.</span>
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-8 shrink-0">
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-amber-400">🌟</span>
-                      <span>أهلاً بكم في منصة <span className="autocash-shimmer font-bold">AUTO CASH</span> لشحن الألعاب والتطبيقات!</span>
-                    </span>
-                    <span className="text-amber-500/50">•</span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-cyan-400">⚡</span>
-                      <span>شحن فوري ومباشر لجميع الألعاب والاشتراكات والأرقام الوهمية.</span>
-                    </span>
-                    <span className="text-amber-500/50">•</span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-emerald-400">💎</span>
-                      <span>دفع آمن وسريع عبر شام كاش (Sham Cash) و USDT.</span>
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center gap-8 shrink-0">
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-amber-400">🌟</span>
-                      <span>Welcome to <span className="autocash-shimmer font-bold">AUTO CASH</span> Digital Hub!</span>
-                    </span>
-                    <span className="text-amber-500/50">•</span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-cyan-400">⚡</span>
-                      <span>Instant top-up for games, apps, AI subscriptions, and virtual numbers.</span>
-                    </span>
-                    <span className="text-amber-500/50">•</span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-emerald-400">💎</span>
-                      <span>Fast & secure payment via Sham Cash and USDT.</span>
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-8 shrink-0">
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-amber-400">🌟</span>
-                      <span>Welcome to <span className="autocash-shimmer font-bold">AUTO CASH</span> Digital Hub!</span>
-                    </span>
-                    <span className="text-amber-500/50">•</span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-cyan-400">⚡</span>
-                      <span>Instant top-up for games, apps, AI subscriptions, and virtual numbers.</span>
-                    </span>
-                    <span className="text-amber-500/50">•</span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-emerald-400">💎</span>
-                      <span>Fast & secure payment via Sham Cash and USDT.</span>
-                    </span>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-6 w-full flex-1 space-y-6 sm:space-y-7">
-        {/* Golden Shimmer Hero Card */}
-        <div className="rounded-3xl p-4 sm:p-7 bg-gradient-to-tr from-[#061424] via-[#0b1f38] to-[#0d2745] border border-amber-500/30 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-6">
-            <div>
-              <div className="inline-flex items-center gap-2 mb-2 px-3 py-1 rounded-full gold-badge text-[11px] sm:text-xs font-semibold font-alkatip">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                <span>
-                  <span className="autocash-shimmer font-bold mr-1">AUTO CASH</span>{' '}
-                  {lang === 'ug'
-                    ? 'ئاپتۇماتىك پۇل قاچىلاش سېستىمىسى'
-                    : lang === 'ar'
-                    ? 'للشحن التلقائي السريع'
-                    : 'Automated Instant Top-up'}
-                </span>
-              </div>
-              <h1 className="font-ukij text-2xl sm:text-4xl font-extrabold text-white leading-tight">
-                <span className="autocash-shimmer">
-                  AUTO CASH
-                </span>{' '}
-                —{' '}
-                {lang === 'ug'
-                  ? 'ئەپ، ئويۇن ۋە كارتىلار مەركىزى'
-                  : lang === 'ar'
-                  ? 'مركز شحن الألعاب والتطبيقات والبطاقات'
-                  : 'Games, Apps & Gift Cards Hub'}
-              </h1>
-              <p className="font-alkatip text-sm sm:text-base text-slate-200/90 mt-2.5 max-w-2xl leading-relaxed font-normal">
-                {t('welcomeSubtitle')}
-              </p>
-            </div>
-
-            {/* Quick action buttons */}
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3 w-full md:w-auto">
-              <Link
-                href="/deposit"
-                className="relative overflow-hidden flex items-center justify-center gap-2 h-11 sm:h-12 px-4 sm:px-5 rounded-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:brightness-105 animate-normal-float text-xs sm:text-sm font-bold text-slate-950 transition-all font-alkatip text-center shadow-md hover:scale-105 active:scale-95 cursor-pointer leading-none"
-              >
-                {/* 360-degree rotating gold border beam */}
-                <div className="border-beam-pill" />
-                <span className="relative z-10 animate-normal-icon shrink-0">
-                  <Wallet className="w-4 h-4 text-slate-950 flex-shrink-0" />
-                </span>
-                <span className="relative z-10 leading-none">{t('addFunds')}</span>
-              </Link>
-              <Link
-                href="/membership"
-                className="relative overflow-hidden flex items-center justify-center gap-2 h-11 sm:h-12 px-4 sm:px-5 rounded-full bg-[#061527] hover:bg-[#091f3a] border border-amber-400/40 hover:border-amber-300 text-amber-300 font-bold text-xs sm:text-sm transition-all font-alkatip text-center shadow-md hover:scale-105 active:scale-95 animate-normal-float cursor-pointer leading-none"
-                style={{ animationDelay: '0.2s' }}
-              >
-                {/* 360-degree rotating gold border beam */}
-                <div className="border-beam-pill" />
-                <span className="relative z-10 animate-normal-icon shrink-0">
-                  <Crown className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                </span>
-                <span className="relative z-10 leading-none">{t('vipMembership')}</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Rotational Promo Banner */}
-        <section>
-          <PromoCarousel onSelectCategory={handleSelectCategory} />
-        </section>
-
-        {/* Unique Entry Banner for Today's Promotions */}
-        <TodayPromotionsBanner />
-
-        {/* Global Search Bar */}
-        <div className="relative max-w-2xl mx-auto">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t('searchPlaceholder')}
-            className={`w-full bg-[#08182b] border border-amber-500/35 rounded-2xl ${
-              isRTL ? 'pl-11 pr-4 text-right' : 'pr-11 pl-4 text-left'
-            } py-3 text-xs sm:text-sm text-white placeholder-amber-200/40 shadow-xl focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition font-alkatip`}
-          />
-          <Search className={`w-5 h-5 text-amber-400 absolute ${isRTL ? 'left-4' : 'right-4'} top-3.5`} />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-3.5 text-slate-400 hover:text-white`}
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-
-        {/* Categories vs Products View */}
-        {/* View 1: Categories Grid (kept mounted to prevent DOM tearing, image decoding delays, and flicker) */}
-        <div id="categories-container" className={isProductsOpen ? 'hidden' : 'block'}>
-            <div className="flex items-center justify-between mb-3.5">
-              <h2 className="font-ukij text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                <span className="w-2.5 h-5 rounded-full bg-amber-400 shadow-md shadow-amber-400/50" />
-                <span>
-                  {t('categoriesTitle')} ({visibleCategories.length})
-                </span>
-              </h2>
-            </div>
-
-            {catalogLoading && services.length === 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3.5">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="h-28 sm:h-32 rounded-2xl bg-[#061527] border border-amber-500/20 animate-pulse" />
-                ))}
-              </div>
-            ) : services.length === 0 ? (
-              <div className="py-14 px-6 rounded-3xl bg-gradient-to-b from-[#061527] to-[#040d1a] border border-amber-500/25 text-center space-y-4 max-w-lg mx-auto shadow-2xl animate-in fade-in duration-300">
-                <div className="w-16 h-16 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 mx-auto shadow-lg shadow-amber-500/10">
-                  <Sparkles className="w-8 h-8" />
-                </div>
-                <div className="space-y-1.5">
-                  <h3 className="font-ukij font-bold text-base sm:text-lg text-white">
-                    {lang === 'ug'
-                      ? 'نۆۋەتتە باشبەتكە ھېچقانداق مەھسۇلات چىقىرىلمىدى'
-                      : lang === 'ar'
-                      ? 'لا توجد منتجات منشورة حالياً'
-                      : 'No products published yet'}
-                  </h3>
-                  <p className="font-alkatip text-xs sm:text-sm text-slate-300/90 leading-relaxed">
-                    {lang === 'ug'
-                      ? 'باشقۇرغۇچى باشقۇرۇش مەركىزىدىن مەھسۇلات ۋە سەھىپىلەرنى تەڭشەپ ئېلان قىلغاندىن كېيىن، ئاپتوماتىك بۇ يەردە كۆرۈنىدۇ.'
-                      : lang === 'ar'
-                      ? 'ستظهر المنتجات هنا فور قيام المدير بنشرها من لوحة التحكم.'
-                      : 'Products will appear here once published from the admin panel.'}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3.5">
-                {visibleCategories.map((cat, idx) => {
-                  const isTransitioning = transitioningCatId === cat.id;
-                  return (
-                    <button
-                      key={cat.id}
-                      onClick={() => handleSelectCategory(cat.id)}
-                      className={`relative overflow-hidden p-3 rounded-2xl ${
-                        isRTL ? 'text-right' : 'text-left'
-                      } transition-all duration-200 flex flex-col justify-between cursor-pointer group h-28 sm:h-32 gold-card-normal ${
-                        isTransitioning
-                          ? 'card-selecting-glow'
-                          : 'hover:scale-[1.03]'
-                      }`}
-                    >
-                    {/* Rotating Glowing Border Beam on Selection */}
-                    {isTransitioning && <div className="border-beam-tracer" />}
-
-                    {/* Category Background Image */}
-                    <div className="absolute inset-0 z-0 bg-slate-900">
-                      <img
-                        src={cat.id === 'wifi' ? 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg' : cat.image}
-                        loading="eager"
-                        decoding="async"
-                        alt={getCategoryName(cat.id, cat.name)}
-                        className={`w-full h-full object-cover transition-all duration-300 brightness-95 contrast-105 ${
-                          isTransitioning ? 'opacity-100 scale-105' : 'opacity-80 group-hover:opacity-100 group-hover:scale-105'
-                        }`}
-                        onError={(e) => {
-                          const target = e.currentTarget as HTMLImageElement;
-                          if (cat.id === 'wifi' && target.src !== '/images/services/wifi_cards.jpg') {
-                            target.src = '/images/services/wifi_cards.jpg';
-                            return;
-                          }
-                          target.src = '/brand_logo.png?v=2.1.0';
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#030a14]/90 via-[#030a14]/40 to-transparent" />
-                    </div>
-
-                    <div className="relative z-10 flex items-center justify-between w-full">
-                      {/* Icon with staggered lightweight float animation + moving lively badge */}
-                      <div
-                        style={{ animationDelay: `${(idx % 4) * 0.35}s` }}
-                        className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all border shadow-md animate-cat-icon ${
-                          isTransitioning
-                            ? 'bg-amber-400 text-slate-950 border-amber-300 scale-110 shadow-amber-400/50'
-                            : 'bg-slate-950/85 border-amber-400/50 text-amber-300 group-hover:scale-110 group-hover:bg-amber-400 group-hover:text-slate-950'
-                        }`}
-                      >
-                        <span
-                          style={{ animationDelay: `${(idx % 6) * 0.25}s` }}
-                          className="animate-moving-icon drop-shadow-[0_0_6px_rgba(251,191,36,0.5)]"
-                        >
-                          <DynamicIcon name={cat.icon} className="w-4 h-4 sm:w-5 sm:h-5" />
-                        </span>
-                      </div>
-
-                      {/* Pill button with subtle lightweight nudge animation */}
-                      <span
-                        style={{ animationDelay: `${(idx % 4) * 0.35 + 0.18}s` }}
-                        className={`text-[9px] sm:text-[10px] border font-bold px-2 py-0.5 rounded-full shadow font-alkatip transition animate-arrow-pill ${
-                          isTransitioning
-                            ? 'bg-amber-400 text-slate-950 border-amber-300 scale-105'
-                            : 'bg-slate-950/85 border-amber-400/50 text-amber-300 group-hover:bg-amber-400 group-hover:text-slate-950 group-hover:translate-x-[-2px]'
-                        }`}
-                      >
-                        {isRTL ? 'ئېچىش ←' : 'Open →'}
-                      </span>
-                    </div>
-
-                    <div className="relative z-10 mt-1.5">
-                      <h3 className={`font-alkatip font-extrabold text-xs sm:text-sm transition drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] ${
-                        isTransitioning ? 'text-amber-300' : 'text-white group-hover:text-amber-300'
-                      }`}>
-                        {getCategoryName(cat.id, cat.name)}
-                      </h3>
-                      <span className="font-alkatip text-[9px] sm:text-[10px] text-amber-200 font-semibold block mt-0.5 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
-                        {serviceCountByCategory[cat.id] || 0} {isRTL ? 'مۇلازىمەت' : 'services'}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* View 2: Inside Category Products */}
-        {isProductsOpen && (
-          <section className="pt-2 space-y-4" id="category-products-view">
-            {/* Header with Back to Categories Button */}
-            <div className="flex items-center justify-between gap-2 p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-[#07192d] to-slate-900 border border-amber-500/40 shadow-xl">
-              {/* Back to Categories Button (On Right in RTL) */}
-              <button
-                onClick={handleBackToCategories}
-                className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-950 font-black gold-shimmer-btn px-3 sm:px-4 py-2 rounded-xl transition font-alkatip cursor-pointer shadow-lg hover:scale-105 active:scale-95 flex-shrink-0 whitespace-nowrap"
-              >
-                {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-                <span>{t('backToCategories')}</span>
-              </button>
-
-              {/* Category Name & Count */}
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-alkatip text-xs sm:text-sm font-semibold text-amber-300 bg-amber-950/80 border border-amber-500/40 px-2.5 py-0.5 rounded-full whitespace-nowrap">
-                    ({filteredServices.length})
-                  </span>
-                  <h3 className="font-ukij text-sm sm:text-lg font-bold text-white whitespace-nowrap">
-                    {activeCategoryObj ? getCategoryName(activeCategoryObj.id, activeCategoryObj.name) : t('searchPlaceholder')}
-                  </h3>
-                </div>
-                <div className="w-2.5 h-6 rounded-full bg-amber-400 shadow-md shadow-amber-400/60 flex-shrink-0" />
-              </div>
-            </div>
-
-            {/* Product Cards Grid: 3 per row as requested */}
-            <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
-              {filteredServices.map((service, idx) => {
-                const isWifiService =
-                  service.category === 'wifi' ||
-                  service.id === 'fursan_net' ||
-                  service.id === 'azez_net' ||
-                  service.id === 'almujahid_net' ||
-                  (service.name || '').toLowerCase().includes('wifi') ||
-                  (service.name || '').toLowerCase().includes('واي فاي');
-                const wifiStockCount = isWifiService ? (wifiStockMap[service.id] ?? null) : null;
-                const isWifiOutOfStock = isWifiService && wifiStockCount !== null && wifiStockCount <= 0;
-
-                return (
-                <div
-                  key={service.id}
-                  onClick={() => {
-                    if (!currentUser || !currentUser.email) {
-                      handleOpenAuth();
-                    } else {
-                      handleOpenProduct(service);
-                    }
-                  }}
-                  className={`gold-card-normal rounded-2xl p-2 sm:p-3 flex flex-col justify-between transition-all duration-200 group relative overflow-hidden cursor-pointer ${
-                    isRTL ? 'text-right' : 'text-left'
-                  }`}
-                  style={{
-                    contentVisibility: 'auto',
-                    containIntrinsicSize: '0 200px',
-                  }}
-                >
-                  <div>
-                    {/* Enlarged Image thumbnail */}
-                    <div className="w-full h-20 sm:h-28 rounded-xl overflow-hidden bg-slate-900 relative mb-2 border border-slate-800">
-                      <img
-                        src={
-                          service.id === 'fursan_net'
-                            ? 'https://i.ibb.co/f3X6BjQ/photo-2026-10-26-07-50-55.jpg'
-                            : service.id === 'azez_net'
-                            ? 'https://i.ibb.co/cSFZhGLB/photo-2026-10-26-07-50-39.jpg'
-                            : service.id === 'almujahid_net'
-                            ? 'https://i.ibb.co/9HqpZdVg/photo-2026-10-26-08-32-29.jpg'
-                            : service.image && !service.image.endsWith('sahl-cash.com/') && !service.image.endsWith('othman-storee.com/') && service.image !== 'https://api.sahl-cash.com' && service.image !== 'https://api.othman-storee.com'
-                            ? service.image
-                            : '/images/services/pubg_mobile.jpg'
-                        }
-                        alt={service.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading={idx < 9 ? "eager" : "lazy"}
-                        decoding="async"
-                        onError={(e) => {
-                          const target = e.currentTarget as HTMLImageElement;
-                          if (service.id === 'fursan_net' && target.src !== '/images/services/fursan_net.jpg') {
-                            target.src = '/images/services/fursan_net.jpg';
-                            return;
-                          }
-                          if (service.id === 'azez_net' && target.src !== '/images/services/azez_net.jpg') {
-                            target.src = '/images/services/azez_net.jpg';
-                            return;
-                          }
-                          if (service.id === 'almujahid_net' && target.src !== '/images/services/mujahid_net.jpg') {
-                            target.src = '/images/services/mujahid_net.jpg';
-                            return;
-                          }
-                          target.src = '/brand_logo.png?v=2.1.0';
-                        }}
-                      />
-                      {service.badge && (
-                        <span className={`absolute top-1.5 ${isRTL ? 'right-1.5' : 'left-1.5'} text-[8px] sm:text-[9px] font-black bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 px-1.5 py-0.5 rounded-md shadow-lg font-alkatip flex items-center gap-1 z-10 border border-amber-300/60`}>
-                          <span className="animate-moving-icon">
-                            {service.badge.match(/^([\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF]|\u2B50|\u26A1|\uD83D[\uDE00-\uDFFF]|\uD83C[\uDF00-\uDFFF]|\uD83E[\uDD00-\uDFFF]|⚡|🔥|👑|⭐|💎|🚀|🎉|✨|🔒|🏆|💫|🎮|🤖)/)?.[0] || '⚡'}
-                          </span>
-                          <span>{translateBadge(service.badge.replace(/^([\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF]|\u2B50|\u26A1|\uD83D[\uDE00-\uDFFF]|\uD83C[\uDF00-\uDFFF]|\uD83E[\uDD00-\uDFFF]|⚡|🔥|👑|⭐|💎|🚀|🎉|✨|🔒|🏆|💫|🎮|🤖)\s*/, ''))}</span>
-                        </span>
-                      )}
-                      {isWifiService && isWifiOutOfStock && (
-                        <span className={`absolute top-1.5 ${isRTL ? 'left-1.5' : 'right-1.5'} text-[8px] sm:text-[9px] font-bold bg-rose-600 text-white px-1.5 py-0.5 rounded-md shadow-lg z-10 font-alkatip`}>
-                          ⚠️ كارتا تۈگىدى
-                        </span>
-                      )}
-                      {isWifiService && !isWifiOutOfStock && wifiStockCount !== null && wifiStockCount > 0 && (
-                        <span className={`absolute top-1.5 ${isRTL ? 'left-1.5' : 'right-1.5'} text-[8px] sm:text-[9px] font-bold bg-emerald-600 text-white px-1.5 py-0.5 rounded-md shadow-lg z-10 font-alkatip`}>
-                          📶 زاپاس: {wifiStockCount}
-                        </span>
-                      )}
-                    </div>
-
-                    <h4 className="font-alkatip text-xs sm:text-sm font-bold text-white group-hover:text-amber-300 transition line-clamp-1 mb-1.5 leading-snug">
-                      {translatePackageTitle(service.name)}
-                    </h4>
-
-                    {/* Starting price */}
-                    <div className="flex items-center justify-between text-[9px] sm:text-xs bg-slate-950/70 px-2 py-1 rounded-lg border border-slate-800/60 mb-2 font-alkatip">
-                      <span className="text-slate-400 hidden sm:inline">
-                        {isRTL ? 'باھاسى:' : 'From:'}
-                      </span>
-                      <span className="font-extrabold text-amber-400 font-mono flex items-center gap-0.5" dir="ltr">
-                        <span className="text-amber-300">$</span>
-                        <span>{formatSmartPrice(service.packages[0]?.price)}</span>
-                      </span>
-                      <span className="text-slate-400 text-[9px]">
-                        {isRTL ? 'دىن' : ''}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Buy Button */}
-                  {isWifiService && isWifiOutOfStock ? (
-                    <button
-                      type="button"
-                      disabled
-                      className="w-full py-1.5 sm:py-2 rounded-xl bg-rose-950/70 border border-rose-700/60 text-rose-300 font-bold text-[9px] sm:text-[10px] cursor-not-allowed font-alkatip flex items-center justify-center gap-1 opacity-90 shadow-sm"
-                    >
-                      <span>
-                        {lang === 'ug'
-                          ? '⚠️ كارتا تۈگەپ كەتتى، يېقىندا قوشۇلىدۇ'
-                          : lang === 'ar'
-                          ? '⚠️ نفدت البطاقات، سيتم التوفير قريباً'
-                          : '⚠️ Out of stock, coming soon'}
-                      </span>
-                    </button>
-                  ) : (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (!currentUser || !currentUser.email) {
-                          handleOpenAuth();
-                        } else {
-                          handleOpenProduct(service);
-                        }
-                      }}
-                      className="w-full py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500 hover:opacity-95 text-slate-950 font-black text-[10px] sm:text-xs transition cursor-pointer font-alkatip active:scale-95 flex items-center justify-center gap-1 shadow-sm hover:shadow-amber-500/20"
-                    >
-                      <span>{isRTL ? 'سېتىۋېلىش' : 'Buy Now'}</span>
-                      <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-950 fill-slate-950 stroke-[2.5]" />
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-            </div>
-
-            {catalogLoading && filteredServices.length === 0 && (
-              <div className="text-center py-16 font-alkatip text-slate-400 text-sm">يۈكلىنىۋاتىدۇ...</div>
-            )}
-
-            {!catalogLoading && filteredServices.length === 0 && (
-              <div className="text-center py-16 border border-dashed border-slate-800 rounded-2xl bg-slate-950/40">
-                <p className="font-alkatip text-slate-400 text-sm mb-3">
-                  {t('noServicesFound')}
-                </p>
-                <button
-                  onClick={handleBackToCategories}
-                  className="px-4 py-2 rounded-xl gold-shimmer-btn text-xs font-black font-alkatip cursor-pointer"
-                >
-                  {t('backToCategories')}
-                </button>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* Live Orders Section */}
-        <section id="orders" className="pt-6 border-t border-slate-900">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="font-ukij text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                <span className="w-2.5 h-5 rounded-full bg-emerald-400" />
-                <span>{t('ordersTitle')}</span>
-              </h3>
-              <p className="font-alkatip text-xs text-slate-400">
-                {t('ordersSubtitle')}
-              </p>
-            </div>
-            <button
-              onClick={fetchOrders}
-              className="font-alkatip text-xs text-amber-400 hover:underline cursor-pointer"
-            >
-              {isRTL ? 'يېڭىلاش' : 'Refresh'}
-            </button>
-          </div>
-
-          <OrdersList orders={orders} />
-        </section>
-      </main>
-
-      {/* Checkout Modal */}
+      {/* 3. Product Checkout Modal */}
       {activeModalService && (
         <CheckoutModal
           service={activeModalService}
@@ -1359,8 +849,12 @@ export default function HomePage() {
           onOpenAuth={handleOpenAuth}
         />
       )}
+
+      {/* 4. SGC GAME 1:1 Auto Cash Layout */}
+      <SGCHomeLayout
+        onSelectService={(service) => handleOpenProduct(service)}
+        onOpenAuth={handleOpenAuth}
+      />
     </div>
   );
 }
-
-

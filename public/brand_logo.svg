@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Top Shield/Hand Bracket (Emerald Green) -->
+  <path d="M120 236C120 180 156 130 208 116L256 104L304 116C356 130 392 180 392 236H332C332 208 312 178 280 170L256 164L232 170C200 178 180 208 180 236H120Z" fill="#10B981"/>
+  
+  <!-- Bottom Shield/Hand Bracket (Dark Obsidian Charcoal) -->
+  <path d="M120 276H180C180 304 200 334 232 342L256 348L280 342C312 334 332 304 332 276H392C392 332 356 382 304 396L256 408L208 396C156 382 120 332 120 276Z" fill="#111827"/>
+
+  <!-- Center Electric Lightning Bolt (Vivid Crimson) -->
+  <path d="M284 152L212 268H264L228 360L308 244H252L284 152Z" fill="#EF4444"/>
+</svg>

@@ -1,0 +1,2179 @@
+<!DOCTYPE html>
+<html lang="ug" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AUTO CASH - ئويۇن ۋە رەقەملىك كارتىلارغا ئاپتوماتىك پۇل قاچىلاش سۇپىسى</title>
+    <meta name="description" content="Auto Cash (auto-cash.app) - رەقەملىك ئويۇنلار، ئەپ مۇلازىمەتلىرى ۋە قىممەت كارتىلىرىغا 24 سائەت بىۋاسىتە ۋە ئاپتوماتىك پۇل قاچىلاش مەركىزى">
+    <link rel="icon" type="image/png" href="/logo.png">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Noto+Sans+Arabic:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        @font-face {
+            font-family: 'ALKATIP ASLIYA';
+            src: local('ALKATIP ASLIYA'), local('AlkatipAsliya'), local('ALKATIP Basma Tom'),
+                 url('/fonts/ALKATIPBasmaTom.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'UKIJ Tuz Tom';
+            src: local('UKIJ Tuz Tom'), local('UKIJTuzTom'), local('UKIJ Tuz'),
+                 url('/fonts/UKIJTuz.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --primary: #059669;
+            --primary-light: #10b981;
+            --bg: #f4f7f5;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --header-bg: rgba(255, 255, 255, 0.98);
+            --font-family: 'UKIJ Tuz Tom', 'ALKATIP ASLIYA', 'Cairo', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg);
+            color: var(--text);
+            direction: rtl;
+            text-align: right;
+            padding-bottom: 75px;
+            user-select: none;
+        }
+
+        /* Top Header */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: var(--header-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.6rem 1rem;
+        }
+
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:active {
+            transform: scale(0.92);
+        }
+
+        .avatar-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #059669;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
+            text-decoration: none;
+        }
+
+        .btn-icon .red-dot {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+            border: 2px solid #fff;
+        }
+
+        .brand-block {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .brand-title {
+            font-weight: 900;
+            font-size: 1.05rem;
+            letter-spacing: 0.5px;
+            line-height: 1.35;
+            padding: 2px 4px;
+            overflow: visible;
+            display: inline-block;
+            background: linear-gradient(
+                115deg,
+                #0f172a 0%,
+                #0f172a 32%,
+                #b45309 45%,
+                #d97706 50%,
+                #f59e0b 54%,
+                #b45309 60%,
+                #0f172a 72%,
+                #0f172a 100%
+            );
+            background-size: 260% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: brandNavyGoldShine 3.6s ease-in-out infinite;
+        }
+
+        .brand-sub {
+            font-size: 0.72rem;
+            font-weight: 800;
+            line-height: 1.65;
+            padding-top: 3px;
+            padding-bottom: 8px;
+            padding-left: 4px;
+            padding-right: 4px;
+            margin-bottom: -5px;
+            overflow: visible;
+            display: inline-block;
+            background: linear-gradient(
+                115deg,
+                #047857 0%,
+                #047857 32%,
+                #059669 44%,
+                #0d9488 50%,
+                #10b981 55%,
+                #059669 62%,
+                #047857 74%,
+                #047857 100%
+            );
+            background-size: 260% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: brandEmeraldShine 3.6s ease-in-out infinite 0.4s;
+        }
+
+        .brand-logo-wrap {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 1.5px solid rgba(245, 158, 11, 0.7);
+            background-color: #050b18;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+            animation: logoPulseRing 3.5s ease-in-out infinite alternate;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes brandNavyGoldShine {
+            0% { background-position: 180% 0; }
+            100% { background-position: -80% 0; }
+        }
+
+        @keyframes brandEmeraldShine {
+            0% { background-position: 180% 0; }
+            100% { background-position: -80% 0; }
+        }
+
+        @keyframes logoPulseRing {
+            0% {
+                box-shadow: 0 0 8px rgba(6, 182, 212, 0.45), 0 0 16px rgba(245, 158, 11, 0.25);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 14px rgba(6, 182, 212, 0.75), 0 0 24px rgba(245, 158, 11, 0.5);
+                transform: scale(1.04);
+            }
+            100% {
+                box-shadow: 0 0 8px rgba(6, 182, 212, 0.45), 0 0 16px rgba(245, 158, 11, 0.25);
+                transform: scale(1);
+            }
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Quick Dashboard Bar (ئېلان رەسىمىنىڭ ئۈستىدىكى ئەپچىل قولايلىق بۆلەك) */
+        .quick-dashboard-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: #ffffff;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 16px;
+            padding: 8px 10px;
+            margin-top: 0.65rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            transition: all 0.25s ease;
+        }
+        body.dark-mode .quick-dashboard-bar {
+            background: rgba(19, 27, 46, 0.95);
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+        }
+        @media (min-width: 640px) {
+            .quick-dashboard-bar {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                padding: 10px 14px;
+            }
+        }
+        .quick-balance-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 12px;
+            padding: 6px 12px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .quick-balance-card:hover {
+            border-color: rgba(16, 185, 129, 0.5);
+            transform: translateY(-1px);
+        }
+        .balance-info-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .balance-icon-box {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #059669;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .balance-texts {
+            display: flex;
+            flex-direction: column;
+            text-align: right;
+        }
+        .balance-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #64748b;
+            line-height: 1;
+        }
+        body.dark-mode .balance-label {
+            color: #94a3b8;
+        }
+        .balance-val {
+            font-size: 14px;
+            font-weight: 900;
+            color: #059669;
+            line-height: 1.2;
+            margin-top: 2px;
+        }
+        body.dark-mode .balance-val {
+            color: #34d399;
+        }
+        .balance-topup-btn {
+            background: #059669;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 5px 10px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .balance-topup-btn:hover {
+            background: #047857;
+        }
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+        @media (min-width: 640px) {
+            .quick-actions-grid {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+        }
+        .quick-action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 8px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #334155;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .quick-action-btn:hover {
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+        body.dark-mode .quick-action-btn {
+            background: #18233a;
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+        }
+        body.dark-mode .quick-action-btn:hover {
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+        }
+        .text-blue { color: #3b82f6; }
+        .text-amber { color: #f59e0b; }
+        .text-yellow { color: #eab308; }
+
+        /* Hero Banner */
+        .hero-banner {
+            margin-top: 0.85rem;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #c6f6d5 0%, #a7f3d0 50%, #6ee7b7 100%);
+            border: 1px solid rgba(5, 150, 105, 0.2);
+            box-shadow: 0 8px 24px rgba(5, 150, 105, 0.12);
+            position: relative;
+            overflow: hidden;
+            padding: 1.2rem;
+            min-height: 180px;
+        }
+
+        .banner-exclusive-pill {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(6px);
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 9999px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .banner-exclusive-pill i {
+            color: #10b981;
+        }
+
+        .banner-brand-pill {
+            position: absolute;
+            top: 10px;
+            left: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(6px);
+            color: #0f172a;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .banner-brand-pill i {
+            color: #059669;
+        }
+
+        .banner-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 0.6rem;
+        }
+
+        .banner-text-side {
+            max-width: 60%;
+        }
+
+        .banner-tag {
+            display: inline-block;
+            background: #059669;
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+
+        .banner-title {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+
+        .banner-sub {
+            font-size: 0.75rem;
+            color: #064e3b;
+            font-weight: 800;
+            margin-top: 2px;
+        }
+
+        .banner-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            padding: 5px 14px;
+            background: #0f172a;
+            color: #fff;
+            border-radius: 10px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+        }
+
+        .banner-3d-box {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .box-cube {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #047857, #10b981);
+            border-radius: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 10px 25px rgba(4, 120, 87, 0.4);
+            transform: rotate(-6deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 900;
+            font-size: 0.68rem;
+            text-align: center;
+            line-height: 1.2;
+            padding: 2px;
+        }
+
+        .box-cashback-badge {
+            position: absolute;
+            top: -4px;
+            right: -8px;
+            background: #fff;
+            padding: 4px 8px;
+            border-radius: 10px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+            text-align: center;
+            font-size: 0.6rem;
+            font-weight: 900;
+            color: #0f172a;
+            border: 1px solid #d1fae5;
+        }
+
+        .banner-dots {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .banner-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .banner-dot.active {
+            width: 22px;
+            height: 6px;
+            border-radius: 9999px;
+            background: #ffffff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        /* 6 Category Cards Row */
+        .category-row {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.4rem;
+            margin-top: 0.9rem;
+            scrollbar-width: none;
+        }
+
+        .category-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .cat-card {
+            flex: 1 0 95px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 0.6rem 0.35rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cat-card:active {
+            transform: scale(0.94);
+        }
+
+        .cat-icon-wrap {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .cat-card-title {
+            font-size: 0.72rem;
+            font-weight: 800;
+            line-height: 1.1;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .cat-card-sub {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            line-height: 1;
+            margin-top: 2px;
+        }
+
+        /* Search input bar */
+        .search-bar-wrap {
+            margin-top: 0.85rem;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.6rem 2.4rem 0.6rem 0.8rem;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            outline: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        .search-bar-wrap i {
+            position: absolute;
+            right: 0.9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        /* Sections */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1.3rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .section-more-link {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #475569;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            cursor: pointer;
+        }
+
+        .section-more-link i {
+            color: #059669;
+        }
+
+        .products-rail {
+            display: flex;
+            gap: 0.65rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+        }
+
+        .products-rail::-webkit-scrollbar {
+            display: none;
+        }
+
+        .product-card {
+            flex: 0 0 152px;
+            scroll-snap-align: start;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        body.dark-mode .product-card {
+            background: #131b2e;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .product-card:active {
+            transform: scale(0.96);
+        }
+
+        .product-card-art {
+            position: relative;
+            aspect-ratio: 1 / 1;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 50%, #6ee7b7 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        .card-corner-logo {
+            position: absolute;
+            top: 7px;
+            left: 7px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(4px);
+            padding: 2px 6px;
+            border-radius: 9999px;
+            font-size: 0.52rem;
+            font-weight: 900;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            z-index: 5;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        body.dark-mode .card-corner-logo {
+            background: rgba(0, 0, 0, 0.5);
+            color: #ffffff;
+        }
+        .card-corner-logo img {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid #059669;
+        }
+
+        .card-top-badges {
+            position: absolute;
+            top: 7px;
+            right: 7px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 3px;
+            z-index: 5;
+        }
+        .badge-red {
+            background: #ef4444;
+            color: #fff;
+            font-size: 0.48rem;
+            font-weight: 900;
+            padding: 1.5px 5px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .badge-green {
+            background: #059669;
+            color: #fff;
+            font-size: 0.48rem;
+            font-weight: 900;
+            padding: 1.5px 5px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .badge-green i {
+            color: #fde047;
+        }
+
+        .card-swooshes {
+            position: absolute;
+            bottom: -8px;
+            left: -8px;
+            width: 52px;
+            height: 52px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .card-diamonds {
+            position: absolute;
+            bottom: 6px;
+            right: 8px;
+            font-size: 0.55rem;
+            color: #f43f5e;
+            letter-spacing: 2px;
+            font-weight: 900;
+            z-index: 5;
+        }
+
+        .card-logo-wrap {
+            position: relative;
+            width: 66%;
+            height: 66%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+        }
+        .card-logo-brackets {
+            position: absolute;
+            inset: -9px;
+            pointer-events: none;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .card-center-icon {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+            border: 3px solid rgba(255,255,255,0.98);
+            background: #0f172a;
+            transition: transform 0.25s;
+        }
+        .product-card:hover .card-center-icon {
+            transform: scale(1.05);
+        }
+
+        .card-center-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-card-body {
+            padding: 0.55rem;
+        }
+
+        .product-card-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-card-tag {
+            margin-top: 3px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 0.62rem;
+            color: var(--text-muted);
+        }
+
+        .product-card-tag i {
+            color: #94a3b8;
+            font-size: 0.6rem;
+        }
+
+        /* SGC Style Full-Height Side Drawer (يان تىزىملىك) */
+        .drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 9998;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .drawer-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .side-drawer-panel {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            width: 320px;
+            max-width: 85vw;
+            background: #ffffff;
+            color: #1e293b;
+            z-index: 9999;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: -8px 0 30px rgba(0, 0, 0, 0.25);
+            padding: 1rem;
+        }
+        body.dark-mode .side-drawer-panel {
+            background: #101726;
+            color: #ffffff;
+        }
+        .drawer-overlay.active .side-drawer-panel {
+            transform: translateX(0);
+        }
+        .drawer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 0.85rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        body.dark-mode .drawer-header {
+            border-bottom-color: rgba(255, 255, 255, 0.1);
+        }
+        .drawer-header-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .drawer-header-brand img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1.5px solid #059669;
+            object-fit: cover;
+        }
+        .drawer-brand-name {
+            font-size: 13px;
+            font-weight: 900;
+            background: linear-gradient(
+                105deg,
+                #b45309 0%,
+                #d97706 20%,
+                #f59e0b 35%,
+                #fef08a 48%,
+                #ffffff 52%,
+                #fef08a 56%,
+                #f59e0b 70%,
+                #d97706 85%,
+                #b45309 100%
+            );
+            background-size: 250% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: brandGoldShimmer 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        .drawer-sep {
+            color: #cbd5e1;
+        }
+        body.dark-mode .drawer-sep {
+            color: rgba(255, 255, 255, 0.2);
+        }
+        .drawer-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: #475569;
+        }
+        body.dark-mode .drawer-title {
+            color: #cbd5e1;
+        }
+        .drawer-close-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        body.dark-mode .drawer-close-btn {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+        }
+        .drawer-close-btn:hover {
+            background: #f1f5f9;
+        }
+        .drawer-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.85rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .drawer-user-card {
+            background: rgba(5, 150, 105, 0.06);
+            border: 1.5px solid rgba(5, 150, 105, 0.25);
+            border-radius: 20px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        body.dark-mode .drawer-user-card {
+            background: rgba(5, 150, 105, 0.12);
+            border-color: rgba(5, 150, 105, 0.35);
+        }
+        .drawer-user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .drawer-user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #059669;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+        }
+        .drawer-username {
+            font-size: 12px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+        body.dark-mode .drawer-username {
+            color: #ffffff;
+        }
+        .drawer-user-sub {
+            font-size: 10px;
+            color: #64748b;
+        }
+        body.dark-mode .drawer-user-sub {
+            color: #94a3b8;
+        }
+        .drawer-balance-pill {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 900;
+            font-family: monospace;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+        body.dark-mode .drawer-balance-pill {
+            background: rgba(6, 95, 70, 0.5);
+            color: #a7f3d0;
+            border-color: #047857;
+        }
+        .drawer-balance-pill:hover {
+            transform: scale(1.05);
+        }
+        .drawer-divider-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            color: #94a3b8;
+        }
+        .drawer-divider-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+        body.dark-mode .drawer-divider-title::after {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .drawer-nav-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .drawer-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 10px;
+            border-radius: 16px;
+            text-decoration: none;
+            color: #1e293b;
+            font-size: 13px;
+            font-weight: 800;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: right;
+        }
+        body.dark-mode .drawer-nav-item {
+            color: #f1f5f9;
+        }
+        .drawer-nav-item:hover {
+            background: #f8fafc;
+        }
+        body.dark-mode .drawer-nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .drawer-nav-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 14px;
+            background: rgba(5, 150, 105, 0.12);
+            color: #059669;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        body.dark-mode .drawer-nav-icon {
+            background: rgba(5, 150, 105, 0.25);
+            color: #34d399;
+        }
+        .drawer-footer {
+            padding-top: 0.85rem;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        body.dark-mode .drawer-footer {
+            border-top-color: rgba(255, 255, 255, 0.1);
+        }
+        .drawer-logout-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            border-radius: 16px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        body.dark-mode .drawer-logout-btn {
+            background: rgba(220, 38, 38, 0.15);
+            color: #f87171;
+            border-color: rgba(220, 38, 38, 0.3);
+        }
+        .drawer-logout-btn:hover {
+            background: #fecaca;
+        }
+        .drawer-theme-btn {
+            width: 60px;
+            padding: 6px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            color: #d97706;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 800;
+            transition: all 0.2s;
+        }
+        body.dark-mode .drawer-theme-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #fbbf24;
+        }
+
+        /* Bottom Navigation Bar */
+        .bottom-nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0 0.5rem;
+            z-index: 50;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+        }
+
+        .bottom-nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #64748b;
+            gap: 2px;
+            cursor: pointer;
+        }
+
+        .bottom-nav-item.active {
+            color: #059669;
+        }
+
+        .bottom-nav-icon-wrap {
+            width: 38px;
+            height: 26px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+        }
+
+        .bottom-nav-item.active .bottom-nav-icon-wrap {
+            background: rgba(5, 150, 105, 0.12);
+            color: #059669;
+        }
+
+        .bottom-nav-label {
+            font-size: 0.68rem;
+            font-weight: 800;
+        }
+        100% {
+                transform: perspective(700px) rotateY(-360deg);
+            }
+        }
+
+        100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. Top Header -->
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="header-left-actions">
+                <button class="btn-icon" onclick="openSideDrawer()" title="تىزىملىك">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <a href="/login" class="avatar-badge" title="ھېسابات">
+                    ھ
+                </a>
+                <button class="btn-icon" onclick="window.location.href='/orders'" title="ئۇقتۇرۇشلار">
+                    <i class="fa-solid fa-bell text-rose-500" style="color: #f43f5e;"></i>
+                    <span class="red-dot"></span>
+                </button>
+                <button class="btn-icon" onclick="document.getElementById('catalog-search').focus()" title="ئىزدەش">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+
+            <a href="/" class="brand-block">
+                <div>
+                    <div class="brand-title">AUTO CASH</div>
+                    <div class="brand-sub">ئاپتوماتىك پۇل قاچىلاش</div>
+                </div>
+                <img src="/logo.png" alt="Auto Cash Logo" class="brand-logo">
+            </a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- 1.5 Quick Dashboard Bar (ئېلان رەسىمىنىڭ ئۈستىدىكى ئەپچىل قولايلىق رايون) -->
+        <div class="quick-dashboard-bar">
+            <!-- 1. قالدۇق سومما سانى ۋە شۇنى بېسىپ پۇل قاچىلاش -->
+            <a href="/deposit" class="quick-balance-card" title="قالدۇق سوممىڭىزنى كۆرۈش ۋە پۇل قاچىلاش ئۈچۈن بېسىڭ">
+                <div class="balance-info-wrap">
+                    <div class="balance-icon-box">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div class="balance-texts">
+                        <span class="balance-label">قالدۇق سومما</span>
+                        <span class="balance-val font-mono" id="quick-user-balance">$0.00</span>
+                    </div>
+                </div>
+                <div class="balance-topup-btn">
+                    <span>+ پۇل قاچىلاش</span>
+                </div>
+            </a>
+
+            <!-- 2, 3, 4: تەلەپلىرىم، بۈگۈنكى پائالىيەتلەر، ئەزالىق -->
+            <div class="quick-actions-grid">
+                <!-- 2. تەلەپلىرىم -->
+                <a href="/orders" class="quick-action-btn" title="تەلەپلىرىمنى كۆرۈش">
+                    <i class="fa-solid fa-clipboard-list text-blue"></i>
+                    <span>تەلەپلىرىم</span>
+                </a>
+
+                <!-- 3. بۈگۈنكى پائالىيەتلەر -->
+                <a href="/promotions" class="quick-action-btn" title="بۈگۈنكى پائالىيەتلەر ۋە ئالاھىدە ئېتىبارلار">
+                    <i class="fa-solid fa-fire text-amber"></i>
+                    <span>بۈگۈنكى پائالىيەتلەر</span>
+                </a>
+
+                <!-- 4. ئەزالىق -->
+                <a href="/membership" class="quick-action-btn" title="ئەزالىق دەرىجىسى ۋە كارتىلىرى">
+                    <i class="fa-solid fa-crown text-yellow"></i>
+                    <span>ئەزالىق</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 2. Hero Promotional Banner Carousel -->
+        <div class="hero-banner">
+            <div class="banner-exclusive-pill">
+                <i class="fa-solid fa-fire"></i>
+                <span>ئالاھىدە ئېتىبارلار</span>
+            </div>
+            <div class="banner-brand-pill">
+                <i class="fa-solid fa-bolt"></i>
+                <span>AUTO CASH</span>
+            </div>
+
+            <div class="banner-content">
+                <div class="banner-text-side">
+                    <span class="banner-tag">ئالاھىدە سوۋغات</span>
+                    <h2 class="banner-title">نەق پۇل قايتۇرۇش (كاشباك)</h2>
+                    <div class="banner-sub">ھەر قېتىملىق سېتىۋېلىشتا پۇل قايتۇرۇلىدۇ</div>
+                    <button class="banner-btn" onclick="window.location.href='/deposit'">
+                        <span>دەرھال قاچىلاش</span>
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                </div>
+
+                <div class="banner-3d-box">
+                    <div class="box-cube">
+                        دەرھال قاچىلاش
+                    </div>
+                    <div class="box-cashback-badge">
+                        نەق پۇل<br>قايتۇرۇش
+                    </div>
+                </div>
+            </div>
+
+            <div class="banner-dots">
+                <div class="banner-dot active"></div>
+                <div class="banner-dot"></div>
+                <div class="banner-dot"></div>
+                <div class="banner-dot"></div>
+            </div>
+        </div>
+
+        <!-- 3. Category Switcher (ئەپلەر، سۈنئىي ئەقىل، Wi-Fi، كارتىغا پۇل قاچىلاش، ئىجتىمائىي تاراتقۇ، ئويۇنلار) -->
+        <div class="category-row">
+            <!-- 1. ئەپلەر -->
+            <div class="cat-card" onclick="switchCategory('apps')">
+                <div class="cat-icon-wrap" style="background: #d1fae5; color: #059669;">
+                    <i class="fa-solid fa-mobile-screen"></i>
+                </div>
+                <div class="cat-card-title">ئەپلەر</div>
+                <div class="cat-card-sub">(19) تۈر</div>
+            </div>
+
+            <!-- 2. سۈنئىي ئەقىل -->
+            <div class="cat-card" onclick="switchCategory('ai')">
+                <div class="cat-icon-wrap" style="background: #f3e8ff; color: #9333ea;">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="cat-card-title">سۈنئىي ئەقىل</div>
+                <div class="cat-card-sub">(8) تۈر</div>
+            </div>
+
+            <!-- 3. Wi-Fi تور كارتىلىرى -->
+            <div class="cat-card" onclick="switchCategory('wifi')">
+                <div class="cat-icon-wrap" style="background: #e0f2fe; color: #0284c7;">
+                    <i class="fa-solid fa-wifi"></i>
+                </div>
+                <div class="cat-card-title">Wi-Fi تور كارتىلىرى</div>
+                <div class="cat-card-sub">(3) تۈر</div>
+            </div>
+
+            <!-- 4. كارتىغا پۇل قاچىلاش -->
+            <div class="cat-card" onclick="switchCategory('cards')">
+                <div class="cat-icon-wrap" style="background: #dbeafe; color: #2563eb;">
+                    <i class="fa-solid fa-credit-card"></i>
+                </div>
+                <div class="cat-card-title">كارتىغا پۇل قاچىلاش</div>
+                <div class="cat-card-sub">(11) تۈر</div>
+            </div>
+
+            <!-- 5. ئىجتىمائىي تاراتقۇ -->
+            <div class="cat-card" onclick="switchCategory('social')">
+                <div class="cat-icon-wrap" style="background: #fce7f3; color: #db2777;">
+                    <i class="fa-solid fa-share-nodes"></i>
+                </div>
+                <div class="cat-card-title">ئىجتىمائىي تاراتقۇ</div>
+                <div class="cat-card-sub">(7) تۈر</div>
+            </div>
+
+            <!-- 6. ئويۇنلار (ئەڭ ئاستى چەتتەرەپكە) -->
+            <div class="cat-card" onclick="switchCategory('games')">
+                <div class="cat-icon-wrap" style="background: #fee2e2; color: #dc2626;">
+                    <i class="fa-solid fa-gamepad"></i>
+                </div>
+                <div class="cat-card-title">ئويۇنلار</div>
+                <div class="cat-card-sub">(25) تۈر</div>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-bar-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="catalog-search" class="search-input" placeholder="ئويۇن، سۈنئىي ئەقىل، تور كارتىسى ياكى ئەپلەرنى ئىزدەش...">
+        </div>
+
+        <!-- SECTION 1: ئەپلەر -->
+        <div class="section-header" id="sec-apps">
+            <h2 class="section-title">
+                <span style="color: #059669;">📱</span>
+                <span>ئەپلەر</span>
+                <span style="color:#94a3b8; font-size:0.75rem; font-weight:normal;">(19 مەھسۇلات)</span>
+            </h2>
+            <div class="section-more-link" onclick="switchCategory('apps')">
+                <span>ھەممە ئەپلەر</span>
+                <i class="fa-solid fa-arrow-left"></i>
+            </div>
+        </div>
+
+        <div class="products-rail">
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><img src="/logo.png" alt="Auto Cash"> AUTO CASH</div>
+                    <div class="card-top-badges">
+                        <div class="badge-red"><i class="fa-solid fa-fire"></i> ئەڭ كۆپ ئېلىنغىنى</div>
+                        <div class="badge-green"><i class="fa-solid fa-bolt"></i> دەرھال</div>
+                    </div>
+                    <div class="card-swooshes">
+                        <svg width="52" height="52" viewBox="0 0 60 60" fill="none">
+                            <path d="M-5 50L30 15C34 11 40 11 44 15C48 19 48 25 44 29L10 63H-5V50Z" fill="#059669" opacity="0.9" />
+                            <path d="M-10 65L20 35C24 31 30 31 34 35C38 39 38 45 34 49L5 78H-10V65Z" fill="#111827" opacity="0.95" />
+                        </svg>
+                    </div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-logo-wrap">
+                        <svg class="card-logo-brackets" viewBox="0 0 100 100" fill="none">
+                            <path d="M32 9H70C81 9 91 19 91 30V68" stroke="#059669" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M68 91H30C19 91 9 81 9 70V32" stroke="#111827" stroke-width="7" stroke-linecap="round"/>
+                        </svg>
+                        <div class="card-center-icon"><img src="/images/services/picsart.webp" alt="Picsart"></div>
+                    </div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">Picsart ئالتۇن ئەزالىق</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> ئەڭ كۆپ ئېلىنغىنى • ئەپلەر</div>
+                </div>
+            </div>
+
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><img src="/logo.png" alt="Auto Cash"> AUTO CASH</div>
+                    <div class="card-top-badges">
+                        <div class="badge-red"><i class="fa-solid fa-fire"></i> ئەڭ كۆپ ئېلىنغىنى</div>
+                        <div class="badge-green"><i class="fa-solid fa-bolt"></i> دەرھال</div>
+                    </div>
+                    <div class="card-swooshes">
+                        <svg width="52" height="52" viewBox="0 0 60 60" fill="none">
+                            <path d="M-5 50L30 15C34 11 40 11 44 15C48 19 48 25 44 29L10 63H-5V50Z" fill="#059669" opacity="0.9" />
+                            <path d="M-10 65L20 35C24 31 30 31 34 35C38 39 38 45 34 49L5 78H-10V65Z" fill="#111827" opacity="0.95" />
+                        </svg>
+                    </div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-logo-wrap">
+                        <svg class="card-logo-brackets" viewBox="0 0 100 100" fill="none">
+                            <path d="M32 9H70C81 9 91 19 91 30V68" stroke="#059669" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M68 91H30C19 91 9 81 9 70V32" stroke="#111827" stroke-width="7" stroke-linecap="round"/>
+                        </svg>
+                        <div class="card-center-icon"><img src="/images/services/capcut.webp" alt="CapCut"></div>
+                    </div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">CapCut Pro ئەزالىق</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> ئەڭ كۆپ ئېلىنغىنى • ئەپلەر</div>
+                </div>
+            </div>
+
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><img src="/logo.png" alt="Auto Cash"> AUTO CASH</div>
+                    <div class="card-top-badges">
+                        <div class="badge-red"><i class="fa-solid fa-fire"></i> ئەڭ كۆپ ئېلىنغىنى</div>
+                        <div class="badge-green"><i class="fa-solid fa-bolt"></i> دەرھال</div>
+                    </div>
+                    <div class="card-swooshes">
+                        <svg width="52" height="52" viewBox="0 0 60 60" fill="none">
+                            <path d="M-5 50L30 15C34 11 40 11 44 15C48 19 48 25 44 29L10 63H-5V50Z" fill="#059669" opacity="0.9" />
+                            <path d="M-10 65L20 35C24 31 30 31 34 35C38 39 38 45 34 49L5 78H-10V65Z" fill="#111827" opacity="0.95" />
+                        </svg>
+                    </div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-logo-wrap">
+                        <svg class="card-logo-brackets" viewBox="0 0 100 100" fill="none">
+                            <path d="M32 9H70C81 9 91 19 91 30V68" stroke="#059669" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M68 91H30C19 91 9 81 9 70V32" stroke="#111827" stroke-width="7" stroke-linecap="round"/>
+                        </svg>
+                        <div class="card-center-icon"><img src="/images/services/canva.webp" alt="Canva"></div>
+                    </div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">Canva Pro سۇپىسى</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> ئەڭ كۆپ ئېلىنغىنى • ئەپلەر</div>
+                </div>
+            </div>
+
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><img src="/logo.png" alt="Auto Cash"> AUTO CASH</div>
+                    <div class="card-top-badges">
+                        <div class="badge-red"><i class="fa-solid fa-fire"></i> ئەڭ كۆپ ئېلىنغىنى</div>
+                        <div class="badge-green"><i class="fa-solid fa-bolt"></i> دەرھال</div>
+                    </div>
+                    <div class="card-swooshes">
+                        <svg width="52" height="52" viewBox="0 0 60 60" fill="none">
+                            <path d="M-5 50L30 15C34 11 40 11 44 15C48 19 48 25 44 29L10 63H-5V50Z" fill="#059669" opacity="0.9" />
+                            <path d="M-10 65L20 35C24 31 30 31 34 35C38 39 38 45 34 49L5 78H-10V65Z" fill="#111827" opacity="0.95" />
+                        </svg>
+                    </div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-logo-wrap">
+                        <svg class="card-logo-brackets" viewBox="0 0 100 100" fill="none">
+                            <path d="M32 9H70C81 9 91 19 91 30V68" stroke="#059669" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M68 91H30C19 91 9 81 9 70V32" stroke="#111827" stroke-width="7" stroke-linecap="round"/>
+                        </svg>
+                        <div class="card-center-icon"><img src="/images/services/spotify.webp" alt="Spotify"></div>
+                    </div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">Spotify Premium</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> ئەڭ كۆپ ئېلىنغىنى • ئەپلەر</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 2: سۈنئىي ئەقىل -->
+        <div class="section-header" id="sec-ai">
+            <h2 class="section-title">
+                <span style="color: #9333ea;">🤖</span>
+                <span>سۈنئىي ئەقىل</span>
+                <span style="color:#94a3b8; font-size:0.75rem; font-weight:normal;">(8 مەھسۇلات)</span>
+            </h2>
+            <div class="section-more-link" onclick="switchCategory('ai')">
+                <span>ھەممە AI لار</span>
+                <i class="fa-solid fa-arrow-left"></i>
+            </div>
+        </div>
+
+        <div class="products-rail">
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><i class="fa-solid fa-bolt"></i> AUTO CASH</div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-center-icon" style="background:#fff;"><img src="/images/services/chatgpt.webp" alt="ChatGPT Plus"></div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">ChatGPT Plus ئەزالىق</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> سۈنئىي ئەقىل</div>
+                </div>
+            </div>
+
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><i class="fa-solid fa-bolt"></i> AUTO CASH</div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-center-icon" style="background:#fff;"><img src="/images/services/google_gemini.webp" alt="Google Gemini"></div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">Google Gemini Advanced</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> سۈنئىي ئەقىل</div>
+                </div>
+            </div>
+
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><i class="fa-solid fa-bolt"></i> AUTO CASH</div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-center-icon" style="background:#fff;"><img src="/images/services/cursor_pro.webp" alt="Cursor Pro"></div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">Cursor Pro ئەزالىق</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> سۈنئىي ئەقىل</div>
+                </div>
+            </div>
+
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><i class="fa-solid fa-bolt"></i> AUTO CASH</div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-center-icon" style="background:#fff;"><img src="/images/services/kimi_ai.webp" alt="Kimi AI"></div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">Kimi AI ئالىي ئەزالىقى</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> سۈنئىي ئەقىل</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: Wi-Fi تور كارتىلىرى -->
+        <div class="section-header" id="sec-wifi">
+            <h2 class="section-title">
+                <span style="color: #0284c7;">📶</span>
+                <span>Wi-Fi تور كارتىلىرى</span>
+                <span style="color:#94a3b8; font-size:0.75rem; font-weight:normal;">(3 مەھسۇلات)</span>
+            </h2>
+            <div class="section-more-link" onclick="switchCategory('wifi')">
+                <span>ھەممە كارتىلار</span>
+                <i class="fa-solid fa-arrow-left"></i>
+            </div>
+        </div>
+
+        <div class="products-rail">
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><i class="fa-solid fa-bolt"></i> AUTO CASH</div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-center-icon" style="background:#fff;"><img src="/images/services/wifi_cards.webp" alt="Azez Net"></div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">شبكة عزيز نت (Azez Net)</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> Wi-Fi كارتىسى</div>
+                </div>
+            </div>
+
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><i class="fa-solid fa-bolt"></i> AUTO CASH</div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-center-icon" style="background:#fff;"><img src="/images/services/wifi_cards.webp" alt="Fursan Net"></div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">شبكة الفرسان (Fursan Net)</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> Wi-Fi كارتىسى</div>
+                </div>
+            </div>
+
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><i class="fa-solid fa-bolt"></i> AUTO CASH</div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-center-icon" style="background:#fff;"><img src="/images/services/wifi_cards.webp" alt="Al Mujahid Net"></div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">شبكة المجاهد نت</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> Wi-Fi كارتىسى</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 4: كارتىغا پۇل قاچىلاش -->
+        <div class="section-header" id="sec-cards">
+            <h2 class="section-title">
+                <span style="color: #2563eb;">💳</span>
+                <span>كارتىغا پۇل قاچىلاش</span>
+                <span style="color:#94a3b8; font-size:0.75rem; font-weight:normal;">(11 مەھسۇلات)</span>
+            </h2>
+            <div class="section-more-link" onclick="switchCategory('cards')">
+                <span>ھەممە كارتىلار</span>
+                <i class="fa-solid fa-arrow-left"></i>
+            </div>
+        </div>
+
+        <div class="products-rail">
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><i class="fa-solid fa-bolt"></i> AUTO CASH</div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-center-icon" style="background:#fff;"><img src="/images/services/visa_card.webp" alt="Mastercard"></div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">مەۋھۇم ماستېركارت (Mastercard)</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> پۇل كارتىسى</div>
+                </div>
+            </div>
+
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><i class="fa-solid fa-bolt"></i> AUTO CASH</div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-center-icon" style="background:#fff;"><img src="/images/services/apple_itunes.webp" alt="iTunes"></div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">iTunes ئالما كارتىسى (USA)</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> قىممەت كارتىسى</div>
+                </div>
+            </div>
+
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><i class="fa-solid fa-bolt"></i> AUTO CASH</div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-center-icon" style="background:#fff;"><img src="/images/services/steam.webp" alt="Steam"></div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">ستىم قىممەت كارتىسى (Steam USA)</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> ستىم كارتىسى</div>
+                </div>
+            </div>
+
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><i class="fa-solid fa-bolt"></i> AUTO CASH</div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-center-icon" style="background:#fff;"><img src="/images/services/turkcell.webp" alt="Turkcell"></div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">Turkcell تۈرك كارتىسى</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> تېلېفون پۇلى</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 5: ئىجتىمائىي تاراتقۇ -->
+        <div class="section-header" id="sec-social">
+            <h2 class="section-title">
+                <span style="color: #db2777;">🌐</span>
+                <span>إىجتىمائىي تاراتقۇ</span>
+                <span style="color:#94a3b8; font-size:0.75rem; font-weight:normal;">(7 مەھسۇلات)</span>
+            </h2>
+            <div class="section-more-link" onclick="switchCategory('social')">
+                <span>ھەممە تاراتقۇلار</span>
+                <i class="fa-solid fa-arrow-left"></i>
+            </div>
+        </div>
+
+        <div class="products-rail">
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><img src="/logo.png" alt="Auto Cash"> AUTO CASH</div>
+                    <div class="card-top-badges">
+                        <div class="badge-red"><i class="fa-solid fa-fire"></i> ئەڭ كۆپ ئېلىنغىنى</div>
+                        <div class="badge-green"><i class="fa-solid fa-bolt"></i> دەرھال</div>
+                    </div>
+                    <div class="card-swooshes">
+                        <svg width="52" height="52" viewBox="0 0 60 60" fill="none">
+                            <path d="M-5 50L30 15C34 11 40 11 44 15C48 19 48 25 44 29L10 63H-5V50Z" fill="#059669" opacity="0.9" />
+                            <path d="M-10 65L20 35C24 31 30 31 34 35C38 39 38 45 34 49L5 78H-10V65Z" fill="#111827" opacity="0.95" />
+                        </svg>
+                    </div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-logo-wrap">
+                        <svg class="card-logo-brackets" viewBox="0 0 100 100" fill="none">
+                            <path d="M32 9H70C81 9 91 19 91 30V68" stroke="#059669" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M68 91H30C19 91 9 81 9 70V32" stroke="#111827" stroke-width="7" stroke-linecap="round"/>
+                        </svg>
+                        <div class="card-center-icon"><img src="/images/services/telegram.webp" alt="Telegram"></div>
+                    </div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">Telegram ئەزالار ۋە يۇلتۇز</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> ئىجتىمائىي تاراتقۇ</div>
+                </div>
+            </div>
+
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><img src="/logo.png" alt="Auto Cash"> AUTO CASH</div>
+                    <div class="card-top-badges">
+                        <div class="badge-red"><i class="fa-solid fa-fire"></i> ئەڭ كۆپ ئېلىنغىنى</div>
+                        <div class="badge-green"><i class="fa-solid fa-bolt"></i> دەرھال</div>
+                    </div>
+                    <div class="card-swooshes">
+                        <svg width="52" height="52" viewBox="0 0 60 60" fill="none">
+                            <path d="M-5 50L30 15C34 11 40 11 44 15C48 19 48 25 44 29L10 63H-5V50Z" fill="#059669" opacity="0.9" />
+                            <path d="M-10 65L20 35C24 31 30 31 34 35C38 39 38 45 34 49L5 78H-10V65Z" fill="#111827" opacity="0.95" />
+                        </svg>
+                    </div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-logo-wrap">
+                        <svg class="card-logo-brackets" viewBox="0 0 100 100" fill="none">
+                            <path d="M32 9H70C81 9 91 19 91 30V68" stroke="#059669" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M68 91H30C19 91 9 81 9 70V32" stroke="#111827" stroke-width="7" stroke-linecap="round"/>
+                        </svg>
+                        <div class="card-center-icon"><img src="/images/services/instagram.webp" alt="Instagram"></div>
+                    </div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">Instagram مۇلازىمەتلىرى</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> ئىجتىمائىي تاراتقۇ</div>
+                </div>
+            </div>
+
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><img src="/logo.png" alt="Auto Cash"> AUTO CASH</div>
+                    <div class="card-top-badges">
+                        <div class="badge-red"><i class="fa-solid fa-fire"></i> ئەڭ كۆپ ئېلىنغىنى</div>
+                        <div class="badge-green"><i class="fa-solid fa-bolt"></i> دەرھال</div>
+                    </div>
+                    <div class="card-swooshes">
+                        <svg width="52" height="52" viewBox="0 0 60 60" fill="none">
+                            <path d="M-5 50L30 15C34 11 40 11 44 15C48 19 48 25 44 29L10 63H-5V50Z" fill="#059669" opacity="0.9" />
+                            <path d="M-10 65L20 35C24 31 30 31 34 35C38 39 38 45 34 49L5 78H-10V65Z" fill="#111827" opacity="0.95" />
+                        </svg>
+                    </div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-logo-wrap">
+                        <svg class="card-logo-brackets" viewBox="0 0 100 100" fill="none">
+                            <path d="M32 9H70C81 9 91 19 91 30V68" stroke="#059669" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M68 91H30C19 91 9 81 9 70V32" stroke="#111827" stroke-width="7" stroke-linecap="round"/>
+                        </svg>
+                        <div class="card-center-icon"><img src="/images/services/youtube.webp" alt="YouTube"></div>
+                    </div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">YouTube مۇلازىمەتلىرى</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> ئىجتىمائىي تاراتقۇ</div>
+                </div>
+            </div>
+
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><img src="/logo.png" alt="Auto Cash"> AUTO CASH</div>
+                    <div class="card-top-badges">
+                        <div class="badge-red"><i class="fa-solid fa-fire"></i> ئەڭ كۆپ ئېلىنغىنى</div>
+                        <div class="badge-green"><i class="fa-solid fa-bolt"></i> دەرھال</div>
+                    </div>
+                    <div class="card-swooshes">
+                        <svg width="52" height="52" viewBox="0 0 60 60" fill="none">
+                            <path d="M-5 50L30 15C34 11 40 11 44 15C48 19 48 25 44 29L10 63H-5V50Z" fill="#059669" opacity="0.9" />
+                            <path d="M-10 65L20 35C24 31 30 31 34 35C38 39 38 45 34 49L5 78H-10V65Z" fill="#111827" opacity="0.95" />
+                        </svg>
+                    </div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-logo-wrap">
+                        <svg class="card-logo-brackets" viewBox="0 0 100 100" fill="none">
+                            <path d="M32 9H70C81 9 91 19 91 30V68" stroke="#059669" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M68 91H30C19 91 9 81 9 70V32" stroke="#111827" stroke-width="7" stroke-linecap="round"/>
+                        </svg>
+                        <div class="card-center-icon"><img src="/images/services/tiktok.webp" alt="TikTok"></div>
+                    </div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">TikTok تەڭگىسى ۋە ياقتۇرۇش</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> ئىجتىمائىي تاراتقۇ</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 6 (ئەڭ ئاستى بۆلەك): ئويۇنلار -->
+        <div class="section-header" id="sec-games">
+            <h2 class="section-title">
+                <span style="color: #f59e0b;">★</span>
+                <span>ئويۇنلار</span>
+                <span style="color:#94a3b8; font-size:0.75rem; font-weight:normal;">(25 مەھسۇلات)</span>
+            </h2>
+            <div class="section-more-link" onclick="switchCategory('games')">
+                <span>ھەممە ئويۇنلار</span>
+                <i class="fa-solid fa-arrow-left"></i>
+            </div>
+        </div>
+
+        <div class="products-rail">
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><img src="/logo.png" alt="Auto Cash"> AUTO CASH</div>
+                    <div class="card-top-badges">
+                        <div class="badge-red"><i class="fa-solid fa-fire"></i> ئەڭ كۆپ ئېلىنغىنى</div>
+                        <div class="badge-green"><i class="fa-solid fa-bolt"></i> دەرھال</div>
+                    </div>
+                    <div class="card-swooshes">
+                        <svg width="52" height="52" viewBox="0 0 60 60" fill="none">
+                            <path d="M-5 50L30 15C34 11 40 11 44 15C48 19 48 25 44 29L10 63H-5V50Z" fill="#059669" opacity="0.9" />
+                            <path d="M-10 65L20 35C24 31 30 31 34 35C38 39 38 45 34 49L5 78H-10V65Z" fill="#111827" opacity="0.95" />
+                        </svg>
+                    </div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-logo-wrap">
+                        <svg class="card-logo-brackets" viewBox="0 0 100 100" fill="none">
+                            <path d="M32 9H70C81 9 91 19 91 30V68" stroke="#059669" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M68 91H30C19 91 9 81 9 70V32" stroke="#111827" stroke-width="7" stroke-linecap="round"/>
+                        </svg>
+                        <div class="card-center-icon"><img src="/images/services/pubg_mobile.webp" alt="PUBG"></div>
+                    </div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">PUBG Mobile</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> ئەڭ كۆپ ئېلىنغىنى • تەلەپ يۇقىرى</div>
+                </div>
+            </div>
+
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><img src="/logo.png" alt="Auto Cash"> AUTO CASH</div>
+                    <div class="card-top-badges">
+                        <div class="badge-red"><i class="fa-solid fa-fire"></i> ئەڭ كۆپ ئېلىنغىنى</div>
+                        <div class="badge-green"><i class="fa-solid fa-bolt"></i> دەرھال</div>
+                    </div>
+                    <div class="card-swooshes">
+                        <svg width="52" height="52" viewBox="0 0 60 60" fill="none">
+                            <path d="M-5 50L30 15C34 11 40 11 44 15C48 19 48 25 44 29L10 63H-5V50Z" fill="#059669" opacity="0.9" />
+                            <path d="M-10 65L20 35C24 31 30 31 34 35C38 39 38 45 34 49L5 78H-10V65Z" fill="#111827" opacity="0.95" />
+                        </svg>
+                    </div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-logo-wrap">
+                        <svg class="card-logo-brackets" viewBox="0 0 100 100" fill="none">
+                            <path d="M32 9H70C81 9 91 19 91 30V68" stroke="#059669" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M68 91H30C19 91 9 81 9 70V32" stroke="#111827" stroke-width="7" stroke-linecap="round"/>
+                        </svg>
+                        <div class="card-center-icon"><img src="/images/services/free_fire.webp" alt="Free Fire"></div>
+                    </div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">Free Fire</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> ئەڭ كۆپ ئېلىنغىنى • تەلەپ يۇقىرى</div>
+                </div>
+            </div>
+
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><img src="/logo.png" alt="Auto Cash"> AUTO CASH</div>
+                    <div class="card-top-badges">
+                        <div class="badge-red"><i class="fa-solid fa-fire"></i> ئەڭ كۆپ ئېلىنغىنى</div>
+                        <div class="badge-green"><i class="fa-solid fa-bolt"></i> دەرھال</div>
+                    </div>
+                    <div class="card-swooshes">
+                        <svg width="52" height="52" viewBox="0 0 60 60" fill="none">
+                            <path d="M-5 50L30 15C34 11 40 11 44 15C48 19 48 25 44 29L10 63H-5V50Z" fill="#059669" opacity="0.9" />
+                            <path d="M-10 65L20 35C24 31 30 31 34 35C38 39 38 45 34 49L5 78H-10V65Z" fill="#111827" opacity="0.95" />
+                        </svg>
+                    </div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-logo-wrap">
+                        <svg class="card-logo-brackets" viewBox="0 0 100 100" fill="none">
+                            <path d="M32 9H70C81 9 91 19 91 30V68" stroke="#059669" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M68 91H30C19 91 9 81 9 70V32" stroke="#111827" stroke-width="7" stroke-linecap="round"/>
+                        </svg>
+                        <div class="card-center-icon"><img src="/images/services/yalla_ludo.webp" alt="Yalla Ludo"></div>
+                    </div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">Yalla Ludo / تەڭگە ۋە ئالماس</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> ئەڭ كۆپ ئېلىنغىنى • تەلەپ يۇقىرى</div>
+                </div>
+            </div>
+
+            <div class="product-card" onclick="window.location.href='/'">
+                <div class="product-card-art">
+                    <div class="card-corner-logo"><img src="/logo.png" alt="Auto Cash"> AUTO CASH</div>
+                    <div class="card-top-badges">
+                        <div class="badge-red"><i class="fa-solid fa-fire"></i> ئەڭ كۆپ ئېلىنغىنى</div>
+                        <div class="badge-green"><i class="fa-solid fa-bolt"></i> دەرھال</div>
+                    </div>
+                    <div class="card-swooshes">
+                        <svg width="52" height="52" viewBox="0 0 60 60" fill="none">
+                            <path d="M-5 50L30 15C34 11 40 11 44 15C48 19 48 25 44 29L10 63H-5V50Z" fill="#059669" opacity="0.9" />
+                            <path d="M-10 65L20 35C24 31 30 31 34 35C38 39 38 45 34 49L5 78H-10V65Z" fill="#111827" opacity="0.95" />
+                        </svg>
+                    </div>
+                    <div class="card-diamonds">✦ ✦ ✦</div>
+                    <div class="card-logo-wrap">
+                        <svg class="card-logo-brackets" viewBox="0 0 100 100" fill="none">
+                            <path d="M32 9H70C81 9 91 19 91 30V68" stroke="#059669" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M68 91H30C19 91 9 81 9 70V32" stroke="#111827" stroke-width="7" stroke-linecap="round"/>
+                        </svg>
+                        <div class="card-center-icon"><img src="/images/services/mobile_legends.webp" alt="Mobile Legends"></div>
+                    </div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-title">Mobile Legends</div>
+                    <div class="product-card-tag"><i class="fa-solid fa-tag"></i> ئەڭ كۆپ ئېلىنغىنى • تەلەپ يۇقىرى</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SGC Style Side Drawer (يان تىزىملىك) -->
+    <div id="drawerOverlay" class="drawer-overlay" onclick="closeSideDrawer(event)">
+        <div class="side-drawer-panel" onclick="event.stopPropagation()">
+            <!-- Drawer Header -->
+            <div class="drawer-header">
+                <div class="drawer-header-brand">
+                    <img src="/logo.png" alt="Auto Cash" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                    <span class="drawer-brand-name">AUTO CASH</span>
+                    <span class="drawer-sep">|</span>
+                    <span class="drawer-title">ئاساسىي تىزىملىك</span>
+                </div>
+                <button class="drawer-close-btn" onclick="closeSideDrawer()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Drawer Body -->
+            <div class="drawer-body">
+                <!-- User Profile Card -->
+                <div class="drawer-user-card">
+                    <div class="drawer-user-info">
+                        <div class="drawer-user-avatar">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div>
+                            <div class="drawer-username" id="drawerUserName">مېھمان خېرىدار</div>
+                            <div class="drawer-user-sub">خۇش كەپسىز</div>
+                        </div>
+                    </div>
+                    <a href="/deposit" class="drawer-balance-pill" title="پۇل قاچىلاش">
+                        <i class="fa-solid fa-plus"></i>
+                        <span id="drawerBalanceVal">$0.00</span>
+                        <i class="fa-solid fa-wallet"></i>
+                    </a>
+                </div>
+
+                <!-- Section Divider -->
+                <div class="drawer-divider-title">
+                    <span>مۇلازىمەت ۋە دۇكان</span>
+                </div>
+
+                <!-- Navigation List -->
+                <div class="drawer-nav-list">
+                    <a href="/" class="drawer-nav-item" onclick="closeSideDrawer()">
+                        <div class="drawer-nav-icon"><i class="fa-solid fa-house"></i></div>
+                        <span>باشبەت</span>
+                    </a>
+
+                    <button class="drawer-nav-item" onclick="switchCategory('apps'); closeSideDrawer();">
+                        <div class="drawer-nav-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+                        <span>ئەپلەر</span>
+                    </button>
+
+                    <button class="drawer-nav-item" onclick="switchCategory('ai'); closeSideDrawer();">
+                        <div class="drawer-nav-icon"><i class="fa-solid fa-robot"></i></div>
+                        <span>سۈنئىي ئەقىل</span>
+                    </button>
+
+                    <button class="drawer-nav-item" onclick="switchCategory('wifi'); closeSideDrawer();">
+                        <div class="drawer-nav-icon"><i class="fa-solid fa-wifi"></i></div>
+                        <span>Wi-Fi تور كارتىلىرى</span>
+                    </button>
+
+                    <button class="drawer-nav-item" onclick="switchCategory('cards'); closeSideDrawer();">
+                        <div class="drawer-nav-icon"><i class="fa-solid fa-credit-card"></i></div>
+                        <span>كارتىغا پۇل قاچىلاش</span>
+                    </button>
+
+                    <button class="drawer-nav-item" onclick="switchCategory('social'); closeSideDrawer();">
+                        <div class="drawer-nav-icon"><i class="fa-solid fa-share-nodes"></i></div>
+                        <span>ئىجتىمائىي تاراتقۇ</span>
+                    </button>
+
+                    <button class="drawer-nav-item" onclick="switchCategory('games'); closeSideDrawer();">
+                        <div class="drawer-nav-icon"><i class="fa-solid fa-gamepad"></i></div>
+                        <span>ئويۇنلارغا پۇل قاچىلاش</span>
+                    </button>
+
+                    <a href="/orders" class="drawer-nav-item" onclick="closeSideDrawer()">
+                        <div class="drawer-nav-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                        <span>مېنىڭ زاكاسلىرىم</span>
+                    </a>
+
+                    <a href="/membership" class="drawer-nav-item" onclick="closeSideDrawer()">
+                        <div class="drawer-nav-icon"><i class="fa-solid fa-crown"></i></div>
+                        <span>ئەزالىق ۋە ئىمتىياز</span>
+                    </a>
+
+                    <a href="https://t.me/autocash_admin" target="_blank" class="drawer-nav-item">
+                        <div class="drawer-nav-icon"><i class="fa-solid fa-headset"></i></div>
+                        <span>24 سائەتلىك ياردەم</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Drawer Footer -->
+            <div class="drawer-footer">
+                <a href="/login" class="drawer-logout-btn" id="drawerAuthBtn">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <span>كىرىش / تىزىملىتىش</span>
+                </a>
+                <button class="drawer-theme-btn" onclick="toggleTheme()" title="تېما ئالماشتۇرۇش">
+                    <i class="fa-solid fa-moon" id="drawerThemeIcon"></i>
+                    <span>تېما</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Bottom Navigation Bar -->
+    <nav class="bottom-nav-bar">
+        <a href="/" class="bottom-nav-item active">
+            <div class="bottom-nav-icon-wrap"><i class="fa-solid fa-house"></i></div>
+            <span class="bottom-nav-label">باشبەت</span>
+        </a>
+        <a href="/orders" class="bottom-nav-item">
+            <div class="bottom-nav-icon-wrap"><i class="fa-solid fa-clipboard-list"></i></div>
+            <span class="bottom-nav-label">تەلەپلىرىم</span>
+        </a>
+        <a href="/deposit" class="bottom-nav-item">
+            <div class="bottom-nav-icon-wrap"><i class="fa-solid fa-wallet"></i></div>
+            <span class="bottom-nav-label">ھەميانىم</span>
+        </a>
+        <a href="/account" class="bottom-nav-item">
+            <div class="bottom-nav-icon-wrap"><i class="fa-solid fa-user"></i></div>
+            <span class="bottom-nav-label">ھېسابىم</span>
+        </a>
+    </nav>
+
+    <script>
+        function openSideDrawer() {
+            const overlay = document.getElementById('drawerOverlay');
+            if (overlay) overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSideDrawer(e) {
+            if (e && e.target && e.target.id !== 'drawerOverlay' && !e.target.closest('.drawer-close-btn')) return;
+            const overlay = document.getElementById('drawerOverlay');
+            if (overlay) overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('autocash_theme', isDark ? 'dark' : 'light');
+            const icon = document.getElementById('drawerThemeIcon');
+            if (icon) {
+                icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            }
+        }
+
+        function switchCategory(cat) {
+            window.location.href = '/?category=' + cat;
+        }
+
+        // Initialize User and Theme from LocalStorage
+        (function() {
+            const savedTheme = localStorage.getItem('autocash_theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                const icon = document.getElementById('drawerThemeIcon');
+                if (icon) icon.className = 'fa-solid fa-sun';
+            }
+
+            try {
+                const isLoggedIn = localStorage.getItem('autocash_is_logged_in') === 'true';
+                const username = localStorage.getItem('autocash_username');
+                if (isLoggedIn && username) {
+                    const uEl = document.getElementById('drawerUserName');
+                    if (uEl) uEl.textContent = username;
+                    const authBtn = document.getElementById('drawerAuthBtn');
+                    if (authBtn) {
+                        authBtn.innerHTML = '<i class="fa-solid fa-arrow-right-from-bracket"></i> <span>چېكىنىش</span>';
+                        authBtn.href = '#';
+                        authBtn.onclick = function() {
+                            localStorage.removeItem('autocash_is_logged_in');
+                            localStorage.removeItem('autocash_username');
+                            localStorage.removeItem('autocash_email');
+                            window.location.reload();
+                        };
+                    }
+                }
+            } catch(e) {}
+        })();
+    </script>
+</body>
+</html>

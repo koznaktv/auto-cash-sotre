@@ -123,15 +123,15 @@ export default function AnimatedOrderButton({
           isSuccess
             ? 'bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 ring-2 ring-emerald-400/50 scale-[1.02]'
             : isLoading
-            ? 'bg-gradient-to-r from-cyan-600 via-indigo-600 to-purple-700 text-white shadow-lg shadow-cyan-500/20 cursor-wait'
-            : 'bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 hover:opacity-95 text-white shadow-lg shadow-cyan-500/25 active:scale-[0.98] cursor-pointer'
+            ? 'bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 text-white shadow-lg shadow-emerald-900/30 cursor-wait'
+            : 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg shadow-emerald-950/30 active:scale-[0.98] cursor-pointer'
         } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         {/* State 1: Idle */}
         {!isLoading && !isSuccess && (
           <div className="flex items-center gap-2 transition-all duration-300">
-            <ShoppingCart className="w-4 h-4 text-cyan-200 shrink-0" />
-            <span className="font-bold text-[13px] tracking-wide">{label}</span>
+            <ShoppingCart className="w-4 h-4 text-emerald-100 shrink-0" />
+            <span className="font-bold text-[13px] tracking-wide font-alkatip">{label}</span>
           </div>
         )}
 
@@ -153,10 +153,10 @@ export default function AnimatedOrderButton({
               </div>
 
               {/* Shopping Cart */}
-              <ShoppingCart className="w-5 h-5 text-cyan-200 drop-shadow-[0_0_8px_rgba(34,211,238,0.9)]" />
+              <ShoppingCart className="w-5 h-5 text-emerald-200 drop-shadow-[0_0_8px_rgba(16,185,129,0.9)]" />
             </div>
 
-            <span className={`${isRTL ? 'mr-3' : 'ml-3'} text-xs font-bold text-cyan-100`}>
+            <span className={`${isRTL ? 'mr-3' : 'ml-3'} text-xs font-bold text-emerald-100 font-alkatip`}>
               {t('processing')}
             </span>
           </div>

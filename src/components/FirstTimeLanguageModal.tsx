@@ -146,26 +146,26 @@ export default function FirstTimeLanguageModal() {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-lg bg-gradient-to-b from-[#081a2e] via-[#051322] to-[#020b16] border border-amber-500/40 rounded-3xl p-5 sm:p-7 shadow-[0_0_60px_rgba(0,0,0,0.95)] overflow-hidden cursor-default"
+        className="relative w-full max-w-lg bg-gradient-to-b from-[#06182a] via-[#041220] to-[#020b16] border border-emerald-500/40 rounded-3xl p-5 sm:p-7 shadow-[0_20px_60px_rgba(0,0,0,0.9)] overflow-hidden cursor-default"
         dir={selected === 'ug' || selected === 'ar' ? 'rtl' : 'ltr'}
       >
         {/* Ambient Glowing Background Halos */}
-        <div className="absolute -top-24 -right-24 w-52 h-52 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-52 h-52 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-52 h-52 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-52 h-52 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Close Button (Sets flag and closes permanently) */}
         <button
           onClick={handleDismiss}
           type="button"
           title="Close / ياپقۇچ"
-          className="absolute top-4 ltr:right-4 rtl:left-4 z-10 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition cursor-pointer"
+          className="absolute top-4 ltr:right-4 rtl:left-4 z-10 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Center Header with Master 3D Logo */}
         <div className="text-center mb-5 relative z-10">
-          <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full p-[2px] bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-xl shadow-amber-500/30 mx-auto mb-3 overflow-hidden">
+          <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full p-[2px] bg-gradient-to-tr from-[#047857] via-[#059669] to-[#f59e0b] shadow-xl shadow-emerald-500/30 mx-auto mb-3 overflow-hidden">
             <img
               src="/brand_logo.png?v=2.1.0"
               alt="AUTO CASH"
@@ -174,12 +174,12 @@ export default function FirstTimeLanguageModal() {
             />
           </div>
 
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold mb-2">
-            <Globe2 className="w-3.5 h-3.5 text-amber-400" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold mb-2 font-alkatip">
+            <Globe2 className="w-3.5 h-3.5 text-emerald-400" />
             <span>Select Language • تىل تاللاڭ</span>
           </div>
 
-          <h3 className="font-ukij text-xl sm:text-2xl font-black text-white gold-text-glow mb-1.5">
+          <h3 className="font-alkatip text-xl sm:text-2xl font-black text-white mb-1.5">
             خۇش كەپسىز • Welcome
           </h3>
 
@@ -199,8 +199,8 @@ export default function FirstTimeLanguageModal() {
                 onClick={() => handleSelectLanguage(item.code)}
                 className={`relative p-3 rounded-2xl border transition-all text-start flex flex-col justify-between gap-2 cursor-pointer active:scale-95 ${
                   isSelected
-                    ? 'bg-gradient-to-b from-amber-500/25 to-amber-500/10 border-amber-400 text-amber-200 shadow-lg shadow-amber-500/20 ring-1 ring-amber-400/50'
-                    : 'bg-slate-900/70 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-800/80 hover:text-white'
+                    ? 'bg-gradient-to-b from-emerald-500/25 to-emerald-500/10 border-emerald-400 text-emerald-200 shadow-lg shadow-emerald-500/25 ring-1 ring-emerald-400/60'
+                    : 'bg-white/[0.04] border-white/10 text-slate-300 hover:border-white/20 hover:bg-white/[0.08] hover:text-white'
                 }`}
               >
                 {/* Top Row: Flag & Checkmark */}
@@ -212,13 +212,13 @@ export default function FirstTimeLanguageModal() {
                     />
                   </div>
                   {isSelected && (
-                    <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0 animate-in zoom-in-50" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 animate-in zoom-in-50" />
                   )}
                 </div>
 
                 {/* Bottom Row: Language Name */}
                 <div>
-                  <div className="font-bold text-sm text-white tracking-wide">
+                  <div className="font-bold text-sm text-white tracking-wide font-alkatip">
                     {item.nativeName}
                   </div>
                   <div className="text-[10px] text-slate-400 font-mono uppercase">
@@ -235,14 +235,14 @@ export default function FirstTimeLanguageModal() {
           <button
             type="button"
             onClick={handleConfirm}
-            className="w-full py-3.5 rounded-2xl gold-shimmer-btn text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-xl shadow-amber-500/30 hover:scale-[1.02] active:scale-95 transition-all font-alkatip cursor-pointer"
+            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#047857] via-[#059669] to-[#10b981] hover:from-[#059669] hover:to-[#34d399] text-white text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/30 hover:scale-[1.02] active:scale-95 transition-all font-alkatip cursor-pointer"
           >
-            <Sparkles className="w-4 h-4 text-slate-950" />
+            <Sparkles className="w-4 h-4 text-amber-300" />
             <span>جەزملەش ۋە كىرىش • Confirm & Enter</span>
             {selected === 'ug' || selected === 'ar' ? (
-              <ArrowLeft className="w-4 h-4 text-slate-950" />
+              <ArrowLeft className="w-4 h-4 text-white" />
             ) : (
-              <ArrowRight className="w-4 h-4 text-slate-950" />
+              <ArrowRight className="w-4 h-4 text-white" />
             )}
           </button>
         </div>

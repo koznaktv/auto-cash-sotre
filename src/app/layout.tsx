@@ -53,7 +53,8 @@ export default function RootLayout({
   return (
     <html lang="ug" dir="rtl" suppressHydrationWarning>
       <head>
-        <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossOrigin="anonymous" referrerPolicy="no-referrer" />
+        <Script src="https://telegram.org/js/telegram-web-app.js" strategy="afterInteractive" />
       </head>
       <body className="bg-[#040d1a] text-slate-100 antialiased min-h-screen">
         <LanguageProvider>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Navbar from '@/components/Navbar';
+import SGCSubpageLayout from '@/components/SGCSubpageLayout';
 import { useLanguage } from '@/context/LanguageContext';
 import { 
   Search, 
@@ -208,37 +208,23 @@ export default function OrdersPage() {
   });
 
   return (
-    <div
-      className={`min-h-screen bg-[#040e1d] text-slate-100 flex flex-col pb-24 md:pb-8 selection:bg-cyan-500 selection:text-white font-alkatip ${
-        isRTL ? 'text-right' : 'text-left'
-      }`}
-      dir={isRTL ? 'rtl' : 'ltr'}
+    <SGCSubpageLayout
+      title={lang === 'ug' ? 'تەلەپلىرىم' : t('ordersTitle')}
+      subtitle={lang === 'ug' ? 'بارلىق زاكاز ۋە ئاپتوماتىك قاچىلاش نەتىجىلىرى' : 'سجل الطلبات والشحنات'}
+      headerActions={
+        <button
+          onClick={fetchOrders}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-xs font-bold text-emerald-600 dark:text-emerald-400 transition cursor-pointer"
+          title="يېڭىلاش"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : 'animate-icon-gleam'}`} />
+          <span>يېڭىلاش</span>
+        </button>
+      }
     >
-      <Navbar balance={balance} user={currentUser} />
-
-      <main className="max-w-2xl mx-auto px-4 py-5 w-full flex-1 space-y-4">
-        {/* Top Header */}
-        <div className="flex items-center justify-between pb-2">
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 border border-amber-500/35 hover:border-amber-400 text-amber-300 hover:text-white text-xs font-bold transition shadow cursor-pointer font-alkatip"
-          >
-            {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-            <span>{t('store')}</span>
-          </Link>
-
-          <div className={isRTL ? 'text-left' : 'text-right'}>
-            <h1 className="font-ukij text-2xl sm:text-3xl font-black text-white gold-text-glow leading-snug">
-              {t('ordersTitle')}
-            </h1>
-            <p className="text-xs text-slate-400 mt-0.5">
-              {t('ordersSubtitle')}
-            </p>
-          </div>
-        </div>
-
+      <div className="space-y-4">
         {/* Filter Card container */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-[#071628]/90 border border-slate-800 shadow-xl space-y-3.5">
+        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/10 shadow-xs space-y-3.5">
           {/* Search Box */}
           <div className="relative">
             <input
@@ -246,21 +232,21 @@ export default function OrdersPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t('orderSearchPlaceholder')}
-              className={`w-full bg-[#051120] border border-slate-700/80 rounded-xl ${
+              className={`w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl ${
                 isRTL ? 'pr-3 pl-10 text-right' : 'pl-3 pr-10 text-left'
-              } py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 transition font-alkatip`}
+              } py-2.5 text-xs text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:bg-white dark:focus:bg-[#0c1322] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition font-alkatip`}
             />
             <Search className={`w-4 h-4 text-slate-400 absolute ${isRTL ? 'left-3' : 'right-3'} top-3 pointer-events-none`} />
           </div>
 
           {/* Date Picker Row */}
-          <div className="grid grid-cols-2 gap-2.5 text-[11px]">
+          <div className="grid grid-cols-2 gap-2 text-[11px]">
             <div>
-              <span className="block text-slate-400 text-[10px] mb-1 font-alkatip">
+              <span className="block text-slate-500 dark:text-slate-400 text-[10px] mb-1 font-alkatip font-bold">
                 {t('fromDate')}
               </span>
-              <div className="relative flex items-center justify-between bg-[#051120] border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs hover:border-cyan-500/50 transition">
-                <span className={`select-none ${startDate ? 'text-cyan-300 font-mono font-bold' : 'text-slate-400 font-alkatip'}`}>
+              <div className="relative flex items-center justify-between bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-2.5 py-2 text-xs hover:border-emerald-400 transition">
+                <span className={`select-none ${startDate ? 'text-emerald-600 dark:text-emerald-400 font-mono font-bold' : 'text-slate-400 font-alkatip'}`}>
                   {startDate ? startDate : t('datePlaceholder')}
                 </span>
                 <div className="flex items-center gap-1 text-slate-400">
@@ -271,7 +257,7 @@ export default function OrdersPage() {
                         e.stopPropagation();
                         setStartDate('');
                       }}
-                      className="relative z-20 text-slate-400 hover:text-rose-400 p-0.5 rounded cursor-pointer transition"
+                      className="relative z-20 text-slate-400 hover:text-rose-500 p-0.5 rounded cursor-pointer transition"
                       title={t('clear')}
                     >
                       <X className="w-3.5 h-3.5" />
@@ -294,11 +280,11 @@ export default function OrdersPage() {
             </div>
 
             <div>
-              <span className="block text-slate-400 text-[10px] mb-1 font-alkatip">
+              <span className="block text-slate-500 dark:text-slate-400 text-[10px] mb-1 font-alkatip font-bold">
                 {t('toDate')}
               </span>
-              <div className="relative flex items-center justify-between bg-[#051120] border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs hover:border-cyan-500/50 transition">
-                <span className={`select-none ${endDate ? 'text-cyan-300 font-mono font-bold' : 'text-slate-400 font-alkatip'}`}>
+              <div className="relative flex items-center justify-between bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-2.5 py-2 text-xs hover:border-emerald-400 transition">
+                <span className={`select-none ${endDate ? 'text-emerald-600 dark:text-emerald-400 font-mono font-bold' : 'text-slate-400 font-alkatip'}`}>
                   {endDate ? endDate : t('datePlaceholder')}
                 </span>
                 <div className="flex items-center gap-1 text-slate-400">
@@ -309,7 +295,7 @@ export default function OrdersPage() {
                         e.stopPropagation();
                         setEndDate('');
                       }}
-                      className="relative z-20 text-slate-400 hover:text-rose-400 p-0.5 rounded cursor-pointer transition"
+                      className="relative z-20 text-slate-400 hover:text-rose-500 p-0.5 rounded cursor-pointer transition"
                       title={t('clear')}
                     >
                       <X className="w-3.5 h-3.5" />
@@ -336,10 +322,10 @@ export default function OrdersPage() {
           <div className="flex flex-wrap items-center gap-1.5 pt-1 text-xs">
             <button
               onClick={() => setStatusFilter('all')}
-              className={`px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl font-bold transition cursor-pointer text-xs ${
                 statusFilter === 'all'
-                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 shadow-sm'
-                  : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10'
               }`}
             >
               {t('statusAll')}
@@ -347,52 +333,52 @@ export default function OrdersPage() {
 
             <button
               onClick={() => setStatusFilter('completed')}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-xl font-bold transition cursor-pointer text-xs ${
                 statusFilter === 'completed'
-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 shadow-sm'
-                  : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
+                  ? 'bg-emerald-600 text-white shadow-xs animate-nav-pill-glow'
+                  : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10'
               }`}
             >
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              <CheckCircle2 className={`w-3.5 h-3.5 ${statusFilter === 'completed' ? 'animate-icon-sparkle' : 'animate-icon-gleam anim-delay-1'}`} />
               <span>{t('statusCompleted')}</span>
             </button>
 
             <button
               onClick={() => setStatusFilter('processing')}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-xl font-bold transition cursor-pointer text-xs ${
                 statusFilter === 'processing'
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-sm'
-                  : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
+                  ? 'bg-amber-600 text-white shadow-xs animate-nav-pill-glow'
+                  : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10'
               }`}
             >
-              <Hourglass className="w-3.5 h-3.5 text-amber-400" />
+              <Hourglass className="w-3.5 h-3.5 text-amber-300 animate-spin" />
               <span>{t('statusProcessing')}</span>
             </button>
 
             <button
               onClick={() => setStatusFilter('failed')}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-xl font-bold transition cursor-pointer text-xs ${
                 statusFilter === 'failed'
-                  ? 'bg-rose-500/20 text-rose-300 border border-rose-500/50 shadow-sm'
-                  : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
+                  ? 'bg-rose-600 text-white shadow-xs animate-nav-pill-glow'
+                  : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10'
               }`}
             >
-              <XCircle className="w-3.5 h-3.5 text-rose-400" />
+              <XCircle className={`w-3.5 h-3.5 ${statusFilter === 'failed' ? 'animate-icon-sparkle' : 'animate-icon-gleam anim-delay-3'}`} />
               <span>{t('statusCancelled')}</span>
             </button>
           </div>
         </div>
 
         {/* Results Counter */}
-        <div className="flex items-center justify-between text-xs text-slate-400 px-1 pt-1">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 font-bold px-1 pt-1">
+          <div className="flex items-center gap-1.5">
             <span>{t('results')}</span>
-            <span className="font-mono font-bold text-cyan-400">{filteredOrders.length}</span>
+            <span className="font-mono px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">{filteredOrders.length}</span>
           </div>
 
           <button
             onClick={fetchOrders}
-            className="flex items-center gap-1 text-[11px] text-amber-400 hover:text-amber-300 transition cursor-pointer"
+            className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline transition cursor-pointer font-bold"
           >
             <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
             <span>{t('refresh')}</span>
@@ -401,9 +387,9 @@ export default function OrdersPage() {
 
         {/* Processing Orders Reassurance Banner */}
         {orders.some((o) => isOrderInProgress(o.status)) && (
-          <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-transparent border border-amber-500/40 text-amber-200 text-xs shadow-lg space-y-2">
-            <div className="flex items-center gap-2 font-bold text-amber-400 text-sm">
-              <Hourglass className="w-4 h-4 animate-spin text-amber-400 shrink-0" />
+          <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs shadow-xs space-y-1.5">
+            <div className="flex items-center gap-2 font-bold text-amber-800 text-sm">
+              <Hourglass className="w-4 h-4 animate-spin text-amber-600 shrink-0" />
               <span>
                 {lang === 'ug'
                   ? 'زاكاس بىر تەرەپ قىلىنىۋاتىدۇ (سەل تەخىر قىلىڭ ⚡️)'
@@ -412,7 +398,7 @@ export default function OrdersPage() {
                   : 'Order Processing (Please wait a moment ⚡️)'}
               </span>
             </div>
-            <p className="text-[11px] sm:text-xs text-amber-100/90 leading-relaxed font-alkatip">
+            <p className="text-[11px] text-amber-800/90 leading-relaxed font-alkatip">
               {lang === 'ug'
                 ? 'سىستېمىمىز زاكاسنى ئاپتوماتىك تەستىقلاپ قاچىلاۋاتىدۇ (ئادەتتە بىر نەچچە سېكۇنتتىن 1-3 مىنۇتقىچە). ئەگەردە تەمىنلىگۈچى تەرەپتىن زاكاز ماقۇللانمىسا ياكى كاشىلا كۆرۈلسە، كېمەيتىلگەن قالدۇق پۇلىڭىز ھەميان ھېساباتىڭىزغا دەرھال ئاپتوماتىك 100% تولۇق قايتۇرۇلىدۇ. ھېچقانداق زىيان تارتمايسىز!'
                 : lang === 'ar'
@@ -424,8 +410,8 @@ export default function OrdersPage() {
 
         {/* Orders List / Empty State */}
         {filteredOrders.length === 0 ? (
-          <div className="p-8 sm:p-12 text-center rounded-2xl border border-dashed border-slate-800 bg-[#061424]/40 my-3">
-            <p className="text-slate-400 text-xs sm:text-sm leading-relaxed mb-1">
+          <div className="p-8 sm:p-12 text-center rounded-2xl border border-dashed border-slate-300 dark:border-white/10 bg-white dark:bg-[#101726] my-3">
+            <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm leading-relaxed mb-1 font-alkatip font-bold">
               {t('noOrdersFound')}
             </p>
           </div>
@@ -439,20 +425,20 @@ export default function OrdersPage() {
               return (
                 <div
                   key={order.id}
-                  className="p-4 rounded-2xl bg-[#07192d] border border-slate-800 hover:border-amber-500/40 transition shadow-lg space-y-2.5"
+                  className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#101726] border border-slate-200/90 dark:border-white/10 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-md transition shadow-xs space-y-2.5"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs bg-slate-900 border border-slate-700/60 px-2 py-0.5 rounded-md text-amber-300" dir="ltr">
+                      <span className="font-mono text-xs bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 px-2 py-0.5 rounded-md text-slate-700 dark:text-slate-200 font-bold" dir="ltr">
                         #{order.id}
                       </span>
                       <button
                         onClick={() => copyText(order.id, `id-${order.id}`)}
-                        className="text-slate-500 hover:text-white p-1 cursor-pointer"
+                        className="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 cursor-pointer transition"
                         title={t('copyOrderId')}
                       >
                         {copiedId === `id-${order.id}` ? (
-                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                         ) : (
                           <Copy className="w-3.5 h-3.5" />
                         )}
@@ -461,20 +447,20 @@ export default function OrdersPage() {
 
                     <div className="text-xs">
                       {isCompleted && (
-                        <span className="inline-flex items-center gap-1 text-emerald-400 bg-emerald-950/60 border border-emerald-500/40 px-2.5 py-0.5 rounded-full text-[11px] font-bold">
-                          <CheckCircle2 className="w-3 h-3" />
+                        <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 rounded-full text-[11px] font-bold">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                           <span>{t('statusCompleted')}</span>
                         </span>
                       )}
                       {isProcessing && (
-                        <span className="inline-flex items-center gap-1 text-amber-400 bg-amber-950/60 border border-amber-500/40 px-2.5 py-0.5 rounded-full text-[11px] font-bold">
-                          <Hourglass className="w-3 h-3 animate-spin" />
+                        <span className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 px-2.5 py-0.5 rounded-full text-[11px] font-bold">
+                          <Hourglass className="w-3 h-3 animate-spin text-amber-600 dark:text-amber-400" />
                           <span>{t('statusProcessing')}</span>
                         </span>
                       )}
                       {isFailed && (
-                        <span className="inline-flex items-center gap-1 text-rose-400 bg-rose-950/60 border border-rose-500/40 px-2.5 py-0.5 rounded-full text-[11px] font-bold">
-                          <XCircle className="w-3 h-3" />
+                        <span className="inline-flex items-center gap-1 text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 px-2.5 py-0.5 rounded-full text-[11px] font-bold">
+                          <XCircle className="w-3 h-3 text-rose-600 dark:text-rose-400" />
                           <span>{t('statusCancelled')}</span>
                         </span>
                       )}
@@ -483,23 +469,23 @@ export default function OrdersPage() {
 
                   <div className="flex items-center justify-between pt-1">
                     <div>
-                      <h3 className="font-bold text-white text-sm">
+                      <h3 className="font-extrabold text-slate-900 dark:text-white text-sm sm:text-base">
                         {translatePackageTitle(order.serviceName)}
                       </h3>
-                      <div className="text-[11px] text-slate-400 mt-0.5">
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                         <span>{t('packageLabel')} </span>
-                        <span className="text-amber-200">{translatePackageTitle(order.packageTitle)}</span>
-                        <span className="mx-1.5">•</span>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{translatePackageTitle(order.packageTitle)}</span>
+                        <span className="mx-1.5 text-slate-300 dark:text-white/20">•</span>
                         <span>{t('accountLabel')} </span>
-                        <span className="text-cyan-300 font-mono" dir="ltr">{order.targetAccount}</span>
+                        <span className="text-slate-700 dark:text-slate-300 font-mono font-bold" dir="ltr">{order.targetAccount}</span>
                       </div>
                     </div>
 
                     <div className="text-left font-mono" dir="ltr">
-                      <span className="font-extrabold text-amber-400 text-sm">
+                      <span className="font-extrabold text-emerald-600 dark:text-emerald-400 text-base sm:text-lg">
                         ${formatSmartPrice(Number(order.amount ?? (order as any).price ?? 0))}
                       </span>
-                      <span className="block text-[10px] text-slate-500">
+                      <span className="block text-[10px] text-slate-400 dark:text-slate-500">
                         {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
@@ -812,15 +798,15 @@ export default function OrdersPage() {
                       const isSocialBooster = /instagram|tiktok|ئىنستاگرام|كۆپەيتىش/i.test(`${order.serviceName || ''} ${order.packageTitle || ''}`);
                       if (isSocialBooster) {
                         return (
-                          <div className="mt-2.5 pt-2.5 border-t border-amber-500/40 bg-amber-950/40 p-3 rounded-xl text-xs space-y-1.5 text-amber-200 font-alkatip border border-amber-500/50 shadow-inner">
-                            <div className="flex items-center gap-1.5 font-bold text-amber-300 text-[11px]">
-                              <Clock className="w-4 h-4 text-amber-400 shrink-0 animate-pulse" />
+                          <div className="mt-2.5 pt-2.5 border-t border-amber-200 bg-amber-50 p-3 rounded-xl text-xs space-y-1.5 text-amber-900 font-alkatip border border-amber-200 shadow-xs">
+                            <div className="flex items-center gap-1.5 font-bold text-amber-800 text-[11px]">
+                              <Clock className="w-4 h-4 text-amber-600 shrink-0 animate-pulse" />
                               <span>ئىنستاگرام كۆپەيتىش زاكاز ئۇچۇرى (ئۇزۇنراق ۋاقىتتا تەدرىجىي بارىدۇ):</span>
                             </div>
-                            <p className="text-[11px] text-amber-100/90 leading-relaxed">
+                            <p className="text-[11px] text-amber-800/90 leading-relaxed">
                               بۇ خىل ئەگەشكۈچى، ياقتۇرۇش ياكى كۆرۈلۈش سانى كۆپەيتىش زاكازلىرى ھېساباتنىڭ بىخەتەرلىكى ئۈچۈن تەمىنلىگۈچى تەرىپىدىن تەدرىجىي ۋە ئۇزۇنراق ۋاقىتتا (1 سائەتتىن 24 سائەتكىچە) ئورۇنلىنىدۇ. ئەنسىرىمەي سەۋرچانلىق بىلەن كۈتۈپ بېرىڭ.
                             </p>
-                            <p className="text-[10px] text-amber-300/80">
+                            <p className="text-[10px] text-amber-700 font-bold">
                               📌 ئەسكەرتىش: تەمىنلىگۈچىنىڭ بەلگىلىمىسى بويىچە، بۇ بولاققا كېيىنچە سان چۈشۈپ كەتسە قايتا تولۇقلاپ بېرىش كاپالىتى (لا يوجد كفالة) بېرىلمەيدۇ.
                             </p>
                           </div>
@@ -829,16 +815,16 @@ export default function OrdersPage() {
                       
                       if (isOverOneHour) {
                         return (
-                          <div className="mt-2.5 pt-2.5 border-t border-amber-500/40 bg-amber-950/40 p-3 rounded-xl text-xs space-y-1.5 text-amber-200 font-alkatip border border-amber-500/50 shadow-inner">
-                            <div className="flex items-center gap-1.5 font-bold text-amber-300 text-[11px]">
-                              <Clock className="w-4 h-4 text-amber-400 shrink-0 animate-pulse" />
+                          <div className="mt-2.5 pt-2.5 border-t border-amber-200 bg-amber-50 p-3 rounded-xl text-xs space-y-1.5 text-amber-900 font-alkatip border border-amber-200 shadow-xs">
+                            <div className="flex items-center gap-1.5 font-bold text-amber-800 text-[11px]">
+                              <Clock className="w-4 h-4 text-amber-600 shrink-0 animate-pulse" />
                               <span>
                                 {lang === 'ug'
                                   ? 'زاكاس بىر سائەتتىن ئاشتى (سەل سەۋر قىلىپ بەرگەيسىز):'
                                   : 'Order In Progress (> 1 hour):'}
                               </span>
                             </div>
-                            <p className="text-[11px] text-amber-100/90 leading-relaxed">
+                            <p className="text-[11px] text-amber-800/90 leading-relaxed">
                               {lang === 'ug'
                                 ? 'بۇ مەھسۇلاتنىڭ باش تەمىنلىگۈچى سىستېمىسىدا زاكازلار بەك كۆپىيىپ كەتكەنلىكى ئۈچۈن قاچىلىنىش سۈرئىتى ئاستىلاپ كەتتى. ئەنسىرىمەڭ! زاكىسىڭىز قاچىلىنىش رېتىدە مېڭىۋاتىدۇ، چوقۇم يېتىپ بارىدۇ. ئەگەر بارماي قالغان تەقدىردىمۇ، پۇلىڭىز دۇكىنىمىز كاپالىتى بويىچە 100% ھەميىنىڭىزگە تولۇق قايتۇرۇلىدۇ.'
                                 : 'Due to heavy server volume at the provider, delivery is taking longer than usual. Rest assured your order is queued and will arrive. If it fails, your payment will be 100% refunded to your wallet balance.'}
@@ -847,14 +833,14 @@ export default function OrdersPage() {
                         );
                       }
                       return (
-                        <div className="mt-2 pt-2 border-t border-amber-500/20 bg-amber-950/30 p-2.5 rounded-xl text-xs space-y-1 text-amber-200 font-alkatip">
-                          <div className="flex items-center gap-1.5 font-bold text-amber-400 text-[11px]">
-                            <Hourglass className="w-3.5 h-3.5 animate-spin shrink-0" />
+                        <div className="mt-2 pt-2 border-t border-amber-200 bg-amber-50 p-2.5 rounded-xl text-xs space-y-1 text-amber-900 font-alkatip border border-amber-200">
+                          <div className="flex items-center gap-1.5 font-bold text-amber-800 text-[11px]">
+                            <Hourglass className="w-3.5 h-3.5 animate-spin shrink-0 text-amber-600" />
                             <span>
                               {lang === 'ug' ? 'سەل تەخىر قىلىڭ (تەستىقلىنىۋاتىدۇ):' : 'Please wait (Verifying):'}
                             </span>
                           </div>
-                          <p className="text-[11px] text-amber-200/90 leading-relaxed">
+                          <p className="text-[11px] text-amber-800/90 leading-relaxed">
                             {lang === 'ug'
                               ? 'زاكاس بىر نەچچە سېكۇنتتىن 1-3 مىنۇتتا ئاپتوماتىك قاچىلىنىدۇ. ئەگەر مەھسۇلات ماقۇللانماي قالسا، پۇلىڭىز ھەميان قالدۇقىڭىزغا دەرھال 100% تولۇق قايتۇرۇلىدۇ.'
                               : 'Order will be auto-delivered in 1-3 mins. If it fails or is not approved, your funds are immediately refunded to your wallet in full.'}
@@ -866,16 +852,16 @@ export default function OrdersPage() {
 
                   {/* Refund confirmation note for cancelled/refunded orders */}
                   {(isFailed || (order.status as string) === 'refunded') && (
-                    <div className="mt-2 pt-2 border-t border-emerald-500/20 bg-emerald-950/30 p-2.5 rounded-xl text-xs space-y-1 text-emerald-200 font-alkatip">
-                      <div className="flex items-center gap-1.5 font-bold text-emerald-400 text-[11px]">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <div className="mt-2 pt-2 border-t border-emerald-200 bg-emerald-50 p-2.5 rounded-xl text-xs space-y-1 text-emerald-900 font-alkatip border border-emerald-200">
+                      <div className="flex items-center gap-1.5 font-bold text-emerald-800 text-[11px]">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                         <span>
                           {lang === 'ug' ? 'پۇل قايتۇرۇلدى (100% كاپالەت):' : 'Refunded (100% Guarantee):'}
                         </span>
                       </div>
-                      <p className="text-[11px] text-emerald-200/90 leading-relaxed">
+                      <p className="text-[11px] text-emerald-800/90 leading-relaxed">
                         {lang === 'ug'
-                          ? 'بۇ زاكاز تەستىقلانمىغانلىقى ئۈچۈن، سومما دەرھال ھەميان قالدۇقىڭىزغا 100% تولۇق قايتۇرۇلدى.'
+                          ? 'بۇ زاكاز تەستىقلانمىغانلىقى ئۈچۈن، سومما دەرھال ھەميان قالدۇقىڭىزغا 100% تولۇق قايتۇرۇلىدۇ.'
                           : 'Since this order was not approved, the amount was refunded to your wallet balance in full.'}
                       </p>
                     </div>
@@ -885,7 +871,7 @@ export default function OrdersPage() {
             })}
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </SGCSubpageLayout>
   );
 }
