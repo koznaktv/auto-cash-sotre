@@ -83,6 +83,10 @@ interface SafeUser {
   name: string;
   email: string;
   phone?: string;
+  avatarUrl?: string;
+  image?: string;
+  avatar?: string;
+  telegramUsername?: string;
   balance: number;
   totalSpent: number;
   vipTier: string;
@@ -2883,9 +2887,9 @@ export default function AdminPage() {
     }
   };
 
-  // Financial & Metric Calculations
+  // Financial & Metric Calculations (Including Net Store Profit & Category Breakdown)
   const metrics = useMemo(() => {
-    const totalRev = orders.reduce((sum, o) => sum + (o.status !== 'cancelled' ? o.amount : 0), 0);
+    const totalRev = orders.reduce((sum, o) => sum + (o.status !== 'cancelled' && o.status !== 'refunded' ? o.amount : 0), 0);
     const totalDep = deposits
       .filter((d) => d.status === 'completed')
       .reduce((sum, d) => sum + d.amount, 0);
@@ -2895,16 +2899,105 @@ export default function AdminPage() {
     const userCount = users.length;
     const pendingDepCount = deposits.filter((d) => d.status === 'pending').length;
 
+    let totalProfit = 0;
+    const categoryProfits: Record<string, { revenue: number; profit: number; orderCount: number }> = {};
+
+    orders.forEach((o) => {
+      if (o.status === 'cancelled' || o.status === 'refunded') return;
+      const amount = Number(o.amount || 0);
+      let cost = o.details?.costTotal !== undefined && o.details.costTotal !== null ? Number(o.details.costTotal) : null;
+      const srv = services.find((s) => s.id === o.serviceId);
+      const cat = srv?.category || 'other';
+
+      if (cost === null) {
+        const pkg = srv?.packages?.find((p) => p.title === o.packageTitle || p.id === o.serviceId);
+        if (pkg && pkg.costPrice !== undefined && pkg.costPrice !== null) {
+          cost = Number(pkg.costPrice);
+        } else {
+          const margin = cat === 'social' ? 0.30 : 0.15;
+          cost = amount / (1 + margin);
+        }
+      }
+
+      const profit = Math.max(0, amount - cost);
+      totalProfit += profit;
+
+      if (!categoryProfits[cat]) {
+        categoryProfits[cat] = { revenue: 0, profit: 0, orderCount: 0 };
+      }
+      categoryProfits[cat].revenue += amount;
+      categoryProfits[cat].profit += profit;
+      categoryProfits[cat].orderCount += 1;
+    });
+
     return {
       totalRev,
       totalDep,
+      totalProfit,
+      categoryProfits,
       totalOrderCount,
       processingCount,
       completedCount,
       userCount,
       pendingDepCount,
     };
-  }, [orders, deposits, users]);
+  }, [orders, deposits, users, services]);
+
+  // Per-user financial analytics map: Lifetime deposits, total spent, and exact customer profit
+  const userStatsMap = useMemo(() => {
+    const map = new Map<string, { totalDeposited: number; totalSpent: number; customerProfit: number; orderCount: number }>();
+
+    users.forEach((user) => {
+      const uId = user.id;
+      const uEmail = (user.email || '').toLowerCase().trim();
+
+      // Lifetime completed deposits
+      const uDeposits = deposits.filter(
+        (d) =>
+          d.status === 'completed' &&
+          (d.userId === uId || (uEmail && d.userEmail && d.userEmail.toLowerCase().trim() === uEmail))
+      );
+      const totalDeposited = uDeposits.reduce((sum, d) => sum + Number(d.amount || 0), 0);
+
+      // Orders placed by this user
+      const uOrders = orders.filter(
+        (o) =>
+          o.status !== 'cancelled' &&
+          o.status !== 'refunded' &&
+          (o.userId === uId || (uEmail && o.userEmail && o.userEmail.toLowerCase().trim() === uEmail))
+      );
+
+      let totalSpent = 0;
+      let customerProfit = 0;
+
+      uOrders.forEach((o) => {
+        const amount = Number(o.amount || 0);
+        totalSpent += amount;
+
+        let cost = o.details?.costTotal !== undefined && o.details.costTotal !== null ? Number(o.details.costTotal) : null;
+        if (cost === null) {
+          const srv = services.find((s) => s.id === o.serviceId);
+          const pkg = srv?.packages?.find((p) => p.title === o.packageTitle || p.id === o.serviceId);
+          if (pkg && pkg.costPrice !== undefined && pkg.costPrice !== null) {
+            cost = Number(pkg.costPrice);
+          } else {
+            const margin = srv?.category === 'social' ? 0.30 : 0.15;
+            cost = amount / (1 + margin);
+          }
+        }
+        customerProfit += Math.max(0, amount - cost);
+      });
+
+      map.set(user.id, {
+        totalDeposited,
+        totalSpent: totalSpent || user.totalSpent || 0,
+        customerProfit,
+        orderCount: uOrders.length,
+      });
+    });
+
+    return map;
+  }, [users, deposits, orders, services]);
 
   // Chart data points simulation based on real revenue
   const chartPoints = useMemo(() => {
@@ -3373,8 +3466,8 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* 4 Summary Metric Cards */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              {/* 5 Summary Metric Cards (Including Net Store Profit) */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
                 {/* 1. Total Revenue */}
                 <div className={`p-4 sm:p-5 rounded-2xl ${themeClasses.card} relative overflow-hidden`}>
                   <div className="flex items-center justify-between mb-2">
@@ -3389,7 +3482,24 @@ export default function AdminPage() {
                   </div>
                   <div className="flex items-center gap-1 mt-2 text-[11px] text-emerald-400 font-bold">
                     <ArrowUpRight className="w-3.5 h-3.5" />
-                    <span>+18.4% ئۆتكەن ھەپتىدىن</span>
+                    <span>سېتىلغان سومما</span>
+                  </div>
+                </div>
+
+                {/* 2. Total Net Profit */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-950/60 via-slate-900 to-slate-950 border border-emerald-500/40 relative overflow-hidden shadow-lg shadow-emerald-950/40">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-emerald-300 font-black">ساپ پايدا (Net Profit)</span>
+                    <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                      <TrendingUp className="w-4 h-4" />
+                    </div>
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-400" dir="ltr">
+                    <span>+$</span>
+                    {metrics.totalProfit.toFixed(2)}
+                  </div>
+                  <div className="flex items-center gap-1 mt-2 text-[11px] text-emerald-300 font-bold">
+                    <span>%{metrics.totalRev > 0 ? Math.round((metrics.totalProfit / metrics.totalRev) * 100) : 18} ئوتتۇرىچە پايدا</span>
                   </div>
                 </div>
 
@@ -4715,6 +4825,55 @@ export default function AdminPage() {
                 </div>
               </div>
 
+              {/* 4 User Analytics Summary Cards */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                  <div>
+                    <span className="text-slate-400 block text-[11px]">ئومۇمىي ئەزالار:</span>
+                    <span className="font-mono font-black text-white text-base">{users.length} نەپەر</span>
+                  </div>
+                  <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                    <Users className="w-4 h-4" />
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                  <div>
+                    <span className="text-slate-400 block text-[11px]">ھەمياندىكى قالدۇق پۇل:</span>
+                    <span className="font-mono font-black text-amber-400 text-base">
+                      ${users.reduce((sum, u) => sum + Number(u.balance || 0), 0).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                    <Wallet className="w-4 h-4" />
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                  <div>
+                    <span className="text-slate-400 block text-[11px]">جەمئىي قاچىلانغان پۇل:</span>
+                    <span className="font-mono font-black text-cyan-300 text-base">
+                      ${metrics.totalDep.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+                    <ArrowDown className="w-4 h-4" />
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-950/60 to-slate-900 border border-emerald-500/40 flex items-center justify-between shadow-lg shadow-emerald-950/20">
+                  <div>
+                    <span className="text-emerald-300 block text-[11px] font-bold">ئەزالاردىن قالغان ساپ پايدا:</span>
+                    <span className="font-mono font-black text-emerald-400 text-base">
+                      +${metrics.totalProfit.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4" />
+                  </div>
+                </div>
+              </div>
+
               {/* Admin Delegation Bar */}
               <div className={`p-4 rounded-2xl ${themeClasses.card} border border-amber-500/30 bg-amber-950/20 flex flex-col sm:flex-row items-center justify-between gap-3`}>
                 <div className="flex items-center gap-3">
@@ -4753,39 +4912,85 @@ export default function AdminPage() {
                   <table className="w-full text-right text-xs">
                     <thead>
                       <tr className={`border-b ${themeClasses.tableHead}`}>
-                        <th className="py-3 px-3">ئىشلەتكۈچى ID</th>
-                        <th className="py-3 px-3">ئىسىم / لەقەم</th>
-                        <th className="py-3 px-3">ئېلخەت ۋە تېلېفون</th>
-                        <th className="py-3 px-3">قالدۇق (Balance)</th>
-                        <th className="py-3 px-3">ئىشلەتكەن سومما</th>
-                        <th className="py-3 px-3">دەرىجە (VIP)</th>
-                        <th className="py-3 px-3">ھالەت (چەك)</th>
+                        <th className="py-3 px-3">ئىشلەتكۈچى ئەزا</th>
+                        <th className="py-3 px-3">ئالاقە (ئېلخەت / تېلېفون)</th>
+                        <th className="py-3 px-3 text-center">قالدۇق پۇلى</th>
+                        <th className="py-3 px-3 text-center">جەمئىي قاچىلىغان قالدۇق</th>
+                        <th className="py-3 px-3 text-center">شۇ ئەزادىن قالغان پايدا</th>
+                        <th className="py-3 px-3 text-center">ئىشلەتكەن سومما</th>
+                        <th className="py-3 px-3 text-center">دەرىجە (VIP)</th>
+                        <th className="py-3 px-3 text-center">ھالەت</th>
                         <th className="py-3 px-3 text-center">مەشغۇلات</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredUsers.map((user) => (
-                        <tr key={user.id} className={`border-b ${themeClasses.tableRow}`}>
-                          <td className="py-3 px-3 font-mono font-bold text-cyan-300">
-                            {user.id}
+                      {filteredUsers.map((user) => {
+                        const st = userStatsMap.get(user.id) || { totalDeposited: 0, totalSpent: user.totalSpent || 0, customerProfit: 0, orderCount: 0 };
+                        const avatarImg = user.avatarUrl || user.image || user.avatar;
+                        const initialLetter = (user.name || user.email || 'U').charAt(0).toUpperCase();
+
+                        return (
+                        <tr key={user.id} className={`border-b ${themeClasses.tableRow} hover:bg-slate-800/40 transition`}>
+                          {/* User Avatar & Name & ID */}
+                          <td className="py-3 px-3">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-600 to-amber-500 flex items-center justify-center text-white font-black text-xs shrink-0 overflow-hidden shadow-md border border-white/10">
+                                {avatarImg ? (
+                                  <img src={avatarImg} alt="" className="w-full h-full object-cover" onError={(e) => ((e.target as any).style.display = 'none')} />
+                                ) : (
+                                  <span>{initialLetter}</span>
+                                )}
+                              </div>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="font-bold text-white text-xs">{user.name || 'نامەلۇم ئەزا'}</span>
+                                  {user.role === 'admin' && (
+                                    <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-black border border-amber-500/40">
+                                      👑 باشقۇرغۇچى
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono mt-0.5">
+                                  <span className="text-cyan-400">#{user.id.slice(0, 8)}</span>
+                                  {user.telegramUsername && (
+                                    <span className="text-sky-400">@{user.telegramUsername}</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
                           </td>
-                          <td className="py-3 px-3 font-bold text-white">
-                            {user.name}
-                            {user.role === 'admin' && (
-                              <span className="mr-1.5 px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 text-[9px] font-bold border border-amber-500/40">
-                                باشقۇرغۇچى
+
+                          {/* Contact (Email & Phone) */}
+                          <td className="py-3 px-3 font-mono text-slate-300 text-xs">
+                            <div>{user.email}</div>
+                            {user.phone && <div className="text-[10px] text-slate-400 mt-0.5">{user.phone}</div>}
+                          </td>
+
+                          {/* Current Balance */}
+                          <td className="py-3 px-3 text-center font-mono font-black text-amber-400 text-sm">
+                            ${formatSmartPrice(user.balance)}
+                          </td>
+
+                          {/* Lifetime Total Deposited */}
+                          <td className="py-3 px-3 text-center font-mono font-bold text-cyan-300 text-xs">
+                            ${formatSmartPrice(st.totalDeposited)}
+                          </td>
+
+                          {/* Profit Made From This Customer */}
+                          <td className="py-3 px-3 text-center">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-mono font-black text-xs shadow-sm">
+                              +${formatSmartPrice(st.customerProfit)}
+                            </span>
+                            {st.orderCount > 0 && (
+                              <span className="block text-[10px] text-slate-400 font-mono mt-0.5">
+                                {st.orderCount} زاكاز
                               </span>
                             )}
                           </td>
-                          <td className="py-3 px-3 font-mono text-slate-300">
-                            <div>{user.email}</div>
-                            {user.phone && <div className="text-[10px] text-slate-500">{user.phone}</div>}
-                          </td>
-                          <td className="py-3 px-3 font-mono font-black text-amber-400 text-sm">
-                            ${formatSmartPrice(user.balance)}
-                          </td>
-                          <td className="py-3 px-3 font-mono text-slate-400">
-                            ${formatSmartPrice(user.totalSpent)}
+
+                          {/* Total Spent */}
+                          <td className="py-3 px-3 text-center font-mono text-slate-400 text-xs">
+                            ${formatSmartPrice(st.totalSpent)}
                           </td>
                           <td className="py-3 px-3">
                             <select
@@ -4870,7 +5075,8 @@ export default function AdminPage() {
                             </div>
                           </td>
                         </tr>
-                      ))}
+                      );
+                    })}
                     </tbody>
                   </table>
                 </div>
@@ -4976,21 +5182,67 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Detailed Breakdown */}
+              {/* Detailed Category Net Profit Breakdown */}
               <div className={`p-5 rounded-2xl ${themeClasses.card} space-y-4`}>
-                <h3 className="font-bold text-sm text-white">ئايلىق چىقىم ۋە مۇلازىمەت پايدا نىسبىتى</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                  <div>
+                    <h3 className="font-bold text-sm text-white flex items-center gap-2">
+                      <span>📊 بارلىق تۈر ۋە سەھىپىلەردىن قالغان ساپ پايدا كۆرسەتكۈچى</span>
+                      <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+                        دەل ۋاقىتلىق ئانالىز
+                      </span>
+                    </h3>
+                    <p className={`text-xs ${themeClasses.subtext} mt-0.5`}>
+                      ھەر بىر مۇلازىمەت تۈرىنىڭ ئومۇمىي كىرىمى، سېتىلغان زاكازلىرى ۋە قالغان ساپ پايدىسى
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 px-3 rounded-xl bg-emerald-950/40 border border-emerald-500/40">
+                    <span className="text-xs text-slate-300 font-bold">ئومۇمىي ساپ پايدا:</span>
+                    <span className="font-mono font-black text-sm text-emerald-400">
+                      +${metrics.totalProfit.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {CATEGORIES_9.map((cat) => {
                     const countInCat = services.filter((s) => s.category === cat.id).length;
+                    const catStats = metrics.categoryProfits[cat.id] || { revenue: 0, profit: 0, orderCount: 0 };
+                    const catMargin = catStats.revenue > 0 ? Math.round((catStats.profit / catStats.revenue) * 100) : (cat.id === 'social' ? 30 : 15);
+
                     return (
-                      <div key={cat.id} className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
-                        <div>
-                          <span className="font-bold text-xs text-white block">{cat.name}</span>
-                          <span className="text-[10px] text-slate-400">{countInCat} تۈر مۇلازىمەت</span>
+                      <div key={cat.id} className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-slate-700 transition flex flex-col justify-between space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-cyan-400">
+                              <DynamicIcon name={cat.icon} className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <span className="font-bold text-xs text-white block">{cat.name}</span>
+                              <span className="text-[10px] text-slate-400 font-mono">{countInCat} تۈر مۇلازىمەت</span>
+                            </div>
+                          </div>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                            %{catMargin} پايدا
+                          </span>
                         </div>
-                        <span className="font-mono text-xs font-bold text-cyan-400">
-                          {cat.count}
-                        </span>
+
+                        <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800/80 text-center text-xs">
+                          <div>
+                            <span className="text-[10px] text-slate-500 block">زاكاز:</span>
+                            <span className="font-mono font-bold text-white">{catStats.orderCount} دانە</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-500 block">كىرىم:</span>
+                            <span className="font-mono font-bold text-cyan-300">${catStats.revenue.toFixed(2)}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-500 block">ساپ پايدا:</span>
+                            <span className="font-mono font-black text-emerald-400">
+                              +${catStats.profit.toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     );
                   })}
