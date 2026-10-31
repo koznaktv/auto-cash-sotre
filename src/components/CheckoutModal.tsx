@@ -580,7 +580,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
       }}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
     >
       <div
         className={`relative w-full max-w-lg max-h-[92vh] overflow-y-auto bg-white dark:bg-[#0c1424] border border-slate-200/90 dark:border-white/10 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.35)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.85)] p-5 sm:p-7 ${
@@ -596,14 +596,14 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
           title={t('close')}
           className={`absolute top-4 ${
             isRTL ? 'left-4' : 'right-4'
-          } text-slate-400 hover:text-slate-900 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-white/10`}
+          } z-20 text-slate-400 hover:text-slate-900 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-white/10`}
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Modal Header */}
         <div className="flex items-center gap-3.5 mb-6">
-          <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-teal-500/10 border border-emerald-500/25 dark:border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm shrink-0 overflow-hidden">
+          <div className="w-14 h-14 min-w-[56px] min-h-[56px] max-w-[56px] max-h-[56px] rounded-2xl bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-teal-500/10 border border-emerald-500/25 dark:border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm shrink-0 overflow-hidden">
             {service.image ? (
               <img
                 src={
@@ -616,7 +616,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                     : service.image
                 }
                 alt=""
-                className="w-full h-full object-cover"
+                className="w-14 h-14 max-w-[56px] max-h-[56px] object-cover rounded-2xl"
                 onError={(e) => {
                   const target = e.currentTarget as HTMLImageElement;
                   if (service.id === 'fursan_net' && target.src !== '/images/services/fursan_net.jpg') {

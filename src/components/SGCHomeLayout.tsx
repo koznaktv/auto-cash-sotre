@@ -1404,7 +1404,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                         <img
                           src="/images/services/telegram.webp"
                           alt="Telegram"
-                          className="w-13 h-13 sm:w-18 sm:h-18 object-contain drop-shadow-[0_4px_14px_rgba(0,0,0,0.5)]"
+                          className="w-12 h-12 sm:w-16 sm:h-16 object-contain drop-shadow-[0_4px_14px_rgba(0,0,0,0.5)]"
                           onError={(e) => { (e.target as any).src = '/images/services/telegram.jpg'; }}
                         />
                       </div>

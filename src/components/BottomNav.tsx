@@ -65,7 +65,7 @@ export default function BottomNav() {
   const ActiveIcon = tabs[activeTab]?.icon || Home;
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 pointer-events-auto pb-[env(safe-area-inset-bottom,0px)]">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 pointer-events-auto pb-[env(safe-area-inset-bottom,0px)]">
       <div className="relative max-w-[440px] mx-auto select-none font-alkatip">
         
         {/* =========================================================================

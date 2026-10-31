@@ -113,7 +113,7 @@ export default function TelegramFloat() {
       <aside
         ref={containerRef}
         aria-label={t('contactSupport')}
-        className="fixed bottom-[74px] sm:bottom-[82px] md:bottom-7 left-3 sm:left-4 md:left-6 z-[60] flex flex-col items-start"
+        className="fixed bottom-[74px] sm:bottom-[82px] md:bottom-7 left-3 sm:left-4 md:left-6 z-40 flex flex-col items-start"
         dir="ltr"
       >
         {/* Cascading Speed-Dial Popup Menu */}
