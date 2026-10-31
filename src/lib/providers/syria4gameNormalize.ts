@@ -519,6 +519,12 @@ const DELIVERY_KEYS = [
   'inviteUrl',
   'codes',
   'code',
+  'redemption_code',
+  'redemptionCode',
+  'card_code',
+  'cardCode',
+  'card_pin',
+  'card_number',
   'pin',
   'pins',
   'serial',
@@ -535,6 +541,11 @@ const DELIVERY_KEYS = [
   'account_credentials',
   'credentials',
   'account',
+  'token',
+  'secret',
+  'key',
+  'keys',
+  'password',
 ];
 
 function isHttpUrl(str: string): boolean {

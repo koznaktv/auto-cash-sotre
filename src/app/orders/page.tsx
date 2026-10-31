@@ -502,7 +502,15 @@ export default function OrdersPage() {
                       (typeof d.providerReply === 'string' && /^https?:\/\//i.test(d.providerReply) ? d.providerReply : undefined) ||
                       (typeof d.reply === 'string' && /^https?:\/\//i.test(d.reply) ? d.reply : undefined);
 
-                    const nonUrlCodes = (d.delivery?.codes || []).filter((code: string) => !/^https?:\/\//i.test(code));
+                    const nonUrlCodes = Array.from(
+                      new Set([
+                        ...(d.delivery?.codes || []).filter((code: string) => !/^https?:\/\//i.test(code)),
+                        ...(d.redemptionCode ? [d.redemptionCode] : []),
+                        ...(d.cardCode ? [d.cardCode] : []),
+                        ...(d.secretCode ? [d.secretCode] : []),
+                        ...((d.code && !d.smsCode && !d.isSmsActivation) ? [d.code] : []),
+                      ])
+                    );
                     const textReply =
                       (!rawActivationUrl && typeof d.providerReply === 'string' && d.providerReply) ||
                       (!rawActivationUrl && typeof d.reply === 'string' && d.reply);
@@ -719,22 +727,36 @@ export default function OrdersPage() {
                         {/* 3. Non-URL Gift Card Codes, Vouchers, Credentials, etc. */}
                         {(nonUrlCodes.length > 0 || d.refundReason || d.accountCredentials || d.cardDetails || d.virtualNumber || d.smsCode) && (
                           <div className="pt-2 border-t border-slate-800/80 bg-slate-950/60 p-2.5 rounded-xl text-xs space-y-1.5">
-                            {nonUrlCodes.map((code: string, idx: number) => (
-                              <div key={idx} className="flex items-center justify-between gap-2">
-                                <span className="text-slate-400 text-[11px] shrink-0">{t('codeLabel')}</span>
-                                <div className="flex items-center gap-1.5 min-w-0">
-                                  <span className="text-emerald-300 font-bold font-mono break-all" dir="ltr">
-                                    {code}
-                                  </span>
-                                  <button
-                                    onClick={() => copyText(code, `code-${order.id}-${idx}`)}
-                                    className="text-slate-400 hover:text-white shrink-0 cursor-pointer"
-                                  >
-                                    {copiedId === `code-${order.id}-${idx}` ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                                  </button>
+                            {nonUrlCodes.map((code: string, idx: number) => {
+                              const isGearUp = order.serviceId?.includes('gearup') || (order.serviceName || '').toLowerCase().includes('gearup');
+                              return (
+                                <div key={idx} className="space-y-1.5 p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30">
+                                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                                    <span className="text-emerald-300 font-bold text-xs flex items-center gap-1">
+                                      <span>⚡</span>
+                                      <span>{isGearUp ? 'Redemption Code (قوزغىتىش كودى):' : t('codeLabel')}</span>
+                                    </span>
+                                    <div className="flex items-center gap-1.5 min-w-0">
+                                      <span className="text-emerald-300 font-black font-mono text-xs sm:text-sm tracking-wider select-all break-all" dir="ltr">
+                                        {code}
+                                      </span>
+                                      <button
+                                        onClick={() => copyText(code, `code-${order.id}-${idx}`)}
+                                        className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                                      >
+                                        {copiedId === `code-${order.id}-${idx}` ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                                        <span>{copiedId === `code-${order.id}-${idx}` ? (lang === 'ug' ? 'كۆچۈرۈلدى' : 'Copied') : (lang === 'ug' ? 'كۆچۈرۈش' : 'Copy')}</span>
+                                      </button>
+                                    </div>
+                                  </div>
+                                  {isGearUp && (
+                                    <div className="text-[11px] text-slate-300 bg-slate-900/70 p-2 rounded-lg border border-emerald-500/20 font-alkatip leading-relaxed">
+                                      💡 {lang === 'ug' ? 'بۇ كودنى كۆچۈرۈپ GearUP Booster ئەپىدە «استرداد الرمز / Redeem Code» بۆلىكىگە كىرگۈزۈپ ئەزالىقىڭىزنى قوزغىتىۋېلىڭ.' : 'انسخ هذا الرمز وقم بتفعيله داخل تطبيق GearUP Booster من قسم «استرداد الرمز».'}
+                                    </div>
+                                  )}
                                 </div>
-                              </div>
-                            ))}
+                              );
+                            })}
 
                             {d.refundReason && (
                               <div className="text-[11px] text-rose-300">

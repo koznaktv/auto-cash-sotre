@@ -379,16 +379,38 @@ export async function POST(req: Request) {
         const providerConfig = await activeProvider.getResolvedConfig();
         if (providerConfig.enabled && providerConfig.apiToken) {
           const targetQty = (pkg as any).providerQty ?? (pkg as any).qty ?? (qty ? Number(qty) : 1);
-          const targetParams: Record<string, string> = {
-            playerId: parsedGameAccount.userId || rawTarget,
-            phone: parsedGameAccount.userId || rawTarget,
-            'ادخل رقم الهاتف بدون النداء': parsedGameAccount.userId || rawTarget,
-            'الرابط': parsedGameAccount.userId || rawTarget,
-            link: parsedGameAccount.userId || rawTarget,
-            url: parsedGameAccount.userId || rawTarget,
-            ...(parsedGameAccount.zoneId ? { zoneId: parsedGameAccount.zoneId } : {}),
-            ...(fields && typeof fields === 'object' ? fields : {}),
-          };
+          const isRedemptionOrCard =
+            Boolean((service as any).isRedemptionCode ||
+            (service as any).requiresInput === false ||
+            service.id === 'othman_gearup_booster' ||
+            service.id.toLowerCase().includes('gearup') ||
+            (service.name || '').toLowerCase().includes('gearup') ||
+            !service.inputLabel);
+
+          const targetParams: Record<string, string> = {};
+          if (fields && typeof fields === 'object') {
+            for (const [k, v] of Object.entries(fields)) {
+              if (v && typeof v === 'string' && v.trim()) {
+                targetParams[k] = v.trim();
+              }
+            }
+          }
+
+          if (!isRedemptionOrCard) {
+            const effectiveTarget = (parsedGameAccount.userId || rawTarget || '').trim();
+            if (effectiveTarget) {
+              targetParams.playerId = effectiveTarget;
+              targetParams.phone = effectiveTarget;
+              targetParams['ادخل رقم الهاتف بدون النداء'] = effectiveTarget;
+              targetParams['الرابط'] = effectiveTarget;
+              targetParams.link = effectiveTarget;
+              targetParams.url = effectiveTarget;
+            }
+            if (parsedGameAccount.zoneId) {
+              targetParams.zoneId = parsedGameAccount.zoneId;
+            }
+          }
+
           const orderUuid = generateUUIDv4();
           const providerRes = await activeProvider.createOrder({
             productId: pkg.providerProductId,
@@ -403,6 +425,7 @@ export async function POST(req: Request) {
             const deliv = providerRes.delivery;
             const replyMsg = providerRes.message || deliv?.reply || deliv?.text;
             const activationUrl = deliv?.activationUrl || (deliv?.codes?.find((c: string) => /^https?:\/\//i.test(c))) || (replyMsg?.match(/https?:\/\/[^\s"'<>]+/i)?.[0]);
+            const redCode = deliv?.codes?.find((c: string) => !/^https?:\/\//i.test(c)) || (deliv as any)?.code || (deliv as any)?.pin || (deliv as any)?.card_code;
 
             const updatedOrder = await transitionOrderAsync(order.id, ['processing', 'pending'], completed ? 'completed' : 'pending_provider', {
               providerOrderId: providerRes.providerOrderId,
@@ -411,6 +434,7 @@ export async function POST(req: Request) {
               providerStatus: providerRes.status,
               providerCheckedAt: now,
               ...(deliv ? { delivery: deliv } : {}),
+              ...(redCode ? { redemptionCode: redCode, cardCode: redCode } : {}),
               ...(replyMsg ? { providerReply: replyMsg, reply: replyMsg } : {}),
               ...(activationUrl ? { activationUrl, activationLink: activationUrl } : {}),
             });
@@ -495,7 +519,20 @@ export async function POST(req: Request) {
       }).catch(() => {});
     }
 
-    return NextResponse.json({ success: true, order: toBuyerOrder(order), newBalance: atomicRes.newBalance });
+    const finalRedCode =
+      order.details?.redemptionCode ||
+      order.details?.cardCode ||
+      order.details?.delivery?.codes?.find((c: string) => !/^https?:\/\//i.test(c)) ||
+      (order.details as any)?.delivery?.code ||
+      (order.details as any)?.delivery?.pin;
+
+    return NextResponse.json({
+      success: true,
+      order: toBuyerOrder(order),
+      newBalance: atomicRes.newBalance,
+      redemptionCode: finalRedCode,
+      delivery: order.details?.delivery,
+    });
   } catch (err: any) {
     return NextResponse.json(
       { success: false, message: err?.message || 'زاكاز مەغلۇپ بولدى' },

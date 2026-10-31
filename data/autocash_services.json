@@ -5117,10 +5117,11 @@
     "category": "apps",
     "icon": "Gauge",
     "image": "/images/services/gearup_booster.jpg",
-    "description": "تېلېفون ئويۇنلىرىدا پىڭ (Ping) چۈشۈرۈش ۋە كېچىكىشنى يوقىتىش ئۈچۈن GearUP مۇشتەرىلىكى.",
-    "badge": "🚀 تېزلەتكۈچ",
-    "inputLabel": "ئېلخەت ياكى تېلېفون نومۇرى",
-    "inputPlaceholder": "ئۇچۇرىڭىزنى كىرگۈزۈڭ",
+    "description": "تېلېفون ئويۇنلىرىدا پىڭ (Ping) چۈشۈرۈش ۋە كېچىكىشنى يوقىتىش ئۈچۈن GearUP مۇشتەرىلىكى. سېتىۋالغاندىن كېيىن قوزغىتىش كودى (Redemption Code) دەرھال بېرىلىدۇ، ھېسابات كىرگۈزۈش ھاجەتسىز.",
+    "badge": "⚡ تېز كود تالونى",
+    "requiresInput": false,
+    "isRedemptionCode": true,
+    "deliveryType": "code",
     "packages": [
       {
         "id": "pkg-othman-604",
@@ -5131,7 +5132,7 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "GearUP Booster"
+        "instructions": "كود تالونى (Redemption Code) — ئەپكە كىرگۈزۈپ قوزغىتىۋېلىش كېرەك"
       },
       {
         "id": "pkg-othman-605",
@@ -5141,13 +5142,14 @@
         "providerProductId": 605,
         "productType": "fixed",
         "available": true,
-        "providerKey": "othman"
+        "providerKey": "othman",
+        "instructions": "كود تالونى (Redemption Code) — ئەپكە كىرگۈزۈپ قوزغىتىۋېلىش كېرەك"
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "GearUP Booster"
+    "instructions": "⚡ سېتىۋالغاندىن كېيىن سىستېما سىزگە قوزغىتىش كودى (Redemption Code) بېرىدۇ. تېلېفوندىكى GearUP Booster ئەپىگە كىرىپ، «استرداد الرمز / Redeem Code» بۆلىكىگە بۇ كودنى كىرگۈزۈپ ئەزالىقىڭىزنى دەرھال ئاكتىپلىۋېلىڭ."
   },
   {
     "id": "othman_proton_vpn",

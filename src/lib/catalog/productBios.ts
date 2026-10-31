@@ -20,6 +20,37 @@ interface BioEntry {
 }
 
 const BIOS_DATABASE: BioEntry[] = [
+  // 0.0 GearUP Booster Redemption Code
+  {
+    matcher: (service, pkg) => {
+      const s = `${service?.id || ''} ${service?.name || ''} ${pkg?.title || ''}`.toLowerCase();
+      return /gearup|gear_up|gear up|othman_gearup_booster/i.test(s) || (s.includes('gear') && s.includes('booster'));
+    },
+    ug: `🚀 GearUP Booster تېزلەتكۈچ مۇشتەرىلىك تالونى (Redemption Code):
+⚡ سېتىۋېلىش دەرھال ئورۇنلىنىدۇ، ھېچقانداق ئېلخەت ياكى ھېسابات كىرگۈزۈش ھاجەتسىز.
+
+🔑 قوزغىتىش ئۇسۇلى:
+1. سېتىۋالغاندىن كېيىن سىستېما سىزگە تەمىنلىگۈچىدىن چىققان قوزغىتىش تالونى (Redemption Code) نى دەرھال تاپشۇرۇپ بېرىدۇ.
+2. تېلېفوندىكى GearUP Booster ئەپىنى ئېچىڭ.
+3. ھېسابات ياكى تەڭشەك بۆلىكىگە كىرىپ «استرداد الرمز / Redeem Code» نى تاللاڭ.
+4. كودنى چاپلاپ قوزغاتسىڭىز، ئويۇن تېزلەتكۈچ ئەزالىقىڭىز شۇ ھامان ئاكتىپلىنىدۇ.`,
+    ar: `🚀 اشتراك GearUP Booster لتسريع ألعاب الهاتف وتقليل البينج (Ping):
+⚡ تسليم تلقائي فوري لكود التفعيل (Redemption Code) — بدون الحاجة لإدخال بريد إلكتروني أو حساب.
+
+🔑 طريقة التفعيل داخل التطبيق:
+1. بعد إتمام الشراء يظهر لك كود التفعيل فوراً على الشاشة وفي صفحة الطلبات.
+2. افتح تطبيق GearUP Booster على هاتفك.
+3. توجه إلى الحساب / القائمة واختر «استرداد الرمز / Redeem Code».
+4. الصق الكود وقم بتأكيده لتفعيل اشتراكك والاستمتاع بتسريع الألعاب بدون تقطيع.`,
+    en: `🚀 GearUP Booster Mobile Game Speed Up Subscription (Redemption Code):
+⚡ Instant automated code delivery — No email or game ID needed.
+
+🔑 How to redeem in-app:
+1. Upon purchase, your Redemption Code is delivered instantly on screen and in your Orders tab.
+2. Open the GearUP Booster app on your mobile device.
+3. Go to Account/Profile and select 'Redeem Code' (استرداد الرمز).
+4. Paste the code and activate your VIP subscription immediately.`,
+  },
   // 0. Tremendous Visa Cards (Exact match for provider screenshot instructions)
   {
     matcher: (service, pkg) => {

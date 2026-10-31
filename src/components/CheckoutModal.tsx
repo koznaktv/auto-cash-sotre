@@ -6,7 +6,7 @@ import type { ServiceItem, ServicePackage } from '@/lib/data';
 import DynamicIcon from './DynamicIcon';
 import AnimatedOrderButton from './AnimatedOrderButton';
 import { useLanguage } from '@/context/LanguageContext';
-import { X, AlertCircle, Loader2, Search, Info, ExternalLink } from 'lucide-react';
+import { X, AlertCircle, Loader2, Search, Info, ExternalLink, Sparkles, Check, Copy } from 'lucide-react';
 
 import { validateGameAccount } from '@/lib/validation/gameAccountValidator';
 import { minQty, validateOrderFields, validateQty } from '@/lib/catalog/fieldValidation';
@@ -47,6 +47,17 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
         (service.name || '').toLowerCase().includes('واي فاي'))
   );
 
+  const isRedemptionService = Boolean(
+    service &&
+      ((service as any).isRedemptionCode ||
+        (service as any).requiresInput === false ||
+        (service as any).deliveryType === 'code' ||
+        service.id === 'othman_gearup_booster' ||
+        service.id.toLowerCase().includes('gearup') ||
+        (service.name || '').toLowerCase().includes('gearup') ||
+        (service.category === 'cards' && !service.inputLabel))
+  );
+
   const [detail, setDetail] = useState<ServiceItem | null>(service || null);
   const [detailError, setDetailError] = useState('');
   const [selectedPkgId, setSelectedPkgId] = useState(initialPackageId || '');
@@ -61,6 +72,8 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
   const [confirmTotal, setConfirmTotal] = useState<number | null>(null);
   const [buttonState, setButtonState] = useState<'idle' | 'loading' | 'success'>('idle');
   const [purchasedWifiCard, setPurchasedWifiCard] = useState<any | null>(null);
+  const [purchasedRedCode, setPurchasedRedCode] = useState<string | null>(null);
+  const [copiedRedCode, setCopiedRedCode] = useState(false);
   const [wifiStockMap, setWifiStockMap] = useState<Record<string, number> | null>(null);
   const [loadingStock, setLoadingStock] = useState(false);
   const isSubmittingRef = useRef(false);
@@ -316,6 +329,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
     setInfoMsg('');
     try {
       const targetStr = (customTarget ?? accountInput).trim();
+      const effectiveTarget = targetStr || (isRedemptionService ? (isRTL ? 'كود تالونى (Redemption Code)' : 'Redemption Code') : '');
       const body = isProvider
         ? {
             serviceId: service.id,
@@ -325,11 +339,11 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
               ...(accountInput.trim() ? { playerId: accountInput.trim() } : {}),
               ...(zoneInput.trim() ? { zoneId: zoneInput.trim() } : {}),
             },
-            targetAccount: targetStr,
+            targetAccount: effectiveTarget,
             qty,
             expectedTotal,
           }
-        : { serviceId: service.id, packageId: selectedPkgId, targetAccount: targetStr };
+        : { serviceId: service.id, packageId: selectedPkgId, targetAccount: effectiveTarget };
 
       const res = await fetch('/api/orders', {
         method: 'POST',
@@ -362,6 +376,23 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
         setPurchasedWifiCard(data.wifiCard);
         onSuccess(data.order, data.newBalance);
         return;
+      }
+
+      const receivedCode =
+        data.redemptionCode ||
+        data.order?.details?.redemptionCode ||
+        data.order?.details?.cardCode ||
+        data.order?.details?.delivery?.codes?.find((c: string) => !/^https?:\/\//i.test(c)) ||
+        (data.order?.details?.delivery as any)?.code ||
+        (data.order?.details?.delivery as any)?.pin;
+
+      if (receivedCode || isRedemptionService) {
+        if (receivedCode) {
+          setPurchasedRedCode(receivedCode);
+          setButtonState('success');
+          onSuccess(data.order, data.newBalance);
+          return;
+        }
       }
 
       if (res.status === 202) {
@@ -467,11 +498,11 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
       ? `${accountInput.trim()} (${zoneInput.trim()})`
       : accountInput.trim();
 
-    if (service.inputLabel && !combinedAccount) {
+    if (!isRedemptionService && service.inputLabel && !combinedAccount) {
       setErrorMsg(`${translateInputLabel(service.inputLabel) || 'ID'} ${t('accountInputFallbackPlaceholder')}`);
       return;
     }
-    if (service.category === 'games' || service.inputLabel || requiresZoneId) {
+    if (!isRedemptionService && (service.category === 'games' || service.inputLabel || requiresZoneId)) {
       const val = validateGameAccount(service.id, combinedAccount);
       if (!val.isValid) {
         setErrorMsg(val.message || t('invalidIdFormat'));
@@ -623,6 +654,116 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
             </div>
 
             <WifiVoucherCard card={purchasedWifiCard} />
+
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  router.push('/orders');
+                }}
+                className="w-full py-3 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-bold rounded-xl text-xs sm:text-sm transition"
+              >
+                📦 بارلىق زاكازلىرىمنى كۆرۈش ➔
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="py-3 px-5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-xl text-xs sm:text-sm transition"
+              >
+                تامام
+              </button>
+            </div>
+          </div>
+        ) : purchasedRedCode ? (
+          <div className="space-y-4 pt-2 font-alkatip">
+            <div className="text-center space-y-1.5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold">
+                🎉 سېتىۋېلىش مۇۋەپپەقىيەتلىك بولدى!
+              </span>
+              <h3 className="text-base sm:text-lg font-bold text-white">
+                {service.name} قوزغىتىش كودىڭىز (Redemption Code)
+              </h3>
+              <p className="text-xs text-slate-400">
+                {lang === 'ug' ? 'بۇ كود ئارقىلىق ئەپ ئىچىدىن ئەزالىقىڭىزنى دەرھال قوزغىتىۋالالايسىز' : 'يمكنك تفعيل اشتراكك الآن باستخدام هذا الكود في التطبيق'}
+              </p>
+            </div>
+
+            {/* Glowing Redemption Code Voucher Card */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-950/90 via-[#071f1a] to-slate-900 border-2 border-emerald-500/60 shadow-2xl shadow-emerald-950/70 space-y-4 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="flex items-center justify-between text-xs text-emerald-300/90 border-b border-emerald-500/20 pb-2.5">
+                <span className="font-bold flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-emerald-400" />
+                  <span>{lang === 'ug' ? 'تەييار قوزغىتىش كودى' : 'كود التفعيل جاهز'}</span>
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/40">
+                  ⚡ 1 سېكۇنتتا قوزغىتىش
+                </span>
+              </div>
+
+              {/* Code Monospace Box */}
+              <div className="p-3.5 sm:p-4 rounded-xl bg-slate-950/90 border border-emerald-400/50 text-center space-y-1 shadow-inner">
+                <span className="text-[11px] text-slate-400 font-sans tracking-wide block">
+                  REDEMPTION CODE
+                </span>
+                <div className="text-xl sm:text-2xl font-black font-mono tracking-[0.15em] text-emerald-300 select-all break-all py-1" dir="ltr">
+                  {purchasedRedCode}
+                </div>
+              </div>
+
+              {/* Copy Code Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                    navigator.clipboard.writeText(purchasedRedCode);
+                  }
+                  setCopiedRedCode(true);
+                  setTimeout(() => setCopiedRedCode(false), 2500);
+                }}
+                className={`w-full py-3 px-4 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-95 ${
+                  copiedRedCode
+                    ? 'bg-emerald-500 text-slate-950 shadow-emerald-500/30'
+                    : 'bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-white shadow-emerald-500/25'
+                }`}
+              >
+                {copiedRedCode ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    <span>{lang === 'ug' ? 'كود كۆچۈرۈلدى! ✅' : 'تم نسخ الكود! ✅'}</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    <span>{lang === 'ug' ? 'كودنى كۆچۈرۈۋېلىش' : 'نسخ الكود'}</span>
+                  </>
+                )}
+              </button>
+
+              {/* Instructions Guide */}
+              <div className="p-3 rounded-xl bg-slate-900/80 border border-emerald-500/20 text-xs text-slate-300 space-y-1.5 leading-relaxed">
+                <div className="font-bold text-emerald-400 flex items-center gap-1.5">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>{lang === 'ug' ? 'قوزغىتىش ئۇسۇلى:' : 'طريقة التفعيل:'}</span>
+                </div>
+                <p className="text-[11px] text-slate-300">
+                  {lang === 'ug'
+                    ? '1. يۇقىرىدىكى كودنى كۆچۈرۈۋېلىپ، تېلېفوندىكى GearUP Booster ئەپىنى ئېچىڭ.'
+                    : '1. بعد نسخ الكود، افتح تطبيق GearUP Booster على هاتفك.'}
+                </p>
+                <p className="text-[11px] text-slate-300">
+                  {lang === 'ug'
+                    ? '2. ھېسابات ياكى تىزىملىكتىن «استرداد الرمز / Redeem Code» تۈرىنى تاللاڭ.'
+                    : '2. توجه إلى القائمة / الحساب واختر «استرداد الرمز / Redeem Code».'}
+                </p>
+                <p className="text-[11px] text-slate-300">
+                  {lang === 'ug'
+                    ? '3. كودنى چاپلاپ قوزغاتسىڭىز، مۇشتەرىلىكىڭىز شۇ ھامان ئاكتىپلىنىدۇ.'
+                    : '3. قم بلصق الكود وتأكيده لتفعيل اشتراكك فوراً.'}
+                </p>
+              </div>
+            </div>
 
             <div className="flex gap-2 pt-2">
               <button
@@ -892,7 +1033,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
               ))}
 
             {/* Legacy or custom service account input with UID + Zone ID support */}
-            {(!isProvider || (selectedPkg?.fields || []).length === 0) && (service.inputLabel || requiresZoneId || service.category === 'games') && (
+            {(!isProvider || (selectedPkg?.fields || []).length === 0) && (service.inputLabel || requiresZoneId || service.category === 'games' || isRedemptionService) && (
               <div className="space-y-3">
                 {requiresZoneId ? (
                   <div className="space-y-2">
@@ -966,6 +1107,35 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                                   : 'نفدت هذه الفئة من الكروت حالياً، سيتم توفيرها قريباً.')
                               : 'نومۇر كىرگۈزۈش ھاجەتسىز. كارتىنى تاللاپ «سېتىۋېلىش» نى باسسىڭىزلا سىستېما نومۇر ۋە پارولنى دەرھال چىقىرىپ بېرىدۇ.'}
                           </div>
+                        </div>
+                      </div>
+                    ) : isRedemptionService ? (
+                      <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-emerald-950/70 via-slate-900 to-[#07192d] border border-emerald-500/50 shadow-lg space-y-2 font-alkatip">
+                        <div className="flex items-center justify-between gap-2 border-b border-emerald-500/20 pb-2">
+                          <span className="text-emerald-300 font-bold text-xs sm:text-sm flex items-center gap-1.5">
+                            <span>⚡</span>
+                            <span>{lang === 'ug' ? 'كود تالونى (Redemption Code)' : lang === 'ar' ? 'كود تفعيل رقمي (Redemption Code)' : 'Digital Redemption Code'}</span>
+                          </span>
+                          <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-0.5 rounded-full font-bold">
+                            {lang === 'ug' ? 'ھېسابات كىرگۈزۈش ھاجەتسىز' : lang === 'ar' ? 'بدون إدخال حساب' : 'No ID Required'}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-300 leading-relaxed">
+                          {lang === 'ug'
+                            ? 'بۇ مەھسۇلاتقا ھېچقانداق ئېلخەت ياكى ھېسابات كىرگۈزۈش ھاجەتسىز. كارتىنى تاللاپ «سېتىۋېلىش» نى باسسىڭىزلا، سىستېما سىزگە قوزغىتىش كودى (Redemption Code) نى دەرھال چىقىرىپ بېرىدۇ.'
+                            : lang === 'ar'
+                            ? 'لا يتطلب هذا المنتج إدخال أي بريد أو حساب. اختر الباقة واضغط «شراء الآن»، وسيتم توليد كود التفعيل فوراً لتستخدمه في التطبيق.'
+                            : 'No account or email is required. Choose a package and click purchase to get your instant Redemption Code to activate inside the app.'}
+                        </p>
+                        <div className="p-2 rounded-xl bg-slate-950/80 border border-emerald-500/25 text-[11px] text-emerald-400 font-medium flex items-center gap-1.5">
+                          <span>💡</span>
+                          <span>
+                            {lang === 'ug'
+                              ? 'سېتىۋالغاندىن كېيىن قوزغىتىش كودى ئېكراندا چىقىدۇ، كودنى كۆچۈرۈۋېلىپ GearUP Booster ئەپىدە قوزغىتىۋالالايسىز.'
+                              : lang === 'ar'
+                              ? 'سيظهر كود التفعيل فوراً بعد إتمام الشراء، يمكنك نسخه وتفعيله داخل تطبيق GearUP Booster.'
+                              : 'The code will be delivered instantly upon purchase. Copy and redeem it inside the GearUP Booster app.'}
+                          </span>
                         </div>
                       </div>
                     ) : (
@@ -1197,6 +1367,8 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                   label={
                     confirmTotal !== null
                       ? `${t('confirmNewPrice')} ($${formatSmartPrice(confirmTotal)})`
+                      : isRedemptionService
+                      ? (lang === 'ug' ? '⚡ كودنى دەرھال سېتىۋېلىش' : lang === 'ar' ? '⚡ شراء الكود فوراً' : '⚡ Buy Code Now')
                       : t('confirmAndPay')
                   }
                   isRTL={isRTL}
