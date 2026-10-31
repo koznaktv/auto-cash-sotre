@@ -85,6 +85,9 @@ export interface SystemSettings {
   tsaApiKey?: string;
   tsaAutoDepositEnabled?: boolean;
   shamcashExchangeRate?: number;
+  shamcashBaseRate?: number;
+  shamcashRateMargin?: number;
+  shamcashRateLastChecked?: string;
   shamcashMaxAgeMinutes?: number;
 }
 
@@ -142,7 +145,9 @@ const initialDefaultData: DatabaseSchema = {
     providerEnabled: true,
     tsaApiKey: process.env.SHAM_CASH_API_KEY || process.env.TSA_API_KEY || '',
     tsaAutoDepositEnabled: true,
-    shamcashExchangeRate: Number(process.env.SHAMCASH_EXCHANGE_RATE || 143),
+    shamcashBaseRate: 14375,
+    shamcashRateMargin: 15,
+    shamcashExchangeRate: Number(process.env.SHAMCASH_EXCHANGE_RATE || 14390),
   },
   users: [],
   orders: [],
@@ -1062,11 +1067,23 @@ export async function getSystemSettingsAsync(): Promise<SystemSettings> {
 
       if (!error && data) {
         const sbSettings = mapSupabaseSettings(data);
+        const effectiveBaseRate =
+          (parsedMeta.shamcashBaseRate ? Number(parsedMeta.shamcashBaseRate) : undefined) ||
+          localSettings.shamcashBaseRate ||
+          14375;
+
+        const effectiveRateMargin =
+          parsedMeta.shamcashRateMargin !== undefined
+            ? Number(parsedMeta.shamcashRateMargin)
+            : localSettings.shamcashRateMargin !== undefined
+            ? localSettings.shamcashRateMargin
+            : 15;
+
         const effectiveExchangeRate =
           sbSettings.shamcashExchangeRate ||
           (parsedMeta.shamcashExchangeRate ? Number(parsedMeta.shamcashExchangeRate) : undefined) ||
           localSettings.shamcashExchangeRate ||
-          15000;
+          (effectiveBaseRate + effectiveRateMargin);
 
         const effectiveTsaKey =
           sbSettings.tsaApiKey ||
@@ -1083,6 +1100,9 @@ export async function getSystemSettingsAsync(): Promise<SystemSettings> {
         return {
           ...localSettings,
           ...sbSettings,
+          shamcashBaseRate: effectiveBaseRate,
+          shamcashRateMargin: effectiveRateMargin,
+          shamcashRateLastChecked: parsedMeta.shamcashRateLastChecked || localSettings.shamcashRateLastChecked,
           shamcashExchangeRate: effectiveExchangeRate,
           tsaApiKey: effectiveTsaKey,
           tsaAutoDepositEnabled: effectiveAutoDeposit,
@@ -1163,6 +1183,9 @@ export async function updateSystemSettingsAsync(updates: Partial<SystemSettings>
       // Universal meta backup in site_name of system_meta row (guaranteed to succeed on all Supabase schemas)
       const metaPayload = {
         shamcashExchangeRate: updates.shamcashExchangeRate ?? db.settings.shamcashExchangeRate,
+        shamcashBaseRate: updates.shamcashBaseRate ?? db.settings.shamcashBaseRate ?? 14375,
+        shamcashRateMargin: updates.shamcashRateMargin ?? db.settings.shamcashRateMargin ?? 15,
+        shamcashRateLastChecked: updates.shamcashRateLastChecked ?? db.settings.shamcashRateLastChecked,
         tsaApiKey: updates.tsaApiKey ?? db.settings.tsaApiKey,
         tsaAutoDepositEnabled: updates.tsaAutoDepositEnabled ?? db.settings.tsaAutoDepositEnabled,
         shamcashAddress: updates.shamcashAddress ?? db.settings.shamcashAddress,

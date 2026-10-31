@@ -64,6 +64,21 @@ export function initServerKeepAlive(): void {
     if (keepAliveTimer.unref) {
       keepAliveTimer.unref();
     }
+
+    // 3. Automated Exchange Rate Check (twice daily: every 12 hours)
+    const TWICE_DAILY_MS = 12 * 60 * 60 * 1000;
+    const rateTimer = setInterval(async () => {
+      try {
+        const { runScheduledRateCheck } = await import('./exchangeRateService');
+        await runScheduledRateCheck(false);
+      } catch (err: any) {
+        console.warn('[KeepAlive Rate Check Warning]:', err?.message);
+      }
+    }, TWICE_DAILY_MS);
+
+    if (rateTimer.unref) {
+      rateTimer.unref();
+    }
   }
 }
 

@@ -3735,7 +3735,7 @@ ${cleanContent}
 • 📲 <b>/app</b> — Android ئەپ نۇسخىسىنى چۈشۈرۈش
 • ❓ <b>/faq</b> — كۆپ سورىلىدىغان سوئاللار
 • 💬 <b>/support</b> — خېرىدارلار مۇلازىمىتى بىلەن ئۇلىنىش
-${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</b>\n• <b>/stats</b> — كۈنلۈك سودا، ساپ پايدا ۋە زاكاز دوكلاتى\n• <b>/post &lt;ئېلان&gt;</b> — قانال ۋە بارلىق خېرىدارلارغا ئېلان تارقىتىش\n• <b>/pinchannel</b> — قانالغا رەسمىي يېتەكچى ئېلاننى مىخلاش (Pin)\n` : ''}
+${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</b>\n• <b>«15 لىرا قات»</b> ياكى <b>/margin &lt;مىقدار&gt;</b> — كۇرس پايدا پەرقىنى تەڭشەش\n• <b>/setrate &lt;باھا&gt;</b> — ئىدلىپ سېتىش باھاسىنى بېكىتىش\n• <b>/check_rate</b> — كۇرسنى تەكشۈرۈش\n• <b>/stats</b> — كۈنلۈك سودا، ساپ پايدا ۋە زاكاز دوكلاتى\n• <b>/post &lt;ئېلان&gt;</b> — قانال ۋە بارلىق خېرىدارلارغا ئېلان تارقىتىش\n• <b>/pinchannel</b> — قانالغا رەسمىي يېتەكچى ئېلاننى مىخلاش (Pin)\n` : ''}
 
 • 📢 رەسمىي قانال: @${TELEGRAM_CONFIG.channelUsername}
 • 💬 خېرىدارلار مۇلازىمىتى: @${TELEGRAM_CONFIG.supportUsername}
@@ -3891,6 +3891,54 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
       await sendTelegramMessage(chatId, `⚠️ قانالغا مىخلاش مەغلۇپ بولدى: ${pinRes.error}`, { parse_mode: 'HTML' });
     }
     return;
+  }
+
+  // 6.7 Admin Dynamic Rate Margin & Exchange Rate Command
+  // "15 لىرا قات", "10 لىرا قات", "/margin 15", "+15 لىرا", "كۇرس تەڭشە 14375"
+  if (isAdmin) {
+    const marginMatch = text.match(/(?:(\d+)\s*(?:لىرا\s*)?قات|قات\s*(\d+)|\/margin\s*(\d+)|\+(\d+)\s*(?:لىرا)?|margin\s*(\d+)|كۇرسقا\s*(\d+)\s*(?:لىرا\s*)?قوش)/i);
+    if (marginMatch) {
+      const marginVal = Number(marginMatch[1] || marginMatch[2] || marginMatch[3] || marginMatch[4] || marginMatch[5] || marginMatch[6]);
+      if (!isNaN(marginVal) && marginVal >= 0 && marginVal <= 1000) {
+        const { setRateMargin } = await import('./exchangeRateService');
+        const res = await setRateMargin(marginVal, from?.first_name || from?.username || 'باشقۇرغۇچى');
+        await sendTelegramMessage(
+          chatId,
+          `✅ <b>ھەميان كۇرسى مۇۋەپپەقىيەتلىك تەڭشەلدى!</b>\n\n🏛 <b>ئىدلىپ سېتىش باھاسى (بيع):</b> <code>${res.baseRate.toLocaleString()}</code> SYP\n➕ <b>قوشۇلغان پايدا پەرقى (Margin):</b> <b>+${res.margin} سۈرىيە لىراسى</b>\n💰 <b>يېڭى ئۈنۈملۈك كۇرس:</b> <b>1 USD = ${res.effectiveRate.toLocaleString()} SYP</b>\n\n⚡️ <i>ھازىردىن باشلاپ شامكەش ئارقىلىق پۇل قاچىلىغاندا بارلىق ھېسابلاشلار مۇشۇ كۇرس بويىچە ئېلىپ بېرىلىدۇ!</i>`,
+          { parse_mode: 'HTML' }
+        );
+        return;
+      }
+    }
+
+    // Setting base rate manually: "كۇرس 14375", "/setrate 14375", "پېرېۋوت 14375"
+    const baseMatch = text.match(/(?:\/setrate\s*(\d{4,6})|كۇرس\s*(\d{4,6})|پېرېۋوت\s*(\d{4,6}))/i);
+    if (baseMatch) {
+      const baseVal = Number(baseMatch[1] || baseMatch[2] || baseMatch[3]);
+      if (!isNaN(baseVal) && baseVal >= 5000 && baseVal <= 50000) {
+        const { setBaseMarketRate } = await import('./exchangeRateService');
+        const res = await setBaseMarketRate(baseVal, from?.first_name || from?.username || 'باشقۇرغۇچى');
+        await sendTelegramMessage(
+          chatId,
+          `✅ <b>ئاساسىي باھا تەڭشەلدى!</b>\n\n🏛 <b>ئىدلىپ سېتىش باھاسى (بيع):</b> <code>${res.baseRate.toLocaleString()}</code> SYP\n➕ <b>پايدا پەرقى:</b> <b>+${res.margin} لىرا</b>\n💰 <b>يېڭى كۇرس:</b> <b>1 USD = ${res.effectiveRate.toLocaleString()} SYP</b>`,
+          { parse_mode: 'HTML' }
+        );
+        return;
+      }
+    }
+
+    // Manual check trigger: "/check_rate", "كۇرس تەكشۈر"
+    if (text === '/check_rate' || text === 'كۇرس تەكشۈر' || text === 'پېرېۋوت تەكشۈر') {
+      const { runScheduledRateCheck } = await import('./exchangeRateService');
+      await sendTelegramMessage(chatId, '⏳ ئىدلىپ بازىرى كۇرسى تەكشۈرۈلۈۋاتىدۇ...');
+      const checkRes = await runScheduledRateCheck(true);
+      await sendTelegramMessage(
+        chatId,
+        `✅ <b>كۇرس ھالىتى:</b>\n🏛 ئىدلىپ سېتىش باھاسى: <code>${checkRes.config.baseRate.toLocaleString()}</code> SYP\n➕ قوشۇلغان مىقدار: +${checkRes.config.margin} SYP\n💰 ھەميان كۇرسى: <b>1 USD = ${checkRes.config.effectiveRate.toLocaleString()} SYP</b>`,
+        { parse_mode: 'HTML' }
+      );
+      return;
+    }
   }
 
   // 7. Automatic Order ID Detection

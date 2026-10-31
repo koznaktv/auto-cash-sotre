@@ -117,14 +117,14 @@ export async function getTsaConfig(): Promise<{
     settings.tsaAutoDepositEnabled !== undefined
       ? Boolean(settings.tsaAutoDepositEnabled)
       : process.env.TSA_AUTO_DEPOSIT !== 'false';
-  const exchangeRate = Number(settings.shamcashExchangeRate || process.env.SHAMCASH_EXCHANGE_RATE || 143);
+  const exchangeRate = Number(settings.shamcashExchangeRate || process.env.SHAMCASH_EXCHANGE_RATE || 14390);
   const maxAgeMinutes = Number(settings.shamcashMaxAgeMinutes || process.env.SHAMCASH_MAX_AGE_MINUTES || 45);
 
   return {
     apiKey,
     shamcashAddress,
     autoDepositEnabled,
-    exchangeRate: exchangeRate > 0 ? exchangeRate : 143,
+    exchangeRate: exchangeRate > 0 ? exchangeRate : 14390,
     maxAgeMinutes: maxAgeMinutes > 0 ? maxAgeMinutes : 45,
   };
 }
