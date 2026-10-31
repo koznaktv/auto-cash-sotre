@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 24/7 Server Keep-Alive & Crash Prevention Guard for AUTO CASH
  *
  * 1. Prevents unexpected unhandled exceptions / promise rejections from crashing the server
@@ -78,6 +78,21 @@ export function initServerKeepAlive(): void {
 
     if (rateTimer.unref) {
       rateTimer.unref();
+    }
+
+    // 4. Automated Provider Price & Stock Availability Monitor (every 30 minutes)
+    const PROVIDER_CHECK_INTERVAL_MS = 30 * 60 * 1000;
+    const providerTimer = setInterval(async () => {
+      try {
+        const { runProviderAutoMonitor } = await import('./providerMonitorService');
+        await runProviderAutoMonitor({ notifyAdmin: true, forceNotify: false });
+      } catch (err: any) {
+        console.warn('[KeepAlive Provider Monitor Warning]:', err?.message);
+      }
+    }, PROVIDER_CHECK_INTERVAL_MS);
+
+    if (providerTimer.unref) {
+      providerTimer.unref();
     }
   }
 }

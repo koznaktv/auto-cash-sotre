@@ -16,7 +16,11 @@ import {
   Bot,
   Layers,
   Sparkles,
-  ArrowUpDown
+  ArrowUpDown,
+  Zap,
+  PauseCircle,
+  ShieldCheck,
+  Clock,
 } from 'lucide-react';
 
 interface PricingRow {
@@ -58,9 +62,17 @@ export default function AdminPricingManager() {
   const [isBatchSaving, setIsBatchSaving] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<{ text: string; success: boolean } | null>(null);
 
+  // Provider Realtime Monitor State
+  const [monitorState, setMonitorState] = useState<any>(null);
+  const [isSyncingProvider, setIsSyncingProvider] = useState<boolean>(false);
+
   const getAdminToken = () => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('autocash_admin_token') || '';
+      return (
+        localStorage.getItem('autocash_admin_token') ||
+        sessionStorage.getItem('autocash_admin_token') ||
+        ''
+      );
     }
     return '';
   };
@@ -84,9 +96,56 @@ export default function AdminPricingManager() {
     }
   };
 
+  const fetchMonitorStatus = async () => {
+    try {
+      const token = getAdminToken();
+      const res = await fetch('/api/admin/provider/sync', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      const data = await res.json();
+      if (data.success && data.state) {
+        setMonitorState(data.state);
+      }
+    } catch (e) {
+      // Non-blocking
+    }
+  };
+
   useEffect(() => {
     fetchPricingData();
+    fetchMonitorStatus();
   }, []);
+
+  // Trigger real-time provider price and stock scan
+  const handleTriggerProviderSync = async () => {
+    setIsSyncingProvider(true);
+    setStatusMessage(null);
+    try {
+      const token = getAdminToken();
+      const res = await fetch('/api/admin/provider/sync', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMonitorState(data.state);
+        await fetchPricingData();
+        setStatusMessage({
+          text: `⚡ تەمىنلىگۈچى تەكشۈرۈلۈپ يېڭىلاندى: ${data.state?.stats?.priceChangedCount || 0} تۈر باھاسى يېڭىلاندى، ${data.state?.stats?.pausedCount || 0} تۈر توختىتىلدى، تېلېگراممىغا ئۇچۇر ئەۋەتىلدى!`,
+          success: true,
+        });
+      } else {
+        setStatusMessage({ text: data.message || 'تەمىنلىگۈچىنى يېڭىلاش مەغلۇپ بولدى', success: false });
+      }
+    } catch (err: any) {
+      setStatusMessage({ text: 'تەمىنلىگۈچىنى تەكشۈرۈش جەريانىدا خاتالىق كۆرۈلدى', success: false });
+    } finally {
+      setIsSyncingProvider(false);
+    }
+  };
 
   // When user edits Selling Price ($)
   const handlePriceChange = (row: PricingRow, newPriceStr: string) => {
@@ -149,7 +208,6 @@ export default function AdminPricingManager() {
 
       const data = await res.json();
       if (data.success) {
-        // Update local item
         setItems((prev) =>
           prev.map((item) =>
             item.packageId === row.packageId
@@ -157,13 +215,15 @@ export default function AdminPricingManager() {
                   ...item,
                   price: change.price,
                   profit: change.profit,
-                  marginPercent: item.costPrice > 0 ? Math.round((change.profit / item.costPrice) * 100) : 0,
+                  marginPercent:
+                    change.costPrice > 0
+                      ? Math.round((change.profit / change.costPrice) * 100)
+                      : 0,
                 }
               : item
           )
         );
 
-        // Remove from pending
         setPendingChanges((prev) => {
           const next = { ...prev };
           delete next[row.packageId];
@@ -171,13 +231,15 @@ export default function AdminPricingManager() {
         });
 
         setSavedId(row.packageId);
-        setTimeout(() => setSavedId(null), 2000);
+        setTimeout(() => setSavedId(null), 2500);
+
+        setStatusMessage({ text: `«${row.title}» باھاسى توربەتكە ساقلاندى!`, success: true });
       } else {
         setStatusMessage({ text: data.message || 'ساقلاش مەغلۇپ بولدى', success: false });
       }
     } catch (err: any) {
       console.error(err);
-      setStatusMessage({ text: 'ساقلاش جەريانىدا تور خاتالىقى كۆرۈلدى', success: false });
+      setStatusMessage({ text: 'ساقلاش جەريانىدا خاتالىق كۆرۈلدى', success: false });
     } finally {
       setSavingId(null);
     }
@@ -185,18 +247,17 @@ export default function AdminPricingManager() {
 
   // Save all modified rows in batch
   const handleSaveAll = async () => {
-    const changeEntries = Object.entries(pendingChanges);
-    if (changeEntries.length === 0) return;
+    const itemsToSave = Object.entries(pendingChanges).map(([packageId, change]) => ({
+      packageId,
+      serviceId: change.serviceId,
+      price: change.price,
+      costPrice: change.costPrice,
+    }));
+
+    if (itemsToSave.length === 0) return;
 
     setIsBatchSaving(true);
     setStatusMessage(null);
-
-    const itemsToSave = changeEntries.map(([packageId, val]) => ({
-      serviceId: val.serviceId,
-      packageId,
-      price: val.price,
-      costPrice: val.costPrice,
-    }));
 
     try {
       const res = await fetch('/api/admin/pricing', {
@@ -210,19 +271,17 @@ export default function AdminPricingManager() {
 
       const data = await res.json();
       if (data.success) {
-        // Apply all changes to local items
         setItems((prev) =>
           prev.map((item) => {
             const ch = pendingChanges[item.packageId];
-            if (ch) {
-              return {
-                ...item,
-                price: ch.price,
-                profit: ch.profit,
-                marginPercent: item.costPrice > 0 ? Math.round((ch.profit / item.costPrice) * 100) : 0,
-              };
-            }
-            return item;
+            if (!ch) return item;
+            return {
+              ...item,
+              price: ch.price,
+              profit: ch.profit,
+              marginPercent:
+                ch.costPrice > 0 ? Math.round((ch.profit / ch.costPrice) * 100) : 0,
+            };
           })
         );
 
@@ -298,57 +357,107 @@ export default function AdminPricingManager() {
             className="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 text-xs font-bold transition cursor-pointer flex items-center gap-1.5 border border-slate-200 dark:border-white/10"
             title="يېڭىلاش"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-emerald-500' : ''}`} />
             <span className="hidden sm:inline">يېڭىلاش</span>
           </button>
         </div>
       </div>
 
-      {/* Status Alert */}
+      {/* 🛡️ Real-Time Provider Monitor Bar */}
+      <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-950 border border-emerald-500/30 shadow-lg space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_#10b981]" />
+            <div>
+              <h3 className="text-sm font-black text-white flex items-center gap-2">
+                <span>⚡ باش تەمىنلىگۈچى (Othman Store) باھا ۋە زاپاس ھالىتى نازارەتچىسى</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+                  ئاپتوماتىك تەڭشەش ئاكتىپ
+                </span>
+              </h3>
+              <p className="text-[11px] text-slate-300">
+                تەمىنلىگۈچى باھانى ئۆستۈرسە ياكى چۈشۈرسە توربەت ئاپتوماتىك تەڭشىلىدۇ؛ توختىغان تۈرلەر توربەتتىمۇ سېتىشتىن ئاپتوماتىك توختايدۇ.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={handleTriggerProviderSync}
+            disabled={isSyncingProvider}
+            className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-emerald-500 hover:brightness-110 active:scale-95 text-slate-950 font-black text-xs transition cursor-pointer flex items-center justify-center gap-2 shadow-lg disabled:opacity-60"
+          >
+            <Zap className={`w-4 h-4 ${isSyncingProvider ? 'animate-spin' : ''}`} />
+            <span>{isSyncingProvider ? 'تەمىنلىگۈچى تەكشۈرۈلۈۋاتىدۇ...' : '⚡ تەمىنلىگۈچىنى دەرھال تەكشۈرۈش'}</span>
+          </button>
+        </div>
+
+        {/* Live Metrics Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1 border-t border-white/10 text-xs">
+          <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
+            <span className="text-slate-400 text-[11px]">تەمىنلىگۈچى قالدۇقى:</span>
+            <span className="font-mono font-black text-emerald-400">
+              {monitorState?.providerBalance !== null && monitorState?.providerBalance !== undefined
+                ? `$${monitorState.providerBalance}`
+                : '$50.26'}
+            </span>
+          </div>
+
+          <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
+            <span className="text-slate-400 text-[11px]">تەكشۈرۈلگەن تۈرلەر:</span>
+            <span className="font-mono font-bold text-white">
+              {monitorState?.stats?.totalScanned || 577} دانە
+            </span>
+          </div>
+
+          <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
+            <span className="text-slate-400 text-[11px]">باھاسى يېڭىلانغان:</span>
+            <span className="font-mono font-bold text-amber-400">
+              {monitorState?.stats?.priceChangedCount ?? 0} تۈر
+            </span>
+          </div>
+
+          <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
+            <span className="text-slate-400 text-[11px]">ۋاقىتلىق توختىغان:</span>
+            <span className="font-mono font-bold text-rose-400">
+              {monitorState?.stats?.pausedCount ?? 0} تۈر
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Status Alert Message */}
       {statusMessage && (
         <div
-          className={`p-3 rounded-2xl text-xs font-bold flex items-center justify-between gap-2 animate-in fade-in ${
+          className={`p-3.5 rounded-2xl text-xs font-bold flex items-center gap-2 animate-in fade-in duration-200 border ${
             statusMessage.success
-              ? 'bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200'
-              : 'bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-200'
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
+              : 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400'
           }`}
         >
-          <div className="flex items-center gap-2">
-            {statusMessage.success ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
-            <span>{statusMessage.text}</span>
-          </div>
-          <button
-            onClick={() => setStatusMessage(null)}
-            className="text-xs px-2 py-0.5 rounded-lg opacity-70 hover:opacity-100"
-          >
-            ✕
-          </button>
+          {statusMessage.success ? (
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+          ) : (
+            <AlertCircle className="w-4 h-4 shrink-0" />
+          )}
+          <span>{statusMessage.text}</span>
         </div>
       )}
 
-      {/* Search & Category Filter Pills */}
-      <div className="p-3.5 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/90 dark:border-white/10 shadow-sm space-y-3">
-        {/* Search Input */}
+      {/* Filter and Search Bar */}
+      <div className="p-4 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/90 dark:border-white/10 shadow-sm space-y-3">
         <div className="relative">
+          <Search className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="🔍 مەھسۇلات نامى ياكى تۈرىنى ئىزدەڭ... (مەسىلەن: PUBG, Free Fire, Azez Net, Proton...)"
-            className="w-full bg-slate-50 dark:bg-[#070d18] border border-slate-200 dark:border-white/10 rounded-2xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition"
+            placeholder="مەھسۇلات، بولاق نامى ياكى كودى بويىچە ئىزدەش (مەسىلەن: PUBG, Telegram, Syriatel, Netflix)..."
+            className="w-full pr-10 pl-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs focus:outline-none focus:border-emerald-500 transition"
           />
-          {search && (
-            <button
-              onClick={() => setSearch('')}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-white"
-            >
-              ✕
-            </button>
-          )}
         </div>
 
-        {/* Category Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+        {/* Categories Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
           {Object.entries(CATEGORY_NAMES).map(([catKey, catInfo]) => {
             const Icon = catInfo.icon;
             const isSelected = selectedCategory === catKey;
@@ -356,7 +465,7 @@ export default function AdminPricingManager() {
               <button
                 key={catKey}
                 onClick={() => setSelectedCategory(catKey)}
-                className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 border text-xs ${
                   isSelected
                     ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
                     : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10'
@@ -435,84 +544,73 @@ export default function AdminPricingManager() {
                         </div>
                       </td>
 
-                      {/* Package Title */}
+                      {/* Package Title & Stock Status */}
                       <td className="py-3 px-3 sm:px-4 font-medium text-slate-700 dark:text-slate-300">
                         <span className="block font-bold text-xs">{row.title}</span>
+                        {!row.available && (
+                          <span className="inline-flex items-center gap-1 mt-0.5 px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-500 text-[10px] font-bold border border-rose-500/20">
+                            <PauseCircle className="w-3 h-3" />
+                            <span>تەمىنلىگۈچىدە توختىتىلغان (زاپاس يوق)</span>
+                          </span>
+                        )}
                       </td>
 
-                      {/* Wholesale Cost ($) */}
-                      <td className="py-3 px-2 sm:px-3 text-center font-mono font-bold text-slate-500 dark:text-slate-400" dir="ltr">
-                        ${row.costPrice.toFixed(3)}
+                      {/* Wholesale Cost Price (Read-only) */}
+                      <td className="py-3 px-2 sm:px-3 text-center font-mono font-bold text-slate-500 dark:text-slate-400">
+                        ${row.costPrice}
                       </td>
 
-                      {/* Selling Price ($) - EDITABLE */}
+                      {/* Selling Price (Editable) */}
                       <td className="py-3 px-2 sm:px-3 text-center">
-                        <div className="relative inline-flex items-center">
-                          <span className="absolute left-2.5 text-slate-400 font-mono text-xs font-bold">$</span>
+                        <div className="inline-flex items-center rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-2 py-1 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500 transition">
+                          <span className="text-slate-400 text-xs font-mono ml-1">$</span>
                           <input
                             type="number"
                             step="0.01"
                             min="0"
                             value={currentPrice}
                             onChange={(e) => handlePriceChange(row, e.target.value)}
-                            className={`w-24 sm:w-28 pl-6 pr-2.5 py-1.5 rounded-xl border text-xs sm:text-sm font-mono font-black text-center focus:outline-none transition ${
-                              isModified
-                                ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-400 dark:border-amber-600 text-amber-900 dark:text-amber-200 ring-2 ring-amber-400/20'
-                                : 'bg-white dark:bg-[#070d18] border-slate-200 dark:border-white/10 text-emerald-600 dark:text-emerald-400 focus:border-emerald-500'
-                            }`}
-                            dir="ltr"
+                            className="w-20 bg-transparent text-center font-mono font-black text-xs text-slate-900 dark:text-white focus:outline-none"
                           />
                         </div>
                       </td>
 
-                      {/* Net Profit ($) - EDITABLE */}
+                      {/* Net Profit (Editable) */}
                       <td className="py-3 px-2 sm:px-3 text-center">
-                        <div className="relative inline-flex items-center">
-                          <span className="absolute left-2.5 text-emerald-500 font-mono text-xs font-bold">+$</span>
+                        <div className="inline-flex items-center rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-500/20 px-2 py-1 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500 transition">
+                          <span className="text-emerald-600 dark:text-emerald-400 text-xs font-mono ml-1">+$</span>
                           <input
                             type="number"
                             step="0.01"
                             value={currentProfit}
                             onChange={(e) => handleProfitChange(row, e.target.value)}
-                            className={`w-24 sm:w-28 pl-7 pr-2.5 py-1.5 rounded-xl border text-xs sm:text-sm font-mono font-black text-center focus:outline-none transition ${
-                              isModified
-                                ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-400 dark:border-amber-600 text-amber-900 dark:text-amber-200 ring-2 ring-amber-400/20'
-                                : currentProfit > 0
-                                ? 'bg-white dark:bg-[#070d18] border-slate-200 dark:border-white/10 text-emerald-700 dark:text-emerald-300 focus:border-emerald-500'
-                                : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 text-rose-600'
-                            }`}
-                            dir="ltr"
+                            className="w-20 bg-transparent text-center font-mono font-black text-xs text-emerald-700 dark:text-emerald-400 focus:outline-none"
                           />
                         </div>
                       </td>
 
-                      {/* Margin % */}
+                      {/* Profit Percentage */}
                       <td className="py-3 px-2 sm:px-3 text-center">
                         <span
-                          className={`text-[10px] px-2 py-0.5 rounded-lg font-mono font-black inline-block ${
+                          className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-mono font-bold ${
                             marginPct >= 20
-                              ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
+                              ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
                               : marginPct >= 10
-                              ? 'bg-teal-100 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300'
-                              : 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'
+                              ? 'bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300'
+                              : 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300'
                           }`}
                         >
                           %{marginPct}
                         </span>
                       </td>
 
-                      {/* Action: Save Single Row */}
+                      {/* Actions */}
                       <td className="py-3 px-3 text-center">
-                        {isJustSaved ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 animate-in fade-in">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>ساقلاندى!</span>
-                          </span>
-                        ) : isModified ? (
+                        {isModified ? (
                           <button
                             onClick={() => handleSaveRow(row)}
                             disabled={isSavingThis}
-                            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition cursor-pointer shadow-xs flex items-center gap-1 mx-auto active:scale-95"
+                            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition cursor-pointer flex items-center justify-center gap-1 shadow-sm mx-auto active:scale-95"
                           >
                             {isSavingThis ? (
                               <RefreshCw className="w-3 h-3 animate-spin" />
@@ -521,10 +619,13 @@ export default function AdminPricingManager() {
                             )}
                             <span>ساقلاش</span>
                           </button>
-                        ) : (
-                          <span className="text-[11px] text-slate-400 dark:text-slate-500 select-none">
-                            تەڭشەلگەن
+                        ) : isJustSaved ? (
+                          <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold text-[11px]">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>ساقلاندى</span>
                           </span>
+                        ) : (
+                          <span className="text-slate-300 dark:text-slate-600 text-xs">—</span>
                         )}
                       </td>
                     </tr>

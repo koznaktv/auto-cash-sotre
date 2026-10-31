@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { verifyCronRequest } from '@/lib/cronAuth';
 import { runCatalogSync } from '@/lib/catalog/sync';
+import { runProviderAutoMonitor } from '@/lib/providerMonitorService';
 
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
@@ -10,6 +11,16 @@ export async function GET(req: Request) {
   if (!verifyCronRequest(req)) {
     return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
   }
-  const result = await runCatalogSync({ trigger: 'cron' });
-  return NextResponse.json({ success: result.ok, ...result }, { status: result.ok || result.skipped ? 200 : 502 });
+
+  // 1. Run live real-time price & stock availability monitor
+  const monitorRes = await runProviderAutoMonitor({ notifyAdmin: true });
+
+  // 2. Also run underlying catalog hierarchy sync
+  const result: any = await runCatalogSync({ trigger: 'cron' }).catch((e) => ({ ok: false, error: e?.message }));
+
+  return NextResponse.json({
+    success: monitorRes.success || result?.ok,
+    monitor: monitorRes,
+    catalog: result,
+  });
 }

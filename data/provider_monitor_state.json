@@ -1,0 +1,16 @@
+{
+  "lastSyncAt": "2026-10-31T21:16:01.788Z",
+  "lastSyncStatus": "failed",
+  "lastError": "تەمىنلىگۈچى API جاۋاب قايتۇرمىدى (HTTP 503)",
+  "providerBalance": null,
+  "providerCurrency": "USD",
+  "stats": {
+    "totalScanned": 0,
+    "matchedPackages": 0,
+    "priceChangedCount": 0,
+    "pausedCount": 0,
+    "restoredCount": 0,
+    "durationMs": 744
+  },
+  "recentChanges": []
+}

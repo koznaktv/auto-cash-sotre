@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Telegram Bot & Notification & Real-Time Management Service for AUTO CASH
  * Bot: @Autocash_24_bot
  * Admin: @nasrulla0996 (ID: 7575664493)
@@ -3937,6 +3937,34 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
         `✅ <b>كۇرس ھالىتى:</b>\n🏛 ئىدلىپ سېتىش باھاسى: <code>${checkRes.config.baseRate.toLocaleString()}</code> SYP\n➕ قوشۇلغان مىقدار: +${checkRes.config.margin} SYP\n💰 ھەميان كۇرسى: <b>1 USD = ${checkRes.config.effectiveRate.toLocaleString()} SYP</b>`,
         { parse_mode: 'HTML' }
       );
+      return;
+    }
+
+    // 6.8 Admin Provider Price & Stock Monitor Command
+    if (
+      text === '/check_provider' ||
+      text === '/sync_provider' ||
+      text === 'تەمىنلىگۈچى تەكشۈر' ||
+      text === 'تەمىنلىگۈچى باھاسى' ||
+      text === 'باھا تەكشۈر'
+    ) {
+      await sendTelegramMessage(chatId, '⏳ Othman Store تەمىنلىگۈچىنىڭ باھاسى ۋە زاپاس ھالىتى تەكشۈرۈلۈۋاتىدۇ...');
+      const { runProviderAutoMonitor } = await import('./providerMonitorService');
+      const monitorRes = await runProviderAutoMonitor({ notifyAdmin: false, forceNotify: false });
+      const st = monitorRes.state;
+      const bText = st.providerBalance !== null ? ('$' + st.providerBalance) : 'نامەلۇم';
+      const durationSec = (st.stats.durationMs / 1000).toFixed(1);
+      const reply = [
+        '⚡ <b>Othman Store تەكشۈرۈش نەتىجىسى:</b>',
+        '',
+        '💰 <b>تەمىنلىگۈچى قالدۇق پۇلى:</b> <code>' + bText + '</code>',
+        '📦 <b>تەكشۈرۈلگەن مەھسۇلات:</b> ' + st.stats.totalScanned + ' دانە (' + st.stats.matchedPackages + ' بولاق)',
+        '📈 <b>باھاسى يېڭىلانغان:</b> ' + st.stats.priceChangedCount + ' دانە',
+        '⏸️ <b>ۋاقىتلىق توختىغان:</b> ' + st.stats.pausedCount + ' دانە',
+        '🟢 <b>قايتا ئەسلىگە كەلگەن:</b> ' + st.stats.restoredCount + ' دانە',
+        '⏱️ <b>تەكشۈرۈش سۈرئىتى:</b> ' + durationSec + ' سېكۇنت'
+      ].join('\n');
+      await sendTelegramMessage(chatId, reply, { parse_mode: 'HTML' });
       return;
     }
   }
