@@ -1,6 +1,5 @@
 {
   "crons": [
-    { "path": "/api/cron/sync-catalog", "schedule": "0 3 * * *" },
-    { "path": "/api/cron/exchange-rate", "schedule": "0 7,16 * * *" }
+    { "path": "/api/cron/sync-catalog", "schedule": "0 3,15 * * *" }
   ]
 }
