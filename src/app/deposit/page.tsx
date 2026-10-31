@@ -26,7 +26,14 @@ import {
   MessageCircle,
   RefreshCw,
   ExternalLink,
-  Megaphone
+  Megaphone,
+  BookOpen,
+  HelpCircle,
+  FileText,
+  BadgeDollarSign,
+  ClipboardCheck,
+  CheckCircle,
+  Info
 } from 'lucide-react';
 
 interface DepositRecord {
@@ -397,6 +404,151 @@ export default function DepositPage() {
           </div>
         </div>
 
+        {/* 4. قالدۇق سومما دېگەن نېمە؟ ۋە شامكەش بىلەن پۇل قاچىلاش تولۇق ئىشلىتىش قوللانمىسى */}
+        <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/90 dark:border-white/10 shadow-md space-y-4 font-alkatip text-slate-800 dark:text-slate-100">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/10">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shrink-0 shadow-sm animate-nav-pill-glow">
+                <BookOpen className="w-5 h-5 animate-icon-gleam" />
+              </div>
+              <div>
+                <h3 className="font-black text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-1.5">
+                  <span>💡 قالدۇق سومما دېگەن نېمە؟</span>
+                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800 font-mono">
+                    ئىشلىتىش قوللانمىسى
+                  </span>
+                </h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  ھەميان قالدۇقىنى چۈشىنىش ۋە شامكەش (Sham Cash) ئارقىلىق پۇل قاچىلاش يېتەكچىسى
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleOpenDepositModal}
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-xs cursor-pointer active:scale-95 animate-nav-pill-glow"
+            >
+              <Zap className="w-3.5 h-3.5 fill-current" />
+              <span>پۇل قاچىلاش</span>
+            </button>
+          </div>
+
+          {/* Section A: قالدۇق سومما دېگەن نېمە؟ */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-black text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
+              <span>قالدۇق سومما (Wallet Balance) نىڭ پايدىلىرى:</span>
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs">
+              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 space-y-1">
+                <div className="flex items-center gap-1.5 font-black text-slate-900 dark:text-white text-xs">
+                  <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
+                  <span>1 سېكۇنتتا چاقماق سېتىۋېلىش</span>
+                </div>
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+                  ھەر قېتىم ئويۇن كودلىرى، تېلېفون تورى (Wi-Fi)، VPN ۋە پۈتۈن مۇلازىمەتلەرنى سېتىۋالغاندا قايتا-قايتا پۇل تۆلەپ ئولتۇرماي، قالدۇقىڭىز ئارقىلىق 1 سېكۇنتتا بىر چېكىش بىلەنلا دەرھال سېتىۋالالايسىز.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 space-y-1">
+                <div className="flex items-center gap-1.5 font-black text-slate-900 dark:text-white text-xs">
+                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                  <span>100% بىخەتەر ۋە مەڭگۈلۈك</span>
+                </div>
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+                  قالدۇقىڭىز سىزنىڭ شەخسىي ئېلخەت ھېساباتىڭىزغا مەڭگۈلۈك باغلانغان بولۇپ، ھەر بىر دوللار تولۇق قوغدىلىدۇ. پۇلىڭىز ھەرگىز ۋاقتى ئۆتۈپ كۆيمەيدۇ ياكى يوقالمايدۇ.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 space-y-1">
+                <div className="flex items-center gap-1.5 font-black text-slate-900 dark:text-white text-xs">
+                  <BadgeDollarSign className="w-4 h-4 text-teal-500" />
+                  <span>ئەڭ ياخشى كۇرس ۋە نۆل ھەق</span>
+                </div>
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+                  شامكەشتە سورىيە پۇلى (SYP) ئەۋەتسىڭىزمۇ، سىستېمىمىز ھېچقانداق رەسمىيەت ھەققى ئالماستىن ئەڭ ئادىل بازار كۇرسىدا (1 USD = {exchangeRate.toLocaleString()} SYP) ئاپتوماتىك دوللارغا ($) ئايلاندۇرۇپ ھەميىنىڭىزگە تولۇق چۈشۈرۈپ بېرىدۇ.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Section B: شامكەش ئارقىلىق پۇل قاچىلاشنىڭ 5 قەدىمى */}
+          <div className="space-y-2.5 pt-2 border-t border-slate-100 dark:border-white/10">
+            <h4 className="text-xs font-black text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
+              <span>شامكەش (Sham Cash) ئارقىلىق پۇل قاچىلاشنىڭ 5 قەدەم باسقۇچى:</span>
+            </h4>
+
+            <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-xs">
+              <div className="p-3 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-800/40 space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-emerald-600 text-white text-[11px] font-mono flex items-center justify-center font-bold">1</span>
+                  <span className="font-black text-emerald-900 dark:text-emerald-200 text-xs">نومۇر كۆچۈرۈش</span>
+                </div>
+                <p className="text-[10.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                  «يېڭى پۇل كىرگۈزۈش» نى بېسىپ، شامكەش نومۇرىمىزنى بىر چېكىش بىلەنلا كۆچۈرۈۋېلىڭ.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-800/40 space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-emerald-600 text-white text-[11px] font-mono flex items-center justify-center font-bold">2</span>
+                  <span className="font-black text-emerald-900 dark:text-emerald-200 text-xs">پۇل ئەۋەتىش</span>
+                </div>
+                <p className="text-[10.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Sham Cash ئەپىڭىزگە كىرىپ «تحويل» نى بېسىپ، ئۆزىڭىز قاچىلىماقچى بولغان پۇلنى ئەۋەتىڭ.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-800/40 space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-emerald-600 text-white text-[11px] font-mono flex items-center justify-center font-bold">3</span>
+                  <span className="font-black text-emerald-900 dark:text-emerald-200 text-xs">رقم العملية ئېلىش</span>
+                </div>
+                <p className="text-[10.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                  ئەۋەتىپ بولغاندا چىققان تالوندىكى «<b>رقم العملية</b>» دېگەن نومۇرنى كۆچۈرۈۋېلىڭ.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-800/40 space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-emerald-600 text-white text-[11px] font-mono flex items-center justify-center font-bold">4</span>
+                  <span className="font-black text-emerald-900 dark:text-emerald-200 text-xs">نومۇرنى چاپلاش</span>
+                </div>
+                <p className="text-[10.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                  توربىتىمىزدىكى «رەقەم ئەمەلىيە نى يېزىڭ» كۆزنىكىگە نومۇرنى چاپلاڭ.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-800/40 space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-emerald-600 text-white text-[11px] font-mono flex items-center justify-center font-bold">5</span>
+                  <span className="font-black text-emerald-900 dark:text-emerald-200 text-xs">ھەميانغا قوشۇلۇش</span>
+                </div>
+                <p className="text-[10.5px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                  «تەستىقلاش» نى باسسىڭىز، سىستېما 5-10 سېكۇنتتا تەكشۈرۈپ قالدۇقىڭىزغا قوشۇپ بېرىدۇ!
+                </p>
+              </div>
+            </div>
+
+            {/* Quick Action in Card */}
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/40 dark:to-teal-950/30 p-3 rounded-2xl border border-emerald-200 dark:border-emerald-800/50">
+              <div className="text-[11px] text-emerald-900 dark:text-emerald-200 font-bold flex items-center gap-2">
+                <Zap className="w-4 h-4 text-amber-500 fill-amber-500 animate-icon-sparkle shrink-0" />
+                <span>شامكەش ئارقىلىق پۇل ئەۋەتىپ بولغان بولسىڭىز، بىۋاسىتە تالون نومۇرىنى كىرگۈزۈڭ:</span>
+              </div>
+              <button
+                type="button"
+                onClick={handleOpenDepositModal}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-105 text-white font-black text-xs shadow-md transition cursor-pointer flex items-center justify-center gap-1.5 shrink-0 animate-nav-pill-glow"
+              >
+                <Zap className="w-3.5 h-3.5 fill-current" />
+                <span>شامكەش ئارقىلىق پۇل قاچىلاش</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Deposit History */}
         <div id="deposit-history-section" className="space-y-3 pt-2">
           {/* Submission alert if recently submitted */}
@@ -735,217 +887,254 @@ export default function DepositPage() {
 
               {selectedMethod === 'shamcash' && (
                 <>
-                  {/* Step 1: Payment Method Pill (Sham Cash) */}
-              <div className="space-y-2 mb-3.5">
-                <div className="p-3.5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border-2 border-emerald-500/80 text-slate-900 dark:text-white shadow-xs flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl overflow-hidden border-2 border-emerald-500 p-0.5 bg-gradient-to-tr from-emerald-500 to-teal-400 shadow-sm flex items-center justify-center flex-shrink-0 animate-nav-pill-glow">
-                      <img
-                        src="https://i.ibb.co/MkYW8ynm/images.jpg"
-                        alt="Sham Cash"
-                        className="w-full h-full rounded-lg object-cover bg-white"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/shamcash.png';
+                  {/* Step 1 Pill: Sham Cash Active Status */}
+                  <div className="space-y-2 mb-3.5">
+                    <div className="p-3.5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border-2 border-emerald-500/80 text-slate-900 dark:text-white shadow-xs flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl overflow-hidden border-2 border-emerald-500 p-0.5 bg-gradient-to-tr from-emerald-500 to-teal-400 shadow-sm flex items-center justify-center flex-shrink-0 animate-nav-pill-glow">
+                          <img
+                            src="https://i.ibb.co/MkYW8ynm/images.jpg"
+                            alt="Sham Cash"
+                            className="w-full h-full rounded-lg object-cover bg-white"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = '/shamcash.png';
+                            }}
+                          />
+                        </div>
+                        <div className={isRTL ? 'text-right' : 'text-left'}>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-extrabold text-sm text-slate-900 dark:text-white font-alkatip">{t('shamcashName')}</h4>
+                            <span className="px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200 text-[10px] font-bold border border-emerald-300 dark:border-emerald-700 flex items-center gap-1">
+                              <Zap className="w-2.5 h-2.5 fill-current text-emerald-600 dark:text-emerald-400 animate-icon-sparkle" />
+                              <span>{t('autoVerification')}</span>
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-emerald-800 dark:text-emerald-300 mt-0.5 font-alkatip font-bold">
+                            {t('instantAutoViaShamCash')}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs animate-icon-sparkle">
+                        ✓
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 1-شامكەش نۇمۇرىم: Step 1 Address Box */}
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/90 dark:border-white/10 space-y-2 mb-3">
+                    <div className="flex items-center justify-between flex-wrap gap-1">
+                      <span className="text-xs font-black text-slate-800 dark:text-slate-100 flex items-center gap-1.5 font-alkatip">
+                        <span className="w-5 h-5 rounded-full bg-emerald-600 text-white text-[11px] font-mono flex items-center justify-center font-bold">1</span>
+                        <span>1- شامكەش نومۇرىمىز (Sham Cash):</span>
+                      </span>
+                      <span className="text-[11px] text-emerald-800 dark:text-emerald-300 font-mono font-bold bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 rounded-lg shadow-2xs" dir="ltr">
+                        1 USD = {exchangeRate.toLocaleString()} SYP
+                      </span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-white dark:bg-[#0b101c] border border-slate-200 dark:border-white/10 flex items-center justify-between gap-2 shadow-2xs">
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(shamAddress)}
+                        className="flex items-center gap-1 text-[11px] text-white bg-emerald-600 hover:bg-emerald-500 border border-emerald-500 px-3 py-1.5 rounded-lg font-bold transition cursor-pointer shrink-0 shadow-xs active:scale-95 animate-nav-pill-glow font-alkatip"
+                      >
+                        {copied ? (
+                          <>
+                            <Check className="w-3.5 h-3.5" />
+                            <span>كۆچۈرۈلدى!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5" />
+                            <span>كۆچۈرۈش</span>
+                          </>
+                        )}
+                      </button>
+                      <span
+                        className="text-emerald-600 dark:text-emerald-400 font-mono font-bold text-xs sm:text-sm tracking-wider select-all break-all text-left"
+                        dir="ltr"
+                      >
+                        {shamAddress}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 2-رەقەم ئەمىليەنى يىزىڭ: Step 2 Input Box */}
+                  <div className="p-3.5 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/25 border-2 border-emerald-400 dark:border-emerald-600/70 shadow-xs mb-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-black text-emerald-950 dark:text-emerald-200 flex items-center gap-1.5 font-alkatip">
+                        <span className="w-5 h-5 rounded-full bg-emerald-600 text-white text-[11px] font-mono flex items-center justify-center font-bold">2</span>
+                        <span>2- رەقەم ئەمەلىيە (رقم العملية) نى يېزىڭ:</span>
+                      </label>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono" dir="ltr">
+                        {t('txIdExample')}
+                      </span>
+                    </div>
+
+                    <div className="relative flex items-center">
+                      <input
+                        type="text"
+                        value={txNote}
+                        onChange={(e) => {
+                          setTxNote(e.target.value);
+                          if (formError) setFormError('');
                         }}
+                        placeholder="رەقەم ئەمەلىيە (رقم العملية) نى بۇ يەرگە چاپلاڭ..."
+                        className={`w-full bg-white dark:bg-[#070d18] border ${
+                          formError ? 'border-rose-500 ring-1 ring-rose-500/40' : 'border-emerald-400 dark:border-emerald-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:focus:ring-emerald-900/50'
+                        } rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none transition font-mono ${
+                          isRTL ? 'text-right' : 'text-left'
+                        }`}
+                        dir="ltr"
+                        autoFocus
                       />
+                      {/* Paste from clipboard button */}
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            if (navigator?.clipboard?.readText) {
+                              const text = await navigator.clipboard.readText();
+                              if (text && text.trim()) {
+                                setTxNote(text.trim());
+                                if (formError) setFormError('');
+                              }
+                            }
+                          } catch (err) {
+                            console.log('Clipboard access error:', err);
+                          }
+                        }}
+                        className={`absolute ${isRTL ? 'left-2' : 'right-2'} px-2.5 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-900/60 dark:hover:bg-emerald-800 text-emerald-800 dark:text-emerald-200 text-[11px] font-bold font-alkatip flex items-center gap-1 transition cursor-pointer border border-emerald-300 dark:border-emerald-700`}
+                        title="چاپلاش"
+                      >
+                        <Copy className="w-3 h-3" />
+                        <span>چاپلاش</span>
+                      </button>
                     </div>
-                    <div className={isRTL ? 'text-right' : 'text-left'}>
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-extrabold text-sm text-slate-900 dark:text-white font-alkatip">{t('shamcashName')}</h4>
-                        <span className="px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200 text-[10px] font-bold border border-emerald-300 dark:border-emerald-700 flex items-center gap-1">
-                          <Zap className="w-2.5 h-2.5 fill-current text-emerald-600 dark:text-emerald-400 animate-icon-sparkle" />
-                          <span>{t('autoVerification')}</span>
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-emerald-800 dark:text-emerald-300 mt-0.5 font-alkatip font-bold">
-                        {t('instantAutoViaShamCash')}
+
+                    {formError && (
+                      <p className="text-[11px] text-rose-600 dark:text-rose-400 font-bold flex items-center gap-1 pt-0.5 font-alkatip">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{formError}</span>
                       </p>
-                    </div>
-                  </div>
-                  <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs animate-icon-sparkle">
-                    ✓
-                  </div>
-                </div>
-              </div>
-
-              {/* Step 2: Instructions and Address Copy */}
-              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/90 dark:border-white/10 space-y-2 mb-3 text-xs">
-                <div className="flex items-center justify-between flex-wrap gap-1">
-                  <span className="text-slate-700 dark:text-slate-200 font-bold">{t('ourShamCashAccount')}</span>
-                  <span className="text-[11px] text-emerald-800 dark:text-emerald-300 font-mono font-bold bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 rounded-lg shadow-2xs" dir="ltr">
-                    1 USD = {exchangeRate.toLocaleString()} SYP
-                  </span>
-                </div>
-
-                <div className="p-2.5 rounded-xl bg-white dark:bg-[#0b101c] border border-slate-200 dark:border-white/10 flex items-center justify-between gap-2 shadow-2xs">
-                  <button
-                    onClick={() => handleCopy(shamAddress)}
-                    className="flex items-center gap-1 text-[11px] text-white bg-emerald-600 hover:bg-emerald-500 border border-emerald-500 px-2.5 py-1 rounded-lg font-bold transition cursor-pointer shrink-0 animate-nav-pill-glow"
-                  >
-                    {copied ? (
-                      <>
-                        <Check className="w-3.5 h-3.5" />
-                        <span>{t('copied')}</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5" />
-                        <span>{t('copyAddress')}</span>
-                      </>
                     )}
-                  </button>
-                  <span
-                    className="text-emerald-600 dark:text-emerald-400 font-mono font-bold text-xs sm:text-sm tracking-wider select-all break-all text-left"
-                    dir="ltr"
-                  >
-                    {shamAddress}
-                  </span>
-                </div>
-
-                <div className="text-[11px] text-slate-600 dark:text-slate-300 space-y-1 pt-1 font-alkatip leading-relaxed font-medium">
-                  <p>1. Sham Cash ئەپىڭىزنى ئېچىپ، يۇقىرىدىكى ئادرېسقا پۇل ئەۋەتىڭ.</p>
-                  <p>2. چىققان تالوندىكى <b>«رقم العملية»</b> (تالون نومۇرى) نى كۆچۈرۈپ تۆۋەنگە چاپلاڭ.</p>
-                </div>
-              </div>
-
-              {/* Step 3 (Visual Guide): Sham Cash Receipt Mock Guide */}
-              <div className="mb-3">
-                <button
-                  type="button"
-                  onClick={() => setShowVisualGuide(!showVisualGuide)}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200/80 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-xs text-emerald-800 dark:text-emerald-300 font-bold transition cursor-pointer"
-                >
-                  <span className="flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-star-glint" />
-                    <span>📸 تالون كۆرسەتمىسى (رقم العملية قەيەردە؟)</span>
-                  </span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
-                    {showVisualGuide ? '▲ يوشۇرۇش' : '▼ كۆرۈش'}
-                  </span>
-                </button>
-
-                {showVisualGuide && (
-                  <div className="mt-2 p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-[#0c1424] border border-slate-200 dark:border-white/10 space-y-2 text-xs shadow-xs animate-in fade-in">
-                    <div className="flex items-center justify-between pb-1.5 border-b border-slate-200 dark:border-white/10 text-[11px]">
-                      <span className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1">
-                        <span>🇸🇾 شام كاش (Sham Cash) - إشعار عملية</span>
-                      </span>
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold text-[10px] border border-emerald-200 dark:border-emerald-800">
-                        ✅ تم التحويل بنجاح
-                      </span>
-                    </div>
-
-                    <div className="p-2.5 rounded-xl bg-white dark:bg-[#070d18] border-2 border-dashed border-emerald-400 dark:border-emerald-600 shadow-2xs flex items-center justify-between gap-2">
-                      <div className="space-y-0.5 text-left" dir="ltr">
-                        <span className="text-[10px] text-emerald-800 dark:text-emerald-300 font-alkatip font-bold block">
-                          رقم العملية (مۇشۇ نومۇرنى كۆچۈرۈڭ):
-                        </span>
-                        <span className="font-mono font-black text-amber-500 text-sm sm:text-base tracking-wider">
-                          84920183
-                        </span>
-                      </div>
-                      <span className="px-2.5 py-1 rounded-lg bg-emerald-500 text-white text-[10px] font-black shrink-0 shadow-2xs animate-icon-sparkle">
-                        👈 مۇشۇ نومۇرنى چاپلاڭ
-                      </span>
-                    </div>
-
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 font-alkatip leading-relaxed pt-0.5 font-bold">
-                      💡 شامكەش ئەپى چىقىرىپ بەرگەن تالوندىكى «<b>رقم العملية</b>» دېگەن نومۇرنى كۆچۈرۈۋېلىڭ.
-                    </p>
                   </div>
-                )}
-              </div>
 
-              {/* Step 4: Transaction ID Input (رقم العملية) — PRIMARY 1-STEP INPUT */}
-              <div className="space-y-1.5 mb-3 p-3.5 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/25 border-2 border-emerald-400 dark:border-emerald-600/70 shadow-xs">
-                <label className="text-xs text-emerald-900 dark:text-emerald-200 font-black flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 animate-icon-sparkle" />
-                    <span>⚡️ تالون نومۇرى (رقم العملية) نى بۇ يەرگە چاپلاڭ:</span>
-                  </span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">
-                    {t('txIdExample')}
-                  </span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={txNote}
-                    onChange={(e) => {
-                      setTxNote(e.target.value);
-                      if (formError) setFormError('');
-                    }}
-                    placeholder="مەسىلەن: 84920183 (بۇ يەرگە چاپلاڭ)"
-                    className={`w-full bg-white dark:bg-[#070d18] border ${
-                      formError ? 'border-rose-500 ring-1 ring-rose-500/40' : 'border-emerald-400 dark:border-emerald-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:focus:ring-emerald-900/50'
-                    } rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none transition font-mono ${
-                      isRTL ? 'text-right' : 'text-left'
-                    }`}
-                    dir="ltr"
-                    autoFocus
-                  />
-                </div>
-                {formError && (
-                  <p className="text-[11px] text-rose-600 dark:text-rose-400 font-bold flex items-center gap-1 pt-0.5">
-                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                    <span>{formError}</span>
-                  </p>
-                )}
-                <p className="text-[10px] text-emerald-900 dark:text-emerald-300 font-alkatip pt-0.5 leading-relaxed font-bold">
-                  💡 <b>دوللار ھېسابلاپ ئولتۇرۇشىڭىزنىڭ ھاجىتى يوق!</b> پەقەت تالون نومۇرىنى كىرگۈزسىڭىزلا، سىستېما شامكەشتىن پۇل مىقدارىنى ئۆزى ئوقۇپ، سېكۇنتتا دوللارغا ئايلاندۇرۇپ ھەميىنىڭىزگە چۈشۈرۈپ بېرىدۇ.
-                </p>
-              </div>
+                  {/* 3_ئاندىن ئاستىغا ئىزاھاتلىرىنى: Step 3 Clear Instructions & Receipt Guide */}
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#0c1424] border border-slate-200 dark:border-white/10 space-y-2.5 mb-3 text-xs font-alkatip">
+                    <div className="flex items-center gap-1.5 font-black text-slate-800 dark:text-slate-100 text-xs">
+                      <span className="w-5 h-5 rounded-full bg-emerald-600 text-white text-[11px] font-mono flex items-center justify-center font-bold">3</span>
+                      <span>3- ئىزاھات ۋە قەدەم-باسقۇچلار:</span>
+                    </div>
 
-              {/* Optional Helper: Calculator / Preset Amount for Pre-Transfer Planning */}
-              <div className="mb-4">
-                <button
-                  type="button"
-                  onClick={() => setShowManualAmount(!showManualAmount)}
-                  className="text-[11px] text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 transition cursor-pointer font-alkatip font-bold"
-                >
-                  <span>{showManualAmount ? '▲ دوللار / پۇل ھېسابلىغۇچنى يوشۇرۇش' : '▼ (ئىختىيارىي) پۇل ئەۋەتىشتىن بۇرۇن دوللار كۇرسىنى ھېسابلاش'}</span>
-                </button>
+                    <div className="space-y-2 text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+                      <div className="flex items-start gap-2">
+                        <span className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-mono text-[10px] flex items-center justify-center shrink-0 mt-0.5 font-bold">1</span>
+                        <span><b>Sham Cash ئەپىنى ئېچىش:</b> 1-تۈردىكى ھېسابات نومۇرىمىزنى كۆچۈرۈۋېلىپ، ئۆزىڭىزنىڭ Sham Cash ئەپىگە كىرىپ پۇل ئەۋەتىڭ (تحويل).</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-mono text-[10px] flex items-center justify-center shrink-0 mt-0.5 font-bold">2</span>
+                        <span><b>رەقەم ئەمەلىيەنى كۆچۈرۈپ چاپلاش:</b> پۇل ئەۋەتكەندىن كېيىن چىققان تالوندىكى «<b>رقم العملية</b>» نى كۆچۈرۈۋېلىپ، 2-تۈردىكى كۆزنەككە چاپلاڭ.</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-mono text-[10px] flex items-center justify-center shrink-0 mt-0.5 font-bold">3</span>
+                        <span><b>ئاپتوماتىك دەلىللەش:</b> تۆۋەندىكى «دەلىللەپ ئاپتوماتىك قوشۇش» كۇنۇپكىسىنى باسسىڭىز، سىستېما 5-10 سېكۇنتتا دەلىللەپ پۇلنى ھەميىنىڭىزگە ئاپتوماتىك قوشۇپ بېرىدۇ. دوللار ھېسابلاپ ئولتۇرۇشىڭىز ھاجەتسىز.</span>
+                      </div>
+                    </div>
 
-                {showManualAmount && (
-                  <div className="mt-2 p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-2 animate-in fade-in text-xs">
-                    <div className="grid grid-cols-4 gap-1.5">
-                      {[10, 25, 50, 100].map((amt) => (
-                        <button
-                          key={amt}
-                          type="button"
-                          onClick={() => setAmount(amt)}
-                          className={`py-1.5 rounded-xl border text-xs font-bold font-mono transition cursor-pointer ${
-                            amount === amt
-                              ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm animate-nav-pill-glow'
-                              : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-emerald-300'
+                    {/* Visual Receipt Guide Toggle */}
+                    <div className="pt-2 border-t border-slate-200 dark:border-white/10">
+                      <button
+                        type="button"
+                        onClick={() => setShowVisualGuide(!showVisualGuide)}
+                        className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200/80 dark:hover:bg-white/10 text-[11px] text-emerald-700 dark:text-emerald-300 font-bold transition cursor-pointer"
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-star-glint" />
+                          <span>📸 تالون كۆرۈنۈشى (رقم العملية قەيەردە بولىدۇ؟)</span>
+                        </span>
+                        <span className="text-[10px] text-slate-500 font-mono">
+                          {showVisualGuide ? '▲ يوشۇرۇش' : '▼ كۆرۈش'}
+                        </span>
+                      </button>
+
+                      {showVisualGuide && (
+                        <div className="mt-2 p-2.5 rounded-xl bg-white dark:bg-[#070d18] border border-dashed border-emerald-400 dark:border-emerald-600 text-xs space-y-1.5 animate-in fade-in">
+                          <div className="flex items-center justify-between text-[10px] text-slate-500">
+                            <span className="font-bold text-slate-700 dark:text-slate-300">🇸🇾 شام كاش (Sham Cash) - إشعار عملية</span>
+                            <span className="text-emerald-600 dark:text-emerald-400 font-bold">✅ تم التحويل بنجاح</span>
+                          </div>
+                          <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 flex items-center justify-between">
+                            <div className="text-left font-mono" dir="ltr">
+                              <span className="text-[10px] text-emerald-800 dark:text-emerald-300 font-alkatip font-bold block">
+                                رقم العملية (مۇشۇ نومۇر كۆچۈرۈلىدۇ):
+                              </span>
+                              <span className="text-sm sm:text-base font-black text-amber-500 tracking-wider">
+                                84920183
+                              </span>
+                            </div>
+                            <span className="px-2 py-1 rounded-lg bg-emerald-500 text-white text-[10px] font-bold shadow-2xs animate-icon-sparkle">
+                              👈 مۇشۇ نومۇرنى چاپلاڭ
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 font-alkatip pt-0.5">
+                            💡 شامكەش ئەپى تەمىنلىگەن تالوندىكى «رقم العملية» دېگەن سىزىقچىدىكى 8-10 خانىلىق نومۇرنى كۆچۈرۈۋېلىڭ.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Optional Currency Calculator Toggle */}
+                  <div className="mb-3.5">
+                    <button
+                      type="button"
+                      onClick={() => setShowManualAmount(!showManualAmount)}
+                      className="text-[11px] text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 transition cursor-pointer font-alkatip font-bold"
+                    >
+                      <span>{showManualAmount ? '▲ دوللار / پۇل ھېسابلىغۇچنى يوشۇرۇش' : '▼ (ئىختىيارىي) پۇل ئەۋەتىشتىن بۇرۇن دوللار كۇرسىنى ھېسابلاش'}</span>
+                    </button>
+
+                    {showManualAmount && (
+                      <div className="mt-2 p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-2 animate-in fade-in text-xs">
+                        <div className="grid grid-cols-4 gap-1.5">
+                          {[10, 25, 50, 100].map((amt) => (
+                            <button
+                              key={amt}
+                              type="button"
+                              onClick={() => setAmount(amt)}
+                              className={`py-1.5 rounded-xl border text-xs font-bold font-mono transition cursor-pointer ${
+                                amount === amt
+                                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm animate-nav-pill-glow'
+                                  : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-emerald-300'
+                              }`}
+                            >
+                              ${amt}
+                            </button>
+                          ))}
+                        </div>
+                        <input
+                          type="number"
+                          min="1"
+                          value={amount || ''}
+                          onChange={(e) => setAmount(Number(e.target.value))}
+                          placeholder="دوللار مىقدارى (مەسىلەن: 25)"
+                          className={`w-full bg-white dark:bg-[#070d18] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition font-mono ${
+                            isRTL ? 'text-right' : 'text-left'
                           }`}
-                        >
-                          ${amt}
-                        </button>
-                      ))}
-                    </div>
-                    <input
-                      type="number"
-                      min="1"
-                      value={amount || ''}
-                      onChange={(e) => setAmount(Number(e.target.value))}
-                      placeholder="دوللار مىقدارى (مەسىلەن: 25)"
-                      className={`w-full bg-white dark:bg-[#070d18] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition font-mono ${
-                        isRTL ? 'text-right' : 'text-left'
-                      }`}
-                      dir="ltr"
-                    />
-                    {amount > 0 && (
-                      <div className="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-[11px] text-emerald-800 dark:text-emerald-300 font-mono font-bold">
-                        <span>سورىيە پۇلىدىكى مىقدارى:</span>
-                        <span className="font-bold text-emerald-900 dark:text-white font-mono" dir="ltr">
-                          {(amount * exchangeRate).toLocaleString()} SYP
-                        </span>
+                          dir="ltr"
+                        />
+                        {amount > 0 && (
+                          <div className="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-[11px] text-emerald-800 dark:text-emerald-300 font-mono font-bold">
+                            <span>سورىيە پۇلىدىكى مىقدارى:</span>
+                            <span className="font-bold text-emerald-900 dark:text-white font-mono" dir="ltr">
+                              {(amount * exchangeRate).toLocaleString()} SYP
+                            </span>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                )}
-              </div>
 
               {/* Submit Button or Success State */}
               {!isSuccess ? (
