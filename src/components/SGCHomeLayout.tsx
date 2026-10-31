@@ -334,7 +334,7 @@ const ProductRowCarousel = React.memo(function ProductRowCarousel({
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
-        className="flex gap-2.5 sm:gap-3.5 overflow-x-auto pb-3 pt-1 scroll-smooth scrollbar-none select-none overscroll-x-contain -mx-3.5 px-3.5 sm:mx-0 sm:px-0 cursor-grab active:cursor-grabbing"
+        className="flex gap-2.5 sm:gap-3.5 overflow-x-auto pb-3 pt-1 scrollbar-none select-none overscroll-x-contain -mx-3.5 px-3.5 sm:mx-0 sm:px-0 cursor-grab active:cursor-grabbing"
         style={{
           WebkitOverflowScrolling: 'touch',
           touchAction: 'pan-x',
@@ -376,9 +376,9 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
   const [serverServices, setServerServices] = useState<ServiceItem[]>(SERVICES_DATA);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Touch Swipe State for Mobile Banner
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  // Touch Swipe State for Mobile Banner (High-Performance Ref Based - ZERO Re-renders during swipe)
+  const touchStartXRef = React.useRef<number | null>(null);
+  const touchEndXRef = React.useRef<number | null>(null);
 
   // Sync auth and theme
   useEffect(() => {
@@ -503,24 +503,24 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
     return () => clearInterval(timer);
   }, [promoSlides.length]);
 
-  // Touch Swipe Handlers for Mobile Phones
+  // Touch Swipe Handlers for Mobile Phones (ZERO Re-renders while swiping)
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
+    touchStartXRef.current = e.targetTouches[0].clientX;
+    touchEndXRef.current = null;
   };
   const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    touchEndXRef.current = e.targetTouches[0].clientX;
   };
   const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
+    if (touchStartXRef.current === null || touchEndXRef.current === null) return;
+    const distance = touchStartXRef.current - touchEndXRef.current;
     if (distance > 45) {
       setCurrentSlide((prev) => (prev + 1) % promoSlides.length);
-    }
-    if (distance < -45) {
+    } else if (distance < -45) {
       setCurrentSlide((prev) => (prev - 1 + promoSlides.length) % promoSlides.length);
     }
-    setTouchStart(null);
-    setTouchEnd(null);
+    touchStartXRef.current = null;
+    touchEndXRef.current = null;
   };
 
   // Category Carousel Horizontal Scroll & Drag Controls (High-performance 60FPS Ref-based Drag)
@@ -1719,9 +1719,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
             onMouseMove={handleCategoryMouseMove}
             onMouseUp={handleCategoryMouseUp}
             onMouseLeave={handleCategoryMouseUp}
-            className={`flex-1 flex gap-2 sm:gap-2.5 overflow-x-auto pb-2 pt-1 scroll-smooth scrollbar-none select-none overscroll-x-contain ${
-              'cursor-grab active:cursor-grabbing'
-            }`}
+            className="flex-1 flex gap-2 sm:gap-2.5 overflow-x-auto pb-2 pt-1 scrollbar-none select-none overscroll-x-contain cursor-grab active:cursor-grabbing"
             style={{
               WebkitOverflowScrolling: 'touch',
               touchAction: 'pan-x'

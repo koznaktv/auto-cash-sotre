@@ -432,11 +432,11 @@ export default function HomePage() {
   const normalizeServiceItem = (s: ServiceItem): ServiceItem => {
     let item = s;
     if (item.id === 'fursan_net') {
-      item = { ...item, image: 'https://i.ibb.co/f3X6BjQ/photo-2026-10-26-07-50-55.jpg' };
+      item = { ...item, image: '/images/services/fursan_net.jpg' };
     } else if (item.id === 'azez_net') {
-      item = { ...item, image: 'https://i.ibb.co/cSFZhGLB/photo-2026-10-26-07-50-39.jpg' };
+      item = { ...item, image: '/images/services/azez_net.jpg' };
     } else if (item.id === 'almujahid_net') {
-      item = { ...item, image: 'https://i.ibb.co/9HqpZdVg/photo-2026-10-26-08-32-29.jpg' };
+      item = { ...item, image: '/images/services/mujahid_net.jpg' };
     }
     if (item.name && item.name.toLowerCase().includes('canva') && item.category !== 'apps') {
       item = { ...item, category: 'apps' };
@@ -493,7 +493,7 @@ export default function HomePage() {
                   name: 'Wi-Fi تور كارتىلىرى',
                   icon: 'Wifi',
                   count: 'شبكات واي فاي',
-                  image: 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg',
+                  image: '/images/services/fursan_net.jpg',
                 };
               }
               return c;
@@ -566,7 +566,7 @@ export default function HomePage() {
                 name: 'Wi-Fi تور كارتىلىرى',
                 icon: 'Wifi',
                 count: 'شبكات واي فاي',
-                image: 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg',
+                image: '/images/services/fursan_net.jpg',
               };
             }
             return c;
@@ -626,7 +626,7 @@ export default function HomePage() {
                 name: 'Wi-Fi تور كارتىلىرى',
                 icon: 'Wifi',
                 count: 'شبكات واي فاي',
-                image: 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg',
+                image: '/images/services/fursan_net.jpg',
               };
             }
             return c;
@@ -688,7 +688,7 @@ export default function HomePage() {
           name: c.name && c.name !== 'wifi' ? c.name : 'Wi-Fi تور كارتىلىرى',
           icon: 'Wifi',
           count: 'شبكات واي فاي',
-          image: 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg',
+          image: '/images/services/fursan_net.jpg',
         });
       } else {
         map.set(c.id, c);
@@ -702,7 +702,7 @@ export default function HomePage() {
             name: 'Wi-Fi تور كارتىلىرى',
             icon: 'Wifi',
             count: 'شبكات واي فاي',
-            image: 'https://i.ibb.co/zVPh1p5s/photo-2026-10-26-07-05-36.jpg',
+            image: '/images/services/fursan_net.jpg',
           });
         } else {
           map.set(s.category, {
