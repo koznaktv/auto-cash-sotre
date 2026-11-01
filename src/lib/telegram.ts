@@ -3577,6 +3577,40 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
   );
   if (handledByShopMsg) return;
 
+  // 0.5 Command /link or /code (Generates 6-digit linking code for website)
+  if (
+    text === '/link' ||
+    text === '/code' ||
+    text === 'كود' ||
+    text === 'كود الربط' ||
+    text === 'باغلاش' ||
+    text === 'باغلاش كودى' ||
+    text.startsWith('/link')
+  ) {
+    const { generateTelegramLinkCode } = await import('./telegramLink');
+    const code = generateTelegramLinkCode(from?.id || chatId, from?.username);
+    const linkMsg = `
+🔗 <b>توربەتكە باغلاش كودى (كود الربط):</b>
+<code>${code}</code>
+
+📋 <b>باغلاش قەدەملىرى:</b>
+1. توربەتتىكى «تېلېگرامما باغلاش» بېتىنى ئېچىڭ.
+2. «كود الربط» ئورنىغا مۇشۇ <code>${code}</code> نومۇرنى كىرگۈزۈڭ.
+3. <b>«تأكيد الربط / جەزملەش»</b> كۇنۇپكىسىنى باسسىڭىزلا، ھېساباتىڭىز بىر گەۋدە بولىدۇ!
+
+⏱ <i>بۇ كود 15 مىنۇت كۈچكە ئىگە.</i>
+`.trim();
+    await sendTelegramMessage(chatId, linkMsg, {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '🌐 توربەتتە باغلاشنى ئېچىش ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/account/telegram` } }],
+        ],
+      },
+    });
+    return;
+  }
+
   // 1. Command /start or "باشلاش"
   if (
     text.startsWith('/start') ||

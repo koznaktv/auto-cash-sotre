@@ -11,6 +11,7 @@ export interface UserRecord {
   avatarUrl?: string;
   telegramChatId?: string | number;
   telegramUsername?: string;
+  telegramLinkedAt?: string;
   passwordHash: string;
   salt: string;
   balance: number;
@@ -263,6 +264,7 @@ function mapSupabaseUser(row: any): UserRecord {
     avatarUrl: row.avatar_url || row.avatar || undefined,
     telegramChatId: row.telegram_chat_id || row.telegramChatId || undefined,
     telegramUsername: row.telegram_username || row.telegramUsername || undefined,
+    telegramLinkedAt: row.telegram_linked_at || row.telegramLinkedAt || (row.telegram_chat_id ? row.updated_at || row.created_at : undefined),
     passwordHash: row.password_hash,
     salt: row.salt,
     balance: Number(row.balance || 0),

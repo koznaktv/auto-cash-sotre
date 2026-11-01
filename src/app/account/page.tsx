@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import SGCSubpageLayout from '@/components/SGCSubpageLayout';
 import AuthModal from '@/components/AuthModal';
+import TelegramLinkCard from '@/components/TelegramLinkCard';
 import { useLanguage } from '@/context/LanguageContext';
 import {
   ChevronLeft,
@@ -548,104 +549,16 @@ export default function AccountPage() {
           </div>
         )}
 
-        {/* Telegram Integration Card (1-Click Deep Link Unification) */}
+        {/* Telegram Integration Card (Exact Layout Matching Reference) */}
         {isLoggedIn && (
-          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#101726] border border-slate-200/90 dark:border-white/10 shadow-xs relative overflow-hidden">
-            <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex items-start sm:items-center gap-3.5">
-                <div className="w-11 h-11 rounded-2xl bg-[#0088cc] flex items-center justify-center text-white shadow-md shadow-sky-500/20 shrink-0">
-                  <Send className="w-5 h-5 transform -translate-y-0.5 translate-x-0.5" />
-                </div>
-
-                <div className={isRTL ? 'text-right' : 'text-left'}>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-extrabold text-slate-900 dark:text-white text-sm sm:text-base flex items-center gap-1.5">
-                      <span>{lang === 'ug' ? 'تېلېگرامما بوت بىلەن بىر گەۋدە' : lang === 'ar' ? 'ربط الحساب ببوت تلغرام' : 'Telegram Bot Unification'}</span>
-                      <span className="text-[#0088cc]">⚡️</span>
-                    </h3>
-                    {telegramLink?.isLinked ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                        <span>{lang === 'ug' ? 'تۇتاشتۇرۇلدى' : lang === 'ar' ? 'متصل' : 'Connected'}</span>
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 text-[10px] font-bold">
-                        <span>{lang === 'ug' ? '1 چېكىش بىلەن' : lang === 'ar' ? 'بنقرة واحدة' : '1-Click Link'}</span>
-                      </span>
-                    )}
-                  </div>
-
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                    {telegramLink?.isLinked ? (
-                      lang === 'ug' ? (
-                        <>
-                          تېلېگرامما ھېساباتىڭىز ({telegramLink.telegramUsername ? `@${telegramLink.telegramUsername}` : `ID: ${telegramLink.telegramChatId}`}) مۇۋەپپەقىيەتلىك باغلاندى. قالدۇق پۇل ۋە زاكاسلار ئىككى تەرەپتە بىر گەۋدە يۈرۈشىدۇ!
-                        </>
-                      ) : lang === 'ar' ? (
-                        <>
-                          حسابك في تلغرام ({telegramLink.telegramUsername ? `@${telegramLink.telegramUsername}` : `ID: ${telegramLink.telegramChatId}`}) متصل بنجاح. الرصيد والطلبات متزامنة بالكامل!
-                        </>
-                      ) : (
-                        <>
-                          Your Telegram account ({telegramLink.telegramUsername ? `@${telegramLink.telegramUsername}` : `ID: ${telegramLink.telegramChatId}`}) is linked. Balance and orders sync seamlessly!
-                        </>
-                      )
-                    ) : (
-                      lang === 'ug' ? (
-                        'توربەتتىكى قالدۇق پۇلىڭىز بىلەن بوتنى تۇتاشتۇرۇڭ. قايسى تەرەپتە پۇل سالسىڭىز ئىككى تەرەپتە تەڭ چىقىدۇ.'
-                      ) : lang === 'ar' ? (
-                        'اربط حسابك ببوت تلغرام لتتمتع برصيد مشترك متزامن فوري بين الموقع والبوت.'
-                      ) : (
-                        'Link your store account with the Telegram bot for a real-time shared live balance.'
-                      )
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              <div className="w-full sm:w-auto flex items-center gap-2 justify-end shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-white/10">
-                {telegramLink?.isLinked ? (
-                  <>
-                    <a
-                      href="https://t.me/Autocash_24_bot"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-[#0088cc] hover:text-[#0077b5] text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs"
-                    >
-                      <span>{lang === 'ug' ? 'بوتنى ئېچىش' : lang === 'ar' ? 'فتح البوت' : 'Open Bot'}</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                    <button
-                      type="button"
-                      disabled={loadingTgLink}
-                      onClick={handleUnlinkTelegram}
-                      className="px-3 py-2 rounded-xl bg-slate-50 dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-rose-950/30 border border-slate-200 dark:border-white/10 hover:border-rose-200 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 text-xs font-bold transition flex items-center gap-1 cursor-pointer disabled:opacity-50"
-                      title={lang === 'ug' ? 'تېلېگراممىنى ئۈزۈش' : lang === 'ar' ? 'إلغاء الربط' : 'Unlink'}
-                    >
-                      <Unlink className="w-3.5 h-3.5" />
-                      <span>{lang === 'ug' ? 'ئۈزۈش' : lang === 'ar' ? 'فصل' : 'Unlink'}</span>
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    type="button"
-                    disabled={loadingTgLink}
-                    onClick={handleStartLink}
-                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#0088cc] hover:bg-[#0077b5] text-white font-black text-xs transition-all shadow-md shadow-sky-500/25 flex items-center justify-center gap-2 transform active:scale-95 cursor-pointer disabled:opacity-60"
-                  >
-                    <Send className="w-4 h-4" />
-                    <span>{loadingTgLink ? (lang === 'ug' ? 'ئېچىلىۋاتىدۇ...' : 'جاري الفتح...') : (lang === 'ug' ? '1 چېكىپ بوتقا باغلاش' : lang === 'ar' ? 'ربط الحساب بالبوت فوراً' : '1-Click Link Telegram')}</span>
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {tgUnlinkSuccess && (
-              <div className="mt-3 p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2 font-bold">
-                <Check className="w-4 h-4" />
-                <span>{lang === 'ug' ? 'تېلېگرامما ھېساباتى مۇۋەپپەقىيەتلىك ئۈزۈلدى.' : lang === 'ar' ? 'تم إلغاء الربط بنجاح.' : 'Telegram unlinked successfully.'}</span>
-              </div>
-            )}
+          <div className="w-full">
+            <TelegramLinkCard
+              userId={userId}
+              isLoggedIn={isLoggedIn}
+              onStatusChange={(linked) => {
+                setTelegramLink((prev) => (prev ? { ...prev, isLinked: linked } : { isLinked: linked }));
+              }}
+            />
           </div>
         )}
 

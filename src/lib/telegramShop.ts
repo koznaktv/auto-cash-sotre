@@ -1461,10 +1461,37 @@ ${a.vipLevel[lang] || a.vipLevel.ug} <b>${(user.vipTier || 'VIP1').toUpperCase()
 
     await showOrEditMessage(chatId, messageId, accText, {
       inline_keyboard: [
+        [{ text: '🔗 توربەتكە باغلاش كودى ئېلىش (كود الربط)', callback_data: 'get_tg_link_code' }],
         [{ text: BOT_I18N.storeButtons.shopCategories[lang] || '🛍️ مەھسۇلاتلار بۆلىكىگە كىرىش ➔', callback_data: 'tg_shop_categories' }],
         [{ text: BOT_I18N.storeButtons.deposit[lang] || '💎💳 شامكەشتىن پۇل سېلىش ⚡️', callback_data: 'quick_deposit' }],
         [{ text: BOT_I18N.storeButtons.changeLanguage[lang] || '🌐 تىل ئالماشتۇرۇش | Language 🔄', callback_data: 'bot_lang_menu' }],
         [{ text: BOT_I18N.categories.backToMain[lang] || '🏠 ئاساسىي بەتكە قايتىش •', callback_data: 'back_to_main' }],
+      ],
+    });
+    return true;
+  }
+
+  // 8. Generate 6-digit Link Code for Website
+  if (data === 'get_tg_link_code') {
+    await answerCallbackQuery(cqId);
+    const { generateTelegramLinkCode } = await import('./telegramLink');
+    const { TELEGRAM_CONFIG } = await import('./telegram');
+    const code = generateTelegramLinkCode(fromId, fromUser);
+    const codeMsg = `
+🔗 <b>توربەتكە باغلاش كودى (كود الربط):</b>
+<code>${code}</code>
+
+📋 <b>باغلاش قەدەملىرى:</b>
+1. توربەتتىكى «تېلېگرامما باغلاش» بېتىنى ئېچىڭ.
+2. «كود الربط» ئورنىغا مۇشۇ <code>${code}</code> نومۇرنى كىرگۈزۈڭ.
+3. <b>«تأكيد الربط / جەزملەش»</b> كۇنۇپكىسىنى باسسىڭىزلا، ھېساباتىڭىز بىر گەۋدە بولىدۇ!
+
+⏱ <i>بۇ كود 15 مىنۇت كۈچكە ئىگە.</i>
+`.trim();
+    await showOrEditMessage(chatId, messageId, codeMsg, {
+      inline_keyboard: [
+        [{ text: '🌐 توربەتتە ئېچىپ كود كىرگۈزۈش ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/account/telegram` } }],
+        [{ text: '🔙 ھېساباتىمغا قايتىش', callback_data: 'tg_my_account' }],
       ],
     });
     return true;

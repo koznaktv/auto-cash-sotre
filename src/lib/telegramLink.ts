@@ -200,9 +200,11 @@ export async function linkTelegramAccountToUser(
     }
 
     // Link webUser to Telegram
+    const nowIso = new Date().toISOString();
     const updatedUser = await updateUserAsync(webUser.id, {
       telegramChatId: tgChatId,
       telegramUsername: tgUsername || webUser.telegramUsername,
+      telegramLinkedAt: nowIso,
     } as any);
 
     return {
@@ -217,6 +219,48 @@ export async function linkTelegramAccountToUser(
 }
 
 /**
+ * In-memory map for 6-digit linking codes with 15-minute expiration
+ */
+interface LinkCodeEntry {
+  tgChatId: number | string;
+  tgUsername?: string;
+  expiresAt: number;
+}
+const activeLinkCodes = new Map<string, LinkCodeEntry>();
+
+/**
+ * Generates a clean 6-digit numeric link code from Telegram Bot (e.g., 849201)
+ */
+export function generateTelegramLinkCode(tgChatId: number | string, tgUsername?: string): string {
+  const now = Date.now();
+  activeLinkCodes.forEach((entry, c) => {
+    if (entry.expiresAt < now) activeLinkCodes.delete(c);
+  });
+
+  // Generate 6-digit code
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  activeLinkCodes.set(code, {
+    tgChatId,
+    tgUsername,
+    expiresAt: now + 15 * 60 * 1000,
+  });
+  return code;
+}
+
+/**
+ * Verifies a 6-digit linking code entered by the user on the website
+ */
+export async function verifyAndConsumeLinkCode(code: string, userId: string): Promise<{ success: boolean; user?: UserRecord; mergedBalance: number; alreadyLinked?: boolean; error?: string }> {
+  const cleanCode = String(code || '').trim();
+  const entry = activeLinkCodes.get(cleanCode);
+  if (!entry || entry.expiresAt < Date.now()) {
+    return { success: false, mergedBalance: 0, error: 'كود الربط غير صحيح أو منتهي الصلاحية (باغلاش كودى خاتا ياكى ۋاقتى ئۆتكەن)' };
+  }
+  activeLinkCodes.delete(cleanCode);
+  return linkTelegramAccountToUser(userId, entry.tgChatId, entry.tgUsername);
+}
+
+/**
  * Unlinks Telegram account from web user
  */
 export async function unlinkTelegramAccount(userId: string): Promise<boolean> {
@@ -224,6 +268,7 @@ export async function unlinkTelegramAccount(userId: string): Promise<boolean> {
     const updated = await updateUserAsync(userId, {
       telegramChatId: undefined,
       telegramUsername: undefined,
+      telegramLinkedAt: undefined,
     } as any);
     return Boolean(updated);
   } catch (err) {

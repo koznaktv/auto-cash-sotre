@@ -41,6 +41,7 @@ export async function GET(req: Request) {
       isLinked,
       telegramChatId: user.telegramChatId,
       telegramUsername: user.telegramUsername,
+      telegramLinkedAt: user.telegramLinkedAt || (isLinked ? user.createdAt : undefined),
       linkUrl,
     });
   } catch (err: any) {
@@ -53,17 +54,36 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    let body: any = {};
+    try { body = await req.json(); } catch {}
+
     let user = await resolveUserFromRequest(req);
-    if (!user) {
-      try {
-        const body = await req.json();
-        if (body?.userId) {
-          user = await getUserByIdAsync(body.userId);
-        }
-      } catch {}
+    if (!user && body?.userId) {
+      user = await getUserByIdAsync(body.userId);
     }
     if (!user) return unauthorizedResponse();
 
+    // 1. Verify 6-digit code if submitted
+    if (body?.code) {
+      const { verifyAndConsumeLinkCode } = await import('@/lib/telegramLink');
+      const res = await verifyAndConsumeLinkCode(body.code, user.id);
+      if (!res.success) {
+        return NextResponse.json(
+          { success: false, message: res.error || 'كود الربط غير صحيح أو منتهي الصلاحية' },
+          { status: 400 }
+        );
+      }
+      return NextResponse.json({
+        success: true,
+        isLinked: true,
+        mergedBalance: res.mergedBalance,
+        telegramChatId: res.user?.telegramChatId,
+        telegramUsername: res.user?.telegramUsername,
+        telegramLinkedAt: res.user?.telegramLinkedAt,
+      });
+    }
+
+    // 2. Otherwise generate 1-click link URL
     const { url } = createTelegramLinkUrl(user.id);
 
     return NextResponse.json({
@@ -72,7 +92,7 @@ export async function POST(req: Request) {
     });
   } catch (err: any) {
     return NextResponse.json(
-      { success: false, message: err?.message || 'Failed to generate link' },
+      { success: false, message: err?.message || 'Failed to process request' },
       { status: 500 }
     );
   }
