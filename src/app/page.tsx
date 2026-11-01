@@ -267,7 +267,6 @@ export default function HomePage() {
           sessionStorage.setItem('autocash_welcome_shown', 'true');
           localStorage.setItem('autocash_welcome_shown', 'true');
         } catch {}
-        fetchOrders();
         return;
       }
 
@@ -287,8 +286,6 @@ export default function HomePage() {
     } catch {
       // Fallback
     }
-
-    fetchOrders();
 
     const refreshUser = () => {
       const cached = getCachedUser();

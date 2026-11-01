@@ -371,8 +371,21 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showApiModal, setShowApiModal] = useState(false);
 
-  // Live Server Catalog State
-  const [serverServices, setServerServices] = useState<ServiceItem[]>(SERVICES_DATA);
+  // Live Server Catalog State with instant local cache hydration
+  const [serverServices, setServerServices] = useState<ServiceItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('autocash_cached_catalog_v22');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
+        }
+      } catch {}
+    }
+    return SERVICES_DATA;
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   // Touch Swipe State for Mobile Banner (High-Performance Ref Based - ZERO Re-renders during swipe)
@@ -415,6 +428,9 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
             }
             return normalized;
           });
+          try {
+            localStorage.setItem('autocash_cached_catalog_v22', JSON.stringify(normalized));
+          } catch {}
         }
       } catch (err) {
         // Fallback remains active

@@ -30,24 +30,26 @@ let lastGlobalOrdersPollTime = 0;
 export async function GET(req: Request) {
   try {
     // Opportunistic status refresh for ALL in-flight provider orders across the platform
-    // Ensures autonomous settling even if admin is away and cron is delayed
+    // Runs asynchronously so buyer & visitor requests respond in milliseconds without lag
     const now = Date.now();
     if (now - lastGlobalOrdersPollTime > 6000) {
       lastGlobalOrdersPollTime = now;
-      try {
-        const { getInFlightProviderOrdersAsync } = await import('@/lib/db');
-        const inFlightOrders = await getInFlightProviderOrdersAsync(25).catch(() => []);
-        if (inFlightOrders.length > 0) {
-          await pollProviderOrders({
-            deadlineMs: now + 5000,
-            limit: 25,
-            orderIds: inFlightOrders.map((o) => o.id),
-            force: true,
-          }).catch(() => null);
+      (async () => {
+        try {
+          const { getInFlightProviderOrdersAsync } = await import('@/lib/db');
+          const inFlightOrders = await getInFlightProviderOrdersAsync(25).catch(() => []);
+          if (inFlightOrders.length > 0) {
+            await pollProviderOrders({
+              deadlineMs: now + 5000,
+              limit: 25,
+              orderIds: inFlightOrders.map((o) => o.id),
+              force: true,
+            }).catch(() => null);
+          }
+        } catch (pollErr: any) {
+          console.warn('[Global Order Poll Notice]:', pollErr?.message);
         }
-      } catch (pollErr: any) {
-        console.warn('[Global Order Poll Notice]:', pollErr?.message);
-      }
+      })();
     }
 
     if (hasAdminBearer(req)) {

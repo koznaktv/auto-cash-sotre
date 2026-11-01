@@ -1,6 +1,8 @@
 import {
   getAllUsersAsync,
   getUserByEmailAsync,
+  getUserByTelegramChatIdAsync,
+  getUserByTelegramUsernameAsync,
   createUserAsync,
   updateUserAsync,
   deductBalanceAndCreateOrderAtomicAsync,
@@ -44,12 +46,8 @@ export async function getOrCreateTelegramUser(
   fromUsername?: string,
   firstName?: string
 ): Promise<UserRecord> {
-  const allUsers = await getAllUsersAsync();
-
-  // 1. Check if an account is linked by telegramChatId
-  const linkedByChatId = allUsers.find(
-    (u) => u.telegramChatId && String(u.telegramChatId) === String(fromId)
-  );
+  // 1. Direct check if an account is linked by telegramChatId
+  const linkedByChatId = await getUserByTelegramChatIdAsync(fromId);
   if (linkedByChatId) {
     if (fromUsername && linkedByChatId.telegramUsername !== fromUsername) {
       updateUserAsync(linkedByChatId.id, { telegramUsername: fromUsername } as any).catch(() => {});
@@ -57,13 +55,9 @@ export async function getOrCreateTelegramUser(
     return linkedByChatId;
   }
 
-  // 2. Check if an account is linked by telegramUsername
+  // 2. Direct check if an account is linked by telegramUsername
   if (fromUsername) {
-    const linkedByUsername = allUsers.find(
-      (u) =>
-        u.telegramUsername &&
-        u.telegramUsername.toLowerCase().replace('@', '') === fromUsername.toLowerCase().replace('@', '')
-    );
+    const linkedByUsername = await getUserByTelegramUsernameAsync(fromUsername);
     if (linkedByUsername) {
       await updateUserAsync(linkedByUsername.id, {
         telegramChatId: fromId,

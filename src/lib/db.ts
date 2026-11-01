@@ -360,6 +360,38 @@ export async function getUserByIdAsync(id: string): Promise<UserRecord | null> {
   return ensureDbFile().users.find((u) => u.id === id) || null;
 }
 
+export async function getUserByTelegramChatIdAsync(chatId: string | number): Promise<UserRecord | null> {
+  const sb = getSupabase();
+  if (sb) {
+    const { data, error } = await sb
+      .from('users')
+      .select('*')
+      .eq('telegram_chat_id', String(chatId))
+      .maybeSingle();
+    if (!error && data) return mapSupabaseUser(data);
+  }
+  const strId = String(chatId);
+  return (await getAllUsersAsync()).find((u) => u.telegramChatId && String(u.telegramChatId) === strId) || null;
+}
+
+export async function getUserByTelegramUsernameAsync(username: string): Promise<UserRecord | null> {
+  const clean = username.trim().toLowerCase().replace(/^@/, '');
+  const sb = getSupabase();
+  if (sb) {
+    const { data, error } = await sb
+      .from('users')
+      .select('*')
+      .ilike('telegram_username', clean)
+      .maybeSingle();
+    if (!error && data) return mapSupabaseUser(data);
+  }
+  return (
+    (await getAllUsersAsync()).find(
+      (u) => u.telegramUsername && u.telegramUsername.toLowerCase().replace(/^@/, '') === clean
+    ) || null
+  );
+}
+
 export async function createUserAsync(userData: {
   name: string;
   email: string;

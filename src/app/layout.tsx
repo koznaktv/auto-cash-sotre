@@ -53,8 +53,39 @@ export default function RootLayout({
   return (
     <html lang="ug" dir="rtl" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://telegram.org" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://telegram.org" />
+        <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+        <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                function initTg() {
+                  try {
+                    if (window.Telegram && window.Telegram.WebApp) {
+                      window.Telegram.WebApp.ready();
+                      window.Telegram.WebApp.expand();
+                      if (window.Telegram.WebApp.setHeaderColor) window.Telegram.WebApp.setHeaderColor('#040d1a');
+                      if (window.Telegram.WebApp.setBackgroundColor) window.Telegram.WebApp.setBackgroundColor('#040d1a');
+                      return true;
+                    }
+                  } catch(e) {}
+                  return false;
+                }
+                if (!initTg()) {
+                  var c = 0;
+                  var t = setInterval(function() {
+                    c++;
+                    if (initTg() || c > 30) clearInterval(t);
+                  }, 50);
+                }
+              })();
+            `,
+          }}
+        />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossOrigin="anonymous" referrerPolicy="no-referrer" />
-        <Script src="https://telegram.org/js/telegram-web-app.js" strategy="afterInteractive" />
       </head>
       <body className="bg-[#040d1a] text-slate-100 antialiased min-h-screen">
         <LanguageProvider>

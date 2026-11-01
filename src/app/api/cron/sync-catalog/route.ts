@@ -13,8 +13,8 @@ export async function GET(req: Request) {
     return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
   }
 
-  // 1. Run live real-time price & stock availability monitor
-  const monitorRes = await runProviderAutoMonitor({ notifyAdmin: true }).catch((e) => ({ success: false, error: e?.message }));
+  // 1. Run live real-time price & stock availability monitor (silent background sync, no unsolicited alerts)
+  const monitorRes = await runProviderAutoMonitor({ notifyAdmin: false }).catch((e) => ({ success: false, error: e?.message }));
 
   // 2. Run scheduled twice-daily exchange rate check
   const rateRes = await runScheduledRateCheck(false).catch((e) => ({ success: false, error: e?.message }));

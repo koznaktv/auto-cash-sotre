@@ -21,7 +21,9 @@ export async function POST(req: Request) {
     if (!verifyAdminToken(req)) {
       return NextResponse.json({ success: false, message: 'رۇخسەت يوق (Unauthorized)' }, { status: 401 });
     }
-    const result = await runProviderAutoMonitor({ notifyAdmin: true, forceNotify: true });
+    const body = await req.json().catch(() => ({}));
+    const notifyAdmin = Boolean(body?.notifyTelegram);
+    const result = await runProviderAutoMonitor({ notifyAdmin, forceNotify: notifyAdmin });
     return NextResponse.json(result);
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err?.message || 'Sync failed' }, { status: 500 });

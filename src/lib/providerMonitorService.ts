@@ -135,7 +135,8 @@ export async function runProviderAutoMonitor(options?: {
   message: string;
 }> {
   const startedAt = Date.now();
-  const notifyAdmin = options?.notifyAdmin !== false;
+  // ONLY notify admin when explicitly requested via button or command (never send automatically in background)
+  const notifyAdmin = Boolean(options?.notifyAdmin);
   const forceNotify = Boolean(options?.forceNotify);
 
   // 1. Resolve Provider Credentials
@@ -326,8 +327,8 @@ export async function runProviderAutoMonitor(options?: {
 
     saveProviderMonitorState(updatedState);
 
-    // 7. Send Telegram Alert to Admin if changes occurred or if force requested
-    if (notifyAdmin && (changesThisRun.length > 0 || forceNotify)) {
+    // 7. Send Telegram Alert to Admin ONLY when explicitly requested by button or command
+    if (notifyAdmin) {
       await sendProviderMonitoringAlert(updatedState, changesThisRun, forceNotify);
     }
 

@@ -509,7 +509,7 @@ async function showOrEditMessage(
   chatId: number | string,
   messageId: number | undefined,
   text: string,
-  replyMarkup: any
+  replyMarkup?: any
 ): Promise<void> {
   if (chatId && messageId) {
     const edited = await editTelegramMessage(chatId, messageId, text, {
@@ -2077,8 +2077,8 @@ function getAdminInlineKeyboard() {
       ],
       [
         {
-          text: '📊 بۈگۈنكى كۈنلۈك سودا دوكلاتى (/stats) 📈',
-          callback_data: 'refresh_stats',
+          text: '⚡ باش تەمىنلىگۈچى (Othman Store) دوكلاتى 📊',
+          callback_data: 'admin_provider_report',
         },
         {
           text: '💎 شامكەش ئادرېسى ⚡️',
@@ -3506,6 +3506,61 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
           ],
           [
             { text: '🔙🏠 باشقۇرۇش باش بېتىگە قايتىش ↩️', callback_data: 'back_to_main' },
+          ],
+        ],
+      });
+      return;
+    }
+
+    // 8.1 Admin Provider Report (Manual on-demand check requested by button)
+    if (data === 'admin_provider_report') {
+      if (!isAdmin) {
+        await answerCallbackQuery(cqId, 'رۇخسەت يوق', true);
+        return;
+      }
+      await answerCallbackQuery(cqId, 'تەمىنلىگۈچى تەكشۈرۈلۈۋاتىدۇ...');
+      await showOrEditMessage(chatId, messageId, '⏳ <b>باش تەمىنلىگۈچى (Othman Store) تەكشۈرۈلۈۋاتىدۇ...</b>\nسەل تەخىر قىلىڭ، نەق مەيدان باھا ۋە قالدۇق پۇلى ئېلىنىۋاتىدۇ ⚡️', undefined);
+      const { runProviderAutoMonitor } = await import('./providerMonitorService');
+      const monitorRes = await runProviderAutoMonitor({ notifyAdmin: false, forceNotify: false });
+      const st = monitorRes.state;
+      const bText = st.providerBalance !== null ? ('$' + st.providerBalance) : 'نامەلۇم';
+      const durationSec = (st.stats.durationMs / 1000).toFixed(1);
+
+      let detailsHtml = '';
+      if (monitorRes.changes.length > 0) {
+        const priceChanges = monitorRes.changes.filter((c) => c.type === 'price_up' || c.type === 'price_down');
+        if (priceChanges.length > 0) {
+          detailsHtml += `\n\n📊 <b>باھاسى ئۆزگەرگەنلەر (${priceChanges.length}):</b>`;
+          priceChanges.slice(0, 10).forEach((c) => {
+            const icon = c.type === 'price_up' ? '🔺 ئۆرلەش' : '🔻 چۈشۈش';
+            detailsHtml += `\n• <b>${c.pkgTitle}</b> (${c.serviceName}): $${c.oldPrice} ➔ <b>$${c.newPrice}</b> (${icon})`;
+          });
+          if (priceChanges.length > 10) {
+            detailsHtml += `\n<i>... ۋە باشقا ${priceChanges.length - 10} تۈر</i>`;
+          }
+        }
+      } else {
+        detailsHtml += '\n\n✅ <i>ھازىر بارلىق تۈرلەرنىڭ باھاسى ۋە زاپاس ھالىتى پۈتۈنلەي نورمال، ئۆزگىرىش بايقالمىدى.</i>';
+      }
+
+      const reportMsg = `
+⚡ <b>باش تەمىنلىگۈچى (Othman Store) تەكشۈرۈش دوكلاتى</b>
+
+💰 <b>تەمىنلىگۈچى قالدۇق سوممىسى:</b> <code>${bText}</code>
+📦 <b>تەكشۈرۈلگەن مەھسۇلات:</b> ${st.stats.totalScanned} دانە (${st.stats.matchedPackages} بولاق)
+📈 <b>باھاسى يېڭىلانغان:</b> ${st.stats.priceChangedCount} دانە
+⏸️ <b>ۋاقىتلىق توختىغان:</b> ${st.stats.pausedCount} دانە
+⏱️ <b>سۈرئىتى:</b> ${durationSec} سېكۇنت${detailsHtml}
+`.trim();
+
+      await showOrEditMessage(chatId, messageId, reportMsg, {
+        inline_keyboard: [
+          [
+            { text: '🔄⚡️ قايتا تەكشۈرۈش 📊', callback_data: 'admin_provider_report' },
+            { text: '📊 سودا دوكلاتى (/stats)', callback_data: 'refresh_stats' },
+          ],
+          [
+            { text: '🔙🏠 باشقۇرۇش باش بېتىگە قايتىش ↩️', callback_data: 'admin_dashboard' },
           ],
         ],
       });
