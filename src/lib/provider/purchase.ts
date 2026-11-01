@@ -201,6 +201,19 @@ export async function placeProviderOrder(user: UserRecord, input: PurchaseInput)
       console.error(`Order ${orderId} accepted by provider but status update failed:`, e);
       return null;
     });
+
+    if (completed) {
+      const { postOrderCompletedToChannel } = await import('../telegram');
+      await postOrderCompletedToChannel({
+        id: orderId,
+        serviceName: baseOrder.serviceName,
+        packageTitle: baseOrder.packageTitle,
+        amount: baseOrder.amount,
+        targetAccount: baseOrder.targetAccount,
+        userEmail: baseOrder.userEmail,
+        details: settled?.details || baseOrder.details,
+      }).catch(() => {});
+    }
     return {
       status: 200,
       body: {

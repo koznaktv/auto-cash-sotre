@@ -695,24 +695,26 @@ export async function postOrderCompletedToChannel(order: {
   if (postedChannelOrders.has(normalizedId) || order.details?.channelBroadcasted) {
     return true;
   }
-  postedChannelOrders.add(normalizedId);
-  if (postedChannelOrders.size > 5000) {
-    const oldest = postedChannelOrders.values().next().value;
-    if (oldest) postedChannelOrders.delete(oldest);
-  }
 
   // Multi-process & Serverless Database Locking Deduplication
+  let sbClient: any = null;
   try {
     const { getSupabase } = await import('@/lib/supabase');
-    const sb = getSupabase();
-    if (sb) {
-      const { data: dbOrd } = await sb.from('orders').select('details').eq('id', normalizedId).maybeSingle();
+    sbClient = getSupabase();
+    if (sbClient) {
+      const { data: dbOrd } = await sbClient.from('orders').select('details').eq('id', normalizedId).maybeSingle();
       if (dbOrd?.details?.channelBroadcasted) {
+        postedChannelOrders.add(normalizedId);
         return true;
       }
-      // Pre-mark as broadcasted in DB immediately so concurrent requests/pollers bail out
-      const mergedDetails = { ...(dbOrd?.details || order.details || {}), channelBroadcasted: true };
-      await sb.from('orders').update({ details: mergedDetails }).eq('id', normalizedId);
+      const lock = dbOrd?.details?.channelBroadcastLock;
+      if (lock && Date.now() - Number(lock) < 20000) {
+        // Another instance is currently broadcasting this order
+        return true;
+      }
+      // Set temporary 20-second lock (NOT marked as completed yet!)
+      const mergedDetails = { ...(dbOrd?.details || order.details || {}), channelBroadcastLock: Date.now() };
+      await sbClient.from('orders').update({ details: mergedDetails }).eq('id', normalizedId);
     }
   } catch (dedupErr: any) {
     console.warn('[Telegram] DB deduplication check warning:', dedupErr?.message);
@@ -740,7 +742,7 @@ export async function postOrderCompletedToChannel(order: {
 
 📦 <b>زاكاز نومۇرى:</b> <code>#${cleanId}</code>
 🎮 <b>مەھسۇلات:</b> <b>${(order.serviceName || 'رەقەملىك مەھسۇلات').replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')}</b> - ${(order.packageTitle || '').replace(/\(شەن\)/g, '').replace(/\(شەدەن\)/g, '').trim()}
-💎 <b>سوممىسى:</b> <b>$${cleanAmount} USD</b>
+💎 <b>سوممىسى:</b> <b>${cleanAmount} USD</b>
 🎯 <b>قاچىلانغان ID:</b> <code>${maskedTarget}</code>
 ⚡️ <b>سۈرئىتى:</b> سېكۇنتتا ئاپتوماتىك كىردى 🚀
 ⏰ <b>ۋاقتى:</b> ${timeStr}
@@ -780,15 +782,43 @@ export async function postOrderCompletedToChannel(order: {
     });
     const data = await res.json();
     if (data.ok) {
-      import('@/lib/db')
-        .then(({ updateOrderAsync }) => {
-          updateOrderAsync(order.id, { detailsPatch: { channelBroadcasted: true } }).catch(() => {});
-        })
-        .catch(() => {});
+      postedChannelOrders.add(normalizedId);
+      if (postedChannelOrders.size > 5000) {
+        const oldest = postedChannelOrders.values().next().value;
+        if (oldest) postedChannelOrders.delete(oldest);
+      }
+      try {
+        if (sbClient) {
+          const { data: cur } = await sbClient.from('orders').select('details').eq('id', normalizedId).maybeSingle();
+          const finalDetails = { ...(cur?.details || order.details || {}), channelBroadcasted: true, channelBroadcastLock: null };
+          await sbClient.from('orders').update({ details: finalDetails }).eq('id', normalizedId);
+        }
+        const { updateOrderAsync } = await import('@/lib/db');
+        await updateOrderAsync(order.id, { detailsPatch: { channelBroadcasted: true, channelBroadcastLock: null } }).catch(() => {});
+      } catch {}
+      return true;
+    } else {
+      console.error('[Telegram] postOrderCompletedToChannel sendMessage failed:', data);
+      postedChannelOrders.delete(normalizedId);
+      if (sbClient) {
+        try {
+          const { data: cur } = await sbClient.from('orders').select('details').eq('id', normalizedId).maybeSingle();
+          const finalDetails = { ...(cur?.details || order.details || {}), channelBroadcastLock: null };
+          await sbClient.from('orders').update({ details: finalDetails }).eq('id', normalizedId);
+        } catch {}
+      }
+      return false;
     }
-    return Boolean(data.ok);
   } catch (err: any) {
-    console.error('[Telegram] postOrderCompletedToChannel error:', err?.message);
+    console.error('[Telegram] postOrderCompletedToChannel network error:', err?.message);
+    postedChannelOrders.delete(normalizedId);
+    if (sbClient) {
+      try {
+        const { data: cur } = await sbClient.from('orders').select('details').eq('id', normalizedId).maybeSingle();
+        const finalDetails = { ...(cur?.details || order.details || {}), channelBroadcastLock: null };
+        await sbClient.from('orders').update({ details: finalDetails }).eq('id', normalizedId);
+      } catch {}
+    }
     return false;
   }
 }

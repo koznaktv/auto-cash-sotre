@@ -171,7 +171,7 @@ export async function pollProviderOrders(options: {
               ...(activationUrl ? { activationUrl, activationLink: activationUrl } : {}),
             });
             summary.completed++;
-            postOrderCompletedToChannel({
+            await postOrderCompletedToChannel({
               id: order.id,
               serviceName: order.serviceName,
               packageTitle: order.packageTitle,
@@ -179,7 +179,8 @@ export async function pollProviderOrders(options: {
               targetAccount: (order as any).targetAccount || order.details?.targetAccount || order.details?.playerId,
               userName: (order as any).userName,
               userEmail: order.userEmail,
-            }).catch(() => {});
+              details: order.details,
+            }).catch((err: any) => console.error('[orderPoller 1] channel broadcast error:', err?.message));
             continue;
           }
           if (status === 'FAILED') {
@@ -269,7 +270,7 @@ export async function pollProviderOrders(options: {
               ...(activationUrl ? { activationUrl, activationLink: activationUrl } : {}),
             });
             summary.completed++;
-            postOrderCompletedToChannel({
+            await postOrderCompletedToChannel({
               id: order.id,
               serviceName: order.serviceName,
               packageTitle: order.packageTitle,
@@ -277,7 +278,8 @@ export async function pollProviderOrders(options: {
               targetAccount: (order as any).targetAccount || order.details?.targetAccount || order.details?.playerId,
               userName: (order as any).userName,
               userEmail: order.userEmail,
-            }).catch(() => {});
+              details: order.details,
+            }).catch((err: any) => console.error('[orderPoller 1] channel broadcast error:', err?.message));
             continue;
           }
 
@@ -316,6 +318,40 @@ export async function pollProviderOrders(options: {
           else summary.pending++;
         }
       }
+    }
+
+    // Catch-up: ensure any recently completed orders from the last 3 hours that missed channel broadcast get posted immediately
+    try {
+      const { getSupabase } = await import('@/lib/supabase');
+      const sb = getSupabase();
+      if (sb) {
+        const threeHoursAgo = new Date(Date.now() - 3 * 3600 * 1000).toISOString();
+        const { data: missedOrders } = await sb
+          .from('orders')
+          .select('*')
+          .eq('status', 'completed')
+          .gte('created_at', threeHoursAgo)
+          .limit(20);
+
+        if (Array.isArray(missedOrders)) {
+          for (const ord of missedOrders) {
+            if (!ord.details?.channelBroadcasted) {
+              await postOrderCompletedToChannel({
+                id: ord.id,
+                serviceName: ord.service_name || ord.serviceName,
+                packageTitle: ord.package_title || ord.packageTitle,
+                amount: ord.amount,
+                targetAccount: ord.target_account || ord.targetAccount || ord.details?.targetAccount || ord.details?.playerId,
+                userName: ord.user_name || ord.userName,
+                userEmail: ord.user_email || ord.userEmail,
+                details: ord.details,
+              }).catch(() => {});
+            }
+          }
+        }
+      }
+    } catch (catchUpErr: any) {
+      console.warn('[orderPoller] Missed broadcast catch-up warning:', catchUpErr?.message);
     }
 
     if (options.housekeeping) {

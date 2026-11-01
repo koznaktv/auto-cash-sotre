@@ -1220,6 +1220,17 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
         adminNotes: `Wi-Fi Card Fulfilled via Telegram: ${claimedWifiCard.cardNumber}`,
       }).catch(() => {});
       order.status = 'completed';
+      const { postOrderCompletedToChannel } = await import('./telegram');
+      await postOrderCompletedToChannel({
+        id: order.id,
+        serviceName: session.serviceName,
+        packageTitle: session.pkgTitle,
+        amount: session.price,
+        targetAccount: `Wi-Fi (${claimedWifiCard.username.slice(0, 2)}***)`,
+        userName: user.name,
+        userEmail: user.email,
+        details: order.details,
+      }).catch(() => {});
     }
 
     if (session.providerProductId && order?.id) {
@@ -1229,9 +1240,10 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
         const providerConfig = await activeProvider.getResolvedConfig();
         if (providerConfig.enabled && providerConfig.apiToken) {
           const targetQty = session.providerQty ?? 1;
+          const orderUuid = generateUUIDv4();
           const providerRes = await activeProvider.createOrder({
             productId: session.providerProductId,
-            orderUuid: generateUUIDv4(),
+            orderUuid: orderUuid,
             qty: targetQty,
             params: {
               playerId: session.targetAccount || '',
@@ -1255,10 +1267,37 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
               providerRes.status === 'COMPLETED' ? 'completed' : 'pending_provider',
               {
                 providerOrderId: providerRes.providerOrderId,
+                providerOrderUuid: orderUuid,
                 providerOutcome: providerRes.outcome,
+                providerStatus: providerRes.status,
               }
             );
             order.status = providerRes.status === 'COMPLETED' ? 'completed' : 'pending_provider';
+
+            if (order.status === 'completed') {
+              const { postOrderCompletedToChannel } = await import('./telegram');
+              await postOrderCompletedToChannel({
+                id: order.id,
+                serviceName: session.serviceName,
+                packageTitle: session.pkgTitle,
+                amount: session.price,
+                targetAccount: targetAccFull,
+                userName: user.name,
+                userEmail: user.email,
+                details: order.details,
+              }).catch(() => {});
+            } else if (order.id) {
+              // Rapid check 3 seconds later while connection is active
+              try {
+                await new Promise((r) => setTimeout(r, 3000));
+                const { pollProviderOrders } = await import('./provider/orderPoller');
+                await pollProviderOrders({
+                  deadlineMs: Date.now() + 5000,
+                  orderIds: [order.id],
+                  force: true,
+                });
+              } catch {}
+            }
           } else if (providerRes.outcome === 'rejected' || providerRes.status === 'FAILED') {
             const { refundOrderBalanceAtomicAsync } = await import('./db');
             await refundOrderBalanceAtomicAsync(

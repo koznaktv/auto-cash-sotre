@@ -383,12 +383,13 @@ export async function POST(req: Request) {
         },
       }).catch(() => {});
 
-      postOrderCompletedToChannel({
+      await postOrderCompletedToChannel({
         id: order.id,
         serviceName: order.serviceName,
         packageTitle: order.packageTitle,
         amount: order.amount,
         targetAccount: `Wi-Fi (${claimedWifiCard.username.slice(0, 2)}***)`,
+        details: order.details,
       }).catch(() => {});
 
       return NextResponse.json({
@@ -474,17 +475,19 @@ export async function POST(req: Request) {
             });
             order.status = completed ? 'completed' : 'pending_provider';
             if (!completed && order.id) {
-              // Rapid non-blocking follow-up check at 6s for quick fulfillment
-              setTimeout(async () => {
-                try {
-                  const { pollProviderOrders } = await import('@/lib/provider/orderPoller');
-                  await pollProviderOrders({
-                    deadlineMs: Date.now() + 8000,
-                    orderIds: [order.id],
-                    force: true,
-                  });
-                } catch {}
-              }, 6000);
+              // Rapid 2.5s follow-up check while request is still live
+              try {
+                await new Promise((r) => setTimeout(r, 2500));
+                const { pollProviderOrders } = await import('@/lib/provider/orderPoller');
+                const pollRes = await pollProviderOrders({
+                  deadlineMs: Date.now() + 5000,
+                  orderIds: [order.id],
+                  force: true,
+                });
+                if (pollRes.completed > 0) {
+                  order.status = 'completed';
+                }
+              } catch {}
             }
             if (updatedOrder) {
               order.details = { ...(order.details || {}), ...(updatedOrder.details || {}) };
@@ -532,7 +535,7 @@ export async function POST(req: Request) {
 
     // Automatically broadcast completed order to the official Telegram channel (@autocash_cannel)
     if (order.status === 'completed') {
-      postOrderCompletedToChannel({
+      await postOrderCompletedToChannel({
         id: order.id,
         serviceName: order.serviceName,
         packageTitle: order.packageTitle,
@@ -540,6 +543,7 @@ export async function POST(req: Request) {
         targetAccount: (order as any).targetAccount || rawTarget,
         userName: user.name,
         userEmail: order.userEmail || user.email,
+        details: order.details,
       }).catch(() => {});
     }
 
