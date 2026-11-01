@@ -10,12 +10,35 @@ import {
 
 export const dynamic = 'force-dynamic';
 
+let lastTgWebhookPollTime = 0;
+
 /**
  * Telegram Webhook Handler (POST)
  */
 export async function POST(req: Request) {
   try {
     const update = await req.json();
+
+    // Opportunistic in-flight provider order poller triggered by any incoming Telegram bot activity
+    // Throttled to 8s so webhook stays extremely snappy while keeping provider orders up-to-date
+    const now = Date.now();
+    if (now - lastTgWebhookPollTime > 8000) {
+      lastTgWebhookPollTime = now;
+      try {
+        const { getInFlightProviderOrdersAsync } = await import('@/lib/db');
+        const inFlight = await getInFlightProviderOrdersAsync(15).catch(() => []);
+        if (inFlight.length > 0) {
+          const { pollProviderOrders } = await import('@/lib/provider/orderPoller');
+          pollProviderOrders({
+            deadlineMs: now + 5000,
+            limit: 15,
+            orderIds: inFlight.map((o) => o.id),
+            force: true,
+          }).catch(() => null);
+        }
+      } catch {}
+    }
+
     await handleTelegramWebhook(update);
     return NextResponse.json({ ok: true });
   } catch (err: any) {

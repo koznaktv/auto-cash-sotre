@@ -3094,6 +3094,14 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     if (data.startsWith('recheck_ord:')) {
       const ordId = data.replace('recheck_ord:', '').trim();
       await answerCallbackQuery(cqId, 'زاكاز تەكشۈرۈلۈۋاتىدۇ...');
+      try {
+        const { pollProviderOrders } = await import('./provider/orderPoller');
+        await pollProviderOrders({
+          deadlineMs: Date.now() + 5000,
+          orderIds: [ordId],
+          force: true,
+        });
+      } catch {}
       const order = await findOrderSafely(ordId);
       if (order) {
         const card = formatOrderTrackingCard(order);

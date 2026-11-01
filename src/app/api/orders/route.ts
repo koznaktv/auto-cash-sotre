@@ -25,53 +25,39 @@ import { notifyNewOrder, postOrderCompletedToChannel } from '@/lib/telegram';
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
 
-let lastAdminOrdersPollTime = 0;
+let lastGlobalOrdersPollTime = 0;
 
 export async function GET(req: Request) {
   try {
-    if (hasAdminBearer(req)) {
-      // Opportunistic status refresh throttled to 12s so admin sees live status without triggering rate-limits
-      const now = Date.now();
-      if (now - lastAdminOrdersPollTime > 12000) {
-        lastAdminOrdersPollTime = now;
-        try {
-          const { getInFlightProviderOrdersAsync } = await import('@/lib/db');
-          const inFlightOrders = await getInFlightProviderOrdersAsync(20).catch(() => []);
-          if (inFlightOrders.length > 0) {
-            await pollProviderOrders({
-              deadlineMs: now + 7000,
-              limit: 20,
-              orderIds: inFlightOrders.map((o) => o.id),
-              force: false,
-            }).catch(() => null);
-          }
-        } catch (pollErr: any) {
-          console.warn('[Admin Order Poll Notice]:', pollErr?.message);
+    // Opportunistic status refresh for ALL in-flight provider orders across the platform
+    // Ensures autonomous settling even if admin is away and cron is delayed
+    const now = Date.now();
+    if (now - lastGlobalOrdersPollTime > 6000) {
+      lastGlobalOrdersPollTime = now;
+      try {
+        const { getInFlightProviderOrdersAsync } = await import('@/lib/db');
+        const inFlightOrders = await getInFlightProviderOrdersAsync(25).catch(() => []);
+        if (inFlightOrders.length > 0) {
+          await pollProviderOrders({
+            deadlineMs: now + 5000,
+            limit: 25,
+            orderIds: inFlightOrders.map((o) => o.id),
+            force: true,
+          }).catch(() => null);
         }
+      } catch (pollErr: any) {
+        console.warn('[Global Order Poll Notice]:', pollErr?.message);
       }
+    }
+
+    if (hasAdminBearer(req)) {
       return NextResponse.json({ success: true, orders: await getAllOrdersAsync() });
     }
 
     const user = await getSessionUser(req);
     if (!user) return unauthorizedResponse();
 
-    let orders = await getOrdersByUserIdAsync(user.id, user.email);
-
-    // Opportunistic status refresh for this buyer's in-flight provider orders (cron may be infrequent)
-    const inFlightOrders = orders.filter((o) => isOrderInProgress(o.status));
-    if (inFlightOrders.length > 0) {
-      const summary = await pollProviderOrders({
-        deadlineMs: Date.now() + 5000,
-        limit: 15,
-        onlyUserId: user.id,
-        orderIds: inFlightOrders.map((o) => o.id),
-        force: true,
-      }).catch(() => null);
-      if (summary && (summary.checked > 0 || summary.completed > 0 || summary.refunded > 0)) {
-        orders = await getOrdersByUserIdAsync(user.id, user.email);
-      }
-    }
-
+    const orders = await getOrdersByUserIdAsync(user.id, user.email);
     return NextResponse.json({ success: true, orders: orders.map(toBuyerOrder) });
   } catch (err: any) {
     return NextResponse.json(
@@ -475,33 +461,48 @@ export async function POST(req: Request) {
             });
             order.status = completed ? 'completed' : 'pending_provider';
             if (!completed && order.id) {
-              // Rapid 2.5s follow-up check while request is still live
+              // Rapid 2-stage active follow-up check while request is still live
               try {
-                await new Promise((r) => setTimeout(r, 2500));
+                await new Promise((r) => setTimeout(r, 2000));
                 const { pollProviderOrders } = await import('@/lib/provider/orderPoller');
-                const pollRes = await pollProviderOrders({
+                let pollRes = await pollProviderOrders({
                   deadlineMs: Date.now() + 5000,
                   orderIds: [order.id],
                   force: true,
                 });
+                if (pollRes.completed === 0) {
+                  await new Promise((r) => setTimeout(r, 2500));
+                  pollRes = await pollProviderOrders({
+                    deadlineMs: Date.now() + 5000,
+                    orderIds: [order.id],
+                    force: true,
+                  });
+                }
                 if (pollRes.completed > 0) {
                   order.status = 'completed';
+                  const { getOrderByIdAsync } = await import('@/lib/db');
+                  const freshOrder = await getOrderByIdAsync(order.id);
+                  if (freshOrder?.details) {
+                    order.details = freshOrder.details;
+                  }
                 }
               } catch {}
             }
-            if (updatedOrder) {
-              order.details = { ...(order.details || {}), ...(updatedOrder.details || {}) };
-            } else {
-              order.details = {
-                ...(order.details || {}),
-                providerOrderId: providerRes.providerOrderId,
-                providerOrderUuid: orderUuid,
-                providerOutcome: providerRes.outcome,
-                providerStatus: providerRes.status,
-                ...(deliv ? { delivery: deliv } : {}),
-                ...(replyMsg ? { providerReply: replyMsg, reply: replyMsg } : {}),
-                ...(activationUrl ? { activationUrl, activationLink: activationUrl } : {}),
-              };
+            if (order.status !== 'completed') {
+              if (updatedOrder) {
+                order.details = { ...(order.details || {}), ...(updatedOrder.details || {}) };
+              } else {
+                order.details = {
+                  ...(order.details || {}),
+                  providerOrderId: providerRes.providerOrderId,
+                  providerOrderUuid: orderUuid,
+                  providerOutcome: providerRes.outcome,
+                  providerStatus: providerRes.status,
+                  ...(deliv ? { delivery: deliv } : {}),
+                  ...(replyMsg ? { providerReply: replyMsg, reply: replyMsg } : {}),
+                  ...(activationUrl ? { activationUrl, activationLink: activationUrl } : {}),
+                };
+              }
             }
           } else if (providerRes.outcome === 'rejected' || providerRes.status === 'FAILED') {
             // Immediate Auto-Refund if provider explicitly rejected

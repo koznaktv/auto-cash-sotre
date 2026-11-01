@@ -108,7 +108,7 @@ export async function pollProviderOrders(options: {
     } else {
       orders = await getInFlightProviderOrdersAsync(options.limit || 100);
     }
-    if (options.onlyUserId) orders = orders.filter((o) => o.userId === options.onlyUserId);
+    if (options.onlyUserId && !options.orderIds?.length) orders = orders.filter((o) => o.userId === options.onlyUserId);
     orders = orders.filter((o) => isDue(o, Boolean(options.force)));
 
     // 1-hour delay check: notify customers of upstream provider queue delays with 100% refund guarantee

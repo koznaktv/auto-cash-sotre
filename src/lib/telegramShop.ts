@@ -1287,15 +1287,31 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
                 details: order.details,
               }).catch(() => {});
             } else if (order.id) {
-              // Rapid check 3 seconds later while connection is active
+              // Rapid 2-stage check while connection is active
               try {
-                await new Promise((r) => setTimeout(r, 3000));
+                await new Promise((r) => setTimeout(r, 2000));
                 const { pollProviderOrders } = await import('./provider/orderPoller');
-                await pollProviderOrders({
+                let pollRes = await pollProviderOrders({
                   deadlineMs: Date.now() + 5000,
                   orderIds: [order.id],
                   force: true,
                 });
+                if (pollRes.completed === 0) {
+                  await new Promise((r) => setTimeout(r, 2500));
+                  pollRes = await pollProviderOrders({
+                    deadlineMs: Date.now() + 5000,
+                    orderIds: [order.id],
+                    force: true,
+                  });
+                }
+                if (pollRes.completed > 0) {
+                  order.status = 'completed';
+                  const { getOrderByIdAsync } = await import('./db');
+                  const fresh = await getOrderByIdAsync(order.id);
+                  if (fresh?.details) {
+                    order.details = fresh.details;
+                  }
+                }
               } catch {}
             }
           } else if (providerRes.outcome === 'rejected' || providerRes.status === 'FAILED') {
@@ -1337,7 +1353,12 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
 
     const succTitle = BOT_I18N.order.orderSuccessTitle[lang];
     const orderIdTxt = BOT_I18N.order.orderIdLabel[lang];
-    const statusTxt = BOT_I18N.order.orderStatusLabel[lang];
+    const statusTxt = order.status === 'completed'
+      ? (lang === 'ar' ? '✅ الحالة: تم الشحن والتسليم بنجاح 🚀' :
+         lang === 'tr' ? '✅ Durum: Başarıyla Teslim Edildi 🚀' :
+         lang === 'en' ? '✅ Status: Successfully Completed & Delivered 🚀' :
+         '✅ ھالىتى: زاكاز تولۇق قاچىلاندى (مۇۋەپپەقىيەتلىك كىردى 🚀)')
+      : BOT_I18N.order.orderStatusLabel[lang];
     const tipTxt = BOT_I18N.order.orderSuccessTip[lang];
 
     const sName = (lang === 'ug' ? session.serviceName : smartTranslateTitle(session.serviceName, lang as any))
