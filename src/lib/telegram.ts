@@ -2193,7 +2193,9 @@ function getFeedbackKeyboard() {
 }
 
 /**
- * Generates the Sham Cash Deposit guide card with live exchange rate and visual receipt guide
+ * Generates the Sham Cash Deposit guide card matching user specifications:
+ * - شامكەش نومۇرىنى كۆچۈرۈڭ
+ * - پۇل ئاتقان رەقەم ئەمەلىيەت نومۇرىنى يوللاڭ
  */
 export async function getShamcashDepositCardText(): Promise<string> {
   let rate = 143;
@@ -2206,14 +2208,76 @@ export async function getShamcashDepositCardText(): Promise<string> {
 
   return `
 💎💳 <b>شامكەش (Sham Cash) ئارقىلىق پۇل سېلىش</b> 💳💎
-       ⚡️ <i>24/7 سائەت سېكۇنتتا ئاپتوماتىك كىرىش كاپالىتى</i> ⚡️
+       ⚡️ <i>24/7 سائەت ئاپتوماتىك سېكۇنتتا كىرىش</i> ⚡️
 
-📌 <b>بىزنىڭ شامكەش ھېسابات ئادرېسىمىز (چەكسىڭىز كۆچۈرۈلىدۇ):</b>
+📌 <b>شامكەش نومۇرىنى كۆچۈرۈڭ (چەكسىڭىز كۆچۈرۈلىدۇ):</b>
 <code>${shamAddress}</code>
 
 💱 <b>نەق مەيدان پېرېۋوت كۇرسى:</b> <b>1 USD = ${rate.toLocaleString()} SYP</b>
 
-📋 <b>تالون كۆرسەتمىسى (رقم العملية قەيەردە؟):</b>
+📝 <b>پۇل ئاتقان رەقەم ئەمەلىيەت نومۇرىنى يوللاڭ:</b>
+پۇل يوللاپ بولغاندىن كېيىن، تالوندىكى <b>«رقم العملية»</b> نومۇرىنى مۇشۇ چاتقا يېزىپلا ئەۋەتىڭ. سىستېما سېكۇنت ئىچىدە ئۆزى ئوقۇپ، ھەميىنىڭىزگە چۈشۈرۈپ بېرىدۇ.
+`.trim();
+}
+
+/**
+ * Sham Cash Deposit Inline Keyboard requested by user:
+ * 1. تالوننى تەكشۈرۈڭ
+ * 2. پۇل قاچىلاشنى بىلەلمىدىڭىزمۇ؟
+ * 3. قايتىش
+ */
+export function getShamcashDepositKeyboard() {
+  return {
+    inline_keyboard: [
+      [
+        {
+          text: '🧾 تالوننى تەكشۈرۈڭ',
+          callback_data: 'verify_deposit_receipt',
+        },
+      ],
+      [
+        {
+          text: '❓ پۇل قاچىلاشنى بىلەلمىدىڭىزمۇ؟',
+          callback_data: 'deposit_how_to',
+        },
+      ],
+      [
+        {
+          text: '🔙 قايتىش',
+          callback_data: 'bot_shopping_menu',
+        },
+      ],
+    ],
+  };
+}
+
+/**
+ * Detailed help and tutorial for deposit:
+ * «پۇل قاچىلاشنى بىلەلمىدىڭىزمۇ (تەپسىلاتلار شۇ يەرگە قويۇلسۇن)»
+ */
+export async function getShamcashHelpCardText(): Promise<string> {
+  let rate = 143;
+  let shamAddress = 'efe8a2b200d66411c7c7e296369cbba8';
+  try {
+    const s = await getSystemSettingsAsync();
+    if (s?.shamcashExchangeRate) rate = s.shamcashExchangeRate;
+    if (s?.shamcashAddress) shamAddress = s.shamcashAddress;
+  } catch {}
+
+  return `
+❓ <b>پۇل قاچىلاش تەپسىلاتى ۋە قوللانمىسى</b> 📋
+━━━━━━━━━━━━━━━━━━━
+⚡️ <i>شامكەش (Sham Cash) ئارقىلىق پۇل قاچىلاش پەقەت 2 ئاددىي باسقۇچ:</i>
+
+1️⃣ <b>1-باسقۇچ: شامكەش نومۇرىمىزغا پۇل يوللاڭ</b>
+📌 بىزنىڭ شامكەش ھېسابات نومۇرىمىز (چەكسىڭىز كۆچۈرۈلىدۇ):
+<code>${shamAddress}</code>
+• شامكەش ئەپىگە كىرىپ، «تحويل» (پۇل يوللاش) بۆلىكىگە مۇشۇ نومۇرنى چاپلاپ، تاشلىماقچى بولغان سۈرىيە پۇلىنى يوللايسىز.
+
+2️⃣ <b>2-باسقۇچ: تالوندىكى رقم العملية نومۇرىنى يوللاڭ</b>
+• پۇل ئەۋەتىلگەندىن كېيىن، كۆرۈنگەن مۇۋەپپەقىيەت تالونىدىكى <b>«رقم العملية»</b> نومۇرىنى كۆچۈرۈپ مۇشۇ چاتقا ئەۋەتىسىز.
+
+📋 <b>تالون ئۈلگىسى (رقم العملية قەيەردە بولىدۇ؟):</b>
 <code>┌───────────────────────────────┐
 │     شام كاش - Sham Cash       │
 │  ✅ تم التحويل بنجاح           │
@@ -2222,12 +2286,69 @@ export async function getShamcashDepositCardText(): Promise<string> {
 │  📅 2026-10-25                │
 └───────────────────────────────┘</code>
 
-🚀 <b>ئەڭ ئاسان پۇل كىرگۈزۈش (پەقەت 2 باسقۇچ):</b>
-① يۇقىرىقى شامكەش ئادرېسىمىزغا پۇل يوللاڭ.
-② تالوندىكى <b>«رقم العملية»</b> (تالون نومۇرى) نى <b>مۇشۇ چاتقا يېزىپلا ئەۋەتىڭ!</b>
-
-💡 <i>ھېچقانداق دوللار ھېسابلاپ ياكى توربەتكە كىرىپ يۈرمەيسىز! پەقەت نومۇرنى چاپلاپ ئەۋەتسىڭىزلا، سىستېما شامكەشتىن سوممىنى ئۆزى ئوقۇپ، سېكۇنت ئىچىدە ھەميىنىڭىزگە چۈشۈرۈپ بېرىدۇ.</i>
+💡 <b>مۇھىم ئەسكەرتىش:</b>
+• پېرېۋوت كۇرسى نەق مەيدان بازار كۇرسى بويىچە: <b>1 USD = ${rate.toLocaleString()} SYP</b>
+• ھېچقانداق ھېسابلاپ يۈرمەيسىز، سىستېما سېكۇنت ئىچىدە ئۆزى ئوقۇپ ھەميىنىڭىزگە چۈشۈرۈپ بېرىدۇ.
 `.trim();
+}
+
+export function getShamcashHelpKeyboard() {
+  return {
+    inline_keyboard: [
+      [
+        {
+          text: '🧾 تالوننى تەكشۈرۈڭ',
+          callback_data: 'verify_deposit_receipt',
+        },
+      ],
+      [
+        {
+          text: '🔙 پۇل سېلىشقا قايتىش',
+          callback_data: 'quick_deposit',
+        },
+        {
+          text: '💬 خېرىدارلار مۇلازىمىتى 👨‍💻',
+          url: TELEGRAM_CONFIG.supportUrl,
+        },
+      ],
+    ],
+  };
+}
+
+/**
+ * Prompt when user clicks «تالوننى تەكشۈرۈڭ»
+ */
+export function getShamcashVerifyReceiptPromptText(): string {
+  return `
+🧾 <b>تالوننى تەكشۈرۈش & پۇل كىرگۈزۈش</b>
+━━━━━━━━━━━━━━━━━━━
+✍️ <b>پۇل ئاتقان شامكەش تالونىدىكى «رقم العملية» (تالون نومۇرى) نى مۇشۇ يەرگە يېزىپ ياكى چاپلاپ يوللاڭ:</b>
+
+💡 <i>مەسىلەن پەقەت <code>84920183</code> دەپلا نومۇرنى چاتقا ئەۋەتسىڭىز كۇپايە. سىستېما شامكەشتىن تەكشۈرۈپ، سېكۇنت ئىچىدە پۇلنى ھەميىنىڭىزگە قوشۇپ بېرىدۇ!</i>
+`.trim();
+}
+
+export function getShamcashVerifyReceiptKeyboard() {
+  return {
+    inline_keyboard: [
+      [
+        {
+          text: '🌐 توربەتتە تەكشۈرۈش ➔',
+          web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` },
+        },
+      ],
+      [
+        {
+          text: '🔙 پۇل سېلىشقا قايتىش',
+          callback_data: 'quick_deposit',
+        },
+        {
+          text: '🏠 باش بەتكە قايتىش',
+          callback_data: 'bot_shopping_menu',
+        },
+      ],
+    ],
+  };
 }
 
 /**
@@ -2761,13 +2882,22 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     if (data === 'quick_deposit') {
       await answerCallbackQuery(cqId);
       const shamcashText = await getShamcashDepositCardText();
-      await showOrEditMessage(chatId, messageId, shamcashText, {
-        inline_keyboard: [
-          [{ text: '💎💳 توربەت كۆزنىكىنى ئېچىش ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` } }],
-          [{ text: '💬 خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl }],
-          [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
-        ],
-      });
+      await showOrEditMessage(chatId, messageId, shamcashText, getShamcashDepositKeyboard());
+      return;
+    }
+
+    // 5.1 Verify receipt prompt
+    if (data === 'verify_deposit_receipt') {
+      await answerCallbackQuery(cqId);
+      await showOrEditMessage(chatId, messageId, getShamcashVerifyReceiptPromptText(), getShamcashVerifyReceiptKeyboard());
+      return;
+    }
+
+    // 5.2 How to deposit / help details
+    if (data === 'deposit_how_to') {
+      await answerCallbackQuery(cqId);
+      const helpText = await getShamcashHelpCardText();
+      await showOrEditMessage(chatId, messageId, helpText, getShamcashHelpKeyboard());
       return;
     }
 
@@ -3790,13 +3920,7 @@ ${cleanContent}
     const shamcashText = await getShamcashDepositCardText();
     await sendTelegramMessage(chatId, shamcashText, {
       parse_mode: 'HTML',
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: '💎💳 توربەت كۆزنىكىنى ئېچىش ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` } }],
-          [{ text: '💬✨ خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl }],
-          [{ text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' }],
-        ],
-      },
+      reply_markup: getShamcashDepositKeyboard(),
     });
     return;
   }
@@ -4226,15 +4350,7 @@ ${isAdmin ? `\n👑 <b>باشقۇرغۇچى مەخسۇس بۇيرۇقلىرى:</
     const shamcashText = await getShamcashDepositCardText();
     await sendTelegramMessage(chatId, shamcashText, {
       parse_mode: 'HTML',
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: '💎💳 توربەت كۆزنىكىنى ئېچىش ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/deposit` } }],
-          [
-            { text: '💬✨ خېرىدارلار مۇلازىمىتى 👨‍💻', url: TELEGRAM_CONFIG.supportUrl },
-            { text: '🔙🏠 ئاساسىي باش بەتكە قايتىش ↩️', callback_data: 'back_to_main' },
-          ],
-        ],
-      },
+      reply_markup: getShamcashDepositKeyboard(),
     });
     return;
   }
