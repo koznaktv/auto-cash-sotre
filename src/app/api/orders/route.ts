@@ -534,7 +534,8 @@ export async function POST(req: Request) {
     }).catch(() => {});
 
     // Automatically broadcast completed order to the official Telegram channel (@autocash_cannel)
-    if (order.status === 'completed') {
+    // ONLY if not already broadcasted by the poller or instant settlement
+    if (order.status === 'completed' && !order.details?.channelBroadcasted) {
       await postOrderCompletedToChannel({
         id: order.id,
         serviceName: order.serviceName,

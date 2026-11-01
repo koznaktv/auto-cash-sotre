@@ -161,7 +161,7 @@ export async function pollProviderOrders(options: {
             const replyMsg = entryItem?.message || deliv?.reply || deliv?.text;
             const activationUrl = deliv?.activationUrl || (deliv?.codes?.find((c: string) => /^https?:\/\//i.test(c))) || (replyMsg?.match(/https?:\/\/[^\s"'<>]+/i)?.[0]);
 
-            await transitionOrderAsync(order.id, IN_FLIGHT, 'completed', {
+            const settled = await transitionOrderAsync(order.id, IN_FLIGHT, 'completed', {
               providerOrderId: lookup.providerOrderId,
               providerStatus: 'COMPLETED',
               providerCheckedAt: new Date().toISOString(),
@@ -170,6 +170,10 @@ export async function pollProviderOrders(options: {
               ...(replyMsg ? { providerReply: replyMsg, reply: replyMsg } : {}),
               ...(activationUrl ? { activationUrl, activationLink: activationUrl } : {}),
             });
+            if (!settled) {
+              // Another worker or process already transitioned this order
+              continue;
+            }
             summary.completed++;
             await postOrderCompletedToChannel({
               id: order.id,
@@ -179,7 +183,7 @@ export async function pollProviderOrders(options: {
               targetAccount: (order as any).targetAccount || order.details?.targetAccount || order.details?.playerId,
               userName: (order as any).userName,
               userEmail: order.userEmail,
-              details: order.details,
+              details: settled.details || order.details,
             }).catch((err: any) => console.error('[orderPoller 1] channel broadcast error:', err?.message));
             continue;
           }
@@ -260,7 +264,7 @@ export async function pollProviderOrders(options: {
             const replyMsg = entry.message || deliv?.reply || deliv?.text;
             const activationUrl = deliv?.activationUrl || (deliv?.codes?.find((c: string) => /^https?:\/\//i.test(c))) || (replyMsg?.match(/https?:\/\/[^\s"'<>]+/i)?.[0]);
 
-            await transitionOrderAsync(order.id, IN_FLIGHT, 'completed', {
+            const settled = await transitionOrderAsync(order.id, IN_FLIGHT, 'completed', {
               providerStatus: 'COMPLETED',
               providerCheckedAt: now,
               providerCheckAttempts: attempts,
@@ -269,6 +273,10 @@ export async function pollProviderOrders(options: {
               ...(replyMsg ? { providerReply: replyMsg, reply: replyMsg } : {}),
               ...(activationUrl ? { activationUrl, activationLink: activationUrl } : {}),
             });
+            if (!settled) {
+              // Another worker or process already transitioned this order
+              continue;
+            }
             summary.completed++;
             await postOrderCompletedToChannel({
               id: order.id,
@@ -278,8 +286,8 @@ export async function pollProviderOrders(options: {
               targetAccount: (order as any).targetAccount || order.details?.targetAccount || order.details?.playerId,
               userName: (order as any).userName,
               userEmail: order.userEmail,
-              details: order.details,
-            }).catch((err: any) => console.error('[orderPoller 1] channel broadcast error:', err?.message));
+              details: settled.details || order.details,
+            }).catch((err: any) => console.error('[orderPoller 2] channel broadcast error:', err?.message));
             continue;
           }
 
@@ -318,40 +326,6 @@ export async function pollProviderOrders(options: {
           else summary.pending++;
         }
       }
-    }
-
-    // Catch-up: ensure any recently completed orders from the last 3 hours that missed channel broadcast get posted immediately
-    try {
-      const { getSupabase } = await import('@/lib/supabase');
-      const sb = getSupabase();
-      if (sb) {
-        const threeHoursAgo = new Date(Date.now() - 3 * 3600 * 1000).toISOString();
-        const { data: missedOrders } = await sb
-          .from('orders')
-          .select('*')
-          .eq('status', 'completed')
-          .gte('created_at', threeHoursAgo)
-          .limit(20);
-
-        if (Array.isArray(missedOrders)) {
-          for (const ord of missedOrders) {
-            if (!ord.details?.channelBroadcasted) {
-              await postOrderCompletedToChannel({
-                id: ord.id,
-                serviceName: ord.service_name || ord.serviceName,
-                packageTitle: ord.package_title || ord.packageTitle,
-                amount: ord.amount,
-                targetAccount: ord.target_account || ord.targetAccount || ord.details?.targetAccount || ord.details?.playerId,
-                userName: ord.user_name || ord.userName,
-                userEmail: ord.user_email || ord.userEmail,
-                details: ord.details,
-              }).catch(() => {});
-            }
-          }
-        }
-      }
-    } catch (catchUpErr: any) {
-      console.warn('[orderPoller] Missed broadcast catch-up warning:', catchUpErr?.message);
     }
 
     if (options.housekeeping) {
