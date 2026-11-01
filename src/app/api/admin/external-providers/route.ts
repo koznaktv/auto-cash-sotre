@@ -2,10 +2,7 @@ import { NextResponse } from 'next/server';
 import { verifyAdminToken } from '@/lib/adminAuth';
 import {
   getAllConnectedProviders,
-  ggsomaProvider,
-  tgmarketProvider,
   heroSmsProvider,
-  maxstoreProvider,
   checkTsaStatus,
 } from '@/lib/providers/registry';
 
@@ -28,21 +25,9 @@ export async function GET(req: Request) {
     const testTarget = searchParams.get('test');
 
     if (testTarget) {
-      if (testTarget === 'ggsoma') {
-        const ping = await ggsomaProvider.ping();
-        return NextResponse.json({ provider: 'ggsoma', result: ping });
-      }
-      if (testTarget === 'tgmarket') {
-        const ping = await tgmarketProvider.ping();
-        return NextResponse.json({ provider: 'tgmarket', result: ping });
-      }
       if (testTarget === 'herosms') {
         const balance = await heroSmsProvider.getBalance();
         return NextResponse.json({ provider: 'herosms', result: balance });
-      }
-      if (testTarget === 'maxstore') {
-        const ping = await maxstoreProvider.ping();
-        return NextResponse.json({ provider: 'maxstore', result: ping });
       }
       if (testTarget === 'sham_cash') {
         const key = process.env.SHAM_CASH_API_KEY || process.env.TSA_API_KEY || '';
