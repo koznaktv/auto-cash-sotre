@@ -217,128 +217,124 @@ export const LANGUAGE_SELECTION_BANNER = `
  */
 export const BOT_I18N = {
   welcome: {
-    ug: (name: string) => `
-👋 <b>ئەسسالامۇ ئەلەيكۇم، ${name}!</b>
-🌟 <b>AUTO CASH</b> — ئويۇن ۋە رەقەملىك كارتىلارنى تېز قاچىلاش سۇپىسى.
-⚡️ 24/7 تولۇق ئاپتوماتىك، سېكۇنتتا يەتكۈزۈلىدۇ.
+    ug: (_name: string) => `
+👋 <b>ئەسسالامۇ ئەلەيكۇم AUTO CASH بوت سۇپىمىزغا كەلگىنىڭىزنى قىزغىن قارشى ئالىمىز !!!</b>
 
-👇 <b>سېتىۋېلىش ياكى مۇلازىمەت تاللاش ئۈچۈن تۆۋەندىكى كۇنۇپكىنى بېسىڭ:</b>
+✨ سېتىۋېلىش ئۈچۈن تۆۋەندىكى تاللاشتىن بىرىنى كۆرۈڭ:
 `.trim(),
 
-    ar: (name: string) => `
-👋 <b>أهلاً وسهلاً بك، ${name}!</b>
-🌟 <b>AUTO CASH</b> — منصة الشحن الرقمي الفوري للألعاب والبطاقات.
-⚡️ تنفيذ تلقائي فوري 24/7 خلال ثوانٍ.
+    ar: (_name: string) => `
+👋 <b>أهلاً وسهلاً بك في منصة بوت AUTO CASH !!!</b>
 
-👇 <b>لبدء الشراء أو استعراض الخدمات، اضغط أدناه:</b>
+✨ يرجى اختيار وسيلة التسوق المفضلة لديك أدناه:
 `.trim(),
 
-    tr: (name: string) => `
-👋 <b>Hoş geldiniz, ${name}!</b>
-🌟 <b>AUTO CASH</b> — Oyun ve dijital pin hızlı yükleme platformu.
-⚡️ 7/24 anında otomatik teslimat.
+    tr: (_name: string) => `
+👋 <b>AUTO CASH Bot Platformuna Hoş Geldiniz !!!</b>
 
-👇 <b>Alışverişe başlamak veya hizmet seçmek için aşağıdaki butona tıklayın:</b>
+✨ Lütfen aşağıdaki seçeneklerden size uygun olanı seçin:
 `.trim(),
 
-    en: (name: string) => `
-👋 <b>Welcome, ${name}!</b>
-🌟 <b>AUTO CASH</b> — Instant digital gaming & voucher top-up platform.
-⚡️ 24/7 automated delivery within seconds.
+    en: (_name: string) => `
+👋 <b>Welcome to AUTO CASH Official Bot Platform !!!</b>
 
-👇 <b>Tap below to start shopping or view services:</b>
+✨ Please choose your preferred shopping method below:
 `.trim(),
 
-    uz: (name: string) => `
-👋 <b>Assalomu alaykum, ${name}!</b>
-🌟 <b>AUTO CASH</b> — Oʻyinlar va raqamli kartalarni tezkor toʻldirish platformasi.
-⚡️ 24/7 avtomatik, bir necha soniyada yetkaziladi.
+    uz: (_name: string) => `
+👋 <b>AUTO CASH bot platformasiga xush kelibsiz !!!</b>
 
-👇 <b>Xarid qilish uchun quyidagi tugmani bosing:</b>
+✨ Quyidagi variantlardan oʻzingizga qulayini tanlang:
 `.trim(),
 
-    ru: (name: string) => `
-👋 <b>Здравствуйте, ${name}!</b>
-🌟 <b>AUTO CASH</b> — Моментальное пополнение игр и цифровых карт.
-⚡️ 24/7 автоматическая доставка за секунды.
+    ru: (_name: string) => `
+👋 <b>Добро пожаловать на платформу бота AUTO CASH !!!</b>
 
-👇 <b>Нажмите кнопку ниже, чтобы перейти к покупкам:</b>
+✨ Пожалуйста, выберите подходящий вариант покупки ниже:
 `.trim(),
   },
 
   // Main Store Keyboard labels matching user design template
   storeButtons: {
     webApp: {
-      ug: '🌐 توربەتكە كىرىش',
-      ar: '🌐 الدخول إلى الموقع',
-      tr: '🌐 Web Sitesine Giriş',
-      en: '🌐 Open Web Store',
-      uz: '🌐 Saytga kirish',
-      ru: '🌐 Войти на сайт',
+      ug: '🌐 1- توربەتكە كىرىش',
+      ar: '🌐 1- الدخول إلى الموقع',
+      tr: '🌐 1- Web Sitesine Giriş',
+      en: '🌐 1- Open Web Store',
+      uz: '🌐 1- Saytga kirish',
+      ru: '🌐 1- Войти на сайт',
+    },
+    botDashboard: {
+      ug: '🛒 2- بوتتا سېتىۋېلىش',
+      ar: '🛒 2- الشراء عبر البوت',
+      tr: '🛒 2- Bot ile Satın Al',
+      en: '🛒 2- Shop via Bot',
+      uz: '🛒 2- Bot orqali sotib olish',
+      ru: '🛒 2- Покупка через бота',
     },
     shopCategories: {
-      ug: '🛒 ✤ مەھسۇلاتلار دۇكىنى •',
-      ar: '🛒 ✤ متجر المنتجات •',
-      tr: '🛒 ✤ Ürünler Mağazası •',
-      en: '🛒 ✤ Products Store •',
-      uz: '🛒 ✤ Mahsulotlar doʻkoni •',
-      ru: '🛒 ✤ Каталог товаров •',
+      ug: '🛒 مەھسۇلاتلار دۇكىنى',
+      ar: '🛒 متجر المنتجات',
+      tr: '🛒 Ürünler Mağazası',
+      en: '🛒 Products Store',
+      uz: '🛒 Mahsulotlar doʻkoni',
+      ru: '🛒 Каталог товаров',
     },
     myAccount: {
-      ug: '👤 ✤ شەخسىي ھېساباتىم •',
-      ar: '👤 ✤ حسابي الشخصي •',
-      tr: '👤 ✤ Hesabım •',
-      en: '👤 ✤ My Account •',
-      uz: '👤 ✤ Shaxsiy hisobim •',
-      ru: '👤 ✤ Мой профиль •',
+      ug: '👤 شەخسىي ھېساباتىم',
+      ar: '👤 حسابي الشخصي',
+      tr: '👤 Hesabım',
+      en: '👤 My Account',
+      uz: '👤 Shaxsiy hisobim',
+      ru: '👤 Мой профиль',
     },
     deposit: {
-      ug: '💳 ✤ پۇل قاچىلاش •',
-      ar: '💳 ✤ شحن الرصيد •',
-      tr: '💳 ✤ Bakiye Yükle •',
-      en: '💳 ✤ Deposit Funds •',
-      uz: '💳 ✤ Balans toʻldirish •',
-      ru: '💳 ✤ Пополнить баланс •',
+      ug: '💳 پۇل قاچىلاش',
+      ar: '💳 شحن الرصيد',
+      tr: '💳 Bakiye Yükle',
+      en: '💳 Deposit Funds',
+      uz: '💳 Balans toʻldirish',
+      ru: '💳 Пополнить баланс',
     },
     services: {
-      ug: '👨‍💻 ✤ مۇلازىمەت سەھىپىسى •',
-      ar: '👨‍💻 ✤ قسم الخدمات •',
-      tr: '👨‍💻 ✤ Hizmetler Bölümü •',
-      en: '👨‍💻 ✤ Services & Rates •',
-      uz: '👨‍💻 ✤ Xizmatlar boʻlimi •',
-      ru: '👨‍💻 ✤ Раздел услуг •',
+      ug: '👨‍💻 مۇلازىمەت سەھىپىسى',
+      ar: '👨‍💻 قسم الخدمات',
+      tr: '👨‍💻 Hizmetler Bölümü',
+      en: '👨‍💻 Services & Rates',
+      uz: '👨‍💻 Xizmatlar boʻlimi',
+      ru: '👨‍💻 Раздел услуг',
     },
     trackOrders: {
-      ug: '📬 ✤ زاكازلىرىم / نومۇر •',
-      ar: '📬 ✤ طلباتي / الأرقام •',
-      tr: '📬 ✤ Siparişlerim / Numara •',
-      en: '📬 ✤ My Orders / Numbers •',
-      uz: '📬 ✤ Buyurtmalarim / Raqam •',
-      ru: '📬 ✤ Мои заказы / Номера •',
+      ug: '📬 زاكازلىرىم',
+      ar: '📬 طلباتي',
+      tr: '📬 Siparişlerim',
+      en: '📬 My Orders',
+      uz: '📬 Buyurtmalarim',
+      ru: '📬 Мои заказы',
     },
     feedback: {
-      ug: '✍️ ✤ پىكىر-تەكلىپ •',
-      ar: '✍️ ✤ الاقتراحات والملاحظات •',
-      tr: '✍️ ✤ Görüş & Öneri •',
-      en: '✍️ ✤ Feedback & Suggestions •',
-      uz: '✍️ ✤ Fikr va takliflar •',
-      ru: '✍️ ✤ Отзывы и предложения •',
+      ug: '✍️ پىكىر-تەكلىپ',
+      ar: '✍️ الاقتراحات والملاحظات',
+      tr: '✍️ Görüş & Öneri',
+      en: '✍️ Feedback & Suggestions',
+      uz: '✍️ Fikr va takliflar',
+      ru: '✍️ Отзывы и предложения',
     },
     contactAdmin: {
-      ug: '📞 ✤ باشقۇرغۇچى بىلەن ئالاقە •',
-      ar: '📞 ✤ تواصل مع الإدارة •',
-      tr: '📞 ✤ Yönetici ile İletişim •',
-      en: '📞 ✤ Contact Support •',
-      uz: '📞 ✤ Administrator bilan aloqa •',
-      ru: '📞 ✤ Связь с администратором •',
+      ug: '📞 باشقۇرغۇچى بىلەن ئالاقە',
+      ar: '📞 تواصل مع الإدارة',
+      tr: '📞 Yönetici ile İletişim',
+      en: '📞 Contact Support',
+      uz: '📞 Administrator bilan aloqa',
+      ru: '📞 Связь с администратором',
     },
     guide: {
-      ug: '📖 ✤ ئىشلىتىش قوللانمىسى •',
-      ar: '📖 ✤ دليل الاستخدام •',
-      tr: '📖 ✤ Kullanım Kılavuzu •',
-      en: '📖 ✤ User Guide •',
-      uz: '📖 ✤ Qoʻllanma •',
-      ru: '📖 ✤ Инструкция •',
+      ug: '📖 ئىشلىتىش قوللانمىسى',
+      ar: '📖 دليل الاستخدام',
+      tr: '📖 Kullanım Kılavuzu',
+      en: '📖 User Guide',
+      uz: '📖 Qoʻllanma',
+      ru: '📖 Инструкция',
     },
     changeLanguage: {
       ug: '🌐 تىل تاللاش / Language',
@@ -398,6 +394,82 @@ export const BOT_I18N = {
     },
   },
 
+  // 8-Button In-Bot Shopping Dashboard
+  botDashboard: {
+    deposit: {
+      ug: '💳 1- پۇل قاچىلاش',
+      ar: '💳 1- شحن الرصيد',
+      tr: '💳 1- Bakiye Yükle',
+      en: '💳 1- Deposit Funds',
+      uz: '💳 1- Balans toʻldirish',
+      ru: '💳 1- Пополнить баланс',
+    },
+    balance: {
+      ug: '💰 2- قالدۇقۇم',
+      ar: '💰 2- رصيدي',
+      tr: '💰 2- Bakiyem',
+      en: '💰 2- My Balance',
+      uz: '💰 2- Mening balansim',
+      ru: '💰 2- Мой баланс',
+    },
+    shop: {
+      ug: '🛒 3- دۇكان',
+      ar: '🛒 3- المتجر',
+      tr: '🛒 3- Mağaza',
+      en: '🛒 3- Shop',
+      uz: '🛒 3- Doʻkon',
+      ru: '🛒 3- Каталог',
+    },
+    orders: {
+      ug: '📬 4- زاكازلىرىم',
+      ar: '📬 4- طلباتي',
+      tr: '📬 4- Siparişlerim',
+      en: '📬 4- My Orders',
+      uz: '📬 4- Buyurtmalarim',
+      ru: '📬 4- Моي заказы',
+    },
+    purchases: {
+      ug: '📦 5- سېتىۋالغانلىرىم',
+      ar: '📦 5- مشترياتي',
+      tr: '📦 5- Satın Aldıklarım',
+      en: '📦 5- My Purchases',
+      uz: '📦 5- Xaridlarim',
+      ru: '📦 5- Мои покупки',
+    },
+    language: {
+      ug: '🌐 6- تىل تاللاش',
+      ar: '🌐 6- تغيير اللغة',
+      tr: '🌐 6- Dil Seçimi',
+      en: '🌐 6- Language',
+      uz: '🌐 6- Tilni tanlash',
+      ru: '🌐 6- Выбор языка',
+    },
+    support: {
+      ug: '📞 7- ئالاقىلىشىش',
+      ar: '📞 7- الدعم والتواصل',
+      tr: '📞 7- İletişim & Destek',
+      en: '📞 7- Contact Support',
+      uz: '📞 7- Aloqa va yordam',
+      ru: '📞 7- Поддержка',
+    },
+    channel: {
+      ug: '📢 8- قانالغا كىرىش',
+      ar: '📢 8- القناة الرسمية',
+      tr: '📢 8- Resmi Kanal',
+      en: '📢 8- Official Channel',
+      uz: '📢 8- Rasmiy kanal',
+      ru: '📢 8- Наш канал',
+    },
+    backToMain: {
+      ug: '🔙 باش بەتكە قايتىش',
+      ar: '🔙 العودة للرئيسية',
+      tr: '🔙 Ana Menüye Dön',
+      en: '🔙 Back to Home',
+      uz: '🔙 Bosh sahifaga qaytish',
+      ru: '🔙 Главное меню',
+    },
+  },
+
   // Shop Banner Header
   shopBanner: {
     ug: `
@@ -440,85 +512,69 @@ export const BOT_I18N = {
 
   // Shop Categories Buttons
   categories: {
-    visa: {
-      ug: '💳 Tremendous Visa خەلقئارالىق ۋىزا كارتىسى 🛍️',
-      ar: '💳 بطاقة فيزا ترمدوس العالمية 🛍️',
-      tr: '💳 Tremendous Uluslararası Visa Kartı 🛍️',
-      en: '💳 Tremendous International Visa Card 🛍️',
-      uz: '💳 Tremendous Xalqaro Visa Kartasi 🛍️',
-      ru: '💳 Международная карта Tremendous Visa 🛍️',
-    },
-    numbers: {
-      ug: '📱 مەۋھۇم نومۇر ✤•',
-      ar: '📱 أرقام وهمية ✤•',
-      tr: '📱 Sanal Numara ✤•',
-      en: '📱 Virtual Numbers ✤•',
-      uz: '📱 Virtual Raqamlar ✤•',
-      ru: '📱 Виртуальные номера ✤•',
-    },
-    apps: {
-      ug: '✤• ئەپ دېتاللار •',
-      ar: '✤• البرامج والتطبيقات •',
-      tr: '✤• Uygulamalar •',
-      en: '✤• Apps & Software •',
-      uz: '✤• Ilovalar •',
-      ru: '✤• Приложения •',
-    },
-    accounts: {
-      ug: '⭐️ ئەزالىق ئېچىش ✤•',
-      ar: '⭐️ تفعيل الاشتراكات ✤•',
-      tr: '⭐️ Abonelikler ✤•',
-      en: '⭐️ Subscriptions ✤•',
-      uz: '⭐️ Obunalar ✤•',
-      ru: '⭐️ Подписки ✤•',
-    },
-    games: {
-      ug: '• ئويۇنلار 🎮•',
-      ar: '• شحن الألعاب 🎮•',
-      tr: '• Oyunlar 🎮•',
-      en: '• Games Top-up 🎮•',
-      uz: '• Oʻyinlar 🎮•',
-      ru: '• Игры 🎮•',
-    },
-    balance: {
-      ug: '📡 تور كارتىسى Wi-Fi 🛍️',
-      ar: '📡 شبكات الإنترنت Wi-Fi 🛍️',
-      tr: '📡 Wi-Fi İnternet Kartları 🛍️',
-      en: '📡 Wi-Fi & Internet Cards 🛍️',
-      uz: '📡 Wi-Fi Internet Kartalari 🛍️',
-      ru: '📡 Интернет Wi-Fi 🛍️',
+    wifi: {
+      ug: '📶 1- Wi-Fi كارتىلار',
+      ar: '📶 1- بطاقات واي فاي',
+      tr: '📶 1- Wi-Fi Kartları',
+      en: '📶 1- Wi-Fi Cards',
+      uz: '📶 1- Wi-Fi kartalar',
+      ru: '📶 1- Карты Wi-Fi',
     },
     cards: {
-      ug: '💲 كارتىغا پۇل قاچىلاش 📊•',
-      ar: '💲 شحن البطاقات والحسابات 📊•',
-      tr: '💲 Kart ve Bakiye Yükleme 📊•',
-      en: '💲 Card Top-up 📊•',
-      uz: '💲 Kartani toʻldirish 📊•',
-      ru: '💲 Пополнение карт и счетов 📊•',
+      ug: '💳 2- كارتىلارغا پۇل قاچىلاش',
+      ar: '💳 2- شحن بطاقات الهاتف',
+      tr: '💳 2- Hat Yükleme',
+      en: '💳 2- Mobile Top-up',
+      uz: '💳 2- Karta toʻldirish',
+      ru: '💳 2- Пополнение связи',
     },
-    giftcards: {
-      ug: '🎉 ھەدىيە كارتىسى 🎁•',
-      ar: '🎉 بطاقات الهدايا 🎁•',
-      tr: '🎉 Hediye Kartları 🎁•',
-      en: '🎉 Gift Cards 🎁•',
-      uz: '🎉 Sovgʻa kartalari 🎁•',
-      ru: '🎉 Подарочные карты 🎁•',
+    vip_subs: {
+      ug: '⭐️ 3- ئەزالىق ئېچىش',
+      ar: '⭐️ 3- تفعيل الاشتراكات VIP',
+      tr: '⭐️ 3- VIP Abonelikler',
+      en: '⭐️ 3- VIP Subscriptions',
+      uz: '⭐️ 3- VIP obunalar',
+      ru: '⭐️ 3- VIP подписки',
     },
-    social: {
-      ug: '🌐 ئىجتىمائىي تاراتقۇ ✤•',
-      ar: '🌐 خدمات التواصل الاجتماعي ✤•',
-      tr: '🌐 Sosyal Medya ✤•',
-      en: '🌐 Social Media ✤•',
-      uz: '🌐 Ijtimoiy tarmoqlar ✤•',
-      ru: '🌐 Соцсети ✤•',
+    apps: {
+      ug: '💻 4- ئەزالىق ئېلىش (ئەپلەر)',
+      ar: '💻 4- اشتراكات التطبيقات',
+      tr: '💻 4- Uygulama Abonelikleri',
+      en: '💻 4- App Subscriptions',
+      uz: '💻 4- Ilova obunalari',
+      ru: '💻 4- Подписки на приложения',
+    },
+    games: {
+      ug: '🎮 5- ئويۇنلار',
+      ar: '🎮 5- الألعاب والشحن الفوري',
+      tr: '🎮 5- Oyunlar & Pin',
+      en: '🎮 5- Games Top-up',
+      uz: '🎮 5- Oʻyinlar',
+      ru: '🎮 5- Игры и донат',
+    },
+    numbers: {
+      ug: '📱 6- مەۋھۇم نومۇر',
+      ar: '📱 6- أرقام وهمية',
+      tr: '📱 6- Sanal Numaralar',
+      en: '📱 6- Virtual Numbers',
+      uz: '📱 6- Virtual raqamlar',
+      ru: '📱 6- Виртуальные номера',
+    },
+    backToDashboard: {
+      ug: '🔙 تىزىملىككە قايتىش',
+      ar: '🔙 العودة للقائمة',
+      tr: '🔙 Menüye Dön',
+      en: '🔙 Back to Menu',
+      uz: '🔙 Menyuga qaytish',
+      ru: '🔙 Назад в меню',
     },
     backToMain: {
-      ug: '🏠 ئاساسىي بەتكە قايتىش •',
-      ar: '🏠 العودة إلى القائمة الرئيسية •',
-      tr: '🏠 Ana Menüye Dön •',
-      en: '🏠 Back to Main Menu •',
-      uz: '🏠 Asosiy sahifaga qaytish •',
-      ru: '🏠 Главное меню •',
+      ug: '🔙 باش بەتكە قايتىش',
+      ar: '🔙 العودة للرئيسية',
+      tr: '🔙 Ana Menüye Dön',
+      en: '🔙 Back to Home',
+      uz: '🔙 Bosh sahifaga qaytish',
+      ru: '🔙 Главное меню',
     },
     backToCategories: {
       ug: '🔙 دۇكان بۆلۈملىرىگە قايتىش ↩️',

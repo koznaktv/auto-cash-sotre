@@ -431,7 +431,9 @@ export default function HomePage() {
 
   const normalizeServiceItem = (s: ServiceItem): ServiceItem => {
     let item = s;
-    if (item.id === 'fursan_net') {
+    if (item.id === 'fursan_net' || item.id === 'fursan_kafraya') {
+      item = { ...item, image: '/images/services/fursan_net.jpg' };
+    } else if (item.id === 'fursan_kafer_jalis') {
       item = { ...item, image: '/images/services/fursan_net.jpg' };
     } else if (item.id === 'azez_net') {
       item = { ...item, image: '/images/services/azez_net.jpg' };

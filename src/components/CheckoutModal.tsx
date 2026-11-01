@@ -41,6 +41,8 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
     service &&
       (service.category === 'wifi' ||
         service.id === 'fursan_net' ||
+        service.id === 'fursan_kafraya' ||
+        service.id === 'fursan_kafer_jalis' ||
         service.id === 'azez_net' ||
         service.id === 'almujahid_net' ||
         (service.name || '').toLowerCase().includes('wifi') ||
@@ -607,7 +609,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
             {service.image ? (
               <img
                 src={
-                  service.id === 'fursan_net'
+                  service.id === 'fursan_net' || service.id === 'fursan_kafraya' || service.id === 'fursan_kafer_jalis'
                     ? 'https://i.ibb.co/f3X6BjQ/photo-2026-10-26-07-50-55.jpg'
                     : service.id === 'azez_net'
                     ? 'https://i.ibb.co/cSFZhGLB/photo-2026-10-26-07-50-39.jpg'

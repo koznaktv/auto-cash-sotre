@@ -1,7 +1,7 @@
 [
   {
     "id": "azez_net",
-    "name": "شبكة عزيز نت (Azez Net)",
+    "name": "ئەزىز نىت (Azez Net)",
     "category": "wifi",
     "icon": "Wifi",
     "image": "/images/services/azez_net.jpg",
@@ -48,13 +48,13 @@
     ]
   },
   {
-    "id": "fursan_net",
-    "name": "شبكة الفرسان (Fursan Net)",
+    "id": "fursan_kafraya",
+    "name": "فۇرسان نىت (كەفەريا) - Fursan Net Kafraya",
     "category": "wifi",
     "icon": "Wifi",
     "image": "/images/services/fursan_net.jpg",
-    "description": "بطاقات شبكة الفرسان للإنترنت السريع — سېتىۋالغاندىن كېيىن كارتا دەرھال چىقىدۇ",
-    "badge": "⚡ تېز كارتىلار (Wi-Fi)",
+    "description": "بطاقات شبكة الفرسان (كفريا) للإنترنت السريع — سېتىۋالغاندىن كېيىن كارتا دەرھال چىقىدۇ",
+    "badge": "⚡ كفريا (Wi-Fi)",
     "inputLabel": "سېتىۋېلىش ئەسكەرتىشى",
     "inputPlaceholder": "كارتىنى تاللاڭ، سېتىۋالغاندىن كېيىن كارتا دەرھال چىقىدۇ",
     "requiresZoneId": false,
@@ -62,7 +62,7 @@
     "published": true,
     "packages": [
       {
-        "id": "fursan_6gb",
+        "id": "fursan_kf_6gb",
         "title": "6 جيجا 7 كۈنلۈك (6GB 7 Days)",
         "price": 0.45,
         "originalPrice": 0.5,
@@ -70,7 +70,7 @@
         "available": true
       },
       {
-        "id": "fursan_4gb",
+        "id": "fursan_kf_4gb",
         "title": "4 جيجا 7 كۈنلۈك (4GB 7 Days)",
         "price": 0.34,
         "originalPrice": 0.4,
@@ -78,7 +78,7 @@
         "available": true
       },
       {
-        "id": "fursan_2gb",
+        "id": "fursan_kf_2gb",
         "title": "2 جيجا 5 كۈنلۈك (2GB 5 Days)",
         "price": 0.23,
         "originalPrice": 0.28,
@@ -86,7 +86,55 @@
         "available": true
       },
       {
-        "id": "fursan_1gb",
+        "id": "fursan_kf_1gb",
+        "title": "1 جيجا 3 كۈنلۈك (1GB 3 Days)",
+        "price": 0.12,
+        "originalPrice": 0.15,
+        "duration": "3 كۈن",
+        "available": true
+      }
+    ]
+  },
+  {
+    "id": "fursan_kafer_jalis",
+    "name": "فۇرسان نىت (كەفەر جالىس) - Fursan Net Kafer Jalis",
+    "category": "wifi",
+    "icon": "Wifi",
+    "image": "/images/services/fursan_net.jpg",
+    "description": "بطاقات شبكة الفرسان (كفر جالس) للإنترنت السريع — سېتىۋالغاندىن كېيىن كارتا دەرھال چىقىدۇ",
+    "badge": "⚡ كفر جالس (Wi-Fi)",
+    "inputLabel": "سېتىۋېلىش ئەسكەرتىشى",
+    "inputPlaceholder": "كارتىنى تاللاڭ، سېتىۋالغاندىن كېيىن كارتا دەرھال چىقىدۇ",
+    "requiresZoneId": false,
+    "source": "legacy",
+    "published": true,
+    "packages": [
+      {
+        "id": "fursan_kj_6gb",
+        "title": "6 جيجا 7 كۈنلۈك (6GB 7 Days)",
+        "price": 0.45,
+        "originalPrice": 0.5,
+        "duration": "7 كۈن",
+        "available": true
+      },
+      {
+        "id": "fursan_kj_4gb",
+        "title": "4 جيجا 7 كۈنلۈك (4GB 7 Days)",
+        "price": 0.34,
+        "originalPrice": 0.4,
+        "duration": "7 كۈن",
+        "available": true
+      },
+      {
+        "id": "fursan_kj_2gb",
+        "title": "2 جيجا 5 كۈنلۈك (2GB 5 Days)",
+        "price": 0.23,
+        "originalPrice": 0.28,
+        "duration": "5 كۈن",
+        "available": true
+      },
+      {
+        "id": "fursan_kj_1gb",
         "title": "1 جيجا 3 كۈنلۈك (1GB 3 Days)",
         "price": 0.12,
         "originalPrice": 0.15,
@@ -97,7 +145,7 @@
   },
   {
     "id": "almujahid_net",
-    "name": "شبكة المجاهد نت (Al Mujahid Net)",
+    "name": "مۇجاھىد نىت (Al Mujahid Net)",
     "category": "wifi",
     "icon": "Wifi",
     "image": "/images/services/mujahid_net.jpg",
@@ -441,17 +489,22 @@
     "subCategories": [
       {
         "id": "ml_global_diamonds",
-        "label": "💎 گىلوبال ئالماس (Global Diamonds)",
+        "label": "💎 گىلوبال ئالماس (Global)",
         "requiresZoneId": true
       },
       {
         "id": "ml_global_passes",
-        "label": "👑 گىلوبال پاس ۋە ئەزالىق (Global Passes)",
+        "label": "👑 گىلوبال ھەپتىلىك پاسلار",
         "requiresZoneId": true
       },
       {
-        "id": "ml_turkish_server",
-        "label": "🇹🇷 تۈركىيە سېرۋېرى (Turkish Server)",
+        "id": "ml_tr_diamonds",
+        "label": "🇹🇷 تۈركىيە ئالماسلىرى (TR)",
+        "requiresZoneId": true
+      },
+      {
+        "id": "ml_tr_passes",
+        "label": "🇹🇷 تۈركىيە ھەپتىلىك كارتىلىرى",
         "requiresZoneId": true
       }
     ],
@@ -591,7 +644,7 @@
       },
       {
         "id": "pkg_ml_tr_434",
-        "subCategoryId": "ml_turkish_server",
+        "subCategoryId": "ml_tr_passes",
         "title": "Limited-Time Value Pack (ۋاقىتلىق ئالاھىدە بولاق)",
         "price": 0.22,
         "originalPrice": 0.25,
@@ -602,7 +655,7 @@
       },
       {
         "id": "pkg_ml_tr_437",
-        "subCategoryId": "ml_turkish_server",
+        "subCategoryId": "ml_tr_passes",
         "title": "Weekly Elite Pack TR (تۈركىيە ھەپتىلىك ئېلىت)",
         "price": 0.91,
         "originalPrice": 1.05,
@@ -613,7 +666,7 @@
       },
       {
         "id": "pkg_ml_tr_428",
-        "subCategoryId": "ml_turkish_server",
+        "subCategoryId": "ml_tr_diamonds",
         "title": "88 ئالماس (جوهرة TR)",
         "price": 1.39,
         "originalPrice": 1.6,
@@ -624,7 +677,7 @@
       },
       {
         "id": "pkg_ml_tr_438",
-        "subCategoryId": "ml_turkish_server",
+        "subCategoryId": "ml_tr_passes",
         "title": "Weekly Pass TR (تۈركىيە ھەپتىلىك كارتىسى)",
         "price": 2.09,
         "originalPrice": 2.4,
@@ -635,7 +688,7 @@
       },
       {
         "id": "pkg_ml_tr_429",
-        "subCategoryId": "ml_turkish_server",
+        "subCategoryId": "ml_tr_diamonds",
         "title": "133 ئالماس (جوهرة TR)",
         "price": 2.09,
         "originalPrice": 2.4,
@@ -646,7 +699,7 @@
       },
       {
         "id": "pkg_ml_tr_430",
-        "subCategoryId": "ml_turkish_server",
+        "subCategoryId": "ml_tr_diamonds",
         "title": "221 ئالماس (جوهرة TR)",
         "price": 3.49,
         "originalPrice": 4.01,
@@ -657,7 +710,7 @@
       },
       {
         "id": "pkg_ml_tr_435",
-        "subCategoryId": "ml_turkish_server",
+        "subCategoryId": "ml_tr_passes",
         "title": "Monthly Elite Pack TR (تۈركىيە ئايلىق ئېلىت)",
         "price": 4.49,
         "originalPrice": 5.16,
@@ -668,7 +721,7 @@
       },
       {
         "id": "pkg_ml_tr_431",
-        "subCategoryId": "ml_turkish_server",
+        "subCategoryId": "ml_tr_diamonds",
         "title": "494 ئالماس (جوهرة TR)",
         "price": 7.74,
         "originalPrice": 8.9,
@@ -679,7 +732,7 @@
       },
       {
         "id": "pkg_ml_tr_436",
-        "subCategoryId": "ml_turkish_server",
+        "subCategoryId": "ml_tr_passes",
         "title": "Twilight Pass TR (تۈركىيە تۋايلايت پاس)",
         "price": 8.63,
         "originalPrice": 9.92,
@@ -690,7 +743,7 @@
       },
       {
         "id": "pkg_ml_tr_432",
-        "subCategoryId": "ml_turkish_server",
+        "subCategoryId": "ml_tr_diamonds",
         "title": "1041 ئالماس (جوهرة TR)",
         "price": 15.51,
         "originalPrice": 17.84,
@@ -701,7 +754,7 @@
       },
       {
         "id": "pkg_ml_tr_433",
-        "subCategoryId": "ml_turkish_server",
+        "subCategoryId": "ml_tr_diamonds",
         "title": "2645 ئالماس (جوهرة TR)",
         "price": 38.73,
         "originalPrice": 44.54,
@@ -4513,7 +4566,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Arena Breakout"
+        "instructions": "Arena Breakout",
+        "subCategoryId": "ab_passes"
       },
       {
         "id": "pkg-othman-657",
@@ -4524,7 +4578,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Arena Breakout"
+        "instructions": "Arena Breakout",
+        "subCategoryId": "ab_bonds"
       },
       {
         "id": "pkg-othman-668",
@@ -4535,7 +4590,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Arena Breakout"
+        "instructions": "Arena Breakout",
+        "subCategoryId": "ab_passes"
       },
       {
         "id": "pkg-othman-665",
@@ -4546,7 +4602,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Arena Breakout"
+        "instructions": "Arena Breakout",
+        "subCategoryId": "ab_passes"
       },
       {
         "id": "pkg-othman-664",
@@ -4557,7 +4614,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Arena Breakout"
+        "instructions": "Arena Breakout",
+        "subCategoryId": "ab_passes"
       },
       {
         "id": "pkg-othman-669",
@@ -4568,7 +4626,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Arena Breakout"
+        "instructions": "Arena Breakout",
+        "subCategoryId": "ab_passes"
       },
       {
         "id": "pkg-othman-658",
@@ -4579,7 +4638,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Arena Breakout"
+        "instructions": "Arena Breakout",
+        "subCategoryId": "ab_bonds"
       },
       {
         "id": "pkg-othman-666",
@@ -4590,7 +4650,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Arena Breakout"
+        "instructions": "Arena Breakout",
+        "subCategoryId": "ab_passes"
       },
       {
         "id": "pkg-othman-667",
@@ -4601,7 +4662,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Arena Breakout"
+        "instructions": "Arena Breakout",
+        "subCategoryId": "ab_passes"
       },
       {
         "id": "pkg-othman-659",
@@ -4612,7 +4674,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Arena Breakout"
+        "instructions": "Arena Breakout",
+        "subCategoryId": "ab_bonds"
       },
       {
         "id": "pkg-othman-670",
@@ -4623,7 +4686,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Arena Breakout"
+        "instructions": "Arena Breakout",
+        "subCategoryId": "ab_passes"
       },
       {
         "id": "pkg-othman-660",
@@ -4634,7 +4698,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Arena Breakout"
+        "instructions": "Arena Breakout",
+        "subCategoryId": "ab_bonds"
       },
       {
         "id": "pkg-othman-661",
@@ -4645,7 +4710,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Arena Breakout"
+        "instructions": "Arena Breakout",
+        "subCategoryId": "ab_bonds"
       },
       {
         "id": "pkg-othman-662",
@@ -4656,13 +4722,24 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Arena Breakout"
+        "instructions": "Arena Breakout",
+        "subCategoryId": "ab_bonds"
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "Arena Breakout"
+    "instructions": "Arena Breakout",
+    "subCategories": [
+      {
+        "id": "ab_bonds",
+        "label": "💵 بوندس (Bonds)"
+      },
+      {
+        "id": "ab_passes",
+        "label": "👑 ھەپتىلىك ۋە ئايلىق پاس كارتىلىرى (Passes & Cases)"
+      }
+    ]
   },
   {
     "id": "othman_farlight_84",
@@ -4789,7 +4866,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Honor of king"
+        "instructions": "Honor of king",
+        "subCategoryId": "hok_tokens"
       },
       {
         "id": "pkg-othman-646",
@@ -4800,7 +4878,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Honor of king"
+        "instructions": "Honor of king",
+        "subCategoryId": "hok_passes"
       },
       {
         "id": "pkg-othman-644",
@@ -4811,7 +4890,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Honor of king"
+        "instructions": "Honor of king",
+        "subCategoryId": "hok_passes"
       },
       {
         "id": "pkg-othman-643",
@@ -4822,7 +4902,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Honor of king"
+        "instructions": "Honor of king",
+        "subCategoryId": "hok_passes"
       },
       {
         "id": "pkg-othman-634",
@@ -4833,7 +4914,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Honor of king"
+        "instructions": "Honor of king",
+        "subCategoryId": "hok_tokens"
       },
       {
         "id": "pkg-othman-648",
@@ -4844,7 +4926,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Honor of king"
+        "instructions": "Honor of king",
+        "subCategoryId": "hok_passes"
       },
       {
         "id": "pkg-othman-645",
@@ -4855,7 +4938,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Honor of king"
+        "instructions": "Honor of king",
+        "subCategoryId": "hok_passes"
       },
       {
         "id": "pkg-othman-635",
@@ -4866,7 +4950,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Honor of king"
+        "instructions": "Honor of king",
+        "subCategoryId": "hok_tokens"
       },
       {
         "id": "pkg-othman-647",
@@ -4877,7 +4962,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Honor of king"
+        "instructions": "Honor of king",
+        "subCategoryId": "hok_passes"
       },
       {
         "id": "pkg-othman-636",
@@ -4888,7 +4974,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Honor of king"
+        "instructions": "Honor of king",
+        "subCategoryId": "hok_tokens"
       },
       {
         "id": "pkg-othman-637",
@@ -4899,7 +4986,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Honor of king"
+        "instructions": "Honor of king",
+        "subCategoryId": "hok_tokens"
       },
       {
         "id": "pkg-othman-638",
@@ -4910,7 +4998,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Honor of king"
+        "instructions": "Honor of king",
+        "subCategoryId": "hok_tokens"
       },
       {
         "id": "pkg-othman-639",
@@ -4921,7 +5010,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Honor of king"
+        "instructions": "Honor of king",
+        "subCategoryId": "hok_tokens"
       },
       {
         "id": "pkg-othman-640",
@@ -4932,7 +5022,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Honor of king"
+        "instructions": "Honor of king",
+        "subCategoryId": "hok_tokens"
       },
       {
         "id": "pkg-othman-641",
@@ -4943,7 +5034,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Honor of king"
+        "instructions": "Honor of king",
+        "subCategoryId": "hok_tokens"
       },
       {
         "id": "pkg-othman-642",
@@ -4954,13 +5046,24 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Honor of king"
+        "instructions": "Honor of king",
+        "subCategoryId": "hok_tokens"
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "Honor of king"
+    "instructions": "Honor of king",
+    "subCategories": [
+      {
+        "id": "hok_tokens",
+        "label": "🪙 توكېنس (Tokens)"
+      },
+      {
+        "id": "hok_passes",
+        "label": "👑 ھەپتىلىك ۋە ئالاھىدە بولاقلار (Passes & Packs)"
+      }
+    ]
   },
   {
     "id": "othman_lords_mobile",
@@ -7509,7 +7612,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Delta force Global"
+        "instructions": "Delta force Global",
+        "subCategoryId": "df_coins"
       },
       {
         "id": "pkg-othman-448",
@@ -7520,7 +7624,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Delta force Global"
+        "instructions": "Delta force Global",
+        "subCategoryId": "df_coins"
       },
       {
         "id": "pkg-othman-449",
@@ -7531,7 +7636,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Delta force Global"
+        "instructions": "Delta force Global",
+        "subCategoryId": "df_coins"
       },
       {
         "id": "pkg-othman-456",
@@ -7542,7 +7648,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Delta force Global"
+        "instructions": "Delta force Global",
+        "subCategoryId": "df_passes"
       },
       {
         "id": "pkg-othman-450",
@@ -7553,7 +7660,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Delta force Global"
+        "instructions": "Delta force Global",
+        "subCategoryId": "df_coins"
       },
       {
         "id": "pkg-othman-459",
@@ -7564,7 +7672,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Delta force Global"
+        "instructions": "Delta force Global",
+        "subCategoryId": "df_passes"
       },
       {
         "id": "pkg-othman-458",
@@ -7575,7 +7684,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Delta force Global"
+        "instructions": "Delta force Global",
+        "subCategoryId": "df_passes"
       },
       {
         "id": "pkg-othman-451",
@@ -7586,7 +7696,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Delta force Global"
+        "instructions": "Delta force Global",
+        "subCategoryId": "df_coins"
       },
       {
         "id": "pkg-othman-457",
@@ -7597,7 +7708,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Delta force Global"
+        "instructions": "Delta force Global",
+        "subCategoryId": "df_passes"
       },
       {
         "id": "pkg-othman-452",
@@ -7608,7 +7720,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Delta force Global"
+        "instructions": "Delta force Global",
+        "subCategoryId": "df_coins"
       },
       {
         "id": "pkg-othman-453",
@@ -7619,7 +7732,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Delta force Global"
+        "instructions": "Delta force Global",
+        "subCategoryId": "df_coins"
       },
       {
         "id": "pkg-othman-454",
@@ -7630,7 +7744,8 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Delta force Global"
+        "instructions": "Delta force Global",
+        "subCategoryId": "df_coins"
       },
       {
         "id": "pkg-othman-455",
@@ -7641,13 +7756,24 @@
         "productType": "fixed",
         "available": true,
         "providerKey": "othman",
-        "instructions": "Delta force Global"
+        "instructions": "Delta force Global",
+        "subCategoryId": "df_coins"
       }
     ],
     "providerKey": "othman",
     "published": true,
     "source": "provider",
-    "instructions": "Delta force Global"
+    "instructions": "Delta force Global",
+    "subCategories": [
+      {
+        "id": "df_coins",
+        "label": "🪙 تەڭگە (Delta Coins)"
+      },
+      {
+        "id": "df_passes",
+        "label": "👑 پەسىللىك ۋە ئالاھىدە پاسلار (Season Passes)"
+      }
+    ]
   },
   {
     "id": "othman_chat_apps",

@@ -105,26 +105,25 @@ export function getShopCategoriesKeyboard(lang: BotLanguage = 'ug') {
   return {
     inline_keyboard: [
       [
-        { text: c.visa[lang] || c.visa.ug, callback_data: 'tgserv:othman_visa_cards' },
+        { text: c.wifi[lang] || c.wifi.ug, callback_data: 'tgcat:wifi' },
       ],
       [
-        { text: c.numbers[lang] || c.numbers.ug, callback_data: 'tgcat:numbers' },
-        { text: c.apps[lang] || c.apps.ug, callback_data: 'tgcat:apps' },
-      ],
-      [
-        { text: c.accounts[lang] || c.accounts.ug, callback_data: 'tgcat:accounts' },
-        { text: c.games[lang] || c.games.ug, callback_data: 'tgcat:games' },
-      ],
-      [
-        { text: c.balance[lang] || c.balance.ug, callback_data: 'tgcat:balance' },
         { text: c.cards[lang] || c.cards.ug, callback_data: 'tgcat:cards' },
       ],
       [
-        { text: c.giftcards[lang] || c.giftcards.ug, callback_data: 'tgcat:giftcards' },
-        { text: c.social[lang] || c.social.ug, callback_data: 'tgcat:social' },
+        { text: c.vip_subs[lang] || c.vip_subs.ug, callback_data: 'tgcat:vip_subs' },
       ],
       [
-        { text: c.backToMain[lang] || c.backToMain.ug, callback_data: 'back_to_main' },
+        { text: c.apps[lang] || c.apps.ug, callback_data: 'tgcat:apps' },
+      ],
+      [
+        { text: c.games[lang] || c.games.ug, callback_data: 'tgcat:games' },
+      ],
+      [
+        { text: c.numbers[lang] || c.numbers.ug, web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/numbers` } },
+      ],
+      [
+        { text: c.backToDashboard[lang] || c.backToDashboard.ug, callback_data: 'bot_shopping_menu' },
       ],
     ],
   };
@@ -133,41 +132,49 @@ export function getShopCategoriesKeyboard(lang: BotLanguage = 'ug') {
 export function getCategoryDisplayTitle(catKey: string, lang: BotLanguage = 'ug'): string {
   const c = BOT_I18N.categories;
   switch (catKey) {
-    case 'crypto':
-    case 'visa':
-      return c.visa[lang] || c.visa.ug;
-    case 'numbers':
-      return c.numbers[lang] || c.numbers.ug;
-    case 'apps':
-      return c.apps[lang] || c.apps.ug;
-    case 'accounts':
-      return c.accounts[lang] || c.accounts.ug;
-    case 'games':
-      return c.games[lang] || c.games.ug;
+    case 'wifi':
     case 'balance':
-      return c.balance[lang] || c.balance.ug;
+      return c.wifi[lang] || c.wifi.ug;
     case 'cards':
       return c.cards[lang] || c.cards.ug;
-    case 'giftcards':
-      return c.giftcards[lang] || c.giftcards.ug;
-    case 'social':
-      return c.social[lang] || c.social.ug;
+    case 'vip_subs':
+    case 'accounts':
+      return c.vip_subs[lang] || c.vip_subs.ug;
+    case 'apps':
+      return c.apps[lang] || c.apps.ug;
+    case 'games':
+      return c.games[lang] || c.games.ug;
+    case 'numbers':
+      return c.numbers[lang] || c.numbers.ug;
     default:
       return BOT_I18N.storeButtons.shopCategories[lang] || 'مەھسۇلاتلار دۇكىنى';
   }
 }
 
+export function isWifiServiceItem(serviceId?: string, category?: string, name?: string): boolean {
+  if (!serviceId) return false;
+  if (category === 'wifi') return true;
+  if (
+    serviceId === 'fursan_net' ||
+    serviceId === 'fursan_kafraya' ||
+    serviceId === 'fursan_kafer_jalis' ||
+    serviceId === 'azez_net' ||
+    serviceId === 'almujahid_net'
+  ) return true;
+  const lower = (name || '').toLowerCase();
+  return lower.includes('wifi') || lower.includes('واي فاي');
+}
+
 export const TOP_GAME_ORDER = [
-  'othman_mobile_legends',
   'othman_pubg',
-  'pubg_mobile',
-  'othman_free_fire',
-  'free_fire',
+  'othman_mobile_legends',
   'othman_honor_of_kings',
   'othman_arena_breakout',
   'othman_delta_force',
-  'othman_blood_strike',
+  'othman_free_fire',
+  'free_fire',
   'othman_call_of_duty',
+  'othman_blood_strike',
   'othman_genshin_impact',
   'othman_whiteout_survival',
   'othman_efootball',
@@ -179,54 +186,32 @@ export const TOP_GAME_ORDER = [
 
 export function getServicesForCategory(catKey: string): ServiceItem[] {
   const all = getServicesList().filter((s) => s.published !== false);
-  if (catKey === 'giftcards') {
-    return all.filter(
-      (s) =>
-        s.id.includes('roblox') ||
-        s.id.includes('google_play') ||
-        s.id.includes('apple') ||
-        s.id.includes('steam') ||
-        s.id.includes('netflix') ||
-        s.id.includes('shahid') ||
-        s.name.toLowerCase().includes('card') ||
-        s.name.toLowerCase().includes('كارت')
-    );
+
+  if (catKey === 'wifi' || catKey === 'balance') {
+    const wifiIds = ['fursan_kafraya', 'fursan_kafer_jalis', 'azez_net', 'almujahid_net'];
+    return all
+      .filter((s) => wifiIds.includes(s.id) || s.category === 'wifi' || isWifiServiceItem(s.id, s.category, s.name))
+      .sort((a, b) => {
+        const idxA = wifiIds.indexOf(a.id);
+        const idxB = wifiIds.indexOf(b.id);
+        return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+      });
   }
-  if (catKey === 'crypto' || catKey === 'visa') {
-    return all.filter(
-      (s) =>
-        s.id === 'othman_visa_cards' ||
-        s.id.includes('visa') ||
-        s.category === 'crypto' ||
-        s.name.toLowerCase().includes('visa') ||
-        s.name.toLowerCase().includes('usdt') ||
-        s.name.toLowerCase().includes('crypto')
-    );
-  }
-  if (catKey === 'accounts') {
-    return all.filter((s) => s.category === 'accounts' || s.category === 'ai');
-  }
-  if (catKey === 'balance' || catKey === 'wifi') {
-    return all.filter(
-      (s) =>
-        s.category === 'wifi' ||
-        s.category === 'balance' ||
-        s.id === 'fursan_net' ||
-        s.id === 'azez_net' ||
-        s.id === 'almujahid_net'
-    );
-  }
+
   if (catKey === 'cards') {
-    return all.filter(
-      (s) =>
-        s.category === 'cards' ||
-        s.id.includes('syriatel') ||
-        s.id.includes('mtn') ||
-        s.id.includes('vodafone') ||
-        s.id.includes('turk_telekom') ||
-        s.id.includes('turkcell')
-    );
+    const cardIds = ['othman_syriatel', 'othman_mtn', 'othman_turkcell', 'turkcell'];
+    return all.filter((s) => cardIds.includes(s.id) || s.id.includes('syriatel') || s.id.includes('mtn') || s.id.includes('turkcell'));
   }
+
+  if (catKey === 'vip_subs' || catKey === 'accounts') {
+    const vipIds = ['othman_telegram_premium', 'othman_chatgpt', 'othman_google_gemini', 'othman_proton_vpn'];
+    return all.filter((s) => vipIds.includes(s.id));
+  }
+
+  if (catKey === 'apps') {
+    return all.filter((s) => s.category === 'apps' || s.category === 'social');
+  }
+
   if (catKey === 'games') {
     const games = all.filter((s) => s.category === 'games');
     return games.sort((a, b) => {
@@ -237,6 +222,7 @@ export function getServicesForCategory(catKey: string): ServiceItem[] {
       return rankA - rankB;
     });
   }
+
   return all.filter((s) => s.category === catKey);
 }
 
@@ -245,28 +231,28 @@ export function formatCleanGameTitle(serviceId: string, rawName: string): string
   const name = (rawName || '').toLowerCase();
 
   if (id.includes('mobile_legends') || name.includes('mobile legends')) {
-    return '💎 Mobile Legends';
+    return '💎 Mobile Legends: Bang Bang';
   }
   if (id.includes('pubg') || name.includes('pubg')) {
-    return '🎮 PUBG Mobile (پابجى)';
+    return '🎮 PUBG Mobile (UC قاچىلاش)';
+  }
+  if (id.includes('honor_of_kings') || id.includes('hok') || name.includes('honor of kings')) {
+    return '💠 Honor of Kings (شەرەپ شاھى)';
+  }
+  if (id.includes('arena_breakout') || name.includes('arena breakout')) {
+    return '🗃️ Arena Breakout (قوراللىق بۆسۈش)';
+  }
+  if (id.includes('delta_force') || name.includes('delta force')) {
+    return '🎯 Delta Force Global (دېلتا قىسمى)';
   }
   if (id.includes('free_fire') || id.includes('freefire') || name.includes('free fire')) {
     return '🔥 Free Fire';
   }
   if (id.includes('call_of_duty') || id.includes('cod') || name.includes('call of duty')) {
-    return '🔫 Call of Duty';
-  }
-  if (id.includes('honor_of_kings') || id.includes('hok') || name.includes('honor of kings')) {
-    return '💠 Honor of Kings';
+    return '🔫 Call of Duty: Mobile';
   }
   if (id.includes('blood_strike') || name.includes('blood strike')) {
     return '🎯 Blood Strike';
-  }
-  if (id.includes('arena_breakout') || name.includes('arena breakout')) {
-    return '🗃️ Arena Breakout';
-  }
-  if (id.includes('delta_force') || name.includes('delta force')) {
-    return '🎯 Delta Force';
   }
   if (id.includes('genshin') || name.includes('genshin')) {
     return '✨ Genshin Impact';
@@ -286,12 +272,6 @@ export function formatCleanGameTitle(serviceId: string, rawName: string): string
   if (id.includes('jawaker') || name.includes('jawaker')) {
     return '🃏 Jawaker';
   }
-  if (id.includes('clash_of_clans') || name.includes('clash of clans')) {
-    return '⚔️ Clash of Clans';
-  }
-  if (id.includes('brawl_stars') || name.includes('brawl stars')) {
-    return '⭐ Brawl Stars';
-  }
   if (id.includes('roblox') || name.includes('roblox')) {
     return '🟥 Roblox';
   }
@@ -308,12 +288,12 @@ export function formatCleanGameBaseName(serviceId: string, rawName: string): str
   const name = (rawName || '').toLowerCase();
   if (id.includes('mobile_legends') || name.includes('mobile legends')) return 'Mobile Legends';
   if (id.includes('pubg') || name.includes('pubg')) return 'PUBG Mobile';
-  if (id.includes('free_fire') || name.includes('free fire')) return 'Free Fire';
-  if (id.includes('call_of_duty') || name.includes('call of duty')) return 'Call of Duty';
   if (id.includes('honor_of_kings') || name.includes('honor of kings')) return 'Honor of Kings';
-  if (id.includes('blood_strike') || name.includes('blood strike')) return 'Blood Strike';
   if (id.includes('arena_breakout') || name.includes('arena breakout')) return 'Arena Breakout';
   if (id.includes('delta_force') || name.includes('delta force')) return 'Delta Force';
+  if (id.includes('free_fire') || name.includes('free fire')) return 'Free Fire';
+  if (id.includes('call_of_duty') || name.includes('call of duty')) return 'Call of Duty';
+  if (id.includes('blood_strike') || name.includes('blood strike')) return 'Blood Strike';
   if (id.includes('genshin') || name.includes('genshin')) return 'Genshin Impact';
   if (id.includes('whiteout') || name.includes('whiteout')) return 'Whiteout Survival';
   if (id.includes('efootball') || name.includes('efootball')) return 'eFootball';
@@ -532,13 +512,9 @@ export async function getServicePackagesKeyboard(
 ) {
   const inline_keyboard: any[][] = [];
 
-  const isWifi =
-    service.category === 'wifi' ||
-    service.id === 'fursan_net' ||
-    service.id === 'azez_net' ||
-    service.id === 'almujahid_net' ||
-    (service.name || '').toLowerCase().includes('wifi') ||
-    (service.name || '').toLowerCase().includes('واي فاي');
+  const isWifi = isWifiServiceItem(service.id, service.category, service.name);
+  const isPubg = service.id === 'othman_pubg' || service.id === 'pubg_mobile';
+  const isSyriatel = service.id === 'othman_syriatel' || service.id.includes('syriatel');
 
   let wifiStockMap: Record<string, number> | null = null;
   if (isWifi) {
@@ -548,7 +524,10 @@ export async function getServicePackagesKeyboard(
       wifiStockMap = {};
       for (const [key, val] of Object.entries(summary)) {
         const [servId, pkgId] = key.split(':');
-        if (servId === service.id && pkgId) {
+        const matchesServ =
+          servId === service.id ||
+          (servId === 'fursan_net' && (service.id === 'fursan_kafraya' || service.id === 'fursan_kafer_jalis'));
+        if (matchesServ && pkgId) {
           wifiStockMap[pkgId] = Number(val.available || 0);
         }
       }
@@ -557,7 +536,8 @@ export async function getServicePackagesKeyboard(
     }
   }
 
-  if (service.subCategories && service.subCategories.length > 1) {
+  // Filter subCategories: PUBG only shows UC (no tabs), Syriatel only shows Units (no tabs)
+  if (!isPubg && !isSyriatel && service.subCategories && service.subCategories.length > 1) {
     const subRows: any[] = [];
     const effectiveSub = activeSubCatId || service.subCategories[0].id;
     for (const sc of service.subCategories) {
@@ -575,6 +555,12 @@ export async function getServicePackagesKeyboard(
 
   const effectiveSubId = activeSubCatId || service.subCategories?.[0]?.id;
   const packages = service.packages.filter((p) => {
+    if (isPubg) {
+      return p.subCategoryId === 'pubg_uc' || (p.title || '').toLowerCase().includes('uc');
+    }
+    if (isSyriatel) {
+      return p.subCategoryId === 'syr_units' || (p.title || '').includes('وحدة') || (p.title || '').includes('بىرلىك');
+    }
     if (service.subCategories && service.subCategories.length > 1 && effectiveSubId) {
       return p.subCategoryId === effectiveSubId;
     }
@@ -615,7 +601,6 @@ export async function getServicePackagesKeyboard(
       callback_data: callbackData,
     };
 
-    // If text is long (> 22 chars), give it its own full row
     if (btnText.length > 22) {
       if (currentRow.length > 0) {
         rowPairs.push(currentRow);
@@ -660,7 +645,21 @@ export async function getServicePackagesKeyboard(
     inline_keyboard.push(navRow);
   }
 
-  const backTarget = service.id === 'othman_visa_cards' ? 'tg_shop_categories' : `tgcat:${service.category || 'games'}`;
+  let backTarget = 'tgcat:games';
+  if (isWifiServiceItem(service.id, service.category, service.name)) {
+    backTarget = 'tgcat:wifi';
+  } else if (
+    ['othman_syriatel', 'othman_mtn', 'othman_turkcell', 'turkcell'].includes(service.id) ||
+    service.id.includes('syriatel') ||
+    service.id.includes('mtn')
+  ) {
+    backTarget = 'tgcat:cards';
+  } else if (['othman_telegram_premium', 'othman_chatgpt', 'othman_google_gemini', 'othman_proton_vpn'].includes(service.id)) {
+    backTarget = 'tgcat:vip_subs';
+  } else if (service.category === 'apps' || service.category === 'social') {
+    backTarget = 'tgcat:apps';
+  }
+
   inline_keyboard.push([
     { text: '👈 قايتىش', callback_data: backTarget },
   ]);
@@ -681,6 +680,52 @@ export async function handleShopCallbackQuery(
 ): Promise<boolean> {
   const lang: BotLanguage = getUserLanguage(fromId) || 'ug';
 
+  // 0.1 In-Bot Shopping Dashboard (8-button main hub)
+  if (data === 'bot_shopping_menu') {
+    await answerCallbackQuery(cqId);
+    const { getBotDashboardKeyboard, getBotDashboardMessage } = await import('./telegram');
+    await showOrEditMessage(chatId, messageId, getBotDashboardMessage(lang), getBotDashboardKeyboard(lang));
+    return true;
+  }
+
+  // 0.2 Customer Purchased History (quick_my_purchases)
+  if (data === 'quick_my_purchases') {
+    await answerCallbackQuery(cqId);
+    const user = await getOrCreateTelegramUser(fromId, fromUser, cq.from?.first_name);
+    const { getOrdersByUserIdAsync } = await import('./db');
+    const orders = await getOrdersByUserIdAsync(user.id, user.email);
+    const completedOrders = (orders || [])
+      .filter((o) => o.status === 'completed' || o.details?.wifiCard)
+      .slice(0, 5);
+
+    let purchasesText = `📦 <b>سېتىۋالغانلىرىم (ئاخىرقى 5 زاكاز)</b>\n\n`;
+    if (completedOrders.length === 0) {
+      purchasesText += `💡 سىزدە تېخى سېتىۋېلىنغان زاكاز خاتىرىسى يوق.\nدۇكاندىن كېرەكلىك مەھسۇلاتنى تاللاپ سېتىۋالسىڭىز، بۇ يەردە كۆرۈنىدۇ.`;
+    } else {
+      for (const ord of completedOrders) {
+        purchasesText += `━━━━━━━━━━━━━━━━━━━━\n`;
+        purchasesText += `📦 <b>زاكاز:</b> <code>#${ord.id.slice(0, 8)}</code>\n`;
+        purchasesText += `🎮 <b>مەھسۇلات:</b> ${ord.serviceName} - ${ord.packageTitle}\n`;
+        purchasesText += `💰 <b>باھاسى:</b> $${Number(ord.amount).toFixed(2)} USD\n`;
+        if (ord.details?.wifiCard) {
+          purchasesText += `📶 <b>تور كارتىسى:</b> ${ord.details.wifiCard.networkName || ord.details.wifiCard.networkEn}\n`;
+          purchasesText += `👤 <b>ئىشلەتكۈچى:</b> <code>${ord.details.wifiCard.username}</code>\n`;
+          purchasesText += `🔑 <b>پارولى:</b> <code>${ord.details.wifiCard.password}</code>\n`;
+        } else if (ord.targetAccount) {
+          purchasesText += `🎯 <b>ھېسابات:</b> <code>${ord.targetAccount}</code>\n`;
+        }
+        purchasesText += `✅ <b>ھالىتى:</b> مۇۋەپپەقىيەتلىك كىردى 🚀\n`;
+      }
+    }
+
+    await showOrEditMessage(chatId, messageId, purchasesText.trim(), {
+      inline_keyboard: [
+        [{ text: '🛒 3- دۇكانغا كىرىش', callback_data: 'tg_shop_categories' }],
+        [{ text: '🔙 تىزىملىككە قايتىش', callback_data: 'bot_shopping_menu' }],
+      ],
+    });
+    return true;
+  }
   // 1. Categories Menu
   if (data === 'tg_shop_categories' || data === 'quick_catalog') {
     await answerCallbackQuery(cqId);
@@ -799,13 +844,7 @@ ${service.description ? `<i>${service.description}</i>` : ''}
 `.trim();
     }
 
-    const isWifiCheck =
-      service.category === 'wifi' ||
-      service.id === 'fursan_net' ||
-      service.id === 'azez_net' ||
-      service.id === 'almujahid_net' ||
-      (service.name || '').toLowerCase().includes('wifi') ||
-      (service.name || '').toLowerCase().includes('واي فاي');
+    const isWifiCheck = isWifiServiceItem(service.id, service.category, service.name);
 
     if (isWifiCheck) {
       try {
@@ -883,13 +922,7 @@ ${service.description ? `<i>${service.description}</i>` : ''}
     const sName = formatCleanGameBaseName(service.id, service.name);
     const pTitle = cleanPkgTitle;
 
-    const isWifi =
-      service.category === 'wifi' ||
-      service.id === 'fursan_net' ||
-      service.id === 'azez_net' ||
-      service.id === 'almujahid_net' ||
-      (service.name || '').toLowerCase().includes('wifi') ||
-      (service.name || '').toLowerCase().includes('واي فاي');
+    const isWifi = isWifiServiceItem(service.id, service.category, service.name);
 
     if (isWifi) {
       // Live stock guard
@@ -1060,12 +1093,7 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
     const targetAccFull = `${session.targetAccount || ''}${session.zoneId ? ` (Zone: ${session.zoneId})` : ''}`.trim();
 
     // Wi-Fi Local Stock Check & Pre-Claim for Telegram
-    const isWifiService =
-      session.serviceId === 'fursan_net' ||
-      session.serviceId === 'azez_net' ||
-      session.serviceId === 'almujahid_net' ||
-      (session.serviceName || '').toLowerCase().includes('wifi') ||
-      (session.serviceName || '').toLowerCase().includes('واي فاي');
+    const isWifiService = isWifiServiceItem(session.serviceId, undefined, session.serviceName);
 
     let claimedWifiCard: any = null;
     if (isWifiService) {
@@ -1150,9 +1178,9 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
         telegramChatId: fromId,
         telegramUsername: fromUser,
         wifiCard: {
-          network: session.serviceId === 'fursan_net' ? 'fursan' : (session.serviceId === 'azez_net' ? 'azez' : 'mujahid'),
-          networkName: session.serviceId === 'fursan_net' ? 'شبكة الفرسان' : (session.serviceId === 'azez_net' ? 'شبكة عزيز نت' : 'شبكة المجاهد نت'),
-          networkEn: session.serviceId === 'fursan_net' ? 'FURSAN NET' : (session.serviceId === 'azez_net' ? 'AZEZ . NET' : 'AL MUJAHID NET'),
+          network: (session.serviceId === 'fursan_kafraya' || session.serviceId === 'fursan_kafer_jalis' || session.serviceId === 'fursan_net') ? 'fursan' : (session.serviceId === 'azez_net' ? 'azez' : 'mujahid'),
+          networkName: session.serviceId === 'fursan_kafraya' ? 'شبكة الفرسان (كفريا)' : session.serviceId === 'fursan_kafer_jalis' ? 'شبكة الفرسان (كفر جالس)' : session.serviceId === 'azez_net' ? 'شبكة عزيز نت' : 'شبكة المجاهد نت',
+          networkEn: session.serviceId === 'fursan_kafraya' ? 'FURSAN NET (KAFRAYA)' : session.serviceId === 'fursan_kafer_jalis' ? 'FURSAN NET (KAFER JALIS)' : session.serviceId === 'azez_net' ? 'AZEZ . NET' : 'AL MUJAHID NET',
           username: claimedWifiCard.username,
           password: claimedWifiCard.password,
           cardNumber: claimedWifiCard.cardNumber,
@@ -1284,8 +1312,10 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
 
     if (isWifiService && claimedWifiCard) {
       const netName =
-        session.serviceId === 'fursan_net'
-          ? 'شبكة الفرسان (Fursan Net)'
+        session.serviceId === 'fursan_kafraya'
+          ? 'شبكة الفرسان (كفريا)'
+          : session.serviceId === 'fursan_kafer_jalis'
+          ? 'شبكة الفرسان (كفر جالس)'
           : session.serviceId === 'azez_net'
           ? 'شبكة عزيز نت (Azez Net)'
           : 'شبكة المجاهد نت (Al Mujahid Net)';

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Telegram Bot & Notification & Real-Time Management Service for AUTO CASH
  * Bot: @Autocash_24_bot
  * Admin: @nasrulla0996 (ID: 7575664493)
@@ -699,6 +699,23 @@ export async function postOrderCompletedToChannel(order: {
   if (postedChannelOrders.size > 5000) {
     const oldest = postedChannelOrders.values().next().value;
     if (oldest) postedChannelOrders.delete(oldest);
+  }
+
+  // Multi-process & Serverless Database Locking Deduplication
+  try {
+    const { getSupabase } = await import('@/lib/supabase');
+    const sb = getSupabase();
+    if (sb) {
+      const { data: dbOrd } = await sb.from('orders').select('details').eq('id', normalizedId).maybeSingle();
+      if (dbOrd?.details?.channelBroadcasted) {
+        return true;
+      }
+      // Pre-mark as broadcasted in DB immediately so concurrent requests/pollers bail out
+      const mergedDetails = { ...(dbOrd?.details || order.details || {}), channelBroadcasted: true };
+      await sb.from('orders').update({ details: mergedDetails }).eq('id', normalizedId);
+    }
+  } catch (dedupErr: any) {
+    console.warn('[Telegram] DB deduplication check warning:', dedupErr?.message);
   }
 
   const token = getBotToken();
@@ -1610,75 +1627,111 @@ export async function syncBotDescriptions(): Promise<{ ok: boolean; description?
 }
 
 /**
- * Helper to build rich interactive store inline keyboard matching user's design template (Image 1)
+ * Helper to build 2-step start screen inline keyboard requested by user:
+ * 1- توربەتكە كىرىش
+ * 2- بوتتا سېتىۋېلىش
  */
 export function getStoreInlineKeyboard(lang: BotLanguage = 'ug') {
   const b = BOT_I18N.storeButtons;
   return {
     inline_keyboard: [
-      // Row 1: Image 1 top button ("🌐 توربەتكە كىرىش" replacing "قولاي تور سودىسى")
+      // Row 1: Web App button ("🌐 1- توربەتكە كىرىش")
       [
         {
           text: b.webApp[lang] || b.webApp.ug,
           web_app: { url: TELEGRAM_CONFIG.storeUrl },
         },
       ],
-      // Row 2: Image 1 row 2 ("🛒 ✤ مەھسۇلاتلار دۇكىنى •" and "👤 ✤ شەخسىي ھېساباتىم •")
+      // Row 2: In-Bot Shopping Dashboard ("🛒 2- بوتتا سېتىۋېلىش")
       [
         {
-          text: b.shopCategories[lang] || b.shopCategories.ug,
-          callback_data: 'tg_shop_categories',
-        },
-        {
-          text: b.myAccount[lang] || b.myAccount.ug,
-          callback_data: 'tg_my_account',
-        },
-      ],
-      // Row 3: Image 1 row 3 ("💳 ✤ پۇل قاچىلاش •" and "👨‍💻 ✤ مۇلازىمەت سەھىپىسى •")
-      [
-        {
-          text: b.deposit[lang] || b.deposit.ug,
-          callback_data: 'quick_deposit',
-        },
-        {
-          text: b.services[lang] || b.services.ug,
-          callback_data: 'quick_services',
-        },
-      ],
-      // Row 4: Image 1 row 4 ("📬 ✤ زاكازلىرىم / نومۇر •" and "✍️ ✤ پىكىر-تەكلىپ •", friends invite removed)
-      [
-        {
-          text: b.trackOrders[lang] || b.trackOrders.ug,
-          callback_data: 'quick_track',
-        },
-        {
-          text: b.feedback[lang] || b.feedback.ug,
-          callback_data: 'quick_feedback',
-        },
-      ],
-      // Row 5: Image 1 row 5 ("📞 ✤ باشقۇرغۇچى بىلەن ئالاقە •")
-      [
-        {
-          text: b.contactAdmin[lang] || b.contactAdmin.ug,
-          url: TELEGRAM_CONFIG.supportUrl,
-        },
-      ],
-      // Row 6: Image 1 row 6 ("📖 ✤ ئىشلىتىش قوللانمىسى •")
-      [
-        {
-          text: b.guide[lang] || b.guide.ug,
-          callback_data: 'quick_guide',
-        },
-      ],
-      // Row 7: Image 1 row 7 ("🌐 تىل تاللاش / Language")
-      [
-        {
-          text: b.changeLanguage[lang] || b.changeLanguage.ug,
-          callback_data: 'bot_lang_menu',
+          text: b.botDashboard[lang] || b.botDashboard.ug,
+          callback_data: 'bot_shopping_menu',
         },
       ],
     ],
   };
+}
+
+/**
+ * 8-Button In-Bot Shopping Dashboard Keyboard requested by user:
+ * 1- پۇل قاچىلاش
+ * 2- قالدۇقۇم
+ * 3- دۇكان
+ * 4- زاكاسلىرىم
+ * 5- سېتىۋالغانلىرىم
+ * 6- تىل تاللاش
+ * 7- ئالاقىلىشىش
+ * 8- قانالغا كىرىش
+ */
+export function getBotDashboardKeyboard(lang: BotLanguage = 'ug') {
+  const d = BOT_I18N.botDashboard;
+  return {
+    inline_keyboard: [
+      [
+        { text: d.deposit[lang] || d.deposit.ug, callback_data: 'quick_deposit' },
+        { text: d.balance[lang] || d.balance.ug, callback_data: 'tg_my_account' },
+      ],
+      [
+        { text: d.shop[lang] || d.shop.ug, callback_data: 'tg_shop_categories' },
+        { text: d.orders[lang] || d.orders.ug, callback_data: 'quick_track' },
+      ],
+      [
+        { text: d.purchases[lang] || d.purchases.ug, callback_data: 'quick_my_purchases' },
+        { text: d.language[lang] || d.language.ug, callback_data: 'bot_lang_menu' },
+      ],
+      [
+        { text: d.support[lang] || d.support.ug, url: TELEGRAM_CONFIG.supportUrl },
+        { text: d.channel[lang] || d.channel.ug, url: TELEGRAM_CONFIG.channelUrl },
+      ],
+      [
+        { text: d.backToMain[lang] || d.backToMain.ug, callback_data: 'back_to_main' },
+      ],
+    ],
+  };
+}
+
+export function getBotDashboardMessage(lang: BotLanguage = 'ug'): string {
+  if (lang === 'ar') {
+    return `
+🛒 <b>AUTO CASH — قسم التسوق عبر البوت</b>
+
+✨ يرجى اختيار الخدمة المطلوبة من القائمة أدناه:
+`.trim();
+  }
+  if (lang === 'tr') {
+    return `
+🛒 <b>AUTO CASH — Bot Alışveriş Menüsü</b>
+
+✨ Lütfen aşağıdaki menüden işlem yapmak istediğiniz seçeneği seçin:
+`.trim();
+  }
+  if (lang === 'en') {
+    return `
+🛒 <b>AUTO CASH — In-Bot Shopping Dashboard</b>
+
+✨ Please select a service or management option below:
+`.trim();
+  }
+  if (lang === 'uz') {
+    return `
+🛒 <b>AUTO CASH — Bot orqali xarid qilish</b>
+
+✨ Iltimos, quyidagi menyudan kerakli boʻlimni tanlang:
+`.trim();
+  }
+  if (lang === 'ru') {
+    return `
+🛒 <b>AUTO CASH — Меню покупок в боте</b>
+
+✨ Пожалуйста, выберите нужный раздел ниже:
+`.trim();
+  }
+  return `
+🛒 <b>AUTO CASH — بوتتا سېتىۋېلىش بۆلۈمى</b>
+
+✨ تۆۋەندىكى تىزىملىكتىن قىلماقچى بولغان مەشغۇلاتىڭىزنى تاللاڭ:
+`.trim();
 }
 
 /**

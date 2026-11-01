@@ -225,6 +225,21 @@ export async function getWifiStockSummaryAsync(): Promise<
     } else {
       summary[key].sold++;
     }
+
+    // Mirror fursan_net stock counts to both fursan_kafraya and fursan_kafer_jalis
+    if (card.serviceId === 'fursan_net') {
+      const k1 = `fursan_kafraya:${card.packageId}`;
+      const k2 = `fursan_kafer_jalis:${card.packageId}`;
+      if (!summary[k1]) summary[k1] = { available: 0, sold: 0 };
+      if (!summary[k2]) summary[k2] = { available: 0, sold: 0 };
+      if (card.status === 'available') {
+        summary[k1].available++;
+        summary[k2].available++;
+      } else {
+        summary[k1].sold++;
+        summary[k2].sold++;
+      }
+    }
   }
 
   return summary;
@@ -243,9 +258,13 @@ export async function claimAvailableWifiCardAsync(params: {
   const allCards = await getAllWifiCardsAsync();
   const now = new Date().toISOString();
 
-  const idx = allCards.findIndex(
-    (c) => c.serviceId === params.serviceId && c.packageId === params.packageId && c.status === 'available'
-  );
+  const idx = allCards.findIndex((c) => {
+    const matchesService =
+      c.serviceId === params.serviceId ||
+      ((params.serviceId === 'fursan_kafraya' || params.serviceId === 'fursan_kafer_jalis') &&
+        c.serviceId === 'fursan_net');
+    return matchesService && c.packageId === params.packageId && c.status === 'available';
+  });
 
   if (idx === -1) return null;
 
