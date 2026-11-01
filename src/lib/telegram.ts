@@ -1620,9 +1620,33 @@ export async function syncBotDescriptions(): Promise<{ ok: boolean; description?
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ short_description: shortDescription }),
     });
+    await syncBotCommands();
     return { ok: true, description };
   } catch (err: any) {
     return { ok: false, description: err?.message };
+  }
+}
+
+/**
+ * Synchronize official bot commands with Telegram API:
+ * Strictly keep ONLY /start as requested by user, removing all extra shortcut commands.
+ */
+export async function syncBotCommands(): Promise<{ ok: boolean }> {
+  const token = getBotToken();
+  if (!token) return { ok: false };
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/setMyCommands`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        commands: [
+          { command: 'start', description: 'باشلاش | دۇكانغا كىرىش 🚀' }
+        ]
+      })
+    });
+    return { ok: true };
+  } catch {
+    return { ok: false };
   }
 }
 
