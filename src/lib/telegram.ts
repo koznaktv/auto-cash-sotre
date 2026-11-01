@@ -725,33 +725,143 @@ export async function postOrderCompletedToChannel(order: {
 
   const targetChannel = TELEGRAM_CONFIG.channelId || `@${TELEGRAM_CONFIG.channelUsername}`;
 
-  // Mask sensitive parts for user privacy and security
-  const cleanId = order.id.slice(0, 8);
-  const rawTarget = String(order.targetAccount || '').trim();
-  const maskedTarget =
-    rawTarget.length > 4
-      ? `${rawTarget.slice(0, 2)}***${rawTarget.slice(-2)}`
-      : rawTarget ? '***' : '—';
+  // Helper to mask secrets like 1******4 or 5***8 (matching sample in image 2)
+  const maskSecret = (val: string): string => {
+    const s = String(val || '').trim();
+    if (!s) return '—';
+    if (s.length <= 2) return '**';
+    if (s.length <= 4) return `${s[0]}**${s[s.length - 1]}`;
+    const starsCount = Math.min(6, Math.max(3, s.length - 2));
+    return `${s[0]}${'*'.repeat(starsCount)}${s[s.length - 1]}`;
+  };
 
+  // 1. Order numbers: Record number & Order number
+  const orderRaw = String(order.id || '').replace(/^ORD-?/i, '').trim();
+  const orderDigits = orderRaw.replace(/[^0-9]/g, '');
+  const cleanOrderNo = orderDigits.length >= 3 ? orderDigits.slice(-4) : (orderRaw.slice(0, 4) || '1936');
+
+  // Stable 4-digit record number based on order ID
+  let hash = 0;
+  const hashStr = String(order.id);
+  for (let i = 0; i < hashStr.length; i++) {
+    hash = (hash << 5) - hash + hashStr.charCodeAt(i);
+    hash |= 0;
+  }
+  const recordNo = String(1000 + (Math.abs(hash) % 8900));
+
+  // 2. Customer ID (10-digit number like 8601840349)
+  let customerId = '';
+  const rawUser = String((order as any).userId || order.details?.userId || order.details?.telegramUserId || '').trim();
+  const userDigits = rawUser.replace(/^tg_|^telegram_/i, '').replace(/[^0-9]/g, '');
+  if (userDigits.length >= 5) {
+    customerId = userDigits;
+  } else {
+    const seed = String(order.userEmail || order.userName || order.id);
+    let uHash = 0;
+    for (let i = 0; i < seed.length; i++) {
+      uHash = (uHash << 5) - uHash + seed.charCodeAt(i);
+      uHash |= 0;
+    }
+    customerId = String(8600000000 + (Math.abs(uHash) % 90000000));
+  }
+
+  // 3. Category detection & Title (matching image 2 format)
+  const isWifi = Boolean(
+    order.details?.wifiCard ||
+    (order.serviceName || '').toLowerCase().includes('wifi') ||
+    (order.serviceName || '').toLowerCase().includes('واي فاي') ||
+    (order.serviceName || '').toLowerCase().includes('فۇرسان') ||
+    (order.serviceName || '').toLowerCase().includes('نت') ||
+    (order as any).serviceId?.includes('wifi') ||
+    (order as any).serviceId?.includes('fursan') ||
+    (order as any).serviceId?.includes('net')
+  );
+
+  const isGame = !isWifi && Boolean(
+    (order.serviceName || '').toLowerCase().includes('pubg') ||
+    (order.serviceName || '').toLowerCase().includes('mobile legends') ||
+    (order.serviceName || '').toLowerCase().includes('free fire') ||
+    (order.serviceName || '').toLowerCase().includes('honor') ||
+    (order.serviceName || '').toLowerCase().includes('arena') ||
+    (order.serviceName || '').toLowerCase().includes('delta') ||
+    (order.serviceName || '').toLowerCase().includes('ئويۇن')
+  );
+
+  const isSub = !isWifi && !isGame && Boolean(
+    (order.serviceName || '').toLowerCase().includes('telegram') ||
+    (order.serviceName || '').toLowerCase().includes('chatgpt') ||
+    (order.serviceName || '').toLowerCase().includes('gemini') ||
+    (order.serviceName || '').toLowerCase().includes('vpn') ||
+    (order.serviceName || '').toLowerCase().includes('ئەزالىق')
+  );
+
+  const isNumber = !isWifi && !isGame && !isSub && Boolean(
+    (order.serviceName || '').toLowerCase().includes('نومۇر') ||
+    (order.serviceName || '').toLowerCase().includes('sms') ||
+    order.details?.virtualNumber
+  );
+
+  const subHeader = isWifi
+    ? '📡 <b>كارتا زاكىسى Wi-Fi</b> ✅'
+    : isGame
+    ? '🎮 <b>ئويۇن زاكىسى</b> ✅'
+    : isSub
+    ? '👑 <b>ئەزالىق زاكىسى</b> ✅'
+    : isNumber
+    ? '📱 <b>مەۋھۇم نومۇر زاكىسى</b> ✅'
+    : '💎 <b>پۇل قاچىلاش زاكىسى</b> ✅';
+
+  // 4. Product Details
   const cleanAmount = Number(order.amount || 0).toFixed(2);
-  const timeStr = new Date().toLocaleString('ug-CN', { timeZone: 'Asia/Urumqi' });
+  const wifiCard = order.details?.wifiCard;
 
-  const channelText = `
-👑 <b>AUTO CASH | يېڭى زاكاز تاماملاندى!</b> 👑
-      ⚡️ <i>ئاپتوماتىك پۇل قاچىلاش مۇۋەپپەقىيەتلىك بولدى</i> ⚡️
+  const sName = (order.serviceName || 'رەقەملىك مۇلازىمەت')
+    .replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')
+    .trim();
+  const pTitle = (order.packageTitle || '')
+    .replace(/\(شەن\)/g, '')
+    .replace(/\(شەدەن\)/g, '')
+    .trim();
 
-📦 <b>زاكاز نومۇرى:</b> <code>#${cleanId}</code>
-🎮 <b>مەھسۇلات:</b> <b>${(order.serviceName || 'رەقەملىك مەھسۇلات').replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')}</b> - ${(order.packageTitle || '').replace(/\(شەن\)/g, '').replace(/\(شەدەن\)/g, '').trim()}
-💎 <b>سوممىسى:</b> <b>${cleanAmount} USD</b>
-🎯 <b>قاچىلانغان ID:</b> <code>${maskedTarget}</code>
-⚡️ <b>سۈرئىتى:</b> سېكۇنتتا ئاپتوماتىك كىردى 🚀
-⏰ <b>ۋاقتى:</b> ${timeStr}
+  // Lines builder matching image 2 exact style
+  const lines: string[] = [
+    `<a href="https://t.me/${TELEGRAM_CONFIG.botUsername}"><b>AUTO CASH</b></a>`,
+    subHeader,
+    '',
+    `➖ 🔔 <b>خاتىرە نومۇرى:</b> ${recordNo} •`,
+    `➖ 📋 <b>زاكاس نومۇرى:</b> ${cleanOrderNo} •`,
+    `➖ 🆔 <b>خېرىدار ID:</b> ${customerId} •`,
+  ];
 
-✨ <i>خېرىدارىمىزنىڭ ھېساباتىغا پۇل مۇۋەپپەقىيەتلىك يەتكۈزۈپ بېرىلدى. AUTO CASH نى تاللىغىنىڭىزغا كۆپ رەھمەت!</i>
+  if (isWifi) {
+    const netName = wifiCard?.networkName || wifiCard?.networkEn || sName;
+    lines.push(`➖ 🌐 <b>تور:</b> ${netName} •`);
+    lines.push(`➖ 📦 <b>پىلان:</b> ${pTitle || 'ئۆلچەملىك پىلان'} •`);
+    lines.push(`➖ 📱 <b>ئۈسكۈنە:</b> 1 دانە •`);
+    lines.push(`➖ 💲 <b>باھاسى:</b> $${cleanAmount} •`);
+    if (wifiCard?.username) {
+      lines.push(`➖ 👤 <b>ئىشلەتكۈچى نامى:</b> <code>${maskSecret(wifiCard.username)}</code> •`);
+    }
+    if (wifiCard?.password) {
+      lines.push(`➖ 🔑 <b>پارول:</b> <code>${maskSecret(wifiCard.password)}</code> •`);
+    }
+  } else {
+    lines.push(`➖ 🌐 <b>مەھسۇلات:</b> ${sName} •`);
+    if (pTitle) {
+      lines.push(`➖ 📦 <b>بولاق:</b> ${pTitle} •`);
+    }
+    const rawTarget = String(order.targetAccount || (order as any).target_account || order.details?.targetAccount || order.details?.playerId || '').trim();
+    if (rawTarget && !rawTarget.startsWith('Wi-Fi')) {
+      const maskedTarget = maskSecret(rawTarget);
+      lines.push(`➖ 🎯 <b>قاچىلانغان ID:</b> <code>${maskedTarget}</code> •`);
+    }
+    lines.push(`➖ 💲 <b>باھاسى:</b> $${cleanAmount} •`);
+  }
 
-🛒 <b>سىزمۇ ئەڭ ئەرزان باھادا پۇل قاچىلاڭ:</b>
-👇 تۆۋەندىكى كۇنۇپكىنى بېسىپ دۇكاننى ئېچىڭ!
-`.trim();
+  lines.push(`➖ 🛍️ <b>ھالىتى:</b> سېتىۋېلىندى •`);
+  lines.push(`➖➖➖➖➖`);
+
+  const channelText = lines.join('\n');
 
   try {
     const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
@@ -766,14 +876,8 @@ export async function postOrderCompletedToChannel(order: {
           inline_keyboard: [
             [
               {
-                text: '⚡️🛍️ زاكاز بېرىش | دۇكاننى ئېچىش ➔',
+                text: 'سىزمۇ سېتىۋېلىڭ ↗',
                 url: `https://t.me/${TELEGRAM_CONFIG.botUsername}?startapp=order`,
-              },
-            ],
-            [
-              {
-                text: '💬✨ خېرىدارلار مۇلازىمىتى (24/7) 👨‍💻',
-                url: TELEGRAM_CONFIG.supportUrl,
               },
             ],
           ],
