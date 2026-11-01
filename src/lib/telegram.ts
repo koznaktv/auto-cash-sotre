@@ -1635,14 +1635,31 @@ export async function syncBotCommands(): Promise<{ ok: boolean }> {
   const token = getBotToken();
   if (!token) return { ok: false };
   try {
+    const scopes = [
+      { type: 'default' },
+      { type: 'all_private_chats' },
+      { type: 'all_group_chats' },
+      { type: 'all_chat_administrators' },
+    ];
+    for (const scope of scopes) {
+      try {
+        await fetch(`https://api.telegram.org/bot${token}/deleteMyCommands`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ scope }),
+        });
+      } catch {}
+    }
+    const commands = [{ command: 'start', description: 'باشلاش' }];
     await fetch(`https://api.telegram.org/bot${token}/setMyCommands`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        commands: [
-          { command: 'start', description: 'باشلاش | دۇكانغا كىرىش 🚀' }
-        ]
-      })
+      body: JSON.stringify({ commands, scope: { type: 'default' } }),
+    });
+    await fetch(`https://api.telegram.org/bot${token}/setMyCommands`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ commands, scope: { type: 'all_private_chats' } }),
     });
     return { ok: true };
   } catch {
@@ -1655,7 +1672,7 @@ export async function syncBotCommands(): Promise<{ ok: boolean }> {
  * 1- توربەتكە كىرىش
  * 2- بوتتا سېتىۋېلىش
  */
-export function getStoreInlineKeyboard(lang: BotLanguage = 'ug') {
+export function getStoreInlineKeyboard(lang: BotLanguage = 'ug', isAdmin = false) {
   const b = BOT_I18N.storeButtons;
   return {
     inline_keyboard: [
@@ -1673,6 +1690,12 @@ export function getStoreInlineKeyboard(lang: BotLanguage = 'ug') {
           callback_data: 'bot_shopping_menu',
         },
       ],
+      ...(isAdmin ? [[
+        {
+          text: '👑 VIP باشقۇرۇش مەركىزى (/admin)',
+          callback_data: 'admin_dashboard',
+        }
+      ]] : []),
     ],
   };
 }
@@ -1942,6 +1965,12 @@ function getAdminInlineKeyboard() {
         {
           text: '📢🔥 رەسمىي تېلېگرام قانال 🪐',
           url: TELEGRAM_CONFIG.channelUrl,
+        },
+      ],
+      [
+        {
+          text: '🏠 دۇكان باش بېتىگە قايتىش 🛒',
+          callback_data: 'back_to_main',
         },
       ],
     ],
@@ -3214,13 +3243,19 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     // 9. Back to Main Menu (Universal In-Place Return for Customer & Admin)
     if (data === 'back_to_main') {
       await answerCallbackQuery(cqId);
+      const userLang = (await getUserLanguageAsync(fromId)) || 'ug';
+      const welcomeText = getWelcomeMessage(cq.from?.first_name, userLang);
+      await showOrEditMessage(chatId, messageId, welcomeText, getStoreInlineKeyboard(userLang, isAdmin));
+      return;
+    }
+
+    if (data === 'admin_dashboard') {
+      await answerCallbackQuery(cqId);
       if (isAdmin) {
         const adminWelcome = getAdminWelcomeMessage(fromUser || cq.from?.first_name);
         await showOrEditMessage(chatId, messageId, adminWelcome, getAdminInlineKeyboard());
       } else {
-        const userLang = (await getUserLanguageAsync(fromId)) || 'ug';
-        const welcomeText = getWelcomeMessage(cq.from?.first_name, userLang);
-        await showOrEditMessage(chatId, messageId, welcomeText, getStoreInlineKeyboard(userLang));
+        await sendTelegramMessage(chatId, '⚠️ كەچۈرۈڭ، بۇ بۆلەك پەقەت باشقۇرغۇچىغىلا ئېچىۋېتىلگەن.');
       }
       return;
     }
@@ -3270,8 +3305,13 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
   );
   if (handledByShopMsg) return;
 
-  // 1. Command /start
-  if (text.startsWith('/start')) {
+  // 1. Command /start or "باشلاش"
+  if (
+    text.startsWith('/start') ||
+    text === 'باشلاش' ||
+    text === '🚀 باشلاش' ||
+    text.toLowerCase() === 'start'
+  ) {
     resetChatMenuButtonToDefault(chatId);
 
     // 1-Click Telegram Login from Website: /start auth_<token>
@@ -3387,29 +3427,25 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       });
       return;
     }
-    if (isAdmin) {
-      const adminWelcome = getAdminWelcomeMessage(from?.username || from?.first_name);
-      await sendTelegramMessage(chatId, adminWelcome, {
-        parse_mode: 'HTML',
-        reply_markup: getAdminInlineKeyboard(),
-      });
-      return;
-    }
-
-    const userLang = await getUserLanguageAsync(from?.id || chatId);
-    if (!userLang) {
-      // First time entering bot -> Prompt language selection first!
-      await sendTelegramMessage(chatId, LANGUAGE_SELECTION_BANNER, {
-        parse_mode: 'HTML',
-        reply_markup: getLanguageSelectionKeyboard(),
-      });
-      return;
-    }
-
+    const userLang = (await getUserLanguageAsync(from?.id || chatId)) || 'ug';
     const welcomeText = getWelcomeMessage(from?.first_name, userLang);
     await sendTelegramMessage(chatId, welcomeText, {
       parse_mode: 'HTML',
-      reply_markup: getStoreInlineKeyboard(userLang),
+      reply_markup: getStoreInlineKeyboard(userLang, isAdmin),
+    });
+    return;
+  }
+
+  // Admin Command: /admin or /panel
+  if (text === '/admin' || text === '/panel') {
+    if (!isAdmin) {
+      await sendTelegramMessage(chatId, '⚠️ كەچۈرۈڭ، بۇ بۆلەك پەقەت باشقۇرغۇچىغىلا ئېچىۋېتىلگەن.');
+      return;
+    }
+    const adminWelcome = getAdminWelcomeMessage(from?.username || from?.first_name);
+    await sendTelegramMessage(chatId, adminWelcome, {
+      parse_mode: 'HTML',
+      reply_markup: getAdminInlineKeyboard(),
     });
     return;
   }
