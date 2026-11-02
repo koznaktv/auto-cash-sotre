@@ -45,6 +45,13 @@ export default function LoginPage() {
   });
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Lightning-fast prefetching of home page
+  React.useEffect(() => {
+    try {
+      router.prefetch('/');
+    } catch {}
+  }, [router]);
+
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     setToast({ show: true, msg: message, type });
@@ -134,12 +141,10 @@ export default function LoginPage() {
             storeLocalAuth(pollData.user);
             window.dispatchEvent(new Event('autocash_auth_changed'));
             showToast('مۇۋەپپەقىيەتلىك كىردىڭىز! قارشى ئالىمىز', 'success');
-            setTimeout(() => {
-              router.push('/');
-            }, 800);
+            router.push('/');
           }
         } catch {}
-      }, 1500);
+      }, 800);
     } catch (err: any) {
       console.error('Telegram login error:', err);
       showToast(err?.message || 'Telegram كىرىش مەغلۇپ بولدى', 'error');
@@ -175,13 +180,12 @@ export default function LoginPage() {
       storeLocalAuth(data.user);
       window.dispatchEvent(new Event('autocash_auth_changed'));
 
-      setTimeout(() => {
-        router.push('/');
-      }, 800);
+      // Instant entry - zero artificial delay
+      router.push('/');
     } catch (err: any) {
       showToast(err?.message || 'كىرىش مەغلۇپ بولدى', 'error');
     } finally {
-      setTimeout(() => setFlyArrow(false), 900);
+      setFlyArrow(false);
       setLoading(false);
     }
   };
@@ -232,13 +236,12 @@ export default function LoginPage() {
       storeLocalAuth(data.user);
       window.dispatchEvent(new Event('autocash_auth_changed'));
 
-      setTimeout(() => {
-        router.push('/');
-      }, 900);
+      // Instant entry - zero artificial delay
+      router.push('/');
     } catch (err: any) {
       showToast(err?.message || 'تىزىملىتىش مەغلۇپ بولدى', 'error');
     } finally {
-      setTimeout(() => setFlyArrow(false), 900);
+      setFlyArrow(false);
       setLoading(false);
     }
   };

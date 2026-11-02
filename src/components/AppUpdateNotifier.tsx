@@ -29,35 +29,39 @@ export default function AppUpdateNotifier() {
   );
 
   useEffect(() => {
-    // 1. Fetch latest system settings to get active version and requirements
-    fetch('/api/settings')
-      .then((r) => r.json())
-      .then((d) => {
-        const latestVer = d?.settings?.appVersion || APP_VERSION_CONFIG.version;
-        const minReq = d?.settings?.minRequiredVersion || APP_VERSION_CONFIG.minRequiredVersion || latestVer;
-        const forceUpdate = d?.settings?.forceUpdate !== undefined ? Boolean(d?.settings?.forceUpdate) : APP_VERSION_CONFIG.forceUpdate;
-        
-        setCurrentVersion(latestVer);
-        setMinRequiredVersion(minReq);
+    // 1. Defer system settings fetch so main UI and catalog load with maximum speed
+    const timer = setTimeout(() => {
+      fetch('/api/settings')
+        .then((r) => r.json())
+        .then((d) => {
+          const latestVer = d?.settings?.appVersion || APP_VERSION_CONFIG.version;
+          const minReq = d?.settings?.minRequiredVersion || APP_VERSION_CONFIG.minRequiredVersion || latestVer;
+          const forceUpdate = d?.settings?.forceUpdate !== undefined ? Boolean(d?.settings?.forceUpdate) : APP_VERSION_CONFIG.forceUpdate;
+          
+          setCurrentVersion(latestVer);
+          setMinRequiredVersion(minReq);
 
-        const customNote = d?.settings?.appVersionConfig?.releaseNotes?.[lang];
-        if (customNote) {
-          setReleaseNote(customNote);
-        } else {
-          setReleaseNote(
-            APP_VERSION_CONFIG.releaseNotes[lang] || APP_VERSION_CONFIG.releaseNotes.ug
+          const customNote = d?.settings?.appVersionConfig?.releaseNotes?.[lang];
+          if (customNote) {
+            setReleaseNote(customNote);
+          } else {
+            setReleaseNote(
+              APP_VERSION_CONFIG.releaseNotes[lang] || APP_VERSION_CONFIG.releaseNotes.ug
+            );
+          }
+
+          evaluateVersionStatus(latestVer, minReq, forceUpdate);
+        })
+        .catch(() => {
+          evaluateVersionStatus(
+            APP_VERSION_CONFIG.version,
+            APP_VERSION_CONFIG.minRequiredVersion,
+            APP_VERSION_CONFIG.forceUpdate
           );
-        }
+        });
+    }, 1200);
 
-        evaluateVersionStatus(latestVer, minReq, forceUpdate);
-      })
-      .catch(() => {
-        evaluateVersionStatus(
-          APP_VERSION_CONFIG.version,
-          APP_VERSION_CONFIG.minRequiredVersion,
-          APP_VERSION_CONFIG.forceUpdate
-        );
-      });
+    return () => clearTimeout(timer);
   }, [lang]);
 
   // Lock scroll when Force Update is active

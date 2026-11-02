@@ -173,13 +173,11 @@ export default function AuthModal({
             storeLocalAuth(pollData.user);
             notifyAuthChanged();
             showToast('مۇۋەپپەقىيەتلىك كىردىڭىز! قارشى ئالىمىز', 'success');
-            setTimeout(() => {
-              onSuccess?.(pollData.user);
-              onClose();
-            }, 800);
+            onSuccess?.(pollData.user);
+            onClose();
           }
         } catch {}
-      }, 1500);
+      }, 800);
     } catch (err: any) {
       console.error('Telegram login error:', err);
       showToast(err?.message || 'Telegram كىرىش مەغلۇپ بولدى', 'error');
@@ -215,14 +213,13 @@ export default function AuthModal({
       storeLocalAuth(data.user);
       notifyAuthChanged();
 
-      setTimeout(() => {
-        onSuccess?.(data.user);
-        onClose();
-      }, 800);
+      // Instant UI response - close modal immediately
+      onSuccess?.(data.user);
+      onClose();
     } catch (err: any) {
       showToast(err?.message || 'كىرىش مەغلۇپ بولدى', 'error');
     } finally {
-      setTimeout(() => setFlyArrow(false), 900);
+      setFlyArrow(false);
       setLoading(false);
     }
   };
@@ -273,14 +270,13 @@ export default function AuthModal({
       storeLocalAuth(data.user);
       notifyAuthChanged();
 
-      setTimeout(() => {
-        onSuccess?.(data.user);
-        onClose();
-      }, 900);
+      // Instant UI response - close modal immediately
+      onSuccess?.(data.user);
+      onClose();
     } catch (err: any) {
       showToast(err?.message || 'تىزىملىتىش مەغلۇپ بولدى', 'error');
     } finally {
-      setTimeout(() => setFlyArrow(false), 900);
+      setFlyArrow(false);
       setLoading(false);
     }
   };

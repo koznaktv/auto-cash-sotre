@@ -365,11 +365,22 @@ interface SGCHomeLayoutProps {
 export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLayoutProps) {
   const router = useRouter();
   const { lang, setLang, t, isRTL } = useLanguage();
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('autocash_theme') as 'dark' | 'light' | null;
+      if (saved === 'dark' || saved === 'light') return saved;
+    }
+    return 'light';
+  });
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [user, setUser] = useState<ClientUser | null>(null);
+  const [user, setUser] = useState<ClientUser | null>(() => {
+    if (typeof window !== 'undefined') {
+      return getCachedUser();
+    }
+    return null;
+  });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showApiModal, setShowApiModal] = useState(false);
 
@@ -388,7 +399,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
     }
     return SERVICES_DATA;
   });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Touch Swipe State for Mobile Banner (High-Performance Ref Based - ZERO Re-renders during swipe)
   const touchStartXRef = React.useRef<number | null>(null);
@@ -396,17 +407,25 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
 
   // Sync auth and theme
   useEffect(() => {
-    setUser(getCachedUser());
+    const syncUser = () => setUser(getCachedUser());
+    syncUser();
+
+    window.addEventListener('autocash-auth-changed', syncUser);
+    window.addEventListener('autocash_auth_changed', syncUser);
+
     const saved = localStorage.getItem('autocash_theme') as 'dark' | 'light' | null;
     if (saved) {
-      setTheme(saved);
       document.body.classList.toggle('light-theme', saved === 'light');
       document.body.classList.toggle('dark-theme', saved === 'dark');
     } else {
-      setTheme('light');
       document.body.classList.add('light-theme');
       document.body.classList.remove('dark-theme');
     }
+
+    return () => {
+      window.removeEventListener('autocash-auth-changed', syncUser);
+      window.removeEventListener('autocash_auth_changed', syncUser);
+    };
   }, []);
 
   // Fetch Real Server Services from Database / API smoothly without UI flash
