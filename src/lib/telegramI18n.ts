@@ -219,22 +219,29 @@ export const LANGUAGE_SELECTION_BANNER = `
  */
 export const ANIMATED_EMOJI_IDS: Record<string, string> = {
   wave: '6125155123996921509',      // 3D glossy waving hand 👋 (pack_3dc13_by_TgEmojis_bot)
-  sparkles: '5472164874886846699',  // sparkles ✨ (RestrictedEmoji)
+  sparkles: '6271298984040468914',  // glowing star ✨/🌟 (@stickerXtara)
   diamond: '6244241334320762892',   // glowing diamond 💎 (Statusvideobytaraxd)
   crown: '6219549292458150316',     // glowing VIP crown 👑 (Statusvideobytaraxd)
-  zap: '6125318521732730997',       // 3D lightning ⚡ (pack_3dc13_by_TgEmojis_bot)
-  check: '6296501388276926215',     // animated checkmark ✅ (Statusvideobytaraxd)
+  zap: '6271793583884341506',       // 3D lightning ⚡ (@stickerXtara)
+  check: '6269266639875744207',     // animated checkmark ✅ (@stickerXtara)
   fire: '6125091296487937000',      // 3D fire 🔥 (pack_3dc13_by_TgEmojis_bot)
-  card: '6127342937387831421',      // 3D credit card 💳 (pack_3dc13_by_TgEmojis_bot)
-  bag: '5373052667671093676',       // shopping bag 🛍️ (RestrictedEmoji)
-  cart: '5431499171045581032',      // cart 🛒 (RestrictedEmoji)
+  card: '6271729331173593624',      // 3D credit card 💳 (@stickerXtara)
+  bag: '6271365921105777321',       // shopping bag 🛍️ (@stickerXtara)
+  cart: '6271365921105777321',      // cart 🛒 (@stickerXtara)
   game: '5902377481045811916',      // gaming pad 🎮 (abilicash)
-  money: '5843831244235738962',     // cash bag 💰 (abilicash)
+  money: '6271348234430452946',     // cash bag 💰 (@stickerXtara)
+  dollar: '6271716519286149469',    // dollar note 💵 (@stickerXtara)
+  flyingMoney: '6271636667254182477', // flying money 💸 (@stickerXtara)
+  computer: '6271595899424608846',  // computer / apps 💻 (@stickerXtara)
+  stats: '6271314385793196465',     // chart / stats 📊 (@stickerXtara)
+  mail: '6271478831501021341',      // mail / inbox 📩 (@stickerXtara)
+  gear: '6271382478204703314',      // gear / settings ⚙️ (@stickerXtara)
+  robot: '6271362510901747485',     // robot 🤖 (@stickerXtara)
   coin: '5382164415019768638',      // crypto coin 🪙 (TONEmoji)
   rocket: '5445284980978621387',    // rocket 🚀 (RestrictedEmoji)
   party: '5436040291507247633',     // party 🎉 (RestrictedEmoji)
   gift: '5199749070830197566',      // gift 🎁 (RestrictedEmoji)
-  star: '6127412777851032768',      // 3D star 🌟 (pack_3dc13_by_TgEmojis_bot)
+  star: '6271298984040468914',      // 3D star 🌟 (@stickerXtara)
   bell: '6127394124808065175',      // 3D bell 🔔 (pack_3dc13_by_TgEmojis_bot)
   shield: '5251203410396458957',    // shield 🛡 (NewsEmoji)
 };
@@ -252,10 +259,15 @@ export function tgEmoji(name: string, fallbackChar: string): string {
  */
 export const BOT_I18N = {
   welcome: {
-    ug: (_name: string) => `
-${tgEmoji('wave', '👋')} <b>ئەسسالامۇ ئەلەيكۇم AUTO CASH بوت سۇپىمىزغا كەلگىنىڭىزنى قىزغىن قارشى ئالىمىز !!!</b>
+    ug: (name: string) => `
+${tgEmoji('zap', '⚡️')} <b>AUTO CASH | تېز ھەم ئەرزان رەقەملىك دۇكان</b> ${tgEmoji('zap', '⚡️')}
+━━━━━━━━━━━━━━━━━━━━
+${tgEmoji('wave', '👋')} <b>ئەسسالامۇ ئەلەيكۇم، ھۆرمەتلىك ${name || 'خېرىدارىمىز'}!</b>
+${tgEmoji('sparkles', '✨')} <i>AUTO CASH ئاپتوماتىك مۇلازىمەت سۇپىمىزغا خۇش كەپسىز!</i>
 
-${tgEmoji('sparkles', '✨')} سېتىۋېلىش ئۈچۈن تۆۋەندىكى تاللاشتىن بىرىنى كۆرۈڭ:
+${tgEmoji('bag', '🛍️')} مەۋھۇم نومۇرلار، ئەپلەر، VIP ئەزالىق، ئويۇنلار، Wi-Fi كارتىلىرى ۋە پۇل قاچىلاش مۇلازىمەتلىرىنى بىۋاسىتە سېتىۋالالايسىز:
+
+👇 <b>تۆۋەندىكى كۇنۇپكىلاردىن كېرەكلىك بۆلەكنى تاللاڭ:</b>
 `.trim(),
 
     ar: (_name: string) => `
