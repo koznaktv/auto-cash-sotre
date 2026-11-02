@@ -51,7 +51,17 @@ export async function POST(req: Request) {
 
     const result = await bulkAddWifiCardsAsync({
       serviceId,
-      serviceName: serviceName || (serviceId === 'fursan_net' ? 'شبكة الفرسان' : 'شبكة عزيز نت'),
+      serviceName:
+        serviceName ||
+        (serviceId === 'fursan_kafer_jalis'
+          ? 'شبكة الفرسان (كفر جالس)'
+          : serviceId === 'fursan_kafraya'
+          ? 'شبكة الفرسان (كفريا)'
+          : serviceId === 'fursan_net'
+          ? 'شبكة الفرسان'
+          : serviceId === 'azez_net'
+          ? 'شبكة عزيز نت'
+          : 'شبكة المجاهد نت'),
       packageId,
       packageTitle: packageTitle || packageId,
       rawText,

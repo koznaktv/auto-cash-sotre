@@ -215,30 +215,42 @@ export async function getWifiStockSummaryAsync(): Promise<
   const cards = await getAllWifiCardsAsync();
   const summary: Record<string, { available: number; sold: number }> = {};
 
-  for (const card of cards) {
-    const key = `${card.serviceId}:${card.packageId}`;
+  const addCount = (serviceId: string, packageId: string, status: 'available' | 'sold') => {
+    const key = `${serviceId}:${packageId}`;
     if (!summary[key]) {
       summary[key] = { available: 0, sold: 0 };
     }
-    if (card.status === 'available') {
+    if (status === 'available') {
       summary[key].available++;
     } else {
       summary[key].sold++;
     }
+  };
 
-    // Mirror fursan_net stock counts to both fursan_kafraya and fursan_kafer_jalis
-    if (card.serviceId === 'fursan_net') {
-      const k1 = `fursan_kafraya:${card.packageId}`;
-      const k2 = `fursan_kafer_jalis:${card.packageId}`;
-      if (!summary[k1]) summary[k1] = { available: 0, sold: 0 };
-      if (!summary[k2]) summary[k2] = { available: 0, sold: 0 };
-      if (card.status === 'available') {
-        summary[k1].available++;
-        summary[k2].available++;
-      } else {
-        summary[k1].sold++;
-        summary[k2].sold++;
+  for (const card of cards) {
+    addCount(card.serviceId, card.packageId, card.status);
+
+    // If card was uploaded to fursan_kafer_jalis as fursan_kj_* or fursan_*
+    if (card.serviceId === 'fursan_kafer_jalis') {
+      const genericPkg = card.packageId.replace(/^fursan_kj_/, 'fursan_');
+      if (genericPkg !== card.packageId) {
+        addCount('fursan_kafer_jalis', genericPkg, card.status);
       }
+    } else if (card.serviceId === 'fursan_kafraya') {
+      const genericPkg = card.packageId.replace(/^fursan_kf_/, 'fursan_');
+      if (genericPkg !== card.packageId) {
+        addCount('fursan_kafraya', genericPkg, card.status);
+      }
+    } else if (card.serviceId === 'fursan_net') {
+      // Generic fursan cards count towards both kafer_jalis and kafraya
+      const sizeMatch = card.packageId.match(/fursan_(\d+gb)/);
+      const size = sizeMatch ? sizeMatch[1] : '';
+      if (size) {
+        addCount('fursan_kafer_jalis', `fursan_kj_${size}`, card.status);
+        addCount('fursan_kafraya', `fursan_kf_${size}`, card.status);
+      }
+      addCount('fursan_kafer_jalis', card.packageId, card.status);
+      addCount('fursan_kafraya', card.packageId, card.status);
     }
   }
 
@@ -258,12 +270,35 @@ export async function claimAvailableWifiCardAsync(params: {
   const allCards = await getAllWifiCardsAsync();
   const now = new Date().toISOString();
 
+  // Helper to extract GB size like "6gb", "4gb", "2gb", "1gb"
+  const getGbSize = (pkg: string) => {
+    const m = pkg.match(/(\d+gb)/i);
+    return m ? m[1].toLowerCase() : pkg.toLowerCase();
+  };
+
+  const targetGb = getGbSize(params.packageId);
+  const isTargetFursan = params.serviceId.startsWith('fursan');
+
   const idx = allCards.findIndex((c) => {
-    const matchesService =
-      c.serviceId === params.serviceId ||
-      ((params.serviceId === 'fursan_kafraya' || params.serviceId === 'fursan_kafer_jalis') &&
-        c.serviceId === 'fursan_net');
-    return matchesService && c.packageId === params.packageId && c.status === 'available';
+    if (c.status !== 'available') return false;
+
+    // 1. Direct exact match
+    if (c.serviceId === params.serviceId && c.packageId === params.packageId) {
+      return true;
+    }
+
+    // 2. Cross-compatible matching across Fursan networks
+    if (isTargetFursan && c.serviceId.startsWith('fursan')) {
+      const cardGb = getGbSize(c.packageId);
+      if (cardGb !== targetGb) return false;
+
+      // Allow same specific network, or fallback to generic fursan_net
+      if (c.serviceId === params.serviceId || c.serviceId === 'fursan_net') {
+        return true;
+      }
+    }
+
+    return false;
   });
 
   if (idx === -1) return null;

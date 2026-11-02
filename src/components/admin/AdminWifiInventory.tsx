@@ -21,13 +21,23 @@ interface WifiCardItem {
 
 const NETWORKS = [
   {
-    id: 'fursan_net',
-    name: 'شبكة الفرسان (Fursan Net)',
+    id: 'fursan_kafer_jalis',
+    name: 'شبكة الفرسان (كفر جالس) — Fursan Net Kafer Jalis',
     packages: [
-      { id: 'fursan_6gb', title: '6 جيجا 7 كۈنلۈك (6GB 7 Days)', price: '$0.45' },
-      { id: 'fursan_4gb', title: '4 جيجا 7 كۈنلۈك (4GB 7 Days)', price: '$0.34' },
-      { id: 'fursan_2gb', title: '2 جيجا 5 كۈنلۈك (2GB 5 Days)', price: '$0.23' },
-      { id: 'fursan_1gb', title: '1 جيجا 3 كۈنلۈك (1GB 3 Days)', price: '$0.12' },
+      { id: 'fursan_kj_6gb', title: '6 جيجا 7 كۈنلۈك (6GB 7 Days)', price: '$0.45' },
+      { id: 'fursan_kj_4gb', title: '4 جيجا 7 كۈنلۈك (4GB 7 Days)', price: '$0.34' },
+      { id: 'fursan_kj_2gb', title: '2 جيجا 5 كۈنلۈك (2GB 5 Days)', price: '$0.23' },
+      { id: 'fursan_kj_1gb', title: '1 جيجا 3 كۈنلۈك (1GB 3 Days)', price: '$0.12' },
+    ],
+  },
+  {
+    id: 'fursan_kafraya',
+    name: 'شبكة الفرسان (كفريا) — Fursan Net Kafraya',
+    packages: [
+      { id: 'fursan_kf_6gb', title: '6 جيجا 7 كۈنلۈك (6GB 7 Days)', price: '$0.45' },
+      { id: 'fursan_kf_4gb', title: '4 جيجا 7 كۈنلۈك (4GB 7 Days)', price: '$0.34' },
+      { id: 'fursan_kf_2gb', title: '2 جيجا 5 كۈنلۈك (2GB 5 Days)', price: '$0.23' },
+      { id: 'fursan_kf_1gb', title: '1 جيجا 3 كۈنلۈك (1GB 3 Days)', price: '$0.12' },
     ],
   },
   {
@@ -50,6 +60,16 @@ const NETWORKS = [
       { id: 'mujahid_1gb', title: '1 جيجا 3 كۈنلۈك (1GB 3 Days)', price: '$0.12' },
     ],
   },
+  {
+    id: 'fursan_net',
+    name: 'شبكة الفرسان (ئومۇمىي / Generic Fursan Net)',
+    packages: [
+      { id: 'fursan_6gb', title: '6 جيجا 7 كۈنلۈك (6GB 7 Days)', price: '$0.45' },
+      { id: 'fursan_4gb', title: '4 جيجا 7 كۈنلۈك (4GB 7 Days)', price: '$0.34' },
+      { id: 'fursan_2gb', title: '2 جيجا 5 كۈنلۈك (2GB 5 Days)', price: '$0.23' },
+      { id: 'fursan_1gb', title: '1 جيجا 3 كۈنلۈك (1GB 3 Days)', price: '$0.12' },
+    ],
+  },
 ];
 
 export default function AdminWifiInventory() {
@@ -58,14 +78,14 @@ export default function AdminWifiInventory() {
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // Form state for bulk import
-  const [selectedNetwork, setSelectedNetwork] = useState('fursan_net');
-  const [selectedPackage, setSelectedPackage] = useState('fursan_4gb');
+  // Form state for bulk import (defaults to Fursan Kafer Jalis)
+  const [selectedNetwork, setSelectedNetwork] = useState('fursan_kafer_jalis');
+  const [selectedPackage, setSelectedPackage] = useState('fursan_kj_4gb');
   const [rawText, setRawText] = useState('');
   const [importing, setImporting] = useState(false);
 
   // Filter state
-  const [filterNet, setFilterNet] = useState<'all' | 'fursan_net' | 'azez_net' | 'almujahid_net'>('all');
+  const [filterNet, setFilterNet] = useState<'all' | string>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'available' | 'sold'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -203,7 +223,13 @@ export default function AdminWifiInventory() {
 
   // Filtered Cards
   const filteredCards = cards.filter((c) => {
-    if (filterNet !== 'all' && c.serviceId !== filterNet) return false;
+    if (filterNet !== 'all') {
+      if (filterNet === 'fursan_net') {
+        if (!c.serviceId.includes('fursan')) return false;
+      } else if (c.serviceId !== filterNet) {
+        return false;
+      }
+    }
     if (filterStatus !== 'all' && c.status !== filterStatus) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
@@ -249,7 +275,7 @@ export default function AdminWifiInventory() {
               </span>
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              شبكة الفرسان ۋە شبكة عزيز نت كارتىلىرىنى توپ قاچىلاش ۋە سېتىلىش ھالىتىنى باشقۇرۇش
+              شبكة الفرسان (كفر جالس)، شبكة الفرسان (كفريا)، شبكة عزيز نت ۋە شبكة المجاهد نت كارتىلىرىنى توپ قاچىلاش ۋە سېتىلىش ھالىتىنى باشقۇرۇش
             </p>
           </div>
         </div>
@@ -462,13 +488,15 @@ export default function AdminWifiInventory() {
             {/* Filter Net */}
             <select
               value={filterNet}
-              onChange={(e) => setFilterNet(e.target.value as any)}
+              onChange={(e) => setFilterNet(e.target.value)}
               className="bg-slate-950 border border-slate-700 text-xs text-slate-200 rounded-xl px-2.5 py-1.5 focus:outline-none"
             >
               <option value="all">بارلىق تورلار</option>
-              <option value="fursan_net">شبكة الفرسان</option>
+              <option value="fursan_kafer_jalis">شبكة الفرسان (كفر جالس)</option>
+              <option value="fursan_kafraya">شبكة الفرسان (كفريا)</option>
               <option value="azez_net">شبكة عزيز نت</option>
               <option value="almujahid_net">شبكة المجاهد نت</option>
+              <option value="fursan_net">شبكة الفرسان (ئومۇمىي)</option>
             </select>
 
             {/* Filter Status */}
