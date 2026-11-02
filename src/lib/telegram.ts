@@ -3599,8 +3599,9 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
 
   const msg = update.message;
   const chatId = msg.chat?.id;
-  const text = (msg.text || '').trim();
+  const text = (msg.text || msg.caption || '').trim();
   const from = msg.from;
+  const allEntities = Array.isArray(msg.entities) ? msg.entities : (Array.isArray(msg.caption_entities) ? msg.caption_entities : []);
 
   if (!chatId) return;
 
@@ -3652,8 +3653,8 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
   }
 
   // Admin Custom Emoji ID Detector: if admin sends a message containing custom emojis, reply with its ID & snippet
-  if (isAdmin && Array.isArray(msg.entities)) {
-    const customEmojiEntities = msg.entities.filter((e: any) => e.type === 'custom_emoji');
+  if (isAdmin && Array.isArray(allEntities)) {
+    const customEmojiEntities = allEntities.filter((e: any) => e.type === 'custom_emoji');
     if (customEmojiEntities.length > 0) {
       let reply = `✨ <b>ھەرىكەتلىك ئىموجى (Custom Animated Emoji) بايقالدى!</b>\n\n`;
       customEmojiEntities.forEach((ce: any, idx: number) => {
@@ -3663,9 +3664,33 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
         reply += `   • <b>Emoji ID:</b> <code>${id}</code>\n`;
         reply += `   • <b>كود قېلىپى:</b> <code>&lt;tg-emoji emoji-id="${id}"&gt;${fallbackChar}&lt;/tg-emoji&gt;</code>\n\n`;
       });
-      reply += `💡 <i>بۇ ID نى چاتتا ماڭا كۆچۈرۈپ ئەۋەتىپ بەرسىڭىز، سىز خالىغان قارشى ئېلىش ياكى زاكاز ئۇچۇرىغا دەرھال تەڭشەپ قويىمەن.</i>`;
+      reply += `💡 <i>بۇ ID كودى تۇتۇلدى! بۇنى قايسى كۇنۇپكىغا قويۇشنى ئېيتسىڭىز، دەرھال تەڭشەپ قويىمەن.</i>`;
       await sendTelegramMessage(chatId, reply, { parse_mode: 'HTML' });
       return;
+    }
+  }
+
+  // Admin Pack Link Auto-Detector: if admin sends or forwards t.me/addemoji/... or t.me/addstickers/...
+  const packMatch = text.match(/t\.me\/(?:addemoji|addstickers)\/([a-zA-Z0-9_]+)/i);
+  if (isAdmin && packMatch) {
+    const packName = packMatch[1];
+    try {
+      const token = getBotToken();
+      const res = await fetch(`https://api.telegram.org/bot${token}/getStickerSet?name=${packName}`);
+      const data = await res.json();
+      if (data.ok && data.result) {
+        const set = data.result;
+        const stickers = set.stickers || [];
+        let reply = `📦 <b>«${set.title}» بولىقى مۇۋەپپەقىيەتلىك ئوقۇلدى!</b>\n\n` +
+          `• <b>نامى:</b> <code>${set.name}</code>\n` +
+          `• <b>جەمئىي سانى:</b> ${stickers.length} دانە\n` +
+          `• <b>تۈرى:</b> ${set.sticker_type === 'custom_emoji' ? 'ھەرىكەتلىك خاس ئىموجى (Custom Emoji) ✨' : 'چاپلاق (Sticker) 🖼️'}\n\n` +
+          `💡 <i>بۇ بولاق كودقا ئۇلاندى. ئەمدى قايسى بەلگىنى كۇنۇپكىغا قويۇشنى تاللاڭ!</i>`;
+        await sendTelegramMessage(chatId, reply, { parse_mode: 'HTML' });
+        return;
+      }
+    } catch (e) {
+      console.warn('Pack fetch error:', e);
     }
   }
 
