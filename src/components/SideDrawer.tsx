@@ -115,7 +115,7 @@ export default function SideDrawer({
   onOpenAuth,
   onLogout,
 }: SideDrawerProps) {
-  const { lang, setLang, t, isRTL } = useLanguage();
+  const { lang, setLang, t, isRTL, openLanguageModal } = useLanguage();
   const [avatarSrc, setAvatarSrc] = useState<string>('');
   const [siteLogo, setSiteLogo] = useState<string>(() => {
     if (typeof window !== 'undefined') {
@@ -269,23 +269,33 @@ export default function SideDrawer({
 
           {/* Language Switcher Section in Menu Drawer */}
           <div className="p-3.5 rounded-2xl bg-gradient-to-b from-[#081f38] to-[#051426] border border-amber-500/30 mb-4 shadow-lg shadow-black/30">
-            <div className="flex items-center justify-between mb-2.5">
-              <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+            <div
+              onClick={() => {
+                onClose();
+                openLanguageModal();
+              }}
+              className="flex items-center justify-between mb-2.5 cursor-pointer group"
+              title="تىل تاللاش كۆزنىكىنى ئېچىش"
+            >
+              <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5 group-hover:text-amber-200 transition">
                 <Globe2 className="w-4 h-4 text-amber-400" />
                 <span>{t('selectLanguage')}</span>
               </span>
-              <span className="text-[10px] text-amber-200/70 font-semibold">
-                {lang === 'ug'
-                  ? 'ئۇيغۇرچە'
-                  : lang === 'en'
-                  ? 'English'
-                  : lang === 'ar'
-                  ? 'العربية'
-                  : lang === 'tr'
-                  ? 'Türkçe'
-                  : lang === 'uz'
-                  ? "O'zbekcha"
-                  : 'Русский'}
+              <span className="text-[10px] text-amber-300 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 group-hover:bg-amber-500/25 transition">
+                <span>
+                  {lang === 'ug'
+                    ? 'ئۇيغۇرچە'
+                    : lang === 'en'
+                    ? 'English'
+                    : lang === 'ar'
+                    ? 'العربية'
+                    : lang === 'tr'
+                    ? 'Türkçe'
+                    : lang === 'uz'
+                    ? "O'zbekcha"
+                    : 'Русский'}
+                </span>
+                <span className="text-[9px]">➔ كۆزنەك</span>
               </span>
             </div>
 

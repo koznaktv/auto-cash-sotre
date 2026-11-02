@@ -35,7 +35,7 @@ export default function Navbar({
   onOpenAuth,
   user: externalUser,
 }: NavbarProps) {
-  const { lang, setLang, t, isRTL } = useLanguage();
+  const { lang, setLang, t, isRTL, openLanguageModal } = useLanguage();
   const [internalDrawerOpen, setInternalDrawerOpen] = useState(false);
   const [internalAuthOpen, setInternalAuthOpen] = useState(false);
   const [internalUser, setInternalUser] = useState<{ name: string; email: string; id?: string; balance?: number; avatarUrl?: string } | null>(() => {

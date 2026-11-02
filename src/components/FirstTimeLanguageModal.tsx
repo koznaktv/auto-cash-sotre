@@ -59,13 +59,31 @@ const LANGUAGES: LanguageOption[] = [
 ];
 
 export default function FirstTimeLanguageModal() {
-  const { lang, setLang, isRTL } = useLanguage();
-  const [isOpen, setIsOpen] = useState(false);
+  const { lang, setLang, isRTL, isLanguageModalOpen, closeLanguageModal } = useLanguage();
+  const [internalOpen, setInternalOpen] = useState(false);
   const [selected, setSelected] = useState<Language>(lang);
 
   useEffect(() => {
+    setSelected(lang);
+  }, [lang]);
+
+  useEffect(() => {
+    const handleManualOpen = () => setInternalOpen(true);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('autocash-open-language-modal', handleManualOpen);
+      window.addEventListener('open-language-modal', handleManualOpen);
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('autocash-open-language-modal', handleManualOpen);
+        window.removeEventListener('open-language-modal', handleManualOpen);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     try {
-      // If user is in the native Android App, skip modal to maintain lightning-fast native UX
+      // If user is in the native Android App, skip automatic first-time popup
       const isNativeApp = typeof navigator !== 'undefined' && /AutoCashApp/i.test(navigator.userAgent || '');
       if (isNativeApp) {
         localStorage.setItem('autocash_language_selected', 'true');
@@ -89,7 +107,7 @@ export default function FirstTimeLanguageModal() {
         // Wait for welcome splash to finish, then show language prompt smoothly
         const onSplashDismiss = () => {
           setTimeout(() => {
-            setIsOpen(true);
+            setInternalOpen(true);
           }, 200);
         };
         window.addEventListener('autocash-welcome-dismissed', onSplashDismiss, { once: true });
@@ -98,7 +116,7 @@ export default function FirstTimeLanguageModal() {
         const fallbackTimer = setTimeout(() => {
           const checkAgain = localStorage.getItem('autocash_language_selected') === 'true';
           if (!checkAgain) {
-            setIsOpen(true);
+            setInternalOpen(true);
           }
         }, 2200);
 
@@ -109,7 +127,7 @@ export default function FirstTimeLanguageModal() {
       } else {
         // If not on root or splash was already seen, open smoothly after a brief delay
         const timer = setTimeout(() => {
-          setIsOpen(true);
+          setInternalOpen(true);
         }, 300);
         return () => clearTimeout(timer);
       }
@@ -127,16 +145,19 @@ export default function FirstTimeLanguageModal() {
     try {
       localStorage.setItem('autocash_language_selected', 'true');
     } catch {}
-    setIsOpen(false);
+    setInternalOpen(false);
+    closeLanguageModal();
   };
 
   const handleDismiss = () => {
     try {
       localStorage.setItem('autocash_language_selected', 'true');
     } catch {}
-    setIsOpen(false);
+    setInternalOpen(false);
+    closeLanguageModal();
   };
 
+  const isOpen = internalOpen || isLanguageModalOpen;
   if (!isOpen) return null;
 
   return (

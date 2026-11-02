@@ -8,6 +8,9 @@ export type Language = 'ug' | 'en' | 'ar' | 'tr' | 'uz' | 'ru';
 export interface LanguageContextType {
   lang: Language;
   setLang: (lang: Language) => void;
+  isLanguageModalOpen: boolean;
+  openLanguageModal: () => void;
+  closeLanguageModal: () => void;
   t: (key: string) => string;
   dir: 'rtl' | 'ltr';
   isRTL: boolean;
@@ -1993,6 +1996,37 @@ const VALID_LANGS: Language[] = ['ug', 'en', 'ar', 'tr', 'uz', 'ru'];
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<Language>('ug');
+  const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
+
+  const openLanguageModal = () => {
+    setIsLanguageModalOpen(true);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('autocash-open-language-modal'));
+    }
+  };
+
+  const closeLanguageModal = () => {
+    setIsLanguageModalOpen(false);
+  };
+
+  useEffect(() => {
+    const handleOpen = () => setIsLanguageModalOpen(true);
+    const handleClose = () => setIsLanguageModalOpen(false);
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('autocash-open-language-modal', handleOpen);
+      window.addEventListener('open-language-modal', handleOpen);
+      window.addEventListener('autocash-close-language-modal', handleClose);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('autocash-open-language-modal', handleOpen);
+        window.removeEventListener('open-language-modal', handleOpen);
+        window.removeEventListener('autocash-close-language-modal', handleClose);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     try {
@@ -2115,6 +2149,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       value={{
         lang,
         setLang,
+        isLanguageModalOpen,
+        openLanguageModal,
+        closeLanguageModal,
         t,
         dir,
         isRTL,

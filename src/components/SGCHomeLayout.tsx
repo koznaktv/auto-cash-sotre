@@ -367,7 +367,7 @@ interface SGCHomeLayoutProps {
 
 export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLayoutProps) {
   const router = useRouter();
-  const { lang, setLang, t, isRTL } = useLanguage();
+  const { lang, setLang, t, isRTL, openLanguageModal } = useLanguage();
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('autocash_theme') as 'dark' | 'light' | null;
@@ -734,16 +734,44 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
       } pt-[env(safe-area-inset-top,0px)]`}>
         <div className="max-w-[1200px] mx-auto px-3.5 sm:px-4 py-2.5 flex items-center justify-between gap-3">
           
-          {/* Action Icons on the Left (Hamburger, Avatar, Notification, Search) */}
+          {/* Action Icons on the Left (Hamburger, Language Button, Avatar, Notification, Search) */}
           <div className="flex items-center gap-2 sm:gap-2.5 order-2 sm:order-1">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`w-9 h-9 rounded-xl flex items-center justify-center transition active:scale-95 ${
+              className={`w-9 h-9 rounded-xl flex items-center justify-center transition active:scale-95 cursor-pointer ${
                 theme === 'dark' ? 'text-white hover:bg-white/10' : 'text-slate-800 hover:bg-slate-100'
               }`}
               aria-label="قوشۇمچە تىزىملىك"
             >
               <Menu className="w-5 h-5 stroke-[2.2] animate-icon-gleam" />
+            </button>
+
+            {/* Language Selection Window Button */}
+            <button
+              type="button"
+              onClick={openLanguageModal}
+              className={`h-9 px-2 sm:px-2.5 rounded-xl flex items-center gap-1.5 border transition active:scale-95 cursor-pointer shadow-xs ${
+                theme === 'dark'
+                  ? 'border-emerald-500/30 bg-emerald-950/40 text-emerald-300 hover:bg-emerald-900/50 hover:border-emerald-400'
+                  : 'border-emerald-500/30 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
+              }`}
+              title={t('selectLanguage') || 'تىل تاللاش كۆزنىكى'}
+            >
+              <LanguageFlag code={lang} className="w-4 h-3 rounded-[2px] object-cover shrink-0 shadow-xs" />
+              <Globe2 className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+              <span className="text-[11px] font-bold hidden sm:inline">
+                {lang === 'ug'
+                  ? 'ئۇيغۇرچە'
+                  : lang === 'en'
+                  ? 'EN'
+                  : lang === 'ar'
+                  ? 'العربية'
+                  : lang === 'tr'
+                  ? 'TR'
+                  : lang === 'uz'
+                  ? 'UZ'
+                  : 'RU'}
+              </span>
             </button>
 
             <Link
@@ -905,23 +933,33 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
 
               {/* 1. تىل تاللاش 6 خىل ئەسلى توربەتتەك */}
               <div className="p-3 rounded-2xl bg-slate-100/80 dark:bg-[#0c1626] border border-slate-200/80 dark:border-emerald-500/20 shadow-sm">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                <div
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    openLanguageModal();
+                  }}
+                  className="flex items-center justify-between mb-2 cursor-pointer group"
+                  title="تىل تاللاش كۆزنىكىنى ئېچىش"
+                >
+                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5 group-hover:text-emerald-500 transition">
                     <Globe2 className="w-3.5 h-3.5" />
-                    <span>تىل تاللاش (Language)</span>
+                    <span>{t('selectLanguage') || 'تىل تاللاش (Language)'}</span>
                   </span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
-                    {lang === 'ug'
-                      ? 'ئۇيغۇرچە'
-                      : lang === 'en'
-                      ? 'English'
-                      : lang === 'ar'
-                      ? 'العربية'
-                      : lang === 'tr'
-                      ? 'Türkçe'
-                      : lang === 'uz'
-                      ? "O'zbekcha"
-                      : 'Русский'}
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full font-bold border border-emerald-500/20 flex items-center gap-1 group-hover:bg-emerald-500/20 transition">
+                    <span>
+                      {lang === 'ug'
+                        ? 'ئۇيغۇرچە'
+                        : lang === 'en'
+                        ? 'English'
+                        : lang === 'ar'
+                        ? 'العربية'
+                        : lang === 'tr'
+                        ? 'Türkçe'
+                        : lang === 'uz'
+                        ? "O'zbekcha"
+                        : 'Русский'}
+                    </span>
+                    <span className="text-[9px]">➔ كۆزنەك</span>
                   </span>
                 </div>
 
