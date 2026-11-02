@@ -4,17 +4,9 @@ import { clearLocalAuth, logout, syncSupabaseSession, getCachedBalance, getCache
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Navbar from '@/components/Navbar';
-import PromoCarousel from '@/components/PromoCarousel';
-import DynamicIcon from '@/components/DynamicIcon';
 import CheckoutModal from '@/components/CheckoutModal';
-import OrdersList from '@/components/OrdersList';
-import WelcomeSplash from '@/components/WelcomeSplash';
 import AuthModal from '@/components/AuthModal';
 import SideDrawer from '@/components/SideDrawer';
-import AutoCashLogo from '@/components/AutoCashLogo';
-import CyberHero3D from '@/components/CyberHero3D';
-import CyberFeatures from '@/components/CyberFeatures';
 import SGCHomeLayout from '@/components/SGCHomeLayout';
 import { useLanguage } from '@/context/LanguageContext';
 import { CATEGORIES_9, SERVICES_DATA, ServiceItem } from '@/lib/data';

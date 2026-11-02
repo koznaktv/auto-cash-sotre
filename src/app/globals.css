@@ -1285,7 +1285,6 @@ body.lang-ru .font-ukij {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
-  animation: brandNavyGoldShine 3.6s ease-in-out infinite;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

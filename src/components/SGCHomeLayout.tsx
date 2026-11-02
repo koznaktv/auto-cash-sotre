@@ -136,6 +136,7 @@ const ProductCard = React.memo(function ProductCard({
   return (
     <div
       onClick={handleClick}
+      style={{ contain: 'content' }}
       className={`group ${
         isCarousel
           ? 'flex-none w-[148px] sm:w-[178px] md:w-[200px] shrink-0'
@@ -183,7 +184,7 @@ const ProductCard = React.memo(function ProductCard({
         {/* CENTER WRAPPING LOGO FRAME & PRODUCT PICTURE */}
         <div className="relative z-10 w-[64%] h-[64%] flex items-center justify-center">
           <div className="absolute -inset-2.5 pointer-events-none">
-            <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md" fill="none">
+            <svg viewBox="0 0 100 100" className="w-full h-full opacity-90" fill="none">
               <path
                 d="M32 9H70C81 9 91 19 91 30V68"
                 stroke="#059669"

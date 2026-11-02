@@ -605,6 +605,14 @@ export default function AdminPage() {
 
       if (resOrders && resOrders.success && Array.isArray(resOrders.orders)) {
         setOrders((prev) => {
+          // Prevent unnecessary re-renders if orders haven't changed
+          if (
+            prev.length === resOrders.orders.length &&
+            prev[0]?.id === resOrders.orders[0]?.id &&
+            prev[0]?.status === resOrders.orders[0]?.status
+          ) {
+            return prev;
+          }
           if (prev.length > 0 && resOrders.orders.length > prev.length) {
             playNotificationSound();
           }
@@ -614,6 +622,14 @@ export default function AdminPage() {
 
       if (resDeposits && resDeposits.success && Array.isArray(resDeposits.deposits)) {
         setDeposits((prev) => {
+          // Prevent unnecessary re-renders if deposits haven't changed
+          if (
+            prev.length === resDeposits.deposits.length &&
+            prev[0]?.id === resDeposits.deposits[0]?.id &&
+            prev[0]?.status === resDeposits.deposits[0]?.status
+          ) {
+            return prev;
+          }
           const prevPending = prev.filter((d) => d.status === 'pending').length;
           const newPending = resDeposits.deposits.filter((d: any) => d.status === 'pending').length;
           if (prev.length > 0 && newPending > prevPending) {
@@ -624,7 +640,17 @@ export default function AdminPage() {
       }
 
       if (resUsers && resUsers.success && Array.isArray(resUsers.users)) {
-        setUsers(resUsers.users);
+        setUsers((prev) => {
+          // Prevent unnecessary re-renders if user count & top balances haven't changed
+          if (
+            prev.length === resUsers.users.length &&
+            prev[0]?.id === resUsers.users[0]?.id &&
+            prev[0]?.balance === resUsers.users[0]?.balance
+          ) {
+            return prev;
+          }
+          return resUsers.users;
+        });
       }
     } catch (e) {
       console.error('Silent live refresh error:', e);
@@ -633,17 +659,17 @@ export default function AdminPage() {
     }
   };
 
-  // 2. Fetch all admin data & setup high-speed 3s Live Polling + Supabase Realtime
+  // 2. Fetch all admin data & setup 15s Background Polling + Instant Supabase Realtime
   useEffect(() => {
     if (!isAuthenticated) return;
 
     // Initial comprehensive data load
     loadAllAdminData();
 
-    // High-speed 3-second live poller
+    // Smooth background poller (15s interval ensures 60 FPS smooth UI without freezing)
     const poller = setInterval(() => {
       refreshLiveOrdersAndDeposits();
-    }, 3000);
+    }, 15000);
 
     // Instant refresh on window focus / tab visibility change
     const onFocus = () => refreshLiveOrdersAndDeposits(true);
