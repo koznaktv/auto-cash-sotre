@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import SGCSubpageLayout from '@/components/SGCSubpageLayout';
+import { getCachedUser } from '@/lib/clientAuth';
 import {
   Code2,
   Terminal,
@@ -56,6 +57,99 @@ function CodeBlock({ code, lang = 'bash' }: CodeSnippetProps) {
 
 export default function ApiDocsPage() {
   const [activeTab, setActiveTab] = useState<'curl' | 'js' | 'python' | 'php'>('curl');
+  const [user, setUser] = useState<any>(() => {
+    if (typeof window !== 'undefined') return getCachedUser();
+    return null;
+  });
+
+  useEffect(() => {
+    const sync = () => setUser(getCachedUser());
+    sync();
+    window.addEventListener('autocash-auth-changed', sync);
+    window.addEventListener('autocash_auth_changed', sync);
+    return () => {
+      window.removeEventListener('autocash-auth-changed', sync);
+      window.removeEventListener('autocash_auth_changed', sync);
+    };
+  }, []);
+
+  const isVip5 = Boolean(user && (user.vipTier === 'vip5' || user.role === 'admin'));
+
+  if (!isVip5) {
+    return (
+      <SGCSubpageLayout
+        title="تەمىنلىگۈچى API (Docs)"
+        subtitle="پەقەت VIP 5 ئەزالىرىمىزغا مەخسۇس تەمىنلىنىدىغان ئوچۇق REST API سۇپىسى"
+        headerActions={
+          <Link
+            href="/membership"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:brightness-110 text-slate-950 text-xs font-black transition shadow-sm cursor-pointer"
+          >
+            <span>👑 VIP 5 ئەزالىق</span>
+          </Link>
+        }
+      >
+        <div className="max-w-2xl mx-auto py-10 px-4 text-right font-alkatip" dir="rtl">
+          <div className="relative rounded-3xl bg-gradient-to-b from-[#0f172a] via-[#0b1222] to-[#080d1a] border border-amber-500/40 p-6 sm:p-8 shadow-2xl text-center space-y-5 overflow-hidden">
+            {/* Glowing background halo */}
+            <div className="absolute -top-20 -right-20 w-48 h-48 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/35 text-amber-300 text-xs font-bold font-mono">
+              <span>👑 VIP 5 مەخسۇس ھوقۇق</span>
+            </div>
+
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-slate-950 flex items-center justify-center mx-auto text-4xl shadow-xl shadow-amber-500/30 animate-pulse">
+              🔒
+            </div>
+
+            <h2 className="text-xl sm:text-2xl font-black text-white leading-snug">
+              بۇ يەرنى ئېچىش ئۈچۈن VIP 5 ئەزا بولۇڭ ياكى باشقۇرغۇچى بىلەن ئالاقىلىشىڭ
+            </h2>
+
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-lg mx-auto">
+              تەمىنلىگۈچى REST API سۇپىسى مەخسۇس ئالىي دەرىجىلىك <b>VIP 5</b> شېرىكلىرىمىز ۋە توپ تارقاتقۇچىلار ئۈچۈن ئېچىۋېتىلگەن بولۇپ، پۈتۈن سىستېمىدىكى ئەڭ تۆۋەن كۆپ مىقدارلىق توپ باھالار، شۇئان زاكاز كىرگۈزۈش ۋە مەخسۇس تېخنىكىلىق قوللاش كاپالىتىگە ئىگە.
+            </p>
+
+            {/* Status Info Box */}
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs text-right space-y-2 max-w-md mx-auto">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-400">ھازىرقى ئەزالىق ھالىتىڭىز:</span>
+                <span className="font-bold text-amber-400 font-mono">
+                  {user ? (user.vipTier ? user.vipTier.toUpperCase() : 'VIP 1') : 'مېھمان (كىرمىگەن)'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-400">تەلەپ قىلىنىدىغان ئەزالىق:</span>
+                <span className="font-black text-emerald-400">👑 VIP 5 (ئەڭ چوڭ ئەزالىق)</span>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 max-w-md mx-auto">
+              <Link
+                href="/membership"
+                className="w-full sm:flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:brightness-110 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 active:scale-98 transition cursor-pointer"
+              >
+                <span>👑 VIP 5 ئەزالىققا ئۆرلەش</span>
+                <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+              </Link>
+
+              <a
+                href="https://t.me/autocash_UYGHUR"
+                target="_blank"
+                rel="noreferrer"
+                className="w-full sm:flex-1 py-3 px-4 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs flex items-center justify-center gap-2 active:scale-98 transition cursor-pointer"
+              >
+                <Send className="w-3.5 h-3.5 text-cyan-400" />
+                <span>باشقۇرغۇچى بىلەن ئالاقىلىشىش</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </SGCSubpageLayout>
+    );
+  }
 
   return (
     <SGCSubpageLayout

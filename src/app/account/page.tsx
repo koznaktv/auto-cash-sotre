@@ -993,7 +993,38 @@ export default function AccountPage() {
             </p>
 
             {/* API Key Box */}
-            <div className="bg-black/40 border border-white/10 rounded-xl p-3.5 sm:p-4 space-y-3">
+            {!((vipTier || '').toLowerCase().includes('vip5') || (typeof window !== 'undefined' && localStorage.getItem('autocash_role') === 'admin')) ? (
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-5 sm:p-6 text-center space-y-3">
+                <div className="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto text-2xl font-bold animate-pulse">
+                  🔒
+                </div>
+                <h4 className="text-base sm:text-lg font-black text-white">
+                  بۇ يەرنى ئېچىش ئۈچۈن VIP 5 ئەزا بولۇڭ ياكى باشقۇرغۇچى بىلەن ئالاقىلىشىڭ
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto leading-relaxed font-alkatip">
+                  تەمىنلىگۈچى API كۇنۇپكىسى (API Key) ۋە ئاپتوماتىك زاكاز ئۇلاش پەقەت ئەڭ يۇقىرى <b>VIP 5</b> ئەزالىرىمىزغا مەخسۇس تەقسىملىنىدۇ.
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                  <Link
+                    href="/membership"
+                    className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:brightness-110 text-slate-950 font-black text-xs sm:text-sm flex items-center gap-1.5 transition shadow-sm cursor-pointer"
+                  >
+                    <span>👑 VIP 5 ئەزالىققا ئۆرلەش</span>
+                  </Link>
+                  <a
+                    href="https://t.me/autocash_UYGHUR"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-slate-200 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition cursor-pointer"
+                  >
+                    <Send className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>باشقۇرغۇچى بىلەن ئالاقىلىشىش</span>
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="bg-black/40 border border-white/10 rounded-xl p-3.5 sm:p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
                   <Terminal className="w-3.5 h-3.5 text-amber-400" />
@@ -1106,6 +1137,8 @@ export default function AccountPage() {
   -H "Authorization: Bearer ${apiKey ? (showApiKey ? apiKey : apiKey.slice(0, 12) + '••••••••') : 'YOUR_API_KEY'}"`}
               </pre>
             </div>
+          </>
+        )}
           </div>
         )}
       </div>

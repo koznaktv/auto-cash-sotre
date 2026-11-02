@@ -63,6 +63,13 @@ export async function POST(req: Request) {
     const user = await resolveUserFromRequest(req);
     if (!user) return unauthorizedResponse();
 
+    if (user.vipTier !== 'vip5' && user.role !== 'admin') {
+      return NextResponse.json(
+        { success: false, message: 'بۇ يەرنى ئېچىش ئۈچۈن VIP 5 ئەزا بولۇڭ ياكى باشقۇرغۇچى بىلەن ئالاقىلىشىڭ' },
+        { status: 403 }
+      );
+    }
+
     const result = await generateUserApiKeyAsync(user.id);
     const response = NextResponse.json({
       success: true,

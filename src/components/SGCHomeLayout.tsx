@@ -386,6 +386,8 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showApiModal, setShowApiModal] = useState(false);
+  const [showVipLockedModal, setShowVipLockedModal] = useState(false);
+  const isVip5 = Boolean(user && (user.vipTier === 'vip5' || user.role === 'admin'));
 
   // Live Server Catalog State with instant local cache hydration
   const [serverServices, setServerServices] = useState<ServiceItem[]>(() => {
@@ -1102,10 +1104,17 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                   </span>
                 </Link>
 
-                {/* 7. تەمىنلىگۈچى API */}
+                {/* 7. تەمىنلىگۈچى API (پەقەت VIP 5 كە ئېچىلىدۇ) */}
                 <button
                   type="button"
-                  onClick={() => setShowApiModal(true)}
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    if (isVip5) {
+                      setShowApiModal(true);
+                    } else {
+                      setShowVipLockedModal(true);
+                    }
+                  }}
                   className={`w-full flex items-center gap-3 p-2.5 rounded-2xl transition text-right active:scale-98 cursor-pointer ${
                     theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-slate-50'
                   }`}
@@ -1114,10 +1123,16 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                     <Code2 className="w-4 h-4" />
                   </div>
                   <span className="flex-1 text-right font-medium">تەمىنلىگۈچى API (Docs)</span>
-                  <span className="text-[10px] bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 font-mono">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>Online</span>
-                  </span>
+                  {isVip5 ? (
+                    <span className="text-[10px] bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 font-mono">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>Online • VIP 5</span>
+                    </span>
+                  ) : (
+                    <span className="text-[10px] bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 font-mono">
+                      <span>🔒 VIP 5</span>
+                    </span>
+                  )}
                 </button>
 
                 {/* 8. ئالاقىلىشىش */}
@@ -1279,6 +1294,83 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
               >
                 تاقاش
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VIP 5 Exclusive Required Modal */}
+      {showVipLockedModal && (
+        <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fadeIn" dir="rtl">
+          <div className="w-full max-w-md rounded-3xl bg-gradient-to-b from-[#0f172a] via-[#0b1222] to-[#080d1a] border border-amber-500/40 p-6 shadow-2xl text-right font-alkatip space-y-4 relative overflow-hidden">
+            {/* Ambient Background Halo */}
+            <div className="absolute -top-16 -right-16 w-44 h-44 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-16 -left-16 w-44 h-44 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            {/* Top Bar */}
+            <div className="flex items-center justify-between border-b border-amber-500/20 pb-3 relative z-10">
+              <span className="px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/35 text-amber-300 text-xs font-black flex items-center gap-1.5">
+                <span>👑 VIP 5 مەخسۇس سۇپا</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowVipLockedModal(false)}
+                className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition cursor-pointer"
+                title="تاقاش"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Central Warning Message (User Requested Text) */}
+            <div className="text-center py-2 relative z-10 space-y-3">
+              <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-slate-950 flex items-center justify-center mx-auto text-3xl shadow-lg shadow-amber-500/30 font-bold animate-pulse">
+                🔒
+              </div>
+              
+              <h3 className="text-base sm:text-lg font-black text-white leading-snug">
+                بۇ يەرنى ئېچىش ئۈچۈن VIP 5 ئەزا بولۇڭ ياكى باشقۇرغۇچى بىلەن ئالاقىلىشىڭ
+              </h3>
+
+              <p className="text-xs text-slate-300 leading-relaxed px-1">
+                تەمىنلىگۈچى API (Docs) سۇپىسى پەقەت ئەڭ چوڭ ئەزالىققا كۆتۈرۈلگەن (<b>VIP 5</b>) ئەزالار ۋە رەسمىي ھەمكارلاشقۇچىلار ئۈچۈن ئېچىۋېتىلگەن.
+              </p>
+            </div>
+
+            {/* User Current Tier Status */}
+            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 text-xs space-y-2 relative z-10">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-400">ھازىرقى ئەزالىق دەرىجىڭىز:</span>
+                <span className="font-bold text-amber-400">
+                  {user ? (user.vipTier ? user.vipTier.toUpperCase() : 'VIP 1') : 'مېھمان (كىرمىگەن)'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-400">سۇپىنى ئېچىش تەلىپى:</span>
+                <span className="font-black text-emerald-400">👑 VIP 5 (ئەڭ چوڭ ئەزالىق)</span>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-2 pt-2 relative z-10">
+              <Link
+                href="/membership"
+                onClick={() => setShowVipLockedModal(false)}
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:brightness-110 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 active:scale-98 transition cursor-pointer"
+              >
+                <span>👑 VIP 5 ئەزالىققا ئۆرلەش يېتەكچىسى</span>
+                <ArrowLeft className="w-4 h-4" />
+              </Link>
+
+              <a
+                href="https://t.me/autocash_UYGHUR"
+                target="_blank"
+                rel="noreferrer"
+                className="w-full py-2.5 px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 font-bold text-xs flex items-center justify-center gap-2 active:scale-98 transition cursor-pointer"
+              >
+                <Send className="w-3.5 h-3.5 text-cyan-400" />
+                <span>باشقۇرغۇچى بىلەن ئالاقىلىشىڭ</span>
+              </a>
             </div>
           </div>
         </div>
