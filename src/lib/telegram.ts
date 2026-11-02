@@ -31,6 +31,7 @@ import {
   setUserLanguage,
   setUserLanguageAsync,
   BOT_I18N,
+  tgEmoji,
   getLanguageSelectionKeyboard,
   LANGUAGE_SELECTION_BANNER,
 } from './telegramI18n';
@@ -2028,12 +2029,12 @@ function getWelcomeMessage(firstName?: string, lang: BotLanguage = 'ug'): string
 function getAdminWelcomeMessage(adminName?: string): string {
   const name = adminName ? `@${adminName}` : 'ھۆرمەتلىك مەسئۇل باشقۇرغۇچى';
   return `
-👑 <b>AUTO CASH VIP باشقۇرۇش مەركىزى</b> 👑
+${tgEmoji('crown', '👑')} <b>AUTO CASH VIP باشقۇرۇش مەركىزى</b> ${tgEmoji('crown', '👑')}
       🛡️ <i>ئاپتوماتىك نازارەت ۋە سىستېما تىزگىنلىگۈچى</i> 🛡️
 
-👋 <b>ئەسسالامۇ ئەلەيكۇم، ھۆرمەتلىك باشقۇرغۇچى ${name}!</b> سۇپىنىڭ ئاپتوماتىك باشقۇرۇش مەركىزىگە خۇش كەپسىز!
+${tgEmoji('wave', '👋')} <b>ئەسسالامۇ ئەلەيكۇم، ھۆرمەتلىك باشقۇرغۇچى ${name}!</b> سۇپىنىڭ ئاپتوماتىك باشقۇرۇش مەركىزىگە خۇش كەپسىز!
 
-⚡️ <b>سىستېما خىزمەت ھالىتى:</b> %100 پۈتۈنلەي تىرىك ۋە نورمال 🟢
+${tgEmoji('zap', '⚡')} <b>سىستېما خىزمەت ھالىتى:</b> %100 پۈتۈنلەي تىرىك ۋە نورمال 🟢
 🔔 <b>ئاپتوماتىك سىگنال:</b> يېڭى كەلگەن زاكازلار، پۇل كىرگۈزۈش تالونلىرى ۋە ساختا ئۇچۇرلار شۇئان سىزگە يەتكۈزۈلىدۇ.
 📢 <b>ئۇچۇر يېزىش:</b> سىز بۇ يەردىن بىۋاستە قانالغا، بارلىق خېرىدارلارغا ياكى يەككە خېرىدارغا خەت يازالايسىز.
 
@@ -3622,6 +3623,26 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     }
   }
 
+  // Admin Sticker/Custom Emoji Detector:
+  if (isAdmin && msg.sticker) {
+    const s = msg.sticker;
+    const customId = s.custom_emoji_id;
+    if (customId) {
+      const reply = `✨ <b>ھەرىكەتلىك ئىموجى (Custom Emoji Sticker) بايقالدى!</b>\n\n` +
+        `• سىنبەلگە: <tg-emoji emoji-id="${customId}">${s.emoji || '✨'}</tg-emoji>\n` +
+        `• <b>Emoji ID:</b> <code>${customId}</code>\n\n` +
+        `💡 <i>بۇ ID نى چاتتا ماڭا كۆچۈرۈپ ئەۋەتسىڭىز، دەرھال كودقا كىرگۈزۈپ تەڭشەپ قويىمەن.</i>`;
+      await sendTelegramMessage(chatId, reply, { parse_mode: 'HTML' });
+      return;
+    } else {
+      const reply = `ℹ️ <b>چوڭ چاپلاق (Sticker) ئەۋەتتىڭىز:</b> ${s.emoji || '🖼️'}\n\n` +
+        `بۇ چاپلاق چوڭ سىتىكېر بولۇپ، تېكىست ئىچىگە كىرىدىغان ھەرىكەتلىك كىچىك ئىموجى ئەمەس.\n` +
+        `تېلېگراممىدىكى <b>«Emoji»</b> بۆلىكىدىن بىرەر كىچىك ھەرىكەتلىك ئىموجىنى خەت رامكىسىغا تاللاپ ئەۋەتسىڭىز، ID سى دەرھال چىقىدۇ.`;
+      await sendTelegramMessage(chatId, reply, { parse_mode: 'HTML' });
+      return;
+    }
+  }
+
   // Admin Custom Emoji ID Detector: if admin sends a message containing custom emojis, reply with its ID & snippet
   if (isAdmin && Array.isArray(msg.entities)) {
     const customEmojiEntities = msg.entities.filter((e: any) => e.type === 'custom_emoji');
@@ -3638,6 +3659,19 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       await sendTelegramMessage(chatId, reply, { parse_mode: 'HTML' });
       return;
     }
+  }
+
+  // If admin sends standard emoji or types /emoji:
+  if (isAdmin && (text === '/emoji' || text === '/id' || (text.length <= 8 && (text.includes('👋') || text.includes('✨') || text.includes('💎') || text.includes('🔥') || text.includes('⚡') || /[\uD800-\uDBFF][\uDC00-\uDFFF]/.test(text))))) {
+    const reply = `💡 <b>ئىموجى تەكشۈرۈش كۆرسەتمىسى:</b>\n\n` +
+      `سىز ئەۋەتكەن «${text}» تېلېفۇن كۇنۇپكىسىنىڭ <b>ئادەتتىكى تۇراقلىق ئىموجىسى</b> ئىكەن.\n\n` +
+      `<b>تېلېگراممىدىكى ھەرىكەتلىك (Premium) ئىموجىنى ئەۋەتىش ئۇسۇلى:</b>\n` +
+      `1️⃣ خەت يازىدىغان جاينىڭ ئوڭ چېتىدىكى تېلېگراممىنىڭ ئۆزىنىڭ سىنبەلگە (😊) كۇنۇپكىسىنى بېسىڭ.\n` +
+      `2️⃣ كۆزنەكنىڭ ئاستىدىكى <b>«Emoji»</b> بۆلىكىگە ئۆتۈڭ.\n` +
+      `3️⃣ ئاشۇ يەردە كۆرۈنگەن ھەرىكەتلىك، پارقىرايدىغان پىرو سىنبەلگىلەردىن بىرنى تاللاپ يوللاڭ.\n\n` +
+      `<i>ياكى سىز ياقتۇرغان ئىموجى توپلىمىنىڭ ئۇلانمىسىنى (مەسىلەن: <code>t.me/addemoji/...</code>) ماڭا ئەۋەتسىڭىزمۇ بولىدۇ!</i>`;
+    await sendTelegramMessage(chatId, reply, { parse_mode: 'HTML' });
+    return;
   }
 
   // Handle Active Bot Order Session Input (Player ID / Phone / Zone ID) or Shortcut Commands
