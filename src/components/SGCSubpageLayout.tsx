@@ -27,6 +27,8 @@ import {
   MessageSquareCode,
   Headphones,
   Smartphone,
+  KeyRound,
+  FileText,
 } from 'lucide-react';
 import { getCachedBalance, getCachedUser, clearLocalAuth, logout, ClientUser } from '@/lib/clientAuth';
 import { useLanguage } from '@/context/LanguageContext';
@@ -459,18 +461,19 @@ export default function SGCSubpageLayout({
                   </span>
                 </Link>
 
-                {/* 7. تەمىنلىگۈچى API (بۇنى يېقىندا قوشىمىز دەپ چىقىرىپ قويۇش) */}
+                {/* 7. تەمىنلىگۈچى API */}
                 <button
                   type="button"
                   onClick={() => setShowApiModal(true)}
                   className="w-full flex items-center gap-3 p-2.5 rounded-2xl transition text-right hover:bg-slate-50 dark:hover:bg-white/5 active:scale-98 cursor-pointer"
                 >
-                  <div className="w-9 h-9 rounded-2xl bg-cyan-100/70 dark:bg-cyan-950/50 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-2xl bg-amber-100/70 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                     <Code2 className="w-4 h-4" />
                   </div>
-                  <span className="flex-1 text-right">تەمىنلىگۈچى API</span>
-                  <span className="text-[10px] bg-cyan-500/15 border border-cyan-500/30 text-cyan-700 dark:text-cyan-300 px-2 py-0.5 rounded-full font-bold">
-                    يېقىندا قوشۇلىدۇ
+                  <span className="flex-1 text-right font-medium">تەمىنلىگۈچى API (Docs)</span>
+                  <span className="text-[10px] bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 font-mono">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Online</span>
                   </span>
                 </button>
 
@@ -546,42 +549,74 @@ export default function SGCSubpageLayout({
         </div>
       )}
 
-      {/* Provider API Coming Soon Modal */}
+      {/* Provider API Official Live Modal */}
       {showApiModal && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div className="w-full max-w-sm rounded-3xl bg-white dark:bg-[#0f172a] border border-cyan-500/40 p-5 shadow-2xl text-right font-alkatip space-y-4">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-md rounded-3xl bg-white dark:bg-[#0f172a] border border-amber-500/40 p-5 sm:p-6 shadow-2xl text-right font-alkatip space-y-4">
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3">
-              <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-600 dark:text-cyan-300 text-[10px] font-bold">
-                يېقىندا قوشۇلىدۇ
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold flex items-center gap-1.5 font-mono">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>رەسمىي ئېچىۋېتىلدى (v1.0 Online)</span>
               </span>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-slate-800 dark:text-white">تەمىنلىگۈچى API</h3>
-                <div className="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-500 flex items-center justify-center">
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white font-ukij">
+                  تەمىنلىگۈچى API سۇپىسى
+                </h3>
+                <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center">
                   <Code2 className="w-4 h-4" />
                 </div>
               </div>
             </div>
-            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-              تور بېكەت، سىستېما ۋە تېلېگرامما قاچىلاش بوتلىرىنى AUTO CASH ئاپتوماتىك قاچىلاش سىستېمىسى بىلەن بىر گەۋدىلەشتۈرۈش API مۇلازىمىتى پات يېقىندا ئىشقا كىرىشتۈرۈلىدۇ!
+
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              AUTO CASH نىڭ ئوچۇق REST API سۇپىسى رەسمىي ئىشقا كىرىشتۈرۈلدى! سىز ئەمدى ئۆزىڭىزنىڭ شەخسىي توربېتى،
+              تېلېگرامما بوتىڭىز ياكى ئەپلىرىڭىزنى AUTO CASH سىستېمىسىغا بىۋاسىتە ئۇلاپ، بارلىق ئويۇن ۋە تور كارتىلىرىنى
+              ئاپتوماتىك سېتىش ۋە زاكازلارنى دەل ۋاقتىدا بېجىرىشنى ئەمەلگە ئاشۇرالايسىز.
             </p>
-            <div className="p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-cyan-700 dark:text-cyan-300">
-              💡 ئالدىن API ھەمكارلىق كېلىشىمى تۈزمەكچى بولسىڭىز، مەسئۇل باشقۇرغۇچى بىلەن بىۋاسىتە ئالاقىلىشىڭ.
+
+            <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-700 dark:text-amber-300 leading-normal">
+              💡 <strong>ئەۋزەللىك:</strong> بارلىق API زاكازلىرىغا سىزنىڭ شەخسىي VIP ئەزالىق دەرىجىڭىز بويىچە ئەڭ تۆۋەن توپ باھا (VIP ئېتىبارى) ئاپتوماتىك ھېسابلىنىدۇ.
             </div>
-            <div className="pt-1 flex items-center gap-2">
+
+            {/* Quick Action Navigation Grid */}
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <Link
+                href="/api-docs"
+                onClick={() => setShowApiModal(false)}
+                className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:brightness-105 text-slate-950 text-xs font-black text-center shadow-md active:scale-95 transition flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>API قوللانمىسى (Docs)</span>
+              </Link>
+
+              <Link
+                href="/account"
+                onClick={() => setShowApiModal(false)}
+                className="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold text-center shadow-md active:scale-95 transition flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+                <span>API Key ئېلىش</span>
+              </Link>
+            </div>
+
+            {/* Bottom Contact & Dismiss */}
+            <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-white/10 text-xs">
               <a
                 href="https://t.me/autocash_UYGHUR"
                 target="_blank"
                 rel="noreferrer"
-                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold text-center shadow-md active:scale-95 transition"
+                className="text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 transition flex items-center gap-1.5 font-medium"
               >
-                باشقۇرغۇچى بىلەن ئالاقىلىشىش
+                <Send className="w-3.5 h-3.5 text-cyan-500" />
+                <span>باشقۇرغۇچى بىلەن ئالاقىلىشىش</span>
               </a>
+
               <button
                 type="button"
                 onClick={() => setShowApiModal(false)}
-                className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-slate-700 dark:text-slate-300 text-xs font-bold transition active:scale-95 cursor-pointer"
+                className="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-slate-700 dark:text-slate-300 font-bold transition active:scale-95 cursor-pointer"
               >
-                چۈشەندىم
+                تاقاش
               </button>
             </div>
           </div>
