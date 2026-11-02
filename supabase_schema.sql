@@ -31,6 +31,12 @@ ALTER TABLE public.users ADD COLUMN IF NOT EXISTS telegram_linked_at TIMESTAMPTZ
 CREATE INDEX IF NOT EXISTS idx_users_telegram_chat_id ON public.users(telegram_chat_id);
 CREATE INDEX IF NOT EXISTS idx_users_telegram_username ON public.users(telegram_username);
 
+-- Reseller & Developer API Key Integration Columns for Users
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS api_key TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS api_key_created_at TIMESTAMPTZ;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS api_enabled BOOLEAN DEFAULT TRUE;
+CREATE INDEX IF NOT EXISTS idx_users_api_key ON public.users(api_key);
+
 -- ساندان سەۋىيەسىدە قالدۇق پۇلنىڭ نۆلدىن تۆۋەن چۈشۈپ كېتىشىنى مۇتلەق قۇلۇپلاش
 ALTER TABLE public.users DROP CONSTRAINT IF EXISTS check_balance_non_negative;
 ALTER TABLE public.users ADD CONSTRAINT check_balance_non_negative CHECK (balance >= 0);

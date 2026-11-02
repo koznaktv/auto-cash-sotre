@@ -259,26 +259,34 @@ function updateVipTier(user: UserRecord): void {
 // ================= SUPABASE ROW MAPPERS =================
 
 function mapSupabaseUser(row: any): UserRecord {
+  let localUser: UserRecord | undefined;
+  try {
+    const db = ensureDbFile();
+    localUser = db.users.find(
+      (u) => u.id === row.id || (u.email && row.email && u.email.toLowerCase() === row.email.toLowerCase())
+    );
+  } catch {}
+
   return {
     id: row.id,
     name: row.name,
     email: row.email,
-    phone: row.phone || undefined,
-    avatarUrl: row.avatar_url || row.avatar || undefined,
-    telegramChatId: row.telegram_chat_id || row.telegramChatId || undefined,
-    telegramUsername: row.telegram_username || row.telegramUsername || undefined,
-    telegramLinkedAt: row.telegram_linked_at || row.telegramLinkedAt || (row.telegram_chat_id ? row.updated_at || row.created_at : undefined),
-    passwordHash: row.password_hash,
-    salt: row.salt,
-    balance: Number(row.balance || 0),
-    totalSpent: Number(row.total_spent || 0),
-    vipTier: (row.vip_tier as any) || 'vip1',
-    role: (row.role as any) || 'user',
-    isBanned: Boolean(row.is_banned),
-    apiKey: row.api_key || row.apiKey || undefined,
-    apiKeyCreatedAt: row.api_key_created_at || row.apiKeyCreatedAt || undefined,
-    apiEnabled: row.api_enabled !== undefined ? Boolean(row.api_enabled) : true,
-    createdAt: row.created_at,
+    phone: row.phone || localUser?.phone || undefined,
+    avatarUrl: row.avatar_url || row.avatar || localUser?.avatarUrl || undefined,
+    telegramChatId: row.telegram_chat_id || row.telegramChatId || localUser?.telegramChatId || undefined,
+    telegramUsername: row.telegram_username || row.telegramUsername || localUser?.telegramUsername || undefined,
+    telegramLinkedAt: row.telegram_linked_at || row.telegramLinkedAt || localUser?.telegramLinkedAt || (row.telegram_chat_id ? row.updated_at || row.created_at : undefined),
+    passwordHash: row.password_hash || localUser?.passwordHash || '',
+    salt: row.salt || localUser?.salt || '',
+    balance: Number(row.balance !== undefined ? row.balance : (localUser?.balance || 0)),
+    totalSpent: Number(row.total_spent !== undefined ? row.total_spent : (localUser?.totalSpent || 0)),
+    vipTier: (row.vip_tier as any) || localUser?.vipTier || 'vip1',
+    role: (row.role as any) || localUser?.role || 'user',
+    isBanned: Boolean(row.is_banned ?? localUser?.isBanned),
+    apiKey: row.api_key || row.apiKey || localUser?.apiKey || undefined,
+    apiKeyCreatedAt: row.api_key_created_at || row.apiKeyCreatedAt || localUser?.apiKeyCreatedAt || undefined,
+    apiEnabled: row.api_enabled !== undefined ? Boolean(row.api_enabled) : (localUser?.apiEnabled !== undefined ? localUser.apiEnabled : true),
+    createdAt: row.created_at || localUser?.createdAt || new Date().toISOString(),
   };
 }
 
@@ -573,7 +581,11 @@ export async function updateUserAsync(
       // Always sync to local file store too
       try {
         const localDb = ensureDbFile();
-        const localIdx = localDb.users.findIndex((u) => u.id === id);
+        let localIdx = localDb.users.findIndex((u) => u.id === id || (userRecord?.email && u.email && u.email.toLowerCase() === userRecord.email.toLowerCase()));
+        if (localIdx === -1 && userRecord) {
+          localDb.users.push({ ...userRecord });
+          localIdx = localDb.users.length - 1;
+        }
         if (localIdx !== -1) {
           const { balance, totalSpent, ...safeUpdates } = updates;
           localDb.users[localIdx] = { ...localDb.users[localIdx], ...safeUpdates };

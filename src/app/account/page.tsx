@@ -221,9 +221,13 @@ export default function AccountPage() {
     }
   };
 
-  const fetchApiKey = async () => {
+  const fetchApiKey = async (uidOverride?: string) => {
     try {
-      const res = await fetch('/api/auth/api-key');
+      const uid = uidOverride || userId || (typeof window !== 'undefined' ? localStorage.getItem('autocash_userId') || '' : '');
+      const url = uid ? `/api/auth/api-key?userId=${encodeURIComponent(uid)}` : '/api/auth/api-key';
+      const res = await fetch(url, {
+        headers: uid ? { 'x-user-id': uid } : undefined,
+      });
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
@@ -237,7 +241,11 @@ export default function AccountPage() {
     }
   };
 
-  const handleGenerateApiKey = async () => {
+  const handleGenerateApiKey = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (apiKey) {
       const confirmText =
         lang === 'ug'
@@ -248,7 +256,16 @@ export default function AccountPage() {
     setLoadingApiKey(true);
     setApiKeyActionMsg('');
     try {
-      const res = await fetch('/api/auth/api-key', { method: 'POST' });
+      const uid = userId || (typeof window !== 'undefined' ? localStorage.getItem('autocash_userId') || '' : '');
+      const url = uid ? `/api/auth/api-key?userId=${encodeURIComponent(uid)}` : '/api/auth/api-key';
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(uid ? { 'x-user-id': uid } : {}),
+        },
+        body: JSON.stringify({ userId: uid }),
+      });
       const data = await res.json();
       if (data.success && data.apiKey) {
         setApiKey(data.apiKey);
@@ -267,7 +284,11 @@ export default function AccountPage() {
     }
   };
 
-  const handleRevokeApiKey = async () => {
+  const handleRevokeApiKey = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     const confirmText =
       lang === 'ug'
         ? 'راستلا API Key نى ئەمەلدىن قالدۇرامسىز؟ بارلىق سىرتقى توربەت ۋە بوت ئۇلىنىشلىرى دەرھال توختايدۇ.'
@@ -276,7 +297,16 @@ export default function AccountPage() {
 
     setLoadingApiKey(true);
     try {
-      const res = await fetch('/api/auth/api-key', { method: 'DELETE' });
+      const uid = userId || (typeof window !== 'undefined' ? localStorage.getItem('autocash_userId') || '' : '');
+      const url = uid ? `/api/auth/api-key?userId=${encodeURIComponent(uid)}` : '/api/auth/api-key';
+      const res = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(uid ? { 'x-user-id': uid } : {}),
+        },
+        body: JSON.stringify({ userId: uid }),
+      });
       const data = await res.json();
       if (data.success) {
         setApiKey(null);
@@ -362,8 +392,11 @@ export default function AccountPage() {
           setTotalPurchases(u.totalSpent || 0);
           setVipTier(u.vipTier ? u.vipTier.toUpperCase() : 'VIP 1');
           storeLocalAuth(u);
+          if (u.apiKey) setApiKey(u.apiKey);
+          if (u.apiKeyCreatedAt) setApiKeyCreatedAt(u.apiKeyCreatedAt);
+          if (u.apiEnabled !== undefined) setApiEnabled(u.apiEnabled);
           fetchTelegramLink(u.id);
-          fetchApiKey();
+          fetchApiKey(u.id);
         }
       } catch (e) {
         console.error(e);
@@ -979,7 +1012,7 @@ export default function AccountPage() {
                       <button
                         type="button"
                         disabled={loadingApiKey}
-                        onClick={handleGenerateApiKey}
+                        onClick={(e) => handleGenerateApiKey(e)}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-medium transition cursor-pointer disabled:opacity-50"
                       >
                         <RefreshCw className={`w-3.5 h-3.5 ${loadingApiKey ? 'animate-spin' : ''}`} />
@@ -989,7 +1022,7 @@ export default function AccountPage() {
                       <button
                         type="button"
                         disabled={loadingApiKey}
-                        onClick={handleRevokeApiKey}
+                        onClick={(e) => handleRevokeApiKey(e)}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 text-xs font-medium transition cursor-pointer disabled:opacity-50"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -1012,7 +1045,7 @@ export default function AccountPage() {
                   <button
                     type="button"
                     disabled={loadingApiKey}
-                    onClick={handleGenerateApiKey}
+                    onClick={(e) => handleGenerateApiKey(e)}
                     className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:brightness-110 text-slate-950 text-xs sm:text-sm font-black transition shadow-lg shadow-amber-500/25 cursor-pointer active:scale-95 disabled:opacity-50"
                   >
                     <KeyRound className="w-4 h-4" />
