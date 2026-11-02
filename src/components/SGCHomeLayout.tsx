@@ -61,28 +61,13 @@ import {
 /* =========================================================================
    PURE HELPER: GET CATEGORY NAME
 ========================================================================= */
-function getCategoryName(cat?: string): string {
-  if (!cat) return 'AUTO CASH';
-  const c = cat.toLowerCase();
-  if (c === 'apps' || c.includes('app') || c.includes('تطبيق') || c.includes('ئەپ')) return 'ئەپلەر';
-  if (c === 'ai' || c.includes('ai') || c.includes('ذكاء') || c.includes('سۈنئىي')) return 'سۈنئىي ئەقىل';
-  if (c === 'numbers' || c.includes('number') || c.includes('رقم') || c.includes('نومۇر')) return 'مەۋھۇم نومۇر';
-  if (c === 'wifi' || c.includes('wifi') || c.includes('واي') || c.includes('تور')) return 'Wi-Fi كارتىلىرى';
-  if (c === 'cards' || c.includes('card') || c.includes('بطاق') || c.includes('سيريتل') || c.includes('syriatel') || c.includes('كارت')) return 'كارتىغا پۇل قاچىلاش';
-  if (c === 'games' || c.includes('game') || c.includes('لعب') || c.includes('ئويۇن')) return 'ئويۇنلار';
-  if (c === 'social' || c.includes('social') || c.includes('تواصل') || c.includes('ئىجتىمائىي')) return 'ئىجتىمائىي تاراتقۇ';
-  if (c === 'crypto' || c.includes('crypto')) return 'كۆچمە پۇل';
-  if (c === 'accounts' || c.includes('account')) return 'ھېساباتلار';
-  if (c === 'balance' || c.includes('balance') || c.includes('كاش')) return 'ھەميان كاش';
-  return 'AUTO CASH';
-}
-
 /* =========================================================================
    ISOLATED COUNTDOWN BUTTON: Re-renders ONLY this 80px button every second,
    ZERO re-renders to the rest of SGCHomeLayout (100% 60FPS Lag-Free)
 ========================================================================= */
 const ActionCountdownButton = React.memo(function ActionCountdownButton({ theme }: { theme: 'light' | 'dark' }) {
   const { timeLeft } = useFlashCountdown();
+  const { t } = useLanguage();
 
   return (
     <Link
@@ -92,11 +77,11 @@ const ActionCountdownButton = React.memo(function ActionCountdownButton({ theme 
           ? 'bg-[#18233a] border-amber-500/40 hover:border-amber-400 text-slate-200 hover:text-white'
           : 'bg-gradient-to-r from-amber-50/90 to-orange-50/90 border-amber-300 hover:border-amber-400 text-slate-800 hover:text-amber-700'
       }`}
-      title="بۈگۈنكى پائالىيەتلەر ۋە ئالاھىدە ئېتىبارلار"
+      title={t('todayPromotions') || 'بۈگۈنكى پائالىيەتلەر'}
     >
       <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
         <Animated3DEmoji type="fire" size={17} className="shrink-0 group-hover:scale-110 transition-transform" />
-        <span className="text-[10.5px] sm:text-xs font-black truncate">بۈگۈنكى پائالىيەتلەر</span>
+        <span className="text-[10.5px] sm:text-xs font-black truncate">{t('todayPromotions') || 'بۈگۈنكى پائالىيەتلەر'}</span>
       </div>
       {timeLeft && (
         <span className="px-1.5 py-0.5 rounded-md bg-amber-500/15 dark:bg-amber-400/20 text-amber-600 dark:text-amber-300 font-mono text-[9px] sm:text-[10.5px] font-black border border-amber-500/30 shrink-0" dir="ltr">
@@ -127,6 +112,8 @@ const ProductCard = React.memo(function ProductCard({
   onNavigateNumbers,
   movedRef,
 }: ProductCardProps) {
+  const { t, getCategoryName, translateBadge } = useLanguage();
+
   const handleClick = () => {
     if (movedRef?.current) return;
     if (service.category === 'numbers' || /virtual|sms|نومۇر|دەلىللەش/i.test(service.id + (service.name || '') + ((service as any).title || ''))) {
@@ -168,11 +155,11 @@ const ProductCard = React.memo(function ProductCard({
         <div className="absolute top-2 right-2 z-10 flex flex-col items-end gap-1">
           <div className="bg-[#ef4444] text-white text-[7px] sm:text-[7.5px] font-black px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
             <Flame className="w-2 h-2 fill-current" />
-            <span>ئەڭ كۆپ ئېلىنغىنى</span>
+            <span>{translateBadge('HOT') || t('hotBadge') || 'ئەڭ كۆپ ئېلىنغىنى'}</span>
           </div>
           <div className="bg-[#059669] text-white text-[7px] sm:text-[7.5px] font-black px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
             <Zap className="w-2 h-2 text-amber-300 fill-current" />
-            <span>دەرھال</span>
+            <span>{translateBadge('دەرھال') || t('instant') || 'دەرھال'}</span>
           </div>
         </div>
 
@@ -234,12 +221,12 @@ const ProductCard = React.memo(function ProductCard({
         <div className="mt-1 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
           <span className="text-slate-400 dark:text-slate-500 flex items-center gap-1 font-medium">
             <Globe className="w-3 h-3 text-slate-400 shrink-0" />
-            <span>دۇنياۋى</span>
+            <span>{translateBadge('دۇنياۋى') || t('globalBadge') || 'دۇنياۋى'}</span>
           </span>
           <span className="text-[#059669] font-black font-mono">
             {service.packages && service.packages.length > 0 && typeof service.packages[0].price === 'number' && service.packages[0].price > 0
               ? `$${service.packages[0].price.toFixed(2)}`
-              : 'ئاپتوماتىك'}
+              : (translateBadge('ئاپتوماتىك') || t('autoBadge') || 'ئاپتوماتىك')}
           </span>
         </div>
       </div>
@@ -367,7 +354,7 @@ interface SGCHomeLayoutProps {
 
 export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLayoutProps) {
   const router = useRouter();
-  const { lang, setLang, t, isRTL, openLanguageModal } = useLanguage();
+  const { lang, setLang, t, isRTL, openLanguageModal, getCategoryName } = useLanguage();
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('autocash_theme') as 'dark' | 'light' | null;
@@ -821,7 +808,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 AUTO CASH
               </span>
               <span className="text-[11px] sm:text-[12px] font-bold tracking-normal animated-brand-sub">
-                ئاپتوماتىك پۇل قاچىلاش
+                {t('brandSubtitle') || 'ئاپتوماتىك پۇل قاچىلاش'}
               </span>
             </div>
             <div className="relative shrink-0 p-0.5 rounded-full border border-emerald-500/40 animate-logo-aura">
@@ -871,7 +858,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 </span>
                 <span className="text-slate-300 dark:text-white/20">|</span>
                 <span className="font-bold text-xs text-slate-600 dark:text-slate-300">
-                  ئاساسىي تىزىملىك
+                  {t('mainMenu') || 'ئاساسىي تىزىملىك'}
                 </span>
               </div>
 
@@ -879,7 +866,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
               <button
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-9 h-9 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 transition active:scale-95 cursor-pointer"
-                title="تاقاش"
+                title={t('close') || 'تاقاش'}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -903,10 +890,10 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                     </div>
                     <div className="text-right">
                       <span className="font-bold text-xs text-slate-800 dark:text-white block truncate max-w-[130px]">
-                        {user?.name || 'مېھمان خېرىدار'}
+                        {user?.name || (t('guestUser') || 'مېھمان خېرىدار')}
                       </span>
                       <span className="text-[10px] text-slate-500 dark:text-slate-400 block">
-                        {user?.email || 'خۇش كەپسىز'}
+                        {user?.email || (t('welcomeTitle') || 'خۇش كەپسىز')}
                       </span>
                     </div>
                   </div>
@@ -916,7 +903,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                     href="/deposit"
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-900/60 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-200 border border-emerald-300/80 dark:border-emerald-700 font-bold text-xs font-mono transition active:scale-95 shadow-sm"
-                    title="پۇل قاچىلاش"
+                    title={t('deposit') || 'پۇل قاچىلاش'}
                   >
                     <Animated3DEmoji type="coin" size={15} />
                     <span>${typeof user?.balance === 'number' ? user.balance.toFixed(2) : '0.00'}</span>
@@ -928,7 +915,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
               {/* 3. Section Divider: مۇلازىمەت ۋە دۇكان */}
               <div className="flex items-center gap-2 pt-1">
                 <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 shrink-0">
-                  مۇلازىمەت ۋە دۇكان
+                  {t('servicesAndStore') || 'مۇلازىمەت ۋە دۇكان'}
                 </span>
                 <div className="flex-1 h-[1px] bg-slate-200 dark:bg-white/10" />
               </div>
@@ -1005,7 +992,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                   <div className="w-9 h-9 rounded-2xl bg-emerald-100/70 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                     <Home className="w-4 h-4" />
                   </div>
-                  <span className="flex-1 text-right">باشبەت</span>
+                  <span className="flex-1 text-right">{t('home') || 'باشبەت'}</span>
                 </Link>
 
                 {/* 3. تەلەپلىرىم */}
@@ -1019,7 +1006,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                   <div className="w-9 h-9 rounded-2xl bg-emerald-100/70 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                     <ClipboardList className="w-4 h-4" />
                   </div>
-                  <span className="flex-1 text-right">تەلەپلىرىم</span>
+                  <span className="flex-1 text-right">{t('orders') || t('myOrders') || 'تەلەپلىرىم'}</span>
                 </Link>
 
                 {/* 4. ھەميانىم */}
@@ -1033,7 +1020,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                   <div className="w-9 h-9 rounded-2xl bg-emerald-100/70 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                     <Wallet className="w-4 h-4" />
                   </div>
-                  <span className="flex-1 text-right">ھەميانىم</span>
+                  <span className="flex-1 text-right">{t('deposit') || 'ھەميانىم'}</span>
                 </Link>
 
                 {/* 5. ئەزالىق */}
@@ -1047,7 +1034,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                   <div className="w-9 h-9 rounded-2xl bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                     <Crown className="w-4 h-4" />
                   </div>
-                  <span className="flex-1 text-right">ئەزالىق</span>
+                  <span className="flex-1 text-right">{t('membership') || 'ئەزالىق'}</span>
                   <span className="text-[10px] bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-mono">
                     VIP
                   </span>
@@ -1064,7 +1051,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                   <div className="w-9 h-9 rounded-2xl bg-amber-100/70 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                     <Flame className="w-4 h-4 fill-current animate-pulse text-amber-500" />
                   </div>
-                  <span className="flex-1 text-right">پالىيەتلەر</span>
+                  <span className="flex-1 text-right">{t('promotions') || 'پالىيەتلەر'}</span>
                   <span className="text-[9px] bg-red-600 text-white px-2 py-0.5 rounded-full font-black animate-pulse">
                     FLASH
                   </span>
@@ -1081,7 +1068,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                   <div className="w-9 h-9 rounded-2xl bg-emerald-100/70 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                     <Smartphone className="w-4 h-4 animate-icon-gleam" />
                   </div>
-                  <span className="flex-1 text-right">توربەت ئەپىنى چۈشۈرۈڭ</span>
+                  <span className="flex-1 text-right">{t('downloadApp') || 'توربەت ئەپىنى چۈشۈرۈڭ'}</span>
                   <span className="text-[10px] bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-mono font-bold">
                     APK
                   </span>
@@ -1098,7 +1085,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                   <div className="w-9 h-9 rounded-2xl bg-teal-100/70 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
                     <MessageSquareCode className="w-4 h-4" />
                   </div>
-                  <span className="flex-1 text-right">مەۋھۇم نومۇر (SMS)</span>
+                  <span className="flex-1 text-right">{t('virtualNumbers') || 'مەۋھۇم نومۇر (SMS)'}</span>
                   <span className="text-[10px] bg-teal-500/15 border border-teal-500/30 text-teal-600 dark:text-teal-400 px-2 py-0.5 rounded-full font-mono font-bold">
                     SMS
                   </span>
@@ -1122,7 +1109,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                   <div className="w-9 h-9 rounded-2xl bg-amber-100/70 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                     <Code2 className="w-4 h-4" />
                   </div>
-                  <span className="flex-1 text-right font-medium">تەمىنلىگۈچى API (Docs)</span>
+                  <span className="flex-1 text-right font-medium">{t('providerApi') || 'تەمىنلىگۈچى API (Docs)'}</span>
                   {isVip5 ? (
                     <span className="text-[10px] bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 font-mono">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -1147,7 +1134,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                   <div className="w-9 h-9 rounded-2xl bg-sky-100/70 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
                     <Headphones className="w-4 h-4 animate-icon-gleam" />
                   </div>
-                  <span className="flex-1 text-right">ئالاقىلىشىش</span>
+                  <span className="flex-1 text-right">{t('support') || 'ئالاقىلىشىش'}</span>
                   <span className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold">
                     24/7
                   </span>
@@ -1164,9 +1151,9 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                   <div className="w-9 h-9 rounded-2xl bg-emerald-100/70 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                     <MessageSquareQuote className="w-4 h-4 animate-icon-sparkle" />
                   </div>
-                  <span className="flex-1 text-right">ئىنكاس</span>
+                  <span className="flex-1 text-right">{t('feedback') || 'ئىنكاس'}</span>
                   <span className="text-[10px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
-                    بىۋاسىتە تېلېگرامما
+                    {t('directTelegram') || 'بىۋاسىتە تېلېگرامما'}
                   </span>
                 </Link>
 
@@ -1188,7 +1175,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                   className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 font-bold text-xs sm:text-sm transition active:scale-95 cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
-                  <span>چېكىنىش</span>
+                  <span>{t('logout') || 'چېكىنىش'}</span>
                 </button>
               ) : (
                 <button
@@ -1199,7 +1186,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                   className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 font-bold text-xs sm:text-sm transition active:scale-95 cursor-pointer"
                 >
                   <LogIn className="w-4 h-4" />
-                  <span>كىرىش / تىزىملىتىش</span>
+                  <span>{t('loginRegister') || 'كىرىش / تىزىملىتىش'}</span>
                 </button>
               )}
 
@@ -1207,7 +1194,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
               <button
                 onClick={toggleTheme}
                 className="w-16 py-1.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 flex flex-col items-center justify-center text-amber-600 dark:text-amber-400 transition active:scale-95 cursor-pointer"
-                title="تېما ئالماشتۇرۇش"
+                title={t('themeToggle') || 'تېما ئالماشتۇرۇش'}
               >
                 {theme === 'dark' ? (
                   <Sun className="w-4 h-4" />
@@ -1215,7 +1202,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                   <Moon className="w-4 h-4" />
                 )}
                 <span className="text-[9px] font-bold text-slate-700 dark:text-slate-300 leading-tight mt-0.5">
-                  تېما
+                  {t('themeToggle')?.split(' ')[0] || 'تېما'}
                 </span>
               </button>
 
@@ -1329,25 +1316,25 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
               </div>
               
               <h3 className="text-base sm:text-lg font-black text-white leading-snug">
-                بۇ يەرنى ئېچىش ئۈچۈن VIP 5 ئەزا بولۇڭ ياكى باشقۇرغۇچى بىلەن ئالاقىلىشىڭ
+                {t('vip5UpgradePrompt') || 'بۇ يەرنى ئېچىش ئۈچۈن VIP 5 ئەزا بولۇڭ ياكى باشقۇرغۇچى بىلەن ئالاقىلىشىڭ'}
               </h3>
 
               <p className="text-xs text-slate-300 leading-relaxed px-1">
-                تەمىنلىگۈچى API (Docs) سۇپىسى پەقەت ئەڭ چوڭ ئەزالىققا كۆتۈرۈلگەن (<b>VIP 5</b>) ئەزالار ۋە رەسمىي ھەمكارلاشقۇچىلار ئۈچۈن ئېچىۋېتىلگەن.
+                {t('vip5LockedDesc') || 'تەمىنلىگۈچى API (Docs) سۇپىسى پەقەت ئەڭ چوڭ ئەزالىققا كۆتۈرۈلگەن (VIP 5) ئەزالار ۋە رەسمىي ھەمكارلاشقۇچىلار ئۈچۈن ئېچىۋېتىلگەن.'}
               </p>
             </div>
 
             {/* User Current Tier Status */}
             <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 text-xs space-y-2 relative z-10">
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">ھازىرقى ئەزالىق دەرىجىڭىز:</span>
+                <span className="text-slate-400">{t('currentTierLabel') || 'ھازىرقى ئەزالىق دەرىجىڭىز:'}</span>
                 <span className="font-bold text-amber-400">
-                  {user ? (user.vipTier ? user.vipTier.toUpperCase() : 'VIP 1') : 'مېھمان (كىرمىگەن)'}
+                  {user ? (user.vipTier ? user.vipTier.toUpperCase() : 'VIP 1') : (t('guestUser') || 'مېھمان (كىرمىگەن)')}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">سۇپىنى ئېچىش تەلىپى:</span>
-                <span className="font-black text-emerald-400">👑 VIP 5 (ئەڭ چوڭ ئەزالىق)</span>
+                <span className="text-slate-400">{t('requirementLabel') || 'سۇپىنى ئېچىش تەلىپى:'}</span>
+                <span className="font-black text-emerald-400">{t('vip5TierMax') || '👑 VIP 5 (ئەڭ چوڭ ئەزالىق)'}</span>
               </div>
             </div>
 
@@ -1358,7 +1345,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 onClick={() => setShowVipLockedModal(false)}
                 className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:brightness-110 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 active:scale-98 transition cursor-pointer"
               >
-                <span>👑 VIP 5 ئەزالىققا ئۆرلەش يېتەكچىسى</span>
+                <span>{t('vip5GuideBtn') || '👑 VIP 5 ئەزالىققا ئۆرلەش يېتەكچىسى'}</span>
                 <ArrowLeft className="w-4 h-4" />
               </Link>
 
@@ -1369,7 +1356,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 className="w-full py-2.5 px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 font-bold text-xs flex items-center justify-center gap-2 active:scale-98 transition cursor-pointer"
               >
                 <Send className="w-3.5 h-3.5 text-cyan-400" />
-                <span>باشقۇرغۇچى بىلەن ئالاقىلىشىڭ</span>
+                <span>{t('contactSupport') || 'باشقۇرغۇچى بىلەن ئالاقىلىشىڭ'}</span>
               </a>
             </div>
           </div>
@@ -1400,7 +1387,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                   ? 'bg-emerald-950/30 border border-emerald-500/30 hover:border-emerald-400/60'
                   : 'bg-emerald-50/80 border border-emerald-200 hover:border-emerald-300'
               }`}
-              title="قالدۇق سوممىڭىزنى كۆرۈش ۋە پۇل قاچىلاش ئۈچۈن بېسىڭ"
+              title={t('deposit') || 'پۇل قاچىلاش'}
             >
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-emerald-600/90 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
@@ -1408,7 +1395,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 </div>
                 <div className="text-right">
                   <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-bold leading-none">
-                    قالدۇق سومما
+                    {t('balanceLabel') || 'قالدۇق سومما'}
                   </span>
                   <span className="block text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400 font-mono leading-tight mt-0.5">
                     ${typeof user?.balance === 'number' ? user.balance.toFixed(2) : '0.00'}
@@ -1418,7 +1405,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
 
               <div className="flex items-center gap-1 bg-emerald-600 hover:bg-emerald-500 text-white text-[10.5px] sm:text-xs font-black px-2.5 py-1 sm:py-1.5 rounded-lg shadow-sm transition group-hover:scale-105">
                 <span className="animate-star-glint text-amber-300">✦</span>
-                <span>+ پۇل قاچىلاش</span>
+                <span>{t('addFunds') || '+ پۇل قاچىلاش'}</span>
               </div>
             </Link>
 
@@ -1433,10 +1420,10 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                     ? 'bg-[#18233a] border-white/10 hover:border-blue-400/50 text-slate-200 hover:text-white'
                     : 'bg-slate-50/80 border-slate-200 hover:border-blue-300 text-slate-700 hover:text-blue-600'
                 }`}
-                title="تەلەپلىرىمنى كۆرۈش"
+                title={t('orders') || 'تەلەپلىرىم'}
               >
                 <ClipboardList className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 shrink-0 animate-icon-gleam anim-delay-2 group-hover:scale-110 transition-transform" />
-                <span className="text-[11px] sm:text-xs font-bold truncate">تەلەپلىرىم</span>
+                <span className="text-[11px] sm:text-xs font-bold truncate">{t('orders') || t('myOrders') || 'تەلەپلىرىم'}</span>
               </Link>
 
               {/* 3. بۈگۈنكى پائالىيەتلەر (Image 4: Isolated 60FPS Live Countdown Button) */}
@@ -1450,10 +1437,10 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                     ? 'bg-[#18233a] border-white/10 hover:border-yellow-400/50 text-slate-200 hover:text-white'
                     : 'bg-slate-50/80 border-slate-200 hover:border-yellow-300 text-slate-700 hover:text-yellow-600'
                 }`}
-                title="ئەزالىق دەرىجىسى ۋە كارتىلىرى"
+                title={t('membership') || 'ئەزالىق'}
               >
                 <Animated3DEmoji type="crown" size={17} className="shrink-0 group-hover:scale-110 transition-transform" />
-                <span className="text-[11px] sm:text-xs font-bold truncate">ئەزالىق</span>
+                <span className="text-[11px] sm:text-xs font-bold truncate">{t('membership') || 'ئەزالىق'}</span>
               </Link>
 
             </div>
@@ -1944,10 +1931,10 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 animate-icon-sparkle anim-delay-1" />
               </div>
               <span className={`font-bold text-[10.5px] sm:text-xs leading-tight ${activeCategory === 'apps' ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
-                ئەپلەر
+                {getCategoryName('apps', 'ئەپلەر')}
               </span>
               <span className={`text-[9px] leading-none ${activeCategory === 'apps' ? 'text-emerald-100' : 'text-slate-500 dark:text-slate-400'}`}>
-                ({appsList.length}) تۈر
+                ({appsList.length}) {t('itemsCount') || 'تۈر'}
               </span>
             </button>
 
@@ -1969,10 +1956,10 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 <Bot className="w-4 h-4 sm:w-5 sm:h-5 animate-icon-sparkle anim-delay-2" />
               </div>
               <span className={`font-bold text-[10.5px] sm:text-xs leading-tight ${activeCategory === 'ai' ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
-                سۈنئىي ئەقىل
+                {getCategoryName('ai', 'سۈنئىي ئەقىل')}
               </span>
               <span className={`text-[9px] leading-none ${activeCategory === 'ai' ? 'text-purple-100' : 'text-slate-500 dark:text-slate-400'}`}>
-                ({aiList.length}) تۈر
+                ({aiList.length}) {t('itemsCount') || 'تۈر'}
               </span>
             </button>
 
@@ -1994,10 +1981,10 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 <MessageSquareCode className="w-4 h-4 sm:w-5 sm:h-5 animate-icon-sparkle anim-delay-3" />
               </div>
               <span className={`font-bold text-[10.5px] sm:text-xs leading-tight ${activeCategory === 'numbers' ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
-                مەۋھۇم نومۇر
+                {getCategoryName('numbers', 'مەۋھۇم نومۇر')}
               </span>
               <span className={`text-[9px] leading-none ${activeCategory === 'numbers' ? 'text-teal-100' : 'text-slate-500 dark:text-slate-400'}`}>
-                ({numbersList.length}) تۈر
+                ({numbersList.length}) {t('itemsCount') || 'تۈر'}
               </span>
             </button>
 
@@ -2019,10 +2006,10 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 <Wifi className="w-4 h-4 sm:w-5 sm:h-5 animate-icon-sparkle anim-delay-4" />
               </div>
               <span className={`font-bold text-[10.5px] sm:text-xs leading-tight ${activeCategory === 'wifi' ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
-                Wi-Fi تور كارتىلىرى
+                {getCategoryName('wifi', 'Wi-Fi كارتىلىرى')}
               </span>
               <span className={`text-[9px] leading-none ${activeCategory === 'wifi' ? 'text-sky-100' : 'text-slate-500 dark:text-slate-400'}`}>
-                ({wifiList.length}) تۈر
+                ({wifiList.length}) {t('itemsCount') || 'تۈر'}
               </span>
             </button>
 
@@ -2044,10 +2031,10 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 animate-icon-sparkle anim-delay-5" />
               </div>
               <span className={`font-bold text-[10.5px] sm:text-xs leading-tight ${activeCategory === 'cards' ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
-                كارتىغا پۇل قاچىلاش
+                {getCategoryName('cards', 'كارتىغا پۇل قاچىلاش')}
               </span>
               <span className={`text-[9px] leading-none ${activeCategory === 'cards' ? 'text-blue-100' : 'text-slate-500 dark:text-slate-400'}`}>
-                ({cardsList.length}) تۈر
+                ({cardsList.length}) {t('itemsCount') || 'تۈر'}
               </span>
             </button>
 
@@ -2069,10 +2056,10 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 <Share2 className="w-4 h-4 sm:w-5 sm:h-5 animate-icon-sparkle anim-delay-6" />
               </div>
               <span className={`font-bold text-[10.5px] sm:text-xs leading-tight ${activeCategory === 'social' ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
-                ئىجتىمائىي تاراتقۇ
+                {getCategoryName('social', 'ئىجتىمائىي تاراتقۇ')}
               </span>
               <span className={`text-[9px] leading-none ${activeCategory === 'social' ? 'text-pink-100' : 'text-slate-500 dark:text-slate-400'}`}>
-                ({socialList.length}) تۈر
+                ({socialList.length}) {t('itemsCount') || 'تۈر'}
               </span>
             </button>
 
@@ -2094,10 +2081,10 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 <Gamepad2 className="w-4 h-4 sm:w-5 sm:h-5 fill-current animate-icon-sparkle anim-delay-7" />
               </div>
               <span className={`font-bold text-[10.5px] sm:text-xs leading-tight ${activeCategory === 'games' ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
-                ئويۇنلار
+                {getCategoryName('games', 'ئويۇنلار')}
               </span>
               <span className={`text-[9px] leading-none ${activeCategory === 'games' ? 'text-red-100' : 'text-slate-500 dark:text-slate-400'}`}>
-                ({gamesList.length}) تۈر
+                ({gamesList.length}) {t('itemsCount') || 'تۈر'}
               </span>
             </button>
 
@@ -2166,17 +2153,17 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
               </div>
               <div>
                 <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
-                  {searchQuery.trim() ? `ئىزدەش نەتىجىسى: «${searchQuery}»` :
-                   activeCategory === 'apps' ? '📱 ئەپلەر' :
-                   activeCategory === 'ai' ? '🤖 سۈنئىي ئەقىل' :
-                   activeCategory === 'numbers' ? '💬 مەۋھۇم نومۇر (SMS)' :
-                   activeCategory === 'wifi' ? '📶 Wi-Fi تور كارتىلىرى' :
-                   activeCategory === 'cards' ? '💳 كارتىغا پۇل قاچىلاش' :
-                   activeCategory === 'social' ? '🌐 ئىجتىمائىي تاراتقۇ' :
-                   '🎮 ئويۇنلار'}
+                  {searchQuery.trim() ? `${t('results') || 'ئىزدەش نەتىجىسى:'} «${searchQuery}»` :
+                   activeCategory === 'apps' ? `📱 ${getCategoryName('apps', 'ئەپلەر')}` :
+                   activeCategory === 'ai' ? `🤖 ${getCategoryName('ai', 'سۈنئىي ئەقىل')}` :
+                   activeCategory === 'numbers' ? `💬 ${getCategoryName('numbers', 'مەۋھۇم نومۇر (SMS)')}` :
+                   activeCategory === 'wifi' ? `📶 ${getCategoryName('wifi', 'Wi-Fi كارتىلىرى')}` :
+                   activeCategory === 'cards' ? `💳 ${getCategoryName('cards', 'كارتىغا پۇل قاچىلاش')}` :
+                   activeCategory === 'social' ? `🌐 ${getCategoryName('social', 'ئىجتىمائىي تاراتقۇ')}` :
+                   `🎮 ${getCategoryName('games', 'ئويۇنلار')}`}
                 </h2>
                 <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                  مەزكۇر كاتېگورىيە ئىچىدە جەمئىي {filteredActiveList.length} مەھسۇلات بار
+                  {t('categoryTotalCount') || 'مەزكۇر كاتېگورىيە ئىچىدە جەمئىي'} {filteredActiveList.length} {t('productsCount') || 'مەھسۇلات'}
                 </span>
               </div>
             </div>
@@ -2185,7 +2172,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
               onClick={() => { setActiveCategory('all'); setSearchQuery(''); }}
               className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-200 transition flex items-center gap-1"
             >
-              <span>ھەممىسىنى كۆرۈش</span>
+              <span>{t('showAll') || 'ھەممىسىنى كۆرۈش'}</span>
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -2202,16 +2189,16 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 </div>
                 <div>
                   <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white flex items-center gap-2">
-                    <span>نەق مەيدان كود تاپشۇرۇۋېلىش بازىرى (SMS Activate)</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-700 dark:text-teal-300 font-bold">180+ دۇنيا ئەپلىرى</span>
+                    <span>{t('virtualNumbers') || 'نەق مەيدان كود تاپشۇرۇۋېلىش بازىرى (SMS Activate)'}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-700 dark:text-teal-300 font-bold">180+ {t('globalBadge') || 'دۇنيا'}</span>
                   </h4>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                    دۇنيا دۆلەتلىرىنىڭ يانفون نومۇرىنى تاللاپ سېتىۋېلىش ۋە دەلىللەش كودىنى شۇئان ئېلىش كۆزنىكىگە كىرىڭ
+                    {t('virtualNumbersSubtitle') || 'دۇنيا دۆلەتلىرىنىڭ يانفون نومۇرىنى تاللاپ سېتىۋېلىش ۋە دەلىللەش كودىنى شۇئان ئېلىش كۆزنىكىگە كىرىڭ'}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-1 text-xs font-bold text-teal-600 dark:text-teal-400 group-hover:translate-x-[-4px] transition-transform shrink-0">
-                <span>سەھىپىگە كىرىش</span>
+                <span>{t('enterPlatform') || 'سەھىپىگە كىرىش'}</span>
                 <ArrowLeft className="w-4 h-4" />
               </div>
             </Link>
@@ -2219,7 +2206,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
 
           {filteredActiveList.length === 0 ? (
             <div className="text-center py-12 bg-white dark:bg-[#131b2e] rounded-2xl border border-slate-200 dark:border-white/10">
-              <p className="text-sm font-bold text-slate-500">مەھسۇلات تېپىلمىدى.</p>
+              <p className="text-sm font-bold text-slate-500">{t('noProductsFound') || 'مەھسۇلات تېپىلمىدى.'}</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-3.5">
@@ -2255,15 +2242,15 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
             <div className="flex items-center justify-between mb-2.5 sm:mb-3">
               <h2 className="text-sm sm:text-base md:text-lg font-black flex items-center gap-1.5 text-slate-900 dark:text-white">
                 <span className="text-emerald-600">📱</span>
-                <span>ئەپلەر</span>
-                <span className="text-xs font-normal text-slate-400">({appsList.length} مەھسۇلات)</span>
+                <span>{getCategoryName('apps', 'ئەپلەر')}</span>
+                <span className="text-xs font-normal text-slate-400">({appsList.length} {t('productsCount') || 'مەھسۇلات'})</span>
               </h2>
               <button
                 type="button"
                 onClick={() => handleCategorySelect('apps')}
                 className="px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300/60 dark:border-emerald-500/30 text-[11px] sm:text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-90 transition-all z-10"
               >
-                <span>ھەممە ئەپلەر</span>
+                <span>{t('showAll') || 'ھەممىسىنى كۆرۈش'}</span>
                 <ArrowLeft className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
               </button>
             </div>
@@ -2277,15 +2264,15 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
             <div className="flex items-center justify-between mb-2.5 sm:mb-3">
               <h2 className="text-sm sm:text-base md:text-lg font-black flex items-center gap-1.5 text-slate-900 dark:text-white">
                 <span className="text-purple-600">🤖</span>
-                <span>سۈنئىي ئەقىل</span>
-                <span className="text-xs font-normal text-slate-400">({aiList.length} مەھسۇلات)</span>
+                <span>{getCategoryName('ai', 'سۈنئىي ئەقىل')}</span>
+                <span className="text-xs font-normal text-slate-400">({aiList.length} {t('productsCount') || 'مەھسۇلات'})</span>
               </h2>
               <button
                 type="button"
                 onClick={() => handleCategorySelect('ai')}
                 className="px-3 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 border border-purple-300/60 dark:border-purple-500/30 text-[11px] sm:text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-90 transition-all z-10"
               >
-                <span>ھەممە AI لار</span>
+                <span>{t('showAll') || 'ھەممىسىنى كۆرۈش'}</span>
                 <ArrowLeft className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 stroke-[2.5]" />
               </button>
             </div>
@@ -2299,14 +2286,14 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
             <div className="flex items-center justify-between mb-2.5 sm:mb-3">
               <h2 className="text-sm sm:text-base md:text-lg font-black flex items-center gap-1.5 text-slate-900 dark:text-white">
                 <span className="text-teal-600">💬</span>
-                <span>مەۋھۇم نومۇر (SMS)</span>
-                <span className="text-xs font-normal text-slate-400">({numbersList.length} مەھسۇلات)</span>
+                <span>{getCategoryName('numbers', 'مەۋھۇم نومۇر (SMS)')}</span>
+                <span className="text-xs font-normal text-slate-400">({numbersList.length} {t('productsCount') || 'مەھسۇلات'})</span>
               </h2>
               <Link
                 href="/numbers"
                 className="px-3 py-1.5 rounded-xl bg-teal-50 dark:bg-teal-950/40 hover:bg-teal-100 dark:hover:bg-teal-900/50 text-teal-700 dark:text-teal-300 border border-teal-300/60 dark:border-teal-500/30 text-[11px] sm:text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-90 transition-all z-10"
               >
-                <span>بارلىق نەق مەيدان نومۇرلار</span>
+                <span>{t('showAll') || 'ھەممىسىنى كۆرۈش'}</span>
                 <ArrowLeft className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 stroke-[2.5]" />
               </Link>
             </div>
@@ -2320,15 +2307,15 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
             <div className="flex items-center justify-between mb-2.5 sm:mb-3">
               <h2 className="text-sm sm:text-base md:text-lg font-black flex items-center gap-1.5 text-slate-900 dark:text-white">
                 <span className="text-sky-600">📶</span>
-                <span>Wi-Fi تور كارتىلىرى</span>
-                <span className="text-xs font-normal text-slate-400">({wifiList.length} مەھسۇلات)</span>
+                <span>{getCategoryName('wifi', 'Wi-Fi تور كارتىلىرى')}</span>
+                <span className="text-xs font-normal text-slate-400">({wifiList.length} {t('productsCount') || 'مەھسۇلات'})</span>
               </h2>
               <button
                 type="button"
                 onClick={() => handleCategorySelect('wifi')}
                 className="px-3 py-1.5 rounded-xl bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/50 text-sky-700 dark:text-sky-300 border border-sky-300/60 dark:border-sky-500/30 text-[11px] sm:text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-90 transition-all z-10"
               >
-                <span>ھەممە Wi-Fi لار</span>
+                <span>{t('showAll') || 'ھەممىسىنى كۆرۈش'}</span>
                 <ArrowLeft className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 stroke-[2.5]" />
               </button>
             </div>
@@ -2342,15 +2329,15 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
             <div className="flex items-center justify-between mb-2.5 sm:mb-3">
               <h2 className="text-sm sm:text-base md:text-lg font-black flex items-center gap-1.5 text-slate-900 dark:text-white">
                 <span className="text-blue-600">💳</span>
-                <span>كارتىغا پۇل قاچىلاش</span>
-                <span className="text-xs font-normal text-slate-400">({cardsList.length} مەھسۇلات)</span>
+                <span>{getCategoryName('cards', 'كارتىغا پۇل قاچىلاش')}</span>
+                <span className="text-xs font-normal text-slate-400">({cardsList.length} {t('productsCount') || 'مەھسۇلات'})</span>
               </h2>
               <button
                 type="button"
                 onClick={() => handleCategorySelect('cards')}
                 className="px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-300/60 dark:border-blue-500/30 text-[11px] sm:text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-90 transition-all z-10"
               >
-                <span>ھەممە كارتىلار</span>
+                <span>{t('showAll') || 'ھەممىسىنى كۆرۈش'}</span>
                 <ArrowLeft className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 stroke-[2.5]" />
               </button>
             </div>
@@ -2364,15 +2351,15 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
             <div className="flex items-center justify-between mb-2.5 sm:mb-3">
               <h2 className="text-sm sm:text-base md:text-lg font-black flex items-center gap-1.5 text-slate-900 dark:text-white">
                 <span className="text-pink-600">🌐</span>
-                <span>ئىجتىمائىي تاراتقۇ</span>
-                <span className="text-xs font-normal text-slate-400">({socialList.length} مەھسۇلات)</span>
+                <span>{getCategoryName('social', 'ئىجتىمائىي تاراتقۇ')}</span>
+                <span className="text-xs font-normal text-slate-400">({socialList.length} {t('productsCount') || 'مەھسۇلات'})</span>
               </h2>
               <button
                 type="button"
                 onClick={() => handleCategorySelect('social')}
                 className="px-3 py-1.5 rounded-xl bg-pink-50 dark:bg-pink-950/40 hover:bg-pink-100 dark:hover:bg-pink-900/50 text-pink-700 dark:text-pink-300 border border-pink-300/60 dark:border-pink-500/30 text-[11px] sm:text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-90 transition-all z-10"
               >
-                <span>ھەممە تاراتقۇلار</span>
+                <span>{t('showAll') || 'ھەممىسىنى كۆرۈش'}</span>
                 <ArrowLeft className="w-3.5 h-3.5 text-pink-600 dark:text-pink-400 stroke-[2.5]" />
               </button>
             </div>
@@ -2386,15 +2373,15 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
             <div className="flex items-center justify-between mb-2.5 sm:mb-3">
               <h2 className="text-sm sm:text-base md:text-lg font-black flex items-center gap-1.5 text-slate-900 dark:text-white">
                 <span className="text-amber-500">★</span>
-                <span>ئويۇنلار</span>
-                <span className="text-xs font-normal text-slate-400">({gamesList.length} مەھسۇلات)</span>
+                <span>{getCategoryName('games', 'ئويۇنلار')}</span>
+                <span className="text-xs font-normal text-slate-400">({gamesList.length} {t('productsCount') || 'مەھسۇلات'})</span>
               </h2>
               <button
                 type="button"
                 onClick={() => handleCategorySelect('games')}
                 className="px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-300 border border-amber-300/60 dark:border-amber-500/30 text-[11px] sm:text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-90 transition-all z-10"
               >
-                <span>ھەممە ئويۇنلار</span>
+                <span>{t('showAll') || 'ھەممىسىنى كۆرۈش'}</span>
                 <ArrowLeft className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 stroke-[2.5]" />
               </button>
             </div>

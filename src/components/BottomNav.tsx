@@ -4,9 +4,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, ClipboardList, Wallet, User } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { t, isRTL } = useLanguage();
 
   // Hide completely on admin routes
   if (pathname && pathname.startsWith('/admin')) {
@@ -34,29 +36,29 @@ export default function BottomNav() {
     setActiveTab(routeIndex);
   }, [routeIndex]);
 
-  // Tab definitions in RTL order (0 = rightmost, 3 = leftmost)
+  // Tab definitions dynamically translated with RTL/LTR support
   const tabs = [
     {
       id: 'home',
-      label: 'باشبەت',
+      label: t('navHome') || 'باشبەت',
       href: '/',
       icon: Home,
     },
     {
       id: 'orders',
-      label: 'تەلەپلىرىم',
+      label: t('navOrders') || 'تەلەپلىرىم',
       href: '/orders',
       icon: ClipboardList,
     },
     {
       id: 'deposit',
-      label: 'ھەميانىم',
+      label: t('navDeposit') || 'ھەميانىم',
       href: '/deposit',
       icon: Wallet,
     },
     {
       id: 'account',
-      label: 'ھېسابىم',
+      label: t('navAccount') || 'ھېسابىم',
       href: '/account',
       icon: User,
     },
@@ -66,7 +68,7 @@ export default function BottomNav() {
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 pointer-events-auto pb-[env(safe-area-inset-bottom,0px)]">
-      <div className="relative max-w-[440px] mx-auto select-none font-alkatip">
+      <div className={`relative max-w-[440px] mx-auto select-none ${isRTL ? 'font-alkatip' : 'font-sans'}`}>
         
         {/* =========================================================================
             1. FROSTED GLASS TRANSLUCENT BASE BAR (100% Hardware Accelerated)
@@ -80,9 +82,11 @@ export default function BottomNav() {
             2. GPU-ACCELERATED SLIDING NOTCH & 3D JEWEL BUBBLE (Instant, Silky-Smooth)
         ========================================================================= */}
         <div
-          className="absolute top-0 right-0 w-1/4 h-[66px] pointer-events-none z-20 transition-transform duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)]"
+          className={`absolute top-0 ${isRTL ? 'right-0' : 'left-0'} w-1/4 h-[66px] pointer-events-none z-20 transition-transform duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)]`}
           style={{
-            transform: `translate3d(-${activeTab * 100}%, 0, 0)`,
+            transform: isRTL
+              ? `translate3d(-${activeTab * 100}%, 0, 0)`
+              : `translate3d(${activeTab * 100}%, 0, 0)`,
             willChange: 'transform',
           }}
         >
@@ -145,7 +149,7 @@ export default function BottomNav() {
         ========================================================================= */}
         <nav
           className="absolute inset-0 top-0 h-[66px] flex items-center justify-around z-30"
-          dir="rtl"
+          dir={isRTL ? 'rtl' : 'ltr'}
         >
           {tabs.map((tab, idx) => {
             const isActive = activeTab === idx;

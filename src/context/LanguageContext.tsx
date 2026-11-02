@@ -14,8 +14,8 @@ export interface LanguageContextType {
   t: (key: string) => string;
   dir: 'rtl' | 'ltr';
   isRTL: boolean;
-  getCategoryName: (id: string, defaultName: string) => string;
-  getCategoryCount: (id: string, defaultCount: string) => string;
+  getCategoryName: (id: string, defaultName?: string) => string;
+  getCategoryCount: (id: string, defaultCount?: string) => string;
   translatePackageTitle: (title: string) => string;
   translateBadge: (badge?: string) => string | undefined;
   translateInputLabel: (label?: string) => string | undefined;
@@ -28,6 +28,31 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     // General
     appName: 'AUTO CASH',
     brandSlogan: 'ئەپلەرگە، ئويۇنلارغا پۇل قاچىلاش ۋە سۈنئىي ئەقىل ئابۇنىتلىقى',
+    brandSubtitle: 'ئاپتوماتىك پۇل قاچىلاش',
+    mainMenu: 'ئاساسىي تىزىملىك',
+    servicesAndStore: 'مۇلازىمەت ۋە دۇكان',
+    balanceLabel: 'قالدۇق سومما',
+    todayPromotions: 'بۈگۈنكى پائالىيەتلەر',
+    membership: 'ئەزالىق',
+    promotions: 'پائالىيەتلەر',
+    virtualNumbers: 'مەۋھۇم نومۇر (SMS)',
+    providerApi: 'تەمىنلىگۈچى API (Docs)',
+    support: 'ئالاقىلىشىش',
+    feedback: 'ئىنكاس',
+    directTelegram: 'بىۋاسىتە تېلېگرامما',
+    themeToggle: 'تېما ئالماشتۇرۇش',
+    globalBadge: 'دۇنياۋى',
+    autoBadge: 'ئاپتوماتىك',
+    productsCount: 'مەھسۇلات',
+    itemsCount: 'تۈر',
+    noProductsFound: 'مەھسۇلات تېپىلمىدى.',
+    categoryTotalCount: 'مەزكۇر كاتېگورىيە ئىچىدە جەمئىي',
+    vip5LockedTitle: '🔒 پەقەت VIP 5 ئەزالار ئۈچۈن',
+    vip5LockedDesc: 'تەمىنلىگۈچى API (Docs) سۇپىسى پەقەت ئەڭ چوڭ ئەزالىققا كۆتۈرۈلگەن (VIP 5) ئەزالار ۋە رەسمىي ھەمكارلاشقۇچىلار ئۈچۈن ئېچىۋېتىلگەن.',
+    vip5UpgradePrompt: 'بۇ يەرنى ئېچىش ئۈچۈن VIP 5 ئەزا بولۇڭ ياكى باشقۇرغۇچى بىلەن ئالاقىلىشىڭ',
+    currentTierLabel: 'ھازىرقى ئەزالىق دەرىجىڭىز:',
+    vip5TierMax: '👑 VIP 5 (ئەڭ چوڭ ئەزالىق)',
+    vip5GuideBtn: '👑 VIP 5 ئەزالىققا ئۆرلەش يېتەكچىسى',
     welcomeTitle: 'تور بېكەتكە خۇش كەپسىز',
     welcomeSubtitle: 'ئەپلەر، ئويۇنلار، مەۋھۇم نومۇرلار ۋە سۈنئىي ئەقىل ئابۇنىتلىقىغا پۇل قاچىلاش پىلاتفورمىسى',
     enterPlatform: 'سۇپىغا كىرىش',
@@ -328,6 +353,31 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     // General
     appName: 'AUTO CASH',
     brandSlogan: 'Games, Apps Top-up & AI Subscriptions Hub',
+    brandSubtitle: 'Automatic Top-Up Hub',
+    mainMenu: 'Main Menu',
+    servicesAndStore: 'Services & Store',
+    balanceLabel: 'Available Balance',
+    todayPromotions: "Today's Offers",
+    membership: 'Membership',
+    promotions: 'Promotions',
+    virtualNumbers: 'Virtual Numbers (SMS)',
+    providerApi: 'Provider API (Docs)',
+    support: 'Contact Support',
+    feedback: 'Feedback',
+    directTelegram: 'Direct Telegram',
+    themeToggle: 'Toggle Theme',
+    globalBadge: 'Global',
+    autoBadge: 'Auto',
+    productsCount: 'products',
+    itemsCount: 'items',
+    noProductsFound: 'No products found.',
+    categoryTotalCount: 'Total in this category:',
+    vip5LockedTitle: '🔒 Exclusive to VIP 5 Members',
+    vip5LockedDesc: 'Provider API (Docs) platform is exclusively available for highest-tier (VIP 5) members and official partners.',
+    vip5UpgradePrompt: 'To unlock this section, become a VIP 5 member or contact the administrator',
+    currentTierLabel: 'Your Current Tier:',
+    vip5TierMax: '👑 VIP 5 (Highest Tier)',
+    vip5GuideBtn: '👑 VIP 5 Upgrade Guide',
     welcomeTitle: 'Welcome to AUTO CASH',
     welcomeSubtitle: 'Instant digital store for game top-ups, apps, virtual numbers, and AI tools',
     enterPlatform: 'Enter Platform',
@@ -628,6 +678,31 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     // General
     appName: 'AUTO CASH',
     brandSlogan: 'شحن التطبيقات والألعاب واشتراكات الذكاء الاصطناعي',
+    brandSubtitle: 'شحن فوري وتلقائي',
+    mainMenu: 'القائمة الرئيسية',
+    servicesAndStore: 'الخدمات والمتجر',
+    balanceLabel: 'الرصيد المتاح',
+    todayPromotions: 'عروض اليوم',
+    membership: 'العضوية',
+    promotions: 'العروض الترويجية',
+    virtualNumbers: 'أرقام وهمية (SMS)',
+    providerApi: 'واجهة المزود API (Docs)',
+    support: 'الدعم والتواصل',
+    feedback: 'الملاحظات والآراء',
+    directTelegram: 'تيليجرام مباشر',
+    themeToggle: 'تبديل المظهر',
+    globalBadge: 'عالمي',
+    autoBadge: 'تلقائي',
+    productsCount: 'منتج',
+    itemsCount: 'عنصر',
+    noProductsFound: 'لم يتم العثور على منتجات.',
+    categoryTotalCount: 'إجمالي المنتجات في هذا القسم:',
+    vip5LockedTitle: '🔒 حصري لأعضاء VIP 5',
+    vip5LockedDesc: 'منصة واجهة المزود (API Docs) متاحة حصرياً للأعضاء من المستوى الأعلى (VIP 5) والشركاء الرسميين.',
+    vip5UpgradePrompt: 'لفتح هذا القسم، يرجى الترقية إلى VIP 5 أو التواصل مع الإدارة',
+    currentTierLabel: 'مستوى عضويتك الحالي:',
+    vip5TierMax: '👑 VIP 5 (الدرجة القصوى)',
+    vip5GuideBtn: '👑 دليل الترقية إلى VIP 5',
     welcomeTitle: 'أهلاً بكم في AUTO CASH',
     welcomeSubtitle: 'منصة شحن الألعاب والتطبيقات واشتراكات الذكاء الاصطناعي والأرقام الوهمية',
     enterPlatform: 'دخول المنصة',
@@ -928,6 +1003,31 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     // General
     appName: 'AUTO CASH',
     brandSlogan: 'Oyun, Uygulama Yükleme ve Yapay Zeka Abonelikleri Merkezi',
+    brandSubtitle: 'Otomatik Yükleme Merkezi',
+    mainMenu: 'Ana Menü',
+    servicesAndStore: 'Hizmetler ve Mağaza',
+    balanceLabel: 'Kullanılabilir Bakiye',
+    todayPromotions: 'Günün Fırsatları',
+    membership: 'Üyelik',
+    promotions: 'Kampanyalar',
+    virtualNumbers: 'Sanal Numara (SMS)',
+    providerApi: 'Sağlayıcı API (Docs)',
+    support: 'İletişim & Destek',
+    feedback: 'Geri Bildirim',
+    directTelegram: 'Doğrudan Telegram',
+    themeToggle: 'Tema Değiştir',
+    globalBadge: 'Küresel',
+    autoBadge: 'Otomatik',
+    productsCount: 'ürün',
+    itemsCount: 'çeşit',
+    noProductsFound: 'Ürün bulunamadı.',
+    categoryTotalCount: 'Bu kategorideki toplam:',
+    vip5LockedTitle: '🔒 Yalnızca VIP 5 Üyelerine Özel',
+    vip5LockedDesc: 'Sağlayıcı API (Docs) platformu yalnızca en yüksek seviye (VIP 5) üyeler ve resmi iş ortakları için açıktır.',
+    vip5UpgradePrompt: 'Bu bölümü açmak için VIP 5 üye olun veya yöneticiyle iletişime geçin',
+    currentTierLabel: 'Mevcut Üyelik Seviyeniz:',
+    vip5TierMax: '👑 VIP 5 (En Yüksek Seviye)',
+    vip5GuideBtn: '👑 VIP 5 Yükseltme Kılavuzu',
     welcomeTitle: "AUTO CASH'e Hoş Geldiniz",
     welcomeSubtitle: 'Oyun yüklemeleri, uygulamalar, sanal numaralar ve yapay zeka araçları için anında dijital mağaza',
     enterPlatform: 'Platforma Gir',
@@ -1228,6 +1328,31 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     // General
     appName: 'AUTO CASH',
     brandSlogan: 'Oʻyinlar, ilovalarni toʻldirish va AI obunalari markazi',
+    brandSubtitle: 'Avtomatik to‘ldirish markazi',
+    mainMenu: 'Asosiy menyu',
+    servicesAndStore: 'Xizmatlar va doʻkon',
+    balanceLabel: 'Mavjud balans',
+    todayPromotions: 'Bugungi aksiyalar',
+    membership: 'A’zolik',
+    promotions: 'Aksiyalar',
+    virtualNumbers: 'Virtual raqamlar (SMS)',
+    providerApi: 'Provayder API (Docs)',
+    support: 'Aloqa va yordam',
+    feedback: 'Fikr-mulohaza',
+    directTelegram: 'To‘g‘ridan-to‘g‘ri Telegram',
+    themeToggle: 'Mavzuni almashtirish',
+    globalBadge: 'Global',
+    autoBadge: 'Avtomatik',
+    productsCount: 'mahsulot',
+    itemsCount: 'tur',
+    noProductsFound: 'Mahsulot topilmadi.',
+    categoryTotalCount: 'Ushbu toifadagi jami:',
+    vip5LockedTitle: '🔒 Faqat VIP 5 a’zolari uchun',
+    vip5LockedDesc: 'Provayder API (Docs) platformasi faqat eng yuqori (VIP 5) a’zolar va rasmiy hamkorlar uchun ochiq.',
+    vip5UpgradePrompt: 'Ushbu bo‘limni ochish uchun VIP 5 a’zosi bo‘ling yoki administrator bilan bog‘laning',
+    currentTierLabel: 'Hozirgi a’zolik darajangiz:',
+    vip5TierMax: '👑 VIP 5 (Eng yuqori daraja)',
+    vip5GuideBtn: '👑 VIP 5 ko‘tarilish qo‘llanmasi',
     welcomeTitle: 'AUTO CASH ga xush kelibsiz',
     welcomeSubtitle: "O'yinlar, ilovalar, virtual raqamlar va AI vositalari uchun tezkor raqamli platforma",
     enterPlatform: 'Platformaga kirish',
@@ -1528,6 +1653,31 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     // General
     appName: 'AUTO CASH',
     brandSlogan: 'Пополнение игр, приложений и подписки на искусственный интеллект',
+    brandSubtitle: 'Автоматическое пополнение',
+    mainMenu: 'Главное меню',
+    servicesAndStore: 'Услуги и магазин',
+    balanceLabel: 'Доступный баланс',
+    todayPromotions: 'Акции дня',
+    membership: 'Подписка',
+    promotions: 'Акции',
+    virtualNumbers: 'Виртуальные номера (SMS)',
+    providerApi: 'API Провайдера (Docs)',
+    support: 'Поддержка',
+    feedback: 'Обратная связь',
+    directTelegram: 'Прямой Telegram',
+    themeToggle: 'Сменить тему',
+    globalBadge: 'Мировой',
+    autoBadge: 'Авто',
+    productsCount: 'товаров',
+    itemsCount: 'видов',
+    noProductsFound: 'Товары не найдены.',
+    categoryTotalCount: 'Всего в этой категории:',
+    vip5LockedTitle: '🔒 Эксклюзивно для участников VIP 5',
+    vip5LockedDesc: 'Платформа API провайдера (Docs) доступна исключительно для участников наивысшего уровня (VIP 5) и официальных партнеров.',
+    vip5UpgradePrompt: 'Чтобы открыть этот раздел, повысьте уровень до VIP 5 или свяжитесь с администратором',
+    currentTierLabel: 'Ваш текущий уровень:',
+    vip5TierMax: '👑 VIP 5 (Высший уровень)',
+    vip5GuideBtn: '👑 Руководство по переходу на VIP 5',
     welcomeTitle: 'Добро пожаловать в AUTO CASH',
     welcomeSubtitle: 'Платформа мгновенного пополнения игр, приложений, виртуальных номеров и сервисов ИИ',
     enterPlatform: 'Войти на платформу',
@@ -2074,15 +2224,20 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     return TRANSLATIONS[lang]?.[key] || TRANSLATIONS.ug[key] || key;
   };
 
-  const getCategoryName = (id: string, defaultName: string): string => {
-    if (lang === 'ug') {
-      return defaultName && defaultName.trim() ? defaultName.trim() : CATEGORY_NAMES[id]?.ug || id;
+  const getCategoryName = (id: string, defaultName?: string): string => {
+    const cleanId = (id || '').toLowerCase().trim();
+    if (CATEGORY_NAMES[cleanId]?.[lang]) {
+      return CATEGORY_NAMES[cleanId][lang];
     }
-    return CATEGORY_NAMES[id]?.[lang] || defaultName || id;
+    if (lang === 'ug') {
+      return defaultName && defaultName.trim() ? defaultName.trim() : CATEGORY_NAMES[cleanId]?.ug || id;
+    }
+    return CATEGORY_NAMES[cleanId]?.[lang] || defaultName || id;
   };
 
-  const getCategoryCount = (id: string, defaultCount: string): string => {
-    return CATEGORY_COUNTS[id]?.[lang] || defaultCount;
+  const getCategoryCount = (id: string, defaultCount?: string): string => {
+    const cleanId = (id || '').toLowerCase().trim();
+    return CATEGORY_COUNTS[cleanId]?.[lang] || defaultCount || '';
   };
 
   const translatePackageTitle = (title: string): string => {
@@ -2091,6 +2246,22 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const translateBadge = (badge?: string): string | undefined => {
     if (!badge) return undefined;
+    if (badge === 'دۇنياۋى' || badge.toLowerCase() === 'global') {
+      if (lang === 'ar') return 'عالمي';
+      if (lang === 'tr') return 'Küresel';
+      if (lang === 'uz') return 'Global';
+      if (lang === 'ru') return 'Мировой';
+      if (lang === 'en') return 'Global';
+      return 'دۇنياۋى';
+    }
+    if (badge === 'ئاپتوماتىك' || badge.toLowerCase() === 'auto') {
+      if (lang === 'ar') return 'تلقائي';
+      if (lang === 'tr') return 'Otomatik';
+      if (lang === 'uz') return 'Avtomatik';
+      if (lang === 'ru') return 'Авто';
+      if (lang === 'en') return 'Auto';
+      return 'ئاپتوماتىك';
+    }
     if (lang === 'ug') return badge;
     if (badge === 'ئەڭ قىزىق' || badge === 'HOT') {
       if (lang === 'ar') return 'الأكثر طلباً';

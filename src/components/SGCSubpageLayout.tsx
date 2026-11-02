@@ -227,7 +227,7 @@ export default function SGCSubpageLayout({
                 AUTO CASH
               </span>
               <span className="text-[11px] sm:text-[12px] font-bold tracking-normal animated-brand-sub">
-                ئاپتوماتىك پۇل قاچىلاش
+                {t('brandSubtitle') || 'ئاپتوماتىك پۇل قاچىلاش'}
               </span>
             </div>
             <div className="relative shrink-0 p-0.5 rounded-full border border-emerald-500/40 animate-logo-aura">
@@ -403,7 +403,7 @@ export default function SGCSubpageLayout({
                   <div className="w-9 h-9 rounded-2xl bg-emerald-100/70 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                     <Home className="w-4 h-4 animate-icon-gleam anim-delay-1" />
                   </div>
-                  <span className="flex-1 text-right">باشبەت</span>
+                  <span className="flex-1 text-right">{t('home') || 'باشبەت'}</span>
                 </Link>
 
                 {/* 3. تەلەپلىرىم */}
@@ -417,7 +417,7 @@ export default function SGCSubpageLayout({
                   <div className="w-9 h-9 rounded-2xl bg-emerald-100/70 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                     <ClipboardList className="w-4 h-4 animate-icon-gleam anim-delay-2" />
                   </div>
-                  <span className="flex-1 text-right">تەلەپلىرىم</span>
+                  <span className="flex-1 text-right">{t('orders') || t('myOrders') || 'تەلەپلىرىم'}</span>
                 </Link>
 
                 {/* 4. ھەميانىم */}
@@ -431,7 +431,7 @@ export default function SGCSubpageLayout({
                   <div className="w-9 h-9 rounded-2xl bg-emerald-100/70 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                     <Wallet className="w-4 h-4 animate-icon-gleam anim-delay-3" />
                   </div>
-                  <span className="flex-1 text-right">ھەميانىم</span>
+                  <span className="flex-1 text-right">{t('deposit') || 'ھەميانىم'}</span>
                 </Link>
 
                 {/* 5. ئەزالىق */}
@@ -445,7 +445,7 @@ export default function SGCSubpageLayout({
                   <div className="w-9 h-9 rounded-2xl bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                     <Crown className="w-4 h-4" />
                   </div>
-                  <span className="flex-1 text-right">ئەزالىق</span>
+                  <span className="flex-1 text-right">{t('membership') || 'ئەزالىق'}</span>
                   <span className="text-[10px] bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-mono">
                     VIP
                   </span>
@@ -462,7 +462,7 @@ export default function SGCSubpageLayout({
                   <div className="w-9 h-9 rounded-2xl bg-amber-100/70 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                     <Flame className="w-4 h-4 fill-current animate-pulse text-amber-500" />
                   </div>
-                  <span className="flex-1 text-right">پالىيەتلەر</span>
+                  <span className="flex-1 text-right">{t('promotions') || 'پالىيەتلەر'}</span>
                   <span className="text-[9px] bg-red-600 text-white px-2 py-0.5 rounded-full font-black animate-pulse">
                     FLASH
                   </span>
@@ -479,7 +479,7 @@ export default function SGCSubpageLayout({
                   <div className="w-9 h-9 rounded-2xl bg-emerald-100/70 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                     <Smartphone className="w-4 h-4 animate-icon-gleam" />
                   </div>
-                  <span className="flex-1 text-right">توربەت ئەپىنى چۈشۈرۈڭ</span>
+                  <span className="flex-1 text-right">{t('downloadApp') || 'توربەت ئەپىنى چۈشۈرۈڭ'}</span>
                   <span className="text-[10px] bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-mono font-bold">
                     APK
                   </span>
@@ -496,7 +496,7 @@ export default function SGCSubpageLayout({
                   <div className="w-9 h-9 rounded-2xl bg-teal-100/70 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
                     <MessageSquareCode className="w-4 h-4" />
                   </div>
-                  <span className="flex-1 text-right">مەۋھۇم نومۇر (SMS)</span>
+                  <span className="flex-1 text-right">{t('virtualNumbers') || 'مەۋھۇم نومۇر (SMS)'}</span>
                   <span className="text-[10px] bg-teal-500/15 border border-teal-500/30 text-teal-600 dark:text-teal-400 px-2 py-0.5 rounded-full font-mono font-bold">
                     SMS
                   </span>
@@ -518,7 +518,7 @@ export default function SGCSubpageLayout({
                   <div className="w-9 h-9 rounded-2xl bg-amber-100/70 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                     <Code2 className="w-4 h-4" />
                   </div>
-                  <span className="flex-1 text-right font-medium">تەمىنلىگۈچى API (Docs)</span>
+                  <span className="flex-1 text-right font-medium">{t('providerApi') || 'تەمىنلىگۈچى API (Docs)'}</span>
                   {isVip5 ? (
                     <span className="text-[10px] bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 font-mono">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -541,7 +541,7 @@ export default function SGCSubpageLayout({
                   <div className="w-9 h-9 rounded-2xl bg-sky-100/70 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
                     <Headphones className="w-4 h-4 animate-icon-gleam" />
                   </div>
-                  <span className="flex-1 text-right">ئالاقىلىشىش</span>
+                  <span className="flex-1 text-right">{t('support') || 'ئالاقىلىشىش'}</span>
                   <span className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold">
                     24/7
                   </span>
@@ -558,9 +558,9 @@ export default function SGCSubpageLayout({
                   <div className="w-9 h-9 rounded-2xl bg-emerald-100/70 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                     <MessageSquareQuote className="w-4 h-4 animate-icon-sparkle" />
                   </div>
-                  <span className="flex-1 text-right">ئىنكاس</span>
+                  <span className="flex-1 text-right">{t('feedback') || 'ئىنكاس'}</span>
                   <span className="text-[10px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
-                    بىۋاسىتە تېلېگرامما
+                    {t('directTelegram') || 'بىۋاسىتە تېلېگرامما'}
                   </span>
                 </Link>
 
@@ -575,7 +575,7 @@ export default function SGCSubpageLayout({
               >
                 <div className="flex items-center gap-2">
                   {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
-                  <span>{theme === 'dark' ? 'كۈندۈز ھالىتى' : 'كېچە ھالىتى'}</span>
+                  <span>{theme === 'dark' ? (t('lightMode') || 'كۈندۈز ھالىتى') : (t('darkMode') || 'كېچە ھالىتى')}</span>
                 </div>
                 <span className="text-[10px] text-slate-400">{theme === 'dark' ? 'Dark' : 'Light'}</span>
               </button>
@@ -586,7 +586,7 @@ export default function SGCSubpageLayout({
                   className="w-full flex items-center justify-center gap-2 p-2.5 rounded-2xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/50 text-rose-600 dark:text-rose-400 text-xs font-bold transition active:scale-98 cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
-                  <span>ھېساباتتىن چېكىنىش</span>
+                  <span>{t('logout') || 'ھېساباتتىن چېكىنىش'}</span>
                 </button>
               ) : (
                 <Link
@@ -595,7 +595,7 @@ export default function SGCSubpageLayout({
                   className="w-full flex items-center justify-center gap-2 p-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition active:scale-98 shadow-sm"
                 >
                   <User className="w-4 h-4" />
-                  <span>ھېساباتقا كىرىش</span>
+                  <span>{t('loginRegister') || 'ھېساباتقا كىرىش'}</span>
                 </Link>
               )}
             </div>
@@ -707,25 +707,25 @@ export default function SGCSubpageLayout({
               </div>
               
               <h3 className="text-base sm:text-lg font-black text-white leading-snug">
-                بۇ يەرنى ئېچىش ئۈچۈن VIP 5 ئەزا بولۇڭ ياكى باشقۇرغۇچى بىلەن ئالاقىلىشىڭ
+                {t('vip5UpgradePrompt') || 'بۇ يەرنى ئېچىش ئۈچۈن VIP 5 ئەزا بولۇڭ ياكى باشقۇرغۇچى بىلەن ئالاقىلىشىڭ'}
               </h3>
 
               <p className="text-xs text-slate-300 leading-relaxed px-1">
-                تەمىنلىگۈچى API (Docs) سۇپىسى پەقەت ئەڭ چوڭ ئەزالىققا كۆتۈرۈلگەن (<b>VIP 5</b>) ئەزالار ۋە رەسمىي ھەمكارلاشقۇچىلار ئۈچۈن ئېچىۋېتىلگەن.
+                {t('vip5LockedDesc') || 'تەمىنلىگۈچى API (Docs) سۇپىسى پەقەت ئەڭ چوڭ ئەزالىققا كۆتۈرۈلگەن (VIP 5) ئەزالار ۋە رەسمىي ھەمكارلاشقۇچىلار ئۈچۈن ئېچىۋېتىلگەن.'}
               </p>
             </div>
 
             {/* User Current Tier Status */}
             <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 text-xs space-y-2 relative z-10">
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">ھازىرقى ئەزالىق دەرىجىڭىز:</span>
+                <span className="text-slate-400">{t('currentTierLabel') || 'ھازىرقى ئەزالىق دەرىجىڭىز:'}</span>
                 <span className="font-bold text-amber-400">
-                  {user ? (user.vipTier ? user.vipTier.toUpperCase() : 'VIP 1') : 'مېھمان (كىرمىگەن)'}
+                  {user ? (user.vipTier ? user.vipTier.toUpperCase() : 'VIP 1') : (t('guestUser') || 'مېھمان (كىرمىگەن)')}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">سۇپىنى ئېچىش تەلىپى:</span>
-                <span className="font-black text-emerald-400">👑 VIP 5 (ئەڭ چوڭ ئەزالىق)</span>
+                <span className="text-slate-400">{t('requirementLabel') || 'سۇپىنى ئېچىش تەلىپى:'}</span>
+                <span className="font-black text-emerald-400">{t('vip5TierMax') || '👑 VIP 5 (ئەڭ چوڭ ئەزالىق)'}</span>
               </div>
             </div>
 
@@ -736,7 +736,7 @@ export default function SGCSubpageLayout({
                 onClick={() => setShowVipLockedModal(false)}
                 className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:brightness-110 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 active:scale-98 transition cursor-pointer"
               >
-                <span>👑 VIP 5 ئەزالىققا ئۆرلەش تەپسىلاتى</span>
+                <span>{t('vip5GuideBtn') || '👑 VIP 5 ئەزالىققا ئۆرلەش تەپسىلاتى'}</span>
                 <ArrowLeft className="w-4 h-4" />
               </Link>
 
@@ -747,7 +747,7 @@ export default function SGCSubpageLayout({
                 className="w-full py-2.5 px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 font-bold text-xs flex items-center justify-center gap-2 active:scale-98 transition cursor-pointer"
               >
                 <Send className="w-3.5 h-3.5 text-cyan-400" />
-                <span>باشقۇرغۇچى بىلەن ئالاقىلىشىڭ</span>
+                <span>{t('contactSupport') || 'باشقۇرغۇچى بىلەن ئالاقىلىشىڭ'}</span>
               </a>
             </div>
           </div>
