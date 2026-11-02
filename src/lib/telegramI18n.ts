@@ -218,21 +218,25 @@ export const LANGUAGE_SELECTION_BANNER = `
  * When no ID or empty, gracefully falls back to the native Unicode emoji.
  */
 export const ANIMATED_EMOJI_IDS: Record<string, string> = {
-  wave: '5472055112702629499',      // waving hand 👋 (RestrictedEmoji)
+  wave: '6125155123996921509',      // 3D glossy waving hand 👋 (pack_3dc13_by_TgEmojis_bot)
   sparkles: '5472164874886846699',  // sparkles ✨ (RestrictedEmoji)
-  diamond: '5471952986970267163',   // diamond 💎 (RestrictedEmoji)
-  crown: '5467406098367521267',     // crown 👑 (RestrictedEmoji)
-  zap: '5431449001532594346',       // lightning ⚡ (RestrictedEmoji)
-  check: '5427009714745517609',     // checkmark ✅ (RestrictedEmoji)
-  fire: '5420315771991497307',      // fire 🔥 (RestrictedEmoji)
+  diamond: '6244241334320762892',   // glowing diamond 💎 (Statusvideobytaraxd)
+  crown: '6219549292458150316',     // glowing VIP crown 👑 (Statusvideobytaraxd)
+  zap: '6125318521732730997',       // 3D lightning ⚡ (pack_3dc13_by_TgEmojis_bot)
+  check: '6296501388276926215',     // animated checkmark ✅ (Statusvideobytaraxd)
+  fire: '6125091296487937000',      // 3D fire 🔥 (pack_3dc13_by_TgEmojis_bot)
+  card: '6127342937387831421',      // 3D credit card 💳 (pack_3dc13_by_TgEmojis_bot)
   bag: '5373052667671093676',       // shopping bag 🛍️ (RestrictedEmoji)
   cart: '5431499171045581032',      // cart 🛒 (RestrictedEmoji)
-  game: '5467583879948803288',      // game 🎮 (RestrictedEmoji)
+  game: '5902377481045811916',      // gaming pad 🎮 (abilicash)
+  money: '5843831244235738962',     // cash bag 💰 (abilicash)
+  coin: '5382164415019768638',      // crypto coin 🪙 (TONEmoji)
   rocket: '5445284980978621387',    // rocket 🚀 (RestrictedEmoji)
   party: '5436040291507247633',     // party 🎉 (RestrictedEmoji)
   gift: '5199749070830197566',      // gift 🎁 (RestrictedEmoji)
-  star: '5435957248314579621',      // star ⭐️ (RestrictedEmoji)
-  coin: '5379600444098093058',      // coin 🪙 (RestrictedEmoji)
+  star: '6127412777851032768',      // 3D star 🌟 (pack_3dc13_by_TgEmojis_bot)
+  bell: '6127394124808065175',      // 3D bell 🔔 (pack_3dc13_by_TgEmojis_bot)
+  shield: '5251203410396458957',    // shield 🛡 (NewsEmoji)
 };
 
 export function tgEmoji(name: string, fallbackChar: string): string {
