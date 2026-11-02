@@ -3622,6 +3622,24 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
     }
   }
 
+  // Admin Custom Emoji ID Detector: if admin sends a message containing custom emojis, reply with its ID & snippet
+  if (isAdmin && Array.isArray(msg.entities)) {
+    const customEmojiEntities = msg.entities.filter((e: any) => e.type === 'custom_emoji');
+    if (customEmojiEntities.length > 0 && (text.length <= 40 || text.startsWith('/emoji') || text.startsWith('/id'))) {
+      let reply = `✨ <b>ھەرىكەتلىك ئىموجى (Custom Animated Emoji) بايقالدى!</b>\n\n`;
+      customEmojiEntities.forEach((ce: any, idx: number) => {
+        const id = ce.custom_emoji_id;
+        const fallbackChar = text.substring(ce.offset, ce.offset + ce.length) || '✨';
+        reply += `${idx + 1}. سىنبەلگە: <tg-emoji emoji-id="${id}">${fallbackChar}</tg-emoji>\n`;
+        reply += `   • <b>Emoji ID:</b> <code>${id}</code>\n`;
+        reply += `   • <b>كود قېلىپى:</b> <code>&lt;tg-emoji emoji-id="${id}"&gt;${fallbackChar}&lt;/tg-emoji&gt;</code>\n\n`;
+      });
+      reply += `💡 <i>بۇ ID نى چاتتا ماڭا كۆچۈرۈپ ئەۋەتىپ بەرسىڭىز، سىز خالىغان قارشى ئېلىش ياكى زاكاز ئۇچۇرىغا دەرھال تەڭشەپ قويىمەن.</i>`;
+      await sendTelegramMessage(chatId, reply, { parse_mode: 'HTML' });
+      return;
+    }
+  }
+
   // Handle Active Bot Order Session Input (Player ID / Phone / Zone ID) or Shortcut Commands
   const handledByShopMsg = await handleShopTextMessage(
     msg,

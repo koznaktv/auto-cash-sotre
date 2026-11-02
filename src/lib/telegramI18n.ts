@@ -213,44 +213,68 @@ export const LANGUAGE_SELECTION_BANNER = `
 `.trim();
 
 /**
+ * Telegram Premium Animated Custom Emoji Map
+ * When an ID is set, outputs <tg-emoji emoji-id="...">char</tg-emoji>.
+ * When no ID or empty, gracefully falls back to the native Unicode emoji.
+ */
+export const ANIMATED_EMOJI_IDS: Record<string, string> = {
+  wave: '', // waving hand 👋
+  sparkles: '', // sparkles ✨
+  diamond: '', // diamond 💎
+  fire: '', // fire 🔥
+  zap: '', // lightning ⚡
+  cart: '', // cart 🛒
+  crown: '', // crown 👑
+  check: '', // checkmark ✅
+};
+
+export function tgEmoji(name: string, fallbackChar: string): string {
+  const id = ANIMATED_EMOJI_IDS[name];
+  if (id && id.trim()) {
+    return `<tg-emoji emoji-id="${id.trim()}">${fallbackChar}</tg-emoji>`;
+  }
+  return fallbackChar;
+}
+
+/**
  * Text strings across all 6 languages
  */
 export const BOT_I18N = {
   welcome: {
     ug: (_name: string) => `
-👋 <b>ئەسسالامۇ ئەلەيكۇم AUTO CASH بوت سۇپىمىزغا كەلگىنىڭىزنى قىزغىن قارشى ئالىمىز !!!</b>
+${tgEmoji('wave', '👋')} <b>ئەسسالامۇ ئەلەيكۇم AUTO CASH بوت سۇپىمىزغا كەلگىنىڭىزنى قىزغىن قارشى ئالىمىز !!!</b>
 
-✨ سېتىۋېلىش ئۈچۈن تۆۋەندىكى تاللاشتىن بىرىنى كۆرۈڭ:
+${tgEmoji('sparkles', '✨')} سېتىۋېلىش ئۈچۈن تۆۋەندىكى تاللاشتىن بىرىنى كۆرۈڭ:
 `.trim(),
 
     ar: (_name: string) => `
-👋 <b>أهلاً وسهلاً بك في منصة بوت AUTO CASH !!!</b>
+${tgEmoji('wave', '👋')} <b>أهلاً وسهلاً بك في منصة بوت AUTO CASH !!!</b>
 
-✨ يرجى اختيار وسيلة التسوق المفضلة لديك أدناه:
+${tgEmoji('sparkles', '✨')} يرجى اختيار وسيلة التسوق المفضلة لديك أدناه:
 `.trim(),
 
     tr: (_name: string) => `
-👋 <b>AUTO CASH Bot Platformuna Hoş Geldiniz !!!</b>
+${tgEmoji('wave', '👋')} <b>AUTO CASH Bot Platformuna Hoş Geldiniz !!!</b>
 
-✨ Lütfen aşağıdaki seçeneklerden size uygun olanı seçin:
+${tgEmoji('sparkles', '✨')} Lütfen aşağıdaki seçeneklerden size uygun olanı seçin:
 `.trim(),
 
     en: (_name: string) => `
-👋 <b>Welcome to AUTO CASH Official Bot Platform !!!</b>
+${tgEmoji('wave', '👋')} <b>Welcome to AUTO CASH Official Bot Platform !!!</b>
 
-✨ Please choose your preferred shopping method below:
+${tgEmoji('sparkles', '✨')} Please choose your preferred shopping method below:
 `.trim(),
 
     uz: (_name: string) => `
-👋 <b>AUTO CASH bot platformasiga xush kelibsiz !!!</b>
+${tgEmoji('wave', '👋')} <b>AUTO CASH bot platformasiga xush kelibsiz !!!</b>
 
-✨ Quyidagi variantlardan oʻzingizga qulayini tanlang:
+${tgEmoji('sparkles', '✨')} Quyidagi variantlardan oʻzingizga qulayini tanlang:
 `.trim(),
 
     ru: (_name: string) => `
-👋 <b>Добро пожаловать на платформу бота AUTO CASH !!!</b>
+${tgEmoji('wave', '👋')} <b>Добро пожаловать на платформу бота AUTO CASH !!!</b>
 
-✨ Пожалуйста, выберите подходящий вариант покупки ниже:
+${tgEmoji('sparkles', '✨')} Пожалуйста, выберите подходящий вариант покупки ниже:
 `.trim(),
   },
 
