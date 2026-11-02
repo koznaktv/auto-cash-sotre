@@ -3646,7 +3646,7 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
   // Admin Custom Emoji ID Detector: if admin sends a message containing custom emojis, reply with its ID & snippet
   if (isAdmin && Array.isArray(msg.entities)) {
     const customEmojiEntities = msg.entities.filter((e: any) => e.type === 'custom_emoji');
-    if (customEmojiEntities.length > 0 && (text.length <= 40 || text.startsWith('/emoji') || text.startsWith('/id'))) {
+    if (customEmojiEntities.length > 0) {
       let reply = `✨ <b>ھەرىكەتلىك ئىموجى (Custom Animated Emoji) بايقالدى!</b>\n\n`;
       customEmojiEntities.forEach((ce: any, idx: number) => {
         const id = ce.custom_emoji_id;
