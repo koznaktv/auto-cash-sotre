@@ -1803,136 +1803,73 @@ export async function syncBotCommands(): Promise<{ ok: boolean }> {
 }
 
 /**
- * Helper to build 2-column inline keyboard matching user's custom design:
- * Row 0: 🛍️ سېتىۋېلىش USDT 💵 •
- * Row 1: ☘️ مەۋھۇم نومۇر 📱 • | ☘️ ئەپ دېتاللار 💻 •
- * Row 2: ⭐️ ☘️ ئەزالىق ئېچىش • | 🎮 ئويۇنلار 🎮 •
- * Row 3: 🛍️ Wi-Fi تور كارتىسى 📡 • | 💲 كارتىغا پۇل قاچىلاش 📶 •
- * Row 4: 🎉 ھەدىيە كارتىسى 🎁 • | 🌐 ☘️ ئىجتىمائىي تاراتقۇ •
- * Row 5: 💰 قالدۇقۇم 👤 • | 💳 پۇل سېلىش ⚡️ •
- * Optional: 👑 VIP باشقۇرۇش مەركىزى (/admin)
+ * Helper to build 2-step start screen inline keyboard requested by user:
+ * 1- توربەتكە كىرىش
+ * 2- بوتتا سېتىۋېلىش
  */
 export function getStoreInlineKeyboard(lang: BotLanguage = 'ug', isAdmin = false) {
+  const b = BOT_I18N.storeButtons;
   return {
     inline_keyboard: [
-      // Row 0: Main Web App Store Link
+      // Row 1: Web App button ("🌐 1- توربەتكە كىرىش")
       [
         {
-          text: '🛍️ سېتىۋېلىش USDT 💵 •',
-          icon_custom_emoji_id: '6271716519286149469',
+          text: b.webApp[lang] || b.webApp.ug,
           web_app: { url: TELEGRAM_CONFIG.storeUrl },
         },
       ],
-      // Row 1: Virtual Numbers & Apps
+      // Row 2: In-Bot Shopping Dashboard ("🛒 2- بوتتا سېتىۋېلىش")
       [
         {
-          text: '☘️ مەۋھۇم نومۇر 📱 •',
-          web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/numbers` },
-        },
-        {
-          text: '☘️ ئەپ دېتاللار 💻 •',
-          icon_custom_emoji_id: '6271595899424608846',
-          callback_data: 'tgcat:apps',
+          text: b.botDashboard[lang] || b.botDashboard.ug,
+          callback_data: 'bot_shopping_menu',
         },
       ],
-      // Row 2: VIP Subs & Games
-      [
-        {
-          text: '⭐️ ☘️ ئەزالىق ئېچىش •',
-          icon_custom_emoji_id: '6271298984040468914',
-          callback_data: 'tgcat:vip_subs',
-        },
-        {
-          text: '🎮 ئويۇنلار 🎮 •',
-          icon_custom_emoji_id: '5902377481045811916',
-          callback_data: 'tgcat:games',
-        },
-      ],
-      // Row 3: Wi-Fi Cards & Mobile Balance
-      [
-        {
-          text: '🛍️ Wi-Fi تور كارتىسى 📡 •',
-          icon_custom_emoji_id: '6271365921105777321',
-          callback_data: 'tgcat:wifi',
-        },
-        {
-          text: '💲 كارتىغا پۇل قاچىلاش 📶 •',
-          icon_custom_emoji_id: '6271729331173593624',
-          callback_data: 'tgcat:cards',
-        },
-      ],
-      // Row 4: Gift Cards & Social Media
-      [
-        {
-          text: '🎉 ھەدىيە كارتىسى 🎁 •',
-          web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/promotions` },
-        },
-        {
-          text: '🌐 ☘️ ئىجتىمائىي تاراتقۇ •',
-          url: TELEGRAM_CONFIG.channelUrl,
-        },
-      ],
-      // Row 5: Balance & Deposit
-      [
-        {
-          text: '💰 قالدۇقۇم 👤 •',
-          icon_custom_emoji_id: '6271348234430452946',
-          callback_data: 'tg_my_account',
-        },
-        {
-          text: '💳 پۇل سېلىش ⚡️ •',
-          icon_custom_emoji_id: '6271636667254182477',
-          callback_data: 'quick_deposit',
-        },
-      ],
-      // Row 6: Admin Dashboard (Only visible for admin)
       ...(isAdmin ? [[
         {
-          text: '👑 VIP باشقۇرۇش مەركىزى (/admin) •',
+          text: '👑 VIP باشقۇرۇش مەركىزى (/admin)',
           icon_custom_emoji_id: '6219549292458150316',
           style: 'primary',
           callback_data: 'admin_dashboard',
         }
       ]] : []),
-      // Row 7: Support & Language
-      [
-        {
-          text: '📞 ئالاقىلىشىش 👨‍💻 •',
-          url: TELEGRAM_CONFIG.supportUrl,
-        },
-        {
-          text: '🌐 تىل تاللاش / Language 🔄 •',
-          callback_data: 'bot_lang_menu',
-        },
-      ],
     ],
   };
 }
 
 /**
- * 8-Button In-Bot Shopping Dashboard Keyboard
+ * 8-Button In-Bot Shopping Dashboard Keyboard requested by user:
+ * 1- پۇل قاچىلاش
+ * 2- قالدۇقۇم
+ * 3- دۇكان
+ * 4- زاكاسلىرىم
+ * 5- سېتىۋالغانلىرىم
+ * 6- تىل تاللاش
+ * 7- ئالاقىلىشىش
+ * 8- قانالغا كىرىش
  */
 export function getBotDashboardKeyboard(lang: BotLanguage = 'ug') {
+  const d = BOT_I18N.botDashboard;
   return {
     inline_keyboard: [
       [
-        { text: '💳 1- پۇل قاچىلاش ⚡️', icon_custom_emoji_id: '6271636667254182477', callback_data: 'quick_deposit' },
-        { text: '💰 2- قالدۇقۇم 👤', icon_custom_emoji_id: '6271348234430452946', callback_data: 'tg_my_account' },
+        { text: d.deposit[lang] || d.deposit.ug, callback_data: 'quick_deposit' },
+        { text: d.balance[lang] || d.balance.ug, callback_data: 'tg_my_account' },
       ],
       [
-        { text: '🛍️ 3- دۇكان 🛒', icon_custom_emoji_id: '6271365921105777321', callback_data: 'tg_shop_categories' },
-        { text: '📬 4- زاكاسلىرىم 📦', icon_custom_emoji_id: '6271478831501021341', callback_data: 'quick_track' },
+        { text: d.shop[lang] || d.shop.ug, callback_data: 'tg_shop_categories' },
+        { text: d.orders[lang] || d.orders.ug, callback_data: 'quick_track' },
       ],
       [
-        { text: '📦 5- سېتىۋالغانلىرىم ✨', icon_custom_emoji_id: '6269266639875744207', callback_data: 'quick_my_purchases' },
-        { text: '🌐 6- تىل تاللاش 🔄', callback_data: 'bot_lang_menu' },
+        { text: d.purchases[lang] || d.purchases.ug, callback_data: 'quick_my_purchases' },
+        { text: d.language[lang] || d.language.ug, callback_data: 'bot_lang_menu' },
       ],
       [
-        { text: '📞 7- ئالاقىلىشىش 👨‍💻', url: TELEGRAM_CONFIG.supportUrl },
-        { text: '📢 8- قانالغا كىرىش 🪐', url: TELEGRAM_CONFIG.channelUrl },
+        { text: d.support[lang] || d.support.ug, url: TELEGRAM_CONFIG.supportUrl },
+        { text: d.channel[lang] || d.channel.ug, url: TELEGRAM_CONFIG.channelUrl },
       ],
       [
-        { text: '🔙 ئاساسىي بەتكە قايتىش ↩️', callback_data: 'back_to_main' },
+        { text: d.backToMain[lang] || d.backToMain.ug, callback_data: 'back_to_main' },
       ],
     ],
   };

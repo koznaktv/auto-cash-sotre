@@ -95,71 +95,29 @@ export const SHOP_CATEGORIES_BANNER = `
 `.trim();
 
 export function getShopCategoriesKeyboard(lang: BotLanguage = 'ug') {
+  const c = BOT_I18N.categories;
   return {
     inline_keyboard: [
-      // Row 0: Prominent USDT store open
       [
-        {
-          text: '🛍️ سېتىۋېلىش USDT 💵 •',
-          icon_custom_emoji_id: '6271716519286149469',
-          web_app: { url: TELEGRAM_CONFIG.storeUrl },
-        },
+        { text: c.wifi[lang] || c.wifi.ug, callback_data: 'tgcat:wifi' },
       ],
-      // Row 1: Virtual Numbers & Apps
       [
-        {
-          text: '☘️ مەۋھۇم نومۇر 📱 •',
-          web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/numbers` },
-        },
-        {
-          text: '☘️ ئەپ دېتاللار 💻 •',
-          icon_custom_emoji_id: '6271595899424608846',
-          callback_data: 'tgcat:apps',
-        },
+        { text: c.cards[lang] || c.cards.ug, callback_data: 'tgcat:cards' },
       ],
-      // Row 2: VIP Subs & Games
       [
-        {
-          text: '⭐️ ☘️ ئەزالىق ئېچىش •',
-          icon_custom_emoji_id: '6271298984040468914',
-          callback_data: 'tgcat:vip_subs',
-        },
-        {
-          text: '🎮 ئويۇنلار 🎮 •',
-          icon_custom_emoji_id: '5902377481045811916',
-          callback_data: 'tgcat:games',
-        },
+        { text: c.vip_subs[lang] || c.vip_subs.ug, callback_data: 'tgcat:vip_subs' },
       ],
-      // Row 3: Wi-Fi Cards & Mobile Balance
       [
-        {
-          text: '🛍️ Wi-Fi تور كارتىسى 📡 •',
-          icon_custom_emoji_id: '6271365921105777321',
-          callback_data: 'tgcat:wifi',
-        },
-        {
-          text: '💲 كارتىغا پۇل قاچىلاش 📶 •',
-          icon_custom_emoji_id: '6271729331173593624',
-          callback_data: 'tgcat:cards',
-        },
+        { text: c.apps[lang] || c.apps.ug, callback_data: 'tgcat:apps' },
       ],
-      // Row 4: Gift Cards & Social Media
       [
-        {
-          text: '🎉 ھەدىيە كارتىسى 🎁 •',
-          web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/promotions` },
-        },
-        {
-          text: '🌐 ☘️ ئىجتىمائىي تاراتقۇ •',
-          url: TELEGRAM_CONFIG.channelUrl,
-        },
+        { text: c.games[lang] || c.games.ug, callback_data: 'tgcat:games' },
       ],
-      // Row 5: Navigation
       [
-        {
-          text: '🔙 ئاساسىي بەتكە قايتىش ↩️ •',
-          callback_data: 'back_to_main',
-        },
+        { text: c.numbers[lang] || c.numbers.ug, web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/numbers` } },
+      ],
+      [
+        { text: c.backToDashboard[lang] || c.backToDashboard.ug, callback_data: 'bot_shopping_menu' },
       ],
     ],
   };
