@@ -1807,6 +1807,17 @@ export async function syncBotCommands(): Promise<{ ok: boolean }> {
  * 1- توربەتكە كىرىش
  * 2- بوتتا سېتىۋېلىش
  */
+/**
+ * Persistent Bottom Reply Keyboard requested by user ("باشلاش 🚀")
+ */
+export const PERSISTENT_BOTTOM_KEYBOARD = {
+  keyboard: [
+    [{ text: 'باشلاش 🚀' }]
+  ],
+  resize_keyboard: true,
+  is_persistent: true,
+};
+
 export function getStoreInlineKeyboard(lang: BotLanguage = 'ug', isAdmin = false) {
   const b = BOT_I18N.storeButtons;
   return {
@@ -3780,7 +3791,9 @@ ${tgEmoji('sparkles', '✨')} <b>AUTO CASH خاس ھەرىكەتلىك پىرو 
   if (
     text.startsWith('/start') ||
     text === 'باشلاش' ||
+    text === 'باشلاش 🚀' ||
     text === '🚀 باشلاش' ||
+    text.includes('باشلاش') ||
     text.toLowerCase() === 'start'
   ) {
     resetChatMenuButtonToDefault(chatId);
@@ -3900,6 +3913,12 @@ ${tgEmoji('sparkles', '✨')} <b>AUTO CASH خاس ھەرىكەتلىك پىرو 
     }
     const userLang = (await getUserLanguageAsync(from?.id || chatId)) || 'ug';
     const welcomeText = getWelcomeMessage(from?.first_name, userLang);
+
+    // Ensure persistent bottom reply keyboard is established for user ("باشلاش 🚀")
+    await sendTelegramMessage(chatId, `✨ <b>AUTO CASH | ئەڭ ئەرزان ۋە تېز رەقەملىك دۇكان</b> 🚀`, {
+      parse_mode: 'HTML',
+      reply_markup: PERSISTENT_BOTTOM_KEYBOARD,
+    });
     await sendTelegramMessage(chatId, welcomeText, {
       parse_mode: 'HTML',
       reply_markup: getStoreInlineKeyboard(userLang, isAdmin),
