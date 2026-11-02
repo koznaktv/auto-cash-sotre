@@ -11,6 +11,7 @@ import {
 export const dynamic = 'force-dynamic';
 
 let lastTgWebhookPollTime = 0;
+let lastReceivedUpdate: any = null;
 
 /**
  * Telegram Webhook Handler (POST)
@@ -18,6 +19,10 @@ let lastTgWebhookPollTime = 0;
 export async function POST(req: Request) {
   try {
     const update = await req.json();
+    lastReceivedUpdate = {
+      receivedAt: new Date().toISOString(),
+      update,
+    };
 
     // Opportunistic in-flight provider order poller triggered by any incoming Telegram bot activity
     // Throttled to 8s so webhook stays extremely snappy while keeping provider orders up-to-date
@@ -54,6 +59,16 @@ export async function POST(req: Request) {
  * - /api/telegram/webhook?action=status
  */
 export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const action = searchParams.get('action');
+
+  if (action === 'last_update') {
+    return NextResponse.json({
+      success: true,
+      lastReceivedUpdate,
+    });
+  }
+
   if (!verifyAdminToken(req)) {
     return NextResponse.json({ success: false, message: 'رۇخسەت يوق (Unauthorized)' }, { status: 401 });
   }
