@@ -18,8 +18,18 @@ CREATE TABLE IF NOT EXISTS public.users (
   vip_tier TEXT NOT NULL DEFAULT 'vip1',
   role TEXT NOT NULL DEFAULT 'user',
   is_banned BOOLEAN NOT NULL DEFAULT FALSE,
+  telegram_chat_id TEXT,
+  telegram_username TEXT,
+  telegram_linked_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Telegram Bot Integration Columns for Users
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS telegram_chat_id TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS telegram_username TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS telegram_linked_at TIMESTAMPTZ;
+CREATE INDEX IF NOT EXISTS idx_users_telegram_chat_id ON public.users(telegram_chat_id);
+CREATE INDEX IF NOT EXISTS idx_users_telegram_username ON public.users(telegram_username);
 
 -- ساندان سەۋىيەسىدە قالدۇق پۇلنىڭ نۆلدىن تۆۋەن چۈشۈپ كېتىشىنى مۇتلەق قۇلۇپلاش
 ALTER TABLE public.users DROP CONSTRAINT IF EXISTS check_balance_non_negative;

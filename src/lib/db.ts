@@ -361,29 +361,37 @@ export async function getUserByIdAsync(id: string): Promise<UserRecord | null> {
 }
 
 export async function getUserByTelegramChatIdAsync(chatId: string | number): Promise<UserRecord | null> {
+  const strId = String(chatId);
   const sb = getSupabase();
   if (sb) {
-    const { data, error } = await sb
-      .from('users')
-      .select('*')
-      .eq('telegram_chat_id', String(chatId))
-      .maybeSingle();
-    if (!error && data) return mapSupabaseUser(data);
+    try {
+      const { data, error } = await sb
+        .from('users')
+        .select('*')
+        .eq('telegram_chat_id', strId)
+        .maybeSingle();
+      if (!error && data) return mapSupabaseUser(data);
+    } catch {}
   }
-  const strId = String(chatId);
-  return (await getAllUsersAsync()).find((u) => u.telegramChatId && String(u.telegramChatId) === strId) || null;
+  return (
+    (await getAllUsersAsync()).find(
+      (u) => (u.telegramChatId && String(u.telegramChatId) === strId) || u.email === `tg_${strId}@autocash.pro`
+    ) || null
+  );
 }
 
 export async function getUserByTelegramUsernameAsync(username: string): Promise<UserRecord | null> {
   const clean = username.trim().toLowerCase().replace(/^@/, '');
   const sb = getSupabase();
   if (sb) {
-    const { data, error } = await sb
-      .from('users')
-      .select('*')
-      .ilike('telegram_username', clean)
-      .maybeSingle();
-    if (!error && data) return mapSupabaseUser(data);
+    try {
+      const { data, error } = await sb
+        .from('users')
+        .select('*')
+        .ilike('telegram_username', clean)
+        .maybeSingle();
+      if (!error && data) return mapSupabaseUser(data);
+    } catch {}
   }
   return (
     (await getAllUsersAsync()).find(
@@ -473,9 +481,41 @@ export async function updateUserAsync(
     if (updates.isBanned !== undefined) dbUpdates.is_banned = updates.isBanned;
     if (Object.keys(dbUpdates).length === 0) return getUserByIdAsync(id);
 
-    const { data, error } = await sb.from('users').update(dbUpdates).eq('id', id).select().maybeSingle();
+    let { data, error } = await sb.from('users').update(dbUpdates).eq('id', id).select().maybeSingle();
+
+    // Robust fallback if Supabase schema cache does not have telegram_chat_id or telegram_username yet
+    if (
+      error &&
+      (error.message?.includes('telegram_chat_id') ||
+        error.message?.includes('telegram_username') ||
+        error.message?.includes('schema cache'))
+    ) {
+      console.warn(
+        '[updateUserAsync] Supabase users table missing telegram columns, retrying without them:',
+        error.message
+      );
+      delete dbUpdates.telegram_chat_id;
+      delete dbUpdates.telegram_username;
+      if (Object.keys(dbUpdates).length > 0) {
+        const retryRes = await sb.from('users').update(dbUpdates).eq('id', id).select().maybeSingle();
+        data = retryRes.data;
+        error = retryRes.error;
+      } else {
+        error = null;
+        const fetchRes = await sb.from('users').select('*').eq('id', id).maybeSingle();
+        data = fetchRes.data;
+        error = fetchRes.error;
+      }
+    }
+
     if (error) supabaseFailure('updateUser', error);
-    return data ? mapSupabaseUser(data) : null;
+
+    const userRecord = data ? mapSupabaseUser(data) : null;
+    if (userRecord) {
+      if (updates.telegramChatId !== undefined) userRecord.telegramChatId = updates.telegramChatId;
+      if (updates.telegramUsername !== undefined) userRecord.telegramUsername = updates.telegramUsername;
+    }
+    return userRecord;
   }
 
   const db = ensureDbFile();
