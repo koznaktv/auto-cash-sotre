@@ -218,14 +218,21 @@ export const LANGUAGE_SELECTION_BANNER = `
  * When no ID or empty, gracefully falls back to the native Unicode emoji.
  */
 export const ANIMATED_EMOJI_IDS: Record<string, string> = {
-  wave: '', // waving hand 👋
-  sparkles: '', // sparkles ✨
-  diamond: '', // diamond 💎
-  fire: '', // fire 🔥
-  zap: '', // lightning ⚡
-  cart: '', // cart 🛒
-  crown: '', // crown 👑
-  check: '', // checkmark ✅
+  wave: '5472055112702629499',      // waving hand 👋 (RestrictedEmoji)
+  sparkles: '5472164874886846699',  // sparkles ✨ (RestrictedEmoji)
+  diamond: '5471952986970267163',   // diamond 💎 (RestrictedEmoji)
+  crown: '5467406098367521267',     // crown 👑 (RestrictedEmoji)
+  zap: '5431449001532594346',       // lightning ⚡ (RestrictedEmoji)
+  check: '5427009714745517609',     // checkmark ✅ (RestrictedEmoji)
+  fire: '5420315771991497307',      // fire 🔥 (RestrictedEmoji)
+  bag: '5373052667671093676',       // shopping bag 🛍️ (RestrictedEmoji)
+  cart: '5431499171045581032',      // cart 🛒 (RestrictedEmoji)
+  game: '5467583879948803288',      // game 🎮 (RestrictedEmoji)
+  rocket: '5445284980978621387',    // rocket 🚀 (RestrictedEmoji)
+  party: '5436040291507247633',     // party 🎉 (RestrictedEmoji)
+  gift: '5199749070830197566',      // gift 🎁 (RestrictedEmoji)
+  star: '5435957248314579621',      // star ⭐️ (RestrictedEmoji)
+  coin: '5379600444098093058',      // coin 🪙 (RestrictedEmoji)
 };
 
 export function tgEmoji(name: string, fallbackChar: string): string {

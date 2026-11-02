@@ -803,14 +803,14 @@ export async function postOrderCompletedToChannel(order: {
   );
 
   const subHeader = isWifi
-    ? '📡 <b>كارتا زاكىسى Wi-Fi</b> ✅'
+    ? `${tgEmoji('zap', '📡')} <b>كارتا زاكىسى Wi-Fi</b> ${tgEmoji('check', '✅')}`
     : isGame
-    ? '🎮 <b>ئويۇن زاكىسى</b> ✅'
+    ? `${tgEmoji('game', '🎮')} <b>ئويۇن زاكىسى</b> ${tgEmoji('check', '✅')}`
     : isSub
-    ? '👑 <b>ئەزالىق زاكىسى</b> ✅'
+    ? `${tgEmoji('crown', '👑')} <b>ئەزالىق زاكىسى</b> ${tgEmoji('check', '✅')}`
     : isNumber
-    ? '📱 <b>مەۋھۇم نومۇر زاكىسى</b> ✅'
-    : '💎 <b>پۇل قاچىلاش زاكىسى</b> ✅';
+    ? `📱 <b>مەۋھۇم نومۇر زاكىسى</b> ${tgEmoji('check', '✅')}`
+    : `${tgEmoji('diamond', '💎')} <b>پۇل قاچىلاش زاكىسى</b> ${tgEmoji('check', '✅')}`;
 
   // 4. Product Details
   const cleanAmount = Number(order.amount || 0).toFixed(2);
@@ -859,7 +859,7 @@ export async function postOrderCompletedToChannel(order: {
     lines.push(`➖ 💲 <b>باھاسى:</b> $${cleanAmount} •`);
   }
 
-  lines.push(`➖ 🛍️ <b>ھالىتى:</b> سېتىۋېلىندى •`);
+  lines.push(`➖ ${tgEmoji('check', '✅')} <b>ھالىتى:</b> سېتىۋېلىندى •`);
   lines.push(`➖➖➖➖➖`);
 
   const channelText = lines.join('\n');
