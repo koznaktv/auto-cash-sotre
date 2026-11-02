@@ -73,8 +73,6 @@ export async function GET(req: Request) {
     return NextResponse.json({ success: false, message: 'رۇخسەت يوق (Unauthorized)' }, { status: 401 });
   }
 
-  const { searchParams } = new URL(req.url);
-  const action = searchParams.get('action');
   const token = getBotToken();
 
   if (!token) {

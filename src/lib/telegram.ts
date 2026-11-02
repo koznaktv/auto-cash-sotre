@@ -3627,17 +3627,22 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
   if (isAdmin && msg.sticker) {
     const s = msg.sticker;
     const customId = s.custom_emoji_id;
+    const setName = s.set_name;
     if (customId) {
       const reply = `✨ <b>ھەرىكەتلىك ئىموجى (Custom Emoji Sticker) بايقالدى!</b>\n\n` +
         `• سىنبەلگە: <tg-emoji emoji-id="${customId}">${s.emoji || '✨'}</tg-emoji>\n` +
-        `• <b>Emoji ID:</b> <code>${customId}</code>\n\n` +
-        `💡 <i>بۇ ID نى چاتتا ماڭا كۆچۈرۈپ ئەۋەتسىڭىز، دەرھال كودقا كىرگۈزۈپ تەڭشەپ قويىمەن.</i>`;
+        `• <b>Emoji ID:</b> <code>${customId}</code>\n` +
+        (setName ? `• <b>بولاق نامى:</b> <code>${setName}</code>\n` : '') +
+        `\n💡 <i>بۇ ID نى چاتتا ماڭا كۆچۈرۈپ ئەۋەتسىڭىز، دەرھال كودقا كىرگۈزۈپ تەڭشەپ قويىمەن.</i>`;
       await sendTelegramMessage(chatId, reply, { parse_mode: 'HTML' });
       return;
     } else {
-      const reply = `ℹ️ <b>چوڭ چاپلاق (Sticker) ئەۋەتتىڭىز:</b> ${s.emoji || '🖼️'}\n\n` +
-        `بۇ چاپلاق چوڭ سىتىكېر بولۇپ، تېكىست ئىچىگە كىرىدىغان ھەرىكەتلىك كىچىك ئىموجى ئەمەس.\n` +
-        `تېلېگراممىدىكى <b>«Emoji»</b> بۆلىكىدىن بىرەر كىچىك ھەرىكەتلىك ئىموجىنى خەت رامكىسىغا تاللاپ ئەۋەتسىڭىز، ID سى دەرھال چىقىدۇ.`;
+      let reply = `ℹ️ <b>چوڭ چاپلاق (Sticker) ئەۋەتتىڭىز:</b> ${s.emoji || '🖼️'}\n\n`;
+      if (setName) {
+        reply += `📦 <b>بۇ چاپلاق تەۋە بولاق:</b> <code>${setName}</code>\n` +
+          `🔗 <b>ئۇلانمىسى:</b> https://t.me/addstickers/${setName}\n\n`;
+      }
+      reply += `تېلېگراممىدىكى <b>«Emoji»</b> بۆلىكىدىن بىرەر كىچىك ھەرىكەتلىك ئىموجىنى خەت رامكىسىغا تاللاپ ئەۋەتسىڭىز، ID سى دەرھال چىقىدۇ.`;
       await sendTelegramMessage(chatId, reply, { parse_mode: 'HTML' });
       return;
     }
