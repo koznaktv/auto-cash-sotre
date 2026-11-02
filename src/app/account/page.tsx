@@ -230,10 +230,15 @@ export default function AccountPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        if (data.success) {
-          setApiKey(data.apiKey || null);
+        if (data.success && data.apiKey) {
+          setApiKey(data.apiKey);
           setApiKeyCreatedAt(data.apiKeyCreatedAt || null);
           setApiEnabled(data.apiEnabled !== false);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('autocash_apiKey', data.apiKey);
+            if (data.apiKeyCreatedAt) localStorage.setItem('autocash_apiKeyCreatedAt', data.apiKeyCreatedAt);
+            localStorage.setItem('autocash_apiEnabled', String(data.apiEnabled !== false));
+          }
         }
       }
     } catch (e) {
@@ -272,6 +277,11 @@ export default function AccountPage() {
         setApiKeyCreatedAt(new Date().toISOString());
         setApiEnabled(true);
         setShowApiKey(true);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('autocash_apiKey', data.apiKey);
+          localStorage.setItem('autocash_apiKeyCreatedAt', new Date().toISOString());
+          localStorage.setItem('autocash_apiEnabled', 'true');
+        }
         setApiKeyActionMsg(lang === 'ug' ? 'يېڭى API Key ھاسىل قىلىندى!' : 'New API Key generated!');
         setTimeout(() => setApiKeyActionMsg(''), 4000);
       } else {
@@ -313,6 +323,11 @@ export default function AccountPage() {
         setApiKeyCreatedAt(null);
         setApiEnabled(false);
         setShowApiKey(false);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('autocash_apiKey');
+          localStorage.removeItem('autocash_apiKeyCreatedAt');
+          localStorage.removeItem('autocash_apiEnabled');
+        }
         setApiKeyActionMsg(lang === 'ug' ? 'API Key ئەمەلدىن قالدۇرۇلدى.' : 'API Key revoked.');
         setTimeout(() => setApiKeyActionMsg(''), 4000);
       }
@@ -362,6 +377,9 @@ export default function AccountPage() {
       }
       if (typeof cached.balance === 'number') setBalance(cached.balance);
       if (cached.vipTier) setVipTier(cached.vipTier.toUpperCase());
+      if (cached.apiKey) setApiKey(cached.apiKey);
+      if (cached.apiKeyCreatedAt) setApiKeyCreatedAt(cached.apiKeyCreatedAt);
+      if (cached.apiEnabled !== undefined) setApiEnabled(cached.apiEnabled);
     }
 
     const loggedInVal = localStorage.getItem('autocash_is_logged_in');
@@ -391,10 +409,19 @@ export default function AccountPage() {
           setTotalDeposited(rawBal + (u.totalSpent || 0));
           setTotalPurchases(u.totalSpent || 0);
           setVipTier(u.vipTier ? u.vipTier.toUpperCase() : 'VIP 1');
-          storeLocalAuth(u);
-          if (u.apiKey) setApiKey(u.apiKey);
-          if (u.apiKeyCreatedAt) setApiKeyCreatedAt(u.apiKeyCreatedAt);
-          if (u.apiEnabled !== undefined) setApiEnabled(u.apiEnabled);
+          storeLocalAuth(u, { skipNotify: true });
+          if (u.apiKey) {
+            setApiKey(u.apiKey);
+            if (typeof window !== 'undefined') localStorage.setItem('autocash_apiKey', u.apiKey);
+          }
+          if (u.apiKeyCreatedAt) {
+            setApiKeyCreatedAt(u.apiKeyCreatedAt);
+            if (typeof window !== 'undefined') localStorage.setItem('autocash_apiKeyCreatedAt', u.apiKeyCreatedAt);
+          }
+          if (u.apiEnabled !== undefined) {
+            setApiEnabled(u.apiEnabled);
+            if (typeof window !== 'undefined') localStorage.setItem('autocash_apiEnabled', String(u.apiEnabled));
+          }
           fetchTelegramLink(u.id);
           fetchApiKey(u.id);
         }

@@ -21,7 +21,7 @@ export function notifyAuthChanged(): void {
   }
 }
 
-export function storeLocalAuth(user: ClientUser): void {
+export function storeLocalAuth(user: ClientUser, options?: { skipNotify?: boolean }): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem('autocash_is_logged_in', 'true');
   localStorage.setItem('autocash_username', user.name);
@@ -36,7 +36,20 @@ export function storeLocalAuth(user: ClientUser): void {
   if (user.vipTier) localStorage.setItem('autocash_vipTier', user.vipTier);
   if (typeof user.totalSpent === 'number') localStorage.setItem('autocash_totalSpent', String(user.totalSpent));
   if (user.role) localStorage.setItem('autocash_role', user.role);
-  notifyAuthChanged();
+  if (user.apiKey) {
+    localStorage.setItem('autocash_apiKey', user.apiKey);
+  } else if (user.apiKey === '') {
+    localStorage.removeItem('autocash_apiKey');
+  }
+  if (user.apiKeyCreatedAt) {
+    localStorage.setItem('autocash_apiKeyCreatedAt', user.apiKeyCreatedAt);
+  }
+  if (user.apiEnabled !== undefined) {
+    localStorage.setItem('autocash_apiEnabled', String(user.apiEnabled));
+  }
+  if (!options?.skipNotify) {
+    notifyAuthChanged();
+  }
 }
 
 export function clearLocalAuth(): void {
@@ -51,6 +64,9 @@ export function clearLocalAuth(): void {
   localStorage.removeItem('autocash_vipTier');
   localStorage.removeItem('autocash_totalSpent');
   localStorage.removeItem('autocash_role');
+  localStorage.removeItem('autocash_apiKey');
+  localStorage.removeItem('autocash_apiKeyCreatedAt');
+  localStorage.removeItem('autocash_apiEnabled');
   notifyAuthChanged();
 }
 
@@ -81,7 +97,11 @@ export function getCachedUser(): ClientUser | null {
   const totalSpentVal = localStorage.getItem('autocash_totalSpent');
   const totalSpent = totalSpentVal !== null && !isNaN(Number(totalSpentVal)) ? Number(totalSpentVal) : 0.0;
   const role = localStorage.getItem('autocash_role') || (email.toLowerCase() === 'dronemax0996@gmail.com' ? 'admin' : undefined);
-  return { id, name, email, avatarUrl, balance, vipTier, totalSpent, role };
+  const apiKey = localStorage.getItem('autocash_apiKey') || undefined;
+  const apiKeyCreatedAt = localStorage.getItem('autocash_apiKeyCreatedAt') || undefined;
+  const apiEnabledVal = localStorage.getItem('autocash_apiEnabled');
+  const apiEnabled = apiEnabledVal !== null ? apiEnabledVal === 'true' : true;
+  return { id, name, email, avatarUrl, balance, vipTier, totalSpent, role, apiKey, apiKeyCreatedAt, apiEnabled };
 }
 
 import { formatSmartPrice } from './formatMoney';
