@@ -495,6 +495,14 @@ ${tgEmoji('sparkles', '✨')} Пожалуйста, выберите подхо�
       uz: '📢 8- Rasmiy kanal',
       ru: '📢 8- Наш канал',
     },
+    linkWeb: {
+      ug: '🔗 9- توربەت بىلەن ئۇلاش',
+      ar: '🔗 9- ربط الحساب مع الموقع',
+      tr: '🔗 9- Web Sitesi ile Bağla',
+      en: '🔗 9- Link with Website',
+      uz: '🔗 9- Sayt bilan bogʻlash',
+      ru: '🔗 9- Связать с сайтом',
+    },
     backToMain: {
       ug: '🔙 باش بەتكە قايتىش',
       ar: '🔙 العودة للرئيسية',

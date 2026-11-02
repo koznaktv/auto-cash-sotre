@@ -1878,6 +1878,9 @@ export function getBotDashboardKeyboard(lang: BotLanguage = 'ug') {
         { text: d.channel[lang] || d.channel.ug, url: TELEGRAM_CONFIG.channelUrl },
       ],
       [
+        { text: (d as any).linkWeb?.[lang] || (d as any).linkWeb?.ug || '🔗 9- توربەت بىلەن ئۇلاش', callback_data: 'tg_link_account' },
+      ],
+      [
         { text: d.backToMain[lang] || d.backToMain.ug, callback_data: 'back_to_main' },
       ],
     ],
@@ -3021,6 +3024,43 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
       const txId = data.replace('verify_shamcash_tx:', '').trim();
       await answerCallbackQuery(cqId, '⏳ تالون قايتا تەكشۈرۈلۈۋاتىدۇ...', false);
       await processTelegramShamcashDeposit(chatId, cq.from, txId, true, cqId, messageId);
+      return;
+    }
+
+    // Link with Website callback
+    if (data === 'tg_link_account') {
+      await answerCallbackQuery(cqId);
+      const { generateTelegramLinkCode } = await import('./telegramLink');
+      const code = generateTelegramLinkCode(fromId, fromUser);
+      const linkText = `
+🔗 <b>AUTO CASH — توربەت بىلەن ھېساباتنى ئۇلاش (كود الربط)</b>
+
+✨ <b>توربەتتىكى قالدۇق پۇلىڭىز بىلەن بوتتىكى قالدۇق پۇلىڭىزنى بىر گەۋدە قىلىڭ!</b>
+
+🔢 <b>سىزنىڭ تېز باغلاش كودىڭىز:</b>
+👉 <code>${code}</code> 👈 <i>(كودنى چەكسىڭىز ئاپتوماتىك كۆچۈرۈلىدۇ)</i>
+
+📋 <b>باغلاش قەدەملىرى:</b>
+1️⃣ تۆۋەندىكى <b>«🌐 1 چېكىپ توربەتتە ئېچىش»</b> كۇنۇپكىسىنى بېسىڭ.
+2️⃣ ئېچىلغان بەتتە «كود كىرگۈزۈش» ئورنىغا يۇقىرىدىكى <code>${code}</code> نى چاپلاڭ.
+3️⃣ <b>«تەستىقلاش / جەزملەش»</b> كۇنۇپكىسىنى باسسىڭىزلا، توربەت ۋە بوتتىكى قالدۇق پۇلىڭىز دەرھال بىرلىشىدۇ!
+
+⏱ <i>بۇ كود 15 مىنۇت كۈچكە ئىگە.</i>
+`.trim();
+
+      await showOrEditMessage(chatId, messageId, linkText, {
+        inline_keyboard: [
+          [
+            { text: '🌐 1 چېكىپ توربەتتە ئېچىش ➔', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/account/telegram` } },
+          ],
+          [
+            { text: '🔗 تور كۆرگۈچتە ئېچىش (Browser) 🌐', url: `${TELEGRAM_CONFIG.storeUrl}/account/telegram` },
+          ],
+          [
+            { text: '🔙 سېتىۋېلىش تىزىملىكىگە قايتىش', callback_data: 'bot_shopping_menu' },
+          ],
+        ],
+      });
       return;
     }
 
