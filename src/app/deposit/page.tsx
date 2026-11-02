@@ -6,6 +6,7 @@ import Link from 'next/link';
 import SGCSubpageLayout from '@/components/SGCSubpageLayout';
 import AuthModal from '@/components/AuthModal';
 import { useLanguage } from '@/context/LanguageContext';
+import Animated3DEmoji from '@/components/Animated3DEmoji';
 import { 
   Plus, 
   ChevronLeft, 
@@ -348,6 +349,7 @@ export default function DepositPage() {
             {/* Available Balance */}
             <div className={isRTL ? 'text-right' : 'text-left'}>
               <div className="flex items-center gap-2 mb-1">
+                <Animated3DEmoji type="coin" size={20} />
                 <span className="text-xs text-emerald-100 font-alkatip font-bold">
                   {t('availableBalanceLabel')}
                 </span>
@@ -371,7 +373,7 @@ export default function DepositPage() {
               onClick={handleOpenDepositModal}
               className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:brightness-105 text-slate-950 text-xs sm:text-sm font-black transition shadow-lg shadow-amber-500/25 cursor-pointer active:scale-95 font-alkatip shrink-0 animate-nav-pill-glow"
             >
-              <Zap className="w-4 h-4 fill-current text-slate-950 stroke-[2.5] animate-icon-sparkle" />
+              <Animated3DEmoji type="zap" size={18} />
               <span>{t('newDepositBtn')}</span>
             </button>
           </div>

@@ -9,6 +9,7 @@ import { SERVICES_DATA, ServiceItem } from '@/lib/data';
 import { getCachedUser, ClientUser } from '@/lib/clientAuth';
 import TodayPromotionsBanner from '@/components/TodayPromotionsBanner';
 import { useFlashCountdown } from '@/lib/useFlashCountdown';
+import Animated3DEmoji from '@/components/Animated3DEmoji';
 import {
   Banknote,
   Coins,
@@ -91,7 +92,7 @@ const ActionCountdownButton = React.memo(function ActionCountdownButton({ theme 
       title="بۈگۈنكى پائالىيەتلەر ۋە ئالاھىدە ئېتىبارلار"
     >
       <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
-        <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-500 shrink-0 fill-current animate-icon-sparkle drop-shadow-[0_0_8px_rgba(249,115,22,0.85)] group-hover:scale-110 transition-transform" />
+        <Animated3DEmoji type="fire" size={17} className="shrink-0 group-hover:scale-110 transition-transform" />
         <span className="text-[10.5px] sm:text-xs font-black truncate">بۈگۈنكى پائالىيەتلەر</span>
       </div>
       {timeLeft && (
@@ -864,9 +865,9 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                     className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-900/60 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-200 border border-emerald-300/80 dark:border-emerald-700 font-bold text-xs font-mono transition active:scale-95 shadow-sm"
                     title="پۇل قاچىلاش"
                   >
-                    <Plus className="w-3 h-3 text-emerald-600 dark:text-emerald-400 stroke-[3]" />
+                    <Animated3DEmoji type="coin" size={15} />
                     <span>${typeof user?.balance === 'number' ? user.balance.toFixed(2) : '0.00'}</span>
-                    <Wallet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                    <Plus className="w-3 h-3 text-emerald-600 dark:text-emerald-400 stroke-[3]" />
                   </Link>
                 </div>
               </div>
@@ -1216,8 +1217,8 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
               title="قالدۇق سوممىڭىزنى كۆرۈش ۋە پۇل قاچىلاش ئۈچۈن بېسىڭ"
             >
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform animate-nav-pill-glow">
-                  <Wallet className="w-4 h-4 animate-icon-sparkle anim-delay-1" />
+                <div className="w-8 h-8 rounded-lg bg-emerald-600/90 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+                  <Animated3DEmoji type="coin" size={24} />
                 </div>
                 <div className="text-right">
                   <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-bold leading-none">
@@ -1265,7 +1266,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 }`}
                 title="ئەزالىق دەرىجىسى ۋە كارتىلىرى"
               >
-                <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 shrink-0 fill-current animate-icon-gleam anim-delay-4 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)] group-hover:scale-110 transition-transform" />
+                <Animated3DEmoji type="crown" size={17} className="shrink-0 group-hover:scale-110 transition-transform" />
                 <span className="text-[11px] sm:text-xs font-bold truncate">ئەزالىق</span>
               </Link>
 

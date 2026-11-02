@@ -3,6 +3,7 @@
 import React from 'react';
 import { ShoppingCart, Check, Package } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import Animated3DEmoji from '@/components/Animated3DEmoji';
 
 interface AnimatedOrderButtonProps {
   status: 'idle' | 'loading' | 'success';
@@ -164,10 +165,8 @@ export default function AnimatedOrderButton({
 
         {/* State 3: Success Checkmark Celebration */}
         {isSuccess && (
-          <div className="flex items-center gap-2 text-white">
-            <div className="anim-check-pop w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-              <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
-            </div>
+          <div className="flex items-center gap-2.5 text-white">
+            <Animated3DEmoji type="check" size={24} />
             <span className="anim-check-pop font-bold text-sm tracking-wide">
               {t('orderSuccess')}
             </span>
