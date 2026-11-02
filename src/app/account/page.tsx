@@ -27,6 +27,13 @@ import {
   ExternalLink,
   Unlink,
   CheckCircle2,
+  Code2,
+  Terminal,
+  Copy,
+  Eye,
+  EyeOff,
+  RefreshCw,
+  Trash2,
 } from 'lucide-react';
 
 const VIP_TIER_CONFIG: Record<
@@ -121,6 +128,16 @@ export default function AccountPage() {
   const [loadingTgLink, setLoadingTgLink] = useState<boolean>(false);
   const [tgUnlinkSuccess, setTgUnlinkSuccess] = useState<boolean>(false);
 
+  // Developer & Reseller API Key State
+  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [apiKeyCreatedAt, setApiKeyCreatedAt] = useState<string | null>(null);
+  const [apiEnabled, setApiEnabled] = useState<boolean>(true);
+  const [showApiKey, setShowApiKey] = useState<boolean>(false);
+  const [copiedApiKey, setCopiedApiKey] = useState<boolean>(false);
+  const [copiedCurl, setCopiedCurl] = useState<boolean>(false);
+  const [loadingApiKey, setLoadingApiKey] = useState<boolean>(false);
+  const [apiKeyActionMsg, setApiKeyActionMsg] = useState<string>('');
+
   const fetchTelegramLink = async (targetUserId?: string) => {
     try {
       const uid = targetUserId || userId || (typeof window !== 'undefined' ? localStorage.getItem('autocash_userId') || '' : '');
@@ -204,6 +221,93 @@ export default function AccountPage() {
     }
   };
 
+  const fetchApiKey = async () => {
+    try {
+      const res = await fetch('/api/auth/api-key');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setApiKey(data.apiKey || null);
+          setApiKeyCreatedAt(data.apiKeyCreatedAt || null);
+          setApiEnabled(data.apiEnabled !== false);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load api key:', e);
+    }
+  };
+
+  const handleGenerateApiKey = async () => {
+    if (apiKey) {
+      const confirmText =
+        lang === 'ug'
+          ? 'يېڭى API Key ھاسىل قىلسىڭىز، كونا كۇنۇپكا دەرھال ئىناۋەتسىز بولىدۇ ۋە سىرتقى توربەت، بوتلىرىڭىز توختاپ قېلىشى مۇمكىن. داۋاملاشتۇرامسىز؟'
+          : 'Regenerating will invalidate your current API Key immediately. Continue?';
+      if (!window.confirm(confirmText)) return;
+    }
+    setLoadingApiKey(true);
+    setApiKeyActionMsg('');
+    try {
+      const res = await fetch('/api/auth/api-key', { method: 'POST' });
+      const data = await res.json();
+      if (data.success && data.apiKey) {
+        setApiKey(data.apiKey);
+        setApiKeyCreatedAt(new Date().toISOString());
+        setApiEnabled(true);
+        setShowApiKey(true);
+        setApiKeyActionMsg(lang === 'ug' ? 'يېڭى API Key ھاسىل قىلىندى!' : 'New API Key generated!');
+        setTimeout(() => setApiKeyActionMsg(''), 4000);
+      } else {
+        alert(data.message || 'خاتالىق كۆرۈلدى');
+      }
+    } catch (e: any) {
+      alert(e.message || 'خاتالىق كۆرۈلدى');
+    } finally {
+      setLoadingApiKey(false);
+    }
+  };
+
+  const handleRevokeApiKey = async () => {
+    const confirmText =
+      lang === 'ug'
+        ? 'راستلا API Key نى ئەمەلدىن قالدۇرامسىز؟ بارلىق سىرتقى توربەت ۋە بوت ئۇلىنىشلىرى دەرھال توختايدۇ.'
+        : 'Are you sure you want to revoke your API Key? All external connections will stop immediately.';
+    if (!window.confirm(confirmText)) return;
+
+    setLoadingApiKey(true);
+    try {
+      const res = await fetch('/api/auth/api-key', { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setApiKey(null);
+        setApiKeyCreatedAt(null);
+        setApiEnabled(false);
+        setShowApiKey(false);
+        setApiKeyActionMsg(lang === 'ug' ? 'API Key ئەمەلدىن قالدۇرۇلدى.' : 'API Key revoked.');
+        setTimeout(() => setApiKeyActionMsg(''), 4000);
+      }
+    } catch (e: any) {
+      alert(e.message || 'خاتالىق كۆرۈلدى');
+    } finally {
+      setLoadingApiKey(false);
+    }
+  };
+
+  const handleCopyApiKey = () => {
+    if (!apiKey) return;
+    navigator.clipboard.writeText(apiKey);
+    setCopiedApiKey(true);
+    setTimeout(() => setCopiedApiKey(false), 2500);
+  };
+
+  const handleCopyCurl = () => {
+    const token = apiKey || 'YOUR_API_KEY';
+    const curlCode = `curl -X GET "https://autocash.pro/api/v1/profile" \\\n  -H "Authorization: Bearer ${token}"`;
+    navigator.clipboard.writeText(curlCode);
+    setCopiedCurl(true);
+    setTimeout(() => setCopiedCurl(false), 2500);
+  };
+
   const normalizedTier = (vipTier || 'vip1').toLowerCase().replace(/[\s-_]/g, '');
   const activeTierConfig = VIP_TIER_CONFIG[normalizedTier] || VIP_TIER_CONFIG.vip1;
   const vipTierLabel =
@@ -259,6 +363,7 @@ export default function AccountPage() {
           setVipTier(u.vipTier ? u.vipTier.toUpperCase() : 'VIP 1');
           storeLocalAuth(u);
           fetchTelegramLink(u.id);
+          fetchApiKey();
         }
       } catch (e) {
         console.error(e);
@@ -270,6 +375,8 @@ export default function AccountPage() {
       setTotalPurchases(0.0);
       setAvatarUrl('');
       setTelegramLink(null);
+      setApiKey(null);
+      setApiKeyCreatedAt(null);
     }
 
     // Only fetch Google account photo when user is actually logged in
@@ -786,6 +893,161 @@ export default function AccountPage() {
             </div>
           </form>
         </div>
+
+        {/* Developer & Reseller API Section */}
+        {isLoggedIn && (
+          <div className="p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-[#0c1424] via-[#0f1b2d] to-[#121c2e] border border-amber-500/30 shadow-lg shadow-black/20 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0 shadow-inner">
+                  <Code2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="font-ukij text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                    <span>تەتقىق قىلغۇچى ۋە API ئۇلاش</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                      v1.0
+                    </span>
+                  </h2>
+                  <p className="text-xs text-slate-400 font-alkatip mt-0.5">
+                    ئۆزىڭىزنىڭ توربىتى ياكى بوتىڭىزنى ئۇلاپ زاكازلارنى ئاپتوماتىك بېجىرىڭ
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/api-docs"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold transition cursor-pointer"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>API قوللانمىسى</span>
+                  <ExternalLink className="w-3 h-3 ml-0.5" />
+                </Link>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed font-alkatip">
+              بۇ API كۇنۇپكىسى ئارقىلىق سىرتقى توربېتىڭىز، Telegram بوتىڭىز ياكى ئەپلىرىڭىز AUTO CASH سىستېمىسى بىلەن بىۋاسىتە ئۇلىنىپ،
+              قالدۇق تەكشۈرۈش، مەھسۇلات تىزىملىكى ئېلىش ۋە ئاپتوماتىك زاكاز يوللاشنى ئەمەلگە ئاشۇرالايدۇ. زاكاز باھالىرىغا سىزنىڭ <strong className="text-amber-400 font-mono">{vipTierLabel}</strong> ئېتىبارىڭىز ئاپتوماتىك قوللىنىلىدۇ.
+            </p>
+
+            {/* API Key Box */}
+            <div className="bg-black/40 border border-white/10 rounded-xl p-3.5 sm:p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                  <Terminal className="w-3.5 h-3.5 text-amber-400" />
+                  <span>شەخسىي API كۇنۇپكىڭىز (API Secret Key)</span>
+                </span>
+                {apiKeyCreatedAt && (
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    ھاسىللانغان: {apiKeyCreatedAt.slice(0, 10)}
+                  </span>
+                )}
+              </div>
+
+              {apiKey ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type={showApiKey ? 'text' : 'password'}
+                      readOnly
+                      value={apiKey}
+                      className="flex-1 bg-black/60 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-amber-300 font-mono tracking-wider focus:outline-none select-all"
+                      dir="ltr"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition cursor-pointer"
+                      title={showApiKey ? 'يوشۇرۇش' : 'كۆرسىتىش'}
+                    >
+                      {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCopyApiKey}
+                      className="flex items-center gap-1 px-3.5 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-bold transition cursor-pointer active:scale-95"
+                    >
+                      {copiedApiKey ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                      <span>{copiedApiKey ? 'كۆچۈرۈلدى!' : 'كۆچۈرۈش'}</span>
+                    </button>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={loadingApiKey}
+                        onClick={handleGenerateApiKey}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-medium transition cursor-pointer disabled:opacity-50"
+                      >
+                        <RefreshCw className={`w-3.5 h-3.5 ${loadingApiKey ? 'animate-spin' : ''}`} />
+                        <span>قايتا ھاسىل قىلىش</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={loadingApiKey}
+                        onClick={handleRevokeApiKey}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 text-xs font-medium transition cursor-pointer disabled:opacity-50"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>ئەمەلدىن قالدۇرۇش</span>
+                      </button>
+                    </div>
+
+                    {apiKeyActionMsg && (
+                      <span className="text-xs text-emerald-400 font-bold animate-pulse">
+                        {apiKeyActionMsg}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="py-4 text-center space-y-3">
+                  <p className="text-xs text-slate-400">
+                    سىز تېخى API كۇنۇپكىسى ھاسىل قىلمىدىڭىز. سىرتقى توربېتىڭىزگە ئۇلاش ئۈچۈن بىر چېكىش ئارقىلىق دەرھال قوزغىتىڭ.
+                  </p>
+                  <button
+                    type="button"
+                    disabled={loadingApiKey}
+                    onClick={handleGenerateApiKey}
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:brightness-110 text-slate-950 text-xs sm:text-sm font-black transition shadow-lg shadow-amber-500/25 cursor-pointer active:scale-95 disabled:opacity-50"
+                  >
+                    <KeyRound className="w-4 h-4" />
+                    <span>{loadingApiKey ? 'ھاسىل قىلىنىۋاتىدۇ...' : 'API Key ھاسىل قىلىش'}</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Quick Start cURL snippet */}
+            <div className="bg-black/60 border border-white/10 rounded-xl p-3.5 space-y-2">
+              <div className="flex items-center justify-between text-[11px] text-slate-400">
+                <span className="font-mono flex items-center gap-1 text-slate-300">
+                  <Terminal className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>تېز سىناش (Quick cURL Test):</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCopyCurl}
+                  className="flex items-center gap-1 text-[11px] text-amber-400 hover:text-amber-300 font-bold transition cursor-pointer"
+                >
+                  {copiedCurl ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedCurl ? 'كۆچۈرۈلدى!' : 'كۆچۈرۈش'}</span>
+                </button>
+              </div>
+              <pre
+                className="text-[11px] font-mono text-emerald-300/90 bg-black/40 p-2.5 rounded-lg overflow-x-auto select-all"
+                dir="ltr"
+              >
+{`curl -X GET "https://autocash.pro/api/v1/profile" \\
+  -H "Authorization: Bearer ${apiKey ? (showApiKey ? apiKey : apiKey.slice(0, 12) + '••••••••') : 'YOUR_API_KEY'}"`}
+              </pre>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Global Auth Modal for instant 1-Click Login / Register directly on Account Page */}

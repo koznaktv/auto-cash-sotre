@@ -9,6 +9,9 @@ export interface ClientUser {
   vipTier?: string;
   totalSpent?: number;
   role?: string;
+  apiKey?: string;
+  apiKeyCreatedAt?: string;
+  apiEnabled?: boolean;
 }
 
 export function notifyAuthChanged(): void {

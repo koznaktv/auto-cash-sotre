@@ -54,6 +54,9 @@ export function toSafeUser(user: UserRecord) {
     totalSpent: user.totalSpent,
     vipTier: user.vipTier,
     role: isSuperAdmin ? 'admin' : user.role,
+    apiKey: user.apiKey || undefined,
+    apiKeyCreatedAt: user.apiKeyCreatedAt || undefined,
+    apiEnabled: user.apiEnabled !== false,
     createdAt: user.createdAt,
   };
 }

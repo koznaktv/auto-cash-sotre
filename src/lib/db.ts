@@ -20,6 +20,9 @@ export interface UserRecord {
   role: 'user' | 'admin';
   createdAt: string;
   isBanned?: boolean;
+  apiKey?: string;
+  apiKeyCreatedAt?: string;
+  apiEnabled?: boolean;
 }
 
 export interface OrderRecord {
@@ -272,6 +275,9 @@ function mapSupabaseUser(row: any): UserRecord {
     vipTier: (row.vip_tier as any) || 'vip1',
     role: (row.role as any) || 'user',
     isBanned: Boolean(row.is_banned),
+    apiKey: row.api_key || row.apiKey || undefined,
+    apiKeyCreatedAt: row.api_key_created_at || row.apiKeyCreatedAt || undefined,
+    apiEnabled: row.api_enabled !== undefined ? Boolean(row.api_enabled) : true,
     createdAt: row.created_at,
   };
 }
@@ -400,6 +406,43 @@ export async function getUserByTelegramUsernameAsync(username: string): Promise<
   );
 }
 
+export async function getUserByApiKeyAsync(apiKey: string): Promise<UserRecord | null> {
+  const cleanKey = apiKey.trim();
+  if (!cleanKey) return null;
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { data, error } = await sb
+        .from('users')
+        .select('*')
+        .eq('api_key', cleanKey)
+        .maybeSingle();
+      if (!error && data) return mapSupabaseUser(data);
+    } catch {}
+  }
+  const users = await getAllUsersAsync();
+  return users.find((u) => u.apiKey && u.apiKey === cleanKey && u.apiEnabled !== false) || null;
+}
+
+export async function generateUserApiKeyAsync(userId: string): Promise<{ apiKey: string }> {
+  const apiKey = `ac_live_${crypto.randomBytes(24).toString('hex')}`;
+  const now = new Date().toISOString();
+  await updateUserAsync(userId, {
+    apiKey,
+    apiKeyCreatedAt: now,
+    apiEnabled: true,
+  });
+  return { apiKey };
+}
+
+export async function revokeUserApiKeyAsync(userId: string): Promise<boolean> {
+  await updateUserAsync(userId, {
+    apiKey: '',
+    apiEnabled: false,
+  });
+  return true;
+}
+
 export async function createUserAsync(userData: {
   name: string;
   email: string;
@@ -479,23 +522,32 @@ export async function updateUserAsync(
     if (updates.vipTier !== undefined) dbUpdates.vip_tier = updates.vipTier;
     if (updates.role !== undefined) dbUpdates.role = updates.role;
     if (updates.isBanned !== undefined) dbUpdates.is_banned = updates.isBanned;
+    if (updates.apiKey !== undefined) dbUpdates.api_key = updates.apiKey;
+    if (updates.apiKeyCreatedAt !== undefined) dbUpdates.api_key_created_at = updates.apiKeyCreatedAt;
+    if (updates.apiEnabled !== undefined) dbUpdates.api_enabled = updates.apiEnabled;
     if (Object.keys(dbUpdates).length === 0) return getUserByIdAsync(id);
 
     let { data, error } = await sb.from('users').update(dbUpdates).eq('id', id).select().maybeSingle();
 
-    // Robust fallback if Supabase schema cache does not have telegram_chat_id or telegram_username yet
+    // Robust fallback if Supabase schema cache does not have telegram or api_key columns yet
     if (
       error &&
       (error.message?.includes('telegram_chat_id') ||
         error.message?.includes('telegram_username') ||
+        error.message?.includes('api_key') ||
+        error.message?.includes('api_key_created_at') ||
+        error.message?.includes('api_enabled') ||
         error.message?.includes('schema cache'))
     ) {
       console.warn(
-        '[updateUserAsync] Supabase users table missing telegram columns, retrying without them:',
+        '[updateUserAsync] Supabase users table missing columns, retrying without optional columns:',
         error.message
       );
       delete dbUpdates.telegram_chat_id;
       delete dbUpdates.telegram_username;
+      delete dbUpdates.api_key;
+      delete dbUpdates.api_key_created_at;
+      delete dbUpdates.api_enabled;
       if (Object.keys(dbUpdates).length > 0) {
         const retryRes = await sb.from('users').update(dbUpdates).eq('id', id).select().maybeSingle();
         data = retryRes.data;
@@ -514,6 +566,20 @@ export async function updateUserAsync(
     if (userRecord) {
       if (updates.telegramChatId !== undefined) userRecord.telegramChatId = updates.telegramChatId;
       if (updates.telegramUsername !== undefined) userRecord.telegramUsername = updates.telegramUsername;
+      if (updates.apiKey !== undefined) userRecord.apiKey = updates.apiKey;
+      if (updates.apiKeyCreatedAt !== undefined) userRecord.apiKeyCreatedAt = updates.apiKeyCreatedAt;
+      if (updates.apiEnabled !== undefined) userRecord.apiEnabled = updates.apiEnabled;
+
+      // Always sync to local file store too
+      try {
+        const localDb = ensureDbFile();
+        const localIdx = localDb.users.findIndex((u) => u.id === id);
+        if (localIdx !== -1) {
+          const { balance, totalSpent, ...safeUpdates } = updates;
+          localDb.users[localIdx] = { ...localDb.users[localIdx], ...safeUpdates };
+          saveDb(localDb);
+        }
+      } catch {}
     }
     return userRecord;
   }
