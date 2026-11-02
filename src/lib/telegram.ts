@@ -964,11 +964,11 @@ export async function notifyNewDeposit(deposit: {
       ]);
       inlineKeyboard.push([
         { text: '🚨⚠️ ساختىلىق دەپ بەلگىلەش', callback_data: `dep_fraud:${depositId}` },
-        { text: '📊🖥️ باشقۇرۇش مەركىزى', url: `${TELEGRAM_CONFIG.storeUrl}/admin`, icon_custom_emoji_id: '6219549292458150316' },
+        { text: '📊🖥️ باشقۇرۇش مەركىزى', url: `${TELEGRAM_CONFIG.storeUrl}/admin` },
       ]);
     } else {
       inlineKeyboard.push([
-        { text: '📊🖥️ باشقۇرۇش مەركىزى', url: `${TELEGRAM_CONFIG.storeUrl}/admin`, icon_custom_emoji_id: '6219549292458150316' },
+        { text: '📊🖥️ باشقۇرۇش مەركىزى', url: `${TELEGRAM_CONFIG.storeUrl}/admin` },
       ]);
     }
 
@@ -1828,8 +1828,6 @@ export function getStoreInlineKeyboard(lang: BotLanguage = 'ug', isAdmin = false
       ...(isAdmin ? [[
         {
           text: '👑 VIP باشقۇرۇش مەركىزى (/admin)',
-          icon_custom_emoji_id: '6219549292458150316',
-          style: 'primary',
           callback_data: 'admin_dashboard',
         }
       ]] : []),
@@ -2095,7 +2093,6 @@ function getAdminInlineKeyboard() {
         },
         {
           text: '🌐🖥️ تور باشقۇرۇش كۆزنىكى 🔐',
-          icon_custom_emoji_id: '6219549292458150316',
           url: `${TELEGRAM_CONFIG.storeUrl}/admin`,
         },
       ],
