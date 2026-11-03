@@ -578,6 +578,28 @@ export default function NumbersPage() {
           </div>
         )}
 
+        {/* Important Guidance & VPN Notice Banner */}
+        <div className="rounded-2xl p-4 bg-gradient-to-r from-emerald-500/10 via-amber-500/10 to-teal-500/10 border border-emerald-500/30 dark:border-emerald-500/25 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-right">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-black text-slate-900 dark:text-white">
+                  💡 مۇھىم تەۋسىيە (كودنىڭ تېز كېلىشى ئۈچۈن):
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold text-[10px]">
+                  100% پۇل قايتۇرۇش كاپالىتى
+                </span>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                نومۇر سېتىۋېلىشتىن بۇرۇن، قايسى دۆلەتنىڭ نومۇرىنى تاللىغان بولسىڭىز، شۇ رايوننىڭ <b>VPN</b> سىنى قوزغىتىپ ئېلىشنى تەۋسىيە قىلىمىز. بۇ كودنىڭ دەل ۋاقتىدا ۋە تېز كېلىشىگە كاپالەتلىك قىلىدۇ. ئەگەر كود كەلمىسە ياكى ۋاز كەچسىڭىز، «نومۇرنى بىكار قىلىش» نى باسسىڭىزلا پۇلىڭىز ھەميانىڭىزغا دەرھال 100% تولۇق قايتۇرۇلىدۇ!
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* -------------------- TAB 1: ACTIVE LIVE ACTIVATION SCREEN -------------------- */}
         {activeSession && (
           <div className="max-w-2xl mx-auto space-y-4 mb-10 animate-in fade-in zoom-in-95 duration-300">
@@ -784,11 +806,20 @@ export default function NumbersPage() {
                   </button>
                 </div>
 
+                {/* Live VPN Advice & Tip */}
+                <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-right">
+                  <ShieldCheck className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                  <div className="text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
+                    <span className="font-bold text-amber-700 dark:text-amber-300 block">💡 تەكلىپ: نومۇر ئالغان دۆلەتنىڭ VPN سىنى ئۇلاڭ</span>
+                    <span>كودنىڭ دەل ۋاقتىدا ۋە تېز كېلىشى ئۈچۈن، تېلېفونىڭىزدا شۇ دۆلەتنىڭ VPN سىنى قوزغىتىپ ئاندىن ئەپكە نومۇرنى كىرگۈزۈڭ.</span>
+                  </div>
+                </div>
+
                 {/* Direct Cancel & Instant Refund Button */}
                 <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-500/25 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-right shadow-2xs">
                   <div className="text-xs text-rose-800 dark:text-rose-200 leading-relaxed">
-                    <span className="font-bold text-rose-700 dark:text-rose-300 block">💡 كود كەلمىدىمۇ؟</span>
-                    <span>ئەگەر كود كەلمىسە نومۇرنى بىكار قىلسىڭىز، پۇلىڭىز ھەميانغا دەرھال تولۇق قايتىدۇ.</span>
+                    <span className="font-bold text-rose-700 dark:text-rose-300 block">💡 كود كەلمىدىمۇ ياكى ۋاز كەچتىڭىزمۇ؟</span>
+                    <span>ئەگەر كود كەلمىسە «نومۇرنى بىكار قىلىش» كۇنۇپكىسىنى باسسىڭىز، پۇلىڭىز ھەميانغا دەرھال 100% تولۇق قايتىدۇ.</span>
                   </div>
                   <button
                     type="button"
