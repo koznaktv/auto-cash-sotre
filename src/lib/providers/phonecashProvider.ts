@@ -13,6 +13,7 @@ export interface PhonecashBuyResult {
   countryId?: number;
   costPrice?: number;
   sellPrice?: number;
+  errorCode?: string;
   error?: string;
   raw?: any;
 }
@@ -168,8 +169,25 @@ class PhonecashProvider {
       const json = await res.json().catch(() => null);
 
       if (!res.ok || !json || !json.success) {
-        const msg = json?.message || 'نومۇر سېتىۋېلىش مەغلۇپ بولدى (زاپاس نومۇر قالمىغان بولۇشى مۇمكىن)';
-        return { success: false, error: msg, raw: json };
+        const rawCode = String(json?.message || '').trim();
+        let translatedError = 'نومۇر سېتىۋېلىش مەغلۇپ بولدى (زاپاس نومۇر قالمىغان بولۇشى مۇمكىن)';
+
+        if (rawCode.toUpperCase().includes('NO_NUMBERS')) {
+          translatedError = 'نۆۋەتتە بۇ دۆلەتتە بۇ ئەپ ئۈچۈن بوش نومۇر قالمىدى (NO_NUMBERS). باشقا بىر دۆلەتنى (مەسىلەن: ۋىيېتنام، ئەنگلىيە، ئامېرىكا ياكى ھىندونېزىيە) تاللاپ كۆرۈڭ.';
+        } else if (rawCode.toUpperCase().includes('NO_BALANCE') || rawCode.toUpperCase().includes('NO_MONEY')) {
+          translatedError = 'تەمىنلىگۈچى ھېساباتىدا قالدۇق يېتىشمىدى. باشقۇرغۇچىغا ئاپتوماتىك ئۇقتۇرۇلدى.';
+        } else if (rawCode.toUpperCase().includes('BAD_ACTION') || rawCode.toUpperCase().includes('BAD_SERVICE')) {
+          translatedError = 'بۇ دۆلەتتە مەزكۇر مۇلازىمەت ۋاقىتلىق ئېچىلمىغان، باشقا دۆلەتنى سىناڭ.';
+        } else if (rawCode) {
+          translatedError = `تەمىنلىگۈچىدىن خاتالىق كەلدى: ${rawCode}`;
+        }
+
+        return {
+          success: false,
+          errorCode: rawCode,
+          error: translatedError,
+          raw: json,
+        };
       }
 
       // Handle both array or single object format in data

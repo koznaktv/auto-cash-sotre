@@ -129,6 +129,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           success: false,
+          code: buyRes.errorCode || (buyRes.error?.includes('NO_NUMBERS') ? 'NO_NUMBERS' : undefined),
           message: buyRes.error || 'نومۇر ئېلىش مەغلۇپ بولدى، پۇلىڭىز ھېساباتىڭىزغا قايتۇرۇلدى',
         },
         { status: 502 }

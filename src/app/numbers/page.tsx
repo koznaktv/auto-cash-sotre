@@ -562,19 +562,74 @@ export default function NumbersPage() {
     >
       <div className="space-y-6">
 
-        {/* Global Error Notice if any */}
+        {/* Global Error Notice with Smart Fallback Recommendations */}
         {actionError && (
-          <div className="mb-6 p-4 rounded-2xl bg-rose-950/70 border border-rose-500/50 text-rose-200 text-xs sm:text-sm flex items-center justify-between gap-3 shadow-lg">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
-              <span>{actionError}</span>
+          <div className="mb-6 p-4 sm:p-5 rounded-3xl bg-rose-950/80 border border-rose-500/50 text-rose-100 text-xs sm:text-sm shadow-xl space-y-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-bold text-white text-sm sm:text-base">
+                    {actionError.toUpperCase().includes('NO_NUMBERS') || actionError.includes('بوش نومۇر قالمىدى')
+                      ? 'بۇ دۆلەتتە نۆۋەتتە نومۇر قالمىدى (NO_NUMBERS)'
+                      : 'خاتالىق كۆرۈلدى'}
+                  </h4>
+                  <p className="text-rose-200 mt-1 leading-relaxed">
+                    {actionError}
+                  </p>
+                  {(actionError.toUpperCase().includes('NO_NUMBERS') || actionError.includes('قايتۇرۇلدى') || actionError.includes('بوش نومۇر قالمىدى')) && (
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold text-xs">
+                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                      <span>پۇلىڭىز 100% تولۇق ھېساباتىڭىزغا قايتۇرۇلدى، زىيان تارتمايسىز!</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActionError(null)}
+                className="p-1.5 hover:bg-rose-900/50 rounded-xl text-rose-300 transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <button
-              onClick={() => setActionError(null)}
-              className="p-1 hover:bg-rose-900/50 rounded-lg text-rose-300 transition"
-            >
-              <X className="w-4 h-4" />
-            </button>
+
+            {/* If NO_NUMBERS, render instant 1-click alternative countries with massive stock */}
+            {(actionError.toUpperCase().includes('NO_NUMBERS') || actionError.includes('بوش نومۇر قالمىدى')) && (
+              <div className="pt-2 border-t border-rose-500/30">
+                <span className="text-xs text-rose-200 font-bold block mb-2">
+                  💡 تېلېگرام / ئەپلەر ئۈچۈن نۆۋەتتە زاپاس نومۇرى ئەڭ كۆپ ۋە تېز كود كېلىدىغان تەۋسىيە دۆلەتلەر:
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { id: 10, code: 'vn', name: '🇻🇳 ۋىيېتنام', badge: '10,000+ زاپاس ($0.58)' },
+                    { id: 6, code: 'id', name: '🇮🇩 ھىندونېزىيە', badge: '190,000+ ($0.13 ئەرزان!)' },
+                    { id: 187, code: 'us', name: '🇺🇸 ئامېرىكا', badge: '49,000+ زاپاس ($0.58)' },
+                    { id: 16, code: 'gb', name: '🇬🇧 ئەنگلىيە', badge: '21,000+ زاپاس ($0.65)' },
+                  ].map((rec) => (
+                    <button
+                      key={rec.id}
+                      type="button"
+                      onClick={() => {
+                        const target = countries.find(
+                          (c) => String(c.id) === String(rec.id) || c.code === rec.code
+                        );
+                        if (target) {
+                          handleSelectCountry(target);
+                          setActionError(null);
+                        }
+                      }}
+                      className="p-2.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-xs flex flex-col items-center justify-center gap-1 transition cursor-pointer hover:scale-102 active:scale-95 shadow-xs"
+                    >
+                      <span>{rec.name}</span>
+                      <span className="text-[10px] text-emerald-300 font-mono font-normal">
+                        {rec.badge}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -1130,16 +1185,18 @@ export default function NumbersPage() {
                   {/* Country Chips Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
                     {[
+                      { id: 10, code: 'vn', name: 'ۋىيېتنام', dial: '+84' },
+                      { id: 6, code: 'id', name: 'ھىندونېزىيە', dial: '+62' },
+                      { id: 187, code: 'us', name: 'ئامېرىكا', dial: '+1' },
+                      { id: 16, code: 'gb', name: 'ئەنگلىيە', dial: '+44' },
                       { id: 62, code: 'tr', name: 'تۈركىيە', dial: '+90' },
-                      { id: 12, code: 'us', name: 'ئامېرىكا', dial: '+1' },
+                      { id: 1, code: 'ua', name: 'ئۇكرائىنا', dial: '+380' },
                       { id: 53, code: 'sa', name: 'سەئۇدى', dial: '+966' },
                       { id: 95, code: 'ae', name: 'ئەرەب بىرلەشمە', dial: '+971' },
                       { id: 21, code: 'eg', name: 'مىسىر', dial: '+20' },
                       { id: 110, code: 'sy', name: 'سۇرىيە', dial: '+963' },
-                      { id: 47, code: 'iq', name: 'ئىراق', dial: '+964' },
                       { id: 43, code: 'de', name: 'گېرمانىيە', dial: '+49' },
-                      { id: 16, code: 'gb', name: 'ئەنگلىيە', dial: '+44' },
-                      { id: 0, code: 'ru', name: 'روسىيە', dial: '+7' },
+                      { id: 47, code: 'iq', name: 'ئىراق', dial: '+964' },
                       { id: 2, code: 'kz', name: 'قازاقىستان', dial: '+7' },
                       { id: 40, code: 'uz', name: 'ئۆزبېكىستان', dial: '+998' },
                     ].map((pop) => {
