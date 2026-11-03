@@ -84,6 +84,10 @@ export class SmsProvider {
     try {
       // 1. PhoneCash Protocol
       if (config.type === 'phonecash' || config.baseUrl.includes('phonecash.sy')) {
+        // First try official getBalance
+        const balRes = await phonecashProvider.getBalance().catch(() => null);
+        let liveBalance: number | null = balRes?.success && balRes.balance !== null ? balRes.balance : null;
+
         let cleanUrl = config.baseUrl;
         if (!cleanUrl.endsWith('.php')) {
           cleanUrl = cleanUrl.replace(/\/+$/, '') + '/api.php';
@@ -96,16 +100,16 @@ export class SmsProvider {
         if (res.ok && data && data.success && Array.isArray(data.data)) {
           return {
             success: true,
-            balance: null,
+            balance: liveBalance,
             currency: 'USD',
             userName: `PhoneCash (${data.data.length} دۆلەت ئۇلاندى)`,
-            raw: data,
+            raw: { ...data, liveBalance },
           };
         }
 
         return {
           success: false,
-          balance: null,
+          balance: liveBalance,
           currency: 'USD',
           error: data?.message || 'PhoneCash API ئاچقۇچى خاتا ياكى مۇلازىمېتىر ئۇلانمىدى',
           raw: data,
@@ -291,7 +295,10 @@ export class SmsProvider {
   /**
    * Check if the SMS verification code has arrived for this activation
    */
-  async checkCode(activationId: string): Promise<SmsCodeCheckResult> {
+  async checkCode(
+    activationId: string,
+    options?: { service?: string; country?: number | string }
+  ): Promise<SmsCodeCheckResult> {
     const config = await this.getConfig();
     if (!config.enabled || !config.apiKey) {
       return { success: false, status: 'UNKNOWN', error: 'API ئاكتىپ ئەمەس' };
@@ -299,7 +306,7 @@ export class SmsProvider {
 
     try {
       if (config.type === 'phonecash' || config.baseUrl.includes('phonecash.sy')) {
-        const statusRes = await phonecashProvider.checkStatus(activationId, 1);
+        const statusRes = await phonecashProvider.checkStatus(activationId, 1, options);
         return {
           success: statusRes.success,
           status: statusRes.status,
@@ -367,13 +374,16 @@ export class SmsProvider {
   /**
    * Cancel virtual number activation (e.g. if customer cancelled or timeout)
    */
-  async cancelNumber(activationId: string): Promise<{ success: boolean; error?: string }> {
+  async cancelNumber(
+    activationId: string,
+    options?: { service?: string; country?: number | string }
+  ): Promise<{ success: boolean; error?: string }> {
     const config = await this.getConfig();
     if (!config.enabled || !config.apiKey) return { success: false, error: 'API ئاكتىپ ئەمەس' };
 
     try {
       if (config.type === 'phonecash' || config.baseUrl.includes('phonecash.sy')) {
-        const ok = await phonecashProvider.cancelActivation(activationId);
+        const ok = await phonecashProvider.cancelActivation(activationId, options);
         return { success: ok };
       }
 

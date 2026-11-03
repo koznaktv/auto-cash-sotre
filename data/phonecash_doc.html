@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ug" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhoneCash SMS API Documentation</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-color: #38bdf8;
+            --code-bg: #090d16;
+            --border-color: #334155;
+            --method-get: #0ea5e9;
+            --method-post: #10b981;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        header h1 {
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: var(--text-muted);
+        }
+
+        .section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: var(--accent-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        .endpoint {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--code-bg);
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 1rem;
+            margin: 15px 0;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        .method {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: white;
+            white-space: nowrap;
+        }
+
+        .method.get { background-color: var(--method-get); }
+        .method.post { background-color: var(--method-post); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: right;
+        }
+
+        th {
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--accent-color);
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            color: #38bdf8;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+            border: 1px solid var(--border-color);
+            font-family: "Courier New", Courier, monospace;
+        }
+
+        .note {
+            background-color: rgba(56, 189, 248, 0.05);
+            border-right: 4px solid var(--accent-color);
+            padding: 12px 15px;
+            margin: 15px 0;
+            border-radius: 0 6px 6px 0;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>PhoneCash SMS API Documentation</h1>
+        <p>GrizzlySMS مۇلازىمەتلىرىنى ئۆزிڭىزنىڭ تور بېتى ياكى ئەپلىرىگە ئۇلاش ئۈچۈن مەخسۇس RESTful API قوللانمىسى</p>
+    </header>
+
+    <!-- ئومۇمىي ئۇچۇر -->
+    <div class="section">
+        <h2>ئاساسىي ئۇچۇرلار</h2>
+        <p>بارلىق تەلەپلەر (request) تۆۋەندىكى ئاساسىي URL ئارقىلىق بىر تەرەپ قىلىنىدۇ:</p>
+        <pre>https://app.phonecash.sy/api/api.php</pre>
+        <div class="note">
+            <strong>مۇھىم ئىزاھات:</strong> بارلىق تەلەپلەردە خېرىدارلارنىڭ <code>api_key</code> سى چوقۇم پارامېتىر سۈپىتىدە بىللە ئەۋەتىلىشى كېرەك.
+        </div>
+    </div>
+
+    <!-- 0. getBalance -->
+    <div class="section">
+        <h2>0. بالانس سۈرۈشتۈرۈش (getBalance)</h2>
+        <p>خېرىدارنىڭ نۆۋەتتىكى بالانسىنى (USD) كۆرسىتىدۇ.</p>
+        
+        <div class="endpoint">
+            <span class="method get">GET / POST</span>
+            <span>https://app.phonecash.sy/api/api.php?action=getBalance&api_key=Sizning_ApiKey</span>
+        </div>
+
+        <h3>جاۋاب قۇرۇلمىسى (Response):</h3>
+        <pre>{
+    "success": true,
+    "message": "success",
+    "data": {
+        "balance": 25.50
+    }
+}</pre>
+    </div>
+
+    <!-- 1. getCountries -->
+    <div class="section">
+        <h2>1. دۆلەت تىزىملىكىنى ئېلىش</h2>
+        <p>قوللىنىشقا بولىدىغان دۆلەتلەر ۋە ئۇلارنىڭ كودلىرىنى قايتۇرىدۇ.</p>
+        
+        <div class="endpoint">
+            <span class="method get">GET / POST</span>
+            <span>https://app.phonecash.sy/api/api.php?action=getCountries&api_key=Sizning_ApiKey</span>
+        </div>
+
+        <h3>جاۋاب قۇرۇلمىسى (Response):</h3>
+        <pre>{
+    "success": true,
+    "message": "success",
+    "data": [
+        {
+            "id": "0",
+            "name": "Russia",
+            "code": "ru",
+            "flag": "🇷🇺"
+        }
+    ]
+}</pre>
+    </div>
+
+    <!-- 2. getServices -->
+    <div class="section">
+        <h2>2. مۇلازىمەت ۋە باھا تىزىملىكى</h2>
+        <p>مەخسۇس دۆلەت بويىچە مۇلازىمەتلەرنى ۋە چىقىرىۋېلىنغان باھالارنى قايتۇرىدۇ.</p>
+        
+        <div class="endpoint">
+            <span class="method get">GET / POST</span>
+            <span>https://app.phonecash.sy/api/api.php?action=getServices&country=0&api_key=Sizning_ApiKey</span>
+        </div>
+
+        <h3>پارامېتىرلار:</h3>
+        <table>
+            <tr>
+                <th>پارامېتىر</th>
+                <th>تىپى</th>
+                <th>چۈشەندۈرۈش</th>
+            </tr>
+            <tr>
+                <td><code>country</code></td>
+                <td>Integer</td>
+                <td>دۆلەت ID كودى (مەسلەن: 0 روسىيە ئۈچۈن)</td>
+            </tr>
+        </table>
+
+        <h3>جاۋاب قۇرۇلمىسى (Response):</h3>
+        <pre>{
+    "success": true,
+    "message": "success",
+    "data": [
+        {
+            "service_code": "tg",
+            "name": "TG",
+            "price": 15.50,
+            "original_price": 18.00,
+            "number_discount_percent": 15.0,
+            "count": 450
+        }
+    ]
+}</pre>
+    </div>
+
+    <!-- 3. buyNumber -->
+    <div class="section">
+        <h2>3. نومۇر سېتىۋېلىش</h2>
+        <p>بەلگىلەنگەن مۇلازىمەت ۋە دۆلەت بويىچە تېلېفون نومۇرى سېتىۋالىدۇ.</p>
+        
+        <div class="endpoint">
+            <span class="method get">GET / POST</span>
+            <span>https://app.phonecash.sy/api/api.php?action=buyNumber&service=tg&country=0&api_key=Sizning_ApiKey</span>
+        </div>
+
+        <h3>پارامېتىرلار:</h3>
+        <table>
+            <tr>
+                <th>پارامېتىر</th>
+                <th>تىپى</th>
+                <th>چۈشەندۈرۈش</th>
+            </tr>
+            <tr>
+                <td><code>service</code></td>
+                <td>String</td>
+                <td>مۇلازىمەت كودى (مەسلەن: tg - Telegram)</td>
+            </tr>
+            <tr>
+                <td><code>country</code></td>
+                <td>Integer</td>
+                <td>دۆلەت ID كودى</td>
+            </tr>
+        </table>
+
+        <h3>جاۋاب قۇرۇلمىسى (Response):</h3>
+        <pre>{
+    "success": true,
+    "message": "success",
+    "data": {
+        "id": "680730548",
+        "number": "+84355309920",
+        "price": 15.50
+    }
+}</pre>
+    </div>
+
+    <!-- 4. checkStatus -->
+    <div class="section">
+        <h2>4. نومۇر ھالىتىنى تەكشۈرۈش ۋە كود ئوقۇش (getStatus)</h2>
+        <p>نومۇرغا SMS كەلگەن-كەلمىگەنلىكىنى تەكشۈرىدۇ. كود كەلگەن ھامان ئابونتنىڭ بالانسىدىن پۇل تۇتۇلىدۇ.</p>
+        
+        <div class="endpoint">
+            <span class="method get">GET / POST</span>
+            <span>https://app.phonecash.sy/api/api.php?action=checkStatus&id=680730548&service=tg&country=0&api_key=Sizning_ApiKey</span>
+        </div>
+
+        <h3>پارامېتىرلار:</h3>
+        <table>
+            <tr>
+                <th>پارامېتىر</th>
+                <th>تىپى</th>
+                <th>چۈشەندۈرۈش</th>
+            </tr>
+            <tr>
+                <td><code>id</code></td>
+                <td>String</td>
+                <td>نومۇر سېتىۋالغاندا كەلگەن Activation ID</td>
+            </tr>
+            <tr>
+                <td><code>service</code></td>
+                <td>String</td>
+                <td>مۇلازىمەت كودى (پۇل ھېسابلاش ئۈچۈن كېرەك)</td>
+            </tr>
+            <tr>
+                <td><code>country</code></td>
+                <td>Integer</td>
+                <td>دۆلەت ID كودى</td>
+            </tr>
+        </table>
+
+        <h3>جاۋاب قۇرۇلمىسى (Response):</h3>
+        <pre>{
+    "success": true,
+    "message": "success",
+    "data": {
+        "status_text": "Code Received",
+        "code": "123456",
+        "raw_response": "STATUS_OK:123456"
+    }
+}</pre>
+    </div>
+
+</div>
+
+</body>
+</html>

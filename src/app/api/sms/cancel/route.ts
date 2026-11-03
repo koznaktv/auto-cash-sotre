@@ -41,9 +41,14 @@ export async function POST(req: Request) {
     }
 
     // 1. Cancel on PhoneCash provider
-    await phonecashProvider.cancelActivation(activationId).catch((err) => {
-      console.warn('[PhoneCash Cancel Notice]:', err?.message);
-    });
+    await phonecashProvider
+      .cancelActivation(activationId, {
+        service: order.details?.serviceCode,
+        country: order.details?.countryId,
+      })
+      .catch((err) => {
+        console.warn('[PhoneCash Cancel Notice]:', err?.message);
+      });
 
     // 2. Atomically refund the order balance back to user's wallet
     const refundRes = await refundOrderBalanceAtomicAsync(

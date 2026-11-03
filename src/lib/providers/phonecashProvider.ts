@@ -44,6 +44,43 @@ class PhonecashProvider {
   }
 
   /**
+   * Fetch current wholesale USD balance
+   * Connected to action=getBalance
+   */
+  async getBalance(): Promise<{ success: boolean; balance: number | null; error?: string; raw?: any }> {
+    const apiKey = this.getApiKey();
+    if (!apiKey) {
+      return { success: false, balance: null, error: 'PhoneCash API ئاچقۇچى كىرگۈزۈلمىگەن' };
+    }
+
+    try {
+      const url = `${this.getBaseUrl()}?action=getBalance&api_key=${encodeURIComponent(apiKey)}`;
+      const res = await fetch(url, { cache: 'no-store' });
+      const json = await res.json().catch(() => null);
+
+      if (json && json.success && json.data && json.data.balance !== undefined && json.data.balance !== null) {
+        return {
+          success: true,
+          balance: Number(json.data.balance),
+          raw: json,
+        };
+      }
+      return {
+        success: false,
+        balance: null,
+        error: json?.message || 'Invalid action',
+        raw: json,
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        balance: null,
+        error: err?.message || 'تەمىنلىگۈچىگە ئۇلىنالمىدى',
+      };
+    }
+  }
+
+  /**
    * Fetch all supported countries with flags and dial codes
    */
   async getCountries(forceRefresh = false): Promise<CountryMeta[]> {
@@ -147,10 +184,13 @@ class PhonecashProvider {
         return { success: false, error: 'تەمىنلىگۈچى نومۇر ئۇچۇرىنى قايتۇرمىدى', raw: json };
       }
 
+      const costPrice = item.price !== undefined ? Number(item.price) : undefined;
+
       return {
         success: true,
         activationId: String(item.id),
         phone: String(item.number),
+        costPrice,
         serviceCode,
         countryId,
         raw: json,
@@ -162,15 +202,31 @@ class PhonecashProvider {
 
   /**
    * Check SMS status (status_action: 1=check code, 3=finish/complete, 8=cancel)
+   * Follows official documentation:
+   * ?action=checkStatus&id={id}&service={service}&country={country}&api_key={key}
    */
-  async checkStatus(activationId: string, statusAction: 1 | 3 | 8 = 1): Promise<PhonecashStatusResult> {
+  async checkStatus(
+    activationId: string,
+    statusAction: 1 | 3 | 8 = 1,
+    options?: { service?: string; country?: number | string }
+  ): Promise<PhonecashStatusResult> {
     const apiKey = this.getApiKey();
     if (!apiKey) {
       return { success: false, status: 'UNKNOWN', error: 'PhoneCash API ئاچقۇچى كىرگۈزۈلمىگەن' };
     }
 
     try {
-      const url = `${this.getBaseUrl()}?action=checkStatus&id=${encodeURIComponent(activationId)}&status_action=${statusAction}&api_key=${encodeURIComponent(apiKey)}`;
+      let url = `${this.getBaseUrl()}?action=checkStatus&id=${encodeURIComponent(activationId)}&api_key=${encodeURIComponent(apiKey)}`;
+      if (options?.service) {
+        url += `&service=${encodeURIComponent(options.service)}`;
+      }
+      if (options?.country !== undefined && options?.country !== null && options?.country !== '') {
+        url += `&country=${encodeURIComponent(options.country)}`;
+      }
+      if (statusAction && statusAction !== 1) {
+        url += `&status_action=${statusAction}`;
+      }
+
       const res = await fetch(url, { cache: 'no-store' });
       const json = await res.json().catch(() => null);
 
@@ -214,11 +270,11 @@ class PhonecashProvider {
         };
       }
 
-      if (rawResponse.includes('STATUS_CANCEL') || statusText.toLowerCase().includes('cancel')) {
+      if (rawResponse.includes('STATUS_CANCEL') || statusText.toLowerCase().includes('cancel') || rawResponse.includes('NO_ACTIVATION')) {
         return {
           success: true,
           status: 'CANCELED',
-          statusText: 'نومۇر بىكار قىلىندى',
+          statusText: rawResponse.includes('NO_ACTIVATION') ? 'نومۇر ئاكتىپ ئەمەس ياكى ئۆچۈرۈلگەن' : 'نومۇر بىكار قىلىندى',
           rawResponse,
           raw: json,
         };
@@ -240,7 +296,7 @@ class PhonecashProvider {
       return {
         success: true,
         status: 'WAIT_CODE',
-        statusText,
+        statusText: statusText || 'SMS كودى كۈتۈلمەكتە...',
         rawResponse,
         raw: json,
       };
@@ -252,16 +308,22 @@ class PhonecashProvider {
   /**
    * Cancel activation and refund
    */
-  async cancelActivation(activationId: string): Promise<boolean> {
-    const res = await this.checkStatus(activationId, 8);
+  async cancelActivation(
+    activationId: string,
+    options?: { service?: string; country?: number | string }
+  ): Promise<boolean> {
+    const res = await this.checkStatus(activationId, 8, options);
     return res.success;
   }
 
   /**
    * Confirm code received and finish
    */
-  async finishActivation(activationId: string): Promise<boolean> {
-    const res = await this.checkStatus(activationId, 3);
+  async finishActivation(
+    activationId: string,
+    options?: { service?: string; country?: number | string }
+  ): Promise<boolean> {
+    const res = await this.checkStatus(activationId, 3, options);
     return res.success;
   }
 }

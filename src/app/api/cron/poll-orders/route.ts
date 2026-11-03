@@ -34,13 +34,21 @@ export async function GET(req: Request) {
         const activationId = order.details?.activationId;
         if (!activationId) continue;
 
-        const check = await phonecashProvider.checkStatus(activationId, 1);
+        const check = await phonecashProvider.checkStatus(activationId, 1, {
+          service: order.details?.serviceCode,
+          country: order.details?.countryId,
+        });
         if (check.status === 'RECEIVED' && check.code) {
           await updateOrderAsync(order.id, {
             status: 'completed',
             detailsPatch: { code: check.code, completedAt: new Date().toISOString() },
           });
-          phonecashProvider.finishActivation(activationId).catch(() => null);
+          phonecashProvider
+            .finishActivation(activationId, {
+              service: order.details?.serviceCode,
+              country: order.details?.countryId,
+            })
+            .catch(() => null);
           await postOrderCompletedToChannel({
             id: order.id,
             serviceName: order.serviceName,

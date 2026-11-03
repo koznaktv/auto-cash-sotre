@@ -43,7 +43,10 @@ export async function GET(req: Request) {
     }
 
     // Check with PhoneCash
-    const statusRes = await phonecashProvider.checkStatus(activationId, 1);
+    const statusRes = await phonecashProvider.checkStatus(activationId, 1, {
+      service: order.details?.serviceCode,
+      country: order.details?.countryId,
+    });
 
     if (statusRes.status === 'RECEIVED' && statusRes.code) {
       // Save code to order and mark completed!
@@ -61,7 +64,12 @@ export async function GET(req: Request) {
       });
 
       // Confirm to provider that code was received (status_action=3)
-      phonecashProvider.finishActivation(activationId).catch(() => null);
+      phonecashProvider
+        .finishActivation(activationId, {
+          service: order.details?.serviceCode,
+          country: order.details?.countryId,
+        })
+        .catch(() => null);
 
       // Post to channel
       postOrderCompletedToChannel({
