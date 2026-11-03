@@ -67,7 +67,13 @@ export default function SGCSubpageLayout({
     if (typeof window !== 'undefined') return getCachedUser();
     return null;
   });
-  const isVip5 = Boolean(user && (user.vipTier === 'vip5' || user.role === 'admin'));
+  const isVip5 = Boolean(
+    user && (
+      (user.vipTier || '').toLowerCase().includes('vip5') ||
+      user.role === 'admin' ||
+      (user.email || '').toLowerCase() === 'dronemax0996@gmail.com'
+    )
+  );
 
   // Sync theme
   useEffect(() => {

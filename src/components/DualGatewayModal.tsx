@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useStore, StoreType, STORE_METAS } from '@/context/StoreContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatSmartPrice } from '@/lib/clientAuth';
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react';
 
 export default function DualGatewayModal() {
+  const router = useRouter();
   const {
     activeStore,
     isGatewayOpen,
@@ -33,6 +35,9 @@ export default function DualGatewayModal() {
 
   const handleSelect = (store: StoreType) => {
     switchStore(store);
+    if (store === 'maxstore') {
+      router.push('/maxbazar');
+    }
   };
 
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;

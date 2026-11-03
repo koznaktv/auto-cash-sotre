@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useStore, STORE_METAS } from '@/context/StoreContext';
 import { ArrowLeftRight, Store, Zap, Wallet, ChevronDown } from 'lucide-react';
 import { formatSmartPrice } from '@/lib/clientAuth';
@@ -15,10 +16,12 @@ export default function StoreSwitcherButton({
   variant = 'compact',
   className = '',
 }: StoreSwitcherButtonProps) {
+  const router = useRouter();
   const {
     activeStore,
     isMaxStore,
     openGateway,
+    switchStore,
     toggleStore,
     autocashBalance,
     maxstoreBalance,
@@ -45,7 +48,10 @@ export default function StoreSwitcherButton({
         <div className="grid grid-cols-2 gap-2">
           {/* AUTO CASH option */}
           <button
-            onClick={() => !isMaxStore ? null : toggleStore()}
+            onClick={() => {
+              switchStore('autocash');
+              router.push('/');
+            }}
             className={`flex flex-col items-start p-2.5 rounded-xl border transition-all text-start relative ${
               !isMaxStore
                 ? 'bg-emerald-950/50 border-emerald-500/50 shadow-md shadow-emerald-950/30 ring-1 ring-emerald-500/30'
@@ -70,7 +76,10 @@ export default function StoreSwitcherButton({
 
           {/* MAX-BAZAR option */}
           <button
-            onClick={() => isMaxStore ? null : toggleStore()}
+            onClick={() => {
+              switchStore('maxstore');
+              router.push('/maxbazar');
+            }}
             className={`flex flex-col items-start p-2.5 rounded-xl border transition-all text-start relative ${
               isMaxStore
                 ? 'bg-blue-950/50 border-blue-500/50 shadow-md shadow-blue-950/30 ring-1 ring-blue-500/30'

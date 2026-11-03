@@ -377,7 +377,13 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showApiModal, setShowApiModal] = useState(false);
   const [showVipLockedModal, setShowVipLockedModal] = useState(false);
-  const isVip5 = Boolean(user && (user.vipTier === 'vip5' || user.role === 'admin'));
+  const isVip5 = Boolean(
+    user && (
+      (user.vipTier || '').toLowerCase().includes('vip5') ||
+      user.role === 'admin' ||
+      (user.email || '').toLowerCase() === 'dronemax0996@gmail.com'
+    )
+  );
 
   // Live Server Catalog State with instant local cache hydration
   const [serverServices, setServerServices] = useState<ServiceItem[]>(() => {

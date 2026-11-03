@@ -114,6 +114,14 @@ export default function AccountPage() {
   const [newPassword, setNewPassword] = useState<string>('');
   const [vipTier, setVipTier] = useState<string>('VIP 1');
   const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const [userRole, setUserRole] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const em = (localStorage.getItem('autocash_email') || '').toLowerCase();
+      if (em === 'dronemax0996@gmail.com') return 'admin';
+      return localStorage.getItem('autocash_role') || '';
+    }
+    return '';
+  });
   
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
   const [passwordSuccess, setPasswordSuccess] = useState<boolean>(false);
@@ -128,10 +136,25 @@ export default function AccountPage() {
   const [loadingTgLink, setLoadingTgLink] = useState<boolean>(false);
   const [tgUnlinkSuccess, setTgUnlinkSuccess] = useState<boolean>(false);
 
-  // Developer & Reseller API Key State
-  const [apiKey, setApiKey] = useState<string | null>(null);
-  const [apiKeyCreatedAt, setApiKeyCreatedAt] = useState<string | null>(null);
-  const [apiEnabled, setApiEnabled] = useState<boolean>(true);
+  // Developer & Reseller API Key State (with instant cache hydration to prevent disappearing flicker)
+  const [apiKey, setApiKey] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('autocash_apiKey') || null;
+    }
+    return null;
+  });
+  const [apiKeyCreatedAt, setApiKeyCreatedAt] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('autocash_apiKeyCreatedAt') || null;
+    }
+    return null;
+  });
+  const [apiEnabled, setApiEnabled] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('autocash_apiEnabled') !== 'false';
+    }
+    return true;
+  });
   const [showApiKey, setShowApiKey] = useState<boolean>(false);
   const [copiedApiKey, setCopiedApiKey] = useState<boolean>(false);
   const [copiedCurl, setCopiedCurl] = useState<boolean>(false);
@@ -409,6 +432,11 @@ export default function AccountPage() {
           setTotalDeposited(rawBal + (u.totalSpent || 0));
           setTotalPurchases(u.totalSpent || 0);
           setVipTier(u.vipTier ? u.vipTier.toUpperCase() : 'VIP 1');
+          if (u.role) {
+            setUserRole(u.role);
+          } else if (u.email?.toLowerCase() === 'dronemax0996@gmail.com') {
+            setUserRole('admin');
+          }
           storeLocalAuth(u, { skipNotify: true });
           if (u.apiKey) {
             setApiKey(u.apiKey);
@@ -993,7 +1021,12 @@ export default function AccountPage() {
             </p>
 
             {/* API Key Box */}
-            {!((vipTier || '').toLowerCase().includes('vip5') || (typeof window !== 'undefined' && localStorage.getItem('autocash_role') === 'admin')) ? (
+            {!(
+              (vipTier || '').toLowerCase().includes('vip5') ||
+              userRole === 'admin' ||
+              (email || '').toLowerCase() === 'dronemax0996@gmail.com' ||
+              (typeof window !== 'undefined' && localStorage.getItem('autocash_role') === 'admin')
+            ) ? (
               <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-5 sm:p-6 text-center space-y-3">
                 <div className="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto text-2xl font-bold animate-pulse">
                   🔒
