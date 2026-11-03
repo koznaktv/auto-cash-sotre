@@ -149,34 +149,34 @@ export default function SGCSubpageLayout({
             : 'bg-white/98 border-b border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.03)]'
         } pt-[env(safe-area-inset-top,0px)]`}
       >
-        <div className="max-w-[1200px] mx-auto px-3.5 sm:px-6 py-2.5 flex items-center justify-between gap-3">
+        <div className="max-w-[1200px] mx-auto px-2 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between gap-1.5 sm:gap-3">
           
-          {/* Controls on Left: Menu, Language Button, Profile, Balance Pill, Theme */}
-          <div className="flex items-center gap-2 sm:gap-2.5 order-2 sm:order-1">
+          {/* Controls on Left: Menu, Language Button, Store Switcher, Profile, Balance Pill, Theme */}
+          <div className="flex items-center gap-1 sm:gap-2 order-2 sm:order-1 shrink-0">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`w-9 h-9 rounded-xl flex items-center justify-center transition active:scale-95 cursor-pointer ${
+              className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition active:scale-95 cursor-pointer shrink-0 ${
                 theme === 'dark' ? 'text-white hover:bg-white/10' : 'text-slate-800 hover:bg-slate-100'
               }`}
               aria-label="قوشۇمچە تىزىملىك"
             >
-              <Menu className="w-5 h-5 stroke-[2.2] animate-icon-gleam" />
+              <Menu className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2] animate-icon-gleam" />
             </button>
 
             {/* Language Selection Window Button */}
             <button
               type="button"
               onClick={openLanguageModal}
-              className={`h-9 px-2 sm:px-2.5 rounded-xl flex items-center gap-1.5 border transition active:scale-95 cursor-pointer shadow-xs ${
+              className={`h-8 sm:h-9 px-1.5 sm:px-2.5 rounded-xl flex items-center gap-1 sm:gap-1.5 border transition active:scale-95 cursor-pointer shadow-xs shrink-0 ${
                 theme === 'dark'
                   ? 'border-emerald-500/30 bg-emerald-950/40 text-emerald-300 hover:bg-emerald-900/50 hover:border-emerald-400'
                   : 'border-emerald-500/30 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
               }`}
               title={t('selectLanguage') || 'تىل تاللاش كۆزنىكى'}
             >
-              <LanguageFlag code={lang} className="w-4 h-3 rounded-[2px] object-cover shrink-0 shadow-xs" />
+              <LanguageFlag code={lang} className="w-3.5 h-2.5 sm:w-4 sm:h-3 rounded-[2px] object-cover shrink-0 shadow-xs" />
               <Globe2 className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
-              <span className="text-[11px] font-bold hidden sm:inline">
+              <span className="text-[11px] font-bold hidden md:inline">
                 {lang === 'ug'
                   ? 'ئۇيغۇرچە'
                   : lang === 'en'
@@ -197,7 +197,7 @@ export default function SGCSubpageLayout({
             {/* Profile Avatar */}
             <Link
               href="/account"
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#059669] text-white flex items-center justify-center font-black text-sm shadow-[0_2px_8px_rgba(5,150,105,0.35)] hover:scale-105 active:scale-95 transition animate-icon-sparkle anim-delay-1"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#059669] text-white flex items-center justify-center font-black text-xs sm:text-sm shadow-[0_2px_8px_rgba(5,150,105,0.35)] hover:scale-105 active:scale-95 transition shrink-0 animate-icon-sparkle anim-delay-1"
               title={user ? user.name || user.email : 'ھېساباتىم'}
             >
               {user ? (user.name ? user.name.charAt(0).toUpperCase() : 'ھ') : 'ھ'}
@@ -221,7 +221,7 @@ export default function SGCSubpageLayout({
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center border transition active:scale-95 cursor-pointer ${
+              className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center border transition active:scale-95 cursor-pointer shrink-0 ${
                 theme === 'dark'
                   ? 'border-white/15 bg-white/5 text-amber-300 hover:bg-white/10'
                   : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-sm'
@@ -229,20 +229,20 @@ export default function SGCSubpageLayout({
               title={theme === 'dark' ? 'كۈندۈز ھالىتىگە ئۆزگەرتىش' : 'كېچە ھالىتىگە ئۆزگەرتىش'}
             >
               {theme === 'dark' ? (
-                <Sun className="w-4 h-4 animate-icon-sparkle text-amber-300" />
+                <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-icon-sparkle text-amber-300" />
               ) : (
-                <Moon className="w-4 h-4 animate-icon-gleam text-slate-700" />
+                <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-icon-gleam text-slate-700" />
               )}
             </button>
           </div>
 
           {/* Brand Logo & Title on Right (Animated Shimmer) */}
-          <Link href="/" className="flex items-center gap-2 sm:gap-3 shrink-0 order-1 sm:order-2 group select-none">
+          <Link href="/" className="flex items-center gap-1.5 sm:gap-3 shrink-0 order-1 sm:order-2 group select-none min-w-0">
             <div className="flex flex-col text-right justify-center overflow-visible py-0.5">
-              <span className={`font-black text-sm sm:text-lg tracking-wide ${isMaxStore ? 'text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-orange-400 to-amber-300' : 'animated-brand-title'}`}>
+              <span className={`font-black text-xs sm:text-lg tracking-wide whitespace-nowrap ${isMaxStore ? 'text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-orange-400 to-amber-300' : 'animated-brand-title'}`}>
                 {storeMeta.name}
               </span>
-              <span className="text-[10px] sm:text-[12px] font-bold tracking-normal text-slate-400 dark:text-slate-300">
+              <span className="hidden sm:inline text-[10px] sm:text-[12px] font-bold tracking-normal text-slate-400 dark:text-slate-300">
                 {isMaxStore ? 'يېڭى تەمىنلىگۈچى بازىرى' : (t('brandSubtitle') || 'ئاپتوماتىك پۇل قاچىلاش')}
               </span>
             </div>
@@ -250,7 +250,7 @@ export default function SGCSubpageLayout({
               <img
                 src={isMaxStore ? '/images/maxbazar_hd_logo.png' : '/logo.png'}
                 alt={storeMeta.name}
-                className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shadow-sm"
+                className="w-8 h-8 sm:w-11 sm:h-11 rounded-full object-cover shadow-sm"
                 onError={(e) => {
                   (e.target as any).src = '/logo.png';
                 }}

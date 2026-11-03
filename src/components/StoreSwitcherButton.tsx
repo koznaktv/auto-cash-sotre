@@ -150,12 +150,12 @@ export default function StoreSwitcherButton({
   return (
     <button
       onClick={openGateway}
-      className={`group flex items-center gap-2 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-sm ${
+      className={`group flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-sm shrink-0 active:scale-95 ${
         isMaxStore
           ? 'bg-gradient-to-r from-blue-950/70 to-slate-900/90 border-blue-500/40 text-orange-300 hover:border-orange-500/60 shadow-blue-950/30'
           : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300 hover:border-emerald-500/70 shadow-emerald-950/30'
       } ${className}`}
-      title="دۇكان ئالماشتۇرۇش"
+      title="دۇكان ئالماشتۇرۇش دەرۋازىسى"
     >
       <div className="relative w-4 h-4 rounded-md overflow-hidden flex-shrink-0 bg-slate-900">
         <Image
@@ -165,10 +165,10 @@ export default function StoreSwitcherButton({
           className={isMaxStore ? 'object-cover' : 'object-contain'}
         />
       </div>
-      <span className="truncate max-w-[90px] sm:max-w-[120px]">
+      <span className="hidden md:inline truncate max-w-[120px]">
         {storeMeta.name}
       </span>
-      <ArrowLeftRight className="w-3 h-3 text-slate-400 group-hover:text-white transition-transform group-hover:rotate-180 duration-300" />
+      <ArrowLeftRight className="w-3 h-3 text-slate-400 group-hover:text-white transition-transform group-hover:rotate-180 duration-300 shrink-0" />
     </button>
   );
 }
