@@ -100,8 +100,21 @@ export default function NumbersPage() {
   const [serviceSearch, setServiceSearch] = useState('');
   const [activeCategoryTab, setActiveCategoryTab] = useState<'all' | 'messaging' | 'social' | 'ai' | 'other'>('all');
 
-  // Active session & polling
-  const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
+  // Active session & polling (persists in localStorage so tab switches or app minimize don't lose session)
+  const [activeSession, setActiveSession] = useState<ActiveSession | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('autocash_active_sms_session');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.expiresAt && parsed.expiresAt > Date.now()) {
+            return parsed;
+          }
+        }
+      } catch {}
+    }
+    return null;
+  });
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [copiedPhone, setCopiedPhone] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
@@ -210,7 +223,13 @@ export default function NumbersPage() {
       setLastCheckedText('ھازىرلا');
 
       if (data.success && data.status === 'RECEIVED' && data.code) {
-        setActiveSession((prev) => (prev ? { ...prev, code: data.code, status: 'received' } : null));
+        setActiveSession((prev) => {
+          const updated = prev ? { ...prev, code: data.code, status: 'received' as const } : null;
+          if (typeof window !== 'undefined' && updated) {
+            try { localStorage.setItem('autocash_active_sms_session', JSON.stringify(updated)); } catch {}
+          }
+          return updated;
+        });
 
         // Refresh user balance & notify
         fetch('/api/auth/me')
@@ -221,7 +240,10 @@ export default function NumbersPage() {
           .catch(() => null);
       } else if (data.status === 'CANCELED' || data.refunded) {
         // Auto cancellation detected from provider
-        setActionError(data.message || 'تەمىنلىگۈچى تەرەپتىن كود كەلمىدى، نومۇر بىكار قىلىنىپ پۇلىڭىز ھېساباتىڭىزغا دەل ۋاقتىدا قايتۇرۇلدى!');
+        if (typeof window !== 'undefined') {
+          try { localStorage.removeItem('autocash_active_sms_session'); } catch {}
+        }
+        setActionError(data.message || 'نومۇر بىكار قىلىنىپ پۇلىڭىز ھېساباتىڭىزغا دەل ۋاقتىدا قايتۇرۇلدى!');
         if (data.newBalance !== undefined) {
           setUser((prev) => (prev ? { ...prev, balance: data.newBalance } : null));
         }
@@ -394,7 +416,7 @@ export default function NumbersPage() {
       }
 
       // Successful purchase! Activate the exact PhoneCash order dashboard
-      setActiveSession({
+      const newSession: ActiveSession = {
         orderId: data.orderId,
         activationId: data.activationId,
         phone: data.phone,
@@ -406,7 +428,11 @@ export default function NumbersPage() {
         status: 'waiting',
         country: selectedCountry,
         service: service,
-      });
+      };
+      setActiveSession(newSession);
+      if (typeof window !== 'undefined') {
+        try { localStorage.setItem('autocash_active_sms_session', JSON.stringify(newSession)); } catch {}
+      }
 
       // Update user balance locally
       setUser((prev) => (prev ? { ...prev, balance: (prev.balance || 0) - data.sellPrice } : null));
@@ -425,6 +451,9 @@ export default function NumbersPage() {
   const handleCancelSession = async () => {
     if (!activeSession || canceling) return;
     if (activeSession.status === 'received') {
+      if (typeof window !== 'undefined') {
+        try { localStorage.removeItem('autocash_active_sms_session'); } catch {}
+      }
       setActiveSession(null);
       return;
     }
@@ -449,6 +478,9 @@ export default function NumbersPage() {
 
       const data = await res.json();
       if (data.success) {
+        if (typeof window !== 'undefined') {
+          try { localStorage.removeItem('autocash_active_sms_session'); } catch {}
+        }
         if (data.newBalance !== undefined && user) {
           setUser({ ...user, balance: data.newBalance });
         }
@@ -646,7 +678,12 @@ export default function NumbersPage() {
                 {activeSession.status === 'received' && (
                   <button
                     type="button"
-                    onClick={() => setActiveSession(null)}
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        try { localStorage.removeItem('autocash_active_sms_session'); } catch {}
+                      }
+                      setActiveSession(null);
+                    }}
                     className="py-3.5 px-4 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition cursor-pointer bg-emerald-600 text-white hover:bg-emerald-500 active:scale-95"
                   >
                     <Check className="w-4 h-4 text-white" />
@@ -770,7 +807,12 @@ export default function NumbersPage() {
             <div className="text-center pt-2">
               <button
                 type="button"
-                onClick={() => setActiveSession(null)}
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    try { localStorage.removeItem('autocash_active_sms_session'); } catch {}
+                  }
+                  setActiveSession(null);
+                }}
                 className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline font-semibold cursor-pointer"
               >
                 ← باشقا ئەپكە يەنە مەۋھۇم نومۇر ئېلىش

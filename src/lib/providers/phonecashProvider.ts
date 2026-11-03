@@ -244,59 +244,71 @@ class PhonecashProvider {
         data = data[0];
       }
 
-      const statusText = data?.status_text || '';
-      const rawResponse = data?.raw_response || '';
-      const code = data?.code || '';
+      const statusText = String(data?.status_text || '');
+      const rawResponse = String(data?.raw_response || '');
+      const rawCode = data?.code;
 
-      // Determine state
-      if (code && String(code).trim().length > 0) {
+      // 1. Comprehensive code extraction from all possible schema variants
+      let finalCode = '';
+      if (rawCode && String(rawCode).trim().length > 0) {
+        finalCode = String(rawCode).trim();
+      }
+
+      // If code was not populated directly, extract from rawResponse (e.g. STATUS_OK:123456 or STATUS_WAIT_RETRY:123456)
+      if (!finalCode && rawResponse) {
+        const okMatch = rawResponse.match(/(?:STATUS_OK|STATUS_WAIT_RETRY|ACCESS_NUMBER|CODE)[:\s]*([A-Za-z0-9_-]+)/i);
+        if (okMatch && okMatch[1]) {
+          finalCode = okMatch[1].trim();
+        } else if (/^\d{4,8}$/.test(rawResponse.trim())) {
+          finalCode = rawResponse.trim();
+        }
+      }
+
+      // If code is inside statusText
+      if (!finalCode && statusText) {
+        if (/^\d{4,8}$/.test(statusText.trim())) {
+          finalCode = statusText.trim();
+        } else {
+          const textMatch = statusText.match(/(?:code|رمز|كود|کد)[:\s]*([A-Za-z0-9]+)/i);
+          if (textMatch && textMatch[1]) {
+            finalCode = textMatch[1].trim();
+          }
+        }
+      }
+
+      // If code is detected, return RECEIVED immediately!
+      if (finalCode && finalCode.length > 0) {
         return {
           success: true,
           status: 'RECEIVED',
-          code: String(code).trim(),
+          code: finalCode,
           statusText: 'SMS كودى كەلدى',
           rawResponse,
           raw: json,
         };
       }
 
-      if (rawResponse.includes('STATUS_WAIT_CODE') || rawResponse.includes('ACCESS_READY') || statusText.toLowerCase().includes('waiting')) {
-        return {
-          success: true,
-          status: 'WAIT_CODE',
-          statusText: 'SMS كودى كۈتۈلمەكتە...',
-          rawResponse,
-          raw: json,
-        };
-      }
-
-      if (rawResponse.includes('STATUS_CANCEL') || statusText.toLowerCase().includes('cancel') || rawResponse.includes('NO_ACTIVATION')) {
+      // 2. Cancellation: ONLY if explicitly cancelled by provider
+      if (
+        rawResponse.includes('STATUS_CANCEL') ||
+        statusText.toLowerCase() === 'canceled' ||
+        statusText.toLowerCase() === 'cancelled'
+      ) {
         return {
           success: true,
           status: 'CANCELED',
-          statusText: rawResponse.includes('NO_ACTIVATION') ? 'نومۇر ئاكتىپ ئەمەس ياكى ئۆچۈرۈلگەن' : 'نومۇر بىكار قىلىندى',
+          statusText: 'نومۇر بىكار قىلىندى',
           rawResponse,
           raw: json,
         };
       }
 
-      // Check if code is hidden in raw response (e.g. STATUS_OK:123456)
-      if (rawResponse.startsWith('STATUS_OK:')) {
-        const extractedCode = rawResponse.replace('STATUS_OK:', '').trim();
-        return {
-          success: true,
-          status: 'RECEIVED',
-          code: extractedCode,
-          statusText: 'SMS كودى كەلدى',
-          rawResponse,
-          raw: json,
-        };
-      }
-
+      // 3. Otherwise, the number is still active and waiting for SMS
+      // Note: NO_ACTIVATION, ACCESS_READY, STATUS_WAIT_CODE all mean "waiting for incoming SMS"
       return {
         success: true,
         status: 'WAIT_CODE',
-        statusText: statusText || 'SMS كودى كۈتۈلمەكتە...',
+        statusText: 'SMS كودى كۈتۈلمەكتە...',
         rawResponse,
         raw: json,
       };
