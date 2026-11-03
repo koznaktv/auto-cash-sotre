@@ -4,6 +4,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
+import { useStore } from '@/context/StoreContext';
+import StoreSwitcherButton from '@/components/StoreSwitcherButton';
 import LanguageFlag from '@/components/LanguageFlag';
 import { SERVICES_DATA, ServiceItem } from '@/lib/data';
 import { getCachedUser, ClientUser } from '@/lib/clientAuth';
@@ -355,6 +357,7 @@ interface SGCHomeLayoutProps {
 export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLayoutProps) {
   const router = useRouter();
   const { lang, setLang, t, isRTL, openLanguageModal, getCategoryName } = useLanguage();
+  const { activeStore, isMaxStore, currentStoreBalance, storeMeta, openGateway } = useStore();
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('autocash_theme') as 'dark' | 'light' | null;
@@ -763,6 +766,9 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
               </span>
             </button>
 
+            {/* Store Switcher Pill (Gateway Trigger) */}
+            <StoreSwitcherButton variant="compact" />
+
             <Link
               href={user ? "/account" : "/login"}
               className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#059669] text-white flex items-center justify-center font-black text-sm shadow-[0_2px_8px_rgba(5,150,105,0.35)] hover:scale-105 active:scale-95 transition animate-icon-sparkle anim-delay-1"
@@ -802,20 +808,23 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
           </div>
 
           {/* Brand Logo & Title on the Right (Animated Shimmer) */}
-          <Link href="/" className="flex items-center gap-3 shrink-0 order-1 sm:order-2 group select-none">
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 shrink-0 order-1 sm:order-2 group select-none">
             <div className="flex flex-col text-right justify-center overflow-visible py-0.5">
-              <span className="font-black text-base sm:text-lg tracking-wide animated-brand-title">
-                AUTO CASH
+              <span className={`font-black text-sm sm:text-lg tracking-wide ${isMaxStore ? 'text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-orange-400 to-amber-300' : 'animated-brand-title'}`}>
+                {storeMeta.name}
               </span>
-              <span className="text-[11px] sm:text-[12px] font-bold tracking-normal animated-brand-sub">
-                {t('brandSubtitle') || 'ئاپتوماتىك پۇل قاچىلاش'}
+              <span className="text-[10px] sm:text-[12px] font-bold tracking-normal text-slate-400 dark:text-slate-300">
+                {isMaxStore ? 'يېڭى تەمىنلىگۈچى دۇكىنى' : (t('brandSubtitle') || 'ئاپتوماتىك پۇل قاچىلاش')}
               </span>
             </div>
-            <div className="relative shrink-0 p-0.5 rounded-full border border-emerald-500/40 animate-logo-aura">
+            <div className={`relative shrink-0 p-0.5 rounded-full border ${isMaxStore ? 'border-orange-500/50 shadow-lg shadow-orange-500/20' : 'border-emerald-500/40 animate-logo-aura'}`}>
               <img
-                src="/logo.png"
-                alt="Auto Cash"
-                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover shadow-sm"
+                src={isMaxStore ? '/images/maxstore_hd_logo.png' : '/logo.png'}
+                alt={storeMeta.name}
+                className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shadow-sm"
+                onError={(e) => {
+                  (e.target as any).src = '/logo.png';
+                }}
               />
             </div>
           </Link>
@@ -902,15 +911,22 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                   <Link
                     href="/deposit"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-900/60 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-200 border border-emerald-300/80 dark:border-emerald-700 font-bold text-xs font-mono transition active:scale-95 shadow-sm"
-                    title={t('deposit') || 'پۇل قاچىلاش'}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl font-bold text-xs font-mono transition active:scale-95 shadow-sm border ${
+                      isMaxStore
+                        ? 'bg-blue-100 hover:bg-blue-200 dark:bg-blue-950/80 dark:hover:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700'
+                        : 'bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-900/60 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-200 border-emerald-300/80 dark:border-emerald-700'
+                    }`}
+                    title={isMaxStore ? 'MaxStore غا پۇل قاچىلاش' : (t('deposit') || 'پۇل قاچىلاش')}
                   >
                     <Animated3DEmoji type="coin" size={15} />
-                    <span>${typeof user?.balance === 'number' ? user.balance.toFixed(2) : '0.00'}</span>
+                    <span>${(typeof currentStoreBalance === 'number' ? currentStoreBalance : 0).toFixed(2)}</span>
                     <Plus className="w-3 h-3 text-emerald-600 dark:text-emerald-400 stroke-[3]" />
                   </Link>
                 </div>
               </div>
+
+              {/* Store Switcher for Drawer */}
+              <StoreSwitcherButton variant="drawer" />
 
               {/* 3. Section Divider: مۇلازىمەت ۋە دۇكان */}
               <div className="flex items-center gap-2 pt-1">
@@ -1383,27 +1399,36 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
             <Link
               href="/deposit"
               className={`group flex items-center justify-between gap-3 px-3 py-1.5 sm:py-2 rounded-xl transition-all active:scale-[0.98] ${
-                theme === 'dark'
+                isMaxStore
+                  ? theme === 'dark'
+                    ? 'bg-blue-950/40 border border-blue-500/40 hover:border-orange-400/60'
+                    : 'bg-blue-50/80 border border-blue-200 hover:border-blue-300'
+                  : theme === 'dark'
                   ? 'bg-emerald-950/30 border border-emerald-500/30 hover:border-emerald-400/60'
                   : 'bg-emerald-50/80 border border-emerald-200 hover:border-emerald-300'
               }`}
-              title={t('deposit') || 'پۇل قاچىلاش'}
+              title={isMaxStore ? 'MaxStore غا پۇل قاچىلاش' : (t('deposit') || 'پۇل قاچىلاش')}
             >
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-600/90 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+                <div className={`w-8 h-8 rounded-lg text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform ${isMaxStore ? 'bg-gradient-to-br from-blue-600 to-orange-500' : 'bg-emerald-600/90'}`}>
                   <Animated3DEmoji type="coin" size={24} />
                 </div>
                 <div className="text-right">
-                  <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-bold leading-none">
-                    {t('balanceLabel') || 'قالدۇق سومما'}
+                  <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-bold leading-none flex items-center gap-1">
+                    <span>{isMaxStore ? 'MaxStore قالدۇقى' : (t('balanceLabel') || 'قالدۇق سومما')}</span>
+                    <span className={`text-[8px] px-1 py-0.2 rounded font-mono ${isMaxStore ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-emerald-500/20 text-emerald-400'}`}>
+                      {isMaxStore ? 'ئايرىم' : 'ئاساسىي'}
+                    </span>
                   </span>
-                  <span className="block text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400 font-mono leading-tight mt-0.5">
-                    ${typeof user?.balance === 'number' ? user.balance.toFixed(2) : '0.00'}
+                  <span className={`block text-sm sm:text-base font-black font-mono leading-tight mt-0.5 ${isMaxStore ? 'text-blue-500 dark:text-blue-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                    ${(typeof currentStoreBalance === 'number' ? currentStoreBalance : 0).toFixed(2)}
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1 bg-emerald-600 hover:bg-emerald-500 text-white text-[10.5px] sm:text-xs font-black px-2.5 py-1 sm:py-1.5 rounded-lg shadow-sm transition group-hover:scale-105">
+              <div className={`flex items-center gap-1 text-white text-[10.5px] sm:text-xs font-black px-2.5 py-1 sm:py-1.5 rounded-lg shadow-sm transition group-hover:scale-105 ${
+                isMaxStore ? 'bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-500 hover:to-orange-400' : 'bg-emerald-600 hover:bg-emerald-500'
+              }`}>
                 <span className="animate-star-glint text-amber-300">✦</span>
                 <span>{t('addFunds') || '+ پۇل قاچىلاش'}</span>
               </div>

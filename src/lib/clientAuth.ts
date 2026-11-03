@@ -6,6 +6,7 @@ export interface ClientUser {
   email: string;
   avatarUrl?: string;
   balance?: number;
+  maxstoreBalance?: number;
   vipTier?: string;
   totalSpent?: number;
   role?: string;
@@ -33,6 +34,7 @@ export function storeLocalAuth(user: ClientUser, options?: { skipNotify?: boolea
     localStorage.removeItem('autocash_avatar');
   }
   if (typeof user.balance === 'number') localStorage.setItem('autocash_balance', String(user.balance));
+  if (typeof user.maxstoreBalance === 'number') localStorage.setItem('maxstore_balance', String(user.maxstoreBalance));
   if (user.vipTier) localStorage.setItem('autocash_vipTier', user.vipTier);
   if (typeof user.totalSpent === 'number') localStorage.setItem('autocash_totalSpent', String(user.totalSpent));
   if (user.role) localStorage.setItem('autocash_role', user.role);
@@ -61,6 +63,7 @@ export function clearLocalAuth(): void {
   localStorage.removeItem('autocash_avatar');
   localStorage.removeItem('autocash_phone');
   localStorage.removeItem('autocash_balance');
+  localStorage.removeItem('maxstore_balance');
   localStorage.removeItem('autocash_vipTier');
   localStorage.removeItem('autocash_totalSpent');
   localStorage.removeItem('autocash_role');
@@ -70,13 +73,18 @@ export function clearLocalAuth(): void {
   notifyAuthChanged();
 }
 
-export function getCachedBalance(): number {
+export function getCachedBalance(store: 'autocash' | 'maxstore' = 'autocash'): number {
   if (typeof window === 'undefined') return 0.0;
   const isLoggedIn = localStorage.getItem('autocash_is_logged_in');
   if (isLoggedIn !== 'true') return 0.0;
-  const val = localStorage.getItem('autocash_balance');
+  const key = store === 'maxstore' ? 'maxstore_balance' : 'autocash_balance';
+  const val = localStorage.getItem(key);
   if (val !== null && !isNaN(Number(val))) return Number(val);
   return 0.0;
+}
+
+export function getCachedMaxstoreBalance(): number {
+  return getCachedBalance('maxstore');
 }
 
 export function getCachedUser(): ClientUser | null {
@@ -93,6 +101,8 @@ export function getCachedUser(): ClientUser | null {
   const avatarUrl = (rawAvatar && !rawAvatar.startsWith('data:')) ? rawAvatar : undefined;
   const balanceVal = localStorage.getItem('autocash_balance');
   const balance = balanceVal !== null && !isNaN(Number(balanceVal)) ? Number(balanceVal) : 0.0;
+  const maxstoreVal = localStorage.getItem('maxstore_balance');
+  const maxstoreBalance = maxstoreVal !== null && !isNaN(Number(maxstoreVal)) ? Number(maxstoreVal) : 0.0;
   const vipTier = localStorage.getItem('autocash_vipTier') || 'vip1';
   const totalSpentVal = localStorage.getItem('autocash_totalSpent');
   const totalSpent = totalSpentVal !== null && !isNaN(Number(totalSpentVal)) ? Number(totalSpentVal) : 0.0;
@@ -101,7 +111,7 @@ export function getCachedUser(): ClientUser | null {
   const apiKeyCreatedAt = localStorage.getItem('autocash_apiKeyCreatedAt') || undefined;
   const apiEnabledVal = localStorage.getItem('autocash_apiEnabled');
   const apiEnabled = apiEnabledVal !== null ? apiEnabledVal === 'true' : true;
-  return { id, name, email, avatarUrl, balance, vipTier, totalSpent, role, apiKey, apiKeyCreatedAt, apiEnabled };
+  return { id, name, email, avatarUrl, balance, maxstoreBalance, vipTier, totalSpent, role, apiKey, apiKeyCreatedAt, apiEnabled };
 }
 
 import { formatSmartPrice } from './formatMoney';

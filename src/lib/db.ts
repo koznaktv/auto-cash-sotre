@@ -15,6 +15,7 @@ export interface UserRecord {
   passwordHash: string;
   salt: string;
   balance: number;
+  maxstoreBalance?: number;
   totalSpent: number;
   vipTier: 'vip1' | 'vip2' | 'vip3' | 'vip4' | 'vip5';
   role: 'user' | 'admin';
@@ -279,6 +280,7 @@ function mapSupabaseUser(row: any): UserRecord {
     passwordHash: row.password_hash || localUser?.passwordHash || '',
     salt: row.salt || localUser?.salt || '',
     balance: Number(row.balance !== undefined ? row.balance : (localUser?.balance || 0)),
+    maxstoreBalance: Number(row.maxstore_balance !== undefined ? row.maxstore_balance : ((row as any).maxstoreBalance || (localUser as any)?.maxstoreBalance || 0)),
     totalSpent: Number(row.total_spent !== undefined ? row.total_spent : (localUser?.totalSpent || 0)),
     vipTier: (row.vip_tier as any) || localUser?.vipTier || 'vip1',
     role: (row.role as any) || localUser?.role || 'user',

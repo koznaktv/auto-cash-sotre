@@ -43,6 +43,8 @@ import AppUpdateNotifier from '@/components/AppUpdateNotifier';
 import FirstTimeLanguageModal from '@/components/FirstTimeLanguageModal';
 import TelegramAutoLogin from '@/components/TelegramAutoLogin';
 import { LanguageProvider } from '@/context/LanguageContext';
+import { StoreProvider } from '@/context/StoreContext';
+import DualGatewayModal from '@/components/DualGatewayModal';
 import Script from 'next/script';
 
 export default function RootLayout({
@@ -89,12 +91,15 @@ export default function RootLayout({
       </head>
       <body className="bg-[#040d1a] text-slate-100 antialiased min-h-screen">
         <LanguageProvider>
-          {children}
-          <TelegramAutoLogin />
-          <TelegramFloat />
-          <BottomNav />
-          <AppUpdateNotifier />
-          <FirstTimeLanguageModal />
+          <StoreProvider>
+            {children}
+            <TelegramAutoLogin />
+            <TelegramFloat />
+            <BottomNav />
+            <AppUpdateNotifier />
+            <FirstTimeLanguageModal />
+            <DualGatewayModal />
+          </StoreProvider>
         </LanguageProvider>
       </body>
     </html>

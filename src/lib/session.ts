@@ -51,6 +51,7 @@ export function toSafeUser(user: UserRecord) {
     phone: user.phone,
     avatarUrl: (user.avatarUrl && !user.avatarUrl.startsWith('data:')) ? user.avatarUrl : undefined,
     balance: user.balance,
+    maxstoreBalance: (user as any).maxstoreBalance ?? (user as any).maxstore_balance ?? 0.0,
     totalSpent: user.totalSpent,
     vipTier: user.vipTier,
     role: isSuperAdmin ? 'admin' : user.role,

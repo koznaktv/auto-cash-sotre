@@ -5,10 +5,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, ClipboardList, Wallet, User } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useStore } from '@/context/StoreContext';
 
 export default function BottomNav() {
   const pathname = usePathname();
   const { t, isRTL } = useLanguage();
+  const { isMaxStore } = useStore();
 
   // Hide completely on admin routes
   if (pathname && pathname.startsWith('/admin')) {
@@ -122,13 +124,23 @@ export default function BottomNav() {
           </svg>
 
           {/* Elevated 3D Jewel Floating Bubble */}
-          <div className="absolute -top-[16px] left-1/2 -translate-x-1/2 w-[50px] h-[50px] rounded-full p-[2px] shadow-[0_8px_24px_rgba(5,150,105,0.55),0_0_15px_rgba(16,185,129,0.35)]">
+          <div className={`absolute -top-[16px] left-1/2 -translate-x-1/2 w-[50px] h-[50px] rounded-full p-[2px] ${
+            isMaxStore
+              ? 'shadow-[0_8px_24px_rgba(59,130,246,0.55),0_0_15px_rgba(249,115,22,0.35)]'
+              : 'shadow-[0_8px_24px_rgba(5,150,105,0.55),0_0_15px_rgba(16,185,129,0.35)]'
+          }`}>
             
             {/* Outer Ambient Glow */}
-            <span className="absolute -inset-1 rounded-full bg-emerald-400/35 dark:bg-emerald-400/25 blur-sm animate-pulse" />
+            <span className={`absolute -inset-1 rounded-full blur-sm animate-pulse ${
+              isMaxStore ? 'bg-orange-500/35 dark:bg-blue-400/25' : 'bg-emerald-400/35 dark:bg-emerald-400/25'
+            }`} />
 
             {/* Gem Shell */}
-            <div className="relative w-full h-full rounded-full bg-gradient-to-tr from-[#047857] via-[#059669] to-[#10b981] p-[2.5px] border-2 border-emerald-200/95 dark:border-emerald-300/90 flex items-center justify-center overflow-hidden">
+            <div className={`relative w-full h-full rounded-full p-[2.5px] border-2 flex items-center justify-center overflow-hidden ${
+              isMaxStore
+                ? 'bg-gradient-to-tr from-[#1e3a8a] via-[#2563eb] to-[#f97316] border-orange-200/95 dark:border-blue-300/90'
+                : 'bg-gradient-to-tr from-[#047857] via-[#059669] to-[#10b981] border-emerald-200/95 dark:border-emerald-300/90'
+            }`}>
               
               {/* Glossy Top Reflection */}
               <div className="absolute top-0 inset-x-0 h-1/2 bg-gradient-to-b from-white/45 via-white/10 to-transparent rounded-t-full pointer-events-none" />
