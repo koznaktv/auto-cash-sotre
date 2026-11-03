@@ -166,7 +166,7 @@ export default function DualGatewayModal() {
             </div>
           </div>
 
-          {/* Card 2: MaxStore App */}
+          {/* Card 2: MAX-BAZAR */}
           <div
             onClick={() => handleSelect('maxstore')}
             className={`group relative flex flex-col justify-between rounded-2xl p-5 sm:p-6 cursor-pointer transition-all duration-300 border ${
@@ -186,12 +186,12 @@ export default function DualGatewayModal() {
               <div className="flex items-center gap-3.5 mb-3.5">
                 <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-[#0B132B] border border-blue-500/30 p-1 flex-shrink-0 shadow-lg group-hover:scale-105 transition-transform">
                   <Image
-                    src="/images/maxstore_hd_logo.png"
-                    alt="MaxStore App"
+                    src="/images/maxbazar_hd_logo.png"
+                    alt="MAX-BAZAR"
                     fill
                     className="object-cover rounded-xl"
                     onError={(e) => {
-                      (e.target as any).src = '/images/maxstore_logo.png';
+                      (e.target as any).src = '/images/maxstore_hd_logo.png';
                     }}
                   />
                 </div>
@@ -202,25 +202,25 @@ export default function DualGatewayModal() {
                     </span>
                   </div>
                   <h3 className="text-lg sm:text-xl font-black text-white mt-0.5 flex items-center gap-1.5">
-                    MaxStore App
+                    MAX-BAZAR
                     <Zap className="w-4 h-4 text-orange-400 fill-orange-400" />
                   </h3>
                 </div>
               </div>
 
               <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed mb-4">
-                يېڭى تەمىنلىگۈچىگە خاس رەقەملىك دۇكان، ئالاھىدە VIP باھالار ۋە توپ سېتىش تۈرلىرى.
+                يېڭى تەمىنلىگۈچىگە خاس رەقەملىك بازار، ئالاھىدە VIP باھالار ۋە توپ سېتىش تۈرلىرى.
               </p>
 
               {/* Feature Tags */}
               <div className="space-y-1.5 text-[11px] text-slate-400 mb-5">
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
-                  <span>يېڭى تەمىنلىگۈچىنىڭ بىۋاسىتە باھالىرى</span>
+                  <span>يېڭى تەمىنلىگۈچىنىڭ بىۋاسىتە تەمىنلەش باھالىرى</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
-                  <span>MaxStore ئۈچۈن مەخسۇس ئايرىم سېستىما</span>
+                  <span>MAX-BAZAR مەخسۇس ئايرىم سېستىما</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
@@ -234,7 +234,7 @@ export default function DualGatewayModal() {
               <div className="flex items-center justify-between text-xs mb-3 bg-blue-950/30 px-3 py-2 rounded-xl border border-blue-500/20">
                 <span className="text-slate-400 flex items-center gap-1.5">
                   <Wallet className="w-3.5 h-3.5 text-blue-400" />
-                  MaxStore قالدۇقى:
+                  MAX-BAZAR قالدۇقى:
                 </span>
                 <span className="font-bold text-blue-400">
                   {formatSmartPrice(maxstoreBalance)}
@@ -249,7 +249,7 @@ export default function DualGatewayModal() {
                     : 'bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-200'
                 }`}
               >
-                <span>{activeStore === 'maxstore' ? 'MaxStore نى كۆرۈش' : 'MaxStore App قا كىرىش'}</span>
+                <span>{activeStore === 'maxstore' ? 'MAX-BAZAR نى كۆرۈش' : 'MAX-BAZAR غا كىرىش'}</span>
                 <ArrowIcon className="w-4 h-4" />
               </button>
             </div>

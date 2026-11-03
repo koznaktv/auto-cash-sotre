@@ -814,12 +814,12 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 {storeMeta.name}
               </span>
               <span className="text-[10px] sm:text-[12px] font-bold tracking-normal text-slate-400 dark:text-slate-300">
-                {isMaxStore ? 'يېڭى تەمىنلىگۈچى دۇكىنى' : (t('brandSubtitle') || 'ئاپتوماتىك پۇل قاچىلاش')}
+                {isMaxStore ? 'يېڭى تەمىنلىگۈچى بازىرى' : (t('brandSubtitle') || 'ئاپتوماتىك پۇل قاچىلاش')}
               </span>
             </div>
             <div className={`relative shrink-0 p-0.5 rounded-full border ${isMaxStore ? 'border-orange-500/50 shadow-lg shadow-orange-500/20' : 'border-emerald-500/40 animate-logo-aura'}`}>
               <img
-                src={isMaxStore ? '/images/maxstore_hd_logo.png' : '/logo.png'}
+                src={isMaxStore ? '/images/maxbazar_hd_logo.png' : '/logo.png'}
                 alt={storeMeta.name}
                 className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shadow-sm"
                 onError={(e) => {
@@ -916,7 +916,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                         ? 'bg-blue-100 hover:bg-blue-200 dark:bg-blue-950/80 dark:hover:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700'
                         : 'bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-900/60 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-200 border-emerald-300/80 dark:border-emerald-700'
                     }`}
-                    title={isMaxStore ? 'MaxStore غا پۇل قاچىلاش' : (t('deposit') || 'پۇل قاچىلاش')}
+                    title={isMaxStore ? 'MAX-BAZAR غا پۇل قاچىلاش' : (t('deposit') || 'پۇل قاچىلاش')}
                   >
                     <Animated3DEmoji type="coin" size={15} />
                     <span>${(typeof currentStoreBalance === 'number' ? currentStoreBalance : 0).toFixed(2)}</span>
@@ -1407,7 +1407,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                   ? 'bg-emerald-950/30 border border-emerald-500/30 hover:border-emerald-400/60'
                   : 'bg-emerald-50/80 border border-emerald-200 hover:border-emerald-300'
               }`}
-              title={isMaxStore ? 'MaxStore غا پۇل قاچىلاش' : (t('deposit') || 'پۇل قاچىلاش')}
+              title={isMaxStore ? 'MAX-BAZAR غا پۇل قاچىلاش' : (t('deposit') || 'پۇل قاچىلاش')}
             >
               <div className="flex items-center gap-2.5">
                 <div className={`w-8 h-8 rounded-lg text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform ${isMaxStore ? 'bg-gradient-to-br from-blue-600 to-orange-500' : 'bg-emerald-600/90'}`}>
@@ -1415,7 +1415,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 </div>
                 <div className="text-right">
                   <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-bold leading-none flex items-center gap-1">
-                    <span>{isMaxStore ? 'MaxStore قالدۇقى' : (t('balanceLabel') || 'قالدۇق سومما')}</span>
+                    <span>{isMaxStore ? 'MAX-BAZAR قالدۇقى' : (t('balanceLabel') || 'قالدۇق سومما')}</span>
                     <span className={`text-[8px] px-1 py-0.2 rounded font-mono ${isMaxStore ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-emerald-500/20 text-emerald-400'}`}>
                       {isMaxStore ? 'ئايرىم' : 'ئاساسىي'}
                     </span>

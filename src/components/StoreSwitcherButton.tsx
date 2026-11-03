@@ -68,7 +68,7 @@ export default function StoreSwitcherButton({
             </div>
           </button>
 
-          {/* MaxStore App option */}
+          {/* MAX-BAZAR option */}
           <button
             onClick={() => isMaxStore ? null : toggleStore()}
             className={`flex flex-col items-start p-2.5 rounded-xl border transition-all text-start relative ${
@@ -80,13 +80,13 @@ export default function StoreSwitcherButton({
             <div className="flex items-center gap-2 mb-1">
               <div className="w-5 h-5 rounded-md overflow-hidden relative flex-shrink-0 bg-slate-900">
                 <Image
-                  src="/images/maxstore_hd_logo.png"
-                  alt="MaxStore App"
+                  src="/images/maxbazar_hd_logo.png"
+                  alt="MAX-BAZAR"
                   fill
                   className="object-cover"
                 />
               </div>
-              <span className="text-[11px] font-bold text-white truncate">MaxStore App</span>
+              <span className="text-[11px] font-bold text-white truncate">MAX-BAZAR</span>
             </div>
             <div className="text-[10px] text-blue-400 font-medium">
               {formatSmartPrice(maxstoreBalance)}
@@ -120,10 +120,10 @@ export default function StoreSwitcherButton({
               ? 'bg-gradient-to-r from-blue-500/20 to-orange-500/20 text-orange-300 border border-orange-500/40 shadow-sm'
               : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
           }`}
-          title="MaxStore App يېڭى تەمىنلىگۈچى دۇكىنى"
+          title="MAX-BAZAR يېڭى تەمىنلىگۈچى بازىرى"
         >
           <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse" />
-          <span>MaxStore App</span>
+          <span>MAX-BAZAR</span>
         </button>
 
         <button

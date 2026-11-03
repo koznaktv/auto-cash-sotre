@@ -205,7 +205,7 @@ export default function SGCSubpageLayout({
                   ? 'bg-blue-500/10 hover:bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-500/25'
                   : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/25'
               }`}
-              title={isMaxStore ? 'MaxStore غا پۇل كىرگۈزۈش' : 'پۇل كىرگۈزۈش'}
+              title={isMaxStore ? 'MAX-BAZAR غا پۇل كىرگۈزۈش' : 'پۇل كىرگۈزۈش'}
             >
               <Plus className={`w-3.5 h-3.5 stroke-[3] ${isMaxStore ? 'text-blue-600 dark:text-blue-400' : 'text-emerald-600 dark:text-emerald-400'}`} />
               <span>${(typeof currentStoreBalance === 'number' ? currentStoreBalance : 0).toFixed(2)}</span>
@@ -237,12 +237,12 @@ export default function SGCSubpageLayout({
                 {storeMeta.name}
               </span>
               <span className="text-[10px] sm:text-[12px] font-bold tracking-normal text-slate-400 dark:text-slate-300">
-                {isMaxStore ? 'يېڭى تەمىنلىگۈچى دۇكىنى' : (t('brandSubtitle') || 'ئاپتوماتىك پۇل قاچىلاش')}
+                {isMaxStore ? 'يېڭى تەمىنلىگۈچى بازىرى' : (t('brandSubtitle') || 'ئاپتوماتىك پۇل قاچىلاش')}
               </span>
             </div>
             <div className={`relative shrink-0 p-0.5 rounded-full border ${isMaxStore ? 'border-orange-500/50 shadow-lg shadow-orange-500/20' : 'border-emerald-500/40 animate-logo-aura'}`}>
               <img
-                src={isMaxStore ? '/images/maxstore_hd_logo.png' : '/logo.png'}
+                src={isMaxStore ? '/images/maxbazar_hd_logo.png' : '/logo.png'}
                 alt={storeMeta.name}
                 className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shadow-sm"
                 onError={(e) => {
@@ -331,7 +331,7 @@ export default function SGCSubpageLayout({
                         ? 'bg-blue-100 hover:bg-blue-200 dark:bg-blue-950/80 dark:hover:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700'
                         : 'bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-900/60 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-200 border-emerald-300/80 dark:border-emerald-700'
                     }`}
-                    title={isMaxStore ? 'MaxStore غا پۇل كىرگۈزۈش' : 'پۇل كىرگۈزۈش'}
+                    title={isMaxStore ? 'MAX-BAZAR غا پۇل كىرگۈزۈش' : 'پۇل كىرگۈزۈش'}
                   >
                     <Plus className={`w-3 h-3 stroke-[3] ${isMaxStore ? 'text-blue-600 dark:text-blue-400' : 'text-emerald-600 dark:text-emerald-400'}`} />
                     <span>${(typeof currentStoreBalance === 'number' ? currentStoreBalance : 0).toFixed(2)}</span>

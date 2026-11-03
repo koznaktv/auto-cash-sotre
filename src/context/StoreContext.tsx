@@ -31,10 +31,10 @@ export const STORE_METAS: Record<StoreType, StoreMeta> = {
   },
   maxstore: {
     id: 'maxstore',
-    name: 'MaxStore App',
+    name: 'MAX-BAZAR',
     badge: 'يېڭى تەمىنلىگۈچى',
-    tagline: 'يېڭى تەمىنلىگۈچى رەقەملىك دۇكىنى ۋە ئالاھىدە VIP باھالار',
-    logo: '/images/maxstore_hd_logo.png',
+    tagline: 'يېڭى تەمىنلىگۈچى رەقەملىك بازىرى ۋە ئالاھىدە VIP باھالار',
+    logo: '/images/maxbazar_hd_logo.png',
     icon: '/images/maxstore_app_icon.png',
     themeColor: '#3B82F6',
     accentBg: 'from-blue-600/20 via-orange-500/10 to-transparent',
