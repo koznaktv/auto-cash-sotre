@@ -43,6 +43,32 @@ export async function POST(req: Request) {
       });
     }
 
+    const orderData = orderRes.data;
+    const providerStatus = (orderData?.status || '').toLowerCase();
+    if (['completed', 'success', 'done', 'delivered'].includes(providerStatus)) {
+      try {
+        const { postOrderCompletedToChannel } = await import('@/lib/telegram');
+        const targetAcc = params?.player_id || params?.phone || params?.account || params?.id || Object.values(params)[0] || '';
+        postOrderCompletedToChannel({
+          id: order_uuid || String(orderData?.order_id),
+          serviceName: body.product_name || 'MaxStore مەھسۇلاتى',
+          packageTitle: body.package_name || (body.product_id ? `Product #${body.product_id}` : ''),
+          amount: body.price || orderData?.price || 0,
+          targetAccount: String(targetAcc),
+          userName: body.user_name || body.identity || 'MaxStore خېرىدارى',
+          details: {
+            store: 'MaxStore',
+            provider: 'maxstore',
+            product_id,
+            qty,
+            ...orderData,
+          },
+        }).catch(() => null);
+      } catch (e: any) {
+        console.warn('[MaxStore broadcast error]:', e?.message);
+      }
+    }
+
     return NextResponse.json({
       ok: true,
       data: orderRes.data,
@@ -63,6 +89,33 @@ export async function GET(req: Request) {
     }
 
     const res = await checkMaxStoreOrders(orderUuids);
+
+    if (res.ok && Array.isArray(res.data)) {
+      try {
+        const { postOrderCompletedToChannel } = await import('@/lib/telegram');
+        for (const rawItem of res.data) {
+          const item = rawItem as any;
+          const itemStatus = (item.status || '').toLowerCase();
+          if (['completed', 'success', 'done', 'delivered', 'accept'].includes(itemStatus)) {
+            const targetAcc = item.data?.player_id || item.data?.phone || item.data?.account || item.params?.player_id || '';
+            postOrderCompletedToChannel({
+              id: item.order_uuid || String(item.order_id),
+              serviceName: item.product_name || 'MaxStore مەھسۇلاتى',
+              packageTitle: `Order #${item.order_id}`,
+              amount: item.price || 0,
+              targetAccount: String(targetAcc),
+              userName: 'MaxStore خېرىدارى',
+              details: {
+                store: 'MaxStore',
+                provider: 'maxstore',
+                ...item,
+              },
+            }).catch(() => null);
+          }
+        }
+      } catch (e: any) {}
+    }
+
     return NextResponse.json(res);
   } catch (err: any) {
     return NextResponse.json({ ok: false, error: err?.message }, { status: 500 });

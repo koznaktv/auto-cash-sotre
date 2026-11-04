@@ -163,6 +163,30 @@ export async function POST(req: NextRequest) {
 
     saveOrder(newOrder);
 
+    // If MaxStore immediately completed the order, broadcast to Telegram Channel (@autocash_cannel)
+    if (['completed', 'success', 'done', 'delivered'].includes(providerStatus.toLowerCase())) {
+      try {
+        const { postOrderCompletedToChannel } = await import('@/lib/telegram');
+        postOrderCompletedToChannel({
+          id: newOrder.order_id,
+          serviceName: app_id === 'honor-of-kings' ? 'Honor of Kings (داڭلىقلار سەپىرى)' : 'MaxStore تېز زاكاز',
+          packageTitle: newOrder.package_name,
+          amount: newOrder.price,
+          targetAccount: newOrder.player_id,
+          userName: newOrder.identity,
+          details: {
+            store: 'MaxStore',
+            provider: 'maxstore',
+            providerOrderId: newOrder.provider_order_id,
+            app_id: newOrder.app_id,
+            playerId: newOrder.player_id,
+          },
+        }).catch(() => null);
+      } catch (e: any) {
+        console.warn('[MaxStore Immediate Broadcast Warn]:', e?.message);
+      }
+    }
+
     return NextResponse.json({
       ok: true,
       order: newOrder,
@@ -218,6 +242,28 @@ export async function GET(req: NextRequest) {
                 matchedOrder.status = 'completed';
                 matchedOrder.completed_at = new Date().toISOString();
                 ordersChanged = true;
+
+                // Broadcast completed order to Telegram Channel (@autocash_cannel)
+                try {
+                  const { postOrderCompletedToChannel } = await import('@/lib/telegram');
+                  postOrderCompletedToChannel({
+                    id: matchedOrder.order_id,
+                    serviceName: matchedOrder.app_id === 'honor-of-kings' ? 'Honor of Kings (داڭلىقلار سەپىرى)' : 'MaxStore تېز زاكاز',
+                    packageTitle: matchedOrder.package_name,
+                    amount: matchedOrder.price,
+                    targetAccount: matchedOrder.player_id,
+                    userName: matchedOrder.identity,
+                    details: {
+                      store: 'MaxStore',
+                      provider: 'maxstore',
+                      providerOrderId: matchedOrder.provider_order_id,
+                      app_id: matchedOrder.app_id,
+                      playerId: matchedOrder.player_id,
+                    },
+                  }).catch(() => null);
+                } catch (broadErr: any) {
+                  console.warn('[Broadcast to Channel Warn]:', broadErr?.message);
+                }
               }
             }
             // 2. REJECTED / CANCELED: Automatic Refund & Notification!

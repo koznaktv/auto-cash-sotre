@@ -1277,6 +1277,10 @@ export default function MaxBazarApp() {
           product_id: selectedProduct.id,
           qty: orderQty,
           params: orderInputs,
+          product_name: selectedProduct.name || (selectedProduct as any).title || 'MaxStore مەھسۇلاتى',
+          package_name: selectedProduct.name || '',
+          price: (Number(selectedProduct.price) || 0) * orderQty,
+          user_name: currentUser?.name || currentUser?.id || 'MaxStore خېرىدارى',
         }),
       });
 
