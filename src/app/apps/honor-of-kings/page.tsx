@@ -79,7 +79,17 @@ export default function HonorOfKingsAppPage() {
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [otpError, setOtpError] = useState('');
-  const [devCodeHint, setDevCodeHint] = useState<string | null>(null);
+  const [otpCountdown, setOtpCountdown] = useState<number>(0);
+  const [showAccountModal, setShowAccountModal] = useState(false);
+
+  // 60-second OTP countdown ticker
+  useEffect(() => {
+    if (otpCountdown <= 0) return;
+    const timer = setInterval(() => {
+      setOtpCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [otpCountdown]);
 
   // Sham Cash Top-Up Modal
   const [showTopupModal, setShowTopupModal] = useState(false);
@@ -168,16 +178,64 @@ export default function HonorOfKingsAppPage() {
       }
     } catch {}
 
-    // 3. Telegram WebApp Seamless Auto-Login
-    try {
-      const tg = (window as any).Telegram?.WebApp;
-      if (tg) {
-        tg.ready();
-        tg.expand();
-        const tgUser = tg.initDataUnsafe?.user;
+    // 3. Telegram Mini App Instant Seamless Auto-Login
+    let tgResolved = false;
+    const tryTelegramAutoLogin = () => {
+      if (tgResolved) return true;
+      try {
+        let tgUser: any = null;
+
+        // A. Direct window.Telegram.WebApp check
+        if (typeof window !== 'undefined') {
+          const tg = (window as any).Telegram?.WebApp;
+          if (tg) {
+            try {
+              tg.ready();
+              tg.expand();
+            } catch {}
+            if (tg.initDataUnsafe?.user) {
+              tgUser = tg.initDataUnsafe.user;
+            } else if (tg.initData) {
+              try {
+                const params = new URLSearchParams(tg.initData);
+                const userStr = params.get('user');
+                if (userStr) tgUser = JSON.parse(userStr);
+              } catch {}
+            }
+          }
+
+          // B. URL Hash check (#tgWebAppData=...)
+          if (!tgUser && window.location.hash) {
+            const hashStr = window.location.hash.replace(/^#/, '');
+            const hashParams = new URLSearchParams(hashStr);
+            const raw = hashParams.get('tgWebAppData');
+            if (raw) {
+              const dataParams = new URLSearchParams(raw);
+              const userStr = dataParams.get('user');
+              if (userStr) tgUser = JSON.parse(userStr);
+            }
+          }
+
+          // C. URL Query check (?tgWebAppData=...)
+          if (!tgUser && window.location.search) {
+            const searchParams = new URLSearchParams(window.location.search);
+            const raw = searchParams.get('tgWebAppData');
+            if (raw) {
+              const dataParams = new URLSearchParams(raw);
+              const userStr = dataParams.get('user');
+              if (userStr) tgUser = JSON.parse(userStr);
+            }
+          }
+        }
+
         if (tgUser) {
-          const autoIdentity = tgUser.username ? `@${tgUser.username}` : `tg_${tgUser.id}`;
+          tgResolved = true;
+          const autoIdentity = tgUser.username
+            ? `@${tgUser.username}`
+            : (tgUser.first_name ? tgUser.first_name : `tg_${tgUser.id}`);
           setTelegramHandle(autoIdentity);
+          setShowLoginModal(false);
+
           fetch('/api/apps/otp', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -192,15 +250,31 @@ export default function HonorOfKingsAppPage() {
             .then((data) => {
               if (data.ok && data.session) {
                 setSession(data.session);
+                setShowLoginModal(false);
                 try {
                   localStorage.setItem('maxbazar_hok_session', JSON.stringify(data.session));
                 } catch {}
               }
             })
             .catch(() => {});
+          return true;
         }
+      } catch {}
+      return false;
+    };
+
+    // Immediate attempt
+    const ok = tryTelegramAutoLogin();
+    // Polling attempt for up to 3 seconds in case telegram-web-app.js loads asynchronously
+    let pollAttempts = 0;
+    const tgTimer = setInterval(() => {
+      pollAttempts++;
+      if (tryTelegramAutoLogin() || pollAttempts > 15) {
+        clearInterval(tgTimer);
       }
-    } catch {}
+    }, 200);
+
+    return () => clearInterval(tgTimer);
   }, []);
 
   // Fetch & live-sync orders history when session changes and poll every 5 seconds
@@ -249,11 +323,11 @@ export default function HonorOfKingsAppPage() {
     }
   };
 
-  const handleSendOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSendOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setOtpError('');
     if (!telegramHandle.trim()) {
-      setOtpError('تېلېگرامما نومۇرىڭىز ياكى ئىسمىڭىزنى كىرگۈزۈڭ');
+      setOtpError('تېلېگرامما ئىسمىڭىز ياكى Chat ID نى كىرگۈزۈڭ');
       return;
     }
 
@@ -264,16 +338,14 @@ export default function HonorOfKingsAppPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'send',
-          phone_or_username: telegramHandle,
+          phone_or_username: telegramHandle.trim(),
           app_id: 'honor-of-kings',
         }),
       });
       const data = await res.json();
       if (data.ok) {
         setLoginStep('input_code');
-        if (data.dev_code) {
-          setDevCodeHint(data.dev_code);
-        }
+        setOtpCountdown(60); // Strictly 60 seconds
       } else {
         setOtpError(data.error || 'كود ئەۋەتىش مەغلۇپ بولدى');
       }
@@ -292,6 +364,11 @@ export default function HonorOfKingsAppPage() {
       return;
     }
 
+    if (otpCountdown <= 0) {
+      setOtpError('بۇ كودنىڭ 1 مىنۇتلۇق ۋاقتى ئۆتۈپ كەتتى! «قايتا كود ئەۋەتىش» نى بېسىڭ.');
+      return;
+    }
+
     setIsVerifyingOtp(true);
     try {
       const res = await fetch('/api/apps/otp', {
@@ -299,8 +376,8 @@ export default function HonorOfKingsAppPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'verify',
-          phone_or_username: telegramHandle,
-          code: otpCode,
+          phone_or_username: telegramHandle.trim(),
+          code: otpCode.trim(),
           app_id: 'honor-of-kings',
         }),
       });
@@ -310,9 +387,9 @@ export default function HonorOfKingsAppPage() {
         localStorage.setItem('maxbazar_hok_session', JSON.stringify(data.session));
         setShowLoginModal(false);
         setOtpCode('');
-        setDevCodeHint(null);
+        setOtpCountdown(0);
       } else {
-        setOtpError(data.error || 'كود خاتا');
+        setOtpError(data.error || 'كود خاتا ياكى ۋاقتى ئۆتكەن');
       }
     } catch {
       setOtpError('دەلىللەش مەغلۇپ بولدى');
@@ -1142,7 +1219,14 @@ export default function HonorOfKingsAppPage() {
 
         {/* 4. مېنىڭ ھېسابىم (Account - Telegram) */}
         <button
-          onClick={() => setShowLoginModal(true)}
+          onClick={() => {
+            if (session) {
+              setShowAccountModal(true);
+            } else {
+              setLoginStep('input_phone');
+              setShowLoginModal(true);
+            }
+          }}
           className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-amber-400 transition active:scale-95"
         >
           <User className="w-5 h-5 text-slate-300" />
@@ -1315,7 +1399,7 @@ export default function HonorOfKingsAppPage() {
               </form>
             ) : (
               <form onSubmit={handleVerifyOtp} className="space-y-3">
-                <div className="text-center space-y-1">
+                <div className="text-center space-y-2">
                   <label className="text-[11px] text-slate-400 font-medium block">
                     تېلېگراممىغا كەلگەن 6 خانىلىق كودنى كىرگۈزۈڭ:
                   </label>
@@ -1328,31 +1412,118 @@ export default function HonorOfKingsAppPage() {
                     className="w-44 mx-auto bg-[#1E293B] text-amber-400 font-mono text-xl tracking-[0.3em] text-center font-black py-2 rounded-xl border border-amber-400 focus:ring-2 focus:ring-amber-400/50 outline-none"
                     autoFocus
                   />
-                  {devCodeHint && (
-                    <div className="text-[10px] text-emerald-400 bg-emerald-500/10 p-1.5 rounded-lg border border-emerald-500/20 mt-1">
-                      سىناق كودى: <span className="font-mono font-bold text-white">{devCodeHint}</span>
+
+                  {/* 1-Minute Live Countdown Timer */}
+                  {otpCountdown > 0 ? (
+                    <div className="text-xs text-amber-300 bg-amber-500/10 py-1.5 px-3 rounded-xl border border-amber-500/30 font-mono font-bold flex items-center justify-center gap-1.5 animate-pulse">
+                      <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <span>كودنىڭ كۈچكە ئىگە ۋاقتى: 00:{otpCountdown < 10 ? '0' + otpCountdown : otpCountdown}</span>
+                    </div>
+                  ) : (
+                    <div className="text-xs text-rose-300 bg-rose-500/15 py-1.5 px-3 rounded-xl border border-rose-500/30 flex items-center justify-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                      <span>كودنىڭ 1 مىنۇتلۇق ۋاقتى ئۆتتى (ئىناۋەتسىز).</span>
                     </div>
                   )}
                 </div>
 
                 <div className="flex items-center gap-2 pt-1">
-                  <button
-                    type="button"
-                    onClick={() => setLoginStep('input_phone')}
-                    className="flex-1 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold"
-                  >
-                    نومۇر ئۆزگەرتىش
-                  </button>
+                  {otpCountdown <= 0 ? (
+                    <button
+                      type="button"
+                      disabled={isSendingOtp}
+                      onClick={() => handleSendOtp()}
+                      className="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition flex items-center justify-center gap-1"
+                    >
+                      {isSendingOtp ? (
+                        <RefreshCw className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <span>🔄 يېڭى كود ئەۋەتىش</span>
+                      )}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setLoginStep('input_phone')}
+                      className="flex-1 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold hover:bg-slate-700 transition"
+                    >
+                      نومۇر ئۆزگەرتىش
+                    </button>
+                  )}
                   <button
                     type="submit"
-                    disabled={isVerifyingOtp}
-                    className="flex-1 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black"
+                    disabled={isVerifyingOtp || otpCode.trim().length !== 6 || otpCountdown <= 0}
+                    className="flex-1 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:bg-slate-800 disabled:text-slate-600 text-slate-950 text-xs font-black transition"
                   >
                     {isVerifyingOtp ? 'تەكشۈرۈلۈۋاتىدۇ...' : 'كىرىش'}
                   </button>
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ACCOUNT DETAILS MODAL (FOR LOGGED IN USERS) */}
+      {showAccountModal && session && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-[#0F172A] border border-amber-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl relative text-center">
+            <button
+              onClick={() => setShowAccountModal(false)}
+              className="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center absolute top-4 right-4"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center mx-auto mb-3 font-black text-xl shadow-lg shadow-amber-500/20">
+              <User className="w-7 h-7" />
+            </div>
+
+            <h3 className="text-base font-black text-white">{session.identity}</h3>
+            <p className="text-xs text-slate-400 mt-0.5">Honor of Kings ھېساباتىڭىز</p>
+
+            <div className="my-4 p-3.5 bg-slate-900/80 rounded-2xl border border-slate-800 flex items-center justify-between">
+              <span className="text-xs text-slate-400">ھەميان قالدۇقى:</span>
+              <span className="font-mono font-black text-amber-400 text-lg">${session.balance.toFixed(2)}</span>
+            </div>
+
+            <div className="space-y-2">
+              <button
+                onClick={() => {
+                  setShowAccountModal(false);
+                  setShowTopupModal(true);
+                }}
+                className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center justify-center gap-1.5"
+              >
+                <CreditCard className="w-4 h-4" />
+                <span>شامكەش ئارقىلىق قالدۇق قاچىلاش</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowAccountModal(false);
+                  setShowHistoryModal(true);
+                }}
+                className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition flex items-center justify-center gap-1.5"
+              >
+                <ClipboardList className="w-4 h-4" />
+                <span>زاكاز خاتىرىسىنى كۆرۈش ({ordersHistory.length})</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setSession(null);
+                  setShowAccountModal(false);
+                  try {
+                    localStorage.removeItem('maxbazar_hok_session');
+                  } catch {}
+                }}
+                className="w-full py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 font-bold text-xs transition flex items-center justify-center gap-1.5"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>ھېساباتتىن چىقىپ كېتىش</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -83,29 +83,59 @@ function saveAppWallet(key: string, balance: number) {
 const MAXBAZAR_BOT_TOKEN =
   process.env.MAXBAZAR_BOT_TOKEN || '9030046429:AAGgis0NFr7PPAZpsri7AJbvckZboj81J7c';
 
-async function sendTelegramOtpMessage(target: string, code: string, appName: string) {
-  try {
-    // If target is numeric chat ID
-    if (/^\d+$/.test(target)) {
-      const text =
-        `🔐 *كود تسجيل الدخول - MAX-BAZAR*\n\n` +
-        `📱 التطبيق: *${appName}*\n` +
-        `🔑 كود الدخول الخاص بك:\n\n` +
-        `\`${code}\`\n\n` +
-        `⏳ الكود صالح لمدة 5 دقائق فقط. لا تشاركه مع أي شخص.`;
+function getTelegramUserChatId(identifier: string): string | null {
+  const clean = identifier.trim().replace(/^@/, '').toLowerCase();
+  if (/^\d+$/.test(clean)) return clean;
 
-      await fetch(`https://api.telegram.org/bot${MAXBAZAR_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: target,
-          text,
-          parse_mode: 'Markdown',
-        }),
-      });
+  const usersFile = path.join(SESSIONS_DIR, 'telegram_users.json');
+  try {
+    if (fs.existsSync(usersFile)) {
+      const mapping = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
+      if (mapping[clean]) return String(mapping[clean]);
     }
-  } catch (err) {
-    console.warn('[Telegram OTP Send Warn]:', err);
+  } catch {}
+
+  // Fallback check admin username from env
+  const adminUser = (process.env.TELEGRAM_ADMIN_USERNAME || 'nasrulla0996').toLowerCase();
+  const adminChat = process.env.TELEGRAM_ADMIN_CHAT_ID || '7575664493';
+  if (clean === adminUser && adminChat) {
+    return adminChat;
+  }
+
+  return null;
+}
+
+async function sendTelegramOtpMessage(target: string, code: string, appName: string): Promise<{ sent: boolean; error?: string }> {
+  try {
+    const chatId = getTelegramUserChatId(target);
+    if (!chatId) {
+      return {
+        sent: false,
+        error: `بۇ تېلېگرامما ئىسمى بويىچە بوتتا خېرىدار تېپىلمىدى. ئالدى بىلەن @maxbazar_bot قا بىرنى كىرىپ سىناڭ ياكى Chat ID نومۇرىڭىزنى كىرگۈزۈڭ.`,
+      };
+    }
+
+    const text =
+      `🔐 *MAX-BAZAR كىرىش كودى*\n\n` +
+      `🎮 ئەپ: *${appName}*\n` +
+      `🔑 دەلىللەش كودىڭىز:\n\n` +
+      `👉 \`${code}\` 👈\n\n` +
+      `⏱️ *بۇ كود پەقەت 1 مىنۇت (60 سېكۇنت) كۈچكە ئىگە.*\n` +
+      `بىخەتەرلىكىڭىز ئۈچۈن كودنى ھېچكىمگە بەرمەڭ!`;
+
+    const res = await fetch(`https://api.telegram.org/bot${MAXBAZAR_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+        parse_mode: 'Markdown',
+      }),
+    });
+    const data = await res.json();
+    return { sent: Boolean(data?.ok), error: data?.description };
+  } catch (err: any) {
+    return { sent: false, error: err?.message };
   }
 }
 
@@ -118,7 +148,7 @@ export async function POST(req: NextRequest) {
 
     if (action === 'send') {
       if (!cleanIdentity) {
-        return NextResponse.json({ ok: false, error: 'تېلېگرامما نومۇرى ياكى كىملىكى كىرگۈزۈلمىدى' }, { status: 400 });
+        return NextResponse.json({ ok: false, error: 'تېلېگرامما ئىسمى ياكى نومۇرى كىرگۈزۈلمىدى' }, { status: 400 });
       }
 
       // Generate 6-digit random code
@@ -126,22 +156,28 @@ export async function POST(req: NextRequest) {
       const otpStore = getOtpStore();
       const key = `${app_id}:${cleanIdentity.toLowerCase()}`;
 
+      // Strictly 1 minute (60 seconds) expiration as requested by the user
       otpStore.set(key, {
         code: generatedCode,
         phone_or_username: cleanIdentity,
         app_id,
-        expires_at: Date.now() + 5 * 60 * 1000,
+        expires_at: Date.now() + 60 * 1000,
       });
       saveOtpStore(otpStore);
 
-      // Attempt Telegram dispatch
-      await sendTelegramOtpMessage(cleanIdentity, generatedCode, 'Honor of Kings');
+      // Attempt Telegram dispatch directly to @maxbazar_bot
+      const dispatch = await sendTelegramOtpMessage(cleanIdentity, generatedCode, 'Honor of Kings');
+      if (!dispatch.sent && dispatch.error) {
+        return NextResponse.json({
+          ok: false,
+          error: dispatch.error,
+        }, { status: 400 });
+      }
 
       return NextResponse.json({
         ok: true,
-        message: 'دەلىللەش كودى تېلېگراممىغا ئەۋەتىلدى',
-        // dev_code for direct local testing without waiting on external bot webhook
-        dev_code: generatedCode,
+        expires_in: 60,
+        message: 'دەلىللەش كودى @maxbazar_bot تېلېگرامما بوتىڭىزغا ئەۋەتىلدى (1 مىنۇت كۈچكە ئىگە).',
       });
     }
 
@@ -153,6 +189,16 @@ export async function POST(req: NextRequest) {
       const otpStore = getOtpStore();
       const key = `${app_id}:${cleanIdentity.toLowerCase()}`;
       const entry = otpStore.get(key);
+
+      // Check if code has expired (strictly 1 minute)
+      if (entry && entry.expires_at <= Date.now() && code.trim() !== '888888') {
+        otpStore.delete(key);
+        saveOtpStore(otpStore);
+        return NextResponse.json({
+          ok: false,
+          error: 'بۇ كودنىڭ كۈچكە ئىگە ۋاقتى (1 مىنۇت) ئۆتۈپ كەتتى! «قايتا كود ئەۋەتىش» نى بېسىڭ.',
+        }, { status: 400 });
+      }
 
       // Allow either correct active OTP code or master quick demo code '888888'
       const isValid = (entry && entry.code === code.trim() && entry.expires_at > Date.now()) || code.trim() === '888888';

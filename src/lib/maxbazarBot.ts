@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+
 /**
  * MAX-BAZAR Telegram Mini App Bot Service
  * Bot: @maxbazar_bot
@@ -31,8 +34,27 @@ export async function handleMaxBazarWebhook(update: any) {
     if (!message || !message.chat) return;
 
     const chatId = message.chat.id;
+    const username = (message.from?.username || '').trim().replace(/^@/, '').toLowerCase();
     const text = (message.text || '').trim();
     const firstName = message.from?.first_name || 'صديقنا';
+
+    // Auto-record Telegram user mapping for OTP dispatch
+    if (chatId) {
+      try {
+        const SESSIONS_DIR = path.join(process.cwd(), 'data', 'micro_apps');
+        if (!fs.existsSync(SESSIONS_DIR)) fs.mkdirSync(SESSIONS_DIR, { recursive: true });
+        const usersFile = path.join(SESSIONS_DIR, 'telegram_users.json');
+        let users: Record<string, any> = {};
+        if (fs.existsSync(usersFile)) {
+          users = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
+        }
+        if (username) {
+          users[username] = String(chatId);
+        }
+        users[String(chatId)] = String(chatId);
+        fs.writeFileSync(usersFile, JSON.stringify(users, null, 2), 'utf-8');
+      } catch {}
+    }
 
     // Handle /start, /hok or any message
     const welcomeText =

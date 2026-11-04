@@ -23,6 +23,22 @@ const nextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/honor-of-kings',
+        destination: '/apps/honor-of-kings',
+      },
+      {
+        source: '/hok',
+        destination: '/apps/honor-of-kings',
+      },
+      {
+        source: '/app/honor-of-kings',
+        destination: '/apps/honor-of-kings',
+      },
+    ];
+  },
   async headers() {
     return [
       {
@@ -35,15 +51,28 @@ const nextConfig = {
         ],
       },
       {
-        source: '/:path*',
+        source: '/apps/:path*',
         headers: [
           {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
           },
           {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors 'self' https://*.telegram.org https://web.telegram.org https://t.me",
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+        ],
+      },
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
           },
           {
             key: 'Referrer-Policy',
