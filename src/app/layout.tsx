@@ -55,6 +55,12 @@ export default function RootLayout({
   return (
     <html lang="ug" dir="rtl" suppressHydrationWarning>
       <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="MAX-BAZAR" />
+        <link rel="apple-touch-icon" href="/brand_logo.png" />
         <link rel="preconnect" href="https://telegram.org" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://telegram.org" />
@@ -64,6 +70,13 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
+                // Register Service Worker for PWA install support
+                if ('serviceWorker' in navigator) {
+                  window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('/sw.js').catch(function() {});
+                  });
+                }
+
                 function initTg() {
                   try {
                     if (window.Telegram && window.Telegram.WebApp) {

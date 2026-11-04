@@ -1413,22 +1413,55 @@ export default function HonorOfKingsAppPage() {
             </p>
 
             {otpError && (
-              <div className="mb-3 p-2 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs">
-                {otpError}
+              <div className="mb-3 p-2.5 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs text-right space-y-2">
+                <div>{otpError}</div>
+                {otpError.includes('maxbazar_bot') && (
+                  <a
+                    href="https://t.me/maxbazar_bot?start=login"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2 px-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-sm"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                    <span>👉 @maxbazar_bot نى ئېچىپ كىرىش</span>
+                  </a>
+                )}
               </div>
             )}
 
             {loginStep === 'input_phone' ? (
               <form onSubmit={handleSendOtp} className="space-y-3">
+                {/* 1-Tap Quick Bot Action for New & Existing Users */}
+                <div className="p-3 rounded-2xl bg-gradient-to-r from-sky-500/15 via-blue-500/15 to-indigo-500/15 border border-sky-500/40 text-center space-y-2">
+                  <div className="text-[11px] text-sky-300 font-bold">
+                    🚀 تېلېگرامما ئارقىلىق 1 سېكۇنتتا كىرىش:
+                  </div>
+                  <a
+                    href="https://t.me/maxbazar_bot?start=login"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 text-white font-black text-xs flex items-center justify-center gap-2 shadow-md shadow-sky-500/25 transition active:scale-95"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>@maxbazar_bot تىن كود ئېلىش (بېسىڭ)</span>
+                  </a>
+                </div>
+
+                <div className="flex items-center gap-2 text-[10px] text-slate-500 my-1">
+                  <div className="h-px bg-slate-800 flex-1" />
+                  <span>ياكى تېلېگرامما ئىسمىڭىزنى يېزىڭ</span>
+                  <div className="h-px bg-slate-800 flex-1" />
+                </div>
+
                 <div className="text-left">
                   <label className="text-[11px] text-slate-400 font-medium block mb-1">
-                    تېلېگرامما نومۇرى ياكى @Username
+                    تېلېگرامما ئىسمى ياكى Chat ID
                   </label>
                   <input
                     type="text"
                     value={telegramHandle}
-                    onChange={(e) => setTelegramHandle(e.target.value)}
-                    placeholder="مەسىلەن: @user996 ياكى +963..."
+                    onChange={(e) => setTelegramHandle(e.target.value.replace(/@/g, ''))}
+                    placeholder="مەسىلەن: KOZNAK_USD ياكى 7575664493"
                     className="w-full bg-[#1E293B] text-white font-mono text-sm px-3.5 py-2.5 rounded-xl border border-slate-700 focus:border-amber-400 outline-none transition"
                   />
                 </div>

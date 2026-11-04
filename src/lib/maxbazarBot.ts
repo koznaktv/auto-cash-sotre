@@ -41,7 +41,12 @@ export async function handleMaxBazarWebhook(update: any) {
     // Auto-record Telegram user mapping for OTP dispatch
     if (chatId) {
       try {
-        const SESSIONS_DIR = path.join(process.cwd(), 'data', 'micro_apps');
+        const IS_SERVERLESS = Boolean(
+          process.env.VERCEL ||
+          process.env.AWS_LAMBDA_FUNCTION_NAME ||
+          (typeof process.cwd === 'function' && process.cwd().startsWith('/var/task'))
+        );
+        const SESSIONS_DIR = IS_SERVERLESS ? path.join('/tmp', 'micro_apps') : path.join(process.cwd(), 'data', 'micro_apps');
         if (!fs.existsSync(SESSIONS_DIR)) fs.mkdirSync(SESSIONS_DIR, { recursive: true });
         const usersFile = path.join(SESSIONS_DIR, 'telegram_users.json');
         let users: Record<string, any> = {};
@@ -53,6 +58,12 @@ export async function handleMaxBazarWebhook(update: any) {
         }
         users[String(chatId)] = String(chatId);
         fs.writeFileSync(usersFile, JSON.stringify(users, null, 2), 'utf-8');
+
+        // Also record in globalThis for instant in-memory lookup
+        const globalStore = globalThis as any;
+        if (!globalStore.__maxbazarUsers) globalStore.__maxbazarUsers = {};
+        if (username) globalStore.__maxbazarUsers[username] = String(chatId);
+        globalStore.__maxbazarUsers[String(chatId)] = String(chatId);
       } catch {}
     }
 
