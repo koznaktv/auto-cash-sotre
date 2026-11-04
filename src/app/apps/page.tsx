@@ -253,6 +253,7 @@ export default function AppsHubPage() {
   const [loginStep, setLoginStep] = useState<'input_phone' | 'input_code'>('input_phone');
   const [telegramHandle, setTelegramHandle] = useState('');
   const [otpCode, setOtpCode] = useState('');
+  const [otpSignature, setOtpSignature] = useState('');
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [otpError, setOtpError] = useState('');
@@ -406,6 +407,9 @@ export default function AppsHubPage() {
       });
       const data = await res.json();
       if (data.ok) {
+        if (data.otp_sig) {
+          setOtpSignature(data.otp_sig);
+        }
         setLoginStep('input_code');
         setOtpCountdown(60);
       } else {
@@ -438,6 +442,7 @@ export default function AppsHubPage() {
           action: 'verify',
           phone_or_username: telegramHandle.trim(),
           code: otpCode.trim(),
+          otp_sig: otpSignature,
           app_id: 'maxbazar',
         }),
       });
@@ -1060,9 +1065,42 @@ export default function AppsHubPage() {
                   </div>
                   <input
                     type="text"
+                    inputMode="numeric"
                     maxLength={6}
                     value={otpCode}
-                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                    onChange={(e) => {
+                      const cleaned = e.target.value
+                        .replace(/[٠۰]/g, '0')
+                        .replace(/[١۱]/g, '1')
+                        .replace(/[٢۲]/g, '2')
+                        .replace(/[٣۳]/g, '3')
+                        .replace(/[٤۴]/g, '4')
+                        .replace(/[٥۵]/g, '5')
+                        .replace(/[٦۶]/g, '6')
+                        .replace(/[٧۷]/g, '7')
+                        .replace(/[٨۸]/g, '8')
+                        .replace(/[٩۹]/g, '9')
+                        .replace(/\D/g, '');
+                      setOtpCode(cleaned);
+                    }}
+                    onPaste={(e) => {
+                      e.preventDefault();
+                      const pasted = e.clipboardData.getData('text');
+                      const cleaned = pasted
+                        .replace(/[٠۰]/g, '0')
+                        .replace(/[١۱]/g, '1')
+                        .replace(/[٢۲]/g, '2')
+                        .replace(/[٣۳]/g, '3')
+                        .replace(/[٤۴]/g, '4')
+                        .replace(/[٥۵]/g, '5')
+                        .replace(/[٦۶]/g, '6')
+                        .replace(/[٧۷]/g, '7')
+                        .replace(/[٨۸]/g, '8')
+                        .replace(/[٩۹]/g, '9')
+                        .replace(/\D/g, '')
+                        .slice(0, 6);
+                      setOtpCode(cleaned);
+                    }}
                     placeholder="123456"
                     className="w-full text-center tracking-[8px] font-mono text-xl py-3 rounded-xl bg-slate-900 border border-amber-500/60 text-amber-300 focus:border-amber-400 outline-none"
                     dir="ltr"
