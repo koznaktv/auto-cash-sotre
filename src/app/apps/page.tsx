@@ -835,82 +835,27 @@ export default function AppsHubPage() {
               <X className="w-5 h-5" />
             </button>
 
-            <div className="text-center space-y-1">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto mb-2">
-                <Send className="w-6 h-6" />
+            <div className="text-center space-y-2 pt-2">
+              <div className="w-14 h-14 rounded-2xl bg-sky-500/10 border border-sky-500/30 text-sky-400 flex items-center justify-center mx-auto mb-2">
+                <Send className="w-7 h-7" />
               </div>
-              <h2 className="text-lg font-bold text-white">تېلېگرامما ئارقىلىق بىۋاسىتە كىرىش</h2>
-              <p className="text-xs text-slate-400">
-                دەلىللەش كودى ساقلاش ھاجەتسىز. ئىسمىڭىزنى يېزىپلا دەرھال كىرىڭ.
+              <h2 className="text-lg font-bold text-white">تېلېگرامما ئارقىلىق كىرىش</h2>
+              <p className="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
+                پارول ياكى كود ھاجەتسىز. كۇنۇپكىنى بېسىپ تېلېگراممىدا ئېچىۋالسىڭىز، كىملىكىڭىز ۋە قالدۇقىڭىز بىلەن ئاپتوماتىك كىرىدۇ.
               </p>
             </div>
 
-            {otpError && (
-              <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-1.5">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{otpError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleDirectLogin} className="space-y-3 pt-2">
-              {/* 1-Tap Quick Launch in Telegram */}
-              <div className="p-3 rounded-2xl bg-gradient-to-r from-sky-500/15 via-blue-500/15 to-indigo-500/15 border border-sky-500/40 text-center space-y-2">
-                <div className="text-[11px] text-sky-300 font-bold">
-                  🚀 تېلېگرامما مىنى ئەپىدە بىۋاسىتە ئىشلىتىش:
-                </div>
-                <a
-                  href="https://t.me/maxbazar_bot"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 text-white font-black text-xs flex items-center justify-center gap-2 shadow-md shadow-sky-500/25 transition active:scale-95"
-                >
-                  <Send className="w-4 h-4" />
-                  <span>تېلېگراممىدا ئېچىش (ئاپتوماتىك كىرىدۇ)</span>
-                </a>
-              </div>
-
-              <div className="flex items-center gap-2 text-[10px] text-slate-500 my-1">
-                <div className="h-px bg-slate-800 flex-1" />
-                <span>ياكى تور بەتتە تېلېگرامما ئىسمىڭىز بىلەن كىرىڭ</span>
-                <div className="h-px bg-slate-800 flex-1" />
-              </div>
-
-              <div>
-                <label className="text-xs text-slate-300 font-medium block mb-1">
-                  تېلېگرامما ئىسمىڭىز (@Username ياكى كىملىك):
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={telegramHandle}
-                    onChange={(e) => setTelegramHandle(e.target.value.replace(/@/g, ''))}
-                    placeholder="مەسىلەن: KOZNAK_USD"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-sm focus:border-amber-500 outline-none text-left"
-                    dir="ltr"
-                    autoFocus
-                  />
-                  <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-sm">@</span>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isVerifyingOtp || !telegramHandle.trim()}
-                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5"
+            <div className="space-y-3 pt-3">
+              <a
+                href="https://t.me/maxbazar_bot"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:from-sky-400 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-sky-500/25 transition active:scale-95"
               >
-                {isVerifyingOtp ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>كىرىۋاتىدۇ...</span>
-                  </>
-                ) : (
-                  <>
-                    <Zap className="w-4 h-4 fill-slate-950" />
-                    <span>بىۋاسىتە كىرىش</span>
-                  </>
-                )}
-              </button>
-            </form>
+                <Send className="w-4 h-4" />
+                <span>تېلېگراممىدا ئېچىش (ئاپتوماتىك كىرىدۇ)</span>
+              </a>
+            </div>
           </div>
         </div>
       )}

@@ -1397,80 +1397,26 @@ export default function PubgAppPage() {
               <X className="w-4 h-4" />
             </button>
 
-            <div className="w-12 h-12 rounded-2xl bg-amber-600/20 text-amber-400 flex items-center justify-center mx-auto mb-2 border border-amber-500/30">
-              <Send className="w-6 h-6" />
+            <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto mb-2 border border-amber-500/30">
+              <Send className="w-7 h-7" />
             </div>
 
-            <h3 className="text-base font-black text-white">تېلېگرامما ئارقىلىق بىۋاسىتە كىرىش</h3>
-            <p className="text-xs text-slate-400 mt-1 mb-4 leading-relaxed">
-              پارول ياكى دەلىللەش كودى ھاجەتسىز. تېلېگرامما ئىسمىڭىزنى يېزىپلا دەرھال كىرىڭ.
+            <h3 className="text-base font-black text-white">تېلېگرامما ئارقىلىق كىرىش</h3>
+            <p className="text-xs text-slate-400 mt-1 mb-4 leading-relaxed max-w-xs mx-auto">
+              پارول ياكى كود ھاجەتسىز. PUBG Mobile UC ئەپىنى تېلېگراممىدا ئېچىپ، كىملىكىڭىز ۋە قالدۇقىڭىز بىلەن ئاپتوماتىك كىرىڭ.
             </p>
 
-            {otpError && (
-              <div className="mb-3 p-2.5 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs text-right space-y-2">
-                <div>{otpError}</div>
-              </div>
-            )}
-
-            <form onSubmit={handleDirectLogin} className="space-y-3">
-              {/* 1-Tap Quick Launch in Telegram */}
-              <div className="p-3 rounded-2xl bg-gradient-to-r from-sky-500/15 via-blue-500/15 to-indigo-500/15 border border-sky-500/40 text-center space-y-2">
-                <div className="text-[11px] text-sky-300 font-bold">
-                  🚀 تېلېگرامما مىنى ئەپىدە بىۋاسىتە ئىشلىتىش:
-                </div>
-                <a
-                  href="https://t.me/maxbazar_bot/pubg"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 text-white font-black text-xs flex items-center justify-center gap-2 shadow-md shadow-sky-500/25 transition active:scale-95"
-                >
-                  <Send className="w-4 h-4" />
-                  <span>تېلېگراممىدا ئېچىش (ئاپتوماتىك كىرىدۇ)</span>
-                </a>
-              </div>
-
-              <div className="flex items-center gap-2 text-[10px] text-slate-500 my-1">
-                <div className="h-px bg-slate-800 flex-1" />
-                <span>ياكى تور بەتتە تېلېگرامما ئىسمىڭىز بىلەن كىرىڭ</span>
-                <div className="h-px bg-slate-800 flex-1" />
-              </div>
-
-              <div className="text-right">
-                <label className="text-[11px] text-slate-300 font-medium block mb-1">
-                  تېلېگرامما ئىسمىڭىز (@Username ياكى تېلېفون نومۇر):
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={telegramHandle}
-                    onChange={(e) => setTelegramHandle(e.target.value.replace(/@/g, ''))}
-                    placeholder="مەسىلەن: KOZNAK_USD"
-                    className="w-full bg-[#1E293B] text-white font-mono text-sm px-3.5 py-2.5 rounded-xl border border-slate-700 focus:border-amber-400 outline-none transition text-left"
-                    dir="ltr"
-                    autoFocus
-                  />
-                  <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-sm">@</span>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isVerifyingOtp || !telegramHandle.trim()}
-                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black text-xs shadow-md transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5"
+            <div className="space-y-3 pt-2">
+              <a
+                href="https://t.me/maxbazar_bot/pubg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-amber-600 hover:from-sky-400 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-sky-500/25 transition active:scale-95"
               >
-                {isVerifyingOtp ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>كىرىۋاتىدۇ...</span>
-                  </>
-                ) : (
-                  <>
-                    <Zap className="w-3.5 h-3.5 fill-slate-950" />
-                    <span>بىۋاسىتە كىرىش</span>
-                  </>
-                )}
-              </button>
-            </form>
+                <Send className="w-4 h-4" />
+                <span>تېلېگراممىدا ئېچىش (ئاپتوماتىك كىرىدۇ)</span>
+              </a>
+            </div>
           </div>
         </div>
       )}
