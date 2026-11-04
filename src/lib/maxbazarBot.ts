@@ -63,6 +63,7 @@ export async function handleMaxBazarWebhook(update: any) {
       `✦ كۆپ ھېساباتلارنى ساقلاش، شامكەش ئارقىلىق 100% بىخەتەر قالدۇق قاچىلاش سىستېمىسى تەييارلاندى.\n\n` +
       `⚡ *تۆۋەندىكى تۈگۈمىنى بېسىپ ئەپنى دەرھال ئېچىڭ:*`;
 
+    const appsHubUrl = `${SITE_URL}/apps`;
     const pubgAppUrl = `${SITE_URL}/apps/pubg`;
     const hokAppUrl = `${SITE_URL}/apps/honor-of-kings`;
     const maxbazarAppUrl = `${SITE_URL}/maxbazar`;
@@ -73,6 +74,12 @@ export async function handleMaxBazarWebhook(update: any) {
       parse_mode: 'Markdown',
       reply_markup: {
         inline_keyboard: [
+          [
+            {
+              text: '🚀 MAX-BAZAR ئەپ بازىرى (بارلىق ئەپلەر)',
+              web_app: { url: appsHubUrl },
+            },
+          ],
           [
             {
               text: '🪖 PUBG Mobile UC تېز قاچىلاش (Mini App)',
@@ -87,7 +94,7 @@ export async function handleMaxBazarWebhook(update: any) {
           ],
           [
             {
-              text: '🛍️ MAX-BAZAR باش دۇكان (تولۇق كۆرۈش)',
+              text: '🛍️ MAX-BAZAR كارتىلار دۇكىنى',
               web_app: { url: maxbazarAppUrl },
             },
           ],

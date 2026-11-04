@@ -49,6 +49,18 @@ const nextConfig = {
         source: '/apps/pubg-mobile',
         destination: '/apps/pubg',
       },
+      {
+        source: '/app-store',
+        destination: '/apps',
+      },
+      {
+        source: '/apps-store',
+        destination: '/apps',
+      },
+      {
+        source: '/hub',
+        destination: '/apps',
+      },
     ];
   },
   async headers() {

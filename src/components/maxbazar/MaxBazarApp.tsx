@@ -1454,6 +1454,16 @@ export default function MaxBazarApp() {
               </span>
             </button>
 
+            {/* Direct Link to Apps Hub / Store */}
+            <a
+              href="/apps"
+              className="h-7 px-2.5 rounded-full flex items-center justify-center gap-1 text-[11px] font-black bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 shadow-sm transition active:scale-95 whitespace-nowrap"
+              title="MAX-BAZAR ئەپ مەركىزى"
+            >
+              <Smartphone className="w-3.5 h-3.5" />
+              <span>ئەپ بازىرى</span>
+            </a>
+
             {/* Quick Control Icons */}
             <div className="flex items-center gap-1.5">
               {/* Theme Toggle */}

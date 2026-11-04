@@ -1,0 +1,25 @@
+{
+  "name": "MAX-BAZAR App Store - مەخسۇس ئەپ مەركىزى",
+  "short_name": "MAX ئەپ بازىرى",
+  "description": "بارلىق ئويۇن ۋە رەقەملىك مۇلازىمەتلەرنىڭ تېلېگرامما مىنى ئەپلىرى ۋە تېز سۈرئەتلىك مەركىزى",
+  "start_url": "/apps",
+  "scope": "/apps",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070B14",
+  "theme_color": "#0F172A",
+  "icons": [
+    {
+      "src": "/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
