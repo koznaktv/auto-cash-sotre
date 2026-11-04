@@ -112,14 +112,14 @@ const MAXBAZAR_BOT_TOKEN =
 // Cryptographic Secret for Stateless Signed OTP (100% resilient across serverless lambdas)
 const OTP_SECRET = MAXBAZAR_BOT_TOKEN;
 
-export function generateOtpSignature(identity: string, code: string, expiresAt: number): string {
+function generateOtpSignature(identity: string, code: string, expiresAt: number): string {
   const clean = identity.trim().toLowerCase().replace(/^@/, '');
   const data = `${clean}:${code}:${expiresAt}`;
   const hmac = crypto.createHmac('sha256', OTP_SECRET).update(data).digest('hex');
   return `${expiresAt}.${hmac}`;
 }
 
-export function verifyOtpSignature(identity: string, code: string, otpSig: string): { ok: boolean; reason?: 'expired' | 'invalid' } {
+function verifyOtpSignature(identity: string, code: string, otpSig: string): { ok: boolean; reason?: 'expired' | 'invalid' } {
   try {
     const parts = (otpSig || '').split('.');
     if (parts.length !== 2) return { ok: false, reason: 'invalid' };
