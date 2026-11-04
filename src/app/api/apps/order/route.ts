@@ -33,6 +33,12 @@ function saveAppWallet(key: string, balance: number) {
   } catch {}
 }
 
+function getAppServiceName(appId: string): string {
+  if (appId === 'pubg' || appId === 'pubg-mobile') return 'PUBG Mobile (پابجى كۆچمە نۇسخىسى)';
+  if (appId === 'honor-of-kings') return 'Honor of Kings (داڭلىقلار سەپىرى)';
+  return 'MaxStore تېز زاكاز';
+}
+
 function getOrders(): any[] {
   ensureDir();
   const filePath = path.join(SESSIONS_DIR, 'orders.json');
@@ -169,7 +175,7 @@ export async function POST(req: NextRequest) {
         const { postOrderCompletedToChannel } = await import('@/lib/telegram');
         postOrderCompletedToChannel({
           id: newOrder.order_id,
-          serviceName: app_id === 'honor-of-kings' ? 'Honor of Kings (داڭلىقلار سەپىرى)' : 'MaxStore تېز زاكاز',
+          serviceName: getAppServiceName(newOrder.app_id),
           packageTitle: newOrder.package_name,
           amount: newOrder.price,
           targetAccount: newOrder.player_id,
@@ -248,7 +254,7 @@ export async function GET(req: NextRequest) {
                   const { postOrderCompletedToChannel } = await import('@/lib/telegram');
                   postOrderCompletedToChannel({
                     id: matchedOrder.order_id,
-                    serviceName: matchedOrder.app_id === 'honor-of-kings' ? 'Honor of Kings (داڭلىقلار سەپىرى)' : 'MaxStore تېز زاكاز',
+                    serviceName: getAppServiceName(matchedOrder.app_id),
                     packageTitle: matchedOrder.package_name,
                     amount: matchedOrder.price,
                     targetAccount: matchedOrder.player_id,

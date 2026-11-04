@@ -74,12 +74,18 @@ export async function POST(req: NextRequest) {
 
     // 3. Attempt live query to public/commercial game check API if API KEY configured
     const apiKey = process.env.HOK_CHECK_API_KEY || process.env.GAME_CHECKER_API_KEY;
+    const isPubg = game === 'pubg' || game === 'pubg-mobile';
+    const defaultServer = isPubg ? 'Global (PUBG Mobile)' : 'Global (Level Infinite)';
+
     if (apiKey) {
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 4000);
 
-        const targetUrl = `https://api.neferbyte.com/game-id-checker/honor-of-kings/${trimmedId}`;
+        const targetUrl = isPubg
+          ? `https://api.neferbyte.com/game-id-checker/pubg-mobile/${trimmedId}`
+          : `https://api.neferbyte.com/game-id-checker/honor-of-kings/${trimmedId}`;
+
         const res = await fetch(targetUrl, {
           method: 'GET',
           headers: {
@@ -97,14 +103,14 @@ export async function POST(req: NextRequest) {
           if (liveName) {
             KNOWN_PLAYERS[trimmedId] = {
               nickname: liveName,
-              server: data?.zone || data?.region || 'Global Server',
+              server: data?.zone || data?.region || defaultServer,
             };
             return NextResponse.json({
               success: true,
               playerId: trimmedId,
               game,
               nickname: liveName,
-              server: data?.zone || data?.region || 'Global Server',
+              server: data?.zone || data?.region || defaultServer,
               verified: true,
             });
           }
@@ -120,7 +126,7 @@ export async function POST(req: NextRequest) {
       playerId: trimmedId,
       game,
       needsNicknameInput: true,
-      server: 'Global (Level Infinite)',
+      server: defaultServer,
     });
   } catch (err: any) {
     return NextResponse.json(

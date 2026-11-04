@@ -1,0 +1,25 @@
+{
+  "name": "PUBG Mobile UC - MaxBazar شحن فوري",
+  "short_name": "PUBG UC",
+  "description": "تطبيق شحن شدات ببجي موبايل UC الفوري بأفضل الأسعار وأعلى سرعة عبر MaxBazar",
+  "start_url": "/apps/pubg",
+  "scope": "/apps/pubg",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070B14",
+  "theme_color": "#0B101D",
+  "icons": [
+    {
+      "src": "/images/services/pubg_mobile.webp",
+      "sizes": "192x192",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/currencies/pubg_uc.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

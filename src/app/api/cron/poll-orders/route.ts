@@ -99,7 +99,12 @@ export async function GET(req: Request) {
 
                   await postOrderCompletedToChannel({
                     id: matched.order_id,
-                    serviceName: matched.app_id === 'honor-of-kings' ? 'Honor of Kings (داڭلىقلار سەپىرى)' : 'MaxStore تېز زاكاز',
+                    serviceName:
+                      matched.app_id === 'pubg' || matched.app_id === 'pubg-mobile'
+                        ? 'PUBG Mobile (پابجى كۆچمە نۇسخىسى)'
+                        : matched.app_id === 'honor-of-kings'
+                        ? 'Honor of Kings (داڭلىقلار سەپىرى)'
+                        : 'MaxStore تېز زاكاز',
                     packageTitle: matched.package_name,
                     amount: matched.price,
                     targetAccount: matched.player_id,

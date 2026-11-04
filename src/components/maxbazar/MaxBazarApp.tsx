@@ -2154,6 +2154,29 @@ export default function MaxBazarApp() {
                           </button>
                         </div>
 
+                        {/* Dedicated PUBG PWA Micro-App Promo Card */}
+                        {selectedSubCategory.toLowerCase().includes('pubg') && (
+                          <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-600/30 via-[#151F38] to-[#0D1527] border border-amber-500/50 flex items-center justify-between gap-3 shadow-md animate-fadeIn">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="w-9 h-9 rounded-xl overflow-hidden border border-amber-400/40 relative shrink-0">
+                                <Image src="/images/services/pubg_mobile.webp" alt="PUBG" fill className="object-cover" />
+                              </div>
+                              <div className="min-w-0">
+                                <span className="text-xs font-black text-amber-300 block truncate">PUBG Mobile شدات UC مەخسۇس ئەپى!</span>
+                                <span className="text-[10px] text-slate-300 block truncate">تېلېفونىڭىزغا قاچىلاپ، تېلېگرامما كودى بىلەن سېكۇنتتا قاچىلاڭ</span>
+                              </div>
+                            </div>
+                            <a
+                              href="/apps/pubg"
+                              target="_blank"
+                              rel="noreferrer"
+                              className="px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs whitespace-nowrap shadow-sm transition active:scale-95 shrink-0"
+                            >
+                              ئەپنى ئېچىش 🪖
+                            </a>
+                          </div>
+                        )}
+
                         {/* Dedicated PWA Micro-App Promo Card */}
                         {selectedSubCategory.toLowerCase().includes('honor') && (
                           <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-500/20 via-[#151F38] to-[#0D1527] border border-amber-500/40 flex items-center justify-between gap-3 shadow-md animate-fadeIn">

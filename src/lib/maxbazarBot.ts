@@ -59,10 +59,11 @@ export async function handleMaxBazarWebhook(update: any) {
     // Handle /start, /hok or any message
     const welcomeText =
       `🛍️ *MAX-BAZAR رەسمىي تېلېگرامما Mini App دۇكىنىغا كەلگىنىڭىزنى قارشى ئالىمىز!*\n\n` +
-      `✦ *Honor of Kings (داڭلىقلار سەپىرى)* ئويۇن توكېنلىرى ئەڭ ئەرزان باھادا، سېكۇنتتا ئاپتوماتىك قاچىلىنىدۇ.\n` +
+      `🪖 *PUBG Mobile (پابجى كۆچمە نۇسخىسى)* ۋە ⚔️ *Honor of Kings* ئويۇنلىرى ئەڭ ئەرزان باھادا، سېكۇنتتا ئاپتوماتىك قاچىلىنىدۇ.\n` +
       `✦ كۆپ ھېساباتلارنى ساقلاش، شامكەش ئارقىلىق 100% بىخەتەر قالدۇق قاچىلاش سىستېمىسى تەييارلاندى.\n\n` +
       `⚡ *تۆۋەندىكى تۈگۈمىنى بېسىپ ئەپنى دەرھال ئېچىڭ:*`;
 
+    const pubgAppUrl = `${SITE_URL}/apps/pubg`;
     const hokAppUrl = `${SITE_URL}/apps/honor-of-kings`;
     const maxbazarAppUrl = `${SITE_URL}/maxbazar`;
 
@@ -72,6 +73,12 @@ export async function handleMaxBazarWebhook(update: any) {
       parse_mode: 'Markdown',
       reply_markup: {
         inline_keyboard: [
+          [
+            {
+              text: '🪖 PUBG Mobile UC تېز قاچىلاش (Mini App)',
+              web_app: { url: pubgAppUrl },
+            },
+          ],
           [
             {
               text: '⚔️ Honor of Kings تېز قاچىلاش (Mini App)',

@@ -37,6 +37,18 @@ const nextConfig = {
         source: '/app/honor-of-kings',
         destination: '/apps/honor-of-kings',
       },
+      {
+        source: '/pubg',
+        destination: '/apps/pubg',
+      },
+      {
+        source: '/pubg-mobile',
+        destination: '/apps/pubg',
+      },
+      {
+        source: '/apps/pubg-mobile',
+        destination: '/apps/pubg',
+      },
     ];
   },
   async headers() {
