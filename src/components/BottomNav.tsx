@@ -12,8 +12,8 @@ export default function BottomNav() {
   const { t, isRTL } = useLanguage();
   const { isMaxStore } = useStore();
 
-  // Hide completely on admin routes or maxbazar Mini App route
-  if (pathname && (pathname.startsWith('/admin') || pathname.startsWith('/maxbazar'))) {
+  // Hide completely on admin routes, maxbazar Mini App route, or dedicated standalone micro-apps (/apps)
+  if (pathname && (pathname.startsWith('/admin') || pathname.startsWith('/maxbazar') || pathname.startsWith('/apps'))) {
     return null;
   }
 

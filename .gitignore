@@ -38,3 +38,13 @@ syria4game_extracted.json
 # Backups
 src_backup_pre_redesign/
 public_backup_pre_redesign/
+
+*.py
+test_*.py
+scripts/temp/
+*.tsbuildinfo
+parse_*.py
+find_*.py
+inspect_*.py
+brute_*.py
+fetch_*.py

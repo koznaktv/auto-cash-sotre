@@ -11,7 +11,7 @@
   font-family: 'ALKATIP Basma Tom';
   src: local('ALKATIP Basma Tom'), local('ALKATIP BASMA TOM'), local('AlkatipBasmaTom'),
        url('/fonts/ALKATIPBasmaTom.ttf') format('truetype');
-  font-weight: normal;
+  font-weight: 100 500;
   font-style: normal;
   font-display: swap;
 }
@@ -20,7 +20,25 @@
   font-family: 'ALKATIP Basma Tom';
   src: local('ALKATIP Basma Tom Bold'), local('ALKATIP BASMA TOM BOLD'),
        url('/fonts/ALKATIPBasmaTom-Bold.ttf') format('truetype');
-  font-weight: bold;
+  font-weight: 600 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ALKATIP Basma';
+  src: local('ALKATIP Basma Tom'), local('ALKATIP BASMA TOM'), local('AlkatipBasmaTom'),
+       url('/fonts/ALKATIPBasmaTom.ttf') format('truetype');
+  font-weight: 100 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ALKATIP Basma';
+  src: local('ALKATIP Basma Tom Bold'), local('ALKATIP BASMA TOM BOLD'),
+       url('/fonts/ALKATIPBasmaTom-Bold.ttf') format('truetype');
+  font-weight: 600 900;
   font-style: normal;
   font-display: swap;
 }
@@ -29,7 +47,7 @@
   font-family: 'UKIJ Esline';
   src: local('UKIJ Esline'), local('ukijesn'), local('UKIJEsline'),
        url('/fonts/UKIJEsline.ttf') format('truetype');
-  font-weight: normal;
+  font-weight: 100 500;
   font-style: normal;
   font-display: swap;
 }
@@ -38,7 +56,7 @@
   font-family: 'UKIJ Esline';
   src: local('UKIJ Esline Bold'), local('ukijesbold'), local('UKIJEsline-Bold'),
        url('/fonts/UKIJEsline-Bold.ttf') format('truetype');
-  font-weight: bold;
+  font-weight: 600 900;
   font-style: normal;
   font-display: swap;
 }
@@ -47,7 +65,7 @@
   font-family: 'UKIJ Tuz';
   src: local('UKIJ Tuz'), local('ukijtuz'),
        url('/fonts/UKIJTuz.ttf') format('truetype');
-  font-weight: normal;
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
@@ -86,11 +104,20 @@ body {
 /* Titles and Headers with ultra-crisp authentic Uyghur calligraphy typography */
 .font-ukij {
   font-family: 'UKIJ Esline', 'UKIJEsline', 'ukijesn', 'ALKATIP Basma Tom', 'ALKATIP Basma', 'Microsoft Uighur', 'Noto Sans Arabic', system-ui, sans-serif;
+  letter-spacing: normal !important;
 }
 
 /* Item names, buttons, categories, ticker with smooth authentic Uyghur text style */
 .font-alkatip {
   font-family: 'ALKATIP Basma Tom', 'ALKATIP Basma', 'UKIJ Esline', 'UKIJ Tuz', 'Microsoft Uighur', 'Noto Sans Arabic', system-ui, sans-serif;
+  letter-spacing: normal !important;
+}
+
+/* Uyghur Calligraphic Integrity: Never break cursive connection with tracking */
+[dir="rtl"],
+html[lang="ug"],
+body.lang-ug {
+  letter-spacing: normal !important;
 }
 
 /* --- Multilingual Typography overrides --- */
@@ -1848,6 +1875,27 @@ body.lang-ru .font-ukij {
   50% {
     transform: rotateY(28deg) translateY(-3px);
   }
+}
+
+@keyframes dollarCoin3DSpin {
+  0% {
+    transform: perspective(300px) rotateY(0deg);
+  }
+  50% {
+    transform: perspective(300px) rotateY(180deg);
+  }
+  100% {
+    transform: perspective(300px) rotateY(360deg);
+  }
+}
+
+.animate-dollar-coin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  animation: dollarCoin3DSpin 3s linear infinite;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 @keyframes emoji3dZapPulse {
