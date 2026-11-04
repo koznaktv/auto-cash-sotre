@@ -387,6 +387,45 @@ export default function AppsHubPage() {
     } catch {}
   }, []);
 
+  // Direct Instant Telegram Login (Zero OTP)
+  const handleDirectLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const clean = telegramHandle.trim().replace(/@/g, '');
+    if (!clean) {
+      setOtpError('تېلېگرامما ئىسمىڭىز ياكى نومۇرىڭىزنى كىرگۈزۈڭ');
+      return;
+    }
+    setIsVerifyingOtp(true);
+    setOtpError('');
+    try {
+      const res = await fetch('/api/apps/otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'direct_login',
+          phone_or_username: clean,
+          app_id: 'maxbazar',
+        }),
+      });
+      const data = await res.json();
+      if (data.ok && data.session) {
+        setSession(data.session);
+        localStorage.setItem('maxbazar_hub_session', JSON.stringify(data.session));
+        if (data.session.photo_url) {
+          setAvatarUrl(data.session.photo_url);
+        }
+        setShowLoginModal(false);
+        setOtpError('');
+      } else {
+        setOtpError(data.error || 'كىرىش مەغلۇپ بولدى');
+      }
+    } catch {
+      setOtpError('تور ئۇلىنىش خاتالىقى كۆرۈلدى');
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
+
   // Request Telegram OTP
   const handleSendOtp = async () => {
     if (!telegramHandle.trim()) {
@@ -1007,186 +1046,78 @@ export default function AppsHubPage() {
               <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto mb-2">
                 <Send className="w-6 h-6" />
               </div>
-              <h2 className="text-lg font-bold text-white">تېلېگرامما ئارقىلىق كىرىش</h2>
+              <h2 className="text-lg font-bold text-white">تېلېگرامما ئارقىلىق بىۋاسىتە كىرىش</h2>
               <p className="text-xs text-slate-400">
-                پارول ئېسىڭىزدە بولمىسىمۇ مەسىلە يوق. تېلېگراممىڭىزغا 60 سېكۇنتلۇق كود بېرىلىدۇ.
+                دەلىللەش كودى ساقلاش ھاجەتسىز. ئىسمىڭىزنى يېزىپلا دەرھال كىرىڭ.
               </p>
             </div>
 
-            {loginStep === 'input_phone' ? (
-              <div className="space-y-3 pt-2">
-                {/* 1-Tap Quick Bot Action for New & Existing Users */}
-                <div className="p-3 rounded-2xl bg-gradient-to-r from-sky-500/15 via-blue-500/15 to-indigo-500/15 border border-sky-500/40 text-center space-y-2">
-                  <div className="text-[11px] text-sky-300 font-bold">
-                    🚀 تېلېگرامما ئارقىلىق 1 سېكۇنتتا كىرىش:
-                  </div>
-                  <a
-                    href="https://t.me/maxbazar_bot?start=login"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 text-white font-black text-xs flex items-center justify-center gap-2 shadow-md shadow-sky-500/25 transition active:scale-95"
-                  >
-                    <Send className="w-4 h-4" />
-                    <span>@maxbazar_bot تىن كود ئېلىش (بېسىڭ)</span>
-                  </a>
-                </div>
+            {otpError && (
+              <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-1.5">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{otpError}</span>
+              </div>
+            )}
 
-                <div className="flex items-center gap-2 text-[10px] text-slate-500 my-1">
-                  <div className="h-px bg-slate-800 flex-1" />
-                  <span>ياكى تېلېگرامما ئىسمىڭىزنى يېزىڭ</span>
-                  <div className="h-px bg-slate-800 flex-1" />
+            <form onSubmit={handleDirectLogin} className="space-y-3 pt-2">
+              {/* 1-Tap Quick Launch in Telegram */}
+              <div className="p-3 rounded-2xl bg-gradient-to-r from-sky-500/15 via-blue-500/15 to-indigo-500/15 border border-sky-500/40 text-center space-y-2">
+                <div className="text-[11px] text-sky-300 font-bold">
+                  🚀 تېلېگرامما مىنى ئەپىدە بىۋاسىتە ئىشلىتىش:
                 </div>
+                <a
+                  href="https://t.me/maxbazar_bot"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 text-white font-black text-xs flex items-center justify-center gap-2 shadow-md shadow-sky-500/25 transition active:scale-95"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>تېلېگراممىدا ئېچىش (ئاپتوماتىك كىرىدۇ)</span>
+                </a>
+              </div>
 
-                <div>
-                  <label className="text-xs text-slate-300 font-medium block mb-1">
-                    تېلېگرامما ئىسمىڭىز ياكى Chat ID:
-                  </label>
+              <div className="flex items-center gap-2 text-[10px] text-slate-500 my-1">
+                <div className="h-px bg-slate-800 flex-1" />
+                <span>ياكى تور بەتتە تېلېگرامما ئىسمىڭىز بىلەن كىرىڭ</span>
+                <div className="h-px bg-slate-800 flex-1" />
+              </div>
+
+              <div>
+                <label className="text-xs text-slate-300 font-medium block mb-1">
+                  تېلېگرامما ئىسمىڭىز (@Username ياكى كىملىك):
+                </label>
+                <div className="relative">
                   <input
                     type="text"
                     value={telegramHandle}
                     onChange={(e) => setTelegramHandle(e.target.value.replace(/@/g, ''))}
-                    placeholder="مەسىلەن: KOZNAK_USD ياكى 7575664493"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-sm focus:border-amber-500 outline-none"
+                    placeholder="مەسىلەن: KOZNAK_USD"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-sm focus:border-amber-500 outline-none text-left"
                     dir="ltr"
+                    autoFocus
                   />
-                </div>
-
-                {otpError && (
-                  <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex flex-col gap-2">
-                    <div className="flex items-center gap-1.5">
-                      <AlertCircle className="w-4 h-4 shrink-0" />
-                      <span>{otpError}</span>
-                    </div>
-                    {otpError.includes('maxbazar_bot') && (
-                      <a
-                        href="https://t.me/maxbazar_bot?start=login"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full py-1.5 px-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-sm"
-                      >
-                        <Send className="w-3.5 h-3.5" />
-                        <span>👉 @maxbazar_bot نى ئېچىپ كىرىش</span>
-                      </a>
-                    )}
-                  </div>
-                )}
-
-                <button
-                  onClick={handleSendOtp}
-                  disabled={isSendingOtp}
-                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20 transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5"
-                >
-                  {isSendingOtp ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>ئەۋەتىلىۋاتىدۇ...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      <span>بوتتىن كود ئېلىش</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-3 pt-2">
-                <div>
-                  <div className="flex items-center justify-between text-xs text-slate-300 font-medium mb-1">
-                    <span>تېلېگراممىغا كەلگەن 6 خانىلىق كود:</span>
-                    <span className={`font-mono font-bold ${otpCountdown <= 10 ? 'text-red-400 animate-pulse' : 'text-amber-400'}`}>
-                      ⏱️ {otpCountdown} سېكۇنت
-                    </span>
-                  </div>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={6}
-                    value={otpCode}
-                    onChange={(e) => {
-                      const cleaned = e.target.value
-                        .replace(/[٠۰]/g, '0')
-                        .replace(/[١۱]/g, '1')
-                        .replace(/[٢۲]/g, '2')
-                        .replace(/[٣۳]/g, '3')
-                        .replace(/[٤۴]/g, '4')
-                        .replace(/[٥۵]/g, '5')
-                        .replace(/[٦۶]/g, '6')
-                        .replace(/[٧۷]/g, '7')
-                        .replace(/[٨۸]/g, '8')
-                        .replace(/[٩۹]/g, '9')
-                        .replace(/\D/g, '');
-                      setOtpCode(cleaned);
-                    }}
-                    onPaste={(e) => {
-                      e.preventDefault();
-                      const pasted = e.clipboardData.getData('text');
-                      const cleaned = pasted
-                        .replace(/[٠۰]/g, '0')
-                        .replace(/[١۱]/g, '1')
-                        .replace(/[٢۲]/g, '2')
-                        .replace(/[٣۳]/g, '3')
-                        .replace(/[٤۴]/g, '4')
-                        .replace(/[٥۵]/g, '5')
-                        .replace(/[٦۶]/g, '6')
-                        .replace(/[٧۷]/g, '7')
-                        .replace(/[٨۸]/g, '8')
-                        .replace(/[٩۹]/g, '9')
-                        .replace(/\D/g, '')
-                        .slice(0, 6);
-                      setOtpCode(cleaned);
-                    }}
-                    placeholder="123456"
-                    className="w-full text-center tracking-[8px] font-mono text-xl py-3 rounded-xl bg-slate-900 border border-amber-500/60 text-amber-300 focus:border-amber-400 outline-none"
-                    dir="ltr"
-                  />
-                </div>
-
-                {otpError && (
-                  <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-1.5">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
-                    <span>{otpError}</span>
-                  </div>
-                )}
-
-                <button
-                  onClick={handleVerifyOtp}
-                  disabled={isVerifyingOtp}
-                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20 transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5"
-                >
-                  {isVerifyingOtp ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>تەستىقلىنىۋاتىدۇ...</span>
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>كىرىشنى تاماملاش</span>
-                    </>
-                  )}
-                </button>
-
-                <div className="flex items-center justify-between pt-1">
-                  <button
-                    onClick={() => {
-                      setLoginStep('input_phone');
-                      setOtpCode('');
-                    }}
-                    className="text-xs text-slate-400 hover:text-slate-200"
-                  >
-                    نومۇر ئۆزگەرتىش
-                  </button>
-                  <button
-                    onClick={handleSendOtp}
-                    disabled={isSendingOtp}
-                    className="text-xs text-amber-400 hover:text-amber-300 underline font-medium"
-                  >
-                    قايتا كود ئەۋەتىش
-                  </button>
+                  <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-sm">@</span>
                 </div>
               </div>
-            )}
+
+              <button
+                type="submit"
+                disabled={isVerifyingOtp || !telegramHandle.trim()}
+                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5"
+              >
+                {isVerifyingOtp ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>كىرىۋاتىدۇ...</span>
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 fill-slate-950" />
+                    <span>بىۋاسىتە كىرىش</span>
+                  </>
+                )}
+              </button>
+            </form>
           </div>
         </div>
       )}

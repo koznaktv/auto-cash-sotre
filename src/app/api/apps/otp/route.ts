@@ -247,7 +247,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { action, phone_or_username, code, otp_sig, app_id = 'honor-of-kings' } = body;
 
-    const cleanIdentity = (phone_or_username || '').trim().replace(/^@/, '');
+    const cleanIdentity = (phone_or_username || '').trim().replace(/@/g, '').trim();
 
     const appDisplayNames: Record<string, string> = {
       pubg: 'PUBG Mobile UC',
@@ -255,6 +255,45 @@ export async function POST(req: NextRequest) {
       maxbazar: 'MAX-BAZAR ئەپ بازىرى',
     };
     const appName = appDisplayNames[app_id] || 'MAX-BAZAR';
+
+    // Direct Instant Telegram Login (Zero OTP, 100% Friction-Free)
+    if (action === 'direct_login' || action === 'instant_login') {
+      if (!cleanIdentity) {
+        return NextResponse.json({ ok: false, error: 'تېلېگرامما ئىسمىڭىز ياكى كىملىكىڭىزنى كىرگۈزۈڭ' }, { status: 400 });
+      }
+
+      // Initialize or retrieve dedicated app wallet
+      const walletKey = `${app_id}:${cleanIdentity.toLowerCase()}`;
+      const wallets = getAppWallets();
+      if (wallets[walletKey] === undefined) {
+        wallets[walletKey] = 25.00;
+        saveAppWallet(walletKey, 25.00);
+      }
+
+      const token = 'mb_app_' + crypto.randomBytes(16).toString('hex');
+
+      // Resolve live avatar URL
+      let photo_url: string | null = null;
+      const tgChatId = getTelegramUserChatId(cleanIdentity);
+      if (tgChatId) {
+        photo_url = `/api/apps/avatar?user=${encodeURIComponent(cleanIdentity)}`;
+      } else if (!/^\d+$/.test(cleanIdentity)) {
+        photo_url = `https://t.me/i/userpic/320/${cleanIdentity}.jpg`;
+      }
+
+      return NextResponse.json({
+        ok: true,
+        session: {
+          token,
+          identity: cleanIdentity,
+          app_id,
+          balance: wallets[walletKey],
+          currency: 'USD',
+          photo_url,
+          logged_in_at: Date.now(),
+        },
+      });
+    }
 
     if (action === 'send') {
       if (!cleanIdentity) {
