@@ -40,7 +40,6 @@ interface MicroApp {
   id: string;
   name: string;
   nameEn: string;
-  category: 'games' | 'utilities' | 'ai' | 'telecom';
   tagline: string;
   description: string;
   icon: string;
@@ -51,194 +50,68 @@ interface MicroApp {
   badgeColor?: string;
   webUrl: string;
   telegramAppUrl: string;
-  isStandaloneApp?: boolean;
-  featured?: boolean;
   priceNote?: string;
 }
 
-const APPS_LIST: MicroApp[] = [
+// Only the real, working micro-apps
+const ACTIVE_APPS: MicroApp[] = [
   {
     id: 'pubg',
     name: 'PUBG Mobile UC تېز قاچىلاش',
     nameEn: 'PUBG Mobile UC Store',
-    category: 'games',
-    tagline: 'ئويۇنچى كىملىكى (Player ID) بىلەن سېكۇنتتا يېتىدۇ',
-    description: 'رەسمىي Midasbuy سەرۋىرى ئارقىلىق 60 UC دىن 16,200 UC غىچە ۋە بارلىق Royale Pass، ئايلىق برايم كارتىلىرى دەرھال قاچىلىنىدۇ.',
+    tagline: 'ئويۇنچى كىملىكى (Player ID) بىلەن 3 سېكۇنتتا يېتىدۇ',
+    description: 'رەسمىي Midasbuy سەرۋىرى ئارقىلىق 60 UC دىن 16,200 UC غىچە ۋە بارلىق Royale Pass، ئايلىق كارتىلارنى سېكۇنتتا بىۋاسىتە ئويۇنغا قاچىلاپ بېرىش.',
     icon: '/images/services/pubg_mobile.webp',
-    rating: 4.96,
-    ordersCount: '15.4k+',
-    speed: '3-10 سېكۇنت',
-    badge: '⚡ ئەڭ تېز نۇسخا',
+    rating: 4.98,
+    ordersCount: '15.8k+',
+    speed: '3 سېكۇنت',
+    badge: '⚡ ئەڭ ئالقىشلانغان',
     badgeColor: 'from-amber-500 to-yellow-600',
     webUrl: '/apps/pubg',
     telegramAppUrl: 'https://t.me/maxbazar_bot/pubg',
-    isStandaloneApp: true,
-    featured: true,
     priceNote: '$1.10 دىن باشلىنىدۇ (60 - 16,200 UC)'
   },
   {
     id: 'hok',
     name: 'Honor of Kings Token بازىرى',
     nameEn: 'Honor of Kings Store',
-    category: 'games',
-    tagline: 'HOK Player ID ئارقىلىق بىۋاسىتە سەرۋەرگە قاچىلاش',
+    tagline: 'HOK Player ID ئارقىلىق بىۋاسىتە سەرۋەرگە توكېن قاچىلاش',
     description: 'پادىشاھلار شان-شەرىپى ئويۇنى ئۈچۈن رەسمىي 16 توكېندىن 8,000 توكېن ۋە ھەپتىلىك، ئايلىق كارتىلارنى سېكۇنتتا قاچىلاپ بېرىش.',
-    icon: '/images/services/hok_token_official.webp',
-    rating: 4.95,
-    ordersCount: '9.8k+',
-    speed: '5-15 سېكۇنت',
+    icon: '/images/apps/honor-of-kings/icon-512.png',
+    rating: 4.96,
+    ordersCount: '9.9k+',
+    speed: '5 سېكۇنت',
     badge: '👑 تاللانغان ئەپ',
     badgeColor: 'from-purple-500 to-indigo-600',
     webUrl: '/apps/honor-of-kings',
     telegramAppUrl: 'https://t.me/maxbazar_bot/hok',
-    isStandaloneApp: true,
-    featured: true,
     priceNote: '$0.25 دىن باشلىنىدۇ (16 - 8,000 Token)'
-  },
+  }
+];
+
+// Clean preview of apps currently in development
+const UPCOMING_APPS = [
   {
     id: 'freefire',
     name: 'Free Fire گۆھەر قاچىلاش',
-    nameEn: 'Free Fire Diamonds',
-    category: 'games',
-    tagline: 'UID ئارقىلىق 1 سېكۇنتتا گۆھەر چۈشۈرۈش',
-    description: 'Garena رەسمىي ئالماس كارتىلىرى، ھەپتىلىك ئەزالىق ۋە دەرىجىدىن تاشقىرى تېز چۈشۈرۈش كاپالىتى.',
     icon: '/images/services/free_fire.webp',
-    rating: 4.88,
-    ordersCount: '21.2k+',
-    speed: '5-10 سېكۇنت',
-    badge: '🔥 قىزىق ئېھتىياج',
-    badgeColor: 'from-red-500 to-orange-600',
-    webUrl: '/?category=games&search=free%20fire',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    featured: true,
-    priceNote: '100 - 5,600 ئالماس'
-  },
-  {
-    id: 'sms',
-    name: 'مەۋھۇم نومۇر بازىرى (HeroSMS & PhoneCash)',
-    nameEn: 'Virtual SMS Verification',
-    category: 'utilities',
-    tagline: 'دۇنيانىڭ 150+ دۆلەت نومۇرى بىلەن كود ئېلىش',
-    description: 'WhatsApp, Telegram, Google, TikTok, OpenAI قاتارلىق بارلىق مۇلازىمەتلەر ئۈچۈن مەۋھۇم تېلېفون نومۇرى ۋە تەستىق كودى قوبۇل قىلىش.',
-    icon: '/images/services/whatsapp.webp',
-    rating: 4.92,
-    ordersCount: '34.0k+',
-    speed: '1-3 سېكۇنت',
-    badge: '📱 100% كاپالەتلىك',
-    badgeColor: 'from-emerald-500 to-teal-600',
-    webUrl: '/?category=sms',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    featured: true,
-    priceNote: 'كود كەلمىسە پۇل دەرھال قايتىدۇ'
-  },
-  {
-    id: 'telecom',
-    name: 'سۈرىيە تېلېكوم ۋە ئىنتېرنېت كارتىلىرى',
-    nameEn: 'Syria Telecom & Wi-Fi',
-    category: 'telecom',
-    tagline: 'Syriatel, MTN ۋە يەرلىك Wi-Fi توردىن كارتىلار',
-    description: 'سۈرىيە ئىچىدىكى پۈتۈن تور تورلىرىغا بىۋاسىتە ئىنتېرنېت ۋە مىنۇت قاچىلاش، ئەڭ ئەرزان ئوپتىك تالا كارتىلىرى.',
-    icon: '/images/services/wifi_cards.jpg',
-    rating: 4.87,
-    ordersCount: '11.5k+',
-    speed: '10-30 سېكۇنت',
-    badge: '📶 مەخسۇس لىنىيە',
-    badgeColor: 'from-blue-500 to-cyan-600',
-    webUrl: '/?category=telecom',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: 'Syriatel Cash & MTN تېز قاچىلاش'
-  },
-  {
-    id: 'telegram',
-    name: 'تېلېگرامما يۇلتۇز ۋە Premium مەركىزى',
-    nameEn: 'Telegram Stars & Premium',
-    category: 'ai',
-    tagline: 'Stars يۇلتۇز كارتىلىرى ۋە 3/6/12 ئايلىق Premium',
-    description: 'ھېچقانداق بانكا كارتىسى تەلەپ قىلىنمايدۇ. تېلېگرامما ئىسمىڭىزنى يېزىش بىلەنلا يۇلتۇز ۋە كۆك بەلگە پۈتىدۇ.',
-    icon: '/images/services/telegram.webp',
-    rating: 4.99,
-    ordersCount: '28.6k+',
-    speed: 'دەرھال',
-    badge: '⭐ تېلېگرامما ئورگان',
-    badgeColor: 'from-sky-500 to-blue-600',
-    webUrl: '/?category=telegram',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '50 - 10,000 تېلېگرامما يۇلتۇزى'
-  },
-  {
-    id: 'chatgpt',
-    name: 'ChatGPT Plus ۋە سۈنئىي ئەقىل مۇشتەرىلىكى',
-    nameEn: 'AI & Subscriptions',
-    category: 'ai',
-    tagline: 'ChatGPT Plus, Midjourney, Claude تەستىقلانغان كارتىلار',
-    description: 'تولۇق كاپالەتكە ئىگە رەسمىي سۈنئىي ئەقىل كارتىلىرى ۋە API سىستېما قاچىلاش ھېساباتلىرى.',
-    icon: '/images/services/chatgpt.webp',
-    rating: 4.94,
-    ordersCount: '5.8k+',
-    speed: '1-5 مىنۇت',
-    badge: '🧠 AI مەركىزى',
-    badgeColor: 'from-emerald-500 to-green-600',
-    webUrl: '/?category=ai',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: 'ئايلىق ۋە يىللىق كاپالەتلىك'
+    tagline: 'Garena UID ئارقىلىق 1 سېكۇنتتا گۆھەر يەتكۈزۈش',
   },
   {
     id: 'mobilelegends',
-    name: 'Mobile Legends Bang Bang ئالماسلىرى',
-    nameEn: 'MLBB Diamonds Store',
-    category: 'games',
-    tagline: 'User ID ۋە Zone ID ئارقىلىق 1 سېكۇنتتا يېتىدۇ',
-    description: 'دۇنياۋى ئەڭ ئەرزان باھادا Mobile Legends ئالماس بولاقلىرى ۋە ھەپتىلىك گۆھەر ئۆتكىلى (Diamond Pass).',
+    name: 'Mobile Legends Bang Bang',
     icon: '/images/services/mobile_legends.webp',
-    rating: 4.86,
-    ordersCount: '7.3k+',
-    speed: '5-10 سېكۇنت',
-    badge: '⚡ دەرھال قاچىلاش',
-    badgeColor: 'from-amber-500 to-orange-600',
-    webUrl: '/?category=games&search=mobile%20legends',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: 'Weekly Pass & 50-6000 Diamonds'
+    tagline: 'User ID ۋە Zone ID ئارقىلىق ئالماس قاچىلاش',
   },
   {
     id: 'roblox',
-    name: 'Roblox Robux پۇلى',
-    nameEn: 'Roblox Robux Official',
-    category: 'games',
-    tagline: 'Roblox Username ئارقىلىق بىۋاسىتە قاچىلاش',
-    description: '80 Robux دىن 10,000 Robux غىچە، تېز سۈرئەتتە ھېساباتقا كىرىدىغان بىخەتەر قاچىلاش ئۇسۇلى.',
+    name: 'Roblox Robux بازىرى',
     icon: '/images/services/roblox.webp',
-    rating: 4.89,
-    ordersCount: '13.1k+',
-    speed: '3-10 سېكۇنت',
-    badge: '🎮 ئەڭ ئالقىشلانغان',
-    badgeColor: 'from-rose-500 to-red-600',
-    webUrl: '/?category=games&search=roblox',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '80 - 10,000 Robux'
-  },
-  {
-    id: 'bloodstrike',
-    name: 'Blood Strike Gold (قانلىق زەربە)',
-    nameEn: 'Blood Strike Gold Coins',
-    category: 'games',
-    tagline: 'NetEase سەرۋىرى بىلەن بىۋاسىتە ئۇلانغان تېز سۈرئەت',
-    description: 'قانلىق زەربە ئويۇنىنىڭ ئالتۇنلىرى، Strike Pass ۋە مەخسۇس قورال قۇتىلىرىنى UID بويىچە قاچىلاش.',
-    icon: '/images/services/blood_strike.webp',
-    rating: 4.82,
-    ordersCount: '4.6k+',
-    speed: '5-15 سېكۇنت',
-    badge: '🔫 قىزىق نەق مەيدان',
-    badgeColor: 'from-amber-600 to-red-600',
-    webUrl: '/?category=games&search=blood%20strike',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '100 - 5000 Gold'
+    tagline: 'Roblox پۇلى ۋە ئايلىق Premium ئەزالىق',
   }
 ];
 
 export default function AppsHubPage() {
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'games' | 'utilities' | 'ai' | 'telecom'>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-
   // PWA Install Prompt State
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isStandalone, setIsStandalone] = useState(false);
@@ -564,21 +437,6 @@ export default function AppsHubPage() {
     }
   };
 
-  // Filtered Apps
-  const filteredApps = useMemo(() => {
-    return APPS_LIST.filter((app) => {
-      const matchesCategory = selectedCategory === 'all' || app.category === selectedCategory;
-      const q = searchQuery.toLowerCase().trim();
-      const matchesSearch =
-        !q ||
-        app.name.toLowerCase().includes(q) ||
-        app.nameEn.toLowerCase().includes(q) ||
-        app.tagline.toLowerCase().includes(q) ||
-        app.description.toLowerCase().includes(q);
-      return matchesCategory && matchesSearch;
-    });
-  }, [selectedCategory, searchQuery]);
-
   return (
     <div className="min-h-screen bg-[#070B14] text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950 pb-28" dir="rtl">
       {/* Dynamic Ambient Background Glow */}
@@ -681,254 +539,189 @@ export default function AppsHubPage() {
       {/* MAIN CONTAINER */}
       <main className="max-w-6xl mx-auto px-4 pt-4 pb-12 w-full space-y-6 relative z-10">
         
-        {/* HERO BANNER: All-in-One Telegram Mini App Store */}
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-[#0E1528] to-slate-950 border border-slate-800 p-5 md:p-7 shadow-2xl">
+        {/* HERO BANNER: Simple, Clean App Hub Title */}
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-[#0E1528] to-slate-950 border border-slate-800 p-5 md:p-6 shadow-2xl text-right">
           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-500/15 via-transparent to-transparent pointer-events-none" />
           
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-3 text-right max-w-xl">
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="space-y-2 max-w-xl">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold">
                 <Flame className="w-3.5 h-3.5 animate-pulse text-amber-400" />
-                <span>MAX-BAZAR رەسمىي تېلېگرامما ئەپ بازىرى</span>
+                <span>MAX-BAZAR مەخسۇس ئەپ بازىرى</span>
               </div>
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-white leading-snug">
-                بارلىق تېز سۈرئەتلىك ئەپلەر ۋە ئويۇن كارتىلىرى بىر يەردە
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-black text-white leading-snug">
+                رەسمىي ئەپلەرنى تاللاپ چۈشۈرۈش بازىسى
               </h1>
-              <p className="text-slate-300 text-xs md:text-sm leading-relaxed">
-                تېلېگرامما ئىچىدە قاچىلاشتىن خالىي بىۋاسىتە ئىشلىتىڭ ياكى كۆچمە تېلېفونىڭىزنىڭ باش ئېكرانىغا پۈتۈن ئەپ (PWA) شەكلىدە قاچىلاپ سېكۇنتتا زاكاس بېرىڭ.
+              <p className="text-slate-300 text-xs leading-relaxed">
+                تۆۋەندىكى ئەپلەرنى بىر كۇنۇپكا بىلەن تېلېفونىڭىزنىڭ باش ئېكرانىغا قاچىلىۋېلىڭ ياكى تېلېگرامما مىنى ئەپى سۈپىتىدە ئىشلىتىڭ.
               </p>
-              
-              <div className="flex flex-wrap items-center gap-3 pt-2">
-                <a
-                  href="https://t.me/maxbazar_bot"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-sky-500/25 transition active:scale-95"
-                >
-                  <Send className="w-4 h-4" />
-                  <span>تېلېگراممىدا ئېچىش (@maxbazar_bot)</span>
-                </a>
-
-                <button
-                  onClick={() => setShowBotGuideModal(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 font-medium text-xs transition active:scale-95"
-                >
-                  <HelpCircle className="w-4 h-4 text-amber-400" />
-                  <span>بوت تەڭشەش يېتەكچىسى</span>
-                </button>
-              </div>
             </div>
 
-            {/* Quick Hero Highlights (PUBG & HOK Dual Showcase) */}
-            <div className="grid grid-cols-2 gap-3 w-full md:w-auto">
-              {/* PUBG Card */}
-              <Link
-                href="/apps/pubg"
-                className="group relative p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/10 via-slate-900 to-slate-950 border border-amber-500/30 hover:border-amber-400 transition transform hover:-translate-y-1 shadow-lg"
-              >
-                <div className="relative w-12 h-12 rounded-xl overflow-hidden mb-2 shadow-md">
-                  <Image
-                    src="/images/services/pubg_mobile.webp"
-                    alt="PUBG Mobile"
-                    width={48}
-                    height={48}
-                    className="object-cover group-hover:scale-110 transition duration-300"
-                  />
-                </div>
-                <div className="flex items-center gap-1 text-[10px] text-amber-400 font-bold mb-0.5">
-                  <Zap className="w-3 h-3 fill-amber-400" />
-                  <span>100% ئاپتوماتىك</span>
-                </div>
-                <div className="font-bold text-xs text-white group-hover:text-amber-300 transition">
-                  PUBG Mobile UC
-                </div>
-                <div className="text-[10px] text-slate-400 mt-1">
-                  $1.10 دىن باشلىنىدۇ
-                </div>
-              </Link>
-
-              {/* HOK Card */}
-              <Link
-                href="/apps/honor-of-kings"
-                className="group relative p-3.5 rounded-2xl bg-gradient-to-br from-purple-500/10 via-slate-900 to-slate-950 border border-purple-500/30 hover:border-purple-400 transition transform hover:-translate-y-1 shadow-lg"
-              >
-                <div className="relative w-12 h-12 rounded-xl overflow-hidden mb-2 shadow-md">
-                  <Image
-                    src="/images/services/hok_token_official.webp"
-                    alt="Honor of Kings"
-                    width={48}
-                    height={48}
-                    className="object-cover group-hover:scale-110 transition duration-300"
-                  />
-                </div>
-                <div className="flex items-center gap-1 text-[10px] text-purple-400 font-bold mb-0.5">
-                  <Crown className="w-3 h-3 text-purple-400" />
-                  <span>سېكۇنتتا يېتىدۇ</span>
-                </div>
-                <div className="font-bold text-xs text-white group-hover:text-purple-300 transition">
-                  Honor of Kings
-                </div>
-                <div className="text-[10px] text-slate-400 mt-1">
-                  $0.25 دىن باشلىنىدۇ
-                </div>
-              </Link>
-            </div>
+            <a
+              href="https://t.me/maxbazar_bot"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 text-white font-bold text-xs shadow-lg shadow-sky-500/25 transition active:scale-95 whitespace-nowrap"
+            >
+              <Send className="w-4 h-4" />
+              <span>@maxbazar_bot نى ئېچىش</span>
+            </a>
           </div>
         </section>
 
-        {/* SEARCH & CATEGORY FILTER */}
-        <section className="space-y-4">
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            {/* Search Input */}
-            <div className="relative flex-1 w-full">
-              <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ئەپ ياكى مۇلازىمەت ئىزدەش (PUBG, HOK, نومۇر، توردىن كارتىلار...)"
-                className="w-full pl-4 pr-10 py-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 focus:border-amber-500 text-xs md:text-sm text-slate-200 placeholder-slate-500 outline-none transition"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-
-            {/* Total Apps Count Badge */}
-            <div className="text-xs text-slate-400 font-medium px-3 py-2 rounded-xl bg-slate-900/60 border border-slate-800 whitespace-nowrap">
-              جەمئىي: <span className="font-bold text-amber-400">{filteredApps.length}</span> تاللانغان ئەپ
-            </div>
+        {/* SECTION 1: THE TWO FULLY OPERATIONAL APPS */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold text-slate-200 flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <span>ھازىر بار بولغان رەسمىي ئەپلەر (2 تال):</span>
+            </h2>
+            <span className="text-[11px] text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+              ✓ تەييار ۋە ئىشلەۋاتىدۇ
+            </span>
           </div>
 
-          {/* Category Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs font-bold">
-            {[
-              { id: 'all', label: '🌟 ھەممىسى (All)' },
-              { id: 'games', label: '🎮 ئويۇن ئەپلىرى (Games)' },
-              { id: 'utilities', label: '📱 مەۋھۇم نومۇر (SMS & Tools)' },
-              { id: 'telecom', label: '📡 سۈرىيە تېلېكوم & Wi-Fi' },
-              { id: 'ai', label: '🤖 سۈنئىي ئەقىل & تېلېگرامما' },
-            ].map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id as any)}
-                className={`px-3.5 py-2 rounded-xl whitespace-nowrap transition active:scale-95 flex items-center gap-1.5 ${
-                  selectedCategory === cat.id
-                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                    : 'bg-slate-900/80 text-slate-400 hover:text-slate-200 border border-slate-800'
-                }`}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {ACTIVE_APPS.map((app) => (
+              <div
+                key={app.id}
+                className="group relative rounded-3xl bg-gradient-to-b from-slate-900 via-[#0E1528] to-[#0A0F1D] border border-slate-800 hover:border-amber-500/50 p-5 transition duration-300 flex flex-col justify-between shadow-xl hover:shadow-2xl hover:shadow-amber-500/10"
               >
-                <span>{cat.label}</span>
-              </button>
+                <div>
+                  {/* Top Row: Official App Icon & Badges */}
+                  <div className="flex items-start justify-between gap-3 mb-3.5">
+                    <div className="relative w-16 h-16 rounded-2xl overflow-hidden shadow-lg border border-slate-700/80 group-hover:border-amber-500/50 transition bg-slate-950 p-1">
+                      <Image
+                        src={app.icon}
+                        alt={app.name}
+                        width={64}
+                        height={64}
+                        className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition duration-300"
+                      />
+                    </div>
+
+                    <div className="flex flex-col items-end gap-1.5">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${app.badgeColor || 'from-amber-500 to-yellow-600'} text-white shadow-sm`}>
+                        {app.badge}
+                      </span>
+                      <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+                        {app.priceNote}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* App Info */}
+                  <div className="space-y-1 text-right">
+                    <h3 className="font-bold text-base text-white group-hover:text-amber-400 transition">
+                      {app.name}
+                    </h3>
+                    <p className="text-xs text-amber-400/90 font-medium">
+                      {app.tagline}
+                    </p>
+                    <p className="text-[11px] text-slate-400 leading-relaxed pt-1">
+                      {app.description}
+                    </p>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="flex items-center gap-3 pt-3 text-[11px] text-slate-400 border-t border-slate-800/60 mt-3">
+                    <div className="flex items-center gap-1 text-amber-400">
+                      <Star className="w-3.5 h-3.5 fill-amber-400" />
+                      <span className="font-bold">{app.rating}</span>
+                    </div>
+                    <div className="text-slate-500">•</div>
+                    <div>
+                      قاچىلانغان: <span className="text-slate-200 font-semibold">{app.ordersCount}</span>
+                    </div>
+                    <div className="text-slate-500">•</div>
+                    <div className="text-emerald-400 flex items-center gap-1">
+                      <Zap className="w-3 h-3" />
+                      <span>{app.speed}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Actions: 1) Download/Install Sheet 2) Telegram 3) Web */}
+                <div className="pt-4 mt-4 border-t border-slate-800/80 space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* Primary Button: Download / Install App */}
+                    <button
+                      onClick={() => handleInstallApp(app)}
+                      className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition active:scale-95"
+                    >
+                      <Download className="w-4 h-4 stroke-[2.5]" />
+                      <span>ئەپنى چۈشۈرۈش / قاچىلاش</span>
+                    </button>
+
+                    {/* Secondary Button: Open in Telegram */}
+                    <a
+                      href={app.telegramAppUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 text-white font-bold text-xs shadow-md shadow-sky-500/20 transition active:scale-95"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      <span>تېلېگراممىدا ئېچىش</span>
+                    </a>
+                  </div>
+
+                  {/* Web App Link */}
+                  <Link
+                    href={app.webUrl}
+                    className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700/60 text-slate-300 hover:text-white text-[11px] font-medium transition"
+                  >
+                    <span>تور بەتتە دەرھال ئېچىپ ئىشلىتىش</span>
+                    <ChevronRight className="w-3.5 h-3.5 rotate-180 text-slate-400" />
+                  </Link>
+                </div>
+              </div>
             ))}
           </div>
         </section>
 
-        {/* APPS GRID */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredApps.map((app) => (
-            <div
-              key={app.id}
-              className="group relative rounded-3xl bg-gradient-to-b from-slate-900/90 to-[#0A0F1D]/90 border border-slate-800 hover:border-amber-500/50 p-5 transition duration-300 flex flex-col justify-between shadow-xl hover:shadow-2xl hover:shadow-amber-500/5"
-            >
-              {/* Top Row: Icon, Title & Badge */}
-              <div>
-                <div className="flex items-start justify-between gap-3 mb-3.5">
-                  <div className="relative w-16 h-16 rounded-2xl overflow-hidden shadow-lg border border-slate-800 group-hover:border-amber-500/40 transition">
-                    <Image
-                      src={app.icon}
-                      alt={app.name}
-                      width={64}
-                      height={64}
-                      className="object-cover group-hover:scale-105 transition duration-300"
-                    />
-                  </div>
-                  
-                  {app.badge && (
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${app.badgeColor || 'from-amber-500 to-yellow-600'} text-white shadow-sm`}>
-                      {app.badge}
-                    </span>
-                  )}
-                </div>
+        {/* SECTION 2: COMING SOON / ROADMAP */}
+        <section className="space-y-3 pt-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-slate-500" />
+              <span>پات يېقىندا قوشۇلىدىغان ئەپلەر:</span>
+            </h2>
+            <span className="text-[10px] text-slate-500">
+              تەييارلانماقتا...
+            </span>
+          </div>
 
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="font-bold text-base text-white group-hover:text-amber-400 transition">
-                      {app.name}
-                    </h3>
-                  </div>
-                  <p className="text-xs text-amber-400/90 font-medium">
-                    {app.tagline}
-                  </p>
-                  <p className="text-[11px] text-slate-400 leading-relaxed pt-1 line-clamp-2">
-                    {app.description}
-                  </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {UPCOMING_APPS.map((item) => (
+              <div
+                key={item.id}
+                className="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex items-center gap-3 text-right"
+              >
+                <div className="relative w-11 h-11 rounded-xl overflow-hidden bg-slate-950 border border-slate-800 shrink-0">
+                  <Image
+                    src={item.icon}
+                    alt={item.name}
+                    width={44}
+                    height={44}
+                    className="w-full h-full object-cover opacity-80"
+                  />
                 </div>
-
-                {/* Metrics Pill Bar */}
-                <div className="flex items-center gap-3 pt-3 text-[11px] text-slate-400 border-t border-slate-800/60 mt-3">
-                  <div className="flex items-center gap-1 text-amber-400">
-                    <Star className="w-3.5 h-3.5 fill-amber-400" />
-                    <span className="font-bold">{app.rating}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-1">
+                    <div className="font-bold text-xs text-slate-300 truncate">
+                      {item.name}
+                    </div>
                   </div>
-                  <div className="text-slate-500">•</div>
-                  <div>
-                    زاكاس: <span className="text-slate-200 font-semibold">{app.ordersCount}</span>
+                  <div className="text-[10px] text-slate-500 truncate mt-0.5">
+                    {item.tagline}
                   </div>
-                  <div className="text-slate-500">•</div>
-                  <div className="text-emerald-400 flex items-center gap-1">
-                    <Zap className="w-3 h-3" />
-                    <span>{app.speed}</span>
+                  <div className="mt-1 text-[9px] font-bold text-amber-500/80">
+                    ⏳ پات يېقىندا تەييار بولىدۇ
                   </div>
                 </div>
-
-                {app.priceNote && (
-                  <div className="mt-2.5 px-2.5 py-1 rounded-lg bg-slate-800/40 border border-slate-700/40 text-[10px] text-slate-300 font-mono">
-                    {app.priceNote}
-                  </div>
-                )}
               </div>
-
-              {/* Bottom Actions: Launch / Install / Telegram */}
-              <div className="pt-4 mt-3 border-t border-slate-800/80 space-y-2">
-                <div className="grid grid-cols-2 gap-2">
-                  {/* Primary: Open Web App */}
-                  <Link
-                    href={app.webUrl}
-                    className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs shadow-md shadow-amber-500/20 transition active:scale-95"
-                  >
-                    <span>ئەپنى ئېچىش</span>
-                    <ChevronRight className="w-3.5 h-3.5 rotate-180" />
-                  </Link>
-
-                  {/* Secondary: PWA Install */}
-                  <button
-                    onClick={() => handleInstallApp(app)}
-                    className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-slate-200 font-medium text-xs transition active:scale-95"
-                  >
-                    <Download className="w-3.5 h-3.5 text-amber-400" />
-                    <span>قاچىلاش</span>
-                  </button>
-                </div>
-
-                {/* Telegram Mini App Direct Link */}
-                <a
-                  href={app.telegramAppUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-400 text-[11px] font-medium transition"
-                >
-                  <Send className="w-3 h-3" />
-                  <span>تېلېگراممىدا ئېچىش (@maxbazar_bot)</span>
-                </a>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </section>
 
         {/* SECURITY & GUARANTEE BANNER */}
@@ -1307,55 +1100,125 @@ export default function AppsHubPage() {
         </div>
       )}
 
-      {/* PWA INSTALLATION GUIDE MODAL */}
-      {showInstallGuide && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-sm rounded-3xl bg-[#0F172A] border border-slate-700 p-6 shadow-2xl space-y-4 text-right">
+      {/* APP DOWNLOAD & INSTALLATION SHEET */}
+      {showInstallGuide && selectedAppForInstall && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-sm rounded-3xl bg-[#0F172A] border border-amber-500/40 p-6 shadow-2xl space-y-4 text-right">
             <button
               onClick={() => setShowInstallGuide(false)}
-              className="absolute left-4 top-4 p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              className="absolute left-4 top-4 p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <div className="text-center space-y-1">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto mb-2">
-                <Smartphone className="w-6 h-6" />
+            {/* Official App Icon & Title */}
+            <div className="text-center space-y-2 pt-1">
+              <div className="relative w-20 h-20 mx-auto rounded-2xl overflow-hidden shadow-2xl border-2 border-amber-500/50 p-0.5 bg-gradient-to-tr from-amber-500 to-yellow-400">
+                <div className="w-full h-full rounded-[14px] overflow-hidden bg-slate-900 flex items-center justify-center">
+                  <Image
+                    src={selectedAppForInstall.icon}
+                    alt={selectedAppForInstall.name}
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover"
+                    priority
+                  />
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-slate-900 flex items-center justify-center text-slate-950">
+                  <Check className="w-3 h-3 stroke-[3]" />
+                </div>
               </div>
-              <h2 className="text-lg font-bold text-white">
-                تېلېفونغا ئەپ قىلىپ قاچىلاش
-              </h2>
-              <p className="text-xs text-slate-400">
-                {selectedAppForInstall?.name || 'MAX-BAZAR ئەپ بازىرى'} نى ئېكرانىڭىزغا ئورنىتىۋېلىڭ.
-              </p>
+
+              <div>
+                <h2 className="text-base font-black text-white">
+                  {selectedAppForInstall.name}
+                </h2>
+                <p className="text-[11px] text-amber-400 font-medium">
+                  {selectedAppForInstall.tagline}
+                </p>
+                <div className="flex items-center justify-center gap-2 text-[10px] text-slate-400 mt-1">
+                  <span>⭐ {selectedAppForInstall.rating} باھا</span>
+                  <span>•</span>
+                  <span>{selectedAppForInstall.ordersCount}</span>
+                  <span>•</span>
+                  <span className="text-emerald-400 font-bold">سېكۇنتتا يېتىدۇ</span>
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-3 text-xs text-slate-300">
-              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
-                <div className="font-bold text-amber-400 flex items-center gap-1.5">
-                  <span>📱 iPhone / Safari نۇسخىسى:</span>
+            {/* 3 Download / Install Options */}
+            <div className="space-y-2.5 pt-1">
+              {/* Option 1: PWA Mobile Install */}
+              <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                    <Smartphone className="w-4 h-4 text-amber-400" />
+                    <span>تېلېفونغا ئەپ قىلىپ قاچىلاش (PWA)</span>
+                  </div>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">
+                    0 MB كۆلەم
+                  </span>
                 </div>
-                <p className="text-slate-400">
-                  Safari تور كۆرگۈچىنىڭ ئاستىدىكى <strong>«Share (ھەمبەھىرلەش)»</strong> كۇنۇپكىسىنى بېسىپ، تىزىملىكتىن <strong>«Add to Home Screen (باش بەتكە قوشۇش)»</strong> نى تاللاڭ.
-                </p>
+
+                <button
+                  onClick={() => {
+                    if (deferredPrompt) {
+                      deferredPrompt.prompt();
+                      deferredPrompt.userChoice.then((choiceResult: any) => {
+                        if (choiceResult.outcome === 'accepted') {
+                          setIsStandalone(true);
+                          setShowInstallGuide(false);
+                        }
+                        setDeferredPrompt(null);
+                      });
+                    } else {
+                      alert('Chrome تور كۆرگۈچنىڭ ئوڭ ئۈستىدىكى (⋮) نى بېسىپ «Install app (ئەپنى قاچىلاش)» نى تاللاڭ.');
+                    }
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black text-xs shadow-md shadow-amber-500/20 transition active:scale-95 flex items-center justify-center gap-1.5"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>ھازىرلا تېلېفونغا قاچىلاش</span>
+                </button>
+
+                <div className="text-[10px] text-slate-400 space-y-1 pt-1 leading-relaxed border-t border-slate-800/60">
+                  <div>🤖 <strong>Android (Chrome):</strong> تور كۆرگۈچنىڭ ئۈستىدىكى (⋮) نى بېسىپ <strong>«Install app (ئەپنى قاچىلاش)»</strong> نى تاللاڭ.</div>
+                  <div>📱 <strong>iPhone (Safari):</strong> ئاستىدىكى ھەمبەھىرلەش كۇنۇپكىسىنى بېسىپ <strong>«Add to Home Screen»</strong> نى تاللاڭ.</div>
+                </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
-                <div className="font-bold text-sky-400 flex items-center gap-1.5">
-                  <span>🤖 Android / Chrome نۇسخىسى:</span>
+              {/* Option 2: Telegram Mini App */}
+              <a
+                href={selectedAppForInstall.telegramAppUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-2.5 px-3 rounded-2xl bg-gradient-to-r from-sky-500/15 via-blue-500/15 to-indigo-500/15 border border-sky-500/40 hover:border-sky-400 text-sky-300 font-bold text-xs flex items-center justify-between transition active:scale-95"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-sky-500 text-white flex items-center justify-center">
+                    <Send className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="text-right">
+                    <div className="text-white font-bold text-xs">تېلېگراممىدا ئېچىش</div>
+                    <div className="text-[10px] text-sky-400">ھېساباتىڭىز بىلەن ئاپتوماتىك كىرىدۇ</div>
+                  </div>
                 </div>
-                <p className="text-slate-400">
-                  Chrome تور كۆرگۈچىنىڭ ئوڭ ئۈستىدىكى ئۈچ چىكىت (⋮) نى بېسىپ <strong>«Install app (ئەپنى قاچىلاش)»</strong> ياكى <strong>«Add to Home screen»</strong> نى بېسىڭ.
-                </p>
-              </div>
+                <ChevronRight className="w-4 h-4 text-sky-400 rotate-180" />
+              </a>
+
+              {/* Option 3: Web App Direct */}
+              <Link
+                href={selectedAppForInstall.webUrl}
+                onClick={() => setShowInstallGuide(false)}
+                className="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-medium text-xs flex items-center justify-between transition"
+              >
+                <div className="flex items-center gap-2">
+                  <Zap className="w-3.5 h-3.5 text-amber-400" />
+                  <span>تور بەتتە دەرھال ئىشلىتىش</span>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-500 rotate-180" />
+              </Link>
             </div>
-
-            <button
-              onClick={() => setShowInstallGuide(false)}
-              className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition"
-            >
-              چۈشەندىم
-            </button>
           </div>
         </div>
       )}
