@@ -67,17 +67,13 @@ export async function handleMaxBazarWebhook(update: any) {
       } catch {}
     }
 
-    // Handle /start, /hok or any message
+    // Handle /start or any message - strictly 2 clean buttons as requested
     const welcomeText =
-      `🛍️ *MAX-BAZAR رەسمىي تېلېگرامما Mini App دۇكىنىغا كەلگىنىڭىزنى قارشى ئالىمىز!*\n\n` +
-      `🪖 *PUBG Mobile (پابجى كۆچمە نۇسخىسى)* ۋە ⚔️ *Honor of Kings* ئويۇنلىرى ئەڭ ئەرزان باھادا، سېكۇنتتا ئاپتوماتىك قاچىلىنىدۇ.\n` +
-      `✦ كۆپ ھېساباتلارنى ساقلاش، شامكەش ئارقىلىق 100% بىخەتەر قالدۇق قاچىلاش سىستېمىسى تەييارلاندى.\n\n` +
-      `⚡ *تۆۋەندىكى تۈگۈمىنى بېسىپ ئەپنى دەرھال ئېچىڭ:*`;
+      `🛍️ *MAX-BAZAR رەسمىي بوت سىستېمىسىغا كەلگىنىڭىزنى قارشى ئالىمىز!*\n\n` +
+      `تۆۋەندىكى تۈگمىلەردىن بىرىنى تاللاپ دەرھال كىرىڭ:`;
 
-    const appsHubUrl = `${SITE_URL}/apps`;
-    const pubgAppUrl = `${SITE_URL}/apps/pubg`;
-    const hokAppUrl = `${SITE_URL}/apps/honor-of-kings`;
-    const maxbazarAppUrl = `${SITE_URL}/maxbazar`;
+    const autoCashUrl = SITE_URL;
+    const maxBazarUrl = `${SITE_URL}/apps`;
 
     await callMaxBazarBotApi('sendMessage', {
       chat_id: chatId,
@@ -87,42 +83,14 @@ export async function handleMaxBazarWebhook(update: any) {
         inline_keyboard: [
           [
             {
-              text: '🚀 MAX-BAZAR ئەپ بازىرى (بارلىق ئەپلەر)',
-              web_app: { url: appsHubUrl },
+              text: '🌐 1. auto-cash.app تور بېكىتىگە كىرىش',
+              url: autoCashUrl,
             },
           ],
           [
             {
-              text: '🪖 PUBG Mobile UC تېز قاچىلاش (Mini App)',
-              web_app: { url: pubgAppUrl },
-            },
-          ],
-          [
-            {
-              text: '⚔️ Honor of Kings تېز قاچىلاش (Mini App)',
-              web_app: { url: hokAppUrl },
-            },
-          ],
-          [
-            {
-              text: '🛍️ MAX-BAZAR كارتىلار دۇكىنى',
-              web_app: { url: maxbazarAppUrl },
-            },
-          ],
-          [
-            {
-              text: '🌐 AUTO CASH باش سۇپا',
-              url: SITE_URL,
-            },
-          ],
-          [
-            {
-              text: '💬 باشقۇرغۇچى بىلەن ئالاقىلىشىش',
-              url: 'https://t.me/nasrulla0996',
-            },
-            {
-              text: '📢 رەسمىي قانال',
-              url: 'https://t.me/autocash_cannel',
+              text: '🚀 2. MAX-BAZAR ئەپ بازىرىغا كىرىش',
+              web_app: { url: maxBazarUrl },
             },
           ],
         ],

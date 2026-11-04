@@ -1,7 +1,7 @@
 {
-  "name": "PUBG Mobile UC - MaxBazar شحن فوري",
+  "name": "PUBG Mobile UC Store",
   "short_name": "PUBG UC",
-  "description": "تطبيق شحن شدات ببجي موبايل UC الفوري بأفضل الأسعار وأعلى سرعة عبر MaxBazar",
+  "description": "PUBG Mobile UC تېز قاچىلاش ۋە Royale Pass مەركىزى",
   "start_url": "/apps/pubg",
   "scope": "/apps/pubg",
   "display": "standalone",
@@ -10,16 +10,22 @@
   "theme_color": "#0B101D",
   "icons": [
     {
-      "src": "/images/services/pubg_mobile.webp",
+      "src": "/images/apps/pubg/icon-192.png",
       "sizes": "192x192",
-      "type": "image/webp",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/images/currencies/pubg_uc.png",
+      "src": "/images/apps/pubg/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/images/apps/pubg/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

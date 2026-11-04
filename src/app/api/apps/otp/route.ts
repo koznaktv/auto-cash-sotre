@@ -113,7 +113,7 @@ const MAXBAZAR_BOT_TOKEN =
 const OTP_SECRET = MAXBAZAR_BOT_TOKEN;
 
 function generateOtpSignature(identity: string, code: string, expiresAt: number): string {
-  const clean = identity.trim().toLowerCase().replace(/^@/, '');
+  const clean = identity.trim().toLowerCase().replace(/@/g, '').trim();
   const data = `${clean}:${code}:${expiresAt}`;
   const hmac = crypto.createHmac('sha256', OTP_SECRET).update(data).digest('hex');
   return `${expiresAt}.${hmac}`;
@@ -127,12 +127,12 @@ function verifyOtpSignature(identity: string, code: string, otpSig: string): { o
     const sig = parts[1];
     if (isNaN(expiresAt) || !sig) return { ok: false, reason: 'invalid' };
 
-    // Strictly check 1 minute expiration
+    // Strictly check expiration (10 minutes)
     if (Date.now() > expiresAt) {
       return { ok: false, reason: 'expired' };
     }
 
-    const clean = identity.trim().toLowerCase().replace(/^@/, '');
+    const clean = identity.trim().toLowerCase().replace(/@/g, '').trim();
     const data = `${clean}:${code}:${expiresAt}`;
     const expected = crypto.createHmac('sha256', OTP_SECRET).update(data).digest('hex');
 
@@ -176,7 +176,7 @@ function sanitizeCode(c: any): string {
 }
 
 function getTelegramUserChatId(identifier: string): string | null {
-  const clean = identifier.trim().replace(/^@/, '').toLowerCase();
+  const clean = identifier.trim().replace(/@/g, '').toLowerCase();
   if (/^\d+$/.test(clean)) return clean;
 
   const usersFile = path.join(SESSIONS_DIR, 'telegram_users.json');
@@ -214,7 +214,7 @@ async function sendTelegramOtpMessage(target: string, code: string, appName: str
     if (!chatId) {
       return {
         sent: false,
-        error: `بۇ تېلېگرامما ئىسمى بويىچە بوتتا خېرىدار تېپىلمىدى. ئالدى بىلەن @maxbazar_bot قا بىرنى كىرىپ سىناڭ ياكى Chat ID نومۇرىڭىزنى كىرگۈزۈڭ.`,
+        error: `بۇ تېلېگرامما ئىسمى بويىچە بوتتا خېرىدار تېپىلمىدى. ئالدى بىلەن @maxbazar_bot قا بىرنى كىرىپ /start نى بېسىڭ ياكى تېلېگراممىدا بىۋاسىتە ئېچىڭ.`,
       };
     }
 
@@ -223,6 +223,8 @@ async function sendTelegramOtpMessage(target: string, code: string, appName: str
       `🎮 ئەپ: *${appName}*\n` +
       `🔑 دەلىللەش كودىڭىز:\n\n` +
       `👉 \`${code}\` 👈\n\n` +
+      `⏱️ *بۇ كود 10 مىنۇت كۈچكە ئىگە.*\n` +
+      `بىخەتەرلىكىڭىز ئۈچۈن كودنى ھېچكىمگە بەرمەڭ!`;
       `⏱️ *بۇ كود پەقەت 1 مىنۇت (60 سېكۇنت) كۈچكە ئىگە.*\n` +
       `بىخەتەرلىكىڭىز ئۈچۈن كودنى ھېچكىمگە بەرمەڭ!`;
 
@@ -302,7 +304,7 @@ export async function POST(req: NextRequest) {
 
       // Generate 6-digit random code
       const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-      const expiresAt = Date.now() + 60 * 1000; // Strictly 60 seconds
+      const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes validity
 
       // Generate cryptographic HMAC signature
       const signature = generateOtpSignature(cleanIdentity, generatedCode, expiresAt);
@@ -332,9 +334,9 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json({
         ok: true,
-        expires_in: 60,
+        expires_in: 600,
         otp_sig: signature,
-        message: 'دەلىللەش كودى @maxbazar_bot تېلېگرامما بوتىڭىزغا ئەۋەتىلدى (1 مىنۇت كۈچكە ئىگە).',
+        message: 'دەلىللەش كودى @maxbazar_bot تېلېگرامما بوتىڭىزغا ئەۋەتىلدى (10 مىنۇت كۈچكە ئىگە).',
       });
     }
 

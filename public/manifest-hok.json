@@ -1,7 +1,7 @@
 {
-  "name": "Honor of Kings - MaxBazar شحن فوري",
+  "name": "Honor of Kings Token بازىرى",
   "short_name": "HOK Store",
-  "description": "تطبيق شحن مجوهرات وتوكنز Honor of Kings الفوري بأفضل الأسعار عبر MaxBazar",
+  "description": "Honor of Kings Token بىۋاسىتە قاچىلاش ئەپى",
   "start_url": "/apps/honor-of-kings",
   "scope": "/apps/honor-of-kings",
   "display": "standalone",

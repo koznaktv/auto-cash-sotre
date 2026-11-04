@@ -147,6 +147,25 @@ export default function PubgAppPage() {
   // Check PWA and LocalStorage on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // Enforce dedicated PUBG Mobile PWA manifest & icon
+      try {
+        let link = document.querySelector("link[rel='manifest']") as HTMLLinkElement;
+        if (!link) {
+          link = document.createElement('link');
+          link.rel = 'manifest';
+          document.head.appendChild(link);
+        }
+        link.href = '/manifest-pubg.json';
+
+        let appleIcon = document.querySelector("link[rel='apple-touch-icon']") as HTMLLinkElement;
+        if (!appleIcon) {
+          appleIcon = document.createElement('link');
+          appleIcon.rel = 'apple-touch-icon';
+          document.head.appendChild(appleIcon);
+        }
+        appleIcon.href = '/images/apps/pubg/icon-512.png';
+      } catch {}
+
       const isStandaloneMode =
         window.matchMedia('(display-mode: standalone)').matches ||
         (window.navigator as any).standalone === true;

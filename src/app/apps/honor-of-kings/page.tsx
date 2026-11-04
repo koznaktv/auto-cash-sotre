@@ -126,14 +126,35 @@ export default function HonorOfKingsAppPage() {
 
   // Check PWA, Saved Accounts, and Local Session on Mount
   useEffect(() => {
-    const checkStandalone =
-      window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
-    setIsStandalone(!!checkStandalone);
+    if (typeof window !== 'undefined') {
+      // Enforce dedicated Honor of Kings PWA manifest & icon
+      try {
+        let link = document.querySelector("link[rel='manifest']") as HTMLLinkElement;
+        if (!link) {
+          link = document.createElement('link');
+          link.rel = 'manifest';
+          document.head.appendChild(link);
+        }
+        link.href = '/manifest-hok.json';
 
-    window.addEventListener('beforeinstallprompt', (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    });
+        let appleIcon = document.querySelector("link[rel='apple-touch-icon']") as HTMLLinkElement;
+        if (!appleIcon) {
+          appleIcon = document.createElement('link');
+          appleIcon.rel = 'apple-touch-icon';
+          document.head.appendChild(appleIcon);
+        }
+        appleIcon.href = '/images/apps/honor-of-kings/icon-512.png';
+      } catch {}
+
+      const checkStandalone =
+        window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+      setIsStandalone(!!checkStandalone);
+
+      window.addEventListener('beforeinstallprompt', (e: any) => {
+        e.preventDefault();
+        setDeferredPrompt(e);
+      });
+    }
 
     // 1. Load Saved Accounts from LocalStorage
     try {

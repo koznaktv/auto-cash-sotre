@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://autocash.pro'),
   title: 'AUTO CASH - ئەپلەرگە، ئويۇنلارغا پۇل قاچىلاش ۋە رەقەملىك كارتىلار سۇپىسى',
   description: 'AUTO CASH رەقەملىك ماللار، ئويۇنلار، كارتىلار، مەۋھۇم نومۇرلار ۋە سۈنئىي ئەقىل مۇلازىمەت مەركىزى. ئىشەنچلىك، ئەرزان ۋە دەرھال يەتكۈزۈش.',
+  manifest: '/manifest.json',
   icons: {
     icon: '/brand_logo.png?v=2.1.0',
     shortcut: '/brand_logo.png?v=2.1.0',
@@ -55,12 +56,9 @@ export default function RootLayout({
   return (
     <html lang="ug" dir="rtl" suppressHydrationWarning>
       <head>
-        <link rel="manifest" href="/manifest.json" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="MAX-BAZAR" />
-        <link rel="apple-touch-icon" href="/brand_logo.png" />
         <link rel="preconnect" href="https://telegram.org" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://telegram.org" />
