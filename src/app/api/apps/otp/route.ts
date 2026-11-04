@@ -222,6 +222,15 @@ export async function POST(req: NextRequest) {
 
       const token = 'hok_' + crypto.randomBytes(16).toString('hex');
 
+      // Resolve avatar URL
+      let photo_url: string | null = null;
+      const tgChatId = getTelegramUserChatId(cleanIdentity);
+      if (tgChatId) {
+        photo_url = `/api/apps/avatar?user=${encodeURIComponent(cleanIdentity)}`;
+      } else if (!/^\d+$/.test(cleanIdentity)) {
+        photo_url = `https://t.me/i/userpic/320/${cleanIdentity.replace(/^@/, '')}.jpg`;
+      }
+
       return NextResponse.json({
         ok: true,
         session: {
@@ -230,6 +239,7 @@ export async function POST(req: NextRequest) {
           app_id,
           balance: wallets[walletKey],
           currency: 'USD',
+          photo_url,
           logged_in_at: Date.now(),
         },
       });

@@ -71,7 +71,8 @@ export default function HonorOfKingsAppPage() {
   const [showInstallGuide, setShowInstallGuide] = useState(false);
 
   // Authentication & Dedicated App Wallet
-  const [session, setSession] = useState<{ token: string; identity: string; balance: number } | null>(null);
+  const [session, setSession] = useState<{ token: string; identity: string; balance: number; photo_url?: string } | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginStep, setLoginStep] = useState<'input_phone' | 'input_code'>('input_phone');
   const [telegramHandle, setTelegramHandle] = useState('');
@@ -158,6 +159,11 @@ export default function HonorOfKingsAppPage() {
       if (saved) {
         const parsed = JSON.parse(saved);
         setSession(parsed);
+        if (parsed.photo_url) {
+          setAvatarUrl(parsed.photo_url);
+        } else if (parsed.identity) {
+          setAvatarUrl(`/api/apps/avatar?user=${encodeURIComponent(parsed.identity)}`);
+        }
         // Refresh live balance from server
         fetch(`/api/apps/otp`, {
           method: 'POST',
@@ -236,6 +242,12 @@ export default function HonorOfKingsAppPage() {
           setTelegramHandle(autoIdentity);
           setShowLoginModal(false);
 
+          if (tgUser.photo_url) {
+            setAvatarUrl(tgUser.photo_url);
+          } else {
+            setAvatarUrl(`/api/apps/avatar?user=${encodeURIComponent(autoIdentity)}`);
+          }
+
           fetch('/api/apps/otp', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -249,10 +261,15 @@ export default function HonorOfKingsAppPage() {
             .then((r) => r.json())
             .then((data) => {
               if (data.ok && data.session) {
-                setSession(data.session);
+                const s = {
+                  ...data.session,
+                  photo_url: tgUser.photo_url || data.session.photo_url || `/api/apps/avatar?user=${encodeURIComponent(autoIdentity)}`,
+                };
+                setSession(s);
+                setAvatarUrl(s.photo_url);
                 setShowLoginModal(false);
                 try {
-                  localStorage.setItem('maxbazar_hok_session', JSON.stringify(data.session));
+                  localStorage.setItem('maxbazar_hok_session', JSON.stringify(s));
                 } catch {}
               }
             })
@@ -383,8 +400,11 @@ export default function HonorOfKingsAppPage() {
       });
       const data = await res.json();
       if (data.ok && data.session) {
-        setSession(data.session);
-        localStorage.setItem('maxbazar_hok_session', JSON.stringify(data.session));
+        const av = data.session.photo_url || `/api/apps/avatar?user=${encodeURIComponent(telegramHandle.trim())}`;
+        const s = { ...data.session, photo_url: av };
+        setSession(s);
+        setAvatarUrl(av);
+        localStorage.setItem('maxbazar_hok_session', JSON.stringify(s));
         setShowLoginModal(false);
         setOtpCode('');
         setOtpCountdown(0);
@@ -712,12 +732,30 @@ export default function HonorOfKingsAppPage() {
 
           {/* User Status / Login Button */}
           {session ? (
-            <div
-              onClick={() => setShowHistoryModal(true)}
-              className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white cursor-pointer active:scale-90 transition"
-              title="زاكاز تارىخى"
-            >
-              <Clock className="w-4 h-4 text-amber-400" />
+            <div className="flex items-center gap-1.5">
+              <div
+                onClick={() => setShowAccountModal(true)}
+                className="w-8 h-8 rounded-full border border-amber-400 overflow-hidden bg-slate-800 flex items-center justify-center cursor-pointer active:scale-90 transition shadow-[0_0_10px_rgba(251,191,36,0.3)] shrink-0"
+                title="مېنىڭ ھېساباتىم"
+              >
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={session.identity}
+                    className="w-full h-full object-cover rounded-full"
+                    onError={() => setAvatarUrl(null)}
+                  />
+                ) : (
+                  <User className="w-4 h-4 text-amber-400" />
+                )}
+              </div>
+              <div
+                onClick={() => setShowHistoryModal(true)}
+                className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white cursor-pointer active:scale-90 transition"
+                title="زاكاز تارىخى"
+              >
+                <Clock className="w-4 h-4 text-amber-400" />
+              </div>
             </div>
           ) : (
             <button
@@ -1229,7 +1267,18 @@ export default function HonorOfKingsAppPage() {
           }}
           className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-amber-400 transition active:scale-95"
         >
-          <User className="w-5 h-5 text-slate-300" />
+          <div className="w-5 h-5 flex items-center justify-center">
+            {session && avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt=""
+                className="w-5 h-5 rounded-full border border-amber-400 object-cover"
+                onError={() => setAvatarUrl(null)}
+              />
+            ) : (
+              <User className="w-5 h-5 text-slate-300" />
+            )}
+          </div>
           <span className="text-[10px] font-bold text-slate-300 truncate max-w-[75px]">
             {session ? session.identity : 'مېنىڭ ھېسابىم'}
           </span>
@@ -1475,8 +1524,20 @@ export default function HonorOfKingsAppPage() {
               <X className="w-4 h-4" />
             </button>
 
-            <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center mx-auto mb-3 font-black text-xl shadow-lg shadow-amber-500/20">
-              <User className="w-7 h-7" />
+            {/* Real Telegram Profile Avatar */}
+            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-amber-400 mx-auto mb-3 shadow-[0_0_20px_rgba(251,191,36,0.4)] relative bg-[#1E293B] flex items-center justify-center">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={session.identity}
+                  className="w-full h-full object-cover rounded-full"
+                  onError={() => setAvatarUrl(null)}
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center font-black text-xl">
+                  <User className="w-8 h-8" />
+                </div>
+              )}
             </div>
 
             <h3 className="text-base font-black text-white">{session.identity}</h3>
