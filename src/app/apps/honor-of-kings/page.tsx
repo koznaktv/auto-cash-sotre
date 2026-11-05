@@ -125,6 +125,7 @@ export default function HonorOfKingsAppPage() {
             }
             try {
               localStorage.setItem('maxbazar_hok_session', JSON.stringify(data.session));
+              localStorage.setItem('maxbazar_unified_session', JSON.stringify(data.session));
             } catch {}
             setShowLoginModal(false);
             setIsSyncWaiting(false);
@@ -228,9 +229,9 @@ export default function HonorOfKingsAppPage() {
       }
     } catch {}
 
-    // 2. Load User Session
+    // 2. Load User Session (Unified across MAX-BAZAR)
     try {
-      const saved = localStorage.getItem('maxbazar_hok_session');
+      const saved = localStorage.getItem('maxbazar_unified_session') || localStorage.getItem('maxbazar_hok_session');
       if (saved) {
         const parsed = JSON.parse(saved);
         setSession(parsed);
@@ -345,6 +346,8 @@ export default function HonorOfKingsAppPage() {
                 setShowLoginModal(false);
                 try {
                   localStorage.setItem('maxbazar_hok_session', JSON.stringify(s));
+        localStorage.setItem('maxbazar_unified_session', JSON.stringify(s));
+                  localStorage.setItem('maxbazar_unified_session', JSON.stringify(s));
                 } catch {}
               }
             })
@@ -442,6 +445,7 @@ export default function HonorOfKingsAppPage() {
         setSession(s);
         setAvatarUrl(av);
         localStorage.setItem('maxbazar_hok_session', JSON.stringify(s));
+        localStorage.setItem('maxbazar_unified_session', JSON.stringify(s));
         setShowLoginModal(false);
         setOtpError('');
       } else {
@@ -523,6 +527,7 @@ export default function HonorOfKingsAppPage() {
         setSession(s);
         setAvatarUrl(av);
         localStorage.setItem('maxbazar_hok_session', JSON.stringify(s));
+        localStorage.setItem('maxbazar_unified_session', JSON.stringify(s));
         setShowLoginModal(false);
         setOtpCode('');
         setOtpCountdown(0);
@@ -747,7 +752,7 @@ export default function HonorOfKingsAppPage() {
 
     if (session.balance < selectedPackage.price) {
       setOrderError(
-        `قالدۇق پۇلىڭىز يەتمەيدۇ! مەزكۇر ئەپتىكى قالدۇقىڭىز: $${session.balance.toFixed(2)}، بولاق باھاسى: $${selectedPackage.price.toFixed(2)}. ئالدى بىلەن شامكەش ئارقىلىق قالدۇق تولۇقلاڭ.`
+        `قالدۇق پۇلىڭىز يەتمەيدۇ! ماكس بازار ئورتاق قالدۇقىڭىز: $${session.balance.toFixed(2)}، بولاق باھاسى: $${selectedPackage.price.toFixed(2)}. ئالدى بىلەن شامكەش ئارقىلىق قالدۇق تولۇقلاڭ.`
       );
       setShowTopupModal(true);
       return;
@@ -838,7 +843,7 @@ export default function HonorOfKingsAppPage() {
             title="شامكەش ئارقىلىق قالدۇق قاچىلاش"
           >
             <div className="text-right">
-              <span className="block text-[8.5px] text-amber-300/80 font-bold leading-none">HOK قالدۇقى</span>
+              <span className="block text-[8.5px] text-amber-300/80 font-bold leading-none">ئورتاق قالدۇق</span>
               <span className="text-xs sm:text-sm font-black text-amber-400 font-mono tracking-tight">
                 ${session ? session.balance.toFixed(2) : '0.00'}
               </span>
@@ -1584,9 +1589,14 @@ export default function HonorOfKingsAppPage() {
             <h3 className="text-base font-black text-white">{session.identity}</h3>
             <p className="text-xs text-slate-400 mt-0.5">Honor of Kings ھېساباتىڭىز</p>
 
-            <div className="my-4 p-3.5 bg-slate-900/80 rounded-2xl border border-slate-800 flex items-center justify-between">
-              <span className="text-xs text-slate-400">ھەميان قالدۇقى:</span>
-              <span className="font-mono font-black text-amber-400 text-lg">${session.balance.toFixed(2)}</span>
+            <div className="my-4 p-3.5 bg-slate-900/80 rounded-2xl border border-slate-800">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-slate-400">ماكس بازار ئورتاق قالدۇقى:</span>
+                <span className="font-mono font-black text-amber-400 text-lg">${session.balance.toFixed(2)}</span>
+              </div>
+              <p className="text-[10px] text-emerald-400/90 mt-1.5 text-right leading-tight">
+                ✨ بۇ قالدۇق بارلىق ماكس بازار ئەپ ۋە ئويۇنلىرىدا ئورتاق ئىشلىتىلىدۇ.
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -1618,6 +1628,7 @@ export default function HonorOfKingsAppPage() {
                   setShowAccountModal(false);
                   try {
                     localStorage.removeItem('maxbazar_hok_session');
+                    localStorage.removeItem('maxbazar_unified_session');
                   } catch {}
                 }}
                 className="w-full py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 font-bold text-xs transition flex items-center justify-center gap-1.5"

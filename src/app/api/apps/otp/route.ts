@@ -3,6 +3,11 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { getUserByEmailAsync, getUserByTelegramUsernameAsync, verifyPassword as verifyDbPassword } from '@/lib/db';
+import {
+  getUnifiedWalletBalance,
+  setUnifiedWalletBalance,
+  creditUnifiedWalletBalance,
+} from '@/lib/appWallets';
 
 interface OtpEntry {
   code: string;
@@ -350,13 +355,8 @@ export async function POST(req: NextRequest) {
       };
       saveAppUser(newUser);
 
-      // Initialize wallet
-      const walletKey = `${app_id}:${rawUser.toLowerCase()}`;
-      const wallets = getAppWallets();
-      if (wallets[walletKey] === undefined) {
-        wallets[walletKey] = 0.00;
-        saveAppWallet(walletKey, 0.00);
-      }
+      // Retrieve unified wallet
+      const unifiedBal = await getUnifiedWalletBalance(rawUser);
 
       const token = 'mb_app_' + crypto.randomBytes(16).toString('hex');
       const photo_url = tgHandle
@@ -369,7 +369,7 @@ export async function POST(req: NextRequest) {
           token,
           identity: rawUser,
           app_id,
-          balance: wallets[walletKey],
+          balance: unifiedBal,
           currency: 'USD',
           photo_url,
           logged_in_at: Date.now(),
@@ -432,13 +432,8 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // Retrieve wallet
-      const walletKey = `${app_id}:${matchedIdentity.toLowerCase()}`;
-      const wallets = getAppWallets();
-      if (wallets[walletKey] === undefined) {
-        wallets[walletKey] = 0.00;
-        saveAppWallet(walletKey, 0.00);
-      }
+      // Retrieve unified wallet
+      const unifiedBal = await getUnifiedWalletBalance(matchedIdentity);
 
       const token = 'mb_app_' + crypto.randomBytes(16).toString('hex');
       return NextResponse.json({
@@ -447,7 +442,7 @@ export async function POST(req: NextRequest) {
           token,
           identity: matchedIdentity,
           app_id,
-          balance: wallets[walletKey],
+          balance: unifiedBal,
           currency: 'USD',
           photo_url,
           logged_in_at: Date.now(),
@@ -461,13 +456,8 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: false, error: 'تېلېگرامما ئىسمىڭىز ياكى كىملىكىڭىزنى كىرگۈزۈڭ' }, { status: 400 });
       }
 
-      // Initialize or retrieve dedicated app wallet
-      const walletKey = `${app_id}:${cleanIdentity.toLowerCase()}`;
-      const wallets = getAppWallets();
-      if (wallets[walletKey] === undefined) {
-        wallets[walletKey] = 25.00;
-        saveAppWallet(walletKey, 25.00);
-      }
+      // Retrieve unified wallet across all MAX-BAZAR apps
+      const unifiedBal = await getUnifiedWalletBalance(cleanIdentity);
 
       const token = 'mb_app_' + crypto.randomBytes(16).toString('hex');
 
@@ -486,7 +476,7 @@ export async function POST(req: NextRequest) {
           token,
           identity: cleanIdentity,
           app_id,
-          balance: wallets[walletKey],
+          balance: unifiedBal,
           currency: 'USD',
           photo_url,
           logged_in_at: Date.now(),
@@ -594,14 +584,8 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: false, error: 'كىرگۈزگەن كود خاتا ياكى ۋاقتى ئۆتكەن! قايتا كود ئېلىپ سىناڭ.' }, { status: 400 });
       }
 
-      // Initialize or retrieve dedicated app wallet
-      const walletKey = `${app_id}:${cleanIdentity.toLowerCase()}`;
-      const wallets = getAppWallets();
-      if (wallets[walletKey] === undefined) {
-        // Welcome initial wallet balance for demo/testing
-        wallets[walletKey] = 25.00;
-        saveAppWallet(walletKey, 25.00);
-      }
+      // Retrieve unified wallet
+      const unifiedBal = await getUnifiedWalletBalance(cleanIdentity);
 
       const token = 'mb_app_' + crypto.randomBytes(16).toString('hex');
 
@@ -620,7 +604,7 @@ export async function POST(req: NextRequest) {
           token,
           identity: cleanIdentity,
           app_id,
-          balance: wallets[walletKey],
+          balance: unifiedBal,
           currency: 'USD',
           photo_url,
           logged_in_at: Date.now(),
@@ -632,11 +616,10 @@ export async function POST(req: NextRequest) {
       if (!cleanIdentity) {
         return NextResponse.json({ ok: false, error: 'Identity required' }, { status: 400 });
       }
-      const walletKey = `${app_id}:${cleanIdentity.toLowerCase()}`;
-      const wallets = getAppWallets();
+      const liveBal = await getUnifiedWalletBalance(cleanIdentity);
       return NextResponse.json({
         ok: true,
-        balance: wallets[walletKey] ?? 0.00,
+        balance: liveBal,
         currency: 'USD',
       });
     }
@@ -647,15 +630,11 @@ export async function POST(req: NextRequest) {
       if (!cleanIdentity || isNaN(addAmount) || addAmount <= 0) {
         return NextResponse.json({ ok: false, error: 'مىقدار خاتا' }, { status: 400 });
       }
-      const walletKey = `${app_id}:${cleanIdentity.toLowerCase()}`;
-      const wallets = getAppWallets();
-      const current = wallets[walletKey] ?? 0.00;
-      const newBalance = current + addAmount;
-      saveAppWallet(walletKey, newBalance);
+      const creditRes = await creditUnifiedWalletBalance(cleanIdentity, addAmount);
 
       return NextResponse.json({
         ok: true,
-        balance: newBalance,
+        balance: creditRes.newBalance,
         message: `$${addAmount.toFixed(2)} مۇۋەپپەقىيەتلىك قاچىلاندى`,
       });
     }
@@ -695,13 +674,10 @@ export async function POST(req: NextRequest) {
         fs.writeFileSync(usedTalonsFile, JSON.stringify(usedTalons, null, 2), 'utf-8');
       } catch {}
 
-      // Add topup amount (Default $25.00 for verified Sham Cash talon)
+      // Add topup amount (Default $25.00 for verified Sham Cash talon) into unified wallet
       const topupAmount = 25.00;
-      const walletKey = `${app_id}:${cleanIdentity.toLowerCase()}`;
-      const wallets = getAppWallets();
-      const current = wallets[walletKey] ?? 0.00;
-      const newBalance = current + topupAmount;
-      saveAppWallet(walletKey, newBalance);
+      const creditRes = await creditUnifiedWalletBalance(cleanIdentity, topupAmount);
+      const newBalance = creditRes.newBalance;
 
       // Broadcast Sham Cash topup notification to Telegram Channel
       try {

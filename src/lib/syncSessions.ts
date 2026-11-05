@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { getSupabase, isSupabaseConfigured } from './supabase';
+import { getUnifiedWalletBalance } from './appWallets';
 
 export interface SyncSessionData {
   token: string;
@@ -170,13 +171,8 @@ export async function verifySyncSession(
   const cleanIdentity = (user.username || user.firstName || String(user.chatId)).trim().replace(/@/g, '');
   const appId = session?.appId || 'pubg';
 
-  // Retrieve or initialize wallet
-  const walletKey = `${appId}:${cleanIdentity.toLowerCase()}`;
-  const wallets = getAppWallets();
-  if (wallets[walletKey] === undefined) {
-    wallets[walletKey] = 0.00;
-    saveAppWallet(walletKey, 0.00);
-  }
+  // Retrieve unified wallet across all MAX-BAZAR apps
+  const liveUnifiedBalance = await getUnifiedWalletBalance(cleanIdentity);
 
   const sessionToken = 'mb_app_' + crypto.randomBytes(16).toString('hex');
   const photo_url = user.chatId
@@ -187,7 +183,7 @@ export async function verifySyncSession(
     token: sessionToken,
     identity: cleanIdentity,
     app_id: appId,
-    balance: wallets[walletKey],
+    balance: liveUnifiedBalance,
     currency: 'USD',
     photo_url,
     telegram_id: String(user.chatId),

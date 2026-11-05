@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import {
+  getUnifiedWalletBalance,
+  deductUnifiedWalletBalance,
+  creditUnifiedWalletBalance,
+} from '@/lib/appWallets';
 
 const SESSIONS_DIR = path.join(process.cwd(), 'data', 'micro_apps');
 function ensureDir() {
@@ -79,24 +84,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: 'باھا خاتا' }, { status: 400 });
     }
 
-    // Check dedicated app wallet balance
-    const walletKey = `${app_id}:${cleanIdentity.toLowerCase()}`;
-    const wallets = getAppWallets();
-    const currentBalance = wallets[walletKey] ?? 0.00;
+    // Check unified MAX-BAZAR wallet balance
+    const currentBalance = await getUnifiedWalletBalance(cleanIdentity);
 
     if (currentBalance < itemPrice) {
       return NextResponse.json({
         ok: false,
-        error: `قالدۇق پۇلىڭىز يەتمىدى! ھازىرقى قالدۇق: $${currentBalance.toFixed(2)}، تەلەپ قىلىنغىنى: $${itemPrice.toFixed(2)}`,
-        current_balance: currentBalance,
-      }, { status: 400 });
-    }
-
-    // 1. Verify that customer has sufficient balance BEFORE dispatching
-    if (currentBalance < itemPrice) {
-      return NextResponse.json({
-        ok: false,
-        error: `قالدۇق پۇلىڭىز يەتمىدى! ھازىرقى قالدۇق: $${currentBalance.toFixed(2)}، تەلەپ قىلىنغىنى: $${itemPrice.toFixed(2)}`,
+        error: `قالدۇق پۇلىڭىز يەتمىدى! ماكس بازار ئورتاق قالدۇقىڭىز: $${currentBalance.toFixed(2)}، تەلەپ قىلىنغىنى: $${itemPrice.toFixed(2)}`,
         current_balance: currentBalance,
       }, { status: 400 });
     }
@@ -150,9 +144,9 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // 4. Provider accepted order: Deduct price atomically from dedicated app wallet
-    const newBalance = Number((currentBalance - itemPrice).toFixed(2));
-    saveAppWallet(walletKey, newBalance);
+    // 4. Provider accepted order: Deduct price atomically from unified wallet
+    const deductRes = await deductUnifiedWalletBalance(cleanIdentity, itemPrice);
+    const newBalance = deductRes.newBalance;
 
     const newOrder = {
       order_id: orderId,
@@ -279,12 +273,8 @@ export async function GET(req: NextRequest) {
                 matchedOrder.refunded_at = new Date().toISOString();
                 matchedOrder.refund_note = 'تەمىنلىگۈچى تەرەپتىن رەت قىلىندى، $ ' + matchedOrder.price.toFixed(2) + ' قالدۇقىڭىزغا قايتۇرۇلدى.';
 
-                // Auto-refund balance back to customer wallet
-                const refundWalletKey = `${matchedOrder.app_id}:${matchedOrder.identity.toLowerCase()}`;
-                const wallets = getAppWallets();
-                const curr = wallets[refundWalletKey] ?? 0.00;
-                const refundedBalance = Number((curr + matchedOrder.price).toFixed(2));
-                saveAppWallet(refundWalletKey, refundedBalance);
+                // Auto-refund balance back to customer unified wallet
+                await creditUnifiedWalletBalance(matchedOrder.identity, matchedOrder.price);
                 ordersChanged = true;
               }
             }
@@ -306,10 +296,8 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Get live wallet balance
-    const walletKey = `${app_id}:${cleanId}`;
-    const wallets = getAppWallets();
-    const liveBalance = cleanId ? (wallets[walletKey] ?? 0.00) : null;
+    // Get live unified wallet balance
+    const liveBalance = cleanId ? await getUnifiedWalletBalance(cleanId) : null;
 
     return NextResponse.json({
       ok: true,
