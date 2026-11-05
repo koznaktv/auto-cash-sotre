@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import AppsBottomNav, { AppsNavTab } from '@/components/apps/AppsBottomNav';
+import BackToMarketButton from '@/components/apps/BackToMarketButton';
 import {
   Zap,
   ShieldCheck,
@@ -1071,6 +1072,9 @@ export default function PubgAppPage() {
         ========================================================================= */}
         {activeNavTab === 'home' && (
           <div className="space-y-4 animate-fadeIn">
+            {/* 1. MAX-BAZAR MAIN HUB NAVIGATION BUTTON (ماكس بازار ئاساسىي بازىرىغا قايتىش) */}
+            <BackToMarketButton />
+
             {/* HERO BANNER - PUBG AIRDROP MILITARY AESTHETIC */}
             <div className="relative overflow-hidden bg-gradient-to-b from-[#131F38] via-[#0E1729] to-[#070B14] p-4 rounded-3xl border border-slate-800">
               <div className="absolute top-0 right-0 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />

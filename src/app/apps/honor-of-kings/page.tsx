@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import AppsBottomNav, { AppsNavTab } from '@/components/apps/AppsBottomNav';
+import BackToMarketButton from '@/components/apps/BackToMarketButton';
 import {
   Zap,
   ShieldCheck,
@@ -1046,6 +1047,9 @@ export default function HonorOfKingsAppPage() {
         ========================================================================= */}
         {activeNavTab === 'home' && (
           <div className="space-y-4 animate-fadeIn">
+            {/* 1. MAX-BAZAR MAIN HUB NAVIGATION BUTTON (ماكس بازار ئاساسىي بازىرىغا قايتىش) */}
+            <BackToMarketButton />
+
             {/* BANNER WITH QUICK TOPUP CTA */}
         <div className="relative rounded-3xl overflow-hidden p-4 bg-gradient-to-br from-[#121B33] via-[#0E1528] to-[#0A0E1A] border border-amber-500/30 shadow-xl flex items-center justify-between">
           <div className="space-y-1">
