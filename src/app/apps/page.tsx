@@ -502,26 +502,84 @@ export default function AppsHubPage() {
         {activeNavTab === 'home' && (
           <div className="space-y-6 animate-fadeIn">
             
-            {/* HERO SPOTLIGHT BANNER CARD */}
-            <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0e172a] via-[#091122] to-[#050914] border border-amber-500/30 p-5 md:p-7 shadow-2xl text-right group">
+            {/* HERO SPOTLIGHT BANNER CARD: ماكىس بازارنىڭ ئەۋزەللىكلىرى */}
+            <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0e172a] via-[#091122] to-[#050914] border border-amber-500/35 p-5 md:p-7 shadow-2xl text-right group font-alkatip">
               {/* Top ambient gold shimmer beam */}
               <div className="absolute -top-12 -right-12 w-64 h-64 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
 
-              <div className="relative z-10 space-y-2.5 max-w-2xl">
+              <div className="relative z-10 space-y-4 max-w-3xl">
+                {/* Header Tag */}
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-xs font-bold">
                   <Flame className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-                  <span>MAX-BAZAR رەسمىي ئەپ بازىرى</span>
+                  <span>MAX-BAZAR — سۈرئەتلىك ۋە رەسمىي ئەپ بازىرى</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
                 </div>
                 
+                {/* Big Catchy Title */}
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight">
-                  ئۆزىڭىزگە كېرەكلىك ئەپنى تاللاپ، <span className="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">دەرھال تېلېفونىڭىزغا قاچىلاڭ</span>
+                  نېمە ئۈچۈن <span className="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">MAX-BAZAR نى تاللايمىز؟</span>
                 </h1>
                 
                 <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-                  تۆۋەندىكى تۈرلەردىن ئۆزىڭىزگە لازىملىق ئەپ ياكى ئويۇننى تاللاڭ. «تېلېفونغا قاچىلاش» نى باسىپ ئەپنى تېلېفونىڭىزنىڭ باش ئېكرانىغا چۈشۈرۈۋېلىڭ ياكى تور كۆرگۈچتە بىۋاسىتە ئېچىپ، قالدۇق پۇل ئارقىلىق 3 سېكۇنتتا يەتكۈزۈۋېلىڭ!
+                  MAX-BAZAR — ئويۇن ۋە تور ئەپلىرىگە پۇل قاچىلاشنى ئەڭ تېز، ئەڭ بىخەتەر ۋە ئاپتوماتىك قىلىپ بېرىدىغان زامانىۋى ئەپ سۇپىسىدۇر.
                 </p>
 
+                {/* 4 CORE ADVANTAGES GRID (ماكس بازارنىڭ 4 چوڭ ئەۋزەللىكى) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                  {/* Advantage 1: Speed */}
+                  <div className="p-3 rounded-2xl bg-slate-900/80 border border-amber-500/25 flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                      <Zap className="w-4 h-4 fill-amber-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-black text-white">⚡ 3 سېكۇنتتا يېتىپ بېرىش</h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
+                        سۈنئىي كۈتۈش يوق، رەسمىي API ئارقىلىق سەرۋەرگە سېكۇنت ئىچىدە ئاپتوماتىك قاچىلىنىدۇ.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Advantage 2: 100% Official */}
+                  <div className="p-3 rounded-2xl bg-slate-900/80 border border-emerald-500/25 flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                      <ShieldCheck className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-black text-white">🛡️ 100% رەسمىي ۋە كاپالەتلىك</h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
+                        پەقەت Player ID ياكى UID ئارقىلىق، ھېسابات مەخپىيەتلىكىڭىز تولۇق قوغدالغان ھالەتتە بېجىرىلىدۇ.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Advantage 3: Unified Balance */}
+                  <div className="p-3 rounded-2xl bg-slate-900/80 border border-blue-500/25 flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
+                      <Wallet className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-black text-white">💳 شامكەش بىر تۇتاش قالدۇق</h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
+                        شامكەش ئارقىلىق بىرلا قېتىم قالدۇق قاچىلاپ، ھەممە ئويۇن ۋە ئەپتىن بىر كۇنۇپكا بىلەنلا سېتىۋېلىش.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Advantage 4: Multi-platform PWA & Telegram */}
+                  <div className="p-3 rounded-2xl bg-slate-900/80 border border-purple-500/25 flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0 mt-0.5">
+                      <Smartphone className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-black text-white">📲 تېلېفونغا ئەپ قىلىش ۋە تېلېگرامما</h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
+                        بىۋاسىتە تېلېفون باش ئېكرانىغا چۈشۈرۈپ ئىشلىتىش، تېلېگرامما بوتتا بىر چېكىپلا كىرىش قۇلايلىقى.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Action Buttons */}
                 <div className="flex flex-wrap items-center gap-2.5 pt-2">
                   <button
                     onClick={() => handleOpenInstallModal()}
