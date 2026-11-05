@@ -421,31 +421,30 @@ export default function AppsHubPage() {
   }, [ordersHistory, ordersStatusFilter, ordersSearch]);
 
   return (
-    <div className="min-h-screen bg-[#070B14] text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950 pb-28" dir="rtl">
-      {/* Dynamic Background Glow */}
+    <div className="min-h-screen bg-[#f4f7f5] text-slate-900 flex flex-col font-alkatip selection:bg-amber-500 selection:text-slate-950 pb-32 sm:pb-36" dir="rtl">
+      {/* Dynamic Background Soft Ambient */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-32 -right-32 w-96 h-96 bg-amber-500/10 rounded-full blur-[120px]" />
-        <div className="absolute top-1/3 -left-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-[140px]" />
-        <div className="absolute -bottom-32 right-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-[140px]" />
+        <div className="absolute -top-32 -right-32 w-96 h-96 bg-amber-200/20 rounded-full blur-[120px]" />
+        <div className="absolute top-1/3 -left-32 w-96 h-96 bg-emerald-200/20 rounded-full blur-[140px]" />
       </div>
 
       {/* TOP BRAND HEADER */}
-      {/* STICKY TOP APP HEADER BAR */}
-      <header className="sticky top-0 z-40 bg-[#080D1A]/95 backdrop-blur-xl border-b border-amber-500/20 px-3 sm:px-4 py-2.5 shadow-[0_4px_25px_rgba(0,0,0,0.6)]">
+      {/* STICKY TOP APP HEADER BAR - MATCHES AUTO CASH */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 px-3 sm:px-4 py-2.5 shadow-[0_1px_4px_rgba(0,0,0,0.03)]">
         {/* Subtle glowing hairline top accent */}
-        <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-emerald-500/30 via-amber-400/50 to-emerald-500/30 pointer-events-none" />
+        <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-emerald-500/40 via-amber-400/60 to-emerald-500/40 pointer-events-none" />
 
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-2 sm:gap-3">
           
-          {/* 1. Gateway Switcher Button (⇄ AUTO CASH) - Larger, Prominent, Clear */}
+          {/* 1. Gateway Switcher Button (⇄ AUTO CASH) - Prominent, Clear */}
           <div className="flex items-center gap-2">
             <Link
               href="/"
-              className="group flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl border text-xs font-bold transition-all shadow-md shrink-0 active:scale-95 bg-gradient-to-r from-[#031c14]/95 via-[#06291e]/95 to-[#041a12]/95 border-emerald-500/50 hover:border-emerald-400 text-slate-100 hover:text-white shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:shadow-[0_0_20px_rgba(16,185,129,0.35)]"
+              className="group flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl border text-xs font-bold transition-all shadow-xs shrink-0 active:scale-95 bg-emerald-50/90 hover:bg-emerald-100/90 border-emerald-300/80 hover:border-emerald-400 text-emerald-900"
               title="auto-cash.app تور بېكىتىگە كىرىش (سۇپا ئالماشتۇرۇش)"
             >
-              <ArrowLeftRight className="w-4 h-4 text-emerald-400 group-hover:rotate-180 transition-transform duration-300 shrink-0 stroke-[2.2]" />
-              <div className="relative w-5 h-5 sm:w-6 sm:h-6 rounded-full overflow-hidden flex-shrink-0 bg-slate-950 border border-emerald-400/60 shadow-xs">
+              <ArrowLeftRight className="w-4 h-4 text-emerald-600 group-hover:rotate-180 transition-transform duration-300 shrink-0 stroke-[2.2]" />
+              <div className="relative w-5 h-5 sm:w-6 sm:h-6 rounded-full overflow-hidden flex-shrink-0 bg-white border border-emerald-400 shadow-xs">
                 <Image
                   src="/images/autocash_official_logo.png"
                   alt="AUTO CASH"
@@ -454,10 +453,10 @@ export default function AppsHubPage() {
                 />
               </div>
               <div className="flex flex-col text-left leading-none">
-                <span className="text-[11px] sm:text-xs font-black text-emerald-300 font-mono tracking-tight group-hover:text-emerald-200 transition-colors">
+                <span className="text-[11px] sm:text-xs font-black text-emerald-800 font-mono tracking-tight">
                   AUTO CASH
                 </span>
-                <span className="text-[8.5px] text-emerald-400/80 font-bold hidden xs:block">
+                <span className="text-[8.5px] text-emerald-600/90 font-bold hidden xs:block">
                   ئالماشتۇرۇش ⚡
                 </span>
               </div>
@@ -467,7 +466,7 @@ export default function AppsHubPage() {
               href="https://t.me/maxbazar_bot"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 text-sky-300 text-xs font-bold transition active:scale-95"
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-700 text-xs font-bold transition active:scale-95"
               title="تېلېگرامما بوت"
             >
               <Send className="w-3.5 h-3.5" />
@@ -485,40 +484,40 @@ export default function AppsHubPage() {
                   handleNavClick('wallet');
                 }
               }}
-              className="group flex items-center gap-2.5 bg-gradient-to-b from-[#141F38] via-[#0E172B] to-[#0A1020] hover:from-[#182647] hover:to-[#0F1932] border border-amber-400/50 hover:border-amber-300 px-3.5 sm:px-4 py-1.5 rounded-full shadow-[0_4px_16px_rgba(245,158,11,0.2)] hover:shadow-[0_4px_22px_rgba(245,158,11,0.35)] transition cursor-pointer active:scale-95 shrink-0"
+              className="group flex items-center gap-2.5 bg-gradient-to-r from-amber-50 to-orange-50/90 hover:from-amber-100/90 hover:to-orange-100/90 border border-amber-300/90 hover:border-amber-400 px-3.5 sm:px-4 py-1.5 rounded-full shadow-xs transition cursor-pointer active:scale-95 shrink-0"
               title="قالدۇق پۇل كۆرۈش ۋە شامكەش ئارقىلىق قاچىلاش"
             >
               <div className="text-right">
-                <span className="block text-[9px] text-amber-200/90 font-bold leading-none mb-0.5">قالدۇق</span>
-                <span className="text-xs sm:text-sm font-black text-amber-300 font-mono tracking-tight group-hover:text-amber-200 transition-colors">
+                <span className="block text-[9px] text-amber-700/90 font-bold leading-none mb-0.5">قالدۇق</span>
+                <span className="text-xs sm:text-sm font-black text-amber-800 font-mono tracking-tight">
                   ${session ? session.balance.toFixed(2) : '0.00'}
                 </span>
               </div>
-              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-600 group-hover:brightness-110 text-slate-950 flex items-center justify-center transition shadow-md shrink-0">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-400 group-hover:brightness-105 text-slate-950 flex items-center justify-center transition shadow-xs shrink-0">
                 <Plus className="w-3.5 h-3.5 stroke-[3]" />
               </div>
             </button>
           </div>
 
-          {/* 3. Left in RTL: Official MAX-BAZAR 3D Gold Logo (Replaces star!) */}
+          {/* 3. Left in RTL: Official MAX-BAZAR 3D Gold Logo */}
           <div
             onClick={() => handleNavClick('home')}
             className="flex items-center gap-2.5 shrink-0 cursor-pointer group"
             title="MAX-BAZAR باش بېتى"
           >
             <div className="text-right hidden sm:block">
-              <span className="font-black text-sm sm:text-base tracking-wider bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent block leading-tight group-hover:brightness-110 transition">
+              <span className="font-black text-sm sm:text-base tracking-wider text-slate-900 block leading-tight group-hover:text-amber-600 transition">
                 MAX-BAZAR
               </span>
-              <span className="text-[9px] text-amber-300/80 font-bold flex items-center gap-1 justify-end">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[9px] text-amber-700 font-bold flex items-center gap-1 justify-end">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span>رەسمىي ئەپ بازىرى</span>
               </span>
             </div>
 
             {/* Official 3D Gold Round Medallion Logo */}
-            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 via-yellow-300 to-amber-600 shadow-[0_0_15px_rgba(251,191,36,0.45)] group-hover:shadow-[0_0_20px_rgba(251,191,36,0.7)] group-hover:scale-105 transition-all shrink-0">
-              <div className="w-full h-full bg-[#070B14] rounded-full overflow-hidden flex items-center justify-center">
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 via-yellow-300 to-amber-600 shadow-md group-hover:scale-105 transition-all shrink-0">
+              <div className="w-full h-full bg-white rounded-full overflow-hidden flex items-center justify-center">
                 <Image
                   src="/images/maxbazar/v3/maxbazar_gold_round.png"
                   alt="MAX-BAZAR"
@@ -528,7 +527,7 @@ export default function AppsHubPage() {
                   priority
                 />
               </div>
-              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#0B101D] shadow-xs pointer-events-none" />
+              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white shadow-xs pointer-events-none" />
             </div>
           </div>
 
@@ -562,11 +561,11 @@ export default function AppsHubPage() {
             {/* 6 CATEGORIES TABS */}
             <section className="space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-black text-white flex items-center gap-1.5">
+                <h2 className="text-sm font-black text-slate-900 flex items-center gap-1.5">
                   <Layers className="w-4 h-4 text-amber-400" />
                   <span>مۇلازىمەت ۋە ئەپ كاتېگورىيەلىرى (6 تۈر):</span>
                 </h2>
-                <span className="text-[11px] text-slate-400">
+                <span className="text-[11px] text-slate-500">
                   بىرنى تاللاڭ
                 </span>
               </div>
@@ -621,11 +620,11 @@ export default function AppsHubPage() {
             {selectedCategory === 'games' && (
               <section className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-base font-black text-white flex items-center gap-2">
+                  <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
                     <Gamepad2 className="w-5 h-5 text-amber-400" />
                     <span>ھازىرقى پۈتكەن ئويۇن ئەپلىرى (بىسىپلا تېلېفونغا چۈشۈرۈۋالالايسىز):</span>
                   </h2>
-                  <span className="text-xs text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                  <span className="text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                     2 ئويۇن تەييار
                   </span>
                 </div>
@@ -712,13 +711,13 @@ export default function AppsHubPage() {
             {/* UPCOMING CATEGORIES PLACEHOLDER */}
             {selectedCategory !== 'games' && (
               <section className="rounded-3xl bg-slate-900/50 border border-slate-800 p-6 md:p-8 space-y-5 text-right">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                   <div>
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[11px] font-bold mb-1">
                       <Clock className="w-3 h-3" />
                       <span>تەييارلىنىۋاتىدۇ (يېقىندا قوشۇلىدۇ)</span>
                     </div>
-                    <h3 className="text-lg font-black text-white">
+                    <h3 className="text-lg font-black text-slate-900">
                       {CATEGORIES.find((c) => c.id === selectedCategory)?.name}
                     </h3>
                   </div>
@@ -791,7 +790,7 @@ export default function AppsHubPage() {
             </div>
 
             {/* Filter Card Container */}
-            <div className="p-4 rounded-2xl bg-[#0F172A] border border-slate-800 space-y-3.5 shadow-sm">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200/90 space-y-3.5 shadow-xs">
               {/* Search Box */}
               <div className="relative">
                 <input
@@ -811,7 +810,7 @@ export default function AppsHubPage() {
                   className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 ${
                     ordersStatusFilter === 'all'
                       ? 'bg-emerald-600 text-white shadow-sm'
-                      : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                      : 'bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200'
                   }`}
                 >
                   ھەممىسى
@@ -821,7 +820,7 @@ export default function AppsHubPage() {
                   className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1 ${
                     ordersStatusFilter === 'completed'
                       ? 'bg-emerald-600 text-white shadow-sm'
-                      : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                      : 'bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200'
                   }`}
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
@@ -832,7 +831,7 @@ export default function AppsHubPage() {
                   className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1 ${
                     ordersStatusFilter === 'processing'
                       ? 'bg-amber-600 text-white shadow-sm'
-                      : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                      : 'bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200'
                   }`}
                 >
                   <Hourglass className="w-3.5 h-3.5" />
@@ -843,7 +842,7 @@ export default function AppsHubPage() {
                   className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1 ${
                     ordersStatusFilter === 'refunded'
                       ? 'bg-rose-600 text-white shadow-sm'
-                      : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                      : 'bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200'
                   }`}
                 >
                   <X className="w-3.5 h-3.5" />
@@ -852,7 +851,7 @@ export default function AppsHubPage() {
               </div>
 
               {/* Counter Pill */}
-              <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-800/80">
+              <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100">
                 <span className="text-slate-400 text-[11px]">زاكاز نەتىجىلىرى سانى:</span>
                 <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-mono font-bold text-[11px]">
                   {filteredOrders.length} نەتىجە
@@ -906,10 +905,10 @@ export default function AppsHubPage() {
                   return (
                     <div
                       key={i}
-                      className="p-4 rounded-2xl bg-[#0F172A] border border-slate-800 space-y-3 shadow-md hover:border-slate-700 transition"
+                      className="p-4 rounded-2xl bg-white border border-slate-200/90 space-y-3 shadow-xs hover:border-amber-400/60 transition"
                     >
                       {/* Top Row: Order ID + Status Badge */}
-                      <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
@@ -1127,7 +1126,7 @@ export default function AppsHubPage() {
 
             {/* Profile Card */}
             {session ? (
-              <div className="p-6 rounded-3xl bg-[#0F172A] border border-amber-500/30 text-center space-y-4 shadow-xl">
+              <div className="p-6 rounded-3xl bg-white border border-slate-200/90 text-center space-y-4 shadow-xs text-slate-900">
                 <div className="w-20 h-20 rounded-full border-2 border-amber-400 mx-auto overflow-hidden bg-slate-800 shadow-[0_0_20px_rgba(251,191,36,0.3)]">
                   {session.photo_url ? (
                     <img src={session.photo_url} alt={session.identity} className="w-full h-full object-cover" />
@@ -1139,7 +1138,7 @@ export default function AppsHubPage() {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-black text-white">{session.identity}</h3>
+                  <h3 className="text-lg font-black text-slate-900">{session.identity}</h3>
                   <p className="text-xs text-emerald-400 font-bold mt-1 flex items-center justify-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>تېلېگرامما ئارقىلىق دەلىللەنگەن</span>
@@ -1148,7 +1147,7 @@ export default function AppsHubPage() {
 
                 <div className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800 flex items-center justify-between text-right max-w-sm mx-auto">
                   <span className="text-xs text-slate-400">قالدۇقىڭىز:</span>
-                  <span className="font-mono font-black text-amber-400 text-xl">${session.balance.toFixed(2)}</span>
+                  <span className="font-mono font-black text-amber-600 text-xl">${session.balance.toFixed(2)}</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-sm mx-auto pt-2">
@@ -1169,7 +1168,7 @@ export default function AppsHubPage() {
                   </button>
                 </div>
 
-                <div className="pt-4 border-t border-slate-800/80 max-w-sm mx-auto">
+                <div className="pt-4 border-t border-slate-100 max-w-sm mx-auto">
                   <button
                     onClick={() => {
                       setSession(null);
@@ -1187,7 +1186,7 @@ export default function AppsHubPage() {
                 </div>
               </div>
             ) : (
-              <div className="p-8 rounded-3xl bg-[#0F172A] border border-amber-500/30 text-center space-y-4 shadow-xl">
+              <div className="p-8 rounded-3xl bg-white border border-slate-200/90 text-center space-y-4 shadow-sm">
                 <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto border border-amber-500/30">
                   <User className="w-7 h-7" />
                 </div>
@@ -1304,7 +1303,7 @@ export default function AppsHubPage() {
             </div>
 
             <div className="space-y-3 pt-2 text-xs text-slate-300 leading-relaxed">
-              <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+              <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
                 <div className="font-bold text-white flex items-center gap-1.5">
                   <span>🤖 Android (Chrome) دا قاچىلاش:</span>
                 </div>
@@ -1315,7 +1314,7 @@ export default function AppsHubPage() {
                 </p>
               </div>
 
-              <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+              <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
                 <div className="font-bold text-white flex items-center gap-1.5">
                   <span>📱 iPhone (Safari) دە قاچىلاش:</span>
                 </div>
