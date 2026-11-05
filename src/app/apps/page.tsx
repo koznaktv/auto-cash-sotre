@@ -1224,7 +1224,7 @@ export default function AppsHubPage() {
 
                 <div className="px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[10px] font-bold flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>ئورتاق بىردەك قالدۇق</span>
+                  <span>MAX-BAZAR قالدۇقى</span>
                 </div>
               </div>
             </div>
