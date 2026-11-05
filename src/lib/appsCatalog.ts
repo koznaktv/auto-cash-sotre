@@ -36,6 +36,8 @@ export interface CategoryItem {
   icon: LucideIcon;
   isReady: boolean;
   countBadge: string;
+  gradient: string;
+  glowColor: string;
 }
 
 export const CATEGORIES: CategoryItem[] = [
@@ -45,7 +47,9 @@ export const CATEGORIES: CategoryItem[] = [
     subtitle: 'PUBG ۋە HOK تەييار',
     icon: Gamepad2,
     isReady: true,
-    countBadge: '2 ئويۇن تەييار'
+    countBadge: '2 ئويۇن تەييار',
+    gradient: 'from-amber-500 via-orange-500 to-yellow-500',
+    glowColor: 'rgba(245, 158, 11, 0.35)'
   },
   {
     id: 'apps',
@@ -53,7 +57,9 @@ export const CATEGORIES: CategoryItem[] = [
     subtitle: 'پات يېقىندا',
     icon: Smartphone,
     isReady: false,
-    countBadge: 'يېقىندا'
+    countBadge: 'يېقىندا',
+    gradient: 'from-sky-500 via-blue-500 to-indigo-500',
+    glowColor: 'rgba(56, 189, 248, 0.35)'
   },
   {
     id: 'cards',
@@ -61,7 +67,9 @@ export const CATEGORIES: CategoryItem[] = [
     subtitle: 'پات يېقىندا',
     icon: CreditCard,
     isReady: false,
-    countBadge: 'يېقىندا'
+    countBadge: 'يېقىندا',
+    gradient: 'from-emerald-500 via-teal-500 to-green-600',
+    glowColor: 'rgba(16, 185, 129, 0.35)'
   },
   {
     id: 'ai',
@@ -69,7 +77,9 @@ export const CATEGORIES: CategoryItem[] = [
     subtitle: 'پات يېقىندا',
     icon: Bot,
     isReady: false,
-    countBadge: 'يېقىندا'
+    countBadge: 'يېقىندا',
+    gradient: 'from-purple-500 via-violet-500 to-indigo-600',
+    glowColor: 'rgba(168, 85, 247, 0.35)'
   },
   {
     id: 'sms',
@@ -77,7 +87,9 @@ export const CATEGORIES: CategoryItem[] = [
     subtitle: 'پات يېقىندا',
     icon: PhoneCall,
     isReady: false,
-    countBadge: 'يېقىندا'
+    countBadge: 'يېقىندا',
+    gradient: 'from-cyan-500 via-teal-500 to-emerald-600',
+    glowColor: 'rgba(6, 182, 212, 0.35)'
   },
   {
     id: 'social',
@@ -85,7 +97,9 @@ export const CATEGORIES: CategoryItem[] = [
     subtitle: 'پات يېقىندا',
     icon: Share2,
     isReady: false,
-    countBadge: 'يېقىندا'
+    countBadge: 'يېقىندا',
+    gradient: 'from-rose-500 via-pink-500 to-orange-500',
+    glowColor: 'rgba(244, 63, 94, 0.35)'
   }
 ];
 

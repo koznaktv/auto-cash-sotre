@@ -56,7 +56,7 @@ import {
 } from 'lucide-react';
 
 export default function AppsHubPage() {
-  const [selectedCategory, setSelectedCategory] = useState<CategoryId>('games');
+  const [selectedCategory, setSelectedCategory] = useState<CategoryId | null>(null);
   const [homeSearch, setHomeSearch] = useState('');
   const [showHowToInstallModal, setShowHowToInstallModal] = useState(false);
   const [selectedAppForInstall, setSelectedAppForInstall] = useState<ActiveApp | null>(null);
@@ -266,8 +266,50 @@ export default function AppsHubPage() {
 
   const handleNavClick = (tab: 'home' | 'orders' | 'wallet' | 'account') => {
     setActiveNavTab(tab);
+    if (tab === 'home') {
+      if (typeof window !== 'undefined' && window.location.hash.startsWith('#category=')) {
+        window.history.pushState(null, '', window.location.pathname);
+      }
+      setSelectedCategory(null);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Category Folder Drill-Down & Phone Back Gesture / Popstate Support
+  const handleCategoryClick = (catId: CategoryId) => {
+    setSelectedCategory(catId);
+    if (typeof window !== 'undefined') {
+      window.history.pushState({ category: catId }, '', `#category=${catId}`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleBackToCategories = () => {
+    if (typeof window !== 'undefined' && window.location.hash.startsWith('#category=')) {
+      window.history.back();
+    } else {
+      setSelectedCategory(null);
+    }
+  };
+
+  // Sync category state with browser URL hash & phone back gestures / swipe
+  useEffect(() => {
+    const syncHash = () => {
+      if (typeof window === 'undefined') return;
+      const hash = window.location.hash;
+      if (hash.startsWith('#category=')) {
+        const cat = hash.replace('#category=', '') as CategoryId;
+        const exists = CATEGORIES.some((c) => c.id === cat);
+        setSelectedCategory(exists ? cat : null);
+      } else {
+        setSelectedCategory(null);
+      }
+    };
+
+    syncHash();
+    window.addEventListener('popstate', syncHash);
+    return () => window.removeEventListener('popstate', syncHash);
+  }, []);
 
   const handleLogout = () => {
     setSession(null);
@@ -275,6 +317,7 @@ export default function AppsHubPage() {
     localStorage.removeItem('maxbazar_pubg_session');
     localStorage.removeItem('maxbazar_hok_session');
     setActiveNavTab('home');
+    setSelectedCategory(null);
   };
 
   // Open Install Modal for an app
@@ -289,20 +332,6 @@ export default function AppsHubPage() {
 
     if (homeSearch.trim()) {
       const q = homeSearch.toLowerCase().trim();
-      const inCurrentCat = list
-        .filter((item) => item.category === selectedCategory)
-        .filter((item) => {
-          const mName = item.name.toLowerCase().includes(q);
-          const mTag = item.tagline.toLowerCase().includes(q);
-          const mDesc = item.description.toLowerCase().includes(q);
-          const mBadge = item.badge.toLowerCase().includes(q);
-          const mPrice = item.priceNote.toLowerCase().includes(q);
-          return mName || mTag || mDesc || mBadge || mPrice;
-        });
-
-      if (inCurrentCat.length > 0) return inCurrentCat;
-
-      // If no match in current category, search across the entire catalog
       return list.filter((item) => {
         const mName = item.name.toLowerCase().includes(q);
         const mTag = item.tagline.toLowerCase().includes(q);
@@ -312,6 +341,8 @@ export default function AppsHubPage() {
         return mName || mTag || mDesc || mBadge || mPrice;
       });
     }
+
+    if (!selectedCategory) return [];
 
     return list.filter((item) => item.category === selectedCategory);
   }, [selectedCategory, homeSearch]);
@@ -534,211 +565,336 @@ export default function AppsHubPage() {
               )}
             </section>
 
-            {/* 6 MODERN CATEGORY SQUIRCLE CARDS */}
-            <section className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-black text-white flex items-center gap-1.5">
-                  <Layers className="w-4 h-4 text-amber-400" />
-                  <span>مۇلازىمەت ۋە ئەپ بۆلۈملىرى (6 تۈر):</span>
-                </h2>
-                <span className="text-[11px] text-slate-400">
-                  كۆرمەكچى بولغان بۆلۈمنى تاللاڭ
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5">
-                {CATEGORIES.map((cat) => {
-                  const IconComp = cat.icon;
-                  const isSelected = selectedCategory === cat.id;
-                  const countInCat = ACTIVE_CATALOG.filter((a) => a.category === cat.id).length;
-
-                  return (
-                    <button
-                      key={cat.id}
-                      onClick={() => {
-                        setSelectedCategory(cat.id);
-                        if (homeSearch) setHomeSearch('');
-                      }}
-                      className={`relative p-3.5 rounded-2xl border transition-all text-right flex flex-col justify-between gap-2.5 active:scale-95 cursor-pointer ${
-                        isSelected
-                          ? 'bg-gradient-to-b from-amber-500/20 via-[#0F172A] to-[#0A1020] border-amber-400/80 shadow-lg shadow-amber-500/15 ring-1 ring-amber-400/40'
-                          : 'bg-[#0c1424]/90 hover:bg-[#101b30] border-slate-800/80 hover:border-slate-700'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between w-full">
-                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105 ${
-                          isSelected ? 'bg-amber-400 text-slate-950 font-black shadow-md' : 'bg-slate-800 text-slate-300'
-                        }`}>
-                          <IconComp className="w-4 h-4" />
-                        </div>
-                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md ${
-                          isSelected
-                            ? 'bg-amber-400/20 text-amber-300 border border-amber-400/30'
-                            : countInCat > 0
-                            ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/20'
-                            : 'bg-slate-800/80 text-slate-400 border border-slate-700/60'
-                        }`}>
-                          {countInCat > 0 ? `${countInCat} تەييار` : 'پات يېقىندا'}
-                        </span>
-                      </div>
-
-                      <div>
-                        <h3 className={`text-xs font-black truncate ${isSelected ? 'text-amber-300' : 'text-white'}`}>
-                          {cat.name}
-                        </h3>
-                        <p className="text-[10px] text-slate-400 truncate mt-0.5">
-                          {cat.subtitle}
-                        </p>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-
-            {/* DYNAMIC CATEGORY CATALOG APPS & GAMES GRID */}
-            <section className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
-                  {(() => {
-                    const activeCat = CATEGORIES.find((c) => c.id === selectedCategory) || CATEGORIES[0];
-                    const CatIcon = activeCat.icon;
-                    return (
-                      <>
-                        <CatIcon className="w-5 h-5 text-amber-400" />
-                        <span>
-                          {homeSearch
-                            ? `«${homeSearch}» بويىچە ئىزدەش نەتىجىسى:`
-                            : `${activeCat.name} بۆلۈمىدىكى تەييار ئەپ ۋە مەھسۇلاتلار:`}
-                        </span>
-                      </>
-                    );
-                  })()}
-                </h2>
-                <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border flex items-center gap-1 ${
-                  displayedApps.length > 0
-                    ? 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30'
-                    : 'text-amber-300 bg-amber-500/15 border-amber-400/30'
-                }`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${displayedApps.length > 0 ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-                  <span>{displayedApps.length > 0 ? `${displayedApps.length} مەھسۇلات تەييار` : 'پات يېقىندا قوشۇلىدۇ'}</span>
-                </span>
-              </div>
-
-              {displayedApps.length === 0 ? (
-                <div className="text-center py-12 px-4 rounded-3xl bg-slate-900/50 border border-slate-800 space-y-3">
-                  <div className="w-14 h-14 rounded-2xl bg-amber-500/15 text-amber-400 flex items-center justify-center mx-auto border border-amber-400/20">
-                    <Search className="w-7 h-7" />
-                  </div>
-                  <h4 className="text-sm font-bold text-white">
-                    {homeSearch ? 'ئىزدەش نەتىجىسى تېپىلمىدى' : 'بۇ بۆلۈمگە تېخى ئەپ قوشۇلمىدى'}
-                  </h4>
-                  <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
-                    {homeSearch
-                      ? 'باشقا سۆز بىلەن ئىزدەپ بېقىڭ ياكى ئويۇنلار بۆلۈمىنى تاللاڭ.'
-                      : 'بۇ بۆلۈم ئۈچۈن يېڭى ئەپلەر پات يېقىندا ياسىلىپ قوشۇلىدۇ.'}
-                  </p>
+            {/* =====================================================================
+                CASE A: SEARCHING MODE (Real-Time Search across all apps)
+            ===================================================================== */}
+            {homeSearch.trim() ? (
+              <section className="space-y-4 animate-fadeIn">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
+                    <Search className="w-5 h-5 text-amber-400" />
+                    <span>«{homeSearch}» بويىچە ئىزدەش نەتىجىسى:</span>
+                  </h2>
                   <button
-                    onClick={() => {
-                      if (homeSearch) setHomeSearch('');
-                      setSelectedCategory('games');
-                    }}
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:brightness-110 text-slate-950 font-black text-xs transition active:scale-95 inline-flex items-center gap-1.5 cursor-pointer shadow-md"
+                    onClick={() => setHomeSearch('')}
+                    className="text-xs text-amber-300 hover:text-white underline font-bold"
                   >
-                    <Gamepad2 className="w-3.5 h-3.5" />
-                    <span>ئويۇنلار بۆلۈمىنى كۆرۈش (2 تەييار ئويۇن)</span>
+                    ئىزدەشنى تازىلاش
                   </button>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {displayedApps.map((game) => (
-                    <div
-                      key={game.id}
-                      className="rounded-3xl bg-gradient-to-b from-[#0f182c]/95 via-[#0b1222]/95 to-[#070c18]/95 border border-slate-800/90 hover:border-amber-400/50 p-5 shadow-2xl flex flex-col justify-between gap-4 transition-all duration-300 group"
-                    >
-                      <div className="flex items-start gap-3.5 sm:gap-4">
-                        {/* Modern Squircle App Icon with Glowing Ring */}
-                        <div className="relative w-20 h-20 rounded-[22px] overflow-hidden bg-slate-950 border-2 border-amber-400/40 p-1 flex-shrink-0 shadow-xl group-hover:scale-105 group-hover:border-amber-400 transition-all">
-                          <Image
-                            src={game.icon}
-                            alt={game.name}
-                            width={80}
-                            height={80}
-                            className="w-full h-full object-cover rounded-[18px]"
-                            priority
-                          />
-                        </div>
 
-                        <div className="flex-1 space-y-1 min-w-0">
-                          <div className="flex items-center justify-between gap-1">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${game.badgeColor} text-slate-950 font-black shrink-0`}>
-                              {game.badge}
-                            </span>
-                            <div className="flex items-center gap-1 text-[11px] text-amber-400 font-bold font-mono">
-                              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                              <span>{game.rating}</span>
-                              <span className="text-slate-500 text-[9px]">({game.ordersCount})</span>
-                            </div>
+                {displayedApps.length === 0 ? (
+                  <div className="text-center py-12 px-4 rounded-3xl bg-slate-900/50 border border-slate-800 space-y-3">
+                    <div className="w-14 h-14 rounded-2xl bg-amber-500/15 text-amber-400 flex items-center justify-center mx-auto border border-amber-400/20">
+                      <Search className="w-7 h-7" />
+                    </div>
+                    <h4 className="text-sm font-bold text-white">ئىزدەش نەتىجىسى تېپىلمىدى</h4>
+                    <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                      باشقا سۆز بىلەن ئىزدەپ بېقىڭ ياكى كاتېگورىيەلەرگە قايتىڭ.
+                    </p>
+                    <button
+                      onClick={() => setHomeSearch('')}
+                      className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition"
+                    >
+                      ئىزدەشنى تازىلاش
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {displayedApps.map((game) => (
+                      <div
+                        key={game.id}
+                        className="rounded-3xl bg-gradient-to-b from-[#0f182c]/95 via-[#0b1222]/95 to-[#070c18]/95 border border-slate-800/90 hover:border-amber-400/50 p-5 shadow-2xl flex flex-col justify-between gap-4 transition-all duration-300 group"
+                      >
+                        <div className="flex items-start gap-3.5 sm:gap-4">
+                          <div className="relative w-20 h-20 rounded-[22px] overflow-hidden bg-slate-950 border-2 border-amber-400/40 p-1 flex-shrink-0 shadow-xl group-hover:scale-105 group-hover:border-amber-400 transition-all">
+                            <Image
+                              src={game.icon}
+                              alt={game.name}
+                              width={80}
+                              height={80}
+                              className="w-full h-full object-cover rounded-[18px]"
+                              priority
+                            />
                           </div>
 
-                          <h3 className="text-base font-black text-white group-hover:text-amber-300 transition-colors truncate">
-                            {game.name}
-                          </h3>
-                          <p className="text-[11px] text-amber-300/90 font-medium truncate">
-                            {game.tagline}
-                          </p>
-                          <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
-                            {game.description}
-                          </p>
+                          <div className="flex-1 space-y-1 min-w-0">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${game.badgeColor} text-slate-950 font-black shrink-0`}>
+                                {game.badge}
+                              </span>
+                              <div className="flex items-center gap-1 text-[11px] text-amber-400 font-bold font-mono">
+                                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                                <span>{game.rating}</span>
+                                <span className="text-slate-500 text-[9px]">({game.ordersCount})</span>
+                              </div>
+                            </div>
+
+                            <h3 className="text-base font-black text-white group-hover:text-amber-300 transition-colors truncate">
+                              {game.name}
+                            </h3>
+                            <p className="text-[11px] text-amber-300/90 font-medium truncate">
+                              {game.tagline}
+                            </p>
+                            <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
+                              {game.description}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="p-2.5 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1 text-[11px]">
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-400">قاچىلىنىش سۈرئىتى:</span>
+                            <span className="text-emerald-400 font-black font-mono">⚡ {game.speed} دە يېتىدۇ</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-400">باھا دائىرىسى:</span>
+                            <span className="text-amber-300 font-black font-mono">{game.priceNote}</span>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenInstallModal(game)}
+                            className="py-2.5 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700/80 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
+                          >
+                            <Download className="w-3.5 h-3.5 text-amber-400" />
+                            <span>تېلېفونغا قاچىلاش</span>
+                          </button>
+
+                          <Link
+                            href={game.webUrl}
+                            className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/20 transition active:scale-95"
+                          >
+                            <span>ئېچىش ۋە سېتىۋېلىش</span>
+                            <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
+                          </Link>
                         </div>
                       </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            ) : selectedCategory === null ? (
+              /* =====================================================================
+                 CASE B: ROOT CATEGORY VIEW (Categories as Folders - NO APPS OUTSIDE!)
+              ===================================================================== */
+              <section className="space-y-4 animate-fadeIn">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
+                    <Layers className="w-5 h-5 text-amber-400" />
+                    <span>مۇلازىمەت ۋە ئەپ بۆلۈملىرى (6 تۈر):</span>
+                  </h2>
+                  <span className="text-xs text-slate-400">
+                    كۆرمەكچى بولغان بۆلۈمنى بېسىڭ
+                  </span>
+                </div>
 
-                      {/* Specs Badge Box */}
-                      <div className="p-2.5 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1 text-[11px]">
-                        <div className="flex items-center justify-between">
-                          <span className="text-slate-400">قاچىلىنىش سۈرئىتى:</span>
-                          <span className="text-emerald-400 font-black font-mono">⚡ {game.speed} دە يېتىدۇ</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-slate-400">باھا دائىرىسى:</span>
-                          <span className="text-amber-300 font-black font-mono">{game.priceNote}</span>
-                        </div>
-                      </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                  {CATEGORIES.map((cat) => {
+                    const IconComp = cat.icon;
+                    const countInCat = ACTIVE_CATALOG.filter((a) => a.category === cat.id).length;
 
-                      {/* Features Check List */}
-                      <div className="flex flex-wrap gap-1.5 text-[10px] text-slate-300">
-                        {game.features.map((feat, idx) => (
-                          <span key={idx} className="px-2 py-0.5 rounded-md bg-slate-900 border border-slate-800 flex items-center gap-1 text-slate-300">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
-                            <span>{feat}</span>
+                    return (
+                      <button
+                        key={cat.id}
+                        onClick={() => handleCategoryClick(cat.id)}
+                        className="group relative p-4 sm:p-5 rounded-3xl bg-gradient-to-b from-[#0e172a]/95 via-[#0a1222]/95 to-[#060c18]/95 hover:from-[#13223f] hover:to-[#0c1628] border border-slate-800/90 hover:border-amber-400/60 shadow-xl hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300 text-right flex flex-col justify-between gap-4 active:scale-95 cursor-pointer"
+                      >
+                        {/* Top: Icon + Badge */}
+                        <div className="flex items-center justify-between w-full">
+                          <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr ${cat.gradient} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 shrink-0`}>
+                            <IconComp className="w-5 h-5 sm:w-6 sm:h-6" />
+                          </div>
+                          
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                            countInCat > 0
+                              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                              : 'bg-slate-800/80 text-amber-300/80 border-amber-400/20'
+                          }`}>
+                            {countInCat > 0 ? (
+                              <span className="flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                <span>{countInCat} تەييار</span>
+                              </span>
+                            ) : (
+                              'پات يېقىندا'
+                            )}
                           </span>
-                        ))}
-                      </div>
+                        </div>
 
-                      {/* Action Pill Buttons (Download & Open) */}
-                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenInstallModal(game)}
-                          className="py-2.5 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700/80 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
-                        >
-                          <Download className="w-3.5 h-3.5 text-amber-400" />
-                          <span>تېلېفونغا قاچىلاش</span>
-                        </button>
+                        {/* Middle: Title & Subtitle */}
+                        <div className="space-y-1 w-full">
+                          <h3 className="text-sm sm:text-base font-black text-white group-hover:text-amber-300 transition-colors truncate">
+                            {cat.name}
+                          </h3>
+                          <p className="text-[11px] text-slate-400 truncate">
+                            {cat.subtitle}
+                          </p>
+                        </div>
 
-                        <Link
-                          href={game.webUrl}
-                          className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/20 transition active:scale-95"
-                        >
-                          <span>ئېچىش ۋە سېتىۋېلىش</span>
-                          <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
-                        </Link>
+                        {/* Bottom: Enter Action Row */}
+                        <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs font-bold text-amber-400 group-hover:text-amber-300 transition-colors w-full">
+                          <span className="text-[11px]">بۆلۈمنى ئېچىش</span>
+                          <ChevronLeft className="w-4 h-4 stroke-[2.5] group-hover:-translate-x-1 transition-transform" />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            ) : (
+              /* =====================================================================
+                 CASE C: INSIDE CATEGORY VIEW (Dedicated Folder View)
+                 Supports on-screen Back Button & Phone System Back / Swipe-to-Go-Back
+              ===================================================================== */
+              (() => {
+                const activeCat = CATEGORIES.find((c) => c.id === selectedCategory) || CATEGORIES[0];
+                const CatIcon = activeCat.icon;
+
+                return (
+                  <section className="space-y-5 animate-fadeIn">
+                    {/* Top Action & Breadcrumb Navigation Bar */}
+                    <div className="flex items-center justify-between gap-3 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-[#0c1629] via-[#101e38] to-[#0a1222] border border-amber-500/35 shadow-xl">
+                      <button
+                        onClick={handleBackToCategories}
+                        className="group flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-2xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/40 hover:border-amber-400 text-amber-300 hover:text-amber-200 font-black text-xs sm:text-sm transition-all active:scale-95 cursor-pointer shadow-md"
+                        title="بارلىق بۆلۈملەرگە قايتىش (يانغا سىيرىسىڭىزمۇ قايتىدۇ)"
+                      >
+                        <ChevronRight className="w-4 h-4 stroke-[2.5] group-hover:translate-x-1 transition-transform" />
+                        <span>بارلىق بۆلۈملەرگە قايتىش</span>
+                      </button>
+
+                      <div className="flex items-center gap-2.5 sm:gap-3 text-right">
+                        <div>
+                          <h2 className="text-sm sm:text-base font-black text-white flex items-center gap-1.5 justify-end">
+                            <span>{activeCat.name} بۆلۈمى</span>
+                            <span className="text-[10px] text-amber-300 font-bold px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/30">
+                              {activeCat.countBadge}
+                            </span>
+                          </h2>
+                          <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium">
+                            {activeCat.subtitle}
+                          </p>
+                        </div>
+                        <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr ${activeCat.gradient} text-white flex items-center justify-center shadow-lg shrink-0`}>
+                          <CatIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </section>
+
+                    {/* Content inside this category */}
+                    {displayedApps.length === 0 ? (
+                      <div className="text-center py-14 px-4 rounded-3xl bg-slate-900/50 border border-slate-800 space-y-4">
+                        <div className="w-16 h-16 rounded-3xl bg-amber-500/15 text-amber-400 flex items-center justify-center mx-auto border border-amber-400/20 shadow-lg">
+                          <CatIcon className="w-8 h-8" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-base font-black text-white">
+                            «{activeCat.name}» بۆلۈمىگە تېخى ئەپ قوشۇلمىدى
+                          </h4>
+                          <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
+                            بۇ بۆلۈم ئۈچۈن يېڭى ئەپ ۋە مەھسۇلاتلار پات يېقىندا ياسىلىپ مۇشۇ يەرگە قوشۇلىدۇ.
+                          </p>
+                        </div>
+                        <button
+                          onClick={handleBackToCategories}
+                          className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:brightness-110 text-slate-950 font-black text-xs transition active:scale-95 inline-flex items-center gap-2 cursor-pointer shadow-md"
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                          <span>باشقا بۆلۈملەرگە قايتىش</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {displayedApps.map((game) => (
+                          <div
+                            key={game.id}
+                            className="rounded-3xl bg-gradient-to-b from-[#0f182c]/95 via-[#0b1222]/95 to-[#070c18]/95 border border-slate-800/90 hover:border-amber-400/50 p-5 shadow-2xl flex flex-col justify-between gap-4 transition-all duration-300 group"
+                          >
+                            <div className="flex items-start gap-3.5 sm:gap-4">
+                              <div className="relative w-20 h-20 rounded-[22px] overflow-hidden bg-slate-950 border-2 border-amber-400/40 p-1 flex-shrink-0 shadow-xl group-hover:scale-105 group-hover:border-amber-400 transition-all">
+                                <Image
+                                  src={game.icon}
+                                  alt={game.name}
+                                  width={80}
+                                  height={80}
+                                  className="w-full h-full object-cover rounded-[18px]"
+                                  priority
+                                />
+                              </div>
+
+                              <div className="flex-1 space-y-1 min-w-0">
+                                <div className="flex items-center justify-between gap-1">
+                                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${game.badgeColor} text-slate-950 font-black shrink-0`}>
+                                    {game.badge}
+                                  </span>
+                                  <div className="flex items-center gap-1 text-[11px] text-amber-400 font-bold font-mono">
+                                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                                    <span>{game.rating}</span>
+                                    <span className="text-slate-500 text-[9px]">({game.ordersCount})</span>
+                                  </div>
+                                </div>
+
+                                <h3 className="text-base font-black text-white group-hover:text-amber-300 transition-colors truncate">
+                                  {game.name}
+                                </h3>
+                                <p className="text-[11px] text-amber-300/90 font-medium truncate">
+                                  {game.tagline}
+                                </p>
+                                <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
+                                  {game.description}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="p-2.5 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1 text-[11px]">
+                              <div className="flex items-center justify-between">
+                                <span className="text-slate-400">قاچىلىنىش سۈرئىتى:</span>
+                                <span className="text-emerald-400 font-black font-mono">⚡ {game.speed} دە يېتىدۇ</span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-slate-400">باھا دائىرىسى:</span>
+                                <span className="text-amber-300 font-black font-mono">{game.priceNote}</span>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-1.5 text-[10px] text-slate-300">
+                              {game.features.map((feat, idx) => (
+                                <span key={idx} className="px-2 py-0.5 rounded-md bg-slate-900 border border-slate-800 flex items-center gap-1 text-slate-300">
+                                  <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                                  <span>{feat}</span>
+                                </span>
+                              ))}
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80">
+                              <button
+                                type="button"
+                                onClick={() => handleOpenInstallModal(game)}
+                                className="py-2.5 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700/80 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
+                              >
+                                <Download className="w-3.5 h-3.5 text-amber-400" />
+                                <span>تېلېفونغا قاچىلاش</span>
+                              </button>
+
+                              <Link
+                                href={game.webUrl}
+                                className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/20 transition active:scale-95"
+                              >
+                                <span>ئېچىش ۋە سېتىۋېلىش</span>
+                                <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
+                              </Link>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+                );
+              })()
+            )}
 
           </div>
         )}
