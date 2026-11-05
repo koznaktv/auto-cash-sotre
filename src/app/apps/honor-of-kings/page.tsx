@@ -539,16 +539,8 @@ export default function HonorOfKingsAppPage() {
     }, 150);
   };
 
-  const handleInstallClick = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setDeferredPrompt(null);
-      }
-    } else {
-      setShowInstallGuide(true);
-    }
+  const handleInstallClick = () => {
+    setShowInstallGuide(true);
   };
 
   // Direct Instant Telegram Login (Zero OTP)
@@ -2175,29 +2167,78 @@ export default function HonorOfKingsAppPage() {
         </div>
       )}
 
-      {/* PWA INSTALLATION GUIDE MODAL */}
+      {/* DEDICATED APP INSTALLATION MODAL */}
       {showInstallGuide && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-[#0F172A] border border-amber-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl relative text-center">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-[#0F172A] border border-amber-500/40 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative text-center space-y-4">
             <button
               onClick={() => setShowInstallGuide(false)}
-              className="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center absolute top-4 right-4"
+              className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center absolute top-4 right-4 cursor-pointer transition active:scale-95"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <Smartphone className="w-10 h-10 text-amber-400 mx-auto mb-2" />
-            <h3 className="text-base font-black text-white">تېلېفونغا ئەپ قىلىپ قاچىلاش</h3>
-            <div className="text-xs text-slate-300 space-y-2 mt-3 text-left bg-[#131B30] p-3 rounded-2xl border border-slate-800">
-              <p>📱 <strong>Android Chrome:</strong> توركۆرگۈچنىڭ ئوڭ ئۈستىدىكى ئۈچ چېكىت <code>⋮</code> نى بېسىپ <strong>«Add to Home screen» (ئېكرانغا قوشۇش)</strong> نى تاللاڭ.</p>
-              <p>🍏 <strong>iPhone Safari:</strong> ئاستىدىكى ھەمبەھىرلەش كۇنۇپكىسىنى بېسىپ <strong>«Add to Home Screen»</strong> نى تاللاڭ.</p>
+            {/* App Icon with Gold Border */}
+            <div className="w-20 h-20 rounded-2xl overflow-hidden mx-auto shadow-xl border-2 border-amber-500/60 relative">
+              <Image
+                src="/images/apps/honor-of-kings/icon-512.png"
+                alt="Honor of Kings Token"
+                fill
+                className="object-cover"
+                sizes="80px"
+              />
             </div>
-            <button
-              onClick={() => setShowInstallGuide(false)}
-              className="w-full mt-4 py-2 rounded-xl bg-amber-400 text-slate-950 font-black text-xs"
-            >
-              چۈشەندىم
-            </button>
+
+            <div className="space-y-1">
+              <h3 className="text-base font-black text-white">
+                Honor of Kings Token ئەپىنى قاچىلاش
+              </h3>
+              <p className="text-xs text-amber-300 font-medium">
+                MAX-BAZAR مەخسۇس ئويۇن ئەپى
+              </p>
+            </div>
+
+            {/* Notice regarding separate app */}
+            <div className="text-xs text-slate-300 space-y-2 text-right bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 leading-relaxed">
+              <p className="text-slate-300 text-[11px]">
+                🛡️ <strong>ئايرىم ئەپ سۈپىتىدە قاچىلىنىدۇ:</strong> بۇ ئەپ تېلېفونىڭىزدىكى باشقا ئەپلەر بىلەن توقۇنۇشمايدۇ. ئايرىم مەخسۇس شاھلار شان-شەرىپى توكېن بازىرى بولۇپ قاچىلىنىدۇ.
+              </p>
+            </div>
+
+            {/* Primary Action: Direct Download APK */}
+            <div className="space-y-2 pt-1">
+              <a
+                href="/api/download/app?app=hok"
+                download="HOK-MAXBAZAR.apk"
+                onClick={() => {
+                  setTimeout(() => setShowInstallGuide(false), 2000);
+                }}
+                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:brightness-110 text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition active:scale-95 cursor-pointer"
+              >
+                <Download className="w-4 h-4 stroke-[2.5]" />
+                <span>📥 Android ئەپىنى تېلېفونغا چۈشۈرۈش (7.5 MB)</span>
+              </a>
+
+              {deferredPrompt && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then(() => {
+                      setDeferredPrompt(null);
+                      setShowInstallGuide(false);
+                    });
+                  }}
+                  className="w-full py-2.5 rounded-xl border border-slate-700 hover:border-slate-600 text-slate-300 hover:text-white text-xs font-semibold transition active:scale-95 cursor-pointer"
+                >
+                  ⚡ تور كۆرگۈچتىن باش ئېكرانغا قوشۇش (PWA)
+                </button>
+              )}
+            </div>
+
+            <p className="text-[10px] text-slate-500">
+              چۈشۈرۈپ بولغاندىن كېيىن، تېلېفونىڭىزنىڭ ئۇقتۇرۇش كۆزنىكىدىن بېسىپ قاچىلاشنى تاماملاڭ.
+            </p>
           </div>
         </div>
       )}
