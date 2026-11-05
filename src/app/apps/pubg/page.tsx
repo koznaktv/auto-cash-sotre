@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Image from 'next/image';
+import AppsBottomNav, { AppsNavTab } from '@/components/apps/AppsBottomNav';
 import {
   Zap,
   ShieldCheck,
@@ -99,6 +100,16 @@ export default function PubgAppPage() {
 
   // Full-Page Navigation State (Matching Screenshot 2 & 3: Home, Orders, Wallet, Account)
   const [activeNavTab, setActiveNavTab] = useState<'home' | 'orders' | 'wallet' | 'account'>('home');
+
+  const handleNavClick = (tab: AppsNavTab) => {
+    if (tab === 'account' && !session) {
+      setLoginStep('input_phone');
+      setShowLoginModal(true);
+      return;
+    }
+    setActiveNavTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   const [ordersSearch, setOrdersSearch] = useState('');
   const [ordersStatusFilter, setOrdersStatusFilter] = useState<'all' | 'completed' | 'processing' | 'refunded'>('all');
   const [copiedOrderId, setCopiedOrderId] = useState<string | null>(null);
@@ -1054,7 +1065,7 @@ export default function PubgAppPage() {
       )}
 
       {/* MAIN CONTENT AREA */}
-      <main className="max-w-xl mx-auto w-full px-3.5 sm:px-4 py-4 flex-1 space-y-4 pb-28">
+      <main className="max-w-xl mx-auto w-full px-3.5 sm:px-4 py-4 flex-1 space-y-4 pb-32 sm:pb-36">
         {/* =========================================================================
             TAB 1: باشبەت (HOME - PUBG UC PACKAGES & INSTANT RECHARGE)
         ========================================================================= */}
@@ -1871,126 +1882,15 @@ export default function PubgAppPage() {
   </main>
 
   {/* =========================================================================
-      AUTHENTIC BOTTOM NAVIGATION (MATCHES EXACT USER SCREENSHOTS 2 & 3)
+      AUTHENTIC BOTTOM NAVIGATION (Silky-Smooth Floating 3D Jewel Bubble)
   ========================================================================= */}
-  <div className="fixed bottom-0 left-0 right-0 z-40 pointer-events-auto pb-[env(safe-area-inset-bottom,0px)]">
-    <div className="relative max-w-lg mx-auto select-none">
-      {/* Frosted Glass Base Bar */}
-      <div className="relative h-[66px] bg-[#0c1424]/95 backdrop-blur-2xl border-t border-slate-800 rounded-t-[24px] shadow-[0_-10px_35px_rgba(0,0,0,0.6)] overflow-hidden">
-        <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
-
-        <div className="grid grid-cols-4 h-full relative z-10">
-          
-          {/* Tab 1: باشبەت (Home) */}
-          <button
-            onClick={() => setActiveNavTab('home')}
-            className="flex flex-col items-center justify-center gap-1 text-center py-1 transition-all active:scale-95 group relative"
-          >
-            {activeNavTab === 'home' && (
-              <div className="absolute -top-3 w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 p-0.5 shadow-[0_0_15px_rgba(251,191,36,0.5)]">
-                <div className="w-full h-full bg-[#0B101D] rounded-full flex items-center justify-center overflow-hidden">
-                  <Image
-                    src="/images/services/pubg_mobile.webp"
-                    alt="PUBG"
-                    width={36}
-                    height={36}
-                    className="w-full h-full object-cover rounded-full"
-                  />
-                </div>
-              </div>
-            )}
-            <div className={activeNavTab === 'home' ? 'opacity-0' : 'block'}>
-              <Home className="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition" />
-            </div>
-            <span className={`text-[10px] font-bold ${activeNavTab === 'home' ? 'text-amber-400 font-black mt-3' : 'text-slate-400'}`}>
-              باشبەت
-            </span>
-          </button>
-
-          {/* Tab 2: مېنىڭ تەلەپلىرىم (Orders) */}
-          <button
-            onClick={() => setActiveNavTab('orders')}
-            className="flex flex-col items-center justify-center gap-1 text-center py-1 transition-all active:scale-95 group relative"
-          >
-            {activeNavTab === 'orders' && (
-              <div className="absolute -top-3 w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 p-0.5 shadow-[0_0_15px_rgba(251,191,36,0.5)]">
-                <div className="w-full h-full bg-[#0B101D] rounded-full flex items-center justify-center">
-                  <ClipboardList className="w-4 h-4 text-amber-400 stroke-[2.5]" />
-                </div>
-              </div>
-            )}
-            <div className={activeNavTab === 'orders' ? 'opacity-0' : 'block'}>
-              <div className="relative">
-                <ClipboardList className="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition" />
-                {ordersHistory.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                )}
-              </div>
-            </div>
-            <span className={`text-[10px] font-bold ${activeNavTab === 'orders' ? 'text-amber-400 font-black mt-3' : 'text-slate-400'}`}>
-              مېنىڭ تەلەپلىرىم
-            </span>
-          </button>
-
-          {/* Tab 3: مېنىڭ ھەميانىم (Wallet) */}
-          <button
-            onClick={() => setActiveNavTab('wallet')}
-            className="flex flex-col items-center justify-center gap-1 text-center py-1 transition-all active:scale-95 group relative"
-          >
-            {activeNavTab === 'wallet' && (
-              <div className="absolute -top-3 w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 p-0.5 shadow-[0_0_15px_rgba(251,191,36,0.5)]">
-                <div className="w-full h-full bg-[#0B101D] rounded-full flex items-center justify-center">
-                  <Wallet className="w-4 h-4 text-amber-400 stroke-[2.5]" />
-                </div>
-              </div>
-            )}
-            <div className={activeNavTab === 'wallet' ? 'opacity-0' : 'block'}>
-              <Wallet className="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition" />
-            </div>
-            <span className={`text-[10px] font-bold ${activeNavTab === 'wallet' ? 'text-amber-400 font-black mt-3' : 'text-slate-400'}`}>
-              مېنىڭ ھەميانىم
-            </span>
-          </button>
-
-          {/* Tab 4: مېنىڭ ھېسابىم (Account) */}
-          <button
-            onClick={() => {
-              if (!session) {
-                setLoginStep('input_phone');
-                setShowLoginModal(true);
-              } else {
-                setActiveNavTab('account');
-              }
-            }}
-            className="flex flex-col items-center justify-center gap-1 text-center py-1 transition-all active:scale-95 group relative"
-          >
-            {activeNavTab === 'account' && (
-              <div className="absolute -top-3 w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 p-0.5 shadow-[0_0_15px_rgba(251,191,36,0.5)]">
-                <div className="w-full h-full bg-[#0B101D] rounded-full flex items-center justify-center overflow-hidden">
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt="User" className="w-full h-full object-cover" />
-                  ) : (
-                    <User className="w-4 h-4 text-amber-400 stroke-[2.5]" />
-                  )}
-                </div>
-              </div>
-            )}
-            <div className={activeNavTab === 'account' ? 'opacity-0' : 'block'}>
-              {session && avatarUrl ? (
-                <img src={avatarUrl} alt="User" className="w-5 h-5 rounded-full object-cover" />
-              ) : (
-                <User className="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition" />
-              )}
-            </div>
-            <span className={`text-[10px] font-bold ${activeNavTab === 'account' ? 'text-amber-400 font-black mt-3' : 'text-slate-400'}`}>
-              مېنىڭ ھېسابىم
-            </span>
-          </button>
-
-        </div>
-      </div>
-    </div>
-  </div>
+  <AppsBottomNav
+    activeTab={activeNavTab}
+    onTabChange={handleNavClick}
+    ordersCount={ordersHistory.length}
+    userPhoto={avatarUrl || session?.photo_url}
+    homeAvatar="/images/services/pubg_mobile.webp"
+  />
 
       {/* SHAM CASH TOP-UP MODAL */}
       {showTopupModal && (

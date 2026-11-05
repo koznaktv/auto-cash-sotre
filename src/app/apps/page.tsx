@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import AppsBottomNav from '@/components/apps/AppsBottomNav';
 import {
   Zap,
   Sparkles,
@@ -521,7 +522,7 @@ export default function AppsHubPage() {
       </header>
 
       {/* MAIN CONTENT CONTAINER */}
-      <main className="max-w-5xl mx-auto px-4 pt-4 pb-6 w-full space-y-6 relative z-10 flex-1">
+      <main className="max-w-5xl mx-auto px-4 pt-4 pb-32 sm:pb-36 w-full space-y-6 relative z-10 flex-1">
         
         {/* =========================================================================
             TAB 1: باشبەت (HOME - APPS & GAMES CATALOG)
@@ -1197,108 +1198,14 @@ export default function AppsHubPage() {
       </main>
 
       {/* =========================================================================
-          AUTHENTIC MOBILE BOTTOM NAVIGATION (Matches exact screenshot design!)
+          AUTHENTIC MOBILE BOTTOM NAVIGATION (Silky-Smooth Floating 3D Jewel Bubble)
       ========================================================================= */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 pointer-events-auto pb-[env(safe-area-inset-bottom,0px)]">
-        <div className="relative max-w-lg mx-auto select-none">
-          {/* Frosted Glass Base Bar */}
-          <div className="relative h-[66px] bg-[#0c1424]/95 backdrop-blur-2xl border-t border-slate-800 rounded-t-[24px] shadow-[0_-10px_35px_rgba(0,0,0,0.6)] overflow-hidden">
-            <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
-
-            <div className="grid grid-cols-4 h-full relative z-10">
-              
-              {/* Tab 1: باشبەت (Home) */}
-              <button
-                onClick={() => handleNavClick('home')}
-                className="flex flex-col items-center justify-center gap-1 text-center py-1 transition-all active:scale-95 group relative"
-              >
-                {activeNavTab === 'home' && (
-                  <div className="absolute -top-3 w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 p-0.5 shadow-[0_0_15px_rgba(251,191,36,0.5)]">
-                    <div className="w-full h-full bg-[#0B101D] rounded-full flex items-center justify-center">
-                      <Home className="w-4 h-4 text-amber-400 stroke-[2.5]" />
-                    </div>
-                  </div>
-                )}
-                <div className={activeNavTab === 'home' ? 'opacity-0' : 'block'}>
-                  <Home className="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition" />
-                </div>
-                <span className={`text-[10px] font-bold ${activeNavTab === 'home' ? 'text-amber-400 font-black mt-3' : 'text-slate-400'}`}>
-                  باشبەت
-                </span>
-              </button>
-
-              {/* Tab 2: مېنىڭ تەلەپلىرىم (Orders) */}
-              <button
-                onClick={() => handleNavClick('orders')}
-                className="flex flex-col items-center justify-center gap-1 text-center py-1 transition-all active:scale-95 group relative"
-              >
-                {activeNavTab === 'orders' && (
-                  <div className="absolute -top-3 w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 p-0.5 shadow-[0_0_15px_rgba(251,191,36,0.5)]">
-                    <div className="w-full h-full bg-[#0B101D] rounded-full flex items-center justify-center">
-                      <ClipboardList className="w-4 h-4 text-amber-400 stroke-[2.5]" />
-                    </div>
-                  </div>
-                )}
-                <div className={activeNavTab === 'orders' ? 'opacity-0' : 'block'}>
-                  <ClipboardList className="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition" />
-                </div>
-                <span className={`text-[10px] font-bold ${activeNavTab === 'orders' ? 'text-amber-400 font-black mt-3' : 'text-slate-400'}`}>
-                  مېنىڭ تەلەپلىرىم
-                </span>
-              </button>
-
-              {/* Tab 3: مېنىڭ ھەميانىم (Wallet) */}
-              <button
-                onClick={() => handleNavClick('wallet')}
-                className="flex flex-col items-center justify-center gap-1 text-center py-1 transition-all active:scale-95 group relative"
-              >
-                {activeNavTab === 'wallet' && (
-                  <div className="absolute -top-3 w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 p-0.5 shadow-[0_0_15px_rgba(251,191,36,0.5)]">
-                    <div className="w-full h-full bg-[#0B101D] rounded-full flex items-center justify-center">
-                      <Wallet className="w-4 h-4 text-amber-400 stroke-[2.5]" />
-                    </div>
-                  </div>
-                )}
-                <div className={activeNavTab === 'wallet' ? 'opacity-0' : 'block'}>
-                  <Wallet className="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition" />
-                </div>
-                <span className={`text-[10px] font-bold ${activeNavTab === 'wallet' ? 'text-amber-400 font-black mt-3' : 'text-slate-400'}`}>
-                  مېنىڭ ھەميانىم
-                </span>
-              </button>
-
-              {/* Tab 4: مېنىڭ ھېسابىم (Account) */}
-              <button
-                onClick={() => handleNavClick('account')}
-                className="flex flex-col items-center justify-center gap-1 text-center py-1 transition-all active:scale-95 group relative"
-              >
-                {activeNavTab === 'account' && (
-                  <div className="absolute -top-3 w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 p-0.5 shadow-[0_0_15px_rgba(251,191,36,0.5)]">
-                    <div className="w-full h-full bg-[#0B101D] rounded-full flex items-center justify-center overflow-hidden">
-                      {session?.photo_url ? (
-                        <img src={session.photo_url} alt="User" className="w-full h-full object-cover" />
-                      ) : (
-                        <User className="w-4 h-4 text-amber-400 stroke-[2.5]" />
-                      )}
-                    </div>
-                  </div>
-                )}
-                <div className={activeNavTab === 'account' ? 'opacity-0' : 'block'}>
-                  {session?.photo_url ? (
-                    <img src={session.photo_url} alt="User" className="w-5 h-5 rounded-full object-cover" />
-                  ) : (
-                    <User className="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition" />
-                  )}
-                </div>
-                <span className={`text-[10px] font-bold ${activeNavTab === 'account' ? 'text-amber-400 font-black mt-3' : 'text-slate-400'}`}>
-                  مېنىڭ ھېسابىم
-                </span>
-              </button>
-
-            </div>
-          </div>
-        </div>
-      </div>
+      <AppsBottomNav
+        activeTab={activeNavTab}
+        onTabChange={handleNavClick}
+        ordersCount={ordersHistory.length}
+        userPhoto={session?.photo_url}
+      />
 
       {/* 1-CLICK TELEGRAM SYNC MODAL */}
       {showLoginModal && (
