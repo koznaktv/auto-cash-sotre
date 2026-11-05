@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import AppsBottomNav from '@/components/apps/AppsBottomNav';
+import AppsTelegramAutoSync from '@/components/apps/AppsTelegramAutoSync';
 import {
   Zap,
   Sparkles,
@@ -268,6 +269,12 @@ export default function AppsHubPage() {
           .catch(() => {});
       }
     } catch {}
+
+    const handleAuthChanged = (e: any) => {
+      if (e?.detail) setSession(e.detail);
+    };
+    window.addEventListener('maxbazar-auth-changed', handleAuthChanged);
+    return () => window.removeEventListener('maxbazar-auth-changed', handleAuthChanged);
   }, []);
 
   // Fetch Orders History when navigating to orders tab
@@ -442,6 +449,8 @@ export default function AppsHubPage() {
 
   return (
     <div className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col font-alkatip selection:bg-amber-500 selection:text-slate-950 pb-32 sm:pb-36" dir="rtl">
+      {/* Automatic Telegram Mini App Auto-Login (Zero-click friction-free login) */}
+      <AppsTelegramAutoSync appId="maxbazar" onSessionUpdated={setSession} />
       
       {/* Modern App Store Space Glow Atmosphere */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">

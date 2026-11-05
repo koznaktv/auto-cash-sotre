@@ -431,9 +431,10 @@ export default function PubgAppPage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              action: 'verify',
+              action: 'direct_login',
               phone_or_username: autoIdentity,
-              code: '888888',
+              telegram_id: tgUser.id,
+              photo_url: tgUser.photo_url || null,
               app_id: 'pubg',
             }),
           })
@@ -442,6 +443,7 @@ export default function PubgAppPage() {
               if (data.ok && data.session) {
                 const s = {
                   ...data.session,
+                  telegram_id: tgUser.id,
                   photo_url: tgUser.photo_url || data.session.photo_url || `/api/apps/avatar?user=${encodeURIComponent(autoIdentity)}`,
                 };
                 setSession(s);
@@ -449,8 +451,8 @@ export default function PubgAppPage() {
                 setShowLoginModal(false);
                 try {
                   localStorage.setItem('maxbazar_pubg_session', JSON.stringify(s));
-        localStorage.setItem('maxbazar_unified_session', JSON.stringify(s));
                   localStorage.setItem('maxbazar_unified_session', JSON.stringify(s));
+                  window.dispatchEvent(new CustomEvent('maxbazar-auth-changed', { detail: s }));
                 } catch {}
               }
             })
@@ -472,7 +474,22 @@ export default function PubgAppPage() {
       }
     }, 200);
 
-    return () => clearInterval(tgTimer);
+    const onAuthChanged = (e: any) => {
+      if (e?.detail) {
+        setSession(e.detail);
+        if (e.detail.photo_url) {
+          setAvatarUrl(e.detail.photo_url);
+        } else if (e.detail.identity) {
+          setAvatarUrl(`/api/apps/avatar?user=${encodeURIComponent(e.detail.identity)}`);
+        }
+      }
+    };
+    window.addEventListener('maxbazar-auth-changed', onAuthChanged);
+
+    return () => {
+      clearInterval(tgTimer);
+      window.removeEventListener('maxbazar-auth-changed', onAuthChanged);
+    };
   }, []);
 
   // Fetch & live-sync orders history when session changes and poll every 5 seconds

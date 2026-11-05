@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
+import AppsTelegramAutoSync from '@/components/apps/AppsTelegramAutoSync';
 
 export const metadata: Metadata = {
   title: 'MAX-BAZAR ئەپ بازىرى - تاللاپ قاچىلاش مەركىزى',
@@ -19,6 +21,8 @@ export const metadata: Metadata = {
 export default function AppsLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
+      <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
+      <AppsTelegramAutoSync appId="maxbazar" />
       <link rel="manifest" href="/manifest-apps.json" />
       <link rel="apple-touch-icon" href="/images/maxbazar_icon.png" />
       <meta name="apple-mobile-web-app-capable" content="yes" />

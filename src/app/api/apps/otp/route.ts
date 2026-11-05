@@ -255,6 +255,25 @@ function getTelegramUserChatId(identifier: string): string | null {
   return null;
 }
 
+function saveTelegramUserChatId(identifier: string, chatId: string | number) {
+  if (!identifier || !chatId) return;
+  const clean = identifier.trim().replace(/@/g, '').toLowerCase();
+  const strId = String(chatId).trim();
+  ensureDir();
+  const usersFile = path.join(SESSIONS_DIR, 'telegram_users.json');
+  try {
+    let mapping: Record<string, string> = {};
+    if (fs.existsSync(usersFile)) {
+      try {
+        mapping = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
+      } catch {}
+    }
+    mapping[clean] = strId;
+    mapping[strId] = strId;
+    fs.writeFileSync(usersFile, JSON.stringify(mapping, null, 2), 'utf-8');
+  } catch {}
+}
+
 async function sendTelegramOtpMessage(target: string, code: string, appName: string): Promise<{ sent: boolean; error?: string }> {
   try {
     const chatId = getTelegramUserChatId(target);
@@ -456,18 +475,24 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: false, error: 'تېلېگرامما ئىسمىڭىز ياكى كىملىكىڭىزنى كىرگۈزۈڭ' }, { status: 400 });
       }
 
+      if (body.telegram_id) {
+        saveTelegramUserChatId(cleanIdentity, body.telegram_id);
+      }
+
       // Retrieve unified wallet across all MAX-BAZAR apps
       const unifiedBal = await getUnifiedWalletBalance(cleanIdentity);
 
       const token = 'mb_app_' + crypto.randomBytes(16).toString('hex');
 
       // Resolve live avatar URL
-      let photo_url: string | null = null;
-      const tgChatId = getTelegramUserChatId(cleanIdentity);
-      if (tgChatId) {
-        photo_url = `/api/apps/avatar?user=${encodeURIComponent(cleanIdentity)}`;
-      } else if (!/^\d+$/.test(cleanIdentity)) {
-        photo_url = `https://t.me/i/userpic/320/${cleanIdentity}.jpg`;
+      let photo_url: string | null = body.photo_url || null;
+      if (!photo_url) {
+        const tgChatId = getTelegramUserChatId(cleanIdentity);
+        if (tgChatId) {
+          photo_url = `/api/apps/avatar?user=${encodeURIComponent(cleanIdentity)}`;
+        } else if (!/^\d+$/.test(cleanIdentity)) {
+          photo_url = `https://t.me/i/userpic/320/${cleanIdentity}.jpg`;
+        }
       }
 
       return NextResponse.json({
