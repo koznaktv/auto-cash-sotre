@@ -953,16 +953,16 @@ export default function HonorOfKingsAppPage() {
                 setActiveNavTab('wallet');
               }
             }}
-            className="group flex items-center gap-2 bg-gradient-to-r from-[#121A2E] to-[#18233C] hover:from-[#18233C] hover:to-[#1E2D4E] border border-amber-400/40 hover:border-amber-400 px-3 py-1 rounded-full shadow-[0_0_12px_rgba(251,191,36,0.15)] transition cursor-pointer active:scale-95"
+            className="group flex items-center gap-2.5 bg-gradient-to-b from-[#141F38] via-[#0E172B] to-[#0A1020] hover:from-[#182647] hover:to-[#0F1932] border border-amber-400/50 hover:border-amber-300 px-3.5 sm:px-4 py-1.5 rounded-full shadow-[0_4px_16px_rgba(245,158,11,0.2)] hover:shadow-[0_4px_22px_rgba(245,158,11,0.35)] transition cursor-pointer active:scale-95 shrink-0"
             title="شامكەش ئارقىلىق قالدۇق قاچىلاش"
           >
             <div className="text-right">
-              <span className="block text-[8.5px] text-amber-300/80 font-bold leading-none">قالدۇق</span>
-              <span className="text-xs sm:text-sm font-black text-amber-400 font-mono tracking-tight">
+              <span className="block text-[9px] text-amber-200/90 font-bold leading-none mb-0.5">قالدۇق</span>
+              <span className="text-xs sm:text-sm font-black text-amber-300 font-mono tracking-tight group-hover:text-amber-200 transition-colors">
                 ${session ? session.balance.toFixed(2) : '0.00'}
               </span>
             </div>
-            <div className="w-5 h-5 rounded-full bg-amber-500 group-hover:bg-amber-400 text-slate-950 flex items-center justify-center transition shadow-sm">
+            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-600 group-hover:brightness-110 text-slate-950 flex items-center justify-center transition shadow-md shrink-0">
               <Plus className="w-3.5 h-3.5 stroke-[3]" />
             </div>
           </div>

@@ -430,35 +430,44 @@ export default function AppsHubPage() {
       </div>
 
       {/* TOP BRAND HEADER */}
-      <header className="sticky top-0 z-40 bg-[#0B101D]/90 backdrop-blur-md border-b border-slate-800/80 px-4 py-2.5">
+      {/* STICKY TOP APP HEADER BAR */}
+      <header className="sticky top-0 z-40 bg-[#080D1A]/95 backdrop-blur-xl border-b border-amber-500/20 px-3 sm:px-4 py-2.5 shadow-[0_4px_25px_rgba(0,0,0,0.6)]">
+        {/* Subtle glowing hairline top accent */}
+        <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-emerald-500/30 via-amber-400/50 to-emerald-500/30 pointer-events-none" />
+
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-2 sm:gap-3">
           
-          {/* 1. Left: Store Switcher Button (⇄ AUTO CASH) */}
+          {/* 1. Gateway Switcher Button (⇄ AUTO CASH) - Larger, Prominent, Clear */}
           <div className="flex items-center gap-2">
             <Link
               href="/"
-              className="group flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-sm shrink-0 active:scale-95 bg-slate-900/90 border-slate-700/60 hover:border-emerald-400/80 text-slate-200 hover:text-white"
-              title="auto-cash.app تور بېكىتىگە كىرىش"
+              className="group flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl border text-xs font-bold transition-all shadow-md shrink-0 active:scale-95 bg-gradient-to-r from-[#031c14]/95 via-[#06291e]/95 to-[#041a12]/95 border-emerald-500/50 hover:border-emerald-400 text-slate-100 hover:text-white shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:shadow-[0_0_20px_rgba(16,185,129,0.35)]"
+              title="auto-cash.app تور بېكىتىگە كىرىش (سۇپا ئالماشتۇرۇش)"
             >
-              <ArrowLeftRight className="w-3.5 h-3.5 text-emerald-400 group-hover:rotate-180 transition-transform duration-300 shrink-0" />
-              <div className="relative w-4 h-4 rounded-md overflow-hidden flex-shrink-0 bg-slate-900">
+              <ArrowLeftRight className="w-4 h-4 text-emerald-400 group-hover:rotate-180 transition-transform duration-300 shrink-0 stroke-[2.2]" />
+              <div className="relative w-5 h-5 sm:w-6 sm:h-6 rounded-full overflow-hidden flex-shrink-0 bg-slate-950 border border-emerald-400/60 shadow-xs">
                 <Image
                   src="/images/autocash_official_logo.png"
                   alt="AUTO CASH"
                   fill
-                  className="object-contain"
+                  className="object-cover"
                 />
               </div>
-              <span className="hidden sm:inline text-[11px] font-black text-emerald-400 font-mono">
-                AUTO CASH
-              </span>
+              <div className="flex flex-col text-left leading-none">
+                <span className="text-[11px] sm:text-xs font-black text-emerald-300 font-mono tracking-tight group-hover:text-emerald-200 transition-colors">
+                  AUTO CASH
+                </span>
+                <span className="text-[8.5px] text-emerald-400/80 font-bold hidden xs:block">
+                  ئالماشتۇرۇش ⚡
+                </span>
+              </div>
             </Link>
 
             <a
               href="https://t.me/maxbazar_bot"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 text-sky-300 text-xs font-bold transition active:scale-95"
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 text-sky-300 text-xs font-bold transition active:scale-95"
               title="تېلېگرامما بوت"
             >
               <Send className="w-3.5 h-3.5" />
@@ -466,7 +475,7 @@ export default function AppsHubPage() {
             </a>
           </div>
 
-          {/* 2. Center: Live Balance Pill Button */}
+          {/* 2. Center: Luxury Live Balance Pill Button */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
@@ -476,45 +485,50 @@ export default function AppsHubPage() {
                   handleNavClick('wallet');
                 }
               }}
-              className="group flex items-center gap-2 bg-gradient-to-r from-[#121A2E] to-[#18233C] hover:from-[#18233C] hover:to-[#1E2D4E] border border-amber-400/40 hover:border-amber-400 px-3 py-1.5 rounded-full shadow-[0_0_12px_rgba(251,191,36,0.15)] transition cursor-pointer active:scale-95 shrink-0"
-              title="قالدۇق پۇل كۆرۈش ۋە قاچىلاش"
+              className="group flex items-center gap-2.5 bg-gradient-to-b from-[#141F38] via-[#0E172B] to-[#0A1020] hover:from-[#182647] hover:to-[#0F1932] border border-amber-400/50 hover:border-amber-300 px-3.5 sm:px-4 py-1.5 rounded-full shadow-[0_4px_16px_rgba(245,158,11,0.2)] hover:shadow-[0_4px_22px_rgba(245,158,11,0.35)] transition cursor-pointer active:scale-95 shrink-0"
+              title="قالدۇق پۇل كۆرۈش ۋە شامكەش ئارقىلىق قاچىلاش"
             >
               <div className="text-right">
-                <span className="block text-[8.5px] text-amber-300/80 font-bold leading-none">قالدۇق</span>
-                <span className="text-xs sm:text-sm font-black text-amber-400 font-mono tracking-tight">
+                <span className="block text-[9px] text-amber-200/90 font-bold leading-none mb-0.5">قالدۇق</span>
+                <span className="text-xs sm:text-sm font-black text-amber-300 font-mono tracking-tight group-hover:text-amber-200 transition-colors">
                   ${session ? session.balance.toFixed(2) : '0.00'}
                 </span>
               </div>
-              <div className="w-5 h-5 rounded-full bg-amber-500 group-hover:bg-amber-400 text-slate-950 flex items-center justify-center transition shadow-sm">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-600 group-hover:brightness-110 text-slate-950 flex items-center justify-center transition shadow-md shrink-0">
                 <Plus className="w-3.5 h-3.5 stroke-[3]" />
               </div>
             </button>
           </div>
 
-          {/* 3. Right: Logo & Brand */}
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="text-right hidden xs:block">
-              <span className="font-black text-sm sm:text-base tracking-tight bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 bg-clip-text text-transparent block leading-tight">
+          {/* 3. Left in RTL: Official MAX-BAZAR 3D Gold Logo (Replaces star!) */}
+          <div
+            onClick={() => handleNavClick('home')}
+            className="flex items-center gap-2.5 shrink-0 cursor-pointer group"
+            title="MAX-BAZAR باش بېتى"
+          >
+            <div className="text-right hidden sm:block">
+              <span className="font-black text-sm sm:text-base tracking-wider bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent block leading-tight group-hover:brightness-110 transition">
                 MAX-BAZAR
               </span>
-              <span className="text-[9px] text-amber-300 font-bold hidden sm:block">
-                ئەپ بازىرى
+              <span className="text-[9px] text-amber-300/80 font-bold flex items-center gap-1 justify-end">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>رەسمىي ئەپ بازىرى</span>
               </span>
             </div>
-            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 p-[2px] shadow-lg shadow-amber-500/20 shrink-0">
-              <div className="w-full h-full bg-[#070B14] rounded-[14px] flex items-center justify-center overflow-hidden">
+
+            {/* Official 3D Gold Round Medallion Logo */}
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 via-yellow-300 to-amber-600 shadow-[0_0_15px_rgba(251,191,36,0.45)] group-hover:shadow-[0_0_20px_rgba(251,191,36,0.7)] group-hover:scale-105 transition-all shrink-0">
+              <div className="w-full h-full bg-[#070B14] rounded-full overflow-hidden flex items-center justify-center">
                 <Image
-                  src="/images/logo.png"
+                  src="/images/maxbazar/v3/maxbazar_gold_round.png"
                   alt="MAX-BAZAR"
-                  width={28}
-                  height={28}
-                  className="object-contain"
-                  onError={(e: any) => {
-                    e.target.style.display = 'none';
-                  }}
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover rounded-full"
+                  priority
                 />
-                <Sparkles className="w-4 h-4 text-amber-400" />
               </div>
+              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#0B101D] shadow-xs pointer-events-none" />
             </div>
           </div>
 
