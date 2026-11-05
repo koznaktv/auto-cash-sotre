@@ -361,7 +361,8 @@ export default function AppsHubPage() {
     const xhr = new XMLHttpRequest();
     setActiveXhr(xhr);
 
-    xhr.open('GET', `/api/download/app?app=${targetApp.id}`, true);
+    const staticApkUrl = targetApp.id === 'pubg' ? '/download/pubg-maxbazar.apk' : targetApp.id === 'hok' ? '/download/hok-maxbazar.apk' : '/download/autocash.apk';
+    xhr.open('GET', staticApkUrl, true);
     xhr.responseType = 'blob';
 
     const startTime = Date.now();
@@ -401,7 +402,7 @@ export default function AppsHubPage() {
         const blobUrl = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = blobUrl;
-        const filename = targetApp.id === 'pubg' ? 'PUBG-MAXBAZAR.apk' : 'HOK-MAXBAZAR.apk';
+        const filename = targetApp.id === 'pubg' ? 'PUBG-MAXBAZAR.apk' : targetApp.id === 'hok' ? 'HOK-MAXBAZAR.apk' : 'MAX-BAZAR.apk';
         a.download = filename;
         document.body.appendChild(a);
         a.click();
@@ -2074,8 +2075,8 @@ export default function AppsHubPage() {
 
                 <div className="grid grid-cols-2 gap-2">
                   <a
-                    href={`/api/download/app?app=${selectedAppForInstall?.id || 'pubg'}`}
-                    download={selectedAppForInstall?.id === 'pubg' ? 'PUBG-MAXBAZAR.apk' : 'HOK-MAXBAZAR.apk'}
+                    href={selectedAppForInstall?.id === 'pubg' ? '/download/pubg-maxbazar.apk' : selectedAppForInstall?.id === 'hok' ? '/download/hok-maxbazar.apk' : '/download/autocash.apk'}
+                    download={selectedAppForInstall?.id === 'pubg' ? 'PUBG-MAXBAZAR.apk' : selectedAppForInstall?.id === 'hok' ? 'HOK-MAXBAZAR.apk' : 'MAX-BAZAR.apk'}
                     className="py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:brightness-110 text-slate-950 font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
                   >
                     <Download className="w-4 h-4 stroke-[2.5]" />

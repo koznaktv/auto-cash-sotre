@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,37 +7,23 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const appParam = (searchParams.get('app') || 'autocash').toLowerCase();
 
-    let apkFilename = 'autocash.apk';
-    let downloadFilename = 'MAX-BAZAR.apk';
+    let targetFile = 'autocash.apk';
 
     if (appParam.includes('pubg')) {
-      apkFilename = 'pubg-maxbazar.apk';
-      downloadFilename = 'PUBG-MAXBAZAR.apk';
+      targetFile = 'pubg-maxbazar.apk';
     } else if (appParam.includes('hok') || appParam.includes('kings')) {
-      apkFilename = 'hok-maxbazar.apk';
-      downloadFilename = 'HOK-MAXBAZAR.apk';
+      targetFile = 'hok-maxbazar.apk';
     }
 
-    const apkPath = path.join(process.cwd(), 'public', 'download', apkFilename);
-    const fallbackPath = path.join(process.cwd(), 'public', 'download', 'autocash.apk');
-
-    const finalPath = fs.existsSync(apkPath) ? apkPath : fallbackPath;
-
-    if (fs.existsSync(finalPath)) {
-      const fileBuffer = fs.readFileSync(finalPath);
-      return new NextResponse(fileBuffer, {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/vnd.android.package-archive',
-          'Content-Disposition': `attachment; filename="${downloadFilename}"`,
-          'Content-Length': fileBuffer.length.toString(),
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-        },
-      });
-    }
+    const redirectUrl = new URL(`/download/${targetFile}`, request.url);
+    return NextResponse.redirect(redirectUrl, {
+      status: 307,
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      },
+    });
   } catch (err) {
-    console.error('Error in download route:', err);
+    console.error('Error in download redirect route:', err);
+    return NextResponse.redirect(new URL('/download/autocash.apk', request.url), { status: 307 });
   }
-
-  return NextResponse.redirect('/download/autocash.apk', { status: 302 });
 }

@@ -2227,7 +2227,7 @@ export default function PubgAppPage() {
             {/* Primary Action: Direct Download APK */}
             <div className="space-y-2 pt-1">
               <a
-                href="/api/download/app?app=pubg"
+                href="/download/pubg-maxbazar.apk"
                 download="PUBG-MAXBAZAR.apk"
                 onClick={() => {
                   setTimeout(() => setShowInstallGuide(false), 2000);

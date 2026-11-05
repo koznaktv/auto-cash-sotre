@@ -2208,7 +2208,7 @@ export default function HonorOfKingsAppPage() {
             {/* Primary Action: Direct Download APK */}
             <div className="space-y-2 pt-1">
               <a
-                href="/api/download/app?app=hok"
+                href="/download/hok-maxbazar.apk"
                 download="HOK-MAXBAZAR.apk"
                 onClick={() => {
                   setTimeout(() => setShowInstallGuide(false), 2000);
