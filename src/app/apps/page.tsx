@@ -6,6 +6,13 @@ import Link from 'next/link';
 import AppsBottomNav from '@/components/apps/AppsBottomNav';
 import AppsTelegramAutoSync from '@/components/apps/AppsTelegramAutoSync';
 import {
+  CategoryId,
+  ActiveApp,
+  ACTIVE_CATALOG,
+  ACTIVE_GAMES,
+  CATEGORIES
+} from '@/lib/appsCatalog';
+import {
   Zap,
   Sparkles,
   Download,
@@ -48,155 +55,9 @@ import {
   ArrowUpRight
 } from 'lucide-react';
 
-interface ActiveApp {
-  id: string;
-  name: string;
-  tagline: string;
-  description: string;
-  icon: string;
-  rating: number;
-  ordersCount: string;
-  speed: string;
-  badge: string;
-  badgeColor: string;
-  webUrl: string;
-  telegramAppUrl: string;
-  priceNote: string;
-  features: string[];
-}
-
-const ACTIVE_GAMES: ActiveApp[] = [
-  {
-    id: 'pubg',
-    name: 'PUBG Mobile UC بازىرى',
-    tagline: 'Midasbuy كودى ۋە رەسمىي Player ID ئارقىلىق 3 سېكۇنتتا يېتىدۇ',
-    description: 'PUBG Mobile ئۈچۈن 60 UC دىن 16,200 UC غىچە، Royale Pass ۋە بارلىق ئايلىق كارتىلارنى بىۋاسىتە سەرۋەرگە سېكۇنتتا قاچىلاپ بېرىش ئەپچىسى.',
-    icon: '/images/apps/pubg/icon-512.png',
-    rating: 4.98,
-    ordersCount: '15.8k+ قاچىلانغان',
-    speed: '3 سېكۇنت',
-    badge: '🔥 ئەڭ ئالقىشلانغان',
-    badgeColor: 'from-amber-500 to-yellow-600',
-    webUrl: '/apps/pubg',
-    telegramAppUrl: 'https://t.me/maxbazar_bot/pubg',
-    priceNote: '$1.10 دىن باشلىنىدۇ (60 - 16,200 UC)',
-    features: ['رەسمىي سەرۋەرگە بىۋاسىتە كىرىدۇ', 'ئويۇن كىملىكى (UID) تەكشۈرۈش', 'شامكەش شحن فوري']
-  },
-  {
-    id: 'hok',
-    name: 'Honor of Kings Token بازىرى',
-    tagline: 'HOK Player ID ئارقىلىق بىۋاسىتە سەرۋەرگە توكېن قاچىلاش',
-    description: 'پادىشاھلار شان-شەرىپى ئويۇنى ئۈچۈن رەسمىي 16 توكېندىن 8,000 توكېن ۋە ھەپتىلىك، ئايلىق كارتىلارنى سېكۇنتتا قاچىلاپ بېرىش ئەپچىسى.',
-    icon: '/images/apps/honor-of-kings/icon-512.png',
-    rating: 4.96,
-    ordersCount: '9.9k+ قاچىلانغان',
-    speed: '5 سېكۇنت',
-    badge: '👑 ئالىي دەرىجىلىك',
-    badgeColor: 'from-purple-500 to-indigo-600',
-    webUrl: '/apps/honor-of-kings',
-    telegramAppUrl: 'https://t.me/maxbazar_bot/hok',
-    priceNote: '$0.25 دىن باشلىنىدۇ (16 - 8,000 Token)',
-    features: ['بىخەتەر ۋە رەسمىي يول', 'ئاپتوماتىك لاقىم (Nickname) دەلىللەش', 'سېكۇنتتا يېتىپ بارىدۇ']
-  }
-];
-
-type CategoryId = 'games' | 'apps' | 'cards' | 'ai' | 'sms' | 'social';
-
-interface CategoryItem {
-  id: CategoryId;
-  name: string;
-  subtitle: string;
-  icon: any;
-  isReady: boolean;
-  countBadge?: string;
-}
-
-const CATEGORIES: CategoryItem[] = [
-  {
-    id: 'games',
-    name: 'ئويۇنلار',
-    subtitle: 'PUBG ۋە HOK تەييار',
-    icon: Gamepad2,
-    isReady: true,
-    countBadge: '2 ئويۇن تەييار'
-  },
-  {
-    id: 'apps',
-    name: 'ئەپلەر',
-    subtitle: 'Spotify & YouTube',
-    icon: Layers,
-    isReady: false,
-    countBadge: 'يېقىندا'
-  },
-  {
-    id: 'cards',
-    name: 'كارتىلار',
-    subtitle: 'Apple & Play & Visa',
-    icon: CreditCard,
-    isReady: false,
-    countBadge: 'يېقىندا'
-  },
-  {
-    id: 'ai',
-    name: 'سۈنئىي ئەقىل',
-    subtitle: 'ChatGPT & Claude Pro',
-    icon: Bot,
-    isReady: false,
-    countBadge: 'يېقىندا'
-  },
-  {
-    id: 'sms',
-    name: 'مەۋھۇم نومۇر',
-    subtitle: 'Telegram & WhatsApp',
-    icon: PhoneCall,
-    isReady: false,
-    countBadge: 'يېقىندا'
-  },
-  {
-    id: 'social',
-    name: 'ئىجتىمائىي تاراتقۇ',
-    subtitle: 'Telegram Stars & TikTok',
-    icon: Share2,
-    isReady: false,
-    countBadge: 'يېقىندا'
-  }
-];
-
-const UPCOMING_ITEMS: Record<Exclude<CategoryId, 'games'>, Array<{ name: string; tag: string; iconEmoji: string }>> = {
-  apps: [
-    { name: 'Spotify Premium ئەزالىق', tag: 'ئايلىق / يىللىق پىلان', iconEmoji: '🎵' },
-    { name: 'YouTube Premium ئائىلە ۋە شەخسىي', tag: 'ئېلان يوق / Background Play', iconEmoji: '▶️' },
-    { name: 'CapCut Pro رەسمىي ھېسابات', tag: 'VIP ئۈنۈملەر ۋە شابلونلار', iconEmoji: '🎬' },
-    { name: 'Duolingo Super تىل ئۆگىنىش', tag: 'چەكسىز جان / چەكسىز تەكرار', iconEmoji: '🦉' }
-  ],
-  cards: [
-    { name: 'Shamcash پۇل يۆتكەش مۇلازىمىتى', tag: 'سۈرىيە پۈتۈن رايونلىرىغا', iconEmoji: '💵' },
-    { name: 'Apple App Store & iTunes كارتىسى', tag: 'US / TR / Global رايونلار', iconEmoji: '🍎' },
-    { name: 'Google Play Gift Card', tag: 'بارلىق ئەپ ۋە ئويۇنلارغا', iconEmoji: '🎮' },
-    { name: 'Visa & Mastercard مەۋھۇم كارتا', tag: 'خەلقئارالىق توردا مال سېتىۋېلىش', iconEmoji: '💳' }
-  ],
-  ai: [
-    { name: 'ChatGPT Plus & Team ئەزالىق', tag: 'GPT-4o ۋە ئاۋازلىق كۆرۈنۈش', iconEmoji: '🤖' },
-    { name: 'Claude Pro (Anthropic)', tag: 'Claude 3.5 Sonnet چەكسىز پاراڭ', iconEmoji: '🧠' },
-    { name: 'Midjourney VIP ئەزالىق', tag: 'رەسىم سىزىش / Fast Hours', iconEmoji: '🎨' },
-    { name: 'Cursor AI Pro كود يازغۇچى', tag: 'پۈتۈن كود بازىسىنى بىر تەرەپ قىلىش', iconEmoji: '💻' }
-  ],
-  sms: [
-    { name: 'تېلېگرامما ئۈچۈن مەۋھۇم نومۇر (+1, +44)', tag: 'SMS كودى 1 سېكۇنتتا كېلىدۇ', iconEmoji: '📨' },
-    { name: 'WhatsApp مەۋھۇم نومۇر', tag: 'بىخەتەر شەخسىي نومۇر', iconEmoji: '💬' },
-    { name: 'Google & Gmail دەلىللەش نومۇرى', tag: 'بىر قېتىملىق ۋە دائىملىق', iconEmoji: '🔑' },
-    { name: 'بارلىق تور بېكەتلەر ئۈچۈن SMS كودى', tag: '180 دىن ئارتۇق دۆلەت', iconEmoji: '📱' }
-  ],
-  social: [
-    { name: 'Telegram Premium 3/6/12 ئايلىق', tag: 'سۈرئەت 2 ھەسسە / 4GB ھۆججەت', iconEmoji: '⭐' },
-    { name: 'TikTok تەڭگە (Coins) قاچىلاش', tag: 'سوۋغات ئەۋەتىش ۋە Live', iconEmoji: '🪙' },
-    { name: 'Instagram ئەگەشكۈچى ۋە ئىنكاس', tag: 'ھەقىقىي ئارىلىشىش', iconEmoji: '📸' },
-    { name: 'Twitter / X Blue دەلىللەنگەن بەلگە', tag: 'كۆك تامغا ۋە ئۇزۇن يازما', iconEmoji: '🐦' }
-  ]
-};
-
 export default function AppsHubPage() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryId>('games');
+  const [homeSearch, setHomeSearch] = useState('');
   const [showHowToInstallModal, setShowHowToInstallModal] = useState(false);
   const [selectedAppForInstall, setSelectedAppForInstall] = useState<ActiveApp | null>(null);
 
@@ -422,6 +283,39 @@ export default function AppsHubPage() {
     setShowHowToInstallModal(true);
   };
 
+  // Filter Apps & Games by selected category and search query
+  const displayedApps = useMemo(() => {
+    let list = ACTIVE_CATALOG;
+
+    if (homeSearch.trim()) {
+      const q = homeSearch.toLowerCase().trim();
+      const inCurrentCat = list
+        .filter((item) => item.category === selectedCategory)
+        .filter((item) => {
+          const mName = item.name.toLowerCase().includes(q);
+          const mTag = item.tagline.toLowerCase().includes(q);
+          const mDesc = item.description.toLowerCase().includes(q);
+          const mBadge = item.badge.toLowerCase().includes(q);
+          const mPrice = item.priceNote.toLowerCase().includes(q);
+          return mName || mTag || mDesc || mBadge || mPrice;
+        });
+
+      if (inCurrentCat.length > 0) return inCurrentCat;
+
+      // If no match in current category, search across the entire catalog
+      return list.filter((item) => {
+        const mName = item.name.toLowerCase().includes(q);
+        const mTag = item.tagline.toLowerCase().includes(q);
+        const mDesc = item.description.toLowerCase().includes(q);
+        const mBadge = item.badge.toLowerCase().includes(q);
+        const mPrice = item.priceNote.toLowerCase().includes(q);
+        return mName || mTag || mDesc || mBadge || mPrice;
+      });
+    }
+
+    return list.filter((item) => item.category === selectedCategory);
+  }, [selectedCategory, homeSearch]);
+
   // Filter Orders
   const filteredOrders = useMemo(() => {
     return ordersHistory.filter((order) => {
@@ -619,6 +513,27 @@ export default function AppsHubPage() {
               </div>
             </section>
 
+            {/* REAL-TIME APP & GAME SEARCH BOX */}
+            <section className="relative">
+              <input
+                type="text"
+                value={homeSearch}
+                onChange={(e) => setHomeSearch(e.target.value)}
+                placeholder="ئويۇن، مەۋھۇم نومۇر، سۈنئىي ئەقىل، تور كارتىسى ياكى ئەپلەرنى ئىزدەڭ..."
+                className="w-full bg-[#0b1222]/95 border border-slate-800/90 hover:border-amber-400/40 focus:border-amber-400 rounded-2xl py-3.5 pr-12 pl-10 text-xs sm:text-sm text-white placeholder:text-slate-500 shadow-inner focus:outline-none focus:ring-1 focus:ring-amber-400/30 transition-all font-alkatip text-right"
+              />
+              <Search className="w-4 h-4 text-amber-400/80 absolute right-4 top-4 pointer-events-none" />
+              {homeSearch && (
+                <button
+                  type="button"
+                  onClick={() => setHomeSearch('')}
+                  className="absolute left-3.5 top-3.5 w-5 h-5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 flex items-center justify-center text-xs transition active:scale-90"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+            </section>
+
             {/* 6 MODERN CATEGORY SQUIRCLE CARDS */}
             <section className="space-y-3">
               <div className="flex items-center justify-between">
@@ -627,7 +542,7 @@ export default function AppsHubPage() {
                   <span>مۇلازىمەت ۋە ئەپ بۆلۈملىرى (6 تۈر):</span>
                 </h2>
                 <span className="text-[11px] text-slate-400">
-                  بىرنى تاللاڭ
+                  كۆرمەكچى بولغان بۆلۈمنى تاللاڭ
                 </span>
               </div>
 
@@ -635,11 +550,15 @@ export default function AppsHubPage() {
                 {CATEGORIES.map((cat) => {
                   const IconComp = cat.icon;
                   const isSelected = selectedCategory === cat.id;
+                  const countInCat = ACTIVE_CATALOG.filter((a) => a.category === cat.id).length;
 
                   return (
                     <button
                       key={cat.id}
-                      onClick={() => setSelectedCategory(cat.id)}
+                      onClick={() => {
+                        setSelectedCategory(cat.id);
+                        if (homeSearch) setHomeSearch('');
+                      }}
                       className={`relative p-3.5 rounded-2xl border transition-all text-right flex flex-col justify-between gap-2.5 active:scale-95 cursor-pointer ${
                         isSelected
                           ? 'bg-gradient-to-b from-amber-500/20 via-[#0F172A] to-[#0A1020] border-amber-400/80 shadow-lg shadow-amber-500/15 ring-1 ring-amber-400/40'
@@ -652,15 +571,13 @@ export default function AppsHubPage() {
                         }`}>
                           <IconComp className="w-4 h-4" />
                         </div>
-                        {cat.countBadge && (
-                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md ${
-                            cat.isReady
-                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                              : 'bg-slate-800 text-slate-400'
-                          }`}>
-                            {cat.countBadge}
-                          </span>
-                        )}
+                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md ${
+                          isSelected
+                            ? 'bg-amber-400/20 text-amber-300 border border-amber-400/30'
+                            : 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/20'
+                        }`}>
+                          {countInCat} تەييار
+                        </span>
                       </div>
 
                       <div>
@@ -677,22 +594,50 @@ export default function AppsHubPage() {
               </div>
             </section>
 
-            {/* ACTIVE APPS & GAMES (APPLE APP STORE / TAPTAP STYLE) */}
-            {selectedCategory === 'games' && (
-              <section className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
-                    <Gamepad2 className="w-5 h-5 text-amber-400" />
-                    <span>ھازىرقى تەييار ئەپ ۋە ئويۇنلار:</span>
-                  </h2>
-                  <span className="text-xs text-emerald-400 font-bold bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>2 ئويۇن تەييار</span>
-                  </span>
-                </div>
+            {/* DYNAMIC CATEGORY CATALOG APPS & GAMES GRID */}
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
+                  {(() => {
+                    const activeCat = CATEGORIES.find((c) => c.id === selectedCategory) || CATEGORIES[0];
+                    const CatIcon = activeCat.icon;
+                    return (
+                      <>
+                        <CatIcon className="w-5 h-5 text-amber-400" />
+                        <span>
+                          {homeSearch
+                            ? `«${homeSearch}» بويىچە ئىزدەش نەتىجىسى:`
+                            : `${activeCat.name} بۆلۈمىدىكى تەييار ئەپ ۋە مەھسۇلاتلار:`}
+                        </span>
+                      </>
+                    );
+                  })()}
+                </h2>
+                <span className="text-xs text-emerald-400 font-bold bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>{displayedApps.length} مەھسۇلات تەييار</span>
+                </span>
+              </div>
 
+              {displayedApps.length === 0 ? (
+                <div className="text-center py-12 px-4 rounded-3xl bg-slate-900/50 border border-slate-800 space-y-3">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-400 flex items-center justify-center mx-auto">
+                    <Search className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-sm font-bold text-white">بۇ بۆلۈمدە سىز ئىزدىگەن مەھسۇلات تېپىلمىدى</h4>
+                  <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                    ئىزدەش سۆزىنى ئۆزگەرتىپ بېقىڭ ياكى باشقا بۆلۈملەرنى تاللاڭ.
+                  </p>
+                  <button
+                    onClick={() => setHomeSearch('')}
+                    className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition"
+                  >
+                    ئىزدەشنى تازىلاش
+                  </button>
+                </div>
+              ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {ACTIVE_GAMES.map((game) => (
+                  {displayedApps.map((game) => (
                     <div
                       key={game.id}
                       className="rounded-3xl bg-gradient-to-b from-[#0f182c]/95 via-[#0b1222]/95 to-[#070c18]/95 border border-slate-800/90 hover:border-amber-400/50 p-5 shadow-2xl flex flex-col justify-between gap-4 transition-all duration-300 group"
@@ -778,46 +723,8 @@ export default function AppsHubPage() {
                     </div>
                   ))}
                 </div>
-              </section>
-            )}
-
-            {/* UPCOMING CATEGORY CATALOG PREVIEWS */}
-            {selectedCategory !== 'games' && (
-              <section className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-amber-400" />
-                    <span>يېقىندا قوشۇلىدىغان مەھسۇلاتلار:</span>
-                  </h2>
-                  <span className="text-xs text-amber-400 font-bold bg-amber-500/15 px-2.5 py-0.5 rounded-full border border-amber-500/30">
-                    تەييارلىنىۋاتىدۇ
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {UPCOMING_ITEMS[selectedCategory]?.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="p-4 rounded-2xl bg-gradient-to-b from-[#0e1628]/90 to-[#090f1d]/90 border border-slate-800/90 flex items-center justify-between gap-3 shadow-md"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-xl shrink-0 shadow-inner">
-                          {item.iconEmoji}
-                        </div>
-                        <div>
-                          <h4 className="text-xs sm:text-sm font-black text-white">{item.name}</h4>
-                          <p className="text-[11px] text-slate-400 mt-0.5">{item.tag}</p>
-                        </div>
-                      </div>
-
-                      <span className="text-[10px] font-bold px-2 py-1 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/20 shrink-0">
-                        يېقىندا
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
+              )}
+            </section>
 
           </div>
         )}
