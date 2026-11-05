@@ -95,6 +95,14 @@ export default function PubgAppPage() {
   const [otpError, setOtpError] = useState('');
   const [otpCountdown, setOtpCountdown] = useState<number>(0);
 
+  // In-App Native Authentication State (Username & Password)
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authUsername, setAuthUsername] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authTelegram, setAuthTelegram] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
+
   // 60-second OTP countdown ticker
   useEffect(() => {
     if (otpCountdown <= 0) return;
@@ -372,6 +380,55 @@ export default function PubgAppPage() {
       });
     } else {
       setShowInstallGuide(true);
+    }
+  };
+
+  const handleInAppAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+    if (!authUsername.trim()) {
+      setAuthError('ئىشلەتكۈچى ئىسمىنى كىرگۈزۈڭ');
+      return;
+    }
+    if (!authPassword.trim() || authPassword.length < 4) {
+      setAuthError('پارول كەم دېگەندە 4 خانىلىق بولسۇن');
+      return;
+    }
+
+    setAuthLoading(true);
+    try {
+      const action = authMode === 'register' ? 'app_register' : 'app_login';
+      const res = await fetch('/api/apps/otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action,
+          username: authUsername.trim(),
+          password: authPassword.trim(),
+          telegram_handle: authTelegram.trim(),
+          app_id: 'pubg',
+        }),
+      });
+      const data = await res.json();
+      if (data.ok && data.session) {
+        setSession(data.session);
+        if (data.session.photo_url) {
+          setAvatarUrl(data.session.photo_url);
+        }
+        try {
+          localStorage.setItem('maxbazar_pubg_session', JSON.stringify(data.session));
+        } catch {}
+        setShowLoginModal(false);
+        setAuthUsername('');
+        setAuthPassword('');
+        setAuthTelegram('');
+      } else {
+        setAuthError(data.error || 'خاتالىق كۆرۈلدى');
+      }
+    } catch {
+      setAuthError('تور ئۇلىنىشى مەغلۇپ بولدى');
+    } finally {
+      setAuthLoading(false);
     }
   };
 
@@ -1405,34 +1462,149 @@ export default function PubgAppPage() {
         </div>
       )}
 
-      {/* TELEGRAM OTP LOGIN MODAL */}
+      {/* NATIVE IN-APP AUTH MODAL (LOGIN & REGISTER DIRECTLY) */}
       {showLoginModal && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-[#0F172A] border border-amber-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl relative text-center">
+          <div className="bg-[#0F172A] border border-amber-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl relative text-right">
             <button
-              onClick={() => setShowLoginModal(false)}
-              className="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center absolute top-4 right-4"
+              onClick={() => {
+                setShowLoginModal(false);
+                setAuthError('');
+              }}
+              className="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center absolute top-4 left-4"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto mb-2 border border-amber-500/30">
-              <Send className="w-7 h-7" />
+            {/* Header & Tabs */}
+            <div className="text-center mb-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto mb-2 border border-amber-500/30">
+                <User className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-black text-white">
+                {authMode === 'login' ? 'ھېساباتقا كىرىش' : 'يېڭى ھېسابات قۇرۇش'}
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                {authMode === 'login'
+                  ? 'ئىشلەتكۈچى ئىسمى ۋە پارولىڭىز بىلەن كىرىڭ'
+                  : 'ئەپ ئىچىدە دەرھال شەخسىي ھېسابات قۇرۇپ ئىشلىتىڭ'}
+              </p>
+
+              {/* Mode Tabs */}
+              <div className="grid grid-cols-2 p-1 bg-slate-900 rounded-xl mt-3 border border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthMode('login');
+                    setAuthError('');
+                  }}
+                  className={`py-1.5 text-xs font-bold rounded-lg transition ${
+                    authMode === 'login'
+                      ? 'bg-amber-400 text-slate-950 shadow-sm'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  🔐 كىرىش
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthMode('register');
+                    setAuthError('');
+                  }}
+                  className={`py-1.5 text-xs font-bold rounded-lg transition ${
+                    authMode === 'register'
+                      ? 'bg-amber-400 text-slate-950 shadow-sm'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  📝 ھېسابات ئېچىش
+                </button>
+              </div>
             </div>
 
-            <h3 className="text-base font-black text-white">تېلېگرامما ئارقىلىق كىرىش</h3>
-            <p className="text-xs text-slate-400 mt-1 mb-4 leading-relaxed max-w-xs mx-auto">
-              پارول ياكى كود ھاجەتسىز. PUBG Mobile UC ئەپىنى تېلېگراممىدا ئېچىپ، كىملىكىڭىز ۋە قالدۇقىڭىز بىلەن ئاپتوماتىك كىرىڭ.
-            </p>
+            {/* Form */}
+            <form onSubmit={handleInAppAuth} className="space-y-3">
+              <div>
+                <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                  ئىشلەتكۈچى ئىسمى (Username ياكى ئېلخەت):
+                </label>
+                <input
+                  type="text"
+                  value={authUsername}
+                  onChange={(e) => setAuthUsername(e.target.value)}
+                  placeholder="مەسىلەن: ali_gamer"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 focus:border-amber-400 text-slate-100 text-xs outline-none font-sans"
+                  dir="ltr"
+                  required
+                />
+              </div>
 
-            <div className="space-y-3 pt-2">
+              <div>
+                <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                  پارول (Password):
+                </label>
+                <input
+                  type="password"
+                  value={authPassword}
+                  onChange={(e) => setAuthPassword(e.target.value)}
+                  placeholder="كەم دېگەندە 4 ھەرپ ياكى سان"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 focus:border-amber-400 text-slate-100 text-xs outline-none font-sans"
+                  dir="ltr"
+                  required
+                />
+              </div>
+
+              {authMode === 'register' && (
+                <div>
+                  <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                    تېلېگرامما كىملىكىڭىز (تاللاشقا بولىدۇ):
+                  </label>
+                  <input
+                    type="text"
+                    value={authTelegram}
+                    onChange={(e) => setAuthTelegram(e.target.value)}
+                    placeholder="مەسىلەن: ali_official"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 focus:border-amber-400 text-slate-100 text-xs outline-none font-sans"
+                    dir="ltr"
+                  />
+                </div>
+              )}
+
+              {authError && (
+                <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-[11px] leading-relaxed">
+                  ⚠️ {authError}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={authLoading}
+                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5"
+              >
+                {authLoading ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>تەكشۈرۈلۈۋاتىدۇ...</span>
+                  </>
+                ) : (
+                  <span>{authMode === 'login' ? 'دەرھال كىرىش' : 'ھېساباتنى قۇرۇش ۋە كىرىش'}</span>
+                )}
+              </button>
+            </form>
+
+            {/* Telegram Alternative */}
+            <div className="pt-3 mt-3 border-t border-slate-800 text-center">
+              <span className="text-[10px] text-slate-500 block mb-2">
+                — ياكى تېلېگراممىدا بىر كۇنۇپكا بىلەن ئېچىش —
+              </span>
               <a
                 href="https://t.me/maxbazar_bot/pubg"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-amber-600 hover:from-sky-400 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-sky-500/25 transition active:scale-95"
+                className="w-full py-2 px-3 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-300 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-3.5 h-3.5" />
                 <span>تېلېگراممىدا ئېچىش (ئاپتوماتىك كىرىدۇ)</span>
               </a>
             </div>

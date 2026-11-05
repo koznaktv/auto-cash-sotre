@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
+import { getUserByEmailAsync, getUserByTelegramUsernameAsync, verifyPassword as verifyDbPassword } from '@/lib/db';
 
 interface OtpEntry {
   code: string;
@@ -18,11 +19,20 @@ interface AppSession {
   created_at: number;
 }
 
+interface MicroAppUser {
+  username: string;
+  passwordHash: string;
+  salt: string;
+  telegram_handle?: string;
+  created_at: number;
+}
+
 // Global In-Memory Cache for serverless instance reuse
 const globalStore = globalThis as unknown as {
   __maxbazarOtpStore?: Map<string, OtpEntry>;
   __maxbazarWallets?: Record<string, number>;
   __maxbazarUsedTalons?: Set<string>;
+  __maxbazarAppUsers?: Record<string, MicroAppUser>;
 };
 
 if (!globalStore.__maxbazarOtpStore) {
@@ -33,6 +43,9 @@ if (!globalStore.__maxbazarWallets) {
 }
 if (!globalStore.__maxbazarUsedTalons) {
   globalStore.__maxbazarUsedTalons = new Set<string>();
+}
+if (!globalStore.__maxbazarAppUsers) {
+  globalStore.__maxbazarAppUsers = {};
 }
 
 // Serverless-friendly storage location
@@ -104,6 +117,35 @@ function saveAppWallet(key: string, balance: number) {
   try {
     fs.writeFileSync(filePath, JSON.stringify(wallets, null, 2), 'utf-8');
   } catch {}
+}
+
+function getAppUsers(): Record<string, MicroAppUser> {
+  if (!globalStore.__maxbazarAppUsers) globalStore.__maxbazarAppUsers = {};
+  const mem = globalStore.__maxbazarAppUsers;
+  ensureDir();
+  const filePath = path.join(SESSIONS_DIR, 'app_users.json');
+  try {
+    if (fs.existsSync(filePath)) {
+      const disk = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+      Object.assign(mem, disk);
+    }
+  } catch {}
+  return mem;
+}
+
+function saveAppUser(user: MicroAppUser) {
+  const users = getAppUsers();
+  users[user.username.toLowerCase()] = user;
+  globalStore.__maxbazarAppUsers = users;
+  ensureDir();
+  const filePath = path.join(SESSIONS_DIR, 'app_users.json');
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(users, null, 2), 'utf-8');
+  } catch {}
+}
+
+function hashAppPassword(password: string, salt: string): string {
+  return crypto.pbkdf2Sync(password, salt, 1000, 32, 'sha256').toString('hex');
 }
 
 const MAXBAZAR_BOT_TOKEN =
@@ -247,9 +289,18 @@ async function sendTelegramOtpMessage(target: string, code: string, appName: str
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { action, phone_or_username, code, otp_sig, app_id = 'honor-of-kings' } = body;
+    const {
+      action,
+      phone_or_username,
+      code,
+      otp_sig,
+      app_id = 'honor-of-kings',
+      username,
+      password,
+      telegram_handle,
+    } = body;
 
-    const cleanIdentity = (phone_or_username || '').trim().replace(/@/g, '').trim();
+    const cleanIdentity = (phone_or_username || username || '').trim().replace(/@/g, '').trim();
 
     const appDisplayNames: Record<string, string> = {
       pubg: 'PUBG Mobile UC',
@@ -257,6 +308,152 @@ export async function POST(req: NextRequest) {
       maxbazar: 'MAX-BAZAR ئەپ بازىرى',
     };
     const appName = appDisplayNames[app_id] || 'MAX-BAZAR';
+
+    // ==========================================
+    // ACTION: APP_REGISTER (Native in-app registration)
+    // ==========================================
+    if (action === 'app_register') {
+      const rawUser = (username || phone_or_username || '').trim().replace(/@/g, '').trim();
+      const rawPass = (password || '').trim();
+      const tgHandle = (telegram_handle || '').trim().replace(/@/g, '').trim();
+
+      if (!rawUser || rawUser.length < 2) {
+        return NextResponse.json(
+          { ok: false, error: 'ئىشلەتكۈچى ئىسمى بەك قىسقا (ئەڭ ئاز 2 ھەرپ بولسۇن)' },
+          { status: 400 }
+        );
+      }
+      if (!rawPass || rawPass.length < 4) {
+        return NextResponse.json(
+          { ok: false, error: 'پارول كەم دېگەندە 4 خانە بولۇشى كېرەك' },
+          { status: 400 }
+        );
+      }
+
+      const existingUsers = getAppUsers();
+      if (existingUsers[rawUser.toLowerCase()]) {
+        return NextResponse.json(
+          { ok: false, error: 'بۇ ئىشلەتكۈچى ئىسمى ئاللىقاچان تىزىملاتقان. باشقا ئىسىم تاللاڭ ياكى كىرىڭ.' },
+          { status: 400 }
+        );
+      }
+
+      const salt = crypto.randomBytes(16).toString('hex');
+      const passwordHash = hashAppPassword(rawPass, salt);
+
+      const newUser: MicroAppUser = {
+        username: rawUser,
+        passwordHash,
+        salt,
+        telegram_handle: tgHandle || undefined,
+        created_at: Date.now(),
+      };
+      saveAppUser(newUser);
+
+      // Initialize wallet
+      const walletKey = `${app_id}:${rawUser.toLowerCase()}`;
+      const wallets = getAppWallets();
+      if (wallets[walletKey] === undefined) {
+        wallets[walletKey] = 0.00;
+        saveAppWallet(walletKey, 0.00);
+      }
+
+      const token = 'mb_app_' + crypto.randomBytes(16).toString('hex');
+      const photo_url = tgHandle
+        ? `/api/apps/avatar?user=${encodeURIComponent(tgHandle)}`
+        : null;
+
+      return NextResponse.json({
+        ok: true,
+        session: {
+          token,
+          identity: rawUser,
+          app_id,
+          balance: wallets[walletKey],
+          currency: 'USD',
+          photo_url,
+          logged_in_at: Date.now(),
+        },
+      });
+    }
+
+    // ==========================================
+    // ACTION: APP_LOGIN (Native in-app login)
+    // ==========================================
+    if (action === 'app_login') {
+      const rawUser = (username || phone_or_username || '').trim().replace(/@/g, '').trim();
+      const rawPass = (password || '').trim();
+
+      if (!rawUser || !rawPass) {
+        return NextResponse.json(
+          { ok: false, error: 'ئىشلەتكۈچى ئىسمى ۋە پارولنى كىرگۈزۈڭ' },
+          { status: 400 }
+        );
+      }
+
+      let authenticated = false;
+      let matchedIdentity = rawUser;
+      let photo_url: string | null = null;
+
+      // 1. Check in micro-app native users
+      const appUsers = getAppUsers();
+      const microUser = appUsers[rawUser.toLowerCase()];
+      if (microUser) {
+        const testHash = hashAppPassword(rawPass, microUser.salt);
+        if (testHash === microUser.passwordHash) {
+          authenticated = true;
+          matchedIdentity = microUser.username;
+          if (microUser.telegram_handle) {
+            photo_url = `/api/apps/avatar?user=${encodeURIComponent(microUser.telegram_handle)}`;
+          }
+        }
+      }
+
+      // 2. Fallback check: auto-cash.app main DB users
+      if (!authenticated) {
+        try {
+          const dbUser =
+            (await getUserByEmailAsync(rawUser)) ||
+            (await getUserByTelegramUsernameAsync(rawUser));
+          if (dbUser && verifyDbPassword(rawPass, dbUser.passwordHash, dbUser.salt)) {
+            authenticated = true;
+            matchedIdentity = dbUser.name || dbUser.email.split('@')[0];
+            photo_url = dbUser.telegramChatId
+              ? `/api/apps/avatar?user=${encodeURIComponent(String(dbUser.telegramChatId))}`
+              : null;
+          }
+        } catch {}
+      }
+
+      if (!authenticated) {
+        return NextResponse.json(
+          { ok: false, error: 'ئىشلەتكۈچى ئىسمى ياكى پارول خاتا. قايتا تەكشۈرۈپ كۆرۈڭ.' },
+          { status: 401 }
+        );
+      }
+
+      // Retrieve wallet
+      const walletKey = `${app_id}:${matchedIdentity.toLowerCase()}`;
+      const wallets = getAppWallets();
+      if (wallets[walletKey] === undefined) {
+        wallets[walletKey] = 0.00;
+        saveAppWallet(walletKey, 0.00);
+      }
+
+      const token = 'mb_app_' + crypto.randomBytes(16).toString('hex');
+      return NextResponse.json({
+        ok: true,
+        session: {
+          token,
+          identity: matchedIdentity,
+          app_id,
+          balance: wallets[walletKey],
+          currency: 'USD',
+          photo_url,
+          logged_in_at: Date.now(),
+        },
+      });
+    }
 
     // Direct Instant Telegram Login (Zero OTP, 100% Friction-Free)
     if (action === 'direct_login' || action === 'instant_login') {
