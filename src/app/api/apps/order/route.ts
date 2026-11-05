@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
     if (currentBalance < itemPrice) {
       return NextResponse.json({
         ok: false,
-        error: `قالدۇق پۇلىڭىز يەتمىدى! ماكس بازار ئورتاق قالدۇقىڭىز: $${currentBalance.toFixed(2)}، تەلەپ قىلىنغىنى: $${itemPrice.toFixed(2)}`,
+        error: `قالدۇق پۇلىڭىز يەتمىدى! قالدۇقىڭىز: $${currentBalance.toFixed(2)}، تەلەپ قىلىنغىنى: $${itemPrice.toFixed(2)}`,
         current_balance: currentBalance,
       }, { status: 400 });
     }

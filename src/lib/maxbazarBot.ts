@@ -88,8 +88,7 @@ export async function handleMaxBazarWebhook(update: any) {
             `🎉 *ھېساباتىڭىز تېلېفوندىكى ئەپكە دەرھال ئۇلاندى!*\n\n` +
             `🎮 ئەپ: *${appName}*\n` +
             `👤 كىملىكىڭىز: *${verified.identity}*\n` +
-            `💰 ئورتاق قالدۇقىڭىز: *$${verified.balance.toFixed(2)}*\n\n` +
-            `💡 _بۇ قالدۇق ماكس بازاردىكى بارلىق ئەپ ۋە ئويۇنلاردا تەڭ ئورتاق ئىشلىتىلىدۇ._\n\n` +
+            `💰 قالدۇقىڭىز: *$${verified.balance.toFixed(2)}*\n\n` +
             `📱 تېلېفوندىكى ئەپىڭىز ئۆزلۈكىدىن كىردى، ئەپكە قايتىپ بىمالال داۋاملاشتۇرۇڭ.`,
           parse_mode: 'Markdown',
           reply_markup: {

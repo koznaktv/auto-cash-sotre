@@ -187,7 +187,7 @@ export async function deductUnifiedWalletBalance(
     return {
       success: false,
       newBalance: current,
-      error: `قالدۇق پۇلىڭىز يەتمىدى! ماكس بازار ئورتاق قالدۇقىڭىز: $${current.toFixed(2)}، تەلەپ قىلىنغىنى: $${cost.toFixed(2)}`,
+      error: `قالدۇق پۇلىڭىز يەتمىدى! قالدۇقىڭىز: $${current.toFixed(2)}، تەلەپ قىلىنغىنى: $${cost.toFixed(2)}`,
     };
   }
 
