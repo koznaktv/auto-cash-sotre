@@ -79,18 +79,24 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // Check URL search params for direct store selection (e.g. ?store=maxstore)
     try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const urlStore = urlParams.get('store');
-      if (urlStore === 'maxstore' || urlStore === 'autocash') {
-        setActiveStore(urlStore);
-        localStorage.setItem(STORE_STORAGE_KEY, urlStore);
-        localStorage.setItem(STORE_SELECTED_FLAG, 'true');
+      const isHome = window.location.pathname === '/';
+      if (isHome) {
+        // The root homepage '/' is ALWAYS strictly AUTO CASH!
+        setActiveStore('autocash');
+        localStorage.setItem(STORE_STORAGE_KEY, 'autocash');
       } else {
-        const savedStore = localStorage.getItem(STORE_STORAGE_KEY);
-        if (savedStore === 'maxstore' || savedStore === 'autocash') {
-          setActiveStore(savedStore);
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlStore = urlParams.get('store');
+        if (urlStore === 'maxstore' || urlStore === 'autocash') {
+          setActiveStore(urlStore);
+          localStorage.setItem(STORE_STORAGE_KEY, urlStore);
+          localStorage.setItem(STORE_SELECTED_FLAG, 'true');
+        } else {
+          const savedStore = localStorage.getItem(STORE_STORAGE_KEY);
+          if (savedStore === 'maxstore' || savedStore === 'autocash') {
+            setActiveStore(savedStore);
+          }
         }
       }
     } catch {}

@@ -35,8 +35,11 @@ export default function DualGatewayModal() {
 
   const handleSelect = (store: StoreType) => {
     switchStore(store);
+    closeGateway();
     if (store === 'maxstore') {
-      router.push('/maxbazar');
+      router.push('/apps');
+    } else {
+      router.push('/');
     }
   };
 

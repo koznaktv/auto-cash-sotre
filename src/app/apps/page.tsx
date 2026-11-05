@@ -24,7 +24,8 @@ import {
   ShieldCheck,
   CheckCircle2,
   X,
-  Info
+  Info,
+  ArrowLeftRight
 } from 'lucide-react';
 
 interface ActiveApp {
@@ -247,16 +248,22 @@ export default function AppsHubPage() {
               <span className="hidden sm:inline">@maxbazar_bot</span>
             </a>
 
-            <a
-              href="https://www.auto-cash.app"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-bold transition active:scale-95"
+            <Link
+              href="/"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition active:scale-95 shadow-sm"
               title="auto-cash.app تور بېكىتىگە كىرىش"
             >
-              <ExternalLink className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">auto-cash.app</span>
-            </a>
+              <ArrowLeftRight className="w-3.5 h-3.5 text-emerald-400" />
+              <div className="relative w-4 h-4 rounded-md overflow-hidden flex-shrink-0 bg-slate-900">
+                <Image
+                  src="/images/autocash_official_logo.png"
+                  alt="AUTO CASH"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <span className="font-mono">AUTO CASH</span>
+            </Link>
           </div>
         </div>
       </header>
