@@ -64,14 +64,15 @@ export default function AppsHubPage() {
   const [showHowToInstallModal, setShowHowToInstallModal] = useState(false);
   const [selectedAppForInstall, setSelectedAppForInstall] = useState<ActiveApp | null>(null);
 
-  // Google Play Store Style Download & Install Simulation State
+  // Google Play Store Style Real-Time Download State (Actual Network Stream)
   const [downloadingApp, setDownloadingApp] = useState<ActiveApp | null>(null);
   const [downloadProgress, setDownloadProgress] = useState(0);
-  const [downloadStatus, setDownloadStatus] = useState<'idle' | 'waiting' | 'downloading' | 'installing' | 'completed'>('idle');
-  const [autoOpenApp, setAutoOpenApp] = useState(true);
+  const [downloadSizeText, setDownloadSizeText] = useState('0 MB / 7.5 MB');
+  const [downloadSpeedText, setDownloadSpeedText] = useState('3.5 MB/s');
+  const [downloadStatus, setDownloadStatus] = useState<'idle' | 'waiting' | 'downloading' | 'completed' | 'error'>('idle');
+  const [autoOpenApp, setAutoOpenApp] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [installedAppIds, setInstalledAppIds] = useState<Record<string, boolean>>({});
-  const [downloadIntervalId, setDownloadIntervalId] = useState<any>(null);
+  const [activeXhr, setActiveXhr] = useState<XMLHttpRequest | null>(null);
 
   // Capture beforeinstallprompt for native PWA installation
   useEffect(() => {
@@ -80,12 +81,6 @@ export default function AppsHubPage() {
       setDeferredPrompt(e);
     };
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-
-    try {
-      const saved = localStorage.getItem('maxbazar_installed_apps');
-      if (saved) setInstalledAppIds(JSON.parse(saved));
-    } catch (e) {}
-
     return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
   }, []);
 
@@ -348,94 +343,107 @@ export default function AppsHubPage() {
     setSelectedCategory(null);
   };
 
-  // Helper to trigger genuine Android APK download directly to phone storage
-  const triggerActualApkDownload = (app: ActiveApp) => {
-    try {
-      const apkFilename = app.id === 'pubg' ? 'pubg-maxbazar.apk' : app.id === 'hok' ? 'hok-maxbazar.apk' : 'autocash.apk';
-      const downloadUrl = `/api/download/app?app=${app.id}`;
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.setAttribute('download', apkFilename);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (e) {
-      console.error('Failed to trigger native APK download:', e);
-    }
-  };
-
-  // Launch Google Play Store Style App Installation with live percentage
+  // Real-time Android APK download streaming with genuine byte-level percentage tracking
   const handleOpenInstallModal = (app?: ActiveApp) => {
     const targetApp = app || ACTIVE_GAMES[0];
     setSelectedAppForInstall(targetApp);
     setDownloadingApp(targetApp);
     setDownloadProgress(0);
+    setDownloadSizeText('0 MB / 7.5 MB');
+    setDownloadSpeedText('3.5 MB/s');
     setDownloadStatus('waiting');
     setShowHowToInstallModal(true);
 
-    if (downloadIntervalId) {
-      clearInterval(downloadIntervalId);
+    if (activeXhr) {
+      activeXhr.abort();
     }
 
-    // Step 1: Preparing & Waiting (350ms)
-    setTimeout(() => {
+    const xhr = new XMLHttpRequest();
+    setActiveXhr(xhr);
+
+    xhr.open('GET', `/api/download/app?app=${targetApp.id}`, true);
+    xhr.responseType = 'blob';
+
+    const startTime = Date.now();
+
+    xhr.onloadstart = () => {
       setDownloadStatus('downloading');
+    };
 
-      // 🔥 Trigger genuine file download to user's phone directly!
-      triggerActualApkDownload(targetApp);
-
-      let current = 0;
-      const interval = setInterval(() => {
-        // Increment realistically by 3% - 8%
-        current += Math.floor(Math.random() * 6) + 3;
-        if (current >= 92) {
-          current = 92;
-          clearInterval(interval);
-          setDownloadProgress(92);
-          setDownloadStatus('installing');
-
-          // Step 3: Installing onto device (650ms)
-          setTimeout(() => {
-            setDownloadProgress(100);
-            setDownloadStatus('completed');
-
-            // Save installed state
-            setInstalledAppIds((prev) => {
-              const updated = { ...prev, [targetApp.id]: true };
-              try {
-                localStorage.setItem('maxbazar_installed_apps', JSON.stringify(updated));
-              } catch (e) {}
-              return updated;
-            });
-
-            // Trigger real native Android/PWA prompt if available
-            if (deferredPrompt) {
-              try {
-                deferredPrompt.prompt();
-              } catch (e) {}
-            }
-
-            // If auto open is enabled, automatically navigate after 1.4s
-            if (autoOpenApp) {
-              setTimeout(() => {
-                window.location.href = targetApp.webUrl;
-              }, 1400);
-            }
-          }, 650);
-        } else {
-          setDownloadProgress(current);
+    xhr.onprogress = (event) => {
+      if (event.lengthComputable && event.total > 0) {
+        const percent = Math.min(99, Math.round((event.loaded / event.total) * 100));
+        const loadedMB = (event.loaded / (1024 * 1024)).toFixed(1);
+        const totalMB = (event.total / (1024 * 1024)).toFixed(1);
+        
+        // Calculate genuine download speed
+        const elapsedSec = (Date.now() - startTime) / 1000;
+        let speed = '3.5 MB/s';
+        if (elapsedSec > 0.4) {
+          const speedVal = (event.loaded / (1024 * 1024) / elapsedSec).toFixed(1);
+          speed = `${speedVal} MB/s`;
         }
-      }, 70);
+        
+        setDownloadProgress(percent);
+        setDownloadSizeText(`${loadedMB} MB / ${totalMB} MB`);
+        setDownloadSpeedText(speed);
+      }
+    };
 
-      setDownloadIntervalId(interval);
-    }, 380);
+    xhr.onload = () => {
+      if (xhr.status === 200 && xhr.response) {
+        setDownloadProgress(100);
+        setDownloadStatus('completed');
+        setActiveXhr(null);
+
+        // 🔥 Save the actual completed file to user's phone downloads storage!
+        const blob = xhr.response;
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        const filename = targetApp.id === 'pubg' ? 'PUBG-MAXBAZAR.apk' : 'HOK-MAXBAZAR.apk';
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => window.URL.revokeObjectURL(blobUrl), 10000);
+
+        // Trigger native prompt if available
+        if (deferredPrompt) {
+          try {
+            deferredPrompt.prompt();
+          } catch (e) {}
+        }
+
+        // If auto open is enabled, navigate after delay
+        if (autoOpenApp) {
+          setTimeout(() => {
+            window.location.href = targetApp.webUrl;
+          }, 1500);
+        }
+      } else {
+        setDownloadStatus('error');
+        setActiveXhr(null);
+      }
+    };
+
+    xhr.onerror = () => {
+      setDownloadStatus('error');
+      setActiveXhr(null);
+    };
+
+    xhr.onabort = () => {
+      setActiveXhr(null);
+    };
+
+    xhr.send();
   };
 
   // Cancel ongoing download
   const handleCancelDownload = () => {
-    if (downloadIntervalId) {
-      clearInterval(downloadIntervalId);
-      setDownloadIntervalId(null);
+    if (activeXhr) {
+      activeXhr.abort();
+      setActiveXhr(null);
     }
     setDownloadingApp(null);
     setDownloadProgress(0);
@@ -882,6 +890,8 @@ export default function AppsHubPage() {
                             className={`py-2.5 px-3 rounded-xl border font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer relative overflow-hidden ${
                               downloadingApp?.id === game.id && downloadStatus === 'downloading'
                                 ? 'bg-amber-500/20 border-amber-400/50 text-amber-300'
+                                : downloadingApp?.id === game.id && downloadStatus === 'completed'
+                                ? 'bg-emerald-500/20 border-emerald-400/50 text-emerald-300'
                                 : 'bg-slate-800/90 hover:bg-slate-700 border-slate-700/80 text-white'
                             }`}
                           >
@@ -890,10 +900,10 @@ export default function AppsHubPage() {
                                 <RefreshCw className="w-3.5 h-3.5 text-amber-400 animate-spin" />
                                 <span>%{Math.round(downloadProgress)} چۈشۈۋاتىدۇ...</span>
                               </>
-                            ) : downloadingApp?.id === game.id && downloadStatus === 'installing' ? (
+                            ) : downloadingApp?.id === game.id && downloadStatus === 'completed' ? (
                               <>
-                                <Smartphone className="w-3.5 h-3.5 text-sky-400 animate-pulse" />
-                                <span>قاچىلىنىۋاتىدۇ...</span>
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                                <span>چۈشۈپ بولدى</span>
                               </>
                             ) : (
                               <>
@@ -1116,6 +1126,8 @@ export default function AppsHubPage() {
                                 className={`py-2.5 px-3 rounded-xl border font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer relative overflow-hidden ${
                                   downloadingApp?.id === game.id && downloadStatus === 'downloading'
                                     ? 'bg-amber-500/20 border-amber-400/50 text-amber-300'
+                                    : downloadingApp?.id === game.id && downloadStatus === 'completed'
+                                    ? 'bg-emerald-500/20 border-emerald-400/50 text-emerald-300'
                                     : 'bg-slate-800/90 hover:bg-slate-700 border-slate-700/80 text-white'
                                 }`}
                               >
@@ -1124,10 +1136,10 @@ export default function AppsHubPage() {
                                     <RefreshCw className="w-3.5 h-3.5 text-amber-400 animate-spin" />
                                     <span>%{Math.round(downloadProgress)} چۈشۈۋاتىدۇ...</span>
                                   </>
-                                ) : downloadingApp?.id === game.id && downloadStatus === 'installing' ? (
+                                ) : downloadingApp?.id === game.id && downloadStatus === 'completed' ? (
                                   <>
-                                    <Smartphone className="w-3.5 h-3.5 text-sky-400 animate-pulse" />
-                                    <span>قاچىلىنىۋاتىدۇ...</span>
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                                    <span>چۈشۈپ بولدى</span>
                                   </>
                                 ) : (
                                   <>
@@ -1935,7 +1947,7 @@ export default function AppsHubPage() {
                   {/* Status Indicator */}
                   <div className="text-xs">
                     {downloadStatus === 'waiting' && (
-                      <span className="text-amber-400 animate-pulse font-medium">كۈتۈۋاتىدۇ...</span>
+                      <span className="text-amber-400 animate-pulse font-medium">چۈشۈرۈشكە ئۇلىنىۋاتىدۇ...</span>
                     )}
                     {downloadStatus === 'downloading' && (
                       <div className="space-y-0.5">
@@ -1943,19 +1955,24 @@ export default function AppsHubPage() {
                           چۈشۈۋاتىدۇ... %{Math.round(downloadProgress)}
                         </span>
                         <div className="text-[10px] text-slate-400 font-mono">
-                          {((downloadProgress * 8.6) / 100).toFixed(1)} MB / 8.6 MB • 3.2 MB/s
+                          {downloadSizeText} • {downloadSpeedText}
                         </div>
                       </div>
                     )}
-                    {downloadStatus === 'installing' && (
-                      <span className="text-sky-300 animate-pulse font-bold">
-                        تېلېفونغا قاچىلىنىۋاتىدۇ...
-                      </span>
-                    )}
                     {downloadStatus === 'completed' && (
-                      <span className="text-emerald-400 font-bold flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        تەييار بولدى • قاچىلاندى
+                      <div className="space-y-0.5">
+                        <span className="text-emerald-400 font-bold flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          تېلېفونىڭىزغا تولۇق چۈشتى (100%)
+                        </span>
+                        <div className="text-[10px] text-emerald-300/80 font-mono">
+                          {downloadSizeText} • مۇۋەپپەقىيەتلىك چۈشتى
+                        </div>
+                      </div>
+                    )}
+                    {downloadStatus === 'error' && (
+                      <span className="text-rose-400 font-bold">
+                        چۈشۈرۈش مەغلۇپ بولدى، تورنى تەكشۈرۈپ قايتا سىناڭ
                       </span>
                     )}
                   </div>
@@ -2010,7 +2027,7 @@ export default function AppsHubPage() {
                 </div>
                 <div className="text-right">
                   <h4 className="text-xs font-black text-white">⚡ تەييار بولغاندا ئاپتوماتىك ئېچىش</h4>
-                  <p className="text-[10px] text-slate-400">قاچىلاش پۈتكەندىن كېيىن دەرھال قوزغىتىش</p>
+                  <p className="text-[10px] text-slate-400">چۈشۈش پۈتكەندىن كېيىن دەرھال قوزغىتىش</p>
                 </div>
               </div>
 
@@ -2037,7 +2054,7 @@ export default function AppsHubPage() {
                 <span>تېلېفونغا قاچىلاش كۆرسەتمىسى:</span>
               </div>
               <p className="text-slate-400 text-[10px] leading-relaxed">
-                ھۆججەت چۈشكەندە، تېلېفونىڭىزنىڭ ئۈستى تەرىپىدىكى <strong>ئۇقتۇرۇش كۆزنىكى (Notification)</strong> تىن ياكى تور كۆرگۈچىڭىزنىڭ <strong>«Install app / باش ئېكرانغا قوشۇش»</strong> تىزىملىكىدىن تەستىقلاپ قاچىلاشنى تاماملاڭ.
+                ھۆججەت چۈشۈپ بولغاندا، تېلېفونىڭىزنىڭ ئۈستى تەرىپىدىكى <strong>ئۇقتۇرۇش كۆزنىكى (Notification)</strong> تىن ياكى «چۈشكەن ھۆججەتلەر (Downloads)» قىسقۇچىدىن <strong>.apk</strong> نى تاللاپ قاچىلاشنى تاماملاڭ.
               </p>
             </div>
 
@@ -2048,26 +2065,22 @@ export default function AppsHubPage() {
                 <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-right space-y-1">
                   <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs">
                     <CheckCircle2 className="w-4 h-4 shrink-0" />
-                    <span>قاچىلاش ھۆججىتى تېلېفونىڭىزغا ئەۋەتىلدى!</span>
+                    <span>قاچىلاش ھۆججىتى تېلېفونىڭىزغا تولۇق چۈشتى!</span>
                   </div>
                   <p className="text-[10px] text-slate-300 leading-relaxed">
-                    تېلېفونىڭىزنىڭ ئۇقتۇرۇش كۆزنىكىنى تارتىپ چۈشكەن <strong>.apk</strong> ھۆججىتىنى بېسىڭ.
+                    تېلېفونىڭىزنىڭ ئۈستىدىكى ئۇقتۇرۇش كۆزنىكىنى تارتىپ <strong>{selectedAppForInstall?.id === 'pubg' ? 'PUBG-MAXBAZAR.apk' : 'HOK-MAXBAZAR.apk'}</strong> نى بېسىپ قاچىلاڭ.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (selectedAppForInstall) {
-                        triggerActualApkDownload(selectedAppForInstall);
-                      }
-                    }}
+                  <a
+                    href={`/api/download/app?app=${selectedAppForInstall?.id || 'pubg'}`}
+                    download={selectedAppForInstall?.id === 'pubg' ? 'PUBG-MAXBAZAR.apk' : 'HOK-MAXBAZAR.apk'}
                     className="py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:brightness-110 text-slate-950 font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
                   >
                     <Download className="w-4 h-4 stroke-[2.5]" />
                     <span>قايتا چۈشۈرۈش</span>
-                  </button>
+                  </a>
 
                   <button
                     type="button"
@@ -2082,6 +2095,18 @@ export default function AppsHubPage() {
                     <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
                   </button>
                 </div>
+              </div>
+            ) : downloadStatus === 'error' ? (
+              <div className="space-y-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (selectedAppForInstall) handleOpenInstallModal(selectedAppForInstall);
+                  }}
+                  className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition active:scale-95 cursor-pointer"
+                >
+                  قايتا سىناش
+                </button>
               </div>
             ) : (
               <button
