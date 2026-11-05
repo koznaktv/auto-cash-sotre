@@ -1074,14 +1074,14 @@ export default function AppsHubPage() {
                   </div>
                   <h3 className="text-base font-black text-white">ئالدى بىلەن كىرىڭ</h3>
                   <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                    زاكازلىرىڭىزنى كۆرۈش ئۈچۈن، تېلېگرامما ئارقىلىق بىر كۇنۇپكا بىلەن ھېساباتىڭىزنى ئۇلاڭ.
+                    زاكازلىرىڭىزنى كۆرۈش ئۈچۈن، تېلېگرامما ئارقىلىق ھېساباتىڭىزغا كىرىڭ.
                   </p>
                   <button
                     onClick={() => setShowLoginModal(true)}
                     className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 text-white font-bold text-xs shadow-md transition active:scale-95 inline-flex items-center gap-1.5 cursor-pointer"
                   >
                     <Send className="w-4 h-4" />
-                    <span>تېلېگراممىدا بىر كۇنۇپكا بىلەن ئۇلاش</span>
+                    <span>تېلېگرامما ئارقىلىق كىرىش</span>
                   </button>
                 </div>
               ) : loadingOrders ? (
@@ -1487,7 +1487,7 @@ export default function AppsHubPage() {
                   className="py-3 px-6 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-purple-600 text-white font-black text-xs shadow-lg transition active:scale-95 inline-flex items-center gap-2 cursor-pointer"
                 >
                   <Send className="w-4 h-4" />
-                  <span>تېلېگراممىدا بىر كۇنۇپكا بىلەن كىرىش</span>
+                  <span>تېلېگرامما ئارقىلىق كىرىش</span>
                 </button>
               </div>
             ) : (
