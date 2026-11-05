@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -34,7 +34,11 @@ import {
   RefreshCw,
   Copy,
   Check,
-  AlertCircle
+  AlertCircle,
+  Search,
+  Hourglass,
+  Calendar,
+  ChevronLeft
 } from 'lucide-react';
 
 interface ActiveApp {
@@ -191,28 +195,28 @@ export default function AppsHubPage() {
 
   // User Session & Balance State (Unified across MAX-BAZAR)
   const [session, setSession] = useState<{ token: string; identity: string; balance: number; photo_url?: string } | null>(null);
+  
+  // Full-Page View Navigation Tabs: 'home' | 'orders' | 'wallet' | 'account'
   const [activeNavTab, setActiveNavTab] = useState<'home' | 'orders' | 'wallet' | 'account'>('home');
 
-  // Modal Dialogs
-  const [showTopupModal, setShowTopupModal] = useState(false);
-  const [showOrdersModal, setShowOrdersModal] = useState(false);
-  const [showAccountModal, setShowAccountModal] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-
   // 1-Click Telegram Sync State
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [syncToken, setSyncToken] = useState<string | null>(null);
   const [syncBotUrl, setSyncBotUrl] = useState<string>('https://t.me/maxbazar_bot');
   const [isSyncWaiting, setIsSyncWaiting] = useState(false);
 
-  // Shamcash Talon State
+  // Shamcash Talon State (Wallet Page)
   const [talonCode, setTalonCode] = useState('');
   const [isVerifyingTalon, setIsVerifyingTalon] = useState(false);
   const [talonFeedback, setTalonFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
   const [copiedShamAddress, setCopiedShamAddress] = useState(false);
 
-  // Orders History State
+  // Orders Page Filter & Search State
   const [ordersHistory, setOrdersHistory] = useState<any[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
+  const [ordersSearch, setOrdersSearch] = useState('');
+  const [ordersStatusFilter, setOrdersStatusFilter] = useState<'all' | 'completed' | 'processing' | 'refunded'>('all');
+  const [copiedOrderId, setCopiedOrderId] = useState<string | null>(null);
 
   // Dynamic manifest tag check
   useEffect(() => {
@@ -267,7 +271,6 @@ export default function AppsHubPage() {
 
     let active = true;
 
-    // 1. Create a fresh sync session
     fetch('/api/apps/sync-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -282,7 +285,6 @@ export default function AppsHubPage() {
       })
       .catch(() => {});
 
-    // 2. Poll every 2 seconds
     const interval = setInterval(() => {
       if (!syncToken) return;
       fetch(`/api/apps/sync-session?token=${encodeURIComponent(syncToken)}`)
@@ -306,7 +308,7 @@ export default function AppsHubPage() {
     };
   }, [showLoginModal, syncToken]);
 
-  // Load orders history when orders modal opens
+  // Load orders history
   const fetchOrdersHistory = async () => {
     if (!session?.identity) return;
     setLoadingOrders(true);
@@ -325,6 +327,15 @@ export default function AppsHubPage() {
     }
   };
 
+  // Switch tab and load data if needed
+  const handleNavClick = (tab: 'home' | 'orders' | 'wallet' | 'account') => {
+    setActiveNavTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (tab === 'orders') {
+      fetchOrdersHistory();
+    }
+  };
+
   const handleVerifyShamcashTalon = async (e: React.FormEvent) => {
     e.preventDefault();
     setTalonFeedback(null);
@@ -333,7 +344,6 @@ export default function AppsHubPage() {
       return;
     }
     if (!session) {
-      setShowTopupModal(false);
       setShowLoginModal(true);
       return;
     }
@@ -376,34 +386,41 @@ export default function AppsHubPage() {
     } catch {}
   };
 
-  const handleNavClick = (tab: 'home' | 'orders' | 'wallet' | 'account') => {
-    setActiveNavTab(tab);
-    if (tab === 'home') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else if (tab === 'orders') {
-      if (!session) {
-        setShowLoginModal(true);
-      } else {
-        fetchOrdersHistory();
-        setShowOrdersModal(true);
-      }
-    } else if (tab === 'wallet') {
-      if (!session) {
-        setShowLoginModal(true);
-      } else {
-        setShowTopupModal(true);
-      }
-    } else if (tab === 'account') {
-      if (!session) {
-        setShowLoginModal(true);
-      } else {
-        setShowAccountModal(true);
-      }
-    }
+  const handleCopyOrderId = (id: string) => {
+    try {
+      navigator.clipboard.writeText(id);
+      setCopiedOrderId(id);
+      setTimeout(() => setCopiedOrderId(null), 2000);
+    } catch {}
   };
 
+  // Filtered orders calculation
+  const filteredOrders = useMemo(() => {
+    return ordersHistory.filter((order) => {
+      // 1. Status Filter
+      if (ordersStatusFilter === 'completed' && order.status !== 'completed') return false;
+      if (ordersStatusFilter === 'refunded' && order.status !== 'refunded') return false;
+      if (
+        ordersStatusFilter === 'processing' &&
+        (order.status === 'completed' || order.status === 'refunded')
+      )
+        return false;
+
+      // 2. Search Query
+      if (ordersSearch.trim()) {
+        const q = ordersSearch.toLowerCase().trim();
+        const mId = (order.order_id || '').toLowerCase().includes(q);
+        const mPkg = (order.package_name || '').toLowerCase().includes(q);
+        const mPlayer = (order.player_id || '').toLowerCase().includes(q);
+        const mApp = (order.app_id || '').toLowerCase().includes(q);
+        if (!mId && !mPkg && !mPlayer && !mApp) return false;
+      }
+      return true;
+    });
+  }, [ordersHistory, ordersStatusFilter, ordersSearch]);
+
   return (
-    <div className="min-h-screen bg-[#070B14] text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950 pb-24" dir="rtl">
+    <div className="min-h-screen bg-[#070B14] text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950 pb-28" dir="rtl">
       {/* Dynamic Background Glow */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute -top-32 -right-32 w-96 h-96 bg-amber-500/10 rounded-full blur-[120px]" />
@@ -448,14 +465,14 @@ export default function AppsHubPage() {
             </a>
           </div>
 
-          {/* 2. Center: Live Unified Balance Pill Button */}
+          {/* 2. Center: Live Balance Pill Button */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
                 if (!session) {
                   setShowLoginModal(true);
                 } else {
-                  setShowTopupModal(true);
+                  handleNavClick('wallet');
                 }
               }}
               className="group flex items-center gap-2 bg-gradient-to-r from-[#121A2E] to-[#18233C] hover:from-[#18233C] hover:to-[#1E2D4E] border border-amber-400/40 hover:border-amber-400 px-3 py-1.5 rounded-full shadow-[0_0_12px_rgba(251,191,36,0.15)] transition cursor-pointer active:scale-95 shrink-0"
@@ -504,214 +521,677 @@ export default function AppsHubPage() {
       </header>
 
       {/* MAIN CONTENT CONTAINER */}
-      <main className="max-w-5xl mx-auto px-4 pt-4 pb-12 w-full space-y-6 relative z-10 flex-1">
+      <main className="max-w-5xl mx-auto px-4 pt-4 pb-6 w-full space-y-6 relative z-10 flex-1">
         
-        {/* HERO INTRO CARD */}
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-[#0F172A] to-[#0A0E1A] border border-amber-500/30 p-5 md:p-6 shadow-2xl text-right">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
-              <Flame className="w-3.5 h-3.5 text-amber-400" />
-              <span>MAX-BAZAR مەخسۇس ئەپ چۈشۈرۈش سىستېمىسى</span>
-            </div>
-            <h1 className="text-xl md:text-2xl font-black text-white">
-              ئۆزىڭىزگە كېرەكلىك ئەپنى تاللاپ، دەرھال تېلېفونىڭىزغا قاچىلاڭ
-            </h1>
-            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-2xl">
-              تۆۋەندىكى تۈرلەردىن ئۆزىڭىزگە لازىملىق ئەپ ياكى ئويۇننى تاللاڭ. «تېلېفونغا قاچىلاش» نى باسىپ ئەپنى تېلېفونىڭىزنىڭ باش ئېكرانىغا چۈشۈرۈۋېلىڭ ياكى تور كۆرگۈچتە بىۋاسىتە ئېچىپ ئىشلىتىڭ.
-            </p>
-          </div>
-        </section>
+        {/* =========================================================================
+            TAB 1: باشبەت (HOME - APPS & GAMES CATALOG)
+        ========================================================================= */}
+        {activeNavTab === 'home' && (
+          <div className="space-y-6 animate-fadeIn">
+            {/* HERO INTRO CARD */}
+            <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-[#0F172A] to-[#0A0E1A] border border-amber-500/30 p-5 md:p-6 shadow-2xl text-right">
+              <div className="space-y-2">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
+                  <Flame className="w-3.5 h-3.5 text-amber-400" />
+                  <span>MAX-BAZAR مەخسۇس ئەپ چۈشۈرۈش سىستېمىسى</span>
+                </div>
+                <h1 className="text-xl md:text-2xl font-black text-white">
+                  ئۆزىڭىزگە كېرەكلىك ئەپنى تاللاپ، دەرھال تېلېفونىڭىزغا قاچىلاڭ
+                </h1>
+                <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-2xl">
+                  تۆۋەندىكى تۈرلەردىن ئۆزىڭىزگە لازىملىق ئەپ ياكى ئويۇننى تاللاڭ. «تېلېفونغا قاچىلاش» نى باسىپ ئەپنى تېلېفونىڭىزنىڭ باش ئېكرانىغا چۈشۈرۈۋېلىڭ ياكى تور كۆرگۈچتە بىۋاسىتە ئېچىپ ئىشلىتىڭ.
+                </p>
+              </div>
+            </section>
 
-        {/* 6 CATEGORIES TABS */}
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-black text-white flex items-center gap-1.5">
-              <Layers className="w-4 h-4 text-amber-400" />
-              <span>مۇلازىمەت ۋە ئەپ كاتېگورىيەلىرى (6 تۈر):</span>
-            </h2>
-            <span className="text-[11px] text-slate-400">
-              بىرنى تاللاڭ
-            </span>
-          </div>
+            {/* 6 CATEGORIES TABS */}
+            <section className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-black text-white flex items-center gap-1.5">
+                  <Layers className="w-4 h-4 text-amber-400" />
+                  <span>مۇلازىمەت ۋە ئەپ كاتېگورىيەلىرى (6 تۈر):</span>
+                </h2>
+                <span className="text-[11px] text-slate-400">
+                  بىرنى تاللاڭ
+                </span>
+              </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5">
-            {CATEGORIES.map((cat) => {
-              const IconComp = cat.icon;
-              const isSelected = selectedCategory === cat.id;
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5">
+                {CATEGORIES.map((cat) => {
+                  const IconComp = cat.icon;
+                  const isSelected = selectedCategory === cat.id;
 
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`relative p-3.5 rounded-2xl border transition-all text-right flex flex-col justify-between gap-2 active:scale-95 ${
-                    isSelected
-                      ? 'bg-gradient-to-b from-amber-500/20 via-slate-900 to-[#0F172A] border-amber-500/80 shadow-lg shadow-amber-500/10 ring-1 ring-amber-500/40'
-                      : 'bg-slate-900/60 hover:bg-slate-900/90 border-slate-800 hover:border-slate-700'
-                  }`}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
-                      isSelected ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-800 text-slate-300'
-                    }`}>
-                      <IconComp className="w-4 h-4" />
-                    </div>
-                    {cat.countBadge && (
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md ${
-                        cat.isReady
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                          : 'bg-slate-800 text-slate-400'
-                      }`}>
-                        {cat.countBadge}
-                      </span>
-                    )}
-                  </div>
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => setSelectedCategory(cat.id)}
+                      className={`relative p-3.5 rounded-2xl border transition-all text-right flex flex-col justify-between gap-2 active:scale-95 ${
+                        isSelected
+                          ? 'bg-gradient-to-b from-amber-500/20 via-slate-900 to-[#0F172A] border-amber-500/80 shadow-lg shadow-amber-500/10 ring-1 ring-amber-500/40'
+                          : 'bg-slate-900/60 hover:bg-slate-900/90 border-slate-800 hover:border-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+                          isSelected ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-800 text-slate-300'
+                        }`}>
+                          <IconComp className="w-4 h-4" />
+                        </div>
+                        {cat.countBadge && (
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md ${
+                            cat.isReady
+                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                              : 'bg-slate-800 text-slate-400'
+                          }`}>
+                            {cat.countBadge}
+                          </span>
+                        )}
+                      </div>
 
-                  <div>
-                    <h3 className={`text-xs font-black truncate ${isSelected ? 'text-amber-300' : 'text-white'}`}>
-                      {cat.name}
-                    </h3>
-                    <p className="text-[10px] text-slate-400 truncate mt-0.5">
-                      {cat.subtitle}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </section>
+                      <div>
+                        <h3 className={`text-xs font-black truncate ${isSelected ? 'text-amber-300' : 'text-white'}`}>
+                          {cat.name}
+                        </h3>
+                        <p className="text-[10px] text-slate-400 truncate mt-0.5">
+                          {cat.subtitle}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
 
-        {/* ACTIVE GAMES LIST (WHEN 'games' CATEGORY IS ACTIVE) */}
-        {selectedCategory === 'games' && (
-          <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-black text-white flex items-center gap-2">
-                <Gamepad2 className="w-5 h-5 text-amber-400" />
-                <span>ھازىرقى پۈتكەن ئويۇن ئەپلىرى (بىسىپلا تېلېفونغا چۈشۈرۈۋالالايسىز):</span>
-              </h2>
-              <span className="text-xs text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                2 ئويۇن تەييار
-              </span>
-            </div>
+            {/* ACTIVE GAMES LIST */}
+            {selectedCategory === 'games' && (
+              <section className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-base font-black text-white flex items-center gap-2">
+                    <Gamepad2 className="w-5 h-5 text-amber-400" />
+                    <span>ھازىرقى پۈتكەن ئويۇن ئەپلىرى (بىسىپلا تېلېفونغا چۈشۈرۈۋالالايسىز):</span>
+                  </h2>
+                  <span className="text-xs text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                    2 ئويۇن تەييار
+                  </span>
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {ACTIVE_GAMES.map((game) => (
-                <div
-                  key={game.id}
-                  className="rounded-3xl bg-gradient-to-b from-slate-900 via-[#0F172A] to-[#0A0E1A] border border-amber-500/40 p-5 shadow-2xl flex flex-col justify-between gap-4 hover:border-amber-400 transition"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-slate-950 border-2 border-amber-400/50 p-1 flex-shrink-0 shadow-xl">
-                      <Image
-                        src={game.icon}
-                        alt={game.name}
-                        width={80}
-                        height={80}
-                        className="w-full h-full object-cover rounded-xl"
-                        priority
-                      />
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {ACTIVE_GAMES.map((game) => (
+                    <div
+                      key={game.id}
+                      className="rounded-3xl bg-gradient-to-b from-slate-900 via-[#0F172A] to-[#0A0E1A] border border-amber-500/40 p-5 shadow-2xl flex flex-col justify-between gap-4 hover:border-amber-400 transition"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-slate-950 border-2 border-amber-400/50 p-1 flex-shrink-0 shadow-xl">
+                          <Image
+                            src={game.icon}
+                            alt={game.name}
+                            width={80}
+                            height={80}
+                            className="w-full h-full object-cover rounded-xl"
+                            priority
+                          />
+                        </div>
 
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center justify-between gap-1">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${game.badgeColor} text-slate-950 font-black`}>
-                          {game.badge}
-                        </span>
-                        <div className="flex items-center gap-1 text-[11px] text-amber-400 font-bold font-mono">
-                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                          <span>{game.rating}</span>
+                        <div className="flex-1 space-y-1">
+                          <div className="flex items-center justify-between gap-1">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${game.badgeColor} text-slate-950 font-black`}>
+                              {game.badge}
+                            </span>
+                            <div className="flex items-center gap-1 text-[11px] text-amber-400 font-bold font-mono">
+                              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                              <span>{game.rating}</span>
+                            </div>
+                          </div>
+
+                          <h3 className="text-base font-black text-white">
+                            {game.name}
+                          </h3>
+                          <p className="text-[11px] text-amber-300 font-medium">
+                            {game.tagline}
+                          </p>
+                          <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
+                            {game.description}
+                          </p>
                         </div>
                       </div>
 
-                      <h3 className="text-base font-black text-white">
-                        {game.name}
-                      </h3>
-                      <p className="text-[11px] text-amber-300 font-medium">
-                        {game.tagline}
-                      </p>
-                      <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
-                        {game.description}
-                      </p>
-                    </div>
-                  </div>
+                      <div className="p-2.5 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-1">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-slate-400">قاچىلىنىش سۈرئىتى:</span>
+                          <span className="text-emerald-400 font-black font-mono">⚡ {game.speed}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-slate-400">باھا دائىرىسى:</span>
+                          <span className="text-amber-300 font-black">{game.priceNote}</span>
+                        </div>
+                      </div>
 
-                  <div className="p-2.5 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-1">
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-slate-400">قاچىلىنىش سۈرئىتى:</span>
-                      <span className="text-emerald-400 font-black font-mono">⚡ {game.speed}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-slate-400">باھا دائىرىسى:</span>
-                      <span className="text-amber-300 font-black">{game.priceNote}</span>
-                    </div>
-                  </div>
+                      {/* Dual Action Buttons */}
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        <button
+                          onClick={() => {
+                            setSelectedAppForInstall(game);
+                            setShowHowToInstallModal(true);
+                          }}
+                          className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-md shadow-amber-500/20 transition active:scale-95 flex items-center justify-center gap-1.5"
+                        >
+                          <Download className="w-3.5 h-3.5 stroke-[3]" />
+                          <span>تېلېفونغا چۈشۈرۈش</span>
+                        </button>
 
-                  {/* Dual Action Buttons */}
-                  <div className="grid grid-cols-2 gap-2 pt-1">
-                    <button
-                      onClick={() => {
-                        setSelectedAppForInstall(game);
-                        setShowHowToInstallModal(true);
-                      }}
-                      className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-md shadow-amber-500/20 transition active:scale-95 flex items-center justify-center gap-1.5"
-                    >
-                      <Download className="w-3.5 h-3.5 stroke-[3]" />
-                      <span>تېلېفونغا چۈشۈرۈش</span>
-                    </button>
-
-                    <Link
-                      href={game.webUrl}
-                      className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition active:scale-95 flex items-center justify-center gap-1.5 border border-slate-700"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      <span>ئەپنى ئېچىش</span>
-                    </Link>
-                  </div>
+                        <Link
+                          href={game.webUrl}
+                          className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition active:scale-95 flex items-center justify-center gap-1.5 border border-slate-700"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span>ئەپنى ئېچىش</span>
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </section>
+              </section>
+            )}
+
+            {/* UPCOMING CATEGORIES PLACEHOLDER */}
+            {selectedCategory !== 'games' && (
+              <section className="rounded-3xl bg-slate-900/50 border border-slate-800 p-6 md:p-8 space-y-5 text-right">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[11px] font-bold mb-1">
+                      <Clock className="w-3 h-3" />
+                      <span>تەييارلىنىۋاتىدۇ (يېقىندا قوشۇلىدۇ)</span>
+                    </div>
+                    <h3 className="text-lg font-black text-white">
+                      {CATEGORIES.find((c) => c.id === selectedCategory)?.name}
+                    </h3>
+                  </div>
+                  <span className="text-2xl">⏳</span>
+                </div>
+
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  بۇ مۇلازىمەت ئۈچۈن مەخسۇس ئايرىم سېستىما ۋە قاچىلاش ئەپچىلىرى ئەڭ يۇقىرى سۈرئەت ۋە ئەرزان باھادا تۈزۈلۈۋاتىدۇ. يېقىندا ئېلان قىلىنىدۇ.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                  {UPCOMING_ITEMS[selectedCategory as Exclude<CategoryId, 'games'>]?.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-2xl">{item.iconEmoji}</span>
+                        <div className="text-right">
+                          <h4 className="text-xs font-bold text-white">{item.name}</h4>
+                          <span className="text-[10px] text-slate-400">{item.tag}</span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-amber-400 font-bold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">
+                        يېقىندا
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
         )}
 
-        {/* UPCOMING CATEGORIES PLACEHOLDER */}
-        {selectedCategory !== 'games' && (
-          <section className="rounded-3xl bg-slate-900/50 border border-slate-800 p-6 md:p-8 space-y-5 text-right">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[11px] font-bold mb-1">
-                  <Clock className="w-3 h-3" />
-                  <span>تەييارلىنىۋاتىدۇ (يېقىندا قوشۇلىدۇ)</span>
+        {/* =========================================================================
+            TAB 2: مېنىڭ تەلەپلىرىم (ORDERS - FULL PAGE VIEW MATCHING SCREENSHOT 2)
+        ========================================================================= */}
+        {activeNavTab === 'orders' && (
+          <div className="space-y-4 animate-fadeIn">
+            {/* Header Section */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#0F172A] border border-slate-800 flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleNavClick('home')}
+                  className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition"
+                  title="باشبەتكە قايتىش"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+                <div>
+                  <h1 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                    <ClipboardList className="w-5 h-5 text-amber-400" />
+                    <span>تەلەپلىرىم</span>
+                  </h1>
+                  <p className="text-[11px] text-slate-400">
+                    بارلىق زاكاز ۋە ئاپتوماتىك قاچىلاش نەتىجىلىرى
+                  </p>
                 </div>
-                <h3 className="text-lg font-black text-white">
-                  {CATEGORIES.find((c) => c.id === selectedCategory)?.name}
-                </h3>
               </div>
-              <span className="text-2xl">⏳</span>
+
+              <button
+                onClick={fetchOrdersHistory}
+                disabled={loadingOrders}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900/80 hover:bg-slate-800 text-xs font-bold text-amber-400 transition cursor-pointer active:scale-95"
+                title="يېڭىلاش"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${loadingOrders ? 'animate-spin' : ''}`} />
+                <span>يېڭىلاش</span>
+              </button>
             </div>
 
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              بۇ مۇلازىمەت ئۈچۈن مەخسۇس ئايرىم سېستىما ۋە قاچىلاش ئەپچىلىرى ئەڭ يۇقىرى سۈرئەت ۋە ئەرزان باھادا تۈزۈلۈۋاتىدۇ. يېقىندا ئېلان قىلىنىدۇ.
-            </p>
+            {/* Filter Card Container */}
+            <div className="p-4 rounded-2xl bg-[#0F172A] border border-slate-800 space-y-3.5 shadow-sm">
+              {/* Search Box */}
+              <div className="relative">
+                <input
+                  type="text"
+                  value={ordersSearch}
+                  onChange={(e) => setOrdersSearch(e.target.value)}
+                  placeholder="زاكاز نومۇرى ياكى مەھسۇلات نامى بويىچە ئىزدەش..."
+                  className="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl pr-3 pl-10 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition font-sans"
+                />
+                <Search className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />
+              </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-              {UPCOMING_ITEMS[selectedCategory as Exclude<CategoryId, 'games'>]?.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-between gap-3"
+              {/* Status Filter Buttons */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+                <button
+                  onClick={() => setOrdersStatusFilter('all')}
+                  className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 ${
+                    ordersStatusFilter === 'all'
+                      ? 'bg-emerald-600 text-white shadow-sm'
+                      : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                  }`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-2xl">{item.iconEmoji}</span>
-                    <div className="text-right">
-                      <h4 className="text-xs font-bold text-white">{item.name}</h4>
-                      <span className="text-[10px] text-slate-400">{item.tag}</span>
-                    </div>
+                  ھەممىسى
+                </button>
+                <button
+                  onClick={() => setOrdersStatusFilter('completed')}
+                  className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1 ${
+                    ordersStatusFilter === 'completed'
+                      ? 'bg-emerald-600 text-white shadow-sm'
+                      : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>تاماملاندى</span>
+                </button>
+                <button
+                  onClick={() => setOrdersStatusFilter('processing')}
+                  className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1 ${
+                    ordersStatusFilter === 'processing'
+                      ? 'bg-amber-600 text-white shadow-sm'
+                      : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <Hourglass className="w-3.5 h-3.5" />
+                  <span>بىر تەرەپ قىلىنىۋاتىدۇ</span>
+                </button>
+                <button
+                  onClick={() => setOrdersStatusFilter('refunded')}
+                  className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1 ${
+                    ordersStatusFilter === 'refunded'
+                      ? 'bg-rose-600 text-white shadow-sm'
+                      : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>قايتۇرۇلدى</span>
+                </button>
+              </div>
+
+              {/* Counter Pill */}
+              <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-800/80">
+                <span className="text-slate-400 text-[11px]">زاكاز نەتىجىلىرى سانى:</span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-mono font-bold text-[11px]">
+                  {filteredOrders.length} نەتىجە
+                </span>
+              </div>
+            </div>
+
+            {/* Orders List Container */}
+            <div className="space-y-3">
+              {!session ? (
+                <div className="p-8 rounded-3xl bg-[#0F172A] border border-amber-500/30 text-center space-y-3 shadow-md">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto border border-amber-500/30">
+                    <User className="w-6 h-6" />
                   </div>
-                  <span className="text-[10px] text-amber-400 font-bold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">
-                    يېقىندا
+                  <h3 className="text-base font-black text-white">ئالدى بىلەن كىرىڭ</h3>
+                  <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                    زاكازلىرىڭىزنى كۆرۈش ئۈچۈن، تېلېگرامما ئارقىلىق بىر كۇنۇپكا بىلەن ھېساباتىڭىزنى ئۇلاڭ.
+                  </p>
+                  <button
+                    onClick={() => setShowLoginModal(true)}
+                    className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 text-white font-bold text-xs shadow-md transition active:scale-95 inline-flex items-center gap-1.5"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>تېلېگراممىدا بىر كۇنۇپكا بىلەن ئۇلاش</span>
+                  </button>
+                </div>
+              ) : loadingOrders ? (
+                <div className="p-12 rounded-2xl bg-[#0F172A] border border-slate-800 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
+                  <RefreshCw className="w-6 h-6 animate-spin text-amber-400" />
+                  <span>زاكازلار يۈكلىنىۋاتىدۇ...</span>
+                </div>
+              ) : filteredOrders.length === 0 ? (
+                <div className="p-10 rounded-2xl bg-[#0F172A] border border-slate-800 text-center text-slate-400 text-xs space-y-2">
+                  <p className="text-sm font-bold text-slate-300">تېخى ھېچقانداق زاكاز چۈشۈرۈلمىگەن</p>
+                  <p className="text-[11px] text-slate-500">
+                    باشبەتكە چىقىپ خالىغان ئويۇن ياكى ئەپنى تاللاپ دەرھال قاچىلاپ سىناپ بېقىڭ.
+                  </p>
+                  <button
+                    onClick={() => handleNavClick('home')}
+                    className="mt-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition active:scale-95 inline-block"
+                  >
+                    ئويۇن بازىرىغا بېرىش
+                  </button>
+                </div>
+              ) : (
+                filteredOrders.map((order, i) => {
+                  const isCompleted = order.status === 'completed';
+                  const isRefunded = order.status === 'refunded';
+                  const isWait = !isCompleted && !isRefunded;
+
+                  return (
+                    <div
+                      key={i}
+                      className="p-4 rounded-2xl bg-[#0F172A] border border-slate-800 space-y-3 shadow-md hover:border-slate-700 transition"
+                    >
+                      {/* Top Row: Order ID + Status Badge */}
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleCopyOrderId(order.order_id || '')}
+                            className="flex items-center gap-1 px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:text-white font-mono text-[11px] transition active:scale-95"
+                            title="زاكاز نومۇرىنى كۆچۈرۈش"
+                          >
+                            {copiedOrderId === order.order_id ? (
+                              <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5 text-slate-400" />
+                            )}
+                            <span>#{order.order_id}</span>
+                          </button>
+                        </div>
+
+                        {isCompleted && (
+                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>تاماملاندى</span>
+                          </span>
+                        )}
+                        {isWait && (
+                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                            <Hourglass className="w-3.5 h-3.5 animate-spin" />
+                            <span>بىر تەرەپ قىلىنىۋاتىدۇ</span>
+                          </span>
+                        )}
+                        {isRefunded && (
+                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-400 border border-rose-500/30 flex items-center gap-1">
+                            <X className="w-3.5 h-3.5" />
+                            <span>قايتۇرۇلدى</span>
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Middle Row: Package Name & Price */}
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="text-sm font-black text-white">
+                            {order.package_name || (order.app_id === 'pubg' ? 'PUBG Mobile UC' : 'Honor of Kings Token')}
+                          </h4>
+                          <p className="text-[11px] text-slate-400 mt-0.5 flex items-center gap-2">
+                            <span>ئويۇنچى UID: <strong className="font-mono text-slate-200">{order.player_id}</strong></span>
+                            <span>•</span>
+                            <span>ئەپ: <strong className="text-amber-400">{order.app_id?.toUpperCase()}</strong></span>
+                          </p>
+                        </div>
+                        <span className="text-base font-black font-mono text-amber-400">
+                          ${Number(order.price || 0).toFixed(2)}
+                        </span>
+                      </div>
+
+                      {/* Bottom Note if refunded */}
+                      {isRefunded && order.refund_note && (
+                        <div className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-[11px]">
+                          {order.refund_note}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            TAB 3: مېنىڭ ھەميانىم (WALLET & TOP-UP - FULL PAGE VIEW)
+        ========================================================================= */}
+        {activeNavTab === 'wallet' && (
+          <div className="space-y-4 animate-fadeIn">
+            {/* Header Section */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#0F172A] border border-slate-800 flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleNavClick('home')}
+                  className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition"
+                  title="باشبەتكە قايتىش"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+                <div>
+                  <h1 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                    <Wallet className="w-5 h-5 text-amber-400" />
+                    <span>مېنىڭ ھەميانىم</span>
+                  </h1>
+                  <p className="text-[11px] text-slate-400">
+                    شامكەش ئارقىلىق دەل ۋاقتىدا قالدۇق قاچىلاش
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Live Balance Showcase Card */}
+            <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-slate-900 via-[#0F172A] to-[#0A0E1A] border border-amber-500/40 shadow-xl space-y-3">
+              <span className="text-xs text-slate-400 font-bold block">
+                مەۋجۇت قالدۇقىڭىز (بارلىق ماكس بازار ئەپ ۋە ئويۇنلىرىدا ئورتاق):
+              </span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl sm:text-4xl font-black font-mono text-amber-400 tracking-tight">
+                  ${session ? session.balance.toFixed(2) : '0.00'}
+                </span>
+                <span className="text-xs text-amber-300 font-bold">USD</span>
+              </div>
+              <p className="text-[11px] text-emerald-400 font-bold flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>بۇ قالدۇق PUBG، Honor of Kings ۋە باشقا بارلىق ئەپلەردە تەڭ ئىشلىتىلىدۇ.</span>
+              </p>
+            </div>
+
+            {/* ShamCash Talon Form */}
+            <div className="p-5 sm:p-6 rounded-3xl bg-[#0F172A] border border-slate-800 space-y-4 shadow-sm text-right">
+              <div className="space-y-1">
+                <h3 className="text-base font-black text-white flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-amber-400" />
+                  <span>شامكەش ئارقىلىق پۇل قاچىلاش باسقۇچى</span>
+                </h3>
+                <p className="text-xs text-slate-400">
+                  شامكەش ھېسابىمىزغا پۇل ئۇرۇپ، تالون نومۇرىنى كىرگۈزسىڭىزلا قالدۇق دەرھال قوشۇلىدۇ.
+                </p>
+              </div>
+
+              {/* ShamCash Address Info */}
+              <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-3 text-xs">
+                <div className="text-right space-y-0.5">
+                  <span className="text-[10px] text-slate-400 block font-bold">رەسمىي شامكەش ئادرېسىمىز:</span>
+                  <span className="font-mono text-amber-300 font-bold text-xs select-all">
+                    084c7e47a9ef332ca98418c399b6ea7d
                   </span>
                 </div>
-              ))}
+                <button
+                  type="button"
+                  onClick={handleCopyShamcashAddress}
+                  className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs border border-slate-700 transition active:scale-95 flex items-center gap-1.5 shrink-0"
+                >
+                  {copiedShamAddress ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedShamAddress ? 'كۆچۈرۈلدى' : 'كۆچۈرۈش'}</span>
+                </button>
+              </div>
+
+              {/* Talon Input Form */}
+              <form onSubmit={handleVerifyShamcashTalon} className="space-y-3 pt-1">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                    شامكەش تالون نومۇرى (Talon Number):
+                  </label>
+                  <input
+                    type="text"
+                    value={talonCode}
+                    onChange={(e) => setTalonCode(e.target.value)}
+                    placeholder="مەسىلەن: 98452174"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 font-mono text-center text-sm focus:outline-none focus:border-amber-400 transition"
+                  />
+                </div>
+
+                {talonFeedback && (
+                  <div
+                    className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
+                      talonFeedback.ok
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                        : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
+                    }`}
+                  >
+                    {talonFeedback.ok ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
+                    <span>{talonFeedback.msg}</span>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isVerifyingTalon}
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/20 transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5"
+                >
+                  {isVerifyingTalon ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>تەكشۈرۈلۈۋاتىدۇ...</span>
+                    </>
+                  ) : (
+                    <span>تەستىقلاش ۋە قالدۇق قاچىلاش</span>
+                  )}
+                </button>
+              </form>
             </div>
-          </section>
+          </div>
+        )}
+
+        {/* =========================================================================
+            TAB 4: مېنىڭ ھېسابىم (ACCOUNT & PROFILE - FULL PAGE VIEW)
+        ========================================================================= */}
+        {activeNavTab === 'account' && (
+          <div className="space-y-4 animate-fadeIn">
+            {/* Header Section */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#0F172A] border border-slate-800 flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleNavClick('home')}
+                  className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition"
+                  title="باشبەتكە قايتىش"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+                <div>
+                  <h1 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                    <User className="w-5 h-5 text-amber-400" />
+                    <span>مېنىڭ ھېسابىم</span>
+                  </h1>
+                  <p className="text-[11px] text-slate-400">
+                    MAX-BAZAR شەخسىي ھېسابات ئۇچۇرلىرى
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Profile Card */}
+            {session ? (
+              <div className="p-6 rounded-3xl bg-[#0F172A] border border-amber-500/30 text-center space-y-4 shadow-xl">
+                <div className="w-20 h-20 rounded-full border-2 border-amber-400 mx-auto overflow-hidden bg-slate-800 shadow-[0_0_20px_rgba(251,191,36,0.3)]">
+                  {session.photo_url ? (
+                    <img src={session.photo_url} alt={session.identity} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center font-black text-2xl">
+                      <User className="w-10 h-10" />
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-black text-white">{session.identity}</h3>
+                  <p className="text-xs text-emerald-400 font-bold mt-1 flex items-center justify-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>تېلېگرامما ئارقىلىق دەلىللەنگەن</span>
+                  </p>
+                </div>
+
+                <div className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800 flex items-center justify-between text-right max-w-sm mx-auto">
+                  <span className="text-xs text-slate-400">قالدۇقىڭىز:</span>
+                  <span className="font-mono font-black text-amber-400 text-xl">${session.balance.toFixed(2)}</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-sm mx-auto pt-2">
+                  <button
+                    onClick={() => handleNavClick('wallet')}
+                    className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center justify-center gap-1.5 active:scale-95"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    <span>قالدۇق قاچىلاش</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleNavClick('orders')}
+                    className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition flex items-center justify-center gap-1.5 active:scale-95 border border-slate-700"
+                  >
+                    <ClipboardList className="w-4 h-4" />
+                    <span>زاكازلىرىمنى كۆرۈش</span>
+                  </button>
+                </div>
+
+                <div className="pt-4 border-t border-slate-800/80 max-w-sm mx-auto">
+                  <button
+                    onClick={() => {
+                      setSession(null);
+                      try {
+                        localStorage.removeItem('maxbazar_unified_session');
+                        localStorage.removeItem('maxbazar_pubg_session');
+                        localStorage.removeItem('maxbazar_hok_session');
+                      } catch {}
+                    }}
+                    className="w-full py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 font-bold text-xs transition flex items-center justify-center gap-1.5"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>ھېساباتتىن چىقىپ كېتىش</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="p-8 rounded-3xl bg-[#0F172A] border border-amber-500/30 text-center space-y-4 shadow-xl">
+                <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto border border-amber-500/30">
+                  <User className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-white">تېخى ھېساباتقا كىرمىدىڭىز</h3>
+                  <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                    تېلېگراممىدا پەقەت Start نى بىرنىلا بېسىپ، ھېساباتىڭىزنى دەرھال ئۇلاڭ.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowLoginModal(true)}
+                  className="py-3 px-6 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-purple-600 hover:from-sky-400 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-sky-500/25 transition active:scale-95 mx-auto"
+                >
+                  <Send className="w-4 h-4 stroke-[2.5]" />
+                  <span>تېلېگراممىدا بىر كۇنۇپكا بىلەن ئۇلاش</span>
+                </button>
+              </div>
+            )}
+          </div>
         )}
 
       </main>
@@ -819,220 +1299,6 @@ export default function AppsHubPage() {
           </div>
         </div>
       </div>
-
-      {/* TOP-UP (SHAMCASH TALON) MODAL */}
-      {showTopupModal && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-[#0F172A] border border-amber-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl relative text-right">
-            <button
-              onClick={() => {
-                setShowTopupModal(false);
-                setTalonFeedback(null);
-                setTalonCode('');
-              }}
-              className="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center absolute top-4 left-4"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="text-center mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto mb-2 border border-amber-500/30">
-                <CreditCard className="w-6 h-6" />
-              </div>
-              <h3 className="text-base font-black text-white">شامكەش ئارقىلىق قالدۇق قاچىلاش</h3>
-              <p className="text-xs text-slate-400 mt-0.5">
-                قالدۇق بارلىق ماكس بازار ئەپ ۋە ئويۇنلىرىدا ئورتاق ئىشلىتىلىدۇ
-              </p>
-            </div>
-
-            <div className="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-2 mb-4">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">ھازىرقى قالدۇقىڭىز:</span>
-                <span className="font-mono font-black text-amber-400 text-sm">
-                  ${session ? session.balance.toFixed(2) : '0.00'}
-                </span>
-              </div>
-              <div className="pt-2 border-t border-slate-800 text-xs flex items-center justify-between gap-2">
-                <span className="text-[11px] text-slate-400">شامكەش ھېساب نومۇرى:</span>
-                <button
-                  type="button"
-                  onClick={handleCopyShamcashAddress}
-                  className="flex items-center gap-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 font-mono text-[10px] border border-slate-700 transition active:scale-95"
-                >
-                  {copiedShamAddress ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                  <span>{copiedShamAddress ? 'كۆچۈرۈلدى' : '084c7e47...'}</span>
-                </button>
-              </div>
-            </div>
-
-            <form onSubmit={handleVerifyShamcashTalon} className="space-y-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
-                  شامكەش تالون نومۇرى (Talon Code):
-                </label>
-                <input
-                  type="text"
-                  value={talonCode}
-                  onChange={(e) => setTalonCode(e.target.value)}
-                  placeholder="مەسىلەن: 98452174"
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 font-mono text-center text-sm focus:outline-none focus:border-amber-400"
-                />
-              </div>
-
-              {talonFeedback && (
-                <div
-                  className={`p-2.5 rounded-xl text-xs flex items-center gap-2 ${
-                    talonFeedback.ok
-                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                      : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
-                  }`}
-                >
-                  {talonFeedback.ok ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
-                  <span>{talonFeedback.msg}</span>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={isVerifyingTalon}
-                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5"
-              >
-                {isVerifyingTalon ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>تەكشۈرۈلۈۋاتىدۇ...</span>
-                  </>
-                ) : (
-                  <span>تەستىقلاش ۋە قالدۇق قاچىلاش</span>
-                )}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ORDERS HISTORY MODAL */}
-      {showOrdersModal && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-[#0F172A] border border-amber-500/40 w-full max-w-md rounded-3xl p-5 shadow-2xl relative text-right flex flex-col max-h-[85vh]">
-            <button
-              onClick={() => setShowOrdersModal(false)}
-              className="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center absolute top-4 left-4"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-800">
-              <ClipboardList className="w-5 h-5 text-amber-400" />
-              <div>
-                <h3 className="text-base font-black text-white">مېنىڭ زاكازلىرىم</h3>
-                <p className="text-[11px] text-slate-400">ماكس بازاردىكى بارلىق زاكاز خاتىرىڭىز</p>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
-              {loadingOrders ? (
-                <div className="py-12 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
-                  <RefreshCw className="w-6 h-6 animate-spin text-amber-400" />
-                  <span>يۈكلىنىۋاتىدۇ...</span>
-                </div>
-              ) : ordersHistory.length === 0 ? (
-                <div className="py-12 text-center text-slate-500 text-xs">
-                  <p>تېخى ھېچقانداق زاكاز قىلمىدىڭىز.</p>
-                </div>
-              ) : (
-                ordersHistory.map((order, i) => (
-                  <div key={i} className="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-white">{order.package_name || order.app_id}</span>
-                      <span className="font-mono font-black text-amber-400">${Number(order.price || 0).toFixed(2)}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-[11px] text-slate-400">
-                      <span>ئويۇن كىملىكى: {order.player_id}</span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                        {order.status === 'completed' ? 'يېتىپ باردى' : order.status === 'refunded' ? 'قايتۇرۇلدى' : 'قاچىلىنىۋاتىدۇ'}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ACCOUNT MODAL */}
-      {showAccountModal && session && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-[#0F172A] border border-amber-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl relative text-center">
-            <button
-              onClick={() => setShowAccountModal(false)}
-              className="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center absolute top-4 left-4"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="w-16 h-16 rounded-full border-2 border-amber-400 mx-auto overflow-hidden bg-slate-800 mb-3 shadow-[0_0_15px_rgba(251,191,36,0.3)]">
-              {session.photo_url ? (
-                <img src={session.photo_url} alt={session.identity} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center font-black text-xl">
-                  <User className="w-8 h-8" />
-                </div>
-              )}
-            </div>
-
-            <h3 className="text-base font-black text-white">{session.identity}</h3>
-            <p className="text-xs text-slate-400 mt-0.5">MAX-BAZAR ھېساباتىڭىز</p>
-
-            <div className="my-4 p-3.5 bg-slate-900/80 rounded-2xl border border-slate-800 flex items-center justify-between text-right">
-              <span className="text-xs text-slate-400">قالدۇق:</span>
-              <span className="font-mono font-black text-amber-400 text-lg">${session.balance.toFixed(2)}</span>
-            </div>
-
-            <div className="space-y-2">
-              <button
-                onClick={() => {
-                  setShowAccountModal(false);
-                  setShowTopupModal(true);
-                }}
-                className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center justify-center gap-1.5"
-              >
-                <CreditCard className="w-4 h-4" />
-                <span>شامكەش ئارقىلىق قالدۇق قاچىلاش</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setShowAccountModal(false);
-                  fetchOrdersHistory();
-                  setShowOrdersModal(true);
-                }}
-                className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition flex items-center justify-center gap-1.5"
-              >
-                <ClipboardList className="w-4 h-4" />
-                <span>زاكاز خاتىرىسىنى كۆرۈش</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setSession(null);
-                  setShowAccountModal(false);
-                  try {
-                    localStorage.removeItem('maxbazar_unified_session');
-                    localStorage.removeItem('maxbazar_pubg_session');
-                    localStorage.removeItem('maxbazar_hok_session');
-                  } catch {}
-                }}
-                className="w-full py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 font-bold text-xs transition flex items-center justify-center gap-1.5"
-              >
-                <User className="w-4 h-4" />
-                <span>ھېساباتتىن چىقىپ كېتىش</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 1-CLICK TELEGRAM SYNC MODAL */}
       {showLoginModal && (

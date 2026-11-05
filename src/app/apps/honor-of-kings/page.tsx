@@ -25,7 +25,10 @@ import {
   Home,
   Bookmark,
   Star,
-  Trash2
+  Trash2,
+  Search,
+  ChevronRight,
+  Hourglass
 } from 'lucide-react';
 
 export interface SavedPlayerAccount {
@@ -82,12 +85,34 @@ export default function HonorOfKingsAppPage() {
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [otpError, setOtpError] = useState('');
   const [otpCountdown, setOtpCountdown] = useState<number>(0);
-  const [showAccountModal, setShowAccountModal] = useState(false);
+
+  // Full-Page Navigation State (Matching Screenshot 2 & 3: Home, Orders, Wallet, Account)
+  const [activeNavTab, setActiveNavTab] = useState<'home' | 'orders' | 'wallet' | 'account'>('home');
+  const [ordersSearch, setOrdersSearch] = useState('');
+  const [ordersStatusFilter, setOrdersStatusFilter] = useState<'all' | 'completed' | 'processing' | 'refunded'>('all');
+  const [copiedOrderId, setCopiedOrderId] = useState<string | null>(null);
+  const [loadingOrders, setLoadingOrders] = useState(false);
 
   // 1-Click Telegram Bot Sync State
   const [syncToken, setSyncToken] = useState<string | null>(null);
   const [syncBotUrl, setSyncBotUrl] = useState<string>('https://t.me/maxbazar_bot');
   const [isSyncWaiting, setIsSyncWaiting] = useState(false);
+
+  // Helper to verify sync session and log in
+  const processVerifiedSession = (userSession: any) => {
+    if (!userSession) return;
+    setSession(userSession);
+    if (userSession.photo_url) {
+      setAvatarUrl(userSession.photo_url);
+    }
+    try {
+      localStorage.setItem('maxbazar_hok_session', JSON.stringify(userSession));
+      localStorage.setItem('maxbazar_unified_session', JSON.stringify(userSession));
+      localStorage.removeItem('maxbazar_pending_sync_token');
+    } catch {}
+    setShowLoginModal(false);
+    setIsSyncWaiting(false);
+  };
 
   // Fetch fresh sync token when login modal opens
   useEffect(() => {
@@ -105,10 +130,64 @@ export default function HonorOfKingsAppPage() {
         if (data.ok && data.token) {
           setSyncToken(data.token);
           setSyncBotUrl(data.botUrl);
+          try {
+            localStorage.setItem('maxbazar_pending_sync_token', data.token);
+          } catch {}
         }
       })
       .catch(() => {});
   }, [showLoginModal]);
+
+  // Check pending sync on mount or URL param (?sync_token=...)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const tokenFromUrl = urlParams.get('sync_token');
+    let pendingToken = tokenFromUrl;
+    if (!pendingToken) {
+      try {
+        pendingToken = localStorage.getItem('maxbazar_pending_sync_token');
+      } catch {}
+    }
+
+    if (pendingToken) {
+      fetch(`/api/apps/sync-session?token=${encodeURIComponent(pendingToken)}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.ok && data.status === 'verified' && data.session) {
+            processVerifiedSession(data.session);
+          }
+        })
+        .catch(() => {});
+    }
+
+    const handleWindowResume = () => {
+      let t: string | null = null;
+      try {
+        t = localStorage.getItem('maxbazar_pending_sync_token');
+      } catch {}
+      if (!t && syncToken) t = syncToken;
+      if (t) {
+        fetch(`/api/apps/sync-session?token=${encodeURIComponent(t)}`)
+          .then((r) => r.json())
+          .then((data) => {
+            if (data.ok && data.status === 'verified' && data.session) {
+              processVerifiedSession(data.session);
+            }
+          })
+          .catch(() => {});
+      }
+    };
+
+    window.addEventListener('focus', handleWindowResume);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') handleWindowResume();
+    });
+
+    return () => {
+      window.removeEventListener('focus', handleWindowResume);
+    };
+  }, [syncToken]);
 
   // Poll sync session while login modal is open
   useEffect(() => {
@@ -119,16 +198,7 @@ export default function HonorOfKingsAppPage() {
         .then((r) => r.json())
         .then((data) => {
           if (data.ok && data.status === 'verified' && data.session) {
-            setSession(data.session);
-            if (data.session.photo_url) {
-              setAvatarUrl(data.session.photo_url);
-            }
-            try {
-              localStorage.setItem('maxbazar_hok_session', JSON.stringify(data.session));
-              localStorage.setItem('maxbazar_unified_session', JSON.stringify(data.session));
-            } catch {}
-            setShowLoginModal(false);
-            setIsSyncWaiting(false);
+            processVerifiedSession(data.session);
           }
         })
         .catch(() => {});
@@ -174,7 +244,6 @@ export default function HonorOfKingsAppPage() {
   const [orderSuccess, setOrderSuccess] = useState<any>(null);
   const [orderError, setOrderError] = useState('');
   const [ordersHistory, setOrdersHistory] = useState<any[]>([]);
-  const [showHistoryModal, setShowHistoryModal] = useState(false);
 
   const uidInputRef = useRef<HTMLInputElement>(null);
 
@@ -394,6 +463,40 @@ export default function HonorOfKingsAppPage() {
     const interval = setInterval(syncOrders, 5000);
     return () => clearInterval(interval);
   }, [session?.identity]);
+
+  const fetchOrdersHistory = () => {
+    if (!session?.identity) return;
+    setLoadingOrders(true);
+    fetch(`/api/apps/order?identity=${encodeURIComponent(session.identity)}&app_id=honor-of-kings`)
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.ok && res.orders) {
+          setOrdersHistory(res.orders);
+          if (typeof res.live_balance === 'number') {
+            setSession((prev: any) => ({ ...prev, balance: res.live_balance }));
+          }
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoadingOrders(false));
+  };
+
+  const filteredOrders = useMemo(() => {
+    return ordersHistory.filter((order) => {
+      if (ordersStatusFilter === 'completed' && order.status !== 'completed') return false;
+      if (ordersStatusFilter === 'processing' && (order.status === 'completed' || order.status === 'refunded')) return false;
+      if (ordersStatusFilter === 'refunded' && order.status !== 'refunded') return false;
+
+      if (ordersSearch.trim()) {
+        const q = ordersSearch.toLowerCase().trim();
+        const matchId = (order.order_id || '').toLowerCase().includes(q);
+        const matchName = (order.package_name || '').toLowerCase().includes(q);
+        const matchPlayer = (order.player_id || '').toLowerCase().includes(q);
+        if (!matchId && !matchName && !matchPlayer) return false;
+      }
+      return true;
+    });
+  }, [ordersHistory, ordersStatusFilter, ordersSearch]);
 
   // When a package is clicked, auto focus UID input if empty
   const handleSelectPackage = (pkg: HokPackage) => {
@@ -805,7 +908,7 @@ export default function HonorOfKingsAppPage() {
       {/* 1. TOP STATUS & APP BAR (ALWAYS DISPLAYS BALANCE NUMBER PROMINENTLY) */}
       <header className="sticky top-0 z-40 bg-[#0B101D]/95 backdrop-blur-md border-b border-amber-500/25 px-3.5 sm:px-6 py-2.5 flex items-center justify-between shadow-xl">
         {/* Left: App Branding */}
-        <div className="flex items-center gap-2.5">
+        <div onClick={() => setActiveNavTab('home')} className="flex items-center gap-2.5 cursor-pointer">
           <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.5)] shrink-0 bg-slate-900">
             <Image
               src="/images/services/hok_token_official.webp"
@@ -836,7 +939,7 @@ export default function HonorOfKingsAppPage() {
               if (!session) {
                 setShowLoginModal(true);
               } else {
-                setShowTopupModal(true);
+                setActiveNavTab('wallet');
               }
             }}
             className="group flex items-center gap-2 bg-gradient-to-r from-[#121A2E] to-[#18233C] hover:from-[#18233C] hover:to-[#1E2D4E] border border-amber-400/40 hover:border-amber-400 px-3 py-1 rounded-full shadow-[0_0_12px_rgba(251,191,36,0.15)] transition cursor-pointer active:scale-95"
@@ -857,7 +960,7 @@ export default function HonorOfKingsAppPage() {
           {session ? (
             <div className="flex items-center gap-1.5">
               <div
-                onClick={() => setShowAccountModal(true)}
+                onClick={() => setActiveNavTab('account')}
                 className="w-8 h-8 rounded-full border border-amber-400 overflow-hidden bg-slate-800 flex items-center justify-center cursor-pointer active:scale-90 transition shadow-[0_0_10px_rgba(251,191,36,0.3)] shrink-0"
                 title="مېنىڭ ھېساباتىم"
               >
@@ -873,7 +976,7 @@ export default function HonorOfKingsAppPage() {
                 )}
               </div>
               <div
-                onClick={() => setShowHistoryModal(true)}
+                onClick={() => setActiveNavTab('orders')}
                 className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white cursor-pointer active:scale-90 transition"
                 title="زاكاز تارىخى"
               >
@@ -927,7 +1030,12 @@ export default function HonorOfKingsAppPage() {
 
       {/* MAIN CONTENT CONTAINER */}
       <main className="flex-1 max-w-xl mx-auto w-full px-3.5 sm:px-4 py-4 pb-28 space-y-4">
-        {/* BANNER WITH QUICK TOPUP CTA */}
+        {/* =========================================================================
+            TAB 1: باشبەت (HOME - PACKAGES & INSTANT RECHARGE)
+        ========================================================================= */}
+        {activeNavTab === 'home' && (
+          <div className="space-y-4 animate-fadeIn">
+            {/* BANNER WITH QUICK TOPUP CTA */}
         <div className="relative rounded-3xl overflow-hidden p-4 bg-gradient-to-br from-[#121B33] via-[#0E1528] to-[#0A0E1A] border border-amber-500/30 shadow-xl flex items-center justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -1323,90 +1431,607 @@ export default function HonorOfKingsAppPage() {
             </div>
           </div>
         )}
-      </main>
+      </div>
+    )}
 
-      {/* DEDICATED HONOR OF KINGS BOTTOM NAVIGATION BAR (MATCHES USER SCREENSHOT SPECIFICALLY FOR THIS APP) */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#0B101D]/95 backdrop-blur-xl border-t border-amber-500/30 shadow-[0_-8px_30px_rgba(0,0,0,0.85)] px-3 py-1.5 max-w-xl mx-auto flex items-center justify-around select-none">
-        {/* 1. باشبەت (Home / HOK Packages) - Floating Elevated Center Tab with Golden Glow */}
-        <button
-          onClick={() => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }}
-          className="flex flex-col items-center group relative -top-3.5 focus:outline-none"
-        >
-          <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-500 via-amber-400 to-amber-300 text-slate-950 flex items-center justify-center shadow-[0_0_20px_rgba(251,191,36,0.65)] border-4 border-[#070B14] group-active:scale-95 transition-transform overflow-hidden p-0.5 shrink-0">
-            <div className="w-full h-full rounded-full overflow-hidden relative">
-              <Image
-                src="/images/services/hok_token_official.webp"
-                alt="Honor of Kings"
-                width={56}
-                height={56}
-                className="w-full h-full object-cover rounded-full"
-                priority
-              />
+    {/* =========================================================================
+        TAB 2: مېنىڭ تەلەپلىرىم (ORDERS - FULL PAGE VIEW MATCHING SCREENSHOT 2)
+    ========================================================================= */}
+    {activeNavTab === 'orders' && (
+      <div className="space-y-4 animate-fadeIn">
+        {/* Header Section */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-[#0F172A] border border-slate-800 flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setActiveNavTab('home')}
+              className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition"
+              title="باشبەتكە قايتىش"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                <ClipboardList className="w-5 h-5 text-amber-400" />
+                <span>تەلەپلىرىم</span>
+              </h1>
+              <p className="text-[11px] text-slate-400">
+                بارلىق زاكاز ۋە ئاپتوماتىك قاچىلاش نەتىجىلىرى
+              </p>
             </div>
           </div>
-          <span className="text-[10.5px] font-black text-amber-300 mt-0.5 tracking-tight flex items-center gap-0.5">
-            <span>✦</span>
-            <span>باشبەت</span>
-          </span>
-        </button>
 
-        {/* 2. مېنىڭ تەلەپلىرىم (Orders) */}
-        <button
-          onClick={() => setShowHistoryModal(true)}
-          className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-amber-400 transition active:scale-95 relative"
-        >
+          <button
+            onClick={fetchOrdersHistory}
+            disabled={loadingOrders}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900/80 hover:bg-slate-800 text-xs font-bold text-amber-400 transition cursor-pointer active:scale-95"
+            title="يېڭىلاش"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loadingOrders ? 'animate-spin' : ''}`} />
+            <span>يېڭىلاش</span>
+          </button>
+        </div>
+
+        {/* Filter Card Container */}
+        <div className="p-4 rounded-2xl bg-[#0F172A] border border-slate-800 space-y-3.5 shadow-sm">
+          {/* Search Box */}
           <div className="relative">
-            <ClipboardList className="w-5 h-5 text-slate-300" />
-            {ordersHistory.length > 0 && (
-              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-            )}
+            <input
+              type="text"
+              value={ordersSearch}
+              onChange={(e) => setOrdersSearch(e.target.value)}
+              placeholder="زاكاز نومۇرى ياكى مەھسۇلات نامى بويىچە ئىزدەش..."
+              className="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl pr-3 pl-10 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition font-sans"
+            />
+            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />
           </div>
-          <span className="text-[10px] font-bold text-slate-300">مېنىڭ تەلەپلىرىم</span>
-        </button>
 
-        {/* 3. مېنىڭ ھەميانىم (Wallet - Sham Cash) */}
-        <button
-          onClick={() => {
-            if (!session) setShowLoginModal(true);
-            else setShowTopupModal(true);
-          }}
-          className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-amber-400 transition active:scale-95"
-        >
-          <Wallet className="w-5 h-5 text-amber-400" />
-          <span className="text-[10px] font-bold text-slate-300">مېنىڭ ھەميانىم</span>
-        </button>
+          {/* Status Filter Buttons */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+            <button
+              onClick={() => setOrdersStatusFilter('all')}
+              className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 ${
+                ordersStatusFilter === 'all'
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+              }`}
+            >
+              ھەممىسى
+            </button>
+            <button
+              onClick={() => setOrdersStatusFilter('completed')}
+              className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1 ${
+                ordersStatusFilter === 'completed'
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+              }`}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>تاماملاندى</span>
+            </button>
+            <button
+              onClick={() => setOrdersStatusFilter('processing')}
+              className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1 ${
+                ordersStatusFilter === 'processing'
+                  ? 'bg-amber-600 text-white shadow-sm'
+                  : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+              }`}
+            >
+              <Hourglass className="w-3.5 h-3.5" />
+              <span>بىر تەرەپ قىلىنىۋاتىدۇ</span>
+            </button>
+            <button
+              onClick={() => setOrdersStatusFilter('refunded')}
+              className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1 ${
+                ordersStatusFilter === 'refunded'
+                  ? 'bg-rose-600 text-white shadow-sm'
+                  : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+              }`}
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>قايتۇرۇلدى</span>
+            </button>
+          </div>
 
-        {/* 4. مېنىڭ ھېسابىم (Account - Telegram) */}
-        <button
-          onClick={() => {
-            if (session) {
-              setShowAccountModal(true);
-            } else {
-              setLoginStep('input_phone');
-              setShowLoginModal(true);
-            }
-          }}
-          className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-amber-400 transition active:scale-95"
-        >
-          <div className="w-5 h-5 flex items-center justify-center">
-            {session && avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt=""
-                className="w-5 h-5 rounded-full border border-amber-400 object-cover"
-                onError={() => setAvatarUrl(null)}
+          {/* Counter Pill */}
+          <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-800/80">
+            <span className="text-slate-400 text-[11px]">زاكاز نەتىجىلىرى سانى:</span>
+            <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-mono font-bold text-[11px]">
+              {filteredOrders.length} نەتىجە
+            </span>
+          </div>
+        </div>
+
+        {/* Orders List Container */}
+        <div className="space-y-3">
+          {!session ? (
+            <div className="p-8 rounded-3xl bg-[#0F172A] border border-amber-500/30 text-center space-y-3 shadow-md">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto border border-amber-500/30">
+                <User className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-black text-white">ئالدى بىلەن كىرىڭ</h3>
+              <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                زاكازلىرىڭىزنى كۆرۈش ئۈچۈن، تېلېگرامما ئارقىلىق بىر كۇنۇپكا بىلەن ھېساباتىڭىزنى ئۇلاڭ.
+              </p>
+              <button
+                onClick={() => setShowLoginModal(true)}
+                className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 text-white font-bold text-xs shadow-md transition active:scale-95 inline-flex items-center gap-1.5"
+              >
+                <Send className="w-4 h-4" />
+                <span>تېلېگراممىدا بىر كۇنۇپكا بىلەن ئۇلاش</span>
+              </button>
+            </div>
+          ) : loadingOrders ? (
+            <div className="p-12 rounded-2xl bg-[#0F172A] border border-slate-800 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
+              <RefreshCw className="w-6 h-6 animate-spin text-amber-400" />
+              <span>زاكازلار يۈكلىنىۋاتىدۇ...</span>
+            </div>
+          ) : filteredOrders.length === 0 ? (
+            <div className="p-10 rounded-2xl bg-[#0F172A] border border-slate-800 text-center text-slate-400 text-xs space-y-2">
+              <p className="text-sm font-bold text-slate-300">تېخى ھېچقانداق زاكاز چۈشۈرۈلمىگەن</p>
+              <p className="text-[11px] text-slate-500">
+                باشبەتكە چىقىپ Tokens تاللاپ دەرھال قاچىلاپ كۆرۈڭ.
+              </p>
+              <button
+                onClick={() => setActiveNavTab('home')}
+                className="mt-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition active:scale-95 inline-block"
+              >
+                باغلام تاللاش
+              </button>
+            </div>
+          ) : (
+            filteredOrders.map((order: any, i: number) => {
+              const isCompleted = order.status === 'completed';
+              const isRefunded = order.status === 'refunded';
+              const isWait = !isCompleted && !isRefunded;
+
+              return (
+                <div
+                  key={order.order_id || i}
+                  className="p-4 rounded-2xl bg-[#0F172A] border border-slate-800 space-y-3 shadow-md hover:border-slate-700 transition"
+                >
+                  {/* Top Row: Order ID + Status Badge */}
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (order.order_id) {
+                            navigator.clipboard.writeText(order.order_id);
+                            setCopiedOrderId(order.order_id);
+                            setTimeout(() => setCopiedOrderId(null), 2000);
+                          }
+                        }}
+                        className="flex items-center gap-1 px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:text-white font-mono text-[11px] transition active:scale-95"
+                        title="زاكاز نومۇرىنى كۆچۈرۈش"
+                      >
+                        {copiedOrderId === order.order_id ? (
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5 text-slate-400" />
+                        )}
+                        <span>#{order.order_id}</span>
+                      </button>
+                    </div>
+
+                    {isCompleted && (
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>تاماملاندى</span>
+                      </span>
+                    )}
+                    {isWait && (
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                        <Hourglass className="w-3.5 h-3.5 animate-spin" />
+                        <span>بىر تەرەپ قىلىنىۋاتىدۇ</span>
+                      </span>
+                    )}
+                    {isRefunded && (
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-400 border border-rose-500/30 flex items-center gap-1">
+                        <X className="w-3.5 h-3.5" />
+                        <span>قايتۇرۇلدى</span>
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Middle Row: Package Name & Price */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-black text-white">
+                        {order.package_name || 'Honor of Kings Token'}
+                      </h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5 flex items-center gap-2">
+                        <span>ئويۇنچى UID: <strong className="font-mono text-slate-200">{order.player_id}</strong></span>
+                        {order.created_at && (
+                          <>
+                            <span>•</span>
+                            <span>{new Date(order.created_at).toLocaleDateString()}</span>
+                          </>
+                        )}
+                      </p>
+                    </div>
+                    <span className="text-base font-black font-mono text-amber-400">
+                      ${Number(order.price || 0).toFixed(2)}
+                    </span>
+                  </div>
+
+                  {/* Bottom Note if refunded */}
+                  {isRefunded && order.refund_note && (
+                    <div className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-[11px]">
+                      {order.refund_note}
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+    )}
+
+    {/* =========================================================================
+        TAB 3: مېنىڭ ھەميانىم (WALLET - FULL PAGE VIEW)
+    ========================================================================= */}
+    {activeNavTab === 'wallet' && (
+      <div className="space-y-4 animate-fadeIn">
+        {/* Header */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-[#0F172A] border border-slate-800 flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setActiveNavTab('home')}
+              className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition"
+              title="باشبەتكە قايتىش"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                <Wallet className="w-5 h-5 text-amber-400" />
+                <span>مېنىڭ ھەميانىم</span>
+              </h1>
+              <p className="text-[11px] text-slate-400">
+                شامكەش ئارقىلىق قالدۇق پۇل قاچىلاش ۋە باشقۇرۇش
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Balance Card */}
+        <div className="p-5 rounded-3xl bg-gradient-to-br from-[#131F38] via-[#0E172A] to-[#0A101D] border border-amber-500/30 shadow-xl space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-xs text-amber-300/80 font-bold block">ئەپتىكى ھازىرقى قالدۇقىڭىز</span>
+              <span className="text-2xl sm:text-3xl font-black font-mono text-amber-400 mt-1 block">
+                ${session ? session.balance.toFixed(2) : '0.00'}
+              </span>
+            </div>
+            <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.3)]">
+              <Wallet className="w-7 h-7" />
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+            <span>ھېسابات:</span>
+            <strong className="text-white font-mono">{session ? session.identity : 'كىرمىگەن'}</strong>
+          </div>
+        </div>
+
+        {/* ShamCash Direct Deposit Form */}
+        <div className="p-5 rounded-3xl bg-[#0F172A] border border-slate-800 space-y-4 shadow-sm">
+          <div className="flex items-center gap-2">
+            <CreditCard className="w-5 h-5 text-amber-400" />
+            <h3 className="text-sm font-black text-white">شامكەش (Sham Cash) ئارقىلىق تولۇقلاش</h3>
+          </div>
+
+          <div className="space-y-2 bg-[#121B30] p-3.5 rounded-2xl border border-slate-800">
+            <label className="text-[11px] font-bold text-slate-400 block">شامكەش قاچىلاش ئادرېسىمىز (سۈرىيە پۇلى ياكى دوللار):</label>
+            <div className="flex items-center gap-2 bg-slate-950 px-3 py-2.5 rounded-xl border border-slate-700">
+              <span className="font-mono text-xs text-amber-300 select-all truncate flex-1">
+                {SHAMCASH_ADDRESS}
+              </span>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(SHAMCASH_ADDRESS);
+                  setCopiedAddress(true);
+                  setTimeout(() => setCopiedAddress(false), 2000);
+                }}
+                className="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold text-[11px] flex items-center gap-1 shrink-0 active:scale-95 transition"
+              >
+                {copiedAddress ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copiedAddress ? 'كۆچۈرۈلدى' : 'كۆچۈرۈش'}</span>
+              </button>
+            </div>
+            <p className="text-[10px] text-slate-500">
+              * شۇ ئادرېسقا شامكەش ئارقىلىق پۇل ئەۋەتكەندىن كېيىن، تۆۋەنگە تالون نومۇرىنى چاپلاپ دەرھال تەستىقلىتىڭ.
+            </p>
+          </div>
+
+          {/* Talon Verification Input */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-300 block">شامكەش تالون نومۇرى (ھەقىقىي تالون):</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={shamcashTalon}
+                onChange={(e) => setShamcashTalon(e.target.value)}
+                placeholder="مەسىلەن: 20241103094827"
+                className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 font-mono"
               />
-            ) : (
-              <User className="w-5 h-5 text-slate-300" />
+              <button
+                onClick={handleVerifyShamcashTalon}
+                disabled={isVerifyingTalon || !shamcashTalon.trim()}
+                className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-black text-xs transition active:scale-95 shrink-0"
+              >
+                {isVerifyingTalon ? 'تەكشۈرۈۋاتىدۇ...' : 'تەستىقلاش'}
+              </button>
+            </div>
+            {talonFeedback && (
+              <p className={`text-xs p-2 rounded-xl ${talonFeedback.ok ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
+                {talonFeedback.message}
+              </p>
             )}
           </div>
-          <span className="text-[10px] font-bold text-slate-300 truncate max-w-[75px]">
-            {session ? session.identity : 'مېنىڭ ھېسابىم'}
-          </span>
-        </button>
-      </nav>
+
+          {/* WhatsApp Help */}
+          <div className="pt-2">
+            <a
+              href="https://wa.me/905526666014?text=Honor%20of%20Kings%20شامكەش%20قاچىلاش%20ياردەم"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-2.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366]/25 border border-[#25D366]/30 text-[#25D366] font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
+            >
+              <span>WhatsApp ئارقىلىق تېز قاچىلاش ياردىمى سوراش</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* =========================================================================
+        TAB 4: مېنىڭ ھېسابىم (ACCOUNT - FULL PAGE VIEW MATCHING SCREENSHOT 2)
+    ========================================================================= */}
+    {activeNavTab === 'account' && (
+      <div className="space-y-4 animate-fadeIn">
+        {/* Header */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-[#0F172A] border border-slate-800 flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setActiveNavTab('home')}
+              className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition"
+              title="باشبەتكە قايتىش"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                <User className="w-5 h-5 text-amber-400" />
+                <span>مېنىڭ ھېسابىم</span>
+              </h1>
+              <p className="text-[11px] text-slate-400">
+                تېلېگرامما ئارقىلىق ئۇلانغان شەخسىي ھېسابات ئۇچۇرلىرى
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {!session ? (
+          <div className="p-8 rounded-3xl bg-[#0F172A] border border-amber-500/30 text-center space-y-4 shadow-xl">
+            <div className="w-16 h-16 rounded-full bg-slate-800 border-2 border-amber-400/50 flex items-center justify-center mx-auto text-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.3)]">
+              <User className="w-8 h-8" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-black text-white">تېخى كىرمىدىڭىز</h3>
+              <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                زاكاز خاتىرىسى، ئورتاق قالدۇق ۋە ساقلانغان ئويۇنچى ھېساباتلىرىنى باشقۇرۇش ئۈچۈن دەرھال كىرىڭ.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowLoginModal(true)}
+              className="py-3 px-6 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-purple-600 text-white font-black text-xs shadow-lg transition active:scale-95 inline-flex items-center gap-2"
+            >
+              <Send className="w-4 h-4" />
+              <span>تېلېگراممىدا بىر كۇنۇپكا بىلەن كىرىش</span>
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* User Card */}
+            <div className="p-6 rounded-3xl bg-[#0F172A] border border-amber-500/30 text-center relative shadow-xl overflow-hidden">
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
+
+              {/* Profile Avatar */}
+              <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-amber-400 mx-auto mb-3 shadow-[0_0_25px_rgba(251,191,36,0.4)] relative bg-[#1E293B] flex items-center justify-center">
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={session.identity}
+                    className="w-full h-full object-cover rounded-full"
+                    onError={() => setAvatarUrl(null)}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center font-black text-2xl">
+                    <User className="w-10 h-10" />
+                  </div>
+                )}
+              </div>
+
+              <h2 className="text-lg font-black text-white">{session.identity}</h2>
+              <p className="text-xs text-slate-400 mt-0.5">MAX-BAZAR ئورتاق ھېساباتى</p>
+
+              {/* Balance Display */}
+              <div className="my-5 p-4 bg-slate-900/80 rounded-2xl border border-slate-800 flex items-center justify-between">
+                <span className="text-xs text-slate-400">قالدۇق:</span>
+                <span className="font-mono font-black text-amber-400 text-xl">${session.balance.toFixed(2)}</span>
+              </div>
+
+              {/* Quick Action Buttons */}
+              <div className="space-y-2.5">
+                <button
+                  onClick={() => setActiveNavTab('wallet')}
+                  className="w-full py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center justify-center gap-2 shadow-md active:scale-95"
+                >
+                  <CreditCard className="w-4 h-4" />
+                  <span>شامكەش ئارقىلىق قالدۇق قاچىلاش</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveNavTab('orders')}
+                  className="w-full py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition flex items-center justify-center gap-2 active:scale-95"
+                >
+                  <ClipboardList className="w-4 h-4 text-amber-400" />
+                  <span>مېنىڭ بارلىق تەلەپلىرىم ({ordersHistory.length})</span>
+                </button>
+
+                <a
+                  href="/apps"
+                  className="w-full py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-bold text-xs transition flex items-center justify-center gap-2 active:scale-95"
+                >
+                  <Sparkles className="w-4 h-4 text-purple-400" />
+                  <span>MAX-BAZAR ئاساسىي بازىرىغا قايتىش</span>
+                </a>
+
+                <button
+                  onClick={() => {
+                    setSession(null);
+                    try {
+                      localStorage.removeItem('maxbazar_hok_session');
+                      localStorage.removeItem('maxbazar_unified_session');
+                      localStorage.removeItem('maxbazar_pending_sync_token');
+                    } catch {}
+                  }}
+                  className="w-full py-3 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 font-bold text-xs transition flex items-center justify-center gap-2 active:scale-95 mt-4"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>ھېساباتتىن چىقىپ كېتىش</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    )}
+  </main>
+
+  {/* =========================================================================
+      AUTHENTIC BOTTOM NAVIGATION (MATCHES EXACT USER SCREENSHOTS 2 & 3)
+  ========================================================================= */}
+  <div className="fixed bottom-0 left-0 right-0 z-40 pointer-events-auto pb-[env(safe-area-inset-bottom,0px)]">
+    <div className="relative max-w-lg mx-auto select-none">
+      {/* Frosted Glass Base Bar */}
+      <div className="relative h-[66px] bg-[#0c1424]/95 backdrop-blur-2xl border-t border-slate-800 rounded-t-[24px] shadow-[0_-10px_35px_rgba(0,0,0,0.6)] overflow-hidden">
+        <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+
+        <div className="grid grid-cols-4 h-full relative z-10">
+          
+          {/* Tab 1: باشبەت (Home) */}
+          <button
+            onClick={() => setActiveNavTab('home')}
+            className="flex flex-col items-center justify-center gap-1 text-center py-1 transition-all active:scale-95 group relative"
+          >
+            {activeNavTab === 'home' && (
+              <div className="absolute -top-3 w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 p-0.5 shadow-[0_0_15px_rgba(251,191,36,0.5)]">
+                <div className="w-full h-full bg-[#0B101D] rounded-full flex items-center justify-center overflow-hidden">
+                  <Image
+                    src="/images/services/hok_token_official.webp"
+                    alt="HOK"
+                    width={36}
+                    height={36}
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                </div>
+              </div>
+            )}
+            <div className={activeNavTab === 'home' ? 'opacity-0' : 'block'}>
+              <Home className="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition" />
+            </div>
+            <span className={`text-[10px] font-bold ${activeNavTab === 'home' ? 'text-amber-400 font-black mt-3' : 'text-slate-400'}`}>
+              باشبەت
+            </span>
+          </button>
+
+          {/* Tab 2: مېنىڭ تەلەپلىرىم (Orders) */}
+          <button
+            onClick={() => setActiveNavTab('orders')}
+            className="flex flex-col items-center justify-center gap-1 text-center py-1 transition-all active:scale-95 group relative"
+          >
+            {activeNavTab === 'orders' && (
+              <div className="absolute -top-3 w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 p-0.5 shadow-[0_0_15px_rgba(251,191,36,0.5)]">
+                <div className="w-full h-full bg-[#0B101D] rounded-full flex items-center justify-center">
+                  <ClipboardList className="w-4 h-4 text-amber-400 stroke-[2.5]" />
+                </div>
+              </div>
+            )}
+            <div className={activeNavTab === 'orders' ? 'opacity-0' : 'block'}>
+              <div className="relative">
+                <ClipboardList className="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition" />
+                {ordersHistory.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                )}
+              </div>
+            </div>
+            <span className={`text-[10px] font-bold ${activeNavTab === 'orders' ? 'text-amber-400 font-black mt-3' : 'text-slate-400'}`}>
+              مېنىڭ تەلەپلىرىم
+            </span>
+          </button>
+
+          {/* Tab 3: مېنىڭ ھەميانىم (Wallet) */}
+          <button
+            onClick={() => setActiveNavTab('wallet')}
+            className="flex flex-col items-center justify-center gap-1 text-center py-1 transition-all active:scale-95 group relative"
+          >
+            {activeNavTab === 'wallet' && (
+              <div className="absolute -top-3 w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 p-0.5 shadow-[0_0_15px_rgba(251,191,36,0.5)]">
+                <div className="w-full h-full bg-[#0B101D] rounded-full flex items-center justify-center">
+                  <Wallet className="w-4 h-4 text-amber-400 stroke-[2.5]" />
+                </div>
+              </div>
+            )}
+            <div className={activeNavTab === 'wallet' ? 'opacity-0' : 'block'}>
+              <Wallet className="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition" />
+            </div>
+            <span className={`text-[10px] font-bold ${activeNavTab === 'wallet' ? 'text-amber-400 font-black mt-3' : 'text-slate-400'}`}>
+              مېنىڭ ھەميانىم
+            </span>
+          </button>
+
+          {/* Tab 4: مېنىڭ ھېسابىم (Account) */}
+          <button
+            onClick={() => {
+              if (!session) {
+                setLoginStep('input_phone');
+                setShowLoginModal(true);
+              } else {
+                setActiveNavTab('account');
+              }
+            }}
+            className="flex flex-col items-center justify-center gap-1 text-center py-1 transition-all active:scale-95 group relative"
+          >
+            {activeNavTab === 'account' && (
+              <div className="absolute -top-3 w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 p-0.5 shadow-[0_0_15px_rgba(251,191,36,0.5)]">
+                <div className="w-full h-full bg-[#0B101D] rounded-full flex items-center justify-center overflow-hidden">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="User" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-4 h-4 text-amber-400 stroke-[2.5]" />
+                  )}
+                </div>
+              </div>
+            )}
+            <div className={activeNavTab === 'account' ? 'opacity-0' : 'block'}>
+              {session && avatarUrl ? (
+                <img src={avatarUrl} alt="User" className="w-5 h-5 rounded-full object-cover" />
+              ) : (
+                <User className="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition" />
+              )}
+            </div>
+            <span className={`text-[10px] font-bold ${activeNavTab === 'account' ? 'text-amber-400 font-black mt-3' : 'text-slate-400'}`}>
+              مېنىڭ ھېسابىم
+            </span>
+          </button>
+
+        </div>
+      </div>
+    </div>
+  </div>
 
       {/* 2. SHAM CASH TOP-UP MODAL (SHOWS SHAM CASH ADDRESS & TALON VERIFICATION) */}
       {showTopupModal && (
@@ -1555,154 +2180,6 @@ export default function HonorOfKingsAppPage() {
                 <span>تېلېگراممىدا بىر كۇنۇپكا بىلەن ئۇلاش</span>
               </a>
             )}
-          </div>
-        </div>
-      )}
-
-      {/* ACCOUNT DETAILS MODAL (FOR LOGGED IN USERS) */}
-      {showAccountModal && session && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-[#0F172A] border border-amber-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl relative text-center">
-            <button
-              onClick={() => setShowAccountModal(false)}
-              className="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center absolute top-4 right-4"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            {/* Real Telegram Profile Avatar */}
-            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-amber-400 mx-auto mb-3 shadow-[0_0_20px_rgba(251,191,36,0.4)] relative bg-[#1E293B] flex items-center justify-center">
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt={session.identity}
-                  className="w-full h-full object-cover rounded-full"
-                  onError={() => setAvatarUrl(null)}
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center font-black text-xl">
-                  <User className="w-8 h-8" />
-                </div>
-              )}
-            </div>
-
-            <h3 className="text-base font-black text-white">{session.identity}</h3>
-            <p className="text-xs text-slate-400 mt-0.5">Honor of Kings ھېساباتىڭىز</p>
-
-            <div className="my-4 p-3.5 bg-slate-900/80 rounded-2xl border border-slate-800 flex items-center justify-between">
-              <span className="text-xs text-slate-400">قالدۇق:</span>
-              <span className="font-mono font-black text-amber-400 text-lg">${session.balance.toFixed(2)}</span>
-            </div>
-
-            <div className="space-y-2">
-              <button
-                onClick={() => {
-                  setShowAccountModal(false);
-                  setShowTopupModal(true);
-                }}
-                className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center justify-center gap-1.5"
-              >
-                <CreditCard className="w-4 h-4" />
-                <span>شامكەش ئارقىلىق قالدۇق قاچىلاش</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setShowAccountModal(false);
-                  setShowHistoryModal(true);
-                }}
-                className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition flex items-center justify-center gap-1.5"
-              >
-                <ClipboardList className="w-4 h-4" />
-                <span>زاكاز خاتىرىسىنى كۆرۈش ({ordersHistory.length})</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setSession(null);
-                  setShowAccountModal(false);
-                  try {
-                    localStorage.removeItem('maxbazar_hok_session');
-                    localStorage.removeItem('maxbazar_unified_session');
-                  } catch {}
-                }}
-                className="w-full py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 font-bold text-xs transition flex items-center justify-center gap-1.5"
-              >
-                <Trash2 className="w-4 h-4" />
-                <span>ھېساباتتىن چىقىپ كېتىش</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* RECENT ORDERS MODAL */}
-      {showHistoryModal && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-[#0F172A] border border-slate-700 w-full max-w-md rounded-3xl p-5 shadow-2xl relative max-h-[80vh] flex flex-col">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <h3 className="text-sm font-black text-white flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-amber-400" />
-                <span>HOK زاكاز خاتىرىسى</span>
-              </h3>
-              <button
-                onClick={() => setShowHistoryModal(false)}
-                className="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto py-3 space-y-2">
-              {ordersHistory.length === 0 ? (
-                <p className="text-center text-xs text-slate-500 py-6">تېخى زاكاز چۈشۈرۈلمىگەن</p>
-              ) : (
-                ordersHistory.map((item) => {
-                  const isCompleted = item.status === 'completed';
-                  const isRefunded = item.status === 'refunded';
-                  const isWait = item.status === 'wait' || item.status === 'in_progress' || !item.status;
-
-                  return (
-                    <div key={item.order_id} className="p-3 rounded-xl bg-[#131B30] border border-slate-800 text-xs space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-white">{item.package_name}</span>
-                        <span className="font-black text-amber-400 font-mono">${item.price.toFixed(2)}</span>
-                      </div>
-                      <div className="flex items-center justify-between text-[10px] text-slate-400">
-                        <span>UID: <span className="font-mono text-slate-300">{item.player_id}</span></span>
-                        {isCompleted && (
-                          <span className="text-emerald-400 font-bold flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3" />
-                            <span>✓ تولۇق قاچىلاندى</span>
-                          </span>
-                        )}
-                        {isWait && (
-                          <span className="text-amber-300 font-bold flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-                            <RefreshCw className="w-2.5 h-2.5 animate-spin text-amber-400" />
-                            <span>تەمىنلىگۈچى بېجىرىۋاتىدۇ...</span>
-                          </span>
-                        )}
-                        {isRefunded && (
-                          <span className="text-rose-400 font-bold flex items-center gap-1 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
-                            <span>↩️ پۇل قايتۇرۇلدى</span>
-                          </span>
-                        )}
-                      </div>
-                      {item.refund_note && (
-                        <p className="text-[9.5px] text-rose-300/90 bg-rose-950/30 p-1.5 rounded-lg border border-rose-900/40">
-                          {item.refund_note}
-                        </p>
-                      )}
-                      {item.provider_order_id && (
-                        <div className="text-[9.5px] font-mono text-slate-500">
-                          تالون: {item.provider_order_id}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
-              )}
-            </div>
           </div>
         </div>
       )}

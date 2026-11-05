@@ -80,7 +80,7 @@ export async function handleMaxBazarWebhook(update: any) {
 
       if (verified) {
         const appName = verified.app_id === 'honor-of-kings' ? 'Honor of Kings' : 'PUBG Mobile UC';
-        const appUrl = `${SITE_URL}/apps/${verified.app_id || 'pubg'}`;
+        const appUrl = `${SITE_URL}/apps/${verified.app_id || 'pubg'}?sync_token=${syncToken}`;
 
         await callMaxBazarBotApi('sendMessage', {
           chat_id: chatId,
