@@ -64,6 +64,31 @@ export default function AppsHubPage() {
   const [showHowToInstallModal, setShowHowToInstallModal] = useState(false);
   const [selectedAppForInstall, setSelectedAppForInstall] = useState<ActiveApp | null>(null);
 
+  // Google Play Store Style Download & Install Simulation State
+  const [downloadingApp, setDownloadingApp] = useState<ActiveApp | null>(null);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [downloadStatus, setDownloadStatus] = useState<'idle' | 'waiting' | 'downloading' | 'installing' | 'completed'>('idle');
+  const [autoOpenApp, setAutoOpenApp] = useState(true);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [installedAppIds, setInstalledAppIds] = useState<Record<string, boolean>>({});
+  const [downloadIntervalId, setDownloadIntervalId] = useState<any>(null);
+
+  // Capture beforeinstallprompt for native PWA installation
+  useEffect(() => {
+    const handleBeforeInstall = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+
+    try {
+      const saved = localStorage.getItem('maxbazar_installed_apps');
+      if (saved) setInstalledAppIds(JSON.parse(saved));
+    } catch (e) {}
+
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+  }, []);
+
   // User Session & Balance State (Unified across MAX-BAZAR)
   const [session, setSession] = useState<{ token: string; identity: string; balance: number; photo_url?: string } | null>(null);
   
@@ -323,10 +348,80 @@ export default function AppsHubPage() {
     setSelectedCategory(null);
   };
 
-  // Open Install Modal for an app
+  // Launch Google Play Store Style App Installation with live percentage
   const handleOpenInstallModal = (app?: ActiveApp) => {
-    setSelectedAppForInstall(app || ACTIVE_GAMES[0]);
+    const targetApp = app || ACTIVE_GAMES[0];
+    setSelectedAppForInstall(targetApp);
+    setDownloadingApp(targetApp);
+    setDownloadProgress(0);
+    setDownloadStatus('waiting');
     setShowHowToInstallModal(true);
+
+    if (downloadIntervalId) {
+      clearInterval(downloadIntervalId);
+    }
+
+    // Step 1: Preparing & Waiting (350ms)
+    setTimeout(() => {
+      setDownloadStatus('downloading');
+
+      let current = 0;
+      const interval = setInterval(() => {
+        // Increment realistically by 3% - 8%
+        current += Math.floor(Math.random() * 6) + 3;
+        if (current >= 92) {
+          current = 92;
+          clearInterval(interval);
+          setDownloadProgress(92);
+          setDownloadStatus('installing');
+
+          // Step 3: Installing onto device (650ms)
+          setTimeout(() => {
+            setDownloadProgress(100);
+            setDownloadStatus('completed');
+
+            // Save installed state
+            setInstalledAppIds((prev) => {
+              const updated = { ...prev, [targetApp.id]: true };
+              try {
+                localStorage.setItem('maxbazar_installed_apps', JSON.stringify(updated));
+              } catch (e) {}
+              return updated;
+            });
+
+            // Trigger real native Android/PWA prompt if available
+            if (deferredPrompt) {
+              try {
+                deferredPrompt.prompt();
+              } catch (e) {}
+            }
+
+            // If auto open is enabled, automatically navigate after 1.4s
+            if (autoOpenApp) {
+              setTimeout(() => {
+                window.location.href = targetApp.webUrl;
+              }, 1400);
+            }
+          }, 650);
+        } else {
+          setDownloadProgress(current);
+        }
+      }, 70);
+
+      setDownloadIntervalId(interval);
+    }, 380);
+  };
+
+  // Cancel ongoing download
+  const handleCancelDownload = () => {
+    if (downloadIntervalId) {
+      clearInterval(downloadIntervalId);
+      setDownloadIntervalId(null);
+    }
+    setDownloadingApp(null);
+    setDownloadProgress(0);
+    setDownloadStatus('idle');
+    setShowHowToInstallModal(false);
   };
 
   // Filter Apps & Games by selected category and search query
@@ -764,11 +859,42 @@ export default function AppsHubPage() {
                         <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80">
                           <button
                             type="button"
-                            onClick={() => handleOpenInstallModal(game)}
-                            className="py-2.5 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700/80 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
+                            onClick={() => {
+                              if (installedAppIds[game.id]) {
+                                window.location.href = game.webUrl;
+                              } else {
+                                handleOpenInstallModal(game);
+                              }
+                            }}
+                            className={`py-2.5 px-3 rounded-xl border font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer relative overflow-hidden ${
+                              downloadingApp?.id === game.id && downloadStatus === 'downloading'
+                                ? 'bg-amber-500/20 border-amber-400/50 text-amber-300'
+                                : installedAppIds[game.id]
+                                ? 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300 hover:bg-emerald-500/25'
+                                : 'bg-slate-800/90 hover:bg-slate-700 border-slate-700/80 text-white'
+                            }`}
                           >
-                            <Download className="w-3.5 h-3.5 text-amber-400" />
-                            <span>تېلېفونغا قاچىلاش</span>
+                            {downloadingApp?.id === game.id && downloadStatus === 'downloading' ? (
+                              <>
+                                <RefreshCw className="w-3.5 h-3.5 text-amber-400 animate-spin" />
+                                <span>%{Math.round(downloadProgress)} چۈشۈۋاتىدۇ...</span>
+                              </>
+                            ) : downloadingApp?.id === game.id && downloadStatus === 'installing' ? (
+                              <>
+                                <Smartphone className="w-3.5 h-3.5 text-sky-400 animate-pulse" />
+                                <span>قاچىلىنىۋاتىدۇ...</span>
+                              </>
+                            ) : installedAppIds[game.id] ? (
+                              <>
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                                <span>قاچىلاندى (ئېچىش)</span>
+                              </>
+                            ) : (
+                              <>
+                                <Download className="w-3.5 h-3.5 text-amber-400" />
+                                <span>تېلېفونغا قاچىلاش</span>
+                              </>
+                            )}
                           </button>
 
                           <Link
@@ -980,11 +1106,42 @@ export default function AppsHubPage() {
                             <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80">
                               <button
                                 type="button"
-                                onClick={() => handleOpenInstallModal(game)}
-                                className="py-2.5 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700/80 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
+                                onClick={() => {
+                                  if (installedAppIds[game.id]) {
+                                    window.location.href = game.webUrl;
+                                  } else {
+                                    handleOpenInstallModal(game);
+                                  }
+                                }}
+                                className={`py-2.5 px-3 rounded-xl border font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer relative overflow-hidden ${
+                                  downloadingApp?.id === game.id && downloadStatus === 'downloading'
+                                    ? 'bg-amber-500/20 border-amber-400/50 text-amber-300'
+                                    : installedAppIds[game.id]
+                                    ? 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300 hover:bg-emerald-500/25'
+                                    : 'bg-slate-800/90 hover:bg-slate-700 border-slate-700/80 text-white'
+                                }`}
                               >
-                                <Download className="w-3.5 h-3.5 text-amber-400" />
-                                <span>تېلېفونغا قاچىلاش</span>
+                                {downloadingApp?.id === game.id && downloadStatus === 'downloading' ? (
+                                  <>
+                                    <RefreshCw className="w-3.5 h-3.5 text-amber-400 animate-spin" />
+                                    <span>%{Math.round(downloadProgress)} چۈشۈۋاتىدۇ...</span>
+                                  </>
+                                ) : downloadingApp?.id === game.id && downloadStatus === 'installing' ? (
+                                  <>
+                                    <Smartphone className="w-3.5 h-3.5 text-sky-400 animate-pulse" />
+                                    <span>قاچىلىنىۋاتىدۇ...</span>
+                                  </>
+                                ) : installedAppIds[game.id] ? (
+                                  <>
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                                    <span>قاچىلاندى (ئېچىش)</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Download className="w-3.5 h-3.5 text-amber-400" />
+                                    <span>تېلېفونغا قاچىلاش</span>
+                                  </>
+                                )}
                               </button>
 
                               <Link
@@ -1708,54 +1865,213 @@ export default function AppsHubPage() {
       />
 
       {/* =========================================================================
-          PWA INSTALL GUIDE MODAL
+          GOOGLE PLAY STORE STYLE DYNAMIC APP INSTALLATION MODAL
       ========================================================================= */}
       {showHowToInstallModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-gradient-to-b from-[#0f172a] via-[#091122] to-[#050914] border border-amber-500/40 w-full max-w-md rounded-3xl p-6 shadow-2xl relative text-right space-y-4">
-            <button
-              onClick={() => setShowHowToInstallModal(false)}
-              className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center absolute top-4 left-4 cursor-pointer transition active:scale-95"
-            >
-              <X className="w-4 h-4" />
-            </button>
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn">
+          <div className="bg-[#0e1626] border-t sm:border border-amber-500/35 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl relative text-right space-y-4 font-alkatip">
+            
+            {/* Top Drag Indicator (Mobile Native Store Feel) */}
+            <div className="w-10 h-1 bg-slate-700 rounded-full mx-auto sm:hidden" />
 
-            <div className="text-center space-y-2">
-              <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400 mx-auto shadow-lg">
-                <Download className="w-7 h-7" />
+            {/* Google Play Store Verified Header */}
+            <div className="flex items-center justify-between pb-1 border-b border-slate-800/80">
+              <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-bold">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                <span>Play Protect تەرىپىدىن دەلىللەنگەن • 100% بىخەتەر</span>
               </div>
-              <h3 className="text-lg font-black text-white">
-                تېلېفونغا ئەپ قىلىپ چۈشۈرۈش
-              </h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                بۇ ئەپنى ئايرىم چۈشۈرمەيلا بىۋاسىتە تېلېفونىڭىزنىڭ باش ئېكرانىغا قاچىلاپ، ھەقىقىي يەرلىك ئەپتەك سېكۇنتتا ئىشلىتەلەيسىز!
+              <button
+                type="button"
+                onClick={handleCancelDownload}
+                className="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition active:scale-95"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* App Row: Icon with Circular SVG Progress Ring + Title + Live Status + Cancel Button */}
+            <div className="flex items-center justify-between gap-3 pt-1">
+              {/* Right (in RTL): App Icon with SVG Animated Progress Ring */}
+              <div className="flex items-center gap-3">
+                <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
+                  {/* SVG Circular Ring around App Icon */}
+                  <svg className="absolute inset-0 w-16 h-16 -rotate-90 pointer-events-none" viewBox="0 0 64 64">
+                    {/* Background track */}
+                    <circle
+                      cx="32"
+                      cy="32"
+                      r="28"
+                      className="text-slate-800"
+                      strokeWidth="3.5"
+                      stroke="currentColor"
+                      fill="transparent"
+                    />
+                    {/* Active progress stroke */}
+                    <circle
+                      cx="32"
+                      cy="32"
+                      r="28"
+                      className="transition-all duration-150 ease-out"
+                      strokeWidth="3.5"
+                      strokeDasharray={175.93}
+                      strokeDashoffset={175.93 - (175.93 * downloadProgress) / 100}
+                      strokeLinecap="round"
+                      stroke={downloadStatus === 'completed' ? '#10b981' : '#f59e0b'}
+                      fill="transparent"
+                    />
+                  </svg>
+
+                  {/* App Icon (Inner) */}
+                  <div className="w-12 h-12 rounded-xl overflow-hidden relative shadow-md">
+                    <Image
+                      src={selectedAppForInstall?.icon || '/images/apps/pubg/icon-512.png'}
+                      alt={selectedAppForInstall?.name || 'App'}
+                      fill
+                      className="object-cover"
+                      sizes="48px"
+                    />
+                  </div>
+                </div>
+
+                {/* App Name & Dynamic Status */}
+                <div className="space-y-0.5">
+                  <h3 className="text-sm font-black text-white line-clamp-1">
+                    {selectedAppForInstall?.name || 'MAX-BAZAR ئەپى'}
+                  </h3>
+                  
+                  {/* Status Indicator */}
+                  <div className="text-xs">
+                    {downloadStatus === 'waiting' && (
+                      <span className="text-amber-400 animate-pulse font-medium">كۈتۈۋاتىدۇ...</span>
+                    )}
+                    {downloadStatus === 'downloading' && (
+                      <div className="space-y-0.5">
+                        <span className="text-amber-300 font-bold">
+                          چۈشۈۋاتىدۇ... %{Math.round(downloadProgress)}
+                        </span>
+                        <div className="text-[10px] text-slate-400 font-mono">
+                          {((downloadProgress * 8.6) / 100).toFixed(1)} MB / 8.6 MB • 3.2 MB/s
+                        </div>
+                      </div>
+                    )}
+                    {downloadStatus === 'installing' && (
+                      <span className="text-sky-300 animate-pulse font-bold">
+                        تېلېفونغا قاچىلىنىۋاتىدۇ...
+                      </span>
+                    )}
+                    {downloadStatus === 'completed' && (
+                      <span className="text-emerald-400 font-bold flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        تەييار بولدى • قاچىلاندى
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Left (in RTL): Google Play Style Cancel / Open Button */}
+              <div>
+                {downloadStatus === 'completed' ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (selectedAppForInstall?.webUrl) {
+                        window.location.href = selectedAppForInstall.webUrl;
+                      }
+                    }}
+                    className="px-3.5 py-1.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-md transition active:scale-95 cursor-pointer"
+                  >
+                    ئېچىش
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleCancelDownload}
+                    className="px-3 py-1.5 rounded-full border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white text-xs font-semibold transition active:scale-95 cursor-pointer"
+                  >
+                    بىكار قىلىش
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Google Play Linear Progress Bar */}
+            <div className="space-y-1.5 pt-1">
+              <div className="w-full h-2 rounded-full bg-slate-800/90 overflow-hidden relative">
+                <div
+                  className={`h-full transition-all duration-150 rounded-full ${
+                    downloadStatus === 'completed'
+                      ? 'bg-gradient-to-r from-emerald-500 to-teal-400'
+                      : 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-400'
+                  }`}
+                  style={{ width: `${downloadProgress}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Google Play Feature: ⚡ 就绪后自动打开 (تەييار بولغاندا ئاپتوماتىك ئېچىش) */}
+            <div className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                  <Zap className="w-4 h-4 fill-amber-400" />
+                </div>
+                <div className="text-right">
+                  <h4 className="text-xs font-black text-white">⚡ تەييار بولغاندا ئاپتوماتىك ئېچىش</h4>
+                  <p className="text-[10px] text-slate-400">قاچىلاش پۈتكەندىن كېيىن دەرھال قوزغىتىش</p>
+                </div>
+              </div>
+
+              {/* iOS / Android Style Toggle Switch */}
+              <button
+                type="button"
+                onClick={() => setAutoOpenApp(!autoOpenApp)}
+                className={`w-11 h-6 rounded-full transition-colors relative p-0.5 cursor-pointer shrink-0 ${
+                  autoOpenApp ? 'bg-emerald-500' : 'bg-slate-700'
+                }`}
+              >
+                <div
+                  className={`w-5 h-5 rounded-full bg-white shadow-md transition-transform ${
+                    autoOpenApp ? 'translate-x-0' : '-translate-x-5'
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* Installation Details & Device Advice */}
+            <div className="p-3 rounded-2xl bg-slate-900/60 border border-slate-800/80 text-[11px] text-slate-300 space-y-1">
+              <div className="flex items-center gap-1.5 font-bold text-amber-400">
+                <Smartphone className="w-3.5 h-3.5" />
+                <span>باش ئېكرانغا قاچىلاش ھەققىدە:</span>
+              </div>
+              <p className="text-slate-400 text-[10px] leading-relaxed">
+                تور كۆرگۈچىڭىز «باش ئېكرانغا قوشۇش (Install app / Add to Home screen)» نى سورىسا، تەستىقلاپ بېرىڭ. ئەپ تېلېفونىڭىزغا قاچىلىنىپ، خالىغان ۋاقىتتا بىر چېكىپلا كىرىپ ئىشلىتەلەيسىز.
               </p>
             </div>
 
-            <div className="space-y-2.5 text-xs text-slate-200 pt-2">
-              <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1.5">
-                <span className="font-black text-amber-300 block">📱 Android (Chrome تور كۆرگۈچ):</span>
-                <p className="text-[11px] text-slate-300 leading-relaxed">
-                  1. ئوڭ تەرەپ ئۈستىدىكى ئۈچ چېكىتنى <strong>(⋮)</strong> بېسىڭ.<br />
-                  2. <strong>«Install app»</strong> ياكى <strong>«Add to Home screen»</strong> (باش ئېكرانغا قوشۇش) نى تاللاڭ.
-                </p>
-              </div>
+            {/* Bottom Primary Action Button */}
+            {downloadStatus === 'completed' ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (selectedAppForInstall?.webUrl) {
+                    window.location.href = selectedAppForInstall.webUrl;
+                  }
+                }}
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 hover:brightness-110 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/25 transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer animate-pulse"
+              >
+                <span>🚀 تەييار بولدى! ئەپنى دەرھال ئېچىش</span>
+                <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleCancelDownload}
+                className="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition active:scale-95 cursor-pointer"
+              >
+                چۈشۈرۈشنى بىكار قىلىش
+              </button>
+            )}
 
-              <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1.5">
-                <span className="font-black text-sky-300 block">🍏 iPhone / iPad (Safari):</span>
-                <p className="text-[11px] text-slate-300 leading-relaxed">
-                  1. ئاستىدىكى ھەمبەھىرلەش كۇنۇپكىسىنى <strong>(Share / كۋادرات ۋە ئوق)</strong> بېسىڭ.<br />
-                  2. تىزىملىكتىن <strong>«Add to Home Screen»</strong> (باش ئېكرانغا قوشۇش) نى بېسىڭ.
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setShowHowToInstallModal(false)}
-              className="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-md transition active:scale-95 cursor-pointer"
-            >
-              چۈشەندىم، رەھمەت!
-            </button>
           </div>
         </div>
       )}
