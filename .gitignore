@@ -41,6 +41,7 @@ public_backup_pre_redesign/
 
 *.py
 !scripts/brand_app_icon.py
+!scripts/build_game_apks.py
 test_*.py
 scripts/temp/
 *.tsbuildinfo
