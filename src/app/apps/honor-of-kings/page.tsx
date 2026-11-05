@@ -30,7 +30,8 @@ import {
   Trash2,
   Search,
   ChevronRight,
-  Hourglass
+  Hourglass,
+  HelpCircle
 } from 'lucide-react';
 
 export interface SavedPlayerAccount {
@@ -1801,6 +1802,83 @@ export default function HonorOfKingsAppPage() {
                 {talonFeedback.message}
               </p>
             )}
+          </div>
+
+          {/* Detailed Guide & Notice: What is Balance & How to Top Up */}
+          <div className="pt-3 space-y-3 text-right font-alkatip border-t border-slate-800/80">
+            {/* 1. What is Balance (قالدۇق سومما دېگەن نېمە؟) */}
+            <div className="p-4 rounded-2xl bg-[#080d18] border border-amber-400/25 space-y-2">
+              <div className="flex items-center gap-2 text-amber-300 font-bold text-xs sm:text-sm">
+                <div className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                  <HelpCircle className="w-3.5 h-3.5" />
+                </div>
+                <span>قالدۇق سومما (قالدۇق پۇل) دېگەن نېمە؟</span>
+              </div>
+              <p className="text-[11px] sm:text-xs text-slate-300 leading-relaxed">
+                <strong>قالدۇق سومما</strong> — سىزنىڭ MAX-BAZAR ۋە Honor of Kings ھېساباتىڭىزدىكى مەخسۇس ئېلېكترونلۇق پۇلىڭىزدۇر. بۇ قالدۇق ئارقىلىق سىز ھەر قېتىم قايتا-قايتا بانكا ياكى پۇل كىرگۈزمەيلا، <strong>3 سېكۇنتتا بىر چىكىش بىلەنلا</strong> دەرھال توكېن ياكى ھەپتىلىك كارتىلارنى سېتىۋالالايسىز. قالدۇقىڭىز ھەرگىز كۈچتىن قالمايدۇ.
+              </p>
+            </div>
+
+            {/* 2. Step-by-Step Instructions: How to Top-up (قانداق قاچىلايمىز؟) */}
+            <div className="p-4 rounded-2xl bg-[#080d18] border border-slate-800 space-y-2.5">
+              <div className="flex items-center gap-2 text-white font-bold text-xs sm:text-sm">
+                <div className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                  <Zap className="w-3.5 h-3.5" />
+                </div>
+                <span>شامكەش ئارقىلىق قانداق قالدۇق قاچىلايمىز؟ (4 قەدەم)</span>
+              </div>
+
+              <div className="space-y-2 text-[11px] sm:text-xs text-slate-300 leading-relaxed pr-1">
+                <div className="flex items-start gap-2">
+                  <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-300 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                    1
+                  </span>
+                  <p>
+                    <strong>ئادرېسنى كۆچۈرۈش:</strong> يۇقىرىدىكى «رەسمىي شامكەش ئادرېسىمىز» يېنىدىكى «كۆچۈرۈش» كۇنۇپكىسىنى بېسىپ ئادرېسنى كۆچۈرۈۋېلىڭ.
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-2">
+                  <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-300 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                    2
+                  </span>
+                  <p>
+                    <strong>پۇل ئەۋەتىش:</strong> شامكەش (Sham Cash) ئەپىڭىزنى ئېچىپ، كۆچۈرگەن ئادرېسىمىزغا قاچىلىماقچى بولغان پۇل سوممىسىنى ئەۋەتىڭ.
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-2">
+                  <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-300 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                    3
+                  </span>
+                  <p>
+                    <strong>تالون نومۇرىنى ئېلىش:</strong> پۇل ئەۋەتكەندىن كېيىن، شامكەش ئەپى كۆرسەتكەن مۇۋەپپەقىيەت تالونىدىكى تالون رەقەملىرىنى (Talon Number) كۆچۈرۈۋېلىڭ.
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-2">
+                  <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                    4
+                  </span>
+                  <p>
+                    <strong>دەرھال قاچىلاش:</strong> شۇ تالون نومۇرىنى يۇقىرىدىكى رامكىغا كىرگۈزۈپ «تەستىقلاش» كۇنۇپكىسىنى بېسىڭ. سىستېما سېكۇنتتا دەلىللەپ، قالدۇقىڭىزنى دەرھال قوشۇپ بېرىدۇ.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Important Notice (مۇھىم ئەسكەرتىش) */}
+            <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 space-y-1.5 text-[11px] text-amber-200/90 leading-relaxed">
+              <div className="flex items-center gap-1.5 font-bold text-amber-300">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                <span>مۇھىم ئەسكەرتىشلەر:</span>
+              </div>
+              <ul className="list-disc list-inside space-y-0.5 pr-1 text-slate-300">
+                <li>ھەر بىر شامكەش تالون نومۇرى پەقەت بىرلا قېتىم قالدۇق قاچىلاشقا ئىشلىتىلىدۇ.</li>
+                <li>تالون نومۇرىنى تولۇق ۋە توغرا كىرگۈزگەنلىكىڭىزگە دىققەت قىلىڭ.</li>
+                <li>قالدۇق سۈرئىتى 100% ئاپتوماتىك بولۇپ، دەلىللەنگەن ھامان ھېساباتىڭىزغا دەرھال كىرىدۇ.</li>
+              </ul>
+            </div>
           </div>
 
 
