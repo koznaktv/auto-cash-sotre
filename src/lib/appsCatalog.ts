@@ -5,6 +5,7 @@ import {
   CreditCard,
   PhoneCall,
   Share2,
+  LucideIcon
 } from 'lucide-react';
 
 export type CategoryId = 'games' | 'apps' | 'cards' | 'ai' | 'sms' | 'social';
@@ -28,10 +29,71 @@ export interface ActiveApp {
   isMicroApp?: boolean;
 }
 
+export interface CategoryItem {
+  id: CategoryId;
+  name: string;
+  subtitle: string;
+  icon: LucideIcon;
+  isReady: boolean;
+  countBadge: string;
+}
+
+export const CATEGORIES: CategoryItem[] = [
+  {
+    id: 'games',
+    name: 'ئويۇنلار',
+    subtitle: 'PUBG ۋە HOK تەييار',
+    icon: Gamepad2,
+    isReady: true,
+    countBadge: '2 ئويۇن تەييار'
+  },
+  {
+    id: 'apps',
+    name: 'ئەپلەر',
+    subtitle: 'پات يېقىندا',
+    icon: Smartphone,
+    isReady: false,
+    countBadge: 'يېقىندا'
+  },
+  {
+    id: 'cards',
+    name: 'كارتىلار',
+    subtitle: 'پات يېقىندا',
+    icon: CreditCard,
+    isReady: false,
+    countBadge: 'يېقىندا'
+  },
+  {
+    id: 'ai',
+    name: 'سۈنئىي ئەقىل',
+    subtitle: 'پات يېقىندا',
+    icon: Bot,
+    isReady: false,
+    countBadge: 'يېقىندا'
+  },
+  {
+    id: 'sms',
+    name: 'مەۋھۇم نومۇر',
+    subtitle: 'پات يېقىندا',
+    icon: PhoneCall,
+    isReady: false,
+    countBadge: 'يېقىندا'
+  },
+  {
+    id: 'social',
+    name: 'ئىجتىمائىي تاراتقۇ',
+    subtitle: 'پات يېقىندا',
+    icon: Share2,
+    isReady: false,
+    countBadge: 'يېقىندا'
+  }
+];
+
+// =========================================================================
+// ھازىرقى پەقەت تولۇق پۈتكەن 2 ئويۇن
+// يېڭى ئەپ پۈتكەندە، ئىشلەتكۈچىنىڭ تەلەپ قىلغان كاتېگورىيەسىگە قوشۇلىدۇ
+// =========================================================================
 export const ACTIVE_CATALOG: ActiveApp[] = [
-  // ==========================================
-  // 1. ئويۇنلار (GAMES)
-  // ==========================================
   {
     id: 'pubg',
     name: 'PUBG Mobile UC بازىرى',
@@ -67,767 +129,7 @@ export const ACTIVE_CATALOG: ActiveApp[] = [
     priceNote: '$0.25 دىن باشلىنىدۇ (16 - 8,000 Token)',
     features: ['بىخەتەر ۋە رەسمىي يول', 'ئاپتوماتىك لاقىم (Nickname) دەلىللەش', 'سېكۇنتتا يېتىپ بارىدۇ'],
     isMicroApp: true
-  },
-  {
-    id: 'free_fire',
-    name: 'Garena Free Fire ئالماس بازىرى',
-    category: 'games',
-    tagline: 'Free Fire رەسمىي Player ID ئارقىلىق ئالماس قاچىلاش',
-    description: 'Free Fire ئۈچۈن 100+10 دىن 2180 ئالماسقىچە، ھەپتىلىك ۋە ئايلىق ئەزالىقلارنى ئاپتوماتىك يەتكۈزۈش.',
-    icon: '/images/services/free_fire.webp',
-    rating: 4.95,
-    ordersCount: '8.2k+ قاچىلانغان',
-    speed: '3 سېكۇنت',
-    badge: '💎 ئالماس',
-    badgeColor: 'from-orange-500 to-amber-600',
-    webUrl: '/#product=free_fire',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$0.90 دىن باشلىنىدۇ',
-    features: ['Player ID ئاپتوماتىك تەكشۈرۈش', '1 سېكۇنتتا قاچىلىنىدۇ', 'تولۇق كاپالەتلىك']
-  },
-  {
-    id: 'mobile_legends',
-    name: 'Mobile Legends: Bang Bang',
-    category: 'games',
-    tagline: 'User ID + Zone ID ئارقىلىق رەسمىي ئالماس قاچىلاش',
-    description: 'MLBB ئويۇنى ئۈچۈن ھەپتىلىك ئالماس كارتىسى، تۋېلايت كارتىسى ۋە بارلىق ئالماس تۈرلىرى.',
-    icon: '/images/services/mobile_legends.webp',
-    rating: 4.93,
-    ordersCount: '6.5k+ قاچىلانغان',
-    speed: '5 سېكۇنت',
-    badge: '⚔️ جەڭ مەيدانى',
-    badgeColor: 'from-blue-500 to-indigo-600',
-    webUrl: '/#product=mobile_legends',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$1.20 دىن باشلىنىدۇ',
-    features: ['سەرۋەرگە بىۋاسىتە ئۇلىنىش', 'Zone ID دەلىللەش', 'ئاپتوماتىك تەستىق']
-  },
-  {
-    id: 'ball_pool_8',
-    name: '8 Ball Pool بىليارت بازىرى',
-    category: 'games',
-    tagline: 'Unique ID ئارقىلىق نەق تەڭگە ۋە كود قاچىلاش',
-    description: '8 Ball Pool ئويۇنى ئۈچۈن مىليونلىغان تەڭگە، نەق پۇل (Cash) ۋە ئالاھىدە تاياقلارنى قاچىلاپ بېرىش.',
-    icon: '/images/services/ball_pool_8.webp',
-    rating: 4.90,
-    ordersCount: '4.1k+ قاچىلانغان',
-    speed: '10 سېكۇنت',
-    badge: '🎱 بىليارت',
-    badgeColor: 'from-emerald-500 to-teal-600',
-    webUrl: '/#product=ball_pool_8',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$0.99 دىن باشلىنىدۇ',
-    features: ['Unique ID ئارقىلىق تېز قاچىلاش', 'سېكۇنتتا يېتىدۇ', 'كاپالەتلىك']
-  },
-  {
-    id: 'yalla_ludo',
-    name: 'Yalla Ludo ئالماس ۋە تەڭگە',
-    category: 'games',
-    tagline: 'ياللا لۇدو ئالماس ۋە ئالتۇن تەڭگە سېكۇنتتا قاچىلاش',
-    description: 'ياللا لۇدو ئويۇنى ئۈچۈن رەسمىي كىملىك ئارقىلىق ئالماس، ئالتۇن ۋە كارتىلارنى دەرھال قاچىلاش.',
-    icon: '/images/services/yalla_ludo.webp',
-    rating: 4.92,
-    ordersCount: '5.3k+ قاچىلانغان',
-    speed: '3 سېكۇنت',
-    badge: '🎲 لۇدو',
-    badgeColor: 'from-pink-500 to-rose-600',
-    webUrl: '/#product=yalla_ludo',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$0.85 دىن باشلىنىدۇ',
-    features: ['كىملىك بويىچە دەرھال يېتىدۇ', 'ئاپتوماتىك قاچىلاش', 'شامكەش قوبۇل قىلىنىدۇ']
-  },
-  {
-    id: 'efootball',
-    name: 'eFootball PES تەڭگە بازىرى',
-    category: 'games',
-    tagline: 'Konami eFootball تەڭگىسى ۋە پاس كارتىسى',
-    description: 'پېس پۇتبول كوماندىسى ئۈچۈن eFootball Coins، نادىر كوماندا توپچىلىرىنى ئېچىش تەڭگىسى.',
-    icon: '/images/services/efootball.webp',
-    rating: 4.91,
-    ordersCount: '3.7k+ قاچىلانغان',
-    speed: '5 سېكۇنت',
-    badge: '⚽ پۇتبول',
-    badgeColor: 'from-cyan-500 to-blue-600',
-    webUrl: '/#product=efootball',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$1.40 دىن باشلىنىدۇ',
-    features: ['Konami ID ماسلىشىشچان', 'ئاپتوماتىك يەتكۈزۈش', 'ئەڭ ئەرزان باھا']
-  },
-  {
-    id: 'arena_breakout',
-    name: 'Arena Breakout قوراللىق بۆسۈش',
-    category: 'games',
-    tagline: 'Player ID ئارقىلىق پاي كارتىسى ۋە باند كارتىسى',
-    description: 'Arena Breakout كارتىسى، ئالتۇن ۋە ئالاھىدە مەركىزىي ئۈسكۈنىلەرنى سېكۇنتتا يەتكۈزۈش.',
-    icon: '/images/services/arena_breakout.webp',
-    rating: 4.94,
-    ordersCount: '2.9k+ قاچىلانغان',
-    speed: '5 سېكۇنت',
-    badge: '🎖️ ئالاھىدە قىسىم',
-    badgeColor: 'from-amber-600 to-red-600',
-    webUrl: '/#product=arena_breakout',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$1.50 دىن باشلىنىدۇ',
-    features: ['UID ئارقىلىق دەرھال قاچىلاش', 'رەسمىي سەرۋەر', 'كاپالەتلىك']
-  },
-  {
-    id: 'genshin_impact',
-    name: 'Genshin Impact كىرىستاللىرى',
-    category: 'games',
-    tagline: 'Genesis Crystal & Blessing of the Welkin Moon',
-    description: 'گېنشىن ئىمپەكت رەسمىي UID ئارقىلىق جېنېسىس كىرىستال ۋە ئايلىق كارتىلارنى سېكۇنتتا قاچىلاش.',
-    icon: '/images/services/genshin_impact.webp',
-    rating: 4.97,
-    ordersCount: '3.1k+ قاچىلانغان',
-    speed: '3 سېكۇنت',
-    badge: '✨ نادىر',
-    badgeColor: 'from-sky-400 to-indigo-500',
-    webUrl: '/#product=genshin_impact',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$1.10 دىن باشلىنىدۇ',
-    features: ['UID + Server دەلىللەش', 'سېكۇنتتا يېتىدۇ', '100% رەسمىي كود']
-  },
-  {
-    id: 'whiteout_survival',
-    name: 'Whiteout Survival قىشتا قېلىش',
-    category: 'games',
-    tagline: 'Player ID ئارقىلىق فىروست ئالماسلىرى قاچىلاش',
-    description: 'قىشلىق قۇتقۇزۇش ئويۇنى ئۈچۈن فىروست يۇلتۇز ئالماسلىرى ۋە ئالاھىدە قۇتقۇزۇش بايلىقلىرى.',
-    icon: '/images/services/whiteout_survival.webp',
-    rating: 4.89,
-    ordersCount: '2.4k+ قاچىلانغان',
-    speed: '5 سېكۇنت',
-    badge: '❄️ ھايات قېلىش',
-    badgeColor: 'from-teal-400 to-blue-500',
-    webUrl: '/#product=whiteout_survival',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$0.99 دىن باشلىنىدۇ',
-    features: ['Player ID بويىچە دەرھال يېتىدۇ', 'ئاپتوماتىك پىششىقلاش', 'بىخەتەر قاچىلاش']
-  },
-
-  // ==========================================
-  // 2. ئەپلەر (APPS)
-  // ==========================================
-  {
-    id: 'shield_vpn',
-    name: 'Shield VPN يۇقىرى سۈرئەتلىك تور',
-    category: 'apps',
-    tagline: 'توسالغۇسىز، يۇقىرى سۈرئەتلىك شەخسىي تور مۇلازىمىتى',
-    description: 'Shield VPN دۇنيا بويىچە ئەڭ تېز ۋە مۇقىم، بارلىق تور بېكەت ۋە ئويۇنلارنى تېزلىتىپ ئاچىدىغان ئەپ.',
-    icon: '/images/services/shield_vpn.webp',
-    rating: 4.97,
-    ordersCount: '12.4k+ ئاكتىپلانغان',
-    speed: '1 سېكۇنت',
-    badge: '⚡ تېز سۈرئەت',
-    badgeColor: 'from-emerald-500 to-teal-600',
-    webUrl: '/#product=shield_vpn',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$0.99 دىن باشلىنىدۇ',
-    features: ['سېكۇنتتا كود چىقىدۇ', 'چەكسىز كۆرۈش', 'بارلىق ئۈسكۈنىلەرگە ماس']
-  },
-  {
-    id: 'pure_vpn',
-    name: 'PureVPN دۇنياۋى مەخپىي تور',
-    category: 'apps',
-    tagline: '6500+ سەرۋەر، دەرىجىدىن تاشقىرى مەخپىيەتلىك',
-    description: 'PureVPN رەسمىي ئەزالىق، بانكا دەرىجىلىك شىفىرلاش ۋە دۇنيانىڭ 78+ دۆلىتىگە ئۇلىنىش ئىمكانىيىتى.',
-    icon: '/images/services/pure_vpn.webp',
-    rating: 4.92,
-    ordersCount: '5.8k+ ئاكتىپلانغان',
-    speed: '3 سېكۇنت',
-    badge: '🛡️ مەخپىي',
-    badgeColor: 'from-blue-600 to-cyan-600',
-    webUrl: '/#product=pure_vpn',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$1.49 دىن باشلىنىدۇ',
-    features: ['رەسمىي كود يەتكۈزۈش', 'چەكسىز تېزلىك', 'كاپالەتلىك']
-  },
-  {
-    id: 'express_vpn',
-    name: 'ExpressVPN دۇنيا بويىچە ئەڭ تېز تور',
-    category: 'apps',
-    tagline: 'يۇقىرى سەپلىمىلىك ئەڭ سۈپەتلىك دۇنياۋى VPN',
-    description: 'ExpressVPN كەسپىي ئاكتىپلاش كودى، دەرىجىدىن تاشقىرى سۈرئەت ۋە 105 دۆلەت سرۋىرى.',
-    icon: '/images/services/express_vpn.webp',
-    rating: 4.99,
-    ordersCount: '18.6k+ ئاكتىپلانغان',
-    speed: '1 سېكۇنت',
-    badge: '👑 ئەڭ كۈچلۈك',
-    badgeColor: 'from-red-500 to-rose-600',
-    webUrl: '/#product=express_vpn',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$2.99 دىن باشلىنىدۇ',
-    features: ['دەرھال كود تاپشۇرۇش', 'تولۇق كاپالەت', 'سېكۇنتتا ئۇلىنىش']
-  },
-  {
-    id: 'nord_vpn',
-    name: 'NordVPN كۈچلۈك بىخەتەر تور',
-    category: 'apps',
-    tagline: 'قوش شىفىرلاش ۋە تېز سۈرئەتلىك بىخەتەرلىك',
-    description: 'NordVPN رەسمىي ھېسابات ۋە ئاكتىپلاش كودى. شەخسىي مەخپىيەتلىك ۋە ئائىلىۋى قوغداش.',
-    icon: '/images/services/nord_vpn.webp',
-    rating: 4.93,
-    ordersCount: '7.2k+ ئاكتىپلانغان',
-    speed: '3 سېكۇنت',
-    badge: '🔒 بىخەتەر',
-    badgeColor: 'from-blue-500 to-indigo-600',
-    webUrl: '/#product=nord_vpn',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$1.99 دىن باشلىنىدۇ',
-    features: ['رەسمىي ئەزالىق', 'يۇقىرى بىخەتەرلىك', 'ئاپتوماتىك قوزغىلىدۇ']
-  },
-  {
-    id: 'youtube_premium',
-    name: 'YouTube Premium ئېلانسىز كۆرۈش',
-    category: 'apps',
-    tagline: 'ئېلان يوق، ئارقا كۆرۈنۈشتە قويۇش ۋە YouTube Music',
-    description: 'YouTube شەخسىي ۋە ئائىلە ئەزالىقى. سىنلارنى ئېلانسىز، تېلېفوننى قۇلۇپلاپ قويۇپ ئاڭلاش ئىمكانىيىتى.',
-    icon: '/images/services/youtube.webp',
-    rating: 4.98,
-    ordersCount: '14.1k+ ئاكتىپلانغان',
-    speed: '5 سېكۇنت',
-    badge: '▶️ ئېلانسىز',
-    badgeColor: 'from-red-600 to-amber-600',
-    webUrl: '/#product=youtube_premium',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$1.20 دىن باشلىنىدۇ',
-    features: ['ئۆز ئېلخېتىڭىزگە ئېچىلىدۇ', 'ئېلان قەتئىي چىقمايدۇ', 'YouTube Music بىللە كېلىدۇ']
-  },
-  {
-    id: 'spotify_premium',
-    name: 'Spotify Premium ناخشا-مۇزىكا',
-    category: 'apps',
-    tagline: 'چەكسىز، ئېلانسىز، ئەڭ يۇقىرى سۈپەتلىك ناخشا دۇنياسى',
-    description: 'Spotify Individual / Family ئەزالىقى. ناخشىلارنى تورسىزمۇ چۈشۈرۈپ قويۇش، ئېلانسىز راھەت ئاڭلاش.',
-    icon: '/images/services/spotify.webp',
-    rating: 4.96,
-    ordersCount: '9.8k+ ئاكتىپلانغان',
-    speed: '5 سېكۇنت',
-    badge: '🎵 ناخشا',
-    badgeColor: 'from-green-500 to-emerald-600',
-    webUrl: '/#product=spotify_premium',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$1.15 دىن باشلىنىدۇ',
-    features: ['رەسمىي ئەزالىق كودى', 'چەكسىز ئۆتكۈزۈش', 'HD ئاۋاز سۈپىتى']
-  },
-  {
-    id: 'capcut_pro',
-    name: 'CapCut Pro كەسپىي سىن تەھرىرلەش',
-    category: 'apps',
-    tagline: 'بارلىق VIP ئۈنۈملەر ۋە سۈنئىي ئەقىل قوراللىرى ئوچۇق',
-    description: 'CapCut Pro رەسمىي ئەپ ئەزالىقى. بارلىق چەكلىمىسىز يېڭى ئۈنۈملەر، شابلونلار ۋە ئاپتوماتىك خەت كىرگۈزۈش.',
-    icon: '/images/services/capcut.webp',
-    rating: 4.95,
-    ordersCount: '8.9k+ ئاكتىپلانغان',
-    speed: '10 سېكۇنت',
-    badge: '🎬 سىن تەھرىرلەش',
-    badgeColor: 'from-cyan-500 to-blue-600',
-    webUrl: '/#product=capcut_pro',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$1.49 دىن باشلىنىدۇ',
-    features: ['Pro بارلىق ئىقتىدارلار ئوچۇق', 'تېلېفون ۋە كومپيۇتېرغا ماس', 'دەرھال يېتىدۇ']
-  },
-  {
-    id: 'picsart_gold',
-    name: 'PicsArt Gold كەسپىي سۈرەت تەھرىرلەش',
-    category: 'apps',
-    tagline: 'سۈرەت لايىھىلەش، ئارقا كۆرۈنۈش ئۆچۈرۈش ۋە سۈنئىي ئەقىل',
-    description: 'PicsArt Gold تولۇق ئەزالىقى. مىليونلىغان شابلون، فونت، چاپلاق ۋە AI سۈرەت سۈزگۈچلەر.',
-    icon: '/images/services/picsart.webp',
-    rating: 4.91,
-    ordersCount: '4.5k+ ئاكتىپلانغان',
-    speed: '5 سېكۇنت',
-    badge: '🎨 لايىھە',
-    badgeColor: 'from-purple-500 to-pink-600',
-    webUrl: '/#product=picsart_gold',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$0.99 دىن باشلىنىدۇ',
-    features: ['Gold تولۇق كاپالەت', 'ھېچقانداق ئېلان يوق', 'دەرھال قوزغىتىش']
-  },
-  {
-    id: 'netflix_4k',
-    name: 'Netflix 4K Ultra HD ئايلىق ئەزالىق',
-    category: 'apps',
-    tagline: 'كىنو، تىياتىر ۋە ھۆججەتلىك فىلىملەرنى چەكسىز كۆرۈش',
-    description: 'Netflix شەخسىي پروفىل، 4K UHD دەرىجىدىن تاشقىرى سۈزۈك تەسۋىر، بارلىق تىلدا تەرجىمە كىنو-تىياتىرلار.',
-    icon: '/images/services/netflix.webp',
-    rating: 4.97,
-    ordersCount: '11.3k+ ئاكتىپلانغان',
-    speed: '10 سېكۇنت',
-    badge: '🍿 كىنو',
-    badgeColor: 'from-red-600 to-rose-700',
-    webUrl: '/#product=netflix_4k',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$2.80 دىن باشلىنىدۇ',
-    features: ['4K UHD رەسمىي سۈپەت', 'شەخسىي PIN قۇلۇپ', 'تولۇق كاپالەت']
-  },
-  {
-    id: 'gearup_booster',
-    name: 'GearUP Booster ئويۇن تورى تېزلەتكۈچ',
-    category: 'apps',
-    tagline: 'ئويۇنلاردىكى قېتىۋېلىش ۋە پىڭ (Ping) نى سېكۇنتتا پەسەيتىش',
-    description: 'GearUP Booster VIP ئەزالىقى. PUBG, Free Fire, MLBB قاتارلىق بارلىق ئويۇنلارنىڭ پىڭىنى كۆرۈنەرلىك تۆۋەنلىتىدۇ.',
-    icon: '/images/services/gearup_booster.webp',
-    rating: 4.93,
-    ordersCount: '6.1k+ ئاكتىپلانغان',
-    speed: '3 سېكۇنت',
-    badge: '🚀 پىڭ پەسەيتكۈچ',
-    badgeColor: 'from-orange-500 to-red-500',
-    webUrl: '/#product=gearup_booster',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$1.10 دىن باشلىنىدۇ',
-    features: ['سېكۇنتتا يېتىدۇ', 'پىڭنى 30ms گىچە چۈشۈرىدۇ', 'ئاپتوماتىك قوزغىتىش']
-  },
-
-  // ==========================================
-  // 3. سۈنئىي ئەقىل (AI APPS)
-  // ==========================================
-  {
-    id: 'chatgpt_plus',
-    name: 'ChatGPT Plus & Team ئەزالىق',
-    category: 'ai',
-    tagline: 'OpenAI GPT-4o، كود يېزىش ۋە ئاۋازلىق ئەقلىي ئىقتىدار',
-    description: 'ChatGPT Plus ئايلىق ئەزالىقى. رەسىم سىزىش (DALL-E 3)، ھۆججەت تەھلىل قىلىش ۋە سۈرئەتلىك GPT-4o.',
-    icon: '/images/services/chatgpt.webp',
-    rating: 4.99,
-    ordersCount: '16.5k+ ئاكتىپلانغان',
-    speed: '5 سېكۇنت',
-    badge: '🧠 GPT-4o',
-    badgeColor: 'from-emerald-500 to-teal-600',
-    webUrl: '/#product=chatgpt_plus',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$3.50 دىن باشلىنىدۇ',
-    features: ['رەسمىي Plus ھېسابات', 'تولۇق كاپالەتلىك', 'سېكۇنتتا چىقىدۇ']
-  },
-  {
-    id: 'google_gemini',
-    name: 'Google Gemini AI ئالىي ئەزالىقى',
-    category: 'ai',
-    tagline: 'Gemini Advanced (2TB Google One بايلىقى بىلەن)',
-    description: 'Google Gemini ئەڭ يېڭى چوڭ تىل مودېلى. 2TB بۇلۇت ساقلىغۇچ ۋە بارلىق Google Workspace بىلەن بىر گەۋدىلەشكەن.',
-    icon: '/images/services/google_gemini.webp',
-    rating: 4.97,
-    ordersCount: '8.7k+ ئاكتىپلانغان',
-    speed: '5 سېكۇنت',
-    badge: '✨ Gemini',
-    badgeColor: 'from-blue-500 to-indigo-600',
-    webUrl: '/#product=google_gemini',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$2.99 دىن باشلىنىدۇ',
-    features: ['2TB ساقلاش بوشلۇقى', 'Google رەسمىي مۇلازىمەت', 'دەرھال كۈچكە ئىگە']
-  },
-  {
-    id: 'cursor_pro',
-    name: 'Cursor Pro AI كەسپىي پىروگراممېر',
-    category: 'ai',
-    tagline: 'پۈتۈن كود بازىسىنى كۆرۈپ كود يازىدىغان دۇنياۋى ئەقىل',
-    description: 'Cursor AI Pro ئەزالىقى. Claude 3.5 Sonnet ۋە GPT-4o ئارقىلىق مۇرەككەپ كودلارنى يېزىش، خاتالىق تۈزىتىش.',
-    icon: '/images/services/cursor_pro.webp',
-    rating: 4.98,
-    ordersCount: '6.3k+ ئاكتىپلانغان',
-    speed: '3 سېكۇنت',
-    badge: '💻 كود سۇپىسى',
-    badgeColor: 'from-slate-700 to-slate-900',
-    webUrl: '/#product=cursor_pro',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$4.50 دىن باشلىنىدۇ',
-    features: ['Pro چەكسىز تېز سۈرئەت', 'Sonnet 3.5 تەمىنلەنگەن', 'سېكۇنتتا كود كېلىدۇ']
-  },
-  {
-    id: 'canva_pro',
-    name: 'Canva Pro كەسپىي لايىھىلەش',
-    category: 'ai',
-    tagline: 'AI رەسىم ئۆچۈرۈش، مىليونلىغان شابلون ۋە ۋېكتورلار',
-    description: 'Canva Pro رەسمىي ئەزالىق. تەشۋىقات ۋارىقى، بەلگە (Logo) ۋە ئىجتىمائىي تاراتقۇ پىروگراممىلىرىنى كەسپىي سىزىش.',
-    icon: '/images/services/canva.webp',
-    rating: 4.94,
-    ordersCount: '7.9k+ ئاكتىپلانغان',
-    speed: '5 سېكۇنت',
-    badge: '🎨 لايىھە',
-    badgeColor: 'from-cyan-500 to-teal-600',
-    webUrl: '/#product=canva_pro',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$1.20 دىن باشلىنىدۇ',
-    features: ['شەخسىي ئېلخەتكە تەستىق', 'مىليونلىغان شابلون', 'چەكسىز ساقلاش']
-  },
-  {
-    id: 'kling_ai',
-    name: 'Kling AI سىن ياساش سۈنئىي ئەقىل',
-    category: 'ai',
-    tagline: 'تېكىست ياكى رەسىمدىن 4K سىن ئىشلەپ چىقىرىش',
-    description: 'Kling AI دەرىجىدىن تاشقىرى سۈرەت ۋە سىن ئىجادىيەت سۇپىسى. فىلىم دەرىجىلىك ھەرىكەت ۋە ھەقىقىي تەسۋىر.',
-    icon: '/images/services/kling_ai.webp',
-    rating: 4.91,
-    ordersCount: '3.8k+ ئاكتىپلانغان',
-    speed: '10 سېكۇنت',
-    badge: '🎥 AI سىن',
-    badgeColor: 'from-purple-600 to-indigo-700',
-    webUrl: '/#product=kling_ai',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$2.20 دىن باشلىنىدۇ',
-    features: ['VIP نومۇر تەڭگىسى', 'سېكۇنتتا يەتكۈزۈش', 'چەكسىز قۇرۇلۇش']
-  },
-  {
-    id: 'kimi_ai',
-    name: 'Kimi AI ئالىي ئەزالىقى',
-    category: 'ai',
-    tagline: 'Moonshot كۆپ مىليون سۆزلۈك ئۇزۇن ھۆججەت كۆرگۈچ',
-    description: 'Kimi AI كەسپىي ئۇزۇن كىتاب، قانۇن ۋە ئەدەبىيات تەتقىقات ھۆججەتلىرىنى بىرلا ۋاقىتتا ئوقۇپ مەزمۇن چىقىرىش.',
-    icon: '/images/services/kimi_ai.webp',
-    rating: 4.88,
-    ordersCount: '2.9k+ ئاكتىپلانغان',
-    speed: '5 سېكۇنت',
-    badge: '📚 ھۆججەت',
-    badgeColor: 'from-blue-600 to-indigo-600',
-    webUrl: '/#product=kimi_ai',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$1.80 دىن باشلىنىدۇ',
-    features: ['تېز خىزمەت', 'تولۇق كاپالەتلىك', 'ئاپتوماتىك تەستىق']
-  },
-  {
-    id: 'heygen_ai',
-    name: 'HeyGen AI سىن ئىجادىيەت سۇپىسى',
-    category: 'ai',
-    tagline: 'ئاغزىنى ھەقىقىي مىدىرلىتىپ سۆزلەيدىغان سۈنئىي كىشىلىك سىنلار',
-    description: 'HeyGen سۈنئىي ئەقىل ئارقىلىق 40 تىن ئارتۇق تىلدا ئۆز تىلىڭىزنى تەرجىمە قىلىپ سۆزلەيدىغان رەقەملىك كىشىلىك سىن.',
-    icon: '/images/services/heygen_ai.webp',
-    rating: 4.93,
-    ordersCount: '4.2k+ ئاكتىپلانغان',
-    speed: '10 سېكۇنت',
-    badge: '🗣️ ئاۋاز ۋە سىن',
-    badgeColor: 'from-violet-500 to-purple-600',
-    webUrl: '/#product=heygen_ai',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$3.20 دىن باشلىنىدۇ',
-    features: ['VIP پىلان', 'كەسپىي سىن ئۈنۈمى', 'تولۇق كاپالەت']
-  },
-
-  // ==========================================
-  // 4. كارتىلار (CARDS)
-  // ==========================================
-  {
-    id: 'apple_itunes',
-    name: 'Apple App Store & iTunes كارتىلىرى',
-    category: 'cards',
-    tagline: 'US, TR ۋە دۇنيا رايونلىرىدىكى ئەپ ۋە ئويۇنلارغا پۇل قاچىلاش',
-    description: 'Apple رەسمىي سوۋغات كارتىسى. iCloud ساقلىغۇچ، ئويۇن ۋە ئەپلەرنى دەرھال سېتىۋېلىش كودى.',
-    icon: '/images/services/apple_itunes.webp',
-    rating: 4.98,
-    ordersCount: '13.7k+ سېتىلغان',
-    speed: '1 سېكۇنت',
-    badge: '🍎 Apple',
-    badgeColor: 'from-slate-700 to-slate-900',
-    webUrl: '/#product=apple_itunes',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$2.00 دىن باشلىنىدۇ',
-    features: ['رەسمىي رەقەملىك كود', '1 سېكۇنتتا چىقىدۇ', '100% كاپالەتلىك']
-  },
-  {
-    id: 'google_play',
-    name: 'Google Play رەسمىي سوۋغات كارتىلىرى',
-    category: 'cards',
-    tagline: 'Android ئەپ، كىنو ۋە ئويۇنلارنى بىۋاسىتە سېتىۋېلىش كودى',
-    description: 'Google Play US, TR ۋە خەلقئارالىق رەسمىي سوۋغات كارتىلىرى. ھېساباتقا بىر سېكۇنتتا قاچىلىنىدۇ.',
-    icon: '/images/services/google_play.webp',
-    rating: 4.97,
-    ordersCount: '15.2k+ سېتىلغان',
-    speed: '1 سېكۇنت',
-    badge: '▶️ Google',
-    badgeColor: 'from-emerald-500 to-teal-600',
-    webUrl: '/#product=google_play',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$1.90 دىن باشلىنىدۇ',
-    features: ['تېز رەقەملىك كود', 'رەسمىي كاپالەت', 'سېكۇنتتا تەستىق']
-  },
-  {
-    id: 'steam_wallet',
-    name: 'Steam Wallet رەسمىي ئويۇن كارتىلىرى',
-    category: 'cards',
-    tagline: 'PC كومپيۇتېر ئويۇنلىرى ۋە پۈتۈن Steam دۇكىنىغا',
-    description: 'Steam ھەميان تولۇقلاش كارتىسى. CS2, Dota 2, GTA V ۋە مىڭلىغان ئويۇنلارنى بىۋاسىتە سېتىۋېلىش.',
-    icon: '/images/services/steam.webp',
-    rating: 4.96,
-    ordersCount: '9.4k+ سېتىلغان',
-    speed: '1 سېكۇنت',
-    badge: '🎮 Steam',
-    badgeColor: 'from-blue-700 to-slate-900',
-    webUrl: '/#product=steam_wallet',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$2.50 دىن باشلىنىدۇ',
-    features: ['Global كود', 'دەرھال كۈچكە ئىگە', 'بىخەتەر تەستىق']
-  },
-  {
-    id: 'roblox',
-    name: 'Roblox رەسمىي كارتىلىرى',
-    category: 'cards',
-    tagline: 'Robux ئالتۇنلىرى ۋە ئالاھىدە كىيىم-كېچەكلەر',
-    description: 'Roblox رەسمىي سوۋغات كارتىسى كودى. ئويۇن ئىچىدىكى Robux نى بىر سېكۇنتتا تولۇقلاش.',
-    icon: '/images/services/roblox.webp',
-    rating: 4.95,
-    ordersCount: '10.9k+ سېتىلغان',
-    speed: '1 سېكۇنت',
-    badge: '🧱 Roblox',
-    badgeColor: 'from-red-600 to-slate-800',
-    webUrl: '/#product=roblox',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$1.20 دىن باشلىنىدۇ',
-    features: ['رەسمىي Robux كودى', 'سېكۇنتتا چىقىدۇ', 'ئەڭ ئەرزان باھا']
-  },
-  {
-    id: 'tremendous_visa',
-    name: 'Tremendous Visa خەلقئارالىق ۋىزا كارتىسى',
-    category: 'cards',
-    tagline: 'خەلقئارالىق بارلىق تور بېكەتلەردە مال سېتىۋېلىش كارتىسى',
-    description: 'Tremendous Visa مەۋھۇم پۇل كارتىسى. خەلقئارالىق سېتىۋېلىش، تىزىملىتىش ۋە پۇل تۆلەشكە تەستىقلىنىدۇ.',
-    icon: '/images/services/visa_card.webp',
-    rating: 4.92,
-    ordersCount: '4.7k+ سېتىلغان',
-    speed: '5 سېكۇنت',
-    badge: '💳 ۋىزا كارتا',
-    badgeColor: 'from-blue-600 to-indigo-800',
-    webUrl: '/#product=tremendous_visa',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$5.00 دىن باشلىنىدۇ',
-    features: ['خەلقئارالىق ئىشلىتىشكە يارايدۇ', 'شەخسىي ئۇچۇر', 'كاپالەتلىك']
-  },
-  {
-    id: 'turkcell',
-    name: 'Turkcell تۈركىيە كارتىلىرى ۋە لىرا',
-    category: 'cards',
-    tagline: 'Turkcell نومۇرلارغا لىرا ۋە كۈنلۈك/ئايلىق باغلانما قاچىلاش',
-    description: 'Turkcell رەسمىي تېلېفون ھېساباتىغا نەق لىرا ۋە ئىنتېرنېت كارتىلىرىنى سېكۇنتتا يۆتكەپ بېرىش.',
-    icon: '/images/services/turkcell.webp',
-    rating: 4.91,
-    ordersCount: '5.2k+ سېتىلغان',
-    speed: '10 سېكۇنت',
-    badge: '📱 لىرا قاچىلاش',
-    badgeColor: 'from-yellow-500 to-amber-600',
-    webUrl: '/#product=turkcell',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$1.50 دىن باشلىنىدۇ',
-    features: ['نومۇرغا دەرھال يېتىدۇ', 'ئاپتوماتىك قاچىلاش', 'سۈرئەتلىك مۇلازىمەت']
-  },
-  {
-    id: 'syriatel',
-    name: 'Syriatel & MTN سۈرىيە پۇل قاچىلاش',
-    category: 'cards',
-    tagline: 'سۈرىيە تېلېفون كارتىلىرىغا سېكۇنتتا بىرلىك قاچىلاش',
-    description: 'سۈرىيە تېلېكوم Syriatel ۋە MTN نومۇرلىرىغا دەرھال پۇل قاچىلاش ۋە شامكەش يۆتكەش مۇلازىمىتى.',
-    icon: '/images/services/syriatel.webp',
-    rating: 4.94,
-    ordersCount: '8.8k+ سېتىلغان',
-    speed: '10 سېكۇنت',
-    badge: '🇸🇾 سۈرىيە پۇل',
-    badgeColor: 'from-red-600 to-emerald-700',
-    webUrl: '/#product=syriatel',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$0.50 دىن باشلىنىدۇ',
-    features: ['شامكەش شحن فوري', 'سۈكۈنتتا يېتىدۇ', 'ئەڭ تۆۋەن ھەق']
-  },
-
-  // ==========================================
-  // 5. مەۋھۇم نومۇر (SMS / NUMBERS)
-  // ==========================================
-  {
-    id: 'telegram_stars',
-    name: 'Telegram Premium & Stars بازىرى',
-    category: 'sms',
-    tagline: 'تېلېگرامما ئالتۇن يۇلتۇزلىرى ۋە رەسمىي ئەزالىق',
-    description: 'Telegram Stars تېلېگرامما بوتمۇلازىمەتلىرى، رەسمىي كود ۋە يۇلتۇزلارنى دەرھال قاچىلاش.',
-    icon: '/images/services/telegram.webp',
-    rating: 4.99,
-    ordersCount: '22.4k+ ئاكتىپلانغان',
-    speed: '1 سېكۇنت',
-    badge: '⭐ تېلېگرامما يۇلتۇز',
-    badgeColor: 'from-amber-400 to-yellow-500',
-    webUrl: '/#product=telegram_stars',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$0.40 دىن باشلىنىدۇ',
-    features: ['Fragment ئارقىلىق رەسمىي', 'نومۇر ياكى @username گە يېتىدۇ', 'سېكۇنتتا تەستىق']
-  },
-  {
-    id: 'sms_telegram',
-    name: 'تېلېگرامما ئۈچۈن مەۋھۇم نومۇر (+1, +44)',
-    category: 'sms',
-    tagline: 'SMS دەلىللەش كودى 1 سېكۇنتتا كېلىدۇ',
-    description: 'يېڭى تېلېگرامما ئېچىش ئۈچۈن ئامېرىكا، ئەنگلىيە، گوللاندىيە ۋە 180 دۆلەت مەۋھۇم نومۇرى.',
-    icon: '/images/services/telegram.webp',
-    rating: 4.95,
-    ordersCount: '16.8k+ ئېلىنغان',
-    speed: '1 سېكۇنت',
-    badge: '📨 يېڭى ھېسابات',
-    badgeColor: 'from-sky-500 to-blue-600',
-    webUrl: '/numbers',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$0.15 دىن باشلىنىدۇ',
-    features: ['كود كەلمىسە پۇل دەرھال قايتىدۇ', '180+ دۆلەت تاللاش', 'پۈتۈنلەي شەخسىي']
-  },
-  {
-    id: 'sms_whatsapp',
-    name: 'WhatsApp مەۋھۇم نومۇر دەلىللەش',
-    category: 'sms',
-    tagline: 'WhatsApp ۋە WA Business دەلىللەش كودى',
-    description: 'WhatsApp ئۈچۈن مەۋھۇم كۆچمە تېلېفون نومۇرى. بىر سېكۇنتتا SMS كودى قوبۇل قىلىپ ھېسابات ئېچىش.',
-    icon: '/images/services/whatsapp.webp',
-    rating: 4.93,
-    ordersCount: '11.5k+ ئېلىنغان',
-    speed: '1 سېكۇنت',
-    badge: '💬 WhatsApp',
-    badgeColor: 'from-emerald-500 to-teal-600',
-    webUrl: '/numbers',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$0.25 دىن باشلىنىدۇ',
-    features: ['بىخەتەر يېڭى نومۇر', 'كود يېتىپ بارمىسا پۇل قايتىدۇ', 'تېز تەستىق']
-  },
-  {
-    id: 'sms_global',
-    name: 'بارلىق تور بېكەتلەر ئۈچۈن SMS مەۋھۇم نومۇر',
-    category: 'sms',
-    tagline: 'Google, TikTok, Twitter, Instagram كودلىرى',
-    description: 'دۇنيادىكى خالىغان تور بېكەت ۋە ئەپلەرگە ئەزا بولۇش ئۈچۈن بىر قېتىملىق دەلىللەش نومۇرى ئېلىش سۇپىسى.',
-    icon: '/images/services/whatsapp.webp',
-    rating: 4.91,
-    ordersCount: '8.9k+ ئېلىنغان',
-    speed: '1 سېكۇنت',
-    badge: '📱 دۇنياۋى SMS',
-    badgeColor: 'from-indigo-500 to-purple-600',
-    webUrl: '/numbers',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$0.10 دىن باشلىنىدۇ',
-    features: ['180+ دۆلەت سۇپىسى', 'ئاپتوماتىك كود تاپشۇرۇش', 'ئەرزان ۋە سۈپەتلىك']
-  },
-
-  // ==========================================
-  // 6. ئىجتىمائىي تاراتقۇ (SOCIAL)
-  // ==========================================
-  {
-    id: 'telegram_stars_social',
-    name: 'Telegram Stars تېلېگرامما يۇلتۇزلىرى',
-    category: 'social',
-    tagline: 'قانال مەزمۇنلىرى ۋە بوتلار ئۈچۈن رەسمىي يۇلتۇز قاچىلاش',
-    description: 'تېلېگرامما قاناللىرىنى يۇقىرى كۆتۈرۈش (Boost) ۋە رەسمىي Stars يۇلتۇزلىرىنى سېكۇنتتا يەتكۈزۈش.',
-    icon: '/images/services/telegram.webp',
-    rating: 4.99,
-    ordersCount: '19.1k+ قاچىلانغان',
-    speed: '1 سېكۇنت',
-    badge: '⭐ ئالتۇن يۇلتۇز',
-    badgeColor: 'from-amber-400 to-yellow-500',
-    webUrl: '/#product=telegram_stars',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$0.40 دىن باشلىنىدۇ',
-    features: ['رەسمىي يۇلتۇز', 'سېكۇنتتا قاچىلىنىدۇ', 'كاپالەتلىك']
-  },
-  {
-    id: 'tiktok_services',
-    name: 'TikTok ئابۇنت ۋە تەڭگە مۇلازىمەتلىرى',
-    category: 'social',
-    tagline: 'TikTok Live تەڭگىسى، ئەگەشكۈچى ۋە ياقتۇرۇش كۆپەيتىش',
-    description: 'TikTok ھېساباتىڭىزنى چوڭايتىش ئۈچۈن ھەقىقىي كۆرۈلۈش، ياقتۇرۇش، ھەمبەھىر ۋە Live سوۋغات تەڭگىلىرى.',
-    icon: '/images/services/tiktok.webp',
-    rating: 4.93,
-    ordersCount: '9.7k+ ئىشلىتىلگەن',
-    speed: '10 سېكۇنت',
-    badge: '🎵 TikTok',
-    badgeColor: 'from-pink-500 to-rose-600',
-    webUrl: '/#product=tiktok_services',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$0.50 دىن باشلىنىدۇ',
-    features: ['ھەقىقىي ئارىلىشىش', 'تېز يەتكۈزۈش', 'بان تۇتمايدۇ']
-  },
-  {
-    id: 'youtube_services',
-    name: 'YouTube كۆرۈلۈش ۋە ئابۇنتلار',
-    category: 'social',
-    tagline: 'قانال تەستىقلاش، سائەت تولدۇرۇش ۋە 1000 ئابۇنت',
-    description: 'YouTube قانىلىڭىزنى كىرىمگە ئېچىش ئۈچۈن 4000 سائەت كۆرۈلۈش ۋاقتى ۋە 1000 ئابۇنت كۆپەيتىش مۇلازىمىتى.',
-    icon: '/images/services/social_youtube.webp',
-    rating: 4.91,
-    ordersCount: '5.6k+ ئىشلىتىلگەن',
-    speed: '1 سائەت',
-    badge: '▶️ YouTube',
-    badgeColor: 'from-red-600 to-rose-700',
-    webUrl: '/#product=youtube_services',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$1.20 دىن باشلىنىدۇ',
-    features: ['كاپالەتلىك كۆرۈلۈش', 'كىرىم ئېچىشقا ماس', 'تۆۋەنلەپ كەتمەيدۇ']
-  },
-  {
-    id: 'instagram_services',
-    name: 'Instagram ئەگەشكۈچى ۋە ئىنكاسلار',
-    category: 'social',
-    tagline: 'Reels كۆرۈلۈش ۋە ئورگانىك ئابۇنت كۆپەيتىش',
-    description: 'Instagram ھېساباتىڭىزنى تېز راۋاجلاندۇرۇش ئۈچۈن سۈپەتلىك ئەگەشكۈچى، ياقتۇرۇش ۋە كۆرۈلۈش مۇلازىمەتلىرى.',
-    icon: '/images/services/instagram.webp',
-    rating: 4.89,
-    ordersCount: '6.4k+ ئىشلىتىلگەن',
-    speed: '15 مىنۇت',
-    badge: '📸 Instagram',
-    badgeColor: 'from-pink-600 to-purple-600',
-    webUrl: '/#product=instagram_services',
-    telegramAppUrl: 'https://t.me/maxbazar_bot',
-    priceNote: '$0.60 دىن باشلىنىدۇ',
-    features: ['سۈپەتلىك ئابۇنتلار', 'تېز باشلىنىدۇ', 'ھېسابات بىخەتەر']
   }
 ];
 
-export const ACTIVE_GAMES = ACTIVE_CATALOG;
-
-export interface CategoryItem {
-  id: CategoryId;
-  name: string;
-  subtitle: string;
-  icon: any;
-  isReady: boolean;
-  countBadge?: string;
-}
-
-export const CATEGORIES: CategoryItem[] = [
-  {
-    id: 'games',
-    name: 'ئويۇنلار',
-    subtitle: 'PUBG, HOK, Free Fire',
-    icon: Gamepad2,
-    isReady: true,
-    countBadge: '10 ئويۇن'
-  },
-  {
-    id: 'apps',
-    name: 'ئەپلەر',
-    subtitle: 'VPN, Spotify, YouTube',
-    icon: Smartphone,
-    isReady: true,
-    countBadge: '10 ئەپ'
-  },
-  {
-    id: 'ai',
-    name: 'سۈنئىي ئەقىل',
-    subtitle: 'ChatGPT, Gemini, Cursor',
-    icon: Bot,
-    isReady: true,
-    countBadge: '8 قورال'
-  },
-  {
-    id: 'cards',
-    name: 'كارتىلار',
-    subtitle: 'Apple, Play, Steam',
-    icon: CreditCard,
-    isReady: true,
-    countBadge: '7 كارتا'
-  },
-  {
-    id: 'sms',
-    name: 'مەۋھۇم نومۇر',
-    subtitle: 'Telegram, WhatsApp',
-    icon: PhoneCall,
-    isReady: true,
-    countBadge: '4 تۈر'
-  },
-  {
-    id: 'social',
-    name: 'ئىجتىمائىي تاراتقۇ',
-    subtitle: 'Stars, TikTok, YouTube',
-    icon: Share2,
-    isReady: true,
-    countBadge: '4 تۈر'
-  }
-];
+export const ACTIVE_GAMES = ACTIVE_CATALOG.filter((app) => app.category === 'games');

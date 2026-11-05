@@ -574,9 +574,11 @@ export default function AppsHubPage() {
                         <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md ${
                           isSelected
                             ? 'bg-amber-400/20 text-amber-300 border border-amber-400/30'
-                            : 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/20'
+                            : countInCat > 0
+                            ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/20'
+                            : 'bg-slate-800/80 text-slate-400 border border-slate-700/60'
                         }`}>
-                          {countInCat} تەييار
+                          {countInCat > 0 ? `${countInCat} تەييار` : 'پات يېقىندا'}
                         </span>
                       </div>
 
@@ -613,26 +615,38 @@ export default function AppsHubPage() {
                     );
                   })()}
                 </h2>
-                <span className="text-xs text-emerald-400 font-bold bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>{displayedApps.length} مەھسۇلات تەييار</span>
+                <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border flex items-center gap-1 ${
+                  displayedApps.length > 0
+                    ? 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30'
+                    : 'text-amber-300 bg-amber-500/15 border-amber-400/30'
+                }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${displayedApps.length > 0 ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                  <span>{displayedApps.length > 0 ? `${displayedApps.length} مەھسۇلات تەييار` : 'پات يېقىندا قوشۇلىدۇ'}</span>
                 </span>
               </div>
 
               {displayedApps.length === 0 ? (
                 <div className="text-center py-12 px-4 rounded-3xl bg-slate-900/50 border border-slate-800 space-y-3">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-400 flex items-center justify-center mx-auto">
-                    <Search className="w-6 h-6" />
+                  <div className="w-14 h-14 rounded-2xl bg-amber-500/15 text-amber-400 flex items-center justify-center mx-auto border border-amber-400/20">
+                    <Search className="w-7 h-7" />
                   </div>
-                  <h4 className="text-sm font-bold text-white">بۇ بۆلۈمدە سىز ئىزدىگەن مەھسۇلات تېپىلمىدى</h4>
-                  <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                    ئىزدەش سۆزىنى ئۆزگەرتىپ بېقىڭ ياكى باشقا بۆلۈملەرنى تاللاڭ.
+                  <h4 className="text-sm font-bold text-white">
+                    {homeSearch ? 'ئىزدەش نەتىجىسى تېپىلمىدى' : 'بۇ بۆلۈمگە تېخى ئەپ قوشۇلمىدى'}
+                  </h4>
+                  <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
+                    {homeSearch
+                      ? 'باشقا سۆز بىلەن ئىزدەپ بېقىڭ ياكى ئويۇنلار بۆلۈمىنى تاللاڭ.'
+                      : 'بۇ بۆلۈم ئۈچۈن يېڭى ئەپلەر پات يېقىندا ياسىلىپ قوشۇلىدۇ.'}
                   </p>
                   <button
-                    onClick={() => setHomeSearch('')}
-                    className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition"
+                    onClick={() => {
+                      if (homeSearch) setHomeSearch('');
+                      setSelectedCategory('games');
+                    }}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:brightness-110 text-slate-950 font-black text-xs transition active:scale-95 inline-flex items-center gap-1.5 cursor-pointer shadow-md"
                   >
-                    ئىزدەشنى تازىلاش
+                    <Gamepad2 className="w-3.5 h-3.5" />
+                    <span>ئويۇنلار بۆلۈمىنى كۆرۈش (2 تەييار ئويۇن)</span>
                   </button>
                 </div>
               ) : (
