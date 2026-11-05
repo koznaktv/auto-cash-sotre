@@ -65,6 +65,26 @@ export async function handleMaxBazarWebhook(update: any) {
         if (!globalStore.__maxbazarUsers) globalStore.__maxbazarUsers = {};
         if (username) globalStore.__maxbazarUsers[username] = String(chatId);
         globalStore.__maxbazarUsers[String(chatId)] = String(chatId);
+
+        // Also save incoming chat messages to log
+        if (text) {
+          const logsFile = path.join(SESSIONS_DIR, 'bot_chat_logs.json');
+          let logs: any[] = [];
+          if (fs.existsSync(logsFile)) {
+            try {
+              logs = JSON.parse(fs.readFileSync(logsFile, 'utf-8'));
+            } catch {}
+          }
+          logs.push({
+            time: new Date().toISOString(),
+            chatId,
+            username,
+            firstName,
+            text,
+          });
+          if (logs.length > 300) logs = logs.slice(-300);
+          fs.writeFileSync(logsFile, JSON.stringify(logs, null, 2), 'utf-8');
+        }
       } catch {}
     }
 
