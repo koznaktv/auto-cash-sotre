@@ -1890,6 +1890,8 @@ export default function PubgAppPage() {
     ordersCount={ordersHistory.length}
     userPhoto={avatarUrl || session?.photo_url}
     homeAvatar="/images/services/pubg_mobile.webp"
+    theme="dark"
+    backgroundColor="#070b14"
   />
 
       {/* SHAM CASH TOP-UP MODAL */}

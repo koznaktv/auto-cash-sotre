@@ -13,6 +13,7 @@ interface AppsBottomNavProps {
   userPhoto?: string | null;
   homeAvatar?: string; // Optional custom avatar for home (e.g. HOK or PUBG)
   theme?: 'light' | 'dark';
+  backgroundColor?: string;
 }
 
 export default function AppsBottomNav({
@@ -21,7 +22,8 @@ export default function AppsBottomNav({
   ordersCount = 0,
   userPhoto = null,
   homeAvatar,
-  theme = 'light',
+  theme = 'dark',
+  backgroundColor,
 }: AppsBottomNavProps) {
   // 0: باشبەت (Home)
   // 1: مېنىڭ تەلەپلىرىم (Orders)
@@ -74,7 +76,7 @@ export default function AppsBottomNav({
             {/* Notch Background Fill (Matches page background) */}
             <path
               d="M 0 0 C 16 0, 20 24, 38 24 C 56 24, 60 0, 76 0 Z"
-              fill={isDark ? '#040d1a' : '#f4f7f5'}
+              fill={backgroundColor || (isDark ? '#070b14' : '#f4f7f5')}
             />
 
             {/* Glowing Neon Contour Lip */}

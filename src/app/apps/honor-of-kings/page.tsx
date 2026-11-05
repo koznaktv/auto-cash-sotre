@@ -1931,6 +1931,8 @@ export default function HonorOfKingsAppPage() {
     ordersCount={ordersHistory.length}
     userPhoto={avatarUrl || session?.photo_url}
     homeAvatar="/images/services/hok_token_official.webp"
+    theme="dark"
+    backgroundColor="#070b14"
   />
 
       {/* 2. SHAM CASH TOP-UP MODAL (SHOWS SHAM CASH ADDRESS & TALON VERIFICATION) */}

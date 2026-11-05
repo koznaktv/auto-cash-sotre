@@ -39,7 +39,12 @@ import {
   Search,
   Hourglass,
   Calendar,
-  ChevronLeft
+  ChevronLeft,
+  Crown,
+  Activity,
+  LogOut,
+  HelpCircle,
+  ArrowUpRight
 } from 'lucide-react';
 
 interface ActiveApp {
@@ -109,7 +114,7 @@ const CATEGORIES: CategoryItem[] = [
   {
     id: 'games',
     name: 'ئويۇنلار',
-    subtitle: 'PUBG ۋە Honor of Kings تەييار',
+    subtitle: 'PUBG ۋە HOK تەييار',
     icon: Gamepad2,
     isReady: true,
     countBadge: '2 ئويۇن تەييار'
@@ -117,23 +122,23 @@ const CATEGORIES: CategoryItem[] = [
   {
     id: 'apps',
     name: 'ئەپلەر',
-    subtitle: 'يېقىندا قوشىمىز',
+    subtitle: 'Spotify & YouTube',
     icon: Layers,
     isReady: false,
     countBadge: 'يېقىندا'
   },
   {
     id: 'cards',
-    name: 'كارتىغا پۇل قاچىلاش مۇلازىمەتلىرى',
-    subtitle: 'يېقىندا قوشىمىز',
+    name: 'كارتىلار',
+    subtitle: 'Apple & Play & Visa',
     icon: CreditCard,
     isReady: false,
     countBadge: 'يېقىندا'
   },
   {
     id: 'ai',
-    name: 'سۈنئىي ئەقىل ئەزالىق',
-    subtitle: 'يېقىندا قوشىمىز',
+    name: 'سۈنئىي ئەقىل',
+    subtitle: 'ChatGPT & Claude Pro',
     icon: Bot,
     isReady: false,
     countBadge: 'يېقىندا'
@@ -141,7 +146,7 @@ const CATEGORIES: CategoryItem[] = [
   {
     id: 'sms',
     name: 'مەۋھۇم نومۇر',
-    subtitle: 'يېقىندا قوشىمىز',
+    subtitle: 'Telegram & WhatsApp',
     icon: PhoneCall,
     isReady: false,
     countBadge: 'يېقىندا'
@@ -149,7 +154,7 @@ const CATEGORIES: CategoryItem[] = [
   {
     id: 'social',
     name: 'ئىجتىمائىي تاراتقۇ',
-    subtitle: 'يېقىندا قوشىمىز',
+    subtitle: 'Telegram Stars & TikTok',
     icon: Share2,
     isReady: false,
     countBadge: 'يېقىندا'
@@ -248,13 +253,16 @@ export default function AppsHubPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'get_balance',
-            phone_or_username: parsed.identity,
-          }),
+            token: parsed.token || '',
+            identity: parsed.identity || ''
+          })
         })
           .then((r) => r.json())
-          .then((res) => {
-            if (res.ok && typeof res.balance === 'number') {
-              setSession((prev: any) => ({ ...prev, balance: res.balance }));
+          .then((data) => {
+            if (data?.success && typeof data.balance === 'number') {
+              const updated = { ...parsed, balance: data.balance };
+              setSession(updated);
+              localStorage.setItem('maxbazar_unified_session', JSON.stringify(updated));
             }
           })
           .catch(() => {});
@@ -262,140 +270,152 @@ export default function AppsHubPage() {
     } catch {}
   }, []);
 
-  // Poll 1-Click Telegram Sync session when login modal is open
-  useEffect(() => {
-    if (!showLoginModal) {
-      setSyncToken(null);
-      setIsSyncWaiting(false);
-      return;
-    }
-
-    let active = true;
-
-    fetch('/api/apps/sync-session', {
+  // Fetch Orders History when navigating to orders tab
+  const fetchOrdersHistory = () => {
+    if (!session?.token && !session?.identity) return;
+    setLoadingOrders(true);
+    fetch('/api/apps/order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ appId: 'maxbazar' }),
+      body: JSON.stringify({
+        action: 'history',
+        token: session.token || '',
+        phone_or_username: session.identity || ''
+      })
     })
       .then((r) => r.json())
       .then((data) => {
-        if (active && data.ok && data.token) {
-          setSyncToken(data.token);
-          setSyncBotUrl(data.botUrl || `https://t.me/maxbazar_bot?start=${data.token}`);
+        if (data?.success && Array.isArray(data.orders)) {
+          setOrdersHistory(data.orders);
         }
       })
-      .catch(() => {});
-
-    const interval = setInterval(() => {
-      if (!syncToken) return;
-      fetch(`/api/apps/sync-session?token=${encodeURIComponent(syncToken)}`)
-        .then((r) => r.json())
-        .then((data) => {
-          if (active && data.ok && data.status === 'verified' && data.session) {
-            setSession(data.session);
-            try {
-              localStorage.setItem('maxbazar_unified_session', JSON.stringify(data.session));
-            } catch {}
-            setShowLoginModal(false);
-            setIsSyncWaiting(false);
-          }
-        })
-        .catch(() => {});
-    }, 2000);
-
-    return () => {
-      active = false;
-      clearInterval(interval);
-    };
-  }, [showLoginModal, syncToken]);
-
-  // Load orders history
-  const fetchOrdersHistory = async () => {
-    if (!session?.identity) return;
-    setLoadingOrders(true);
-    try {
-      const res = await fetch(`/api/apps/order?identity=${encodeURIComponent(session.identity)}`);
-      const data = await res.json();
-      if (data.ok && Array.isArray(data.orders)) {
-        setOrdersHistory(data.orders);
-        if (typeof data.live_balance === 'number') {
-          setSession((prev: any) => ({ ...prev, balance: data.live_balance }));
-        }
-      }
-    } catch {}
-    finally {
-      setLoadingOrders(false);
-    }
+      .catch(() => {})
+      .finally(() => {
+        setLoadingOrders(false);
+      });
   };
 
-  // Switch tab and load data if needed
-  const handleNavClick = (tab: 'home' | 'orders' | 'wallet' | 'account') => {
-    setActiveNavTab(tab);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (tab === 'orders') {
+  useEffect(() => {
+    if (activeNavTab === 'orders') {
       fetchOrdersHistory();
     }
+  }, [activeNavTab, session]);
+
+  // Handle Copy Shamcash Address
+  const handleCopyShamcashAddress = () => {
+    navigator.clipboard.writeText('084c7e47a9ef332ca98418c399b6ea7d');
+    setCopiedShamAddress(true);
+    setTimeout(() => setCopiedShamAddress(false), 2000);
   };
 
+  // Handle Verify ShamCash Talon
   const handleVerifyShamcashTalon = async (e: React.FormEvent) => {
     e.preventDefault();
-    setTalonFeedback(null);
-    if (!talonCode.trim() || talonCode.trim().length < 5) {
-      setTalonFeedback({ ok: false, msg: 'شامكەش تالون نومۇرى كەم دېگەندە 5 خانىلىق بولسۇن!' });
-      return;
-    }
-    if (!session) {
-      setShowLoginModal(true);
-      return;
-    }
-
+    if (!talonCode.trim()) return;
     setIsVerifyingTalon(true);
+    setTalonFeedback(null);
+
     try {
-      const res = await fetch('/api/apps/otp', {
+      const res = await fetch('/api/deposit/verify-talon', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'shamcash_talon',
           talon: talonCode.trim(),
-          phone_or_username: session.identity,
-          app_id: 'maxbazar',
-        }),
+          source: 'maxbazar_wallet',
+          userToken: session?.token,
+          identity: session?.identity
+        })
       });
       const data = await res.json();
-      if (data.ok) {
-        setTalonFeedback({ ok: true, msg: data.message || '$25.00 قوشۇلدى!' });
-        if (typeof data.balance === 'number') {
-          setSession((prev: any) => ({ ...prev, balance: data.balance }));
-        }
+      if (data?.success) {
+        setTalonFeedback({
+          ok: true,
+          msg: `✅ تالون تەستىقلاندى! $${Number(data.amount || 0).toFixed(2)} قالدۇقىڭىزغا دەرھال قوشۇلدى.`
+        });
         setTalonCode('');
+        if (session && typeof data.newBalance === 'number') {
+          const updated = { ...session, balance: data.newBalance };
+          setSession(updated);
+          localStorage.setItem('maxbazar_unified_session', JSON.stringify(updated));
+        }
       } else {
-        setTalonFeedback({ ok: false, msg: data.error || 'تالون خاتا ياكى ئىشلىتىلگەن!' });
+        setTalonFeedback({
+          ok: false,
+          msg: data?.error || 'تالون تەكشۈرۈش مەغلۇپ بولدى، نومۇرنى توغرا كىرگۈزۈڭ ياكى سەل تەخىر قىلىڭ.'
+        });
       }
     } catch {
-      setTalonFeedback({ ok: false, msg: 'تور ئۇلىنىشى مەغلۇپ بولدى' });
+      setTalonFeedback({
+        ok: false,
+        msg: 'تور ئۇلىنىشىدا كاشىلا كۆرۈلدى. سەل تەخىر قىلىپ قايتا سىناڭ.'
+      });
     } finally {
       setIsVerifyingTalon(false);
     }
   };
 
-  const handleCopyShamcashAddress = () => {
-    const shamAddr = '084c7e47a9ef332ca98418c399b6ea7d';
+  // Start 1-Click Telegram Sync Login
+  const startTelegramSync = async () => {
+    setIsSyncWaiting(true);
     try {
-      navigator.clipboard.writeText(shamAddr);
-      setCopiedShamAddress(true);
-      setTimeout(() => setCopiedShamAddress(false), 2000);
-    } catch {}
+      const r = await fetch('/api/apps/telegram-sync?action=create');
+      const d = await r.json();
+      if (d?.sync_token) {
+        setSyncToken(d.sync_token);
+        const botUrl = `https://t.me/maxbazar_bot?start=sync_${d.sync_token}`;
+        setSyncBotUrl(botUrl);
+
+        // Open Telegram Bot
+        if (typeof window !== 'undefined') {
+          window.open(botUrl, '_blank');
+        }
+
+        // Poll for sync completion
+        const startT = Date.now();
+        const pollTimer = setInterval(async () => {
+          if (Date.now() - startT > 120000) {
+            clearInterval(pollTimer);
+            setIsSyncWaiting(false);
+            return;
+          }
+          try {
+            const pollRes = await fetch(`/api/apps/telegram-sync?action=poll&sync_token=${d.sync_token}`);
+            const pollData = await pollRes.json();
+            if (pollData?.authenticated && pollData.session) {
+              clearInterval(pollTimer);
+              setIsSyncWaiting(false);
+              setShowLoginModal(false);
+              setSession(pollData.session);
+              localStorage.setItem('maxbazar_unified_session', JSON.stringify(pollData.session));
+            }
+          } catch {}
+        }, 2000);
+      }
+    } catch {
+      setIsSyncWaiting(false);
+    }
   };
 
-  const handleCopyOrderId = (id: string) => {
-    try {
-      navigator.clipboard.writeText(id);
-      setCopiedOrderId(id);
-      setTimeout(() => setCopiedOrderId(null), 2000);
-    } catch {}
+  const handleNavClick = (tab: 'home' | 'orders' | 'wallet' | 'account') => {
+    setActiveNavTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Filtered orders calculation
+  const handleLogout = () => {
+    setSession(null);
+    localStorage.removeItem('maxbazar_unified_session');
+    localStorage.removeItem('maxbazar_pubg_session');
+    localStorage.removeItem('maxbazar_hok_session');
+    setActiveNavTab('home');
+  };
+
+  // Open Install Modal for an app
+  const handleOpenInstallModal = (app?: ActiveApp) => {
+    setSelectedAppForInstall(app || ACTIVE_GAMES[0]);
+    setShowHowToInstallModal(true);
+  };
+
+  // Filter Orders
   const filteredOrders = useMemo(() => {
     return ordersHistory.filter((order) => {
       // 1. Status Filter
@@ -421,30 +441,33 @@ export default function AppsHubPage() {
   }, [ordersHistory, ordersStatusFilter, ordersSearch]);
 
   return (
-    <div className="min-h-screen bg-[#f4f7f5] text-slate-900 flex flex-col font-alkatip selection:bg-amber-500 selection:text-slate-950 pb-32 sm:pb-36" dir="rtl">
-      {/* Dynamic Background Soft Ambient */}
+    <div className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col font-alkatip selection:bg-amber-500 selection:text-slate-950 pb-32 sm:pb-36" dir="rtl">
+      
+      {/* Modern App Store Space Glow Atmosphere */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-32 -right-32 w-96 h-96 bg-amber-200/20 rounded-full blur-[120px]" />
-        <div className="absolute top-1/3 -left-32 w-96 h-96 bg-emerald-200/20 rounded-full blur-[140px]" />
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-b from-amber-500/15 via-orange-500/5 to-transparent blur-[120px] rounded-full" />
+        <div className="absolute top-1/3 -left-32 w-80 h-80 bg-blue-600/10 rounded-full blur-[140px]" />
+        <div className="absolute bottom-1/4 -right-32 w-80 h-80 bg-emerald-600/10 rounded-full blur-[140px]" />
       </div>
 
-      {/* TOP BRAND HEADER */}
-      {/* STICKY TOP APP HEADER BAR - MATCHES AUTO CASH */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 px-3 sm:px-4 py-2.5 shadow-[0_1px_4px_rgba(0,0,0,0.03)]">
+      {/* =========================================================================
+          STICKY TOP APP STORE HEADER BAR
+      ========================================================================= */}
+      <header className="sticky top-0 z-40 bg-[#080d1a]/95 backdrop-blur-xl border-b border-amber-500/20 px-3 sm:px-4 py-2.5 shadow-[0_4px_25px_rgba(0,0,0,0.6)]">
         {/* Subtle glowing hairline top accent */}
-        <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-emerald-500/40 via-amber-400/60 to-emerald-500/40 pointer-events-none" />
+        <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-emerald-500/30 via-amber-400/50 to-emerald-500/30 pointer-events-none" />
 
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-2 sm:gap-3">
           
-          {/* 1. Gateway Switcher Button (⇄ AUTO CASH) - Prominent, Clear */}
+          {/* 1. Gateway Switcher Button (⇄ AUTO CASH) - Prominent, High-Tech Pill */}
           <div className="flex items-center gap-2">
             <Link
               href="/"
-              className="group flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl border text-xs font-bold transition-all shadow-xs shrink-0 active:scale-95 bg-emerald-50/90 hover:bg-emerald-100/90 border-emerald-300/80 hover:border-emerald-400 text-emerald-900"
+              className="group flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl border text-xs font-bold transition-all shadow-md shrink-0 active:scale-95 bg-gradient-to-r from-[#031c14]/95 via-[#06291e]/95 to-[#041a12]/95 border-emerald-500/50 hover:border-emerald-400 text-slate-100 hover:text-white shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:shadow-[0_0_20px_rgba(16,185,129,0.35)]"
               title="auto-cash.app تور بېكىتىگە كىرىش (سۇپا ئالماشتۇرۇش)"
             >
-              <ArrowLeftRight className="w-4 h-4 text-emerald-600 group-hover:rotate-180 transition-transform duration-300 shrink-0 stroke-[2.2]" />
-              <div className="relative w-5 h-5 sm:w-6 sm:h-6 rounded-full overflow-hidden flex-shrink-0 bg-white border border-emerald-400 shadow-xs">
+              <ArrowLeftRight className="w-4 h-4 text-emerald-400 group-hover:rotate-180 transition-transform duration-300 shrink-0 stroke-[2.2]" />
+              <div className="relative w-5 h-5 sm:w-6 sm:h-6 rounded-full overflow-hidden flex-shrink-0 bg-slate-950 border border-emerald-400/60 shadow-xs">
                 <Image
                   src="/images/autocash_official_logo.png"
                   alt="AUTO CASH"
@@ -453,10 +476,10 @@ export default function AppsHubPage() {
                 />
               </div>
               <div className="flex flex-col text-left leading-none">
-                <span className="text-[11px] sm:text-xs font-black text-emerald-800 font-mono tracking-tight">
+                <span className="text-[11px] sm:text-xs font-black text-emerald-300 font-mono tracking-tight group-hover:text-emerald-200 transition-colors">
                   AUTO CASH
                 </span>
-                <span className="text-[8.5px] text-emerald-600/90 font-bold hidden xs:block">
+                <span className="text-[8.5px] text-emerald-400/80 font-bold hidden xs:block">
                   ئالماشتۇرۇش ⚡
                 </span>
               </div>
@@ -466,7 +489,7 @@ export default function AppsHubPage() {
               href="https://t.me/maxbazar_bot"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-700 text-xs font-bold transition active:scale-95"
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 text-sky-300 text-xs font-bold transition active:scale-95"
               title="تېلېگرامما بوت"
             >
               <Send className="w-3.5 h-3.5" />
@@ -484,40 +507,40 @@ export default function AppsHubPage() {
                   handleNavClick('wallet');
                 }
               }}
-              className="group flex items-center gap-2.5 bg-gradient-to-r from-amber-50 to-orange-50/90 hover:from-amber-100/90 hover:to-orange-100/90 border border-amber-300/90 hover:border-amber-400 px-3.5 sm:px-4 py-1.5 rounded-full shadow-xs transition cursor-pointer active:scale-95 shrink-0"
+              className="group flex items-center gap-2.5 bg-gradient-to-b from-[#141F38] via-[#0E172B] to-[#0A1020] hover:from-[#182647] hover:to-[#0F1932] border border-amber-400/50 hover:border-amber-300 px-3.5 sm:px-4 py-1.5 rounded-full shadow-[0_4px_16px_rgba(245,158,11,0.2)] hover:shadow-[0_4px_22px_rgba(245,158,11,0.35)] transition cursor-pointer active:scale-95 shrink-0"
               title="قالدۇق پۇل كۆرۈش ۋە شامكەش ئارقىلىق قاچىلاش"
             >
               <div className="text-right">
-                <span className="block text-[9px] text-amber-700/90 font-bold leading-none mb-0.5">قالدۇق</span>
-                <span className="text-xs sm:text-sm font-black text-amber-800 font-mono tracking-tight">
+                <span className="block text-[9px] text-amber-200/90 font-bold leading-none mb-0.5">قالدۇق</span>
+                <span className="text-xs sm:text-sm font-black text-amber-300 font-mono tracking-tight group-hover:text-amber-200 transition-colors">
                   ${session ? session.balance.toFixed(2) : '0.00'}
                 </span>
               </div>
-              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-400 group-hover:brightness-105 text-slate-950 flex items-center justify-center transition shadow-xs shrink-0">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-600 group-hover:brightness-110 text-slate-950 flex items-center justify-center transition shadow-md shrink-0">
                 <Plus className="w-3.5 h-3.5 stroke-[3]" />
               </div>
             </button>
           </div>
 
-          {/* 3. Left in RTL: Official MAX-BAZAR 3D Gold Logo */}
+          {/* 3. Left in RTL: Official MAX-BAZAR 3D Gold Round Medallion Logo */}
           <div
             onClick={() => handleNavClick('home')}
             className="flex items-center gap-2.5 shrink-0 cursor-pointer group"
             title="MAX-BAZAR باش بېتى"
           >
             <div className="text-right hidden sm:block">
-              <span className="font-black text-sm sm:text-base tracking-wider text-slate-900 block leading-tight group-hover:text-amber-600 transition">
+              <span className="font-black text-sm sm:text-base tracking-wider bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent block leading-tight group-hover:brightness-110 transition">
                 MAX-BAZAR
               </span>
-              <span className="text-[9px] text-amber-700 font-bold flex items-center gap-1 justify-end">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[9px] text-amber-300/80 font-bold flex items-center gap-1 justify-end">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 <span>رەسمىي ئەپ بازىرى</span>
               </span>
             </div>
 
             {/* Official 3D Gold Round Medallion Logo */}
-            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 via-yellow-300 to-amber-600 shadow-md group-hover:scale-105 transition-all shrink-0">
-              <div className="w-full h-full bg-white rounded-full overflow-hidden flex items-center justify-center">
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 via-yellow-300 to-amber-600 shadow-[0_0_15px_rgba(251,191,36,0.45)] group-hover:shadow-[0_0_20px_rgba(251,191,36,0.7)] group-hover:scale-105 transition-all shrink-0">
+              <div className="w-full h-full bg-[#070B14] rounded-full overflow-hidden flex items-center justify-center">
                 <Image
                   src="/images/maxbazar/v3/maxbazar_gold_round.png"
                   alt="MAX-BAZAR"
@@ -527,45 +550,74 @@ export default function AppsHubPage() {
                   priority
                 />
               </div>
-              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white shadow-xs pointer-events-none" />
+              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#0B101D] shadow-xs pointer-events-none" />
             </div>
           </div>
 
         </div>
       </header>
 
-      {/* MAIN CONTENT CONTAINER */}
+      {/* =========================================================================
+          MAIN CONTENT CONTAINER
+      ========================================================================= */}
       <main className="max-w-5xl mx-auto px-4 pt-4 pb-32 sm:pb-36 w-full space-y-6 relative z-10 flex-1">
         
         {/* =========================================================================
-            TAB 1: باشبەت (HOME - APPS & GAMES CATALOG)
+            TAB 1: باشبەت (HOME - MODERN APP STORE CATALOG)
         ========================================================================= */}
         {activeNavTab === 'home' && (
           <div className="space-y-6 animate-fadeIn">
-            {/* HERO INTRO CARD */}
-            <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-[#0F172A] to-[#0A0E1A] border border-amber-500/30 p-5 md:p-6 shadow-2xl text-right">
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
-                  <Flame className="w-3.5 h-3.5 text-amber-400" />
-                  <span>MAX-BAZAR مەخسۇس ئەپ چۈشۈرۈش سىستېمىسى</span>
+            
+            {/* HERO SPOTLIGHT BANNER CARD */}
+            <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0e172a] via-[#091122] to-[#050914] border border-amber-500/30 p-5 md:p-7 shadow-2xl text-right group">
+              {/* Top ambient gold shimmer beam */}
+              <div className="absolute -top-12 -right-12 w-64 h-64 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="relative z-10 space-y-2.5 max-w-2xl">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-xs font-bold">
+                  <Flame className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                  <span>MAX-BAZAR رەسمىي ئەپ بازىرى</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
                 </div>
-                <h1 className="text-xl md:text-2xl font-black text-white">
-                  ئۆزىڭىزگە كېرەكلىك ئەپنى تاللاپ، دەرھال تېلېفونىڭىزغا قاچىلاڭ
+                
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight">
+                  ئۆزىڭىزگە كېرەكلىك ئەپنى تاللاپ، <span className="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">دەرھال تېلېفونىڭىزغا قاچىلاڭ</span>
                 </h1>
-                <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-2xl">
-                  تۆۋەندىكى تۈرلەردىن ئۆزىڭىزگە لازىملىق ئەپ ياكى ئويۇننى تاللاڭ. «تېلېفونغا قاچىلاش» نى باسىپ ئەپنى تېلېفونىڭىزنىڭ باش ئېكرانىغا چۈشۈرۈۋېلىڭ ياكى تور كۆرگۈچتە بىۋاسىتە ئېچىپ ئىشلىتىڭ.
+                
+                <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+                  تۆۋەندىكى تۈرلەردىن ئۆزىڭىزگە لازىملىق ئەپ ياكى ئويۇننى تاللاڭ. «تېلېفونغا قاچىلاش» نى باسىپ ئەپنى تېلېفونىڭىزنىڭ باش ئېكرانىغا چۈشۈرۈۋېلىڭ ياكى تور كۆرگۈچتە بىۋاسىتە ئېچىپ، قالدۇق پۇل ئارقىلىق 3 سېكۇنتتا يەتكۈزۈۋېلىڭ!
                 </p>
+
+                <div className="flex flex-wrap items-center gap-2.5 pt-2">
+                  <button
+                    onClick={() => handleOpenInstallModal()}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:brightness-110 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition active:scale-95 flex items-center gap-2 cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5 stroke-[2.5]" />
+                    <span>تېلېفونغا ئەپ قىلىپ چۈشۈرۈش قوللانمىسى</span>
+                  </button>
+
+                  <a
+                    href="https://t.me/maxbazar_bot"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 text-xs font-bold transition active:scale-95 flex items-center gap-1.5"
+                  >
+                    <Send className="w-3.5 h-3.5 text-sky-400" />
+                    <span>تېلېگرامما بوتتا ئېچىش</span>
+                  </a>
+                </div>
               </div>
             </section>
 
-            {/* 6 CATEGORIES TABS */}
+            {/* 6 MODERN CATEGORY SQUIRCLE CARDS */}
             <section className="space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-black text-slate-900 flex items-center gap-1.5">
+                <h2 className="text-sm font-black text-white flex items-center gap-1.5">
                   <Layers className="w-4 h-4 text-amber-400" />
-                  <span>مۇلازىمەت ۋە ئەپ كاتېگورىيەلىرى (6 تۈر):</span>
+                  <span>مۇلازىمەت ۋە ئەپ بۆلۈملىرى (6 تۈر):</span>
                 </h2>
-                <span className="text-[11px] text-slate-500">
+                <span className="text-[11px] text-slate-400">
                   بىرنى تاللاڭ
                 </span>
               </div>
@@ -579,15 +631,15 @@ export default function AppsHubPage() {
                     <button
                       key={cat.id}
                       onClick={() => setSelectedCategory(cat.id)}
-                      className={`relative p-3.5 rounded-2xl border transition-all text-right flex flex-col justify-between gap-2 active:scale-95 ${
+                      className={`relative p-3.5 rounded-2xl border transition-all text-right flex flex-col justify-between gap-2.5 active:scale-95 cursor-pointer ${
                         isSelected
-                          ? 'bg-gradient-to-b from-amber-500/20 via-slate-900 to-[#0F172A] border-amber-500/80 shadow-lg shadow-amber-500/10 ring-1 ring-amber-500/40'
-                          : 'bg-slate-900/60 hover:bg-slate-900/90 border-slate-800 hover:border-slate-700'
+                          ? 'bg-gradient-to-b from-amber-500/20 via-[#0F172A] to-[#0A1020] border-amber-400/80 shadow-lg shadow-amber-500/15 ring-1 ring-amber-400/40'
+                          : 'bg-[#0c1424]/90 hover:bg-[#101b30] border-slate-800/80 hover:border-slate-700'
                       }`}
                     >
                       <div className="flex items-center justify-between w-full">
-                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
-                          isSelected ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-800 text-slate-300'
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105 ${
+                          isSelected ? 'bg-amber-400 text-slate-950 font-black shadow-md' : 'bg-slate-800 text-slate-300'
                         }`}>
                           <IconComp className="w-4 h-4" />
                         </div>
@@ -616,16 +668,17 @@ export default function AppsHubPage() {
               </div>
             </section>
 
-            {/* ACTIVE GAMES LIST */}
+            {/* ACTIVE APPS & GAMES (APPLE APP STORE / TAPTAP STYLE) */}
             {selectedCategory === 'games' && (
               <section className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
+                  <h2 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
                     <Gamepad2 className="w-5 h-5 text-amber-400" />
-                    <span>ھازىرقى پۈتكەن ئويۇن ئەپلىرى (بىسىپلا تېلېفونغا چۈشۈرۈۋالالايسىز):</span>
+                    <span>ھازىرقى تەييار ئەپ ۋە ئويۇنلار:</span>
                   </h2>
-                  <span className="text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                    2 ئويۇن تەييار
+                  <span className="text-xs text-emerald-400 font-bold bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>2 ئويۇن تەييار</span>
                   </span>
                 </div>
 
@@ -633,35 +686,37 @@ export default function AppsHubPage() {
                   {ACTIVE_GAMES.map((game) => (
                     <div
                       key={game.id}
-                      className="rounded-3xl bg-gradient-to-b from-slate-900 via-[#0F172A] to-[#0A0E1A] border border-amber-500/40 p-5 shadow-2xl flex flex-col justify-between gap-4 hover:border-amber-400 transition"
+                      className="rounded-3xl bg-gradient-to-b from-[#0f182c]/95 via-[#0b1222]/95 to-[#070c18]/95 border border-slate-800/90 hover:border-amber-400/50 p-5 shadow-2xl flex flex-col justify-between gap-4 transition-all duration-300 group"
                     >
-                      <div className="flex items-start gap-4">
-                        <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-slate-950 border-2 border-amber-400/50 p-1 flex-shrink-0 shadow-xl">
+                      <div className="flex items-start gap-3.5 sm:gap-4">
+                        {/* Modern Squircle App Icon with Glowing Ring */}
+                        <div className="relative w-20 h-20 rounded-[22px] overflow-hidden bg-slate-950 border-2 border-amber-400/40 p-1 flex-shrink-0 shadow-xl group-hover:scale-105 group-hover:border-amber-400 transition-all">
                           <Image
                             src={game.icon}
                             alt={game.name}
                             width={80}
                             height={80}
-                            className="w-full h-full object-cover rounded-xl"
+                            className="w-full h-full object-cover rounded-[18px]"
                             priority
                           />
                         </div>
 
-                        <div className="flex-1 space-y-1">
+                        <div className="flex-1 space-y-1 min-w-0">
                           <div className="flex items-center justify-between gap-1">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${game.badgeColor} text-slate-950 font-black`}>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${game.badgeColor} text-slate-950 font-black shrink-0`}>
                               {game.badge}
                             </span>
                             <div className="flex items-center gap-1 text-[11px] text-amber-400 font-bold font-mono">
                               <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                               <span>{game.rating}</span>
+                              <span className="text-slate-500 text-[9px]">({game.ordersCount})</span>
                             </div>
                           </div>
 
-                          <h3 className="text-base font-black text-white">
+                          <h3 className="text-base font-black text-white group-hover:text-amber-300 transition-colors truncate">
                             {game.name}
                           </h3>
-                          <p className="text-[11px] text-amber-300 font-medium">
+                          <p className="text-[11px] text-amber-300/90 font-medium truncate">
                             {game.tagline}
                           </p>
                           <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
@@ -670,36 +725,45 @@ export default function AppsHubPage() {
                         </div>
                       </div>
 
-                      <div className="p-2.5 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-1">
-                        <div className="flex items-center justify-between text-[11px]">
+                      {/* Specs Badge Box */}
+                      <div className="p-2.5 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1 text-[11px]">
+                        <div className="flex items-center justify-between">
                           <span className="text-slate-400">قاچىلىنىش سۈرئىتى:</span>
-                          <span className="text-emerald-400 font-black font-mono">⚡ {game.speed}</span>
+                          <span className="text-emerald-400 font-black font-mono">⚡ {game.speed} دە يېتىدۇ</span>
                         </div>
-                        <div className="flex items-center justify-between text-[11px]">
+                        <div className="flex items-center justify-between">
                           <span className="text-slate-400">باھا دائىرىسى:</span>
-                          <span className="text-amber-300 font-black">{game.priceNote}</span>
+                          <span className="text-amber-300 font-black font-mono">{game.priceNote}</span>
                         </div>
                       </div>
 
-                      {/* Dual Action Buttons */}
-                      <div className="grid grid-cols-2 gap-2 pt-1">
+                      {/* Features Check List */}
+                      <div className="flex flex-wrap gap-1.5 text-[10px] text-slate-300">
+                        {game.features.map((feat, idx) => (
+                          <span key={idx} className="px-2 py-0.5 rounded-md bg-slate-900 border border-slate-800 flex items-center gap-1 text-slate-300">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                            <span>{feat}</span>
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Action Pill Buttons (Download & Open) */}
+                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80">
                         <button
-                          onClick={() => {
-                            setSelectedAppForInstall(game);
-                            setShowHowToInstallModal(true);
-                          }}
-                          className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-md shadow-amber-500/20 transition active:scale-95 flex items-center justify-center gap-1.5"
+                          type="button"
+                          onClick={() => handleOpenInstallModal(game)}
+                          className="py-2.5 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700/80 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
                         >
-                          <Download className="w-3.5 h-3.5 stroke-[3]" />
-                          <span>تېلېفونغا چۈشۈرۈش</span>
+                          <Download className="w-3.5 h-3.5 text-amber-400" />
+                          <span>تېلېفونغا قاچىلاش</span>
                         </button>
 
                         <Link
                           href={game.webUrl}
-                          className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition active:scale-95 flex items-center justify-center gap-1.5 border border-slate-700"
+                          className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/20 transition active:scale-95"
                         >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                          <span>ئەپنى ئېچىش</span>
+                          <span>ئېچىش ۋە سېتىۋېلىش</span>
+                          <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
                         </Link>
                       </div>
                     </div>
@@ -708,40 +772,36 @@ export default function AppsHubPage() {
               </section>
             )}
 
-            {/* UPCOMING CATEGORIES PLACEHOLDER */}
+            {/* UPCOMING CATEGORY CATALOG PREVIEWS */}
             {selectedCategory !== 'games' && (
-              <section className="rounded-3xl bg-slate-900/50 border border-slate-800 p-6 md:p-8 space-y-5 text-right">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                  <div>
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[11px] font-bold mb-1">
-                      <Clock className="w-3 h-3" />
-                      <span>تەييارلىنىۋاتىدۇ (يېقىندا قوشۇلىدۇ)</span>
-                    </div>
-                    <h3 className="text-lg font-black text-slate-900">
-                      {CATEGORIES.find((c) => c.id === selectedCategory)?.name}
-                    </h3>
-                  </div>
-                  <span className="text-2xl">⏳</span>
+              <section className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-amber-400" />
+                    <span>يېقىندا قوشۇلىدىغان مەھسۇلاتلار:</span>
+                  </h2>
+                  <span className="text-xs text-amber-400 font-bold bg-amber-500/15 px-2.5 py-0.5 rounded-full border border-amber-500/30">
+                    تەييارلىنىۋاتىدۇ
+                  </span>
                 </div>
 
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  بۇ مۇلازىمەت ئۈچۈن مەخسۇس ئايرىم سېستىما ۋە قاچىلاش ئەپچىلىرى ئەڭ يۇقىرى سۈرئەت ۋە ئەرزان باھادا تۈزۈلۈۋاتىدۇ. يېقىندا ئېلان قىلىنىدۇ.
-                </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                  {UPCOMING_ITEMS[selectedCategory as Exclude<CategoryId, 'games'>]?.map((item, idx) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {UPCOMING_ITEMS[selectedCategory]?.map((item, idx) => (
                     <div
                       key={idx}
-                      className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-between gap-3"
+                      className="p-4 rounded-2xl bg-gradient-to-b from-[#0e1628]/90 to-[#090f1d]/90 border border-slate-800/90 flex items-center justify-between gap-3 shadow-md"
                     >
-                      <div className="flex items-center gap-2.5">
-                        <span className="text-2xl">{item.iconEmoji}</span>
-                        <div className="text-right">
-                          <h4 className="text-xs font-bold text-white">{item.name}</h4>
-                          <span className="text-[10px] text-slate-400">{item.tag}</span>
+                      <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-xl shrink-0 shadow-inner">
+                          {item.iconEmoji}
+                        </div>
+                        <div>
+                          <h4 className="text-xs sm:text-sm font-black text-white">{item.name}</h4>
+                          <p className="text-[11px] text-slate-400 mt-0.5">{item.tag}</p>
                         </div>
                       </div>
-                      <span className="text-[10px] text-amber-400 font-bold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">
+
+                      <span className="text-[10px] font-bold px-2 py-1 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/20 shrink-0">
                         يېقىندا
                       </span>
                     </div>
@@ -749,26 +809,28 @@ export default function AppsHubPage() {
                 </div>
               </section>
             )}
+
           </div>
         )}
 
         {/* =========================================================================
-            TAB 2: مېنىڭ تەلەپلىرىم (ORDERS - FULL PAGE VIEW MATCHING SCREENSHOT 2)
+            TAB 2: مېنىڭ تەلەپلىرىم (ORDERS - FULL PAGE VIEW MATCHING SCREENSHOT 4)
         ========================================================================= */}
         {activeNavTab === 'orders' && (
           <div className="space-y-4 animate-fadeIn">
+            
             {/* Header Section */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#0F172A] border border-slate-800 flex items-center justify-between shadow-sm">
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#0c1424] border border-slate-800 flex items-center justify-between shadow-md">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => handleNavClick('home')}
-                  className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition"
+                  className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition active:scale-95 cursor-pointer"
                   title="باشبەتكە قايتىش"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
                 <div>
-                  <h1 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                  <h1 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
                     <ClipboardList className="w-5 h-5 text-amber-400" />
                     <span>تەلەپلىرىم</span>
                   </h1>
@@ -781,7 +843,7 @@ export default function AppsHubPage() {
               <button
                 onClick={fetchOrdersHistory}
                 disabled={loadingOrders}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900/80 hover:bg-slate-800 text-xs font-bold text-amber-400 transition cursor-pointer active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-xs font-bold text-amber-400 transition cursor-pointer active:scale-95"
                 title="يېڭىلاش"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${loadingOrders ? 'animate-spin' : ''}`} />
@@ -790,7 +852,7 @@ export default function AppsHubPage() {
             </div>
 
             {/* Filter Card Container */}
-            <div className="p-4 rounded-2xl bg-white border border-slate-200/90 space-y-3.5 shadow-xs">
+            <div className="p-4 rounded-2xl bg-[#0c1424] border border-slate-800 space-y-3.5 shadow-md">
               {/* Search Box */}
               <div className="relative">
                 <input
@@ -798,7 +860,7 @@ export default function AppsHubPage() {
                   value={ordersSearch}
                   onChange={(e) => setOrdersSearch(e.target.value)}
                   placeholder="زاكاز نومۇرى ياكى مەھسۇلات نامى بويىچە ئىزدەش..."
-                  className="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl pr-3 pl-10 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition font-sans"
+                  className="w-full bg-[#080d18] border border-slate-700/80 rounded-xl pr-3 pl-10 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition font-sans"
                 />
                 <Search className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />
               </div>
@@ -807,20 +869,20 @@ export default function AppsHubPage() {
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
                 <button
                   onClick={() => setOrdersStatusFilter('all')}
-                  className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 ${
+                  className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 cursor-pointer ${
                     ordersStatusFilter === 'all'
                       ? 'bg-emerald-600 text-white shadow-sm'
-                      : 'bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200'
+                      : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
                   }`}
                 >
                   ھەممىسى
                 </button>
                 <button
                   onClick={() => setOrdersStatusFilter('completed')}
-                  className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1 ${
+                  className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1 cursor-pointer ${
                     ordersStatusFilter === 'completed'
                       ? 'bg-emerald-600 text-white shadow-sm'
-                      : 'bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200'
+                      : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
                   }`}
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
@@ -828,10 +890,10 @@ export default function AppsHubPage() {
                 </button>
                 <button
                   onClick={() => setOrdersStatusFilter('processing')}
-                  className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1 ${
+                  className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1 cursor-pointer ${
                     ordersStatusFilter === 'processing'
                       ? 'bg-amber-600 text-white shadow-sm'
-                      : 'bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200'
+                      : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
                   }`}
                 >
                   <Hourglass className="w-3.5 h-3.5" />
@@ -839,10 +901,10 @@ export default function AppsHubPage() {
                 </button>
                 <button
                   onClick={() => setOrdersStatusFilter('refunded')}
-                  className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1 ${
+                  className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1 cursor-pointer ${
                     ordersStatusFilter === 'refunded'
                       ? 'bg-rose-600 text-white shadow-sm'
-                      : 'bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200'
+                      : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
                   }`}
                 >
                   <X className="w-3.5 h-3.5" />
@@ -851,7 +913,7 @@ export default function AppsHubPage() {
               </div>
 
               {/* Counter Pill */}
-              <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100">
+              <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-800/80">
                 <span className="text-slate-400 text-[11px]">زاكاز نەتىجىلىرى سانى:</span>
                 <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-mono font-bold text-[11px]">
                   {filteredOrders.length} نەتىجە
@@ -862,7 +924,7 @@ export default function AppsHubPage() {
             {/* Orders List Container */}
             <div className="space-y-3">
               {!session ? (
-                <div className="p-8 rounded-3xl bg-[#0F172A] border border-amber-500/30 text-center space-y-3 shadow-md">
+                <div className="p-8 rounded-3xl bg-[#0c1424] border border-amber-500/30 text-center space-y-3 shadow-md">
                   <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto border border-amber-500/30">
                     <User className="w-6 h-6" />
                   </div>
@@ -872,26 +934,26 @@ export default function AppsHubPage() {
                   </p>
                   <button
                     onClick={() => setShowLoginModal(true)}
-                    className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 text-white font-bold text-xs shadow-md transition active:scale-95 inline-flex items-center gap-1.5"
+                    className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 text-white font-bold text-xs shadow-md transition active:scale-95 inline-flex items-center gap-1.5 cursor-pointer"
                   >
                     <Send className="w-4 h-4" />
                     <span>تېلېگراممىدا بىر كۇنۇپكا بىلەن ئۇلاش</span>
                   </button>
                 </div>
               ) : loadingOrders ? (
-                <div className="p-12 rounded-2xl bg-[#0F172A] border border-slate-800 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
+                <div className="p-12 rounded-2xl bg-[#0c1424] border border-slate-800 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
                   <RefreshCw className="w-6 h-6 animate-spin text-amber-400" />
                   <span>زاكازلار يۈكلىنىۋاتىدۇ...</span>
                 </div>
               ) : filteredOrders.length === 0 ? (
-                <div className="p-10 rounded-2xl bg-[#0F172A] border border-slate-800 text-center text-slate-400 text-xs space-y-2">
+                <div className="p-10 rounded-2xl bg-[#0c1424] border border-slate-800 text-center text-slate-400 text-xs space-y-2">
                   <p className="text-sm font-bold text-slate-300">تېخى ھېچقانداق زاكاز چۈشۈرۈلمىگەن</p>
                   <p className="text-[11px] text-slate-500">
                     باشبەتكە چىقىپ خالىغان ئويۇن ياكى ئەپنى تاللاپ دەرھال قاچىلاپ سىناپ بېقىڭ.
                   </p>
                   <button
                     onClick={() => handleNavClick('home')}
-                    className="mt-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition active:scale-95 inline-block"
+                    className="mt-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition active:scale-95 inline-block cursor-pointer"
                   >
                     ئويۇن بازىرىغا بېرىش
                   </button>
@@ -904,16 +966,22 @@ export default function AppsHubPage() {
 
                   return (
                     <div
-                      key={i}
-                      className="p-4 rounded-2xl bg-white border border-slate-200/90 space-y-3 shadow-xs hover:border-amber-400/60 transition"
+                      key={order.order_id || i}
+                      className="p-4 rounded-2xl bg-[#0c1424] border border-slate-800/90 space-y-3 shadow-md hover:border-slate-700 transition"
                     >
                       {/* Top Row: Order ID + Status Badge */}
-                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            onClick={() => handleCopyOrderId(order.order_id || '')}
-                            className="flex items-center gap-1 px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:text-white font-mono text-[11px] transition active:scale-95"
+                            onClick={() => {
+                              if (order.order_id) {
+                                navigator.clipboard.writeText(order.order_id);
+                                setCopiedOrderId(order.order_id);
+                                setTimeout(() => setCopiedOrderId(null), 2000);
+                              }
+                            }}
+                            className="flex items-center gap-1 px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:text-white font-mono text-[11px] transition active:scale-95 cursor-pointer"
                             title="زاكاز نومۇرىنى كۆچۈرۈش"
                           >
                             {copiedOrderId === order.order_id ? (
@@ -949,12 +1017,16 @@ export default function AppsHubPage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <h4 className="text-sm font-black text-white">
-                            {order.package_name || (order.app_id === 'pubg' ? 'PUBG Mobile UC' : 'Honor of Kings Token')}
+                            {order.package_name || 'MAX-BAZAR مەھسۇلاتى'}
                           </h4>
                           <p className="text-[11px] text-slate-400 mt-0.5 flex items-center gap-2">
                             <span>ئويۇنچى UID: <strong className="font-mono text-slate-200">{order.player_id}</strong></span>
-                            <span>•</span>
-                            <span>ئەپ: <strong className="text-amber-400">{order.app_id?.toUpperCase()}</strong></span>
+                            {order.created_at && (
+                              <>
+                                <span>•</span>
+                                <span>{new Date(order.created_at).toLocaleDateString()}</span>
+                              </>
+                            )}
                           </p>
                         </div>
                         <span className="text-base font-black font-mono text-amber-400">
@@ -977,63 +1049,114 @@ export default function AppsHubPage() {
         )}
 
         {/* =========================================================================
-            TAB 3: مېنىڭ ھەميانىم (WALLET & TOP-UP - FULL PAGE VIEW)
+            TAB 3: مېنىڭ ھەميانىم (WALLET & SHAM CASH TOP-UP - FINTECH VIP DIGITAL CARD)
         ========================================================================= */}
         {activeNavTab === 'wallet' && (
           <div className="space-y-4 animate-fadeIn">
             {/* Header Section */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#0F172A] border border-slate-800 flex items-center justify-between shadow-sm">
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#0c1424] border border-slate-800 flex items-center justify-between shadow-md">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => handleNavClick('home')}
-                  className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition"
+                  className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition active:scale-95 cursor-pointer"
                   title="باشبەتكە قايتىش"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
                 <div>
-                  <h1 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                  <h1 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
                     <Wallet className="w-5 h-5 text-amber-400" />
                     <span>مېنىڭ ھەميانىم</span>
                   </h1>
                   <p className="text-[11px] text-slate-400">
-                    شامكەش ئارقىلىق دەل ۋاقتىدا قالدۇق قاچىلاش
+                    شامكەش ئارقىلىق دەل ۋاقتىدا قالدۇق قاچىلاش ۋە باشقۇرۇش
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Live Balance Showcase Card */}
-            <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-slate-900 via-[#0F172A] to-[#0A0E1A] border border-amber-500/40 shadow-xl space-y-3">
-              <span className="text-xs text-slate-400 font-bold block">
-                مەۋجۇت قالدۇقىڭىز (بارلىق ماكس بازار ئەپ ۋە ئويۇنلىرىدا ئورتاق):
-              </span>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl sm:text-4xl font-black font-mono text-amber-400 tracking-tight">
-                  ${session ? session.balance.toFixed(2) : '0.00'}
-                </span>
-                <span className="text-xs text-amber-300 font-bold">USD</span>
+            {/* FUTURISTIC VIP FINTECH DIGITAL CARD */}
+            <div className="relative overflow-hidden rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-[#16233d] via-[#0d1627] to-[#080d19] border border-amber-400/40 shadow-2xl space-y-5 text-white">
+              {/* Top ambient holographic gleam */}
+              <div className="absolute -top-16 -right-16 w-56 h-56 bg-amber-400/15 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute bottom-0 -left-12 w-48 h-48 bg-blue-500/15 rounded-full blur-2xl pointer-events-none" />
+
+              {/* Card Top Row: Logo + Chip + Contactless Symbol */}
+              <div className="flex items-center justify-between relative z-10">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 p-0.5 shadow-md flex items-center justify-center">
+                    <Image
+                      src="/images/maxbazar/v3/maxbazar_gold_round.png"
+                      alt="MAX-BAZAR"
+                      width={32}
+                      height={32}
+                      className="rounded-full"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-xs font-black tracking-widest text-white block leading-none">
+                      MAX-BAZAR
+                    </span>
+                    <span className="text-[9px] font-bold text-amber-300 font-mono">
+                      DIGITAL VIP WALLET
+                    </span>
+                  </div>
+                </div>
+
+                {/* EMV Chip & Contactless Waves */}
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-5 rounded-md bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 border border-amber-200/80 shadow-xs flex items-center justify-center">
+                    <div className="w-full h-[1px] bg-amber-700/60" />
+                  </div>
+                  <span className="text-slate-400 text-xs font-mono tracking-tight font-black">
+                    ))))
+                  </span>
+                </div>
               </div>
-              <p className="text-[11px] text-emerald-400 font-bold flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>بۇ قالدۇق PUBG، Honor of Kings ۋە باشقا بارلىق ئەپلەردە تەڭ ئىشلىتىلىدۇ.</span>
-              </p>
+
+              {/* Card Balance Display */}
+              <div className="space-y-1 relative z-10 pt-1">
+                <span className="text-[11px] text-amber-300/80 font-bold block">
+                  مەۋجۇت ھەميان قالدۇقى:
+                </span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl sm:text-4xl font-black font-mono text-amber-300 tracking-tight text-shadow-sm">
+                    ${session ? session.balance.toFixed(2) : '0.00'}
+                  </span>
+                  <span className="text-xs text-amber-400 font-black font-mono">USD</span>
+                </div>
+              </div>
+
+              {/* Card Bottom Row: User Identity & Common Balance Tag */}
+              <div className="flex items-center justify-between pt-3 border-t border-white/10 relative z-10 text-xs">
+                <div>
+                  <span className="text-[10px] text-slate-400 block">ھېسابات كىملىكى:</span>
+                  <span className="font-mono font-bold text-slate-200 text-xs">
+                    {session?.identity || 'تېخى ئۇلانمىغان'}
+                  </span>
+                </div>
+
+                <div className="px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[10px] font-bold flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>ئورتاق بىردەك قالدۇق</span>
+                </div>
+              </div>
             </div>
 
-            {/* ShamCash Talon Form */}
-            <div className="p-5 sm:p-6 rounded-3xl bg-[#0F172A] border border-slate-800 space-y-4 shadow-sm text-right">
+            {/* SHAMCASH TOP-UP SECTION */}
+            <div className="p-5 sm:p-6 rounded-3xl bg-[#0c1424] border border-slate-800 space-y-4 shadow-md text-right">
               <div className="space-y-1">
                 <h3 className="text-base font-black text-white flex items-center gap-2">
                   <CreditCard className="w-4 h-4 text-amber-400" />
-                  <span>شامكەش ئارقىلىق پۇل قاچىلاش باسقۇچى</span>
+                  <span>شامكەش ئارقىلىق قالدۇق قاچىلاش باسقۇچى</span>
                 </h3>
                 <p className="text-xs text-slate-400">
-                  شامكەش ھېسابىمىزغا پۇل ئۇرۇپ، تالون نومۇرىنى كىرگۈزسىڭىزلا قالدۇق دەرھال قوشۇلىدۇ.
+                  شامكەش ئادرېسىمىزغا پۇل ئەۋەتىپ، تالون نومۇرىنى بۇ يەرگە كىرگۈزسىڭىزلا سىستېما سېكۇنت ئىچىدە قالدۇق قوشۇپ بېرىدۇ.
                 </p>
               </div>
 
               {/* ShamCash Address Info */}
-              <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-3 text-xs">
+              <div className="p-3.5 rounded-2xl bg-[#080d18] border border-slate-800 flex items-center justify-between gap-3 text-xs">
                 <div className="text-right space-y-0.5">
                   <span className="text-[10px] text-slate-400 block font-bold">رەسمىي شامكەش ئادرېسىمىز:</span>
                   <span className="font-mono text-amber-300 font-bold text-xs select-all">
@@ -1043,7 +1166,7 @@ export default function AppsHubPage() {
                 <button
                   type="button"
                   onClick={handleCopyShamcashAddress}
-                  className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs border border-slate-700 transition active:scale-95 flex items-center gap-1.5 shrink-0"
+                  className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs border border-slate-700 transition active:scale-95 flex items-center gap-1.5 shrink-0 cursor-pointer"
                 >
                   {copiedShamAddress ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copiedShamAddress ? 'كۆچۈرۈلدى' : 'كۆچۈرۈش'}</span>
@@ -1061,7 +1184,7 @@ export default function AppsHubPage() {
                     value={talonCode}
                     onChange={(e) => setTalonCode(e.target.value)}
                     placeholder="مەسىلەن: 98452174"
-                    className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 font-mono text-center text-sm focus:outline-none focus:border-amber-400 transition"
+                    className="w-full px-4 py-3 rounded-xl bg-[#080d18] border border-slate-700 text-white placeholder-slate-500 font-mono text-center text-sm focus:outline-none focus:border-amber-400 transition"
                   />
                 </div>
 
@@ -1081,7 +1204,7 @@ export default function AppsHubPage() {
                 <button
                   type="submit"
                   disabled={isVerifyingTalon}
-                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/20 transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5"
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/20 transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   {isVerifyingTalon ? (
                     <>
@@ -1089,10 +1212,22 @@ export default function AppsHubPage() {
                       <span>تەكشۈرۈلۈۋاتىدۇ...</span>
                     </>
                   ) : (
-                    <span>تەستىقلاش ۋە قالدۇق قاچىلاش</span>
+                    <span>تەستىقلاش ۋە دەرھال قالدۇق قاچىلاش</span>
                   )}
                 </button>
               </form>
+
+              {/* WhatsApp Quick Assistance */}
+              <div className="pt-2">
+                <a
+                  href="https://wa.me/905526666014?text=MAX-BAZAR%20شامكەش%20قاچىلاش%20ياردەم"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366]/25 border border-[#25D366]/30 text-[#25D366] font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
+                >
+                  <span>WhatsApp ئارقىلىق تېز قاچىلاش ياردىمى سوراش</span>
+                </a>
+              </div>
             </div>
           </div>
         )}
@@ -1102,242 +1237,332 @@ export default function AppsHubPage() {
         ========================================================================= */}
         {activeNavTab === 'account' && (
           <div className="space-y-4 animate-fadeIn">
+            
             {/* Header Section */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#0F172A] border border-slate-800 flex items-center justify-between shadow-sm">
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#0c1424] border border-slate-800 flex items-center justify-between shadow-md">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => handleNavClick('home')}
-                  className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition"
+                  className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition active:scale-95 cursor-pointer"
                   title="باشبەتكە قايتىش"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
                 <div>
-                  <h1 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                  <h1 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
                     <User className="w-5 h-5 text-amber-400" />
                     <span>مېنىڭ ھېسابىم</span>
                   </h1>
                   <p className="text-[11px] text-slate-400">
-                    MAX-BAZAR شەخسىي ھېسابات ئۇچۇرلىرى
+                    تېلېگرامما ئارقىلىق ئۇلانغان شەخسىي ھېسابات ئۇچۇرلىرى
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Profile Card */}
-            {session ? (
-              <div className="p-6 rounded-3xl bg-white border border-slate-200/90 text-center space-y-4 shadow-xs text-slate-900">
-                <div className="w-20 h-20 rounded-full border-2 border-amber-400 mx-auto overflow-hidden bg-slate-800 shadow-[0_0_20px_rgba(251,191,36,0.3)]">
-                  {session.photo_url ? (
-                    <img src={session.photo_url} alt={session.identity} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center font-black text-2xl">
-                      <User className="w-10 h-10" />
-                    </div>
-                  )}
+            {!session ? (
+              <div className="p-8 rounded-3xl bg-[#0c1424] border border-amber-500/30 text-center space-y-4 shadow-xl">
+                <div className="w-16 h-16 rounded-full bg-slate-800 border-2 border-amber-400/50 flex items-center justify-center mx-auto text-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.3)]">
+                  <User className="w-8 h-8" />
                 </div>
-
-                <div>
-                  <h3 className="text-lg font-black text-slate-900">{session.identity}</h3>
-                  <p className="text-xs text-emerald-400 font-bold mt-1 flex items-center justify-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>تېلېگرامما ئارقىلىق دەلىللەنگەن</span>
-                  </p>
-                </div>
-
-                <div className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800 flex items-center justify-between text-right max-w-sm mx-auto">
-                  <span className="text-xs text-slate-400">قالدۇقىڭىز:</span>
-                  <span className="font-mono font-black text-amber-600 text-xl">${session.balance.toFixed(2)}</span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-sm mx-auto pt-2">
-                  <button
-                    onClick={() => handleNavClick('wallet')}
-                    className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center justify-center gap-1.5 active:scale-95"
-                  >
-                    <CreditCard className="w-4 h-4" />
-                    <span>قالدۇق قاچىلاش</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleNavClick('orders')}
-                    className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition flex items-center justify-center gap-1.5 active:scale-95 border border-slate-700"
-                  >
-                    <ClipboardList className="w-4 h-4" />
-                    <span>زاكازلىرىمنى كۆرۈش</span>
-                  </button>
-                </div>
-
-                <div className="pt-4 border-t border-slate-100 max-w-sm mx-auto">
-                  <button
-                    onClick={() => {
-                      setSession(null);
-                      try {
-                        localStorage.removeItem('maxbazar_unified_session');
-                        localStorage.removeItem('maxbazar_pubg_session');
-                        localStorage.removeItem('maxbazar_hok_session');
-                      } catch {}
-                    }}
-                    className="w-full py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 font-bold text-xs transition flex items-center justify-center gap-1.5"
-                  >
-                    <User className="w-4 h-4" />
-                    <span>ھېساباتتىن چىقىپ كېتىش</span>
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="p-8 rounded-3xl bg-white border border-slate-200/90 text-center space-y-4 shadow-sm">
-                <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto border border-amber-500/30">
-                  <User className="w-7 h-7" />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-white">تېخى ھېساباتقا كىرمىدىڭىز</h3>
-                  <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-                    تېلېگراممىدا پەقەت Start نى بىرنىلا بېسىپ، ھېساباتىڭىزنى دەرھال ئۇلاڭ.
+                <div className="space-y-1">
+                  <h3 className="text-base font-black text-white">تېخى كىرمىدىڭىز</h3>
+                  <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                    زاكاز خاتىرىسى، ئورتاق قالدۇق ۋە ساقلانغان ھېساباتلارنى باشقۇرۇش ئۈچۈن دەرھال كىرىڭ.
                   </p>
                 </div>
                 <button
                   onClick={() => setShowLoginModal(true)}
-                  className="py-3 px-6 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-purple-600 hover:from-sky-400 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-sky-500/25 transition active:scale-95 mx-auto"
+                  className="py-3 px-6 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-purple-600 text-white font-black text-xs shadow-lg transition active:scale-95 inline-flex items-center gap-2 cursor-pointer"
                 >
-                  <Send className="w-4 h-4 stroke-[2.5]" />
-                  <span>تېلېگراممىدا بىر كۇنۇپكا بىلەن ئۇلاش</span>
+                  <Send className="w-4 h-4" />
+                  <span>تېلېگراممىدا بىر كۇنۇپكا بىلەن كىرىش</span>
                 </button>
               </div>
+            ) : (
+              <div className="space-y-4">
+                {/* User Card */}
+                <div className="p-6 rounded-3xl bg-[#0c1424] border border-amber-500/30 text-center relative shadow-xl overflow-hidden">
+                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
+
+                  {/* Profile Avatar */}
+                  <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-amber-400 mx-auto mb-3 shadow-[0_0_25px_rgba(251,191,36,0.4)] relative bg-[#1E293B] flex items-center justify-center">
+                    {session.photo_url ? (
+                      <img
+                        src={session.photo_url}
+                        alt={session.identity}
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    ) : (
+                      <User className="w-10 h-10 text-amber-400" />
+                    )}
+                  </div>
+
+                  <h3 className="text-base font-black text-white">
+                    {session.identity}
+                  </h3>
+
+                  <div className="flex items-center justify-center gap-2 mt-2">
+                    <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40 text-[10px] font-bold flex items-center gap-1">
+                      <Crown className="w-3 h-3 text-amber-400" />
+                      <span>MAX-BAZAR VIP ئەزا</span>
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-[10px] font-bold flex items-center gap-1">
+                      <Activity className="w-3 h-3 text-emerald-400" />
+                      <span>ئۇلانغان</span>
+                    </span>
+                  </div>
+
+                  {/* Quick Balance Chip */}
+                  <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-[#080d18] border border-amber-500/30 text-amber-300 font-mono text-xs font-bold">
+                    <span>قالدۇقىڭىز:</span>
+                    <span className="text-sm text-amber-400 font-black">${session.balance.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                {/* iOS App Store Style Grouped Actions */}
+                <div className="rounded-3xl bg-[#0c1424] border border-slate-800 overflow-hidden divide-y divide-slate-800/80 shadow-md text-right">
+                  {/* Action 1: Orders */}
+                  <button
+                    onClick={() => handleNavClick('orders')}
+                    className="w-full p-4 flex items-center justify-between hover:bg-slate-800/50 transition cursor-pointer active:scale-98"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center border border-blue-500/30">
+                        <ClipboardList className="w-4 h-4" />
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs font-black text-white block">مېنىڭ تەلەپلىرىم (زاكازلار)</span>
+                        <span className="text-[10px] text-slate-400">سېتىۋالغان ۋە قاچىلانغان زاكازلارنى كۆرۈش</span>
+                      </div>
+                    </div>
+                    <ChevronLeft className="w-4 h-4 text-slate-400" />
+                  </button>
+
+                  {/* Action 2: Wallet */}
+                  <button
+                    onClick={() => handleNavClick('wallet')}
+                    className="w-full p-4 flex items-center justify-between hover:bg-slate-800/50 transition cursor-pointer active:scale-98"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center border border-amber-500/30">
+                        <Wallet className="w-4 h-4" />
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs font-black text-white block">ھەميان ۋە قالدۇق قاچىلاش</span>
+                        <span className="text-[10px] text-slate-400">شامكەش ئارقىلىق دەرھال پۇل سېلىش</span>
+                      </div>
+                    </div>
+                    <ChevronLeft className="w-4 h-4 text-slate-400" />
+                  </button>
+
+                  {/* Action 3: Switch to AUTO CASH */}
+                  <Link
+                    href="/"
+                    className="w-full p-4 flex items-center justify-between hover:bg-slate-800/50 transition cursor-pointer active:scale-98"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+                        <ArrowLeftRight className="w-4 h-4" />
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs font-black text-white block">AUTO CASH ئاساسىي دۇكىنىغا كىرىش</span>
+                        <span className="text-[10px] text-slate-400">تور كارتىلىرى، مەۋھۇم نومۇر ۋە سۈنئىي ئەقىل مەركىزى</span>
+                      </div>
+                    </div>
+                    <ChevronLeft className="w-4 h-4 text-slate-400" />
+                  </Link>
+
+                  {/* Action 4: Telegram Bot */}
+                  <a
+                    href="https://t.me/maxbazar_bot"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full p-4 flex items-center justify-between hover:bg-slate-800/50 transition cursor-pointer active:scale-98"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center border border-sky-500/30">
+                        <Send className="w-4 h-4" />
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs font-black text-white block">تېلېگرامما بوتىمىز (@maxbazar_bot)</span>
+                        <span className="text-[10px] text-slate-400">24/7 ئاپتوماتىك قاچىلاش ۋە ئۇقتۇرۇشلار</span>
+                      </div>
+                    </div>
+                    <ArrowUpRight className="w-4 h-4 text-slate-400" />
+                  </a>
+
+                  {/* Action 5: PWA Install */}
+                  <button
+                    onClick={() => handleOpenInstallModal()}
+                    className="w-full p-4 flex items-center justify-between hover:bg-slate-800/50 transition cursor-pointer active:scale-98"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-purple-500/15 text-purple-400 flex items-center justify-center border border-purple-500/30">
+                        <Smartphone className="w-4 h-4" />
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs font-black text-white block">تېلېفونغا ئەپ قىلىپ قاچىلاش (PWA)</span>
+                        <span className="text-[10px] text-slate-400">ئېكرانغا بەلگە قويۇۋېلىش قوللانمىسى</span>
+                      </div>
+                    </div>
+                    <ChevronLeft className="w-4 h-4 text-slate-400" />
+                  </button>
+
+                  {/* Action 6: Logout */}
+                  <button
+                    onClick={handleLogout}
+                    className="w-full p-4 flex items-center justify-between hover:bg-rose-500/10 text-rose-400 transition cursor-pointer active:scale-98"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center border border-rose-500/30">
+                        <LogOut className="w-4 h-4" />
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs font-black text-rose-400 block">ھېساباتتىن چىقىش</span>
+                        <span className="text-[10px] text-rose-400/70">ئۈسكۈنىدىن ئۇچۇرنى بىخەتەر ئۆچۈرۈش</span>
+                      </div>
+                    </div>
+                    <ChevronLeft className="w-4 h-4 text-rose-400" />
+                  </button>
+                </div>
+              </div>
             )}
+
           </div>
         )}
 
       </main>
 
       {/* =========================================================================
-          AUTHENTIC MOBILE BOTTOM NAVIGATION (Silky-Smooth Floating 3D Jewel Bubble)
+          AUTHENTIC BOTTOM NAVIGATION (Floating 3D Jewel Bubble - Dark Mode)
       ========================================================================= */}
       <AppsBottomNav
         activeTab={activeNavTab}
         onTabChange={handleNavClick}
         ordersCount={ordersHistory.length}
         userPhoto={session?.photo_url}
+        theme="dark"
+        backgroundColor="#070b14"
       />
 
-      {/* 1-CLICK TELEGRAM SYNC MODAL */}
+      {/* =========================================================================
+          PWA INSTALL GUIDE MODAL
+      ========================================================================= */}
+      {showHowToInstallModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-gradient-to-b from-[#0f172a] via-[#091122] to-[#050914] border border-amber-500/40 w-full max-w-md rounded-3xl p-6 shadow-2xl relative text-right space-y-4">
+            <button
+              onClick={() => setShowHowToInstallModal(false)}
+              className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center absolute top-4 left-4 cursor-pointer transition active:scale-95"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="text-center space-y-2">
+              <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400 mx-auto shadow-lg">
+                <Download className="w-7 h-7" />
+              </div>
+              <h3 className="text-lg font-black text-white">
+                تېلېفونغا ئەپ قىلىپ چۈشۈرۈش
+              </h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                بۇ ئەپنى ئايرىم چۈشۈرمەيلا بىۋاسىتە تېلېفونىڭىزنىڭ باش ئېكرانىغا قاچىلاپ، ھەقىقىي يەرلىك ئەپتەك سېكۇنتتا ئىشلىتەلەيسىز!
+              </p>
+            </div>
+
+            <div className="space-y-2.5 text-xs text-slate-200 pt-2">
+              <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1.5">
+                <span className="font-black text-amber-300 block">📱 Android (Chrome تور كۆرگۈچ):</span>
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  1. ئوڭ تەرەپ ئۈستىدىكى ئۈچ چېكىتنى <strong>(⋮)</strong> بېسىڭ.<br />
+                  2. <strong>«Install app»</strong> ياكى <strong>«Add to Home screen»</strong> (باش ئېكرانغا قوشۇش) نى تاللاڭ.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1.5">
+                <span className="font-black text-sky-300 block">🍏 iPhone / iPad (Safari):</span>
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  1. ئاستىدىكى ھەمبەھىرلەش كۇنۇپكىسىنى <strong>(Share / كۋادرات ۋە ئوق)</strong> بېسىڭ.<br />
+                  2. تىزىملىكتىن <strong>«Add to Home Screen»</strong> (باش ئېكرانغا قوشۇش) نى بېسىڭ.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowHowToInstallModal(false)}
+              className="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-md transition active:scale-95 cursor-pointer"
+            >
+              چۈشەندىم، رەھمەت!
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          1-CLICK TELEGRAM SYNC MODAL
+      ========================================================================= */}
       {showLoginModal && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-[#0F172A] border border-amber-500/40 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative text-center">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-gradient-to-b from-[#0f172a] via-[#091122] to-[#050914] border border-amber-500/40 w-full max-w-md rounded-3xl p-6 shadow-2xl relative text-center space-y-4">
             <button
               onClick={() => {
                 setShowLoginModal(false);
                 setIsSyncWaiting(false);
               }}
-              className="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center absolute top-4 left-4"
+              className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center absolute top-4 left-4 cursor-pointer transition active:scale-95"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="w-14 h-14 rounded-2xl bg-[#0088cc]/15 text-[#0088cc] flex items-center justify-center mx-auto mb-3 border border-[#0088cc]/30 shadow-lg shadow-[#0088cc]/10">
-              <Send className="w-7 h-7 translate-x-0.5 -translate-y-0.5" />
+            <div className="w-14 h-14 rounded-2xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sky-400 mx-auto shadow-lg">
+              <Send className="w-7 h-7" />
             </div>
 
-            <h3 className="text-base font-black text-white">تېلېگرامما ئارقىلىق كىرىش</h3>
-            <p className="text-xs text-slate-400 mt-1 mb-5 leading-relaxed max-w-xs mx-auto">
-              پارول ياكى كود كىرگۈزۈش ھاجەتسىز. تۆۋەندىكى تۈگمىنى بېسىپ تېلېگراممىدا <strong>«Start (باشلاش)»</strong> نى بىرنىلا باسسىڭىز، بۇ ئەپ ئۆزلۈكىدىن دەرھال كىرىدۇ.
-            </p>
+            <div className="space-y-1">
+              <h3 className="text-lg font-black text-white">
+                تېلېگراممىدا 1 سېكۇنتتا كىرىش
+              </h3>
+              <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
+                ھېچقانداق پارول ياكى ئەنگە ئېلىش ھاجەتسىز. كۇنۇپكىنى بېسىپ @maxbazar_bot نى بىر قېتىم قوزغاتسىڭىز، قالدۇقىڭىز ۋە زاكازلىرىڭىز شۇئان تەڭ قەدەملىشىدۇ.
+              </p>
+            </div>
 
             {isSyncWaiting ? (
-              <div className="p-4 rounded-2xl bg-sky-500/10 border border-sky-500/30 text-sky-300 text-xs text-center space-y-2 animate-pulse">
-                <div className="flex items-center justify-center gap-2 font-bold text-sm">
-                  <RefreshCw className="w-4 h-4 animate-spin text-sky-400" />
-                  <span>تېلېگراممىدىن جاۋاب كۈتۈۋاتىدۇ...</span>
+              <div className="p-4 rounded-2xl bg-slate-900 border border-sky-500/40 space-y-3">
+                <div className="flex items-center justify-center gap-2 text-sky-300 font-bold text-xs">
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>تېلېگرامما جاۋابى كۈتۈلۈۋاتىدۇ...</span>
                 </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed">
-                  تېلېگرامما ئېچىلغاندا <strong>«Start (باشلاش)»</strong> نى بېسىپ ئەپكە قايتىپ كېلىڭ، ئەپ دەرھال ئۆزلۈكىدىن كىرىدۇ!
+                <p className="text-[11px] text-slate-400">
+                  بوتتا <strong>/start</strong> نى باسقان ھامان بۇ بەت ئۆزلۈكىدىن ئېچىلىدۇ.
                 </p>
+                <a
+                  href={syncBotUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block py-2.5 px-4 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-black text-xs shadow-md transition active:scale-95"
+                >
+                  تېلېگراممىنى قايتا ئېچىش ➔
+                </a>
               </div>
             ) : (
-              <a
-                href={syncBotUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setIsSyncWaiting(true)}
-                className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-purple-600 hover:from-sky-400 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-sky-500/25 transition active:scale-95"
+              <button
+                onClick={startTelegramSync}
+                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:brightness-110 text-white font-black text-sm shadow-lg shadow-sky-500/25 transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Send className="w-4 h-4 stroke-[2.5]" />
-                <span>تېلېگراممىدا بىر كۇنۇپكا بىلەن ئۇلاش</span>
-              </a>
+                <Send className="w-4 h-4" />
+                <span>تېلېگرامما ئارقىلىق دەرھال ئۇلاش</span>
+              </button>
             )}
+
+            <p className="text-[10px] text-slate-500">
+              * بۇ بىخەتەر ۋە رەسمىي تېلېگرامما دەلىللەش سىستېمىسى.
+            </p>
           </div>
         </div>
       )}
 
-      {/* HOW TO INSTALL MODAL */}
-      {showHowToInstallModal && selectedAppForInstall && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-sm rounded-3xl bg-[#0F172A] border border-amber-500/40 p-6 shadow-2xl space-y-4 text-right">
-            <button
-              onClick={() => setShowHowToInstallModal(false)}
-              className="absolute left-4 top-4 p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="text-center space-y-2 pt-1">
-              <div className="relative w-20 h-20 mx-auto rounded-2xl overflow-hidden shadow-2xl border-2 border-amber-400/50 p-0.5 bg-slate-950">
-                <Image
-                  src={selectedAppForInstall.icon}
-                  alt={selectedAppForInstall.name}
-                  width={80}
-                  height={80}
-                  className="w-full h-full object-cover rounded-[14px]"
-                  priority
-                />
-              </div>
-
-              <div>
-                <h3 className="text-base font-black text-white">
-                  {selectedAppForInstall.name}
-                </h3>
-                <p className="text-xs text-amber-400 font-medium mt-0.5">
-                  تېلېفون ئېكرانىغا ئەپ قىلىپ چۈشۈرۈش
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-3 pt-2 text-xs text-slate-300 leading-relaxed">
-              <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
-                <div className="font-bold text-white flex items-center gap-1.5">
-                  <span>🤖 Android (Chrome) دا قاچىلاش:</span>
-                </div>
-                <p className="text-[11px] text-slate-400">
-                  1. تۆۋەندىكى «ئەپنى ئېچىش» كۇنۇپكىسىنى بېسىڭ.<br />
-                  2. تور كۆرگۈچنىڭ ئوڭ ئۈستىدىكى ئۈچ چېكىتنى (⋮) بېسىڭ.<br />
-                  3. <strong>«Install app (ئەپنى قاچىلاش)»</strong> ياكى <strong>«Add to Home screen»</strong> نى تاللاڭ.
-                </p>
-              </div>
-
-              <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
-                <div className="font-bold text-white flex items-center gap-1.5">
-                  <span>📱 iPhone (Safari) دە قاچىلاش:</span>
-                </div>
-                <p className="text-[11px] text-slate-400">
-                  1. تۆۋەندىكى «ئەپنى ئېچىش» كۇنۇپكىسىنى بېسىڭ.<br />
-                  2. Safari نىڭ ئاستىدىكى ھەمبەھىرلەش كۇنۇپكىسىنى (Share) بېسىڭ.<br />
-                  3. <strong>«Add to Home Screen (باش ئېكرانغا قوشۇش)»</strong> نى بېسىڭ.
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <Link
-                href={selectedAppForInstall.webUrl}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition active:scale-95 flex items-center justify-center gap-1.5"
-              >
-                <span>دەرھال ئەپنى ئېچىپ قاچىلاش</span>
-                <ArrowRight className="w-4 h-4 rotate-180" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
