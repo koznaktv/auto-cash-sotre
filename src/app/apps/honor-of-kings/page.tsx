@@ -92,6 +92,59 @@ export default function HonorOfKingsAppPage() {
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState('');
 
+  // 1-Click Telegram Bot Sync State
+  const [syncToken, setSyncToken] = useState<string | null>(null);
+  const [syncBotUrl, setSyncBotUrl] = useState<string>('https://t.me/maxbazar_bot');
+  const [isSyncWaiting, setIsSyncWaiting] = useState(false);
+
+  // Fetch fresh sync token when login modal opens
+  useEffect(() => {
+    if (!showLoginModal) {
+      setIsSyncWaiting(false);
+      return;
+    }
+    fetch('/api/apps/sync-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ app_id: 'honor-of-kings' }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.ok && data.token) {
+          setSyncToken(data.token);
+          setSyncBotUrl(data.botUrl);
+        }
+      })
+      .catch(() => {});
+  }, [showLoginModal]);
+
+  // Poll sync session while login modal is open
+  useEffect(() => {
+    if (!showLoginModal || !syncToken) return;
+
+    const checkSync = () => {
+      fetch(`/api/apps/sync-session?token=${encodeURIComponent(syncToken)}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.ok && data.status === 'verified' && data.session) {
+            setSession(data.session);
+            if (data.session.photo_url) {
+              setAvatarUrl(data.session.photo_url);
+            }
+            try {
+              localStorage.setItem('maxbazar_hok_session', JSON.stringify(data.session));
+            } catch {}
+            setShowLoginModal(false);
+            setIsSyncWaiting(false);
+          }
+        })
+        .catch(() => {});
+    };
+
+    const timer = setInterval(checkSync, 1500);
+    return () => clearInterval(timer);
+  }, [showLoginModal, syncToken]);
+
   // 60-second OTP countdown ticker
   useEffect(() => {
     if (otpCountdown <= 0) return;
@@ -1640,20 +1693,34 @@ export default function HonorOfKingsAppPage() {
               </button>
             </form>
 
-            {/* Telegram Alternative */}
-            <div className="pt-3 mt-3 border-t border-slate-800 text-center">
-              <span className="text-[10px] text-slate-500 block mb-2">
-                — ياكى تېلېگراممىدا بىر كۇنۇپكا بىلەن ئېچىش —
+            {/* Telegram 1-Click Sync Alternative */}
+            <div className="pt-3 mt-3 border-t border-slate-800 text-center space-y-2">
+              <span className="text-[10px] text-slate-500 block">
+                — ياكى تېلېگرامما ئارقىلىق ئەپكە ئۇلاش —
               </span>
-              <a
-                href="https://t.me/maxbazar_bot/hok"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-2 px-3 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-300 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
-              >
-                <Send className="w-3.5 h-3.5" />
-                <span>تېلېگراممىدا ئېچىش (ئاپتوماتىك كىرىدۇ)</span>
-              </a>
+
+              {isSyncWaiting ? (
+                <div className="p-3 rounded-2xl bg-sky-500/10 border border-sky-500/30 text-sky-300 text-xs text-center space-y-1.5 animate-pulse">
+                  <div className="flex items-center justify-center gap-2 font-bold">
+                    <RefreshCw className="w-4 h-4 animate-spin text-sky-400" />
+                    <span>تېلېگراممىدىن جاۋاب كۈتۈۋاتىدۇ...</span>
+                  </div>
+                  <p className="text-[11px] text-slate-300 leading-relaxed">
+                    تېلېگرامما ئېچىلغاندا <strong>«Start (باشلاش)»</strong> نى بېسىپ ئەپكە قايتىپ كېلىڭ، بۇ ئەپ ئۆزلۈكىدىن دەرھال كىرىدۇ!
+                  </p>
+                </div>
+              ) : (
+                <a
+                  href={syncBotUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsSyncWaiting(true)}
+                  className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-500 via-blue-600 to-purple-600 hover:from-sky-400 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-sky-500/20 transition active:scale-95"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>تېلېگراممىدا بىر كۇنۇپكا بىلەن ئۇلاش</span>
+                </a>
+              )}
             </div>
           </div>
         </div>

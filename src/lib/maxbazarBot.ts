@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { verifySyncSession } from './syncSessions';
 
 /**
  * MAX-BAZAR Telegram Mini App Bot Service
@@ -65,6 +66,44 @@ export async function handleMaxBazarWebhook(update: any) {
         if (username) globalStore.__maxbazarUsers[username] = String(chatId);
         globalStore.__maxbazarUsers[String(chatId)] = String(chatId);
       } catch {}
+    }
+
+    // Handle /start sync_XXXX (Instant 1-Click App Linking from Phone)
+    const syncMatch = text.match(/^\/start\s+(sync_[a-zA-Z0-9_]+)/);
+    if (syncMatch) {
+      const syncToken = syncMatch[1];
+      const verified = await verifySyncSession(syncToken, {
+        username: message.from?.username,
+        firstName: message.from?.first_name,
+        chatId,
+      });
+
+      if (verified) {
+        const appName = verified.app_id === 'honor-of-kings' ? 'Honor of Kings' : 'PUBG Mobile UC';
+        const appUrl = `${SITE_URL}/apps/${verified.app_id || 'pubg'}`;
+
+        await callMaxBazarBotApi('sendMessage', {
+          chat_id: chatId,
+          text:
+            `🎉 *ھېساباتىڭىز تېلېفوندىكى ئەپكە دەرھال ئۇلاندى!*\n\n` +
+            `🎮 ئەپ: *${appName}*\n` +
+            `👤 كىملىكىڭىز: *${verified.identity}*\n` +
+            `💰 قالدۇق پۇلىڭىز: *$${verified.balance.toFixed(2)}*\n\n` +
+            `📱 تېلېفوندىكى ئەپىڭىز ئۆزلۈكىدىن كىردى، ھازىرلا ئەپكە قايتىپ داۋاملاشتۇرۇڭ.`,
+          parse_mode: 'Markdown',
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: '📱 ئەپكە قايتىش',
+                  url: appUrl,
+                },
+              ],
+            ],
+          },
+        });
+      }
+      return;
     }
 
     // Handle /start or any message - strictly 2 clean buttons as requested
