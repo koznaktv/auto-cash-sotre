@@ -1303,17 +1303,7 @@ export default function AppsHubPage() {
                 </button>
               </form>
 
-              {/* WhatsApp Quick Assistance */}
-              <div className="pt-2">
-                <a
-                  href="https://wa.me/905526666014?text=MAX-BAZAR%20شامكەش%20قاچىلاش%20ياردەم"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-2.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366]/25 border border-[#25D366]/30 text-[#25D366] font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
-                >
-                  <span>WhatsApp ئارقىلىق تېز قاچىلاش ياردىمى سوراش</span>
-                </a>
-              </div>
+
             </div>
           </div>
         )}
