@@ -48,6 +48,8 @@ import {
   Hourglass,
   Calendar,
   ChevronLeft,
+  ChevronDown,
+  ChevronUp,
   Crown,
   Activity,
   LogOut,
@@ -57,6 +59,7 @@ import {
 
 export default function AppsHubPage() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryId | null>(null);
+  const [showPlatformDetails, setShowPlatformDetails] = useState(false);
   const [homeSearch, setHomeSearch] = useState('');
   const [showHowToInstallModal, setShowHowToInstallModal] = useState(false);
   const [selectedAppForInstall, setSelectedAppForInstall] = useState<ActiveApp | null>(null);
@@ -502,102 +505,149 @@ export default function AppsHubPage() {
         {activeNavTab === 'home' && (
           <div className="space-y-6 animate-fadeIn">
             
-            {/* HERO SPOTLIGHT BANNER CARD: ماكىس بازارنىڭ ئەۋزەللىكلىرى */}
-            <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0e172a] via-[#091122] to-[#050914] border border-amber-500/35 p-5 md:p-7 shadow-2xl text-right group font-alkatip">
+            {/* HERO SPOTLIGHT BANNER CARD: توربەتنىڭ ئالاھىدىلىكى ۋە ئىقتىدارلىرى (ئىخچام ھەم قۇلايلىق) */}
+            <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#0e172a] via-[#091122] to-[#050914] border border-amber-500/30 p-4 sm:p-5 shadow-xl text-right font-alkatip transition-all">
               {/* Top ambient gold shimmer beam */}
-              <div className="absolute -top-12 -right-12 w-64 h-64 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -top-12 -right-12 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
-              <div className="relative z-10 space-y-4 max-w-3xl">
+              <div className="relative z-10 space-y-3">
                 {/* Header Tag */}
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-xs font-bold">
-                  <Flame className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-                  <span>MAX-BAZAR — سۈرئەتلىك ۋە رەسمىي ئەپ بازىرى</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                <div className="flex items-center justify-between gap-2">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-[11px] font-bold">
+                    <Sparkles className="w-3 h-3 text-amber-400" />
+                    <span>MAX-BAZAR — يېڭىچە قۇلايلىق سۇپا</span>
+                  </div>
+
+                  {/* Quick toggle in header */}
+                  <button
+                    type="button"
+                    onClick={() => setShowPlatformDetails(!showPlatformDetails)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/80 hover:border-amber-500/40 text-amber-300 text-[11px] font-medium transition cursor-pointer"
+                  >
+                    {showPlatformDetails ? (
+                      <>
+                        <span>ياندۇرۇش</span>
+                        <ChevronUp className="w-3 h-3 text-amber-400" />
+                      </>
+                    ) : (
+                      <>
+                        <span>تەپسىلاتىنى كۆرۈش</span>
+                        <ChevronDown className="w-3 h-3 text-amber-400" />
+                      </>
+                    )}
+                  </button>
                 </div>
                 
-                {/* Big Catchy Title */}
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight">
-                  نېمە ئۈچۈن <span className="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">MAX-BAZAR نى تاللايمىز؟</span>
+                {/* Main Catchy Question Title */}
+                <h1 className="text-base sm:text-lg md:text-xl font-black text-white leading-snug">
+                  توربەتلەردىن قاچىلماقچى بولغان ئەپلىرىڭىزنى تاپالماي قىينىلىۋاتامسىز؟
                 </h1>
                 
-                <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-                  MAX-BAZAR — ئويۇن ۋە تور ئەپلىرىگە پۇل قاچىلاشنى ئەڭ تېز، ئەڭ بىخەتەر ۋە ئاپتوماتىك قىلىپ بېرىدىغان زامانىۋى ئەپ سۇپىسىدۇر.
-                </p>
-
-                {/* 4 CORE ADVANTAGES GRID (ماكس بازارنىڭ 4 چوڭ ئەۋزەللىكى) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                  {/* Advantage 1: Speed */}
-                  <div className="p-3 rounded-2xl bg-slate-900/80 border border-amber-500/25 flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
-                      <Zap className="w-4 h-4 fill-amber-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-xs sm:text-sm font-black text-white">⚡ 3 سېكۇنتتا يېتىپ بېرىش</h4>
-                      <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
-                        سۈنئىي كۈتۈش يوق، رەسمىي API ئارقىلىق سەرۋەرگە سېكۇنت ئىچىدە ئاپتوماتىك قاچىلىنىدۇ.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Advantage 2: 100% Official */}
-                  <div className="p-3 rounded-2xl bg-slate-900/80 border border-emerald-500/25 flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
-                      <ShieldCheck className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h4 className="text-xs sm:text-sm font-black text-white">🛡️ 100% رەسمىي ۋە كاپالەتلىك</h4>
-                      <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
-                        پەقەت Player ID ياكى UID ئارقىلىق، ھېسابات مەخپىيەتلىكىڭىز تولۇق قوغدالغان ھالەتتە بېجىرىلىدۇ.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Advantage 3: Unified Balance */}
-                  <div className="p-3 rounded-2xl bg-slate-900/80 border border-blue-500/25 flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
-                      <Wallet className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h4 className="text-xs sm:text-sm font-black text-white">💳 شامكەش بىر تۇتاش قالدۇق</h4>
-                      <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
-                        شامكەش ئارقىلىق بىرلا قېتىم قالدۇق قاچىلاپ، ھەممە ئويۇن ۋە ئەپتىن بىر كۇنۇپكا بىلەنلا سېتىۋېلىش.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Advantage 4: Multi-platform PWA & Telegram */}
-                  <div className="p-3 rounded-2xl bg-slate-900/80 border border-purple-500/25 flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0 mt-0.5">
-                      <Smartphone className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h4 className="text-xs sm:text-sm font-black text-white">📲 تېلېفونغا ئەپ قىلىش ۋە تېلېگرامما</h4>
-                      <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
-                        بىۋاسىتە تېلېفون باش ئېكرانىغا چۈشۈرۈپ ئىشلىتىش، تېلېگرامما بوتتا بىر چېكىپلا كىرىش قۇلايلىقى.
-                      </p>
-                    </div>
-                  </div>
+                {/* Platform Core Feature Description */}
+                <div className="p-2.5 sm:p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 text-xs sm:text-sm text-slate-200 leading-relaxed">
+                  <p>
+                    <span className="text-amber-400 font-bold ml-1.5">💡 توربېتىمىزنىڭ ئالاھىدىلىكى:</span>
+                    سىز ئەڭ كۆپ پۇل قاچىلايدىغان ئەپنى بىۋاسىتە تېلېفونىڭىزغا چۈشۈرۈۋېلىپ، شۇ يەردىنلا خالىغان ۋاقىتتا شۇ يەرگە كىرىپلا پۇل قاچىلىۋالالايسىز.
+                  </p>
                 </div>
 
-                {/* Bottom Action Buttons */}
-                <div className="flex flex-wrap items-center gap-2.5 pt-2">
-                  <button
-                    onClick={() => handleOpenInstallModal()}
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:brightness-110 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition active:scale-95 flex items-center gap-2 cursor-pointer"
-                  >
-                    <Download className="w-3.5 h-3.5 stroke-[2.5]" />
-                    <span>تېلېفونغا ئەپ قىلىپ چۈشۈرۈش قوللانمىسى</span>
-                  </button>
+                {/* EXPANDABLE SECTION (تەپسىلاتىنى كۆرۈش ياكى ياندۇرۇش) */}
+                {showPlatformDetails && (
+                  <div className="space-y-3 pt-2 border-t border-slate-800 animate-fadeIn">
+                    <div className="text-[11px] font-bold text-amber-400/90 flex items-center gap-1.5">
+                      <Flame className="w-3.5 h-3.5" />
+                      <span>سۇپىمىزنىڭ 4 چوڭ ئاساسىي ئىقتىدارى:</span>
+                    </div>
 
-                  <a
-                    href="https://t.me/maxbazar_bot"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 text-xs font-bold transition active:scale-95 flex items-center gap-1.5"
+                    {/* 4 Compact Feature Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                      {/* Feature 1 */}
+                      <div className="p-2.5 rounded-xl bg-slate-900/80 border border-amber-500/20 flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                          <Zap className="w-3.5 h-3.5 fill-amber-400" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-white text-xs">⚡ 3 سېكۇنتتا يېتىپ بېرىش</h4>
+                          <p className="text-[10px] text-slate-400">سۈنئىي كۈتۈش يوق، رەسمىي API بىلەن سېكۇنتتا بىۋاسىتە سەرۋەرگە قاچىلىنىدۇ.</p>
+                        </div>
+                      </div>
+
+                      {/* Feature 2 */}
+                      <div className="p-2.5 rounded-xl bg-slate-900/80 border border-emerald-500/20 flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                          <ShieldCheck className="w-3.5 h-3.5" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-white text-xs">🛡️ 100% رەسمىي ۋە بىخەتەر</h4>
+                          <p className="text-[10px] text-slate-400">پەقەت Player ID ياكى UID كۇپايە، مەخپىي نومۇر سورالمايدۇ.</p>
+                        </div>
+                      </div>
+
+                      {/* Feature 3 */}
+                      <div className="p-2.5 rounded-xl bg-slate-900/80 border border-blue-500/20 flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+                          <Wallet className="w-3.5 h-3.5" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-white text-xs">💳 شامكەش بىر تۇتاش قالدۇق</h4>
+                          <p className="text-[10px] text-slate-400">بىرلا قېتىم قالدۇق قاچىلاپ، ھەممە ئەپكە بىر كۇنۇپكىدا ئىشلىتىش.</p>
+                        </div>
+                      </div>
+
+                      {/* Feature 4 */}
+                      <div className="p-2.5 rounded-xl bg-slate-900/80 border border-purple-500/20 flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0">
+                          <Smartphone className="w-3.5 h-3.5" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-white text-xs">📲 تېلېفونغا ئەپ قىلىش</h4>
+                          <p className="text-[10px] text-slate-400">باش ئېكرانغا دەرھال چۈشۈرۈش ياكى تېلېگرامما بوتتا بىر چېكىپ كىرىش.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom Action Buttons inside expanded view */}
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                      <button
+                        onClick={() => handleOpenInstallModal()}
+                        className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-400 hover:brightness-110 text-slate-950 font-black text-xs transition active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-sm"
+                      >
+                        <Download className="w-3.5 h-3.5 stroke-[2.5]" />
+                        <span>تېلېفونغا ئەپ قىلىپ چۈشۈرۈش قوللانمىسى</span>
+                      </button>
+
+                      <a
+                        href="https://t.me/maxbazar_bot"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 text-xs font-semibold transition active:scale-95 flex items-center gap-1.5"
+                      >
+                        <Send className="w-3.5 h-3.5 text-sky-400" />
+                        <span>تېلېگرامما بوتتا ئېچىش</span>
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {/* Bottom Toggle Bar (تەپسىلاتى كۆرۈش / ياندۇرۇش) */}
+                <div className="flex justify-center pt-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setShowPlatformDetails(!showPlatformDetails)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 hover:bg-slate-800 border border-amber-500/25 hover:border-amber-400 text-amber-300 text-[11px] font-medium transition cursor-pointer shadow-sm"
                   >
-                    <Send className="w-3.5 h-3.5 text-sky-400" />
-                    <span>تېلېگرامما بوتتا ئېچىش</span>
-                  </a>
+                    {showPlatformDetails ? (
+                      <>
+                        <ChevronUp className="w-3 h-3 text-amber-400" />
+                        <span>ياندۇرۇش (ئىخچاملاش)</span>
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="w-3 h-3 text-amber-400" />
+                        <span>تەپسىلاتىنى كۆرۈش (سۇپا ئىقتىدارلىرى)</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
             </section>
