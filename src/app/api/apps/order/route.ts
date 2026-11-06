@@ -108,6 +108,27 @@ export async function POST(req: NextRequest) {
     if (package_id && maxstoreToken) {
       try {
         const orderUuid = crypto.randomUUID();
+        const pIdStr = player_id.trim();
+        let targetPlayerId = pIdStr;
+        let targetServerId = '';
+
+        // Extract ID and Server/Zone if formatted as "123456 (2045)"
+        const match = pIdStr.match(/^([^(]+)(?:\(([^)]+)\))?/);
+        if (match) {
+          targetPlayerId = match[1].trim();
+          if (match[2]) targetServerId = match[2].trim();
+        }
+        if (body.zone_id) {
+          targetServerId = String(body.zone_id).trim();
+        }
+
+        const orderParams: any = {
+          player_id: targetPlayerId,
+        };
+        if (targetServerId) {
+          orderParams.server_id = targetServerId;
+        }
+
         const maxstoreRes = await fetch('https://maxstore1.com/api/v2/order', {
           method: 'POST',
           headers: {
@@ -117,9 +138,7 @@ export async function POST(req: NextRequest) {
           body: JSON.stringify({
             product_id: Number(package_id),
             order_uuid: orderUuid,
-            params: {
-              player_id: player_id.trim(),
-            },
+            params: orderParams,
           }),
         });
         const maxstoreData = await maxstoreRes.json();

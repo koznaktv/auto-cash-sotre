@@ -29,7 +29,8 @@ import {
   Zap,
   Info,
   Gift,
-  CreditCard
+  CreditCard,
+  Globe
 } from 'lucide-react';
 
 export interface MlbbPackage {
@@ -38,30 +39,75 @@ export interface MlbbPackage {
   diamonds: number;
   bonus: number;
   price: number;
-  category: 'diamonds' | 'passes' | 'special';
+  server: 'global' | 'turkey' | 'special';
   tag?: string;
   isPopular?: boolean;
   image?: string;
 }
 
 const MLBB_PACKAGES: MlbbPackage[] = [
-  // 1. DIRECT DIAMONDS (ئالماس قاچىلاش)
-  { id: 201, name: '53 ئالماس (50 + 3)', diamonds: 50, bonus: 3, price: 0.95, category: 'diamonds' },
-  { id: 202, name: '110 ئالماس (100 + 10)', diamonds: 100, bonus: 10, price: 1.85, category: 'diamonds', tag: 'BEST VALUE' },
-  { id: 203, name: '275 ئالماس (250 + 25)', diamonds: 250, bonus: 25, price: 4.45, category: 'diamonds' },
-  { id: 204, name: '565 ئالماس (500 + 65)', diamonds: 500, bonus: 65, price: 8.80, category: 'diamonds', isPopular: true },
-  { id: 205, name: '1155 ئالماس (1000 + 155)', diamonds: 1000, bonus: 155, price: 17.20, category: 'diamonds', tag: 'POPULAR' },
-  { id: 206, name: '2400 ئالماس (2000 + 400)', diamonds: 2000, bonus: 400, price: 33.90, category: 'diamonds' },
-  { id: 207, name: '6000 ئالماس (5000 + 1000)', diamonds: 5000, bonus: 1000, price: 82.50, category: 'diamonds', tag: 'VIP WHALE' },
+  // =========================================================================
+  // 1. GLOBAL SERVER (خەلقئارالىق سەرۋېر - پۈتۈن دۇنيا ئويۇنچىلىرى ئۈچۈن)
+  // MaxStore Wholesale: 🫆 Mobile Legends
+  // =========================================================================
+  { id: 1891, name: '55 ئالماس', diamonds: 50, bonus: 5, price: 0.95, server: 'global' },
+  { id: 1893, name: '86 ئالماس', diamonds: 78, bonus: 8, price: 1.45, server: 'global', tag: 'POPULAR' },
+  { id: 1896, name: 'ھەپتىلىك ئالماس كارتىسى (Weekly Diamond Pass)', diamonds: 210, bonus: 70, price: 1.90, server: 'global', isPopular: true, tag: 'HOT PASS' },
+  { id: 1897, name: 'ھەپتىلىك ئېلىت كارتىسى (Weekly Elite Pack)', diamonds: 100, bonus: 0, price: 1.15, server: 'global' },
+  { id: 1883, name: '165 ئالماس', diamonds: 150, bonus: 15, price: 2.75, server: 'global' },
+  { id: 1886, name: '275 ئالماس', diamonds: 250, bonus: 25, price: 4.35, server: 'global', tag: 'BEST DEAL' },
+  { id: 1894, name: 'ئايلىق ئېلىت كارتىسى (Monthly Elite Pack)', diamonds: 300, bonus: 0, price: 4.65, server: 'global' },
+  { id: 1890, name: '429 ئالماس', diamonds: 390, bonus: 39, price: 6.90, server: 'global' },
+  { id: 1895, name: 'شەپەق ئەزالىق كارتىسى (Twilight Pass)', diamonds: 500, bonus: 0, price: 9.30, server: 'global', isPopular: true, tag: 'SEASON PASS' },
+  { id: 1892, name: '706 ئالماس', diamonds: 625, bonus: 81, price: 11.20, server: 'global' },
+  { id: 1880, name: '1050 ئالماس', diamonds: 930, bonus: 120, price: 16.80, server: 'global' },
+  { id: 1881, name: '1308 ئالماس', diamonds: 1160, bonus: 148, price: 20.90, server: 'global' },
+  { id: 1882, name: '1498 ئالماس', diamonds: 1330, bonus: 168, price: 23.50, server: 'global' },
+  { id: 1884, name: '1756 ئالماس', diamonds: 1560, bonus: 196, price: 27.90, server: 'global' },
+  { id: 1885, name: '2195 ئالماس', diamonds: 1950, bonus: 245, price: 33.50, server: 'global', tag: 'VIP DEAL' },
+  { id: 1887, name: '3073 ئالماس', diamonds: 2730, bonus: 343, price: 46.90, server: 'global' },
+  { id: 1888, name: '3774 ئالماس', diamonds: 3350, bonus: 424, price: 56.90, server: 'global' },
+  { id: 1889, name: '4204 ئالماس', diamonds: 3730, bonus: 474, price: 63.90, server: 'global', tag: 'WHALE' },
 
-  // 2. PASSES & MEMBERSHIPS (ھەپتىلىك كارتىلار)
-  { id: 210, name: 'ھەپتىلىك ئالماس كارتىسى (Weekly Diamond Pass)', diamonds: 210, bonus: 70, price: 1.99, category: 'passes', isPopular: true, tag: 'HOT PASS' },
-  { id: 211, name: 'شەپەق ئەزالىق كارتىسى (Twilight Pass)', diamonds: 500, bonus: 0, price: 9.90, category: 'passes', tag: 'SEASON PASS' },
+  // =========================================================================
+  // 2. TURKEY SERVER (تۈركىيە سەرۋىرى - ئەرزان باھالىق مەخسۇس لىنىيە)
+  // MaxStore Wholesale: Mobile Legends Turkey
+  // =========================================================================
+  { id: 965, name: 'بايراملىق كىچىك سوۋغا (Limited-Time Pack)', diamonds: 10, bonus: 0, price: 0.30, server: 'turkey', tag: 'CHEAP' },
+  { id: 958, name: '16 ئالماس', diamonds: 16, bonus: 0, price: 0.35, server: 'turkey' },
+  { id: 961, name: '44 ئالماس', diamonds: 40, bonus: 4, price: 0.85, server: 'turkey' },
+  { id: 968, name: 'ھەپتىلىك ئېلىت كارتىسى (Weekly Elite)', diamonds: 100, bonus: 0, price: 1.10, server: 'turkey' },
+  { id: 964, name: '88 ئالماس', diamonds: 80, bonus: 8, price: 1.60, server: 'turkey', tag: 'BEST VALUE' },
+  { id: 967, name: 'ھەپتىلىك ئالماس كارتىسى (Weekly Diamond Pass)', diamonds: 210, bonus: 70, price: 2.05, server: 'turkey', isPopular: true, tag: 'HOT' },
+  { id: 957, name: '133 ئالماس', diamonds: 120, bonus: 13, price: 2.45, server: 'turkey' },
+  { id: 959, name: '221 ئالماس', diamonds: 200, bonus: 21, price: 3.95, server: 'turkey' },
+  { id: 966, name: 'ئايلىق كارتىسى (Monthly Elite Pack)', diamonds: 300, bonus: 0, price: 5.20, server: 'turkey' },
+  { id: 962, name: '494 ئالماس', diamonds: 440, bonus: 54, price: 8.90, server: 'turkey', tag: 'POPULAR' },
+  { id: 956, name: '1041 ئالماس', diamonds: 930, bonus: 111, price: 17.50, server: 'turkey' },
+  { id: 960, name: '2645 ئالماس', diamonds: 2360, bonus: 285, price: 43.50, server: 'turkey' },
+  { id: 963, name: '6146 ئالماس', diamonds: 5500, bonus: 646, price: 98.00, server: 'turkey', tag: 'MEGA PACK' },
 
-  // 3. SPECIAL PACKS (ئالاھىدە پائالىيەت ۋە سوۋغات بولاقلىرى)
-  { id: 220, name: 'كۈندىلىك تەبرىك سوۋغىتى (Daily Surprise)', diamonds: 20, bonus: 0, price: 0.65, category: 'special' },
-  { id: 221, name: 'يېڭى قەھرىمان بايرام بولىقى (Starter Bundle)', diamonds: 85, bonus: 15, price: 1.45, category: 'special', tag: 'LIMITED' },
-  { id: 222, name: 'مېگا ئالماس كېڭەيتىلمىسى (Mega Pack)', diamonds: 3500, bonus: 600, price: 49.90, category: 'special' },
+  // =========================================================================
+  // 3. SPECIAL FAST SERVER (ئالاھىدە تېز قاچىلاش سەرۋېرى)
+  // MaxStore Wholesale: Mobile Legends Special
+  // =========================================================================
+  { id: 941, name: '14 ئالماس', diamonds: 14, bonus: 0, price: 0.35, server: 'special' },
+  { id: 948, name: '28 ئالماس', diamonds: 28, bonus: 0, price: 0.65, server: 'special' },
+  { id: 951, name: '42 ئالماس', diamonds: 42, bonus: 0, price: 0.95, server: 'special' },
+  { id: 952, name: '55 ئالماس', diamonds: 50, bonus: 5, price: 1.20, server: 'special' },
+  { id: 955, name: 'ھەپتىلىك ئېلىت كارتىسى (Weekly Elite)', diamonds: 100, bonus: 0, price: 1.20, server: 'special' },
+  { id: 954, name: 'ھەپتىلىك ئالماس كارتىسى (Weekly Pass)', diamonds: 210, bonus: 70, price: 2.50, server: 'special', tag: 'FAST' },
+  { id: 942, name: '140 ئالماس', diamonds: 130, bonus: 10, price: 3.00, server: 'special' },
+  { id: 943, name: '165 ئالماس', diamonds: 150, bonus: 15, price: 3.50, server: 'special' },
+  { id: 944, name: '182 ئالماس', diamonds: 165, bonus: 17, price: 3.95, server: 'special' },
+  { id: 945, name: '210 ئالماس', diamonds: 190, bonus: 20, price: 4.50, server: 'special' },
+  { id: 953, name: 'ئايلىق كارتىسى (Monthly Elite Pack)', diamonds: 300, bonus: 0, price: 5.80, server: 'special' },
+  { id: 947, name: '275 ئالماس', diamonds: 250, bonus: 25, price: 5.80, server: 'special' },
+  { id: 950, name: '355 ئالماس', diamonds: 320, bonus: 35, price: 7.50, server: 'special', tag: 'POPULAR' },
+  { id: 936, name: '1060 ئالماس', diamonds: 950, bonus: 110, price: 22.00, server: 'special' },
+  { id: 940, name: '1285 ئالماس', diamonds: 1150, bonus: 135, price: 26.50, server: 'special' },
+  { id: 946, name: '2162 ئالماس', diamonds: 1940, bonus: 222, price: 44.00, server: 'special' },
+  { id: 949, name: '3005 ئالماس', diamonds: 2700, bonus: 305, price: 54.50, server: 'special', tag: 'SPECIAL VIP' },
 ];
 
 interface SavedMlbbAccount {
@@ -73,12 +119,12 @@ interface SavedMlbbAccount {
 }
 
 export default function MobileLegendsAppPage() {
-  const [activeTab, setActiveTab] = useState<'diamonds' | 'passes' | 'special'>('diamonds');
+  const [activeServer, setActiveServer] = useState<'global' | 'turkey' | 'special'>('global');
 
   // Input states
   const [userId, setUserId] = useState('');
   const [zoneId, setZoneId] = useState('');
-  const [selectedPackage, setSelectedPackage] = useState<MlbbPackage | null>(MLBB_PACKAGES[1]);
+  const [selectedPackage, setSelectedPackage] = useState<MlbbPackage | null>(MLBB_PACKAGES[0]);
   const [savedAccounts, setSavedAccounts] = useState<SavedMlbbAccount[]>([]);
   const [checkingPlayer, setCheckingPlayer] = useState(false);
   const [playerNickname, setPlayerNickname] = useState<string | null>(null);
@@ -216,9 +262,10 @@ export default function MobileLegendsAppPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           identity: session.identity,
-          player_id: `${userId.trim()} (${zoneId.trim()})`,
+          player_id: userId.trim(),
+          zone_id: zoneId.trim(),
           package_id: selectedPackage.id,
-          package_name: selectedPackage.name,
+          package_name: `${selectedPackage.name} [${selectedPackage.server === 'global' ? 'Global' : selectedPackage.server === 'turkey' ? 'Turkey' : 'Special'}]`,
           price: selectedPackage.price,
           app_id: 'mobile-legends'
         })
@@ -245,7 +292,13 @@ export default function MobileLegendsAppPage() {
     }
   };
 
-  const filteredPackages = MLBB_PACKAGES.filter((p) => p.category === activeTab);
+  const filteredPackages = MLBB_PACKAGES.filter((p) => p.server === activeServer);
+
+  const handleSelectServer = (srv: 'global' | 'turkey' | 'special') => {
+    setActiveServer(srv);
+    const firstPkg = MLBB_PACKAGES.find((p) => p.server === srv);
+    if (firstPkg) setSelectedPackage(firstPkg);
+  };
 
   return (
     <div className="min-h-screen bg-[#070B14] text-white pb-24 font-sans selection:bg-amber-500 selection:text-black">
@@ -399,54 +452,94 @@ export default function MobileLegendsAppPage() {
           )}
         </div>
 
-        {/* STEP 2: UNIFIED 3 CATEGORY TABS (ئالماس، ھەپتىلىك كارتىلار، سوۋغاتلار) */}
+        {/* STEP 2: MLBB 3 DISTINCT SERVERS (ماكس بازاردىكى 3 خىل سېرۋېر) */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[10px] text-amber-400 font-bold px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20">
               2-قەدەم
             </span>
-            <h3 className="text-xs sm:text-sm font-black text-white">
-              قاچىلىماقچى بولغان تۈرنى تاللاڭ:
+            <h3 className="text-xs sm:text-sm font-black text-white flex items-center gap-1.5">
+              <span>سېرۋېر ۋە مۇلازىمەت لىنىيەسىنى تاللاڭ (3 خىل سېرۋېر):</span>
             </h3>
           </div>
 
-          {/* 3 Unified Tabs */}
-          <div className="grid grid-cols-3 gap-2 p-1 bg-slate-900 rounded-2xl border border-slate-800">
+          {/* 3 Servers Tab Buttons */}
+          <div className="grid grid-cols-3 gap-2 p-1.5 bg-slate-900/95 rounded-2xl border border-slate-800 shadow-md">
             <button
-              onClick={() => setActiveTab('diamonds')}
-              className={`py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                activeTab === 'diamonds'
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
-                  : 'text-slate-400 hover:text-white'
+              onClick={() => handleSelectServer('global')}
+              className={`py-2.5 sm:py-3 px-2 rounded-xl text-xs font-black transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+                activeServer === 'global'
+                  ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 text-white shadow-lg shadow-blue-500/30 border border-blue-400/50 scale-[1.02]'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>💎 ئالماس قاچىلاش</span>
+              <span className="text-base sm:text-lg">🌐</span>
+              <span className="leading-tight">1. خەلقئارالىق</span>
+              <span className="text-[9.5px] opacity-80 font-mono">(Global)</span>
             </button>
 
             <button
-              onClick={() => setActiveTab('passes')}
-              className={`py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                activeTab === 'passes'
-                  ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 shadow-lg font-black'
-                  : 'text-slate-400 hover:text-white'
+              onClick={() => handleSelectServer('turkey')}
+              className={`py-2.5 sm:py-3 px-2 rounded-xl text-xs font-black transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+                activeServer === 'turkey'
+                  ? 'bg-gradient-to-r from-red-600 via-rose-600 to-red-500 text-white shadow-lg shadow-red-500/30 border border-red-400/50 scale-[1.02]'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
               }`}
             >
-              <CreditCard className="w-3.5 h-3.5" />
-              <span>🎫 كارتىلار (Pass)</span>
+              <span className="text-base sm:text-lg">🇹🇷</span>
+              <span className="leading-tight">2. تۈركىيە</span>
+              <span className="text-[9.5px] opacity-80 font-mono">(Turkey)</span>
             </button>
 
             <button
-              onClick={() => setActiveTab('special')}
-              className={`py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                activeTab === 'special'
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
-                  : 'text-slate-400 hover:text-white'
+              onClick={() => handleSelectServer('special')}
+              className={`py-2.5 sm:py-3 px-2 rounded-xl text-xs font-black transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+                activeServer === 'special'
+                  ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-300 scale-[1.02]'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
               }`}
             >
-              <Gift className="w-3.5 h-3.5 text-amber-300" />
-              <span>🎁 سوۋغات بولاقلىرى</span>
+              <span className="text-base sm:text-lg">⚡</span>
+              <span className="leading-tight">3. ئالاھىدە تېز</span>
+              <span className="text-[9.5px] opacity-80 font-mono">(Special)</span>
             </button>
+          </div>
+
+          {/* Detailed Server Explanation Card */}
+          <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 text-right text-xs leading-relaxed">
+            {activeServer === 'global' && (
+              <div className="flex items-start gap-2.5 text-blue-200">
+                <Sparkles className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-white block font-black mb-0.5">🌐 1-سېرۋېر: خەلقئارالىق ئورتاق سېرۋېر (Global Server)</strong>
+                  <p className="text-[11px] text-slate-300">
+                    پۈتۈن دۇنيا مىقياسىدىكى بارلىق ئويۇنچىلار ئۈچۈن بىرتۇتاش رەسمىي سېرۋېر. ھەپتىلىك كارتىلار (Weekly Diamond Pass) ۋە شەپەق ئەزالىق كارتىسى (Twilight Pass) تولۇق تەمىنلەنگەن.
+                  </p>
+                </div>
+              </div>
+            )}
+            {activeServer === 'turkey' && (
+              <div className="flex items-start gap-2.5 text-red-200">
+                <Flame className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-white block font-black mb-0.5">🇹🇷 2-سېرۋېر: تۈركىيە رايونى مەخسۇس سېرۋېرى (Turkey Server)</strong>
+                  <p className="text-[11px] text-slate-300">
+                    پەقەت تۈركىيە رايونىغا تەۋە ئويۇن ھېساباتلىرى ئۈچۈن تەننەرخى ئەڭ ئەرزان ئېتىبارلىق لىنىيە. 16 ئالماستىن 6146 ئالماسقىچە كۆپ خىل تاللاشلار بار.
+                  </p>
+                </div>
+              </div>
+            )}
+            {activeServer === 'special' && (
+              <div className="flex items-start gap-2.5 text-amber-200">
+                <Zap className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-white block font-black mb-0.5">⚡ 3-سېرۋېر: ئالاھىدە تېز قاچىلاش سېرۋېرى (Special Fast Server)</strong>
+                  <p className="text-[11px] text-slate-300">
+                    مەخسۇس API تېز قاچىلاش لىنىيەسى. 14 ئالماس، 28 ئالماس، 42 ئالماس قاتارلىق مىكرو كىچىك بولاقلارنى دەرھال سېكۇنتتا يەتكۈزۈپ بېرىدۇ.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* PACKAGES GRID */}
@@ -496,8 +589,13 @@ export default function MobileLegendsAppPage() {
         <div className="rounded-3xl bg-gradient-to-r from-[#0c1629] via-[#101e38] to-[#0a1222] border border-amber-500/35 p-5 shadow-2xl space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
             <div className="space-y-0.5 text-right">
-              <span className="text-slate-400 text-[11px]">تاللانغان بولاق:</span>
-              <p className="font-black text-white text-sm">{selectedPackage?.name}</p>
+              <span className="text-slate-400 text-[11px]">تاللانغان سېرۋېر ۋە بولاق:</span>
+              <p className="font-black text-white text-sm flex items-center gap-1.5 justify-end">
+                <span>{selectedPackage?.name}</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-mono">
+                  {selectedPackage?.server === 'global' ? '🌐 Global' : selectedPackage?.server === 'turkey' ? '🇹🇷 Turkey' : '⚡ Special'}
+                </span>
+              </p>
             </div>
             <div className="space-y-0.5 text-left">
               <span className="text-slate-400 text-[11px]">ئومۇمىي چىقىم:</span>
