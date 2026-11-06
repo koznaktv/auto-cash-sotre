@@ -17,7 +17,14 @@ import {
 } from '@/lib/db';
 import { getMaxStoreBalance } from '@/lib/providers/maxstoreProvider';
 
-const SESSIONS_DIR = path.join(process.cwd(), 'data', 'micro_apps');
+const IS_SERVERLESS = Boolean(
+  process.env.VERCEL ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  (typeof process.cwd === 'function' && process.cwd().startsWith('/var/task'))
+);
+const SESSIONS_DIR = IS_SERVERLESS ? path.join('/tmp', 'micro_apps') : path.join(process.cwd(), 'data', 'micro_apps');
+const BUNDLED_DIR = path.join(process.cwd(), 'data', 'micro_apps');
+
 function ensureDir() {
   if (!fs.existsSync(SESSIONS_DIR)) {
     try {
@@ -29,9 +36,15 @@ function ensureDir() {
 function getAppWallets(): Record<string, number> {
   ensureDir();
   const filePath = path.join(SESSIONS_DIR, 'app_wallets.json');
+  const bundledFile = path.join(BUNDLED_DIR, 'app_wallets.json');
   try {
     if (fs.existsSync(filePath)) {
       return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    }
+    if (fs.existsSync(bundledFile)) {
+      const data = fs.readFileSync(bundledFile, 'utf-8');
+      try { fs.writeFileSync(filePath, data, 'utf-8'); } catch {}
+      return JSON.parse(data);
     }
   } catch {}
   return {};
@@ -68,9 +81,15 @@ function mapProviderStatusToDb(status: string): OrderRecord['status'] {
 function getOrders(): any[] {
   ensureDir();
   const filePath = path.join(SESSIONS_DIR, 'orders.json');
+  const bundledFile = path.join(BUNDLED_DIR, 'orders.json');
   try {
     if (fs.existsSync(filePath)) {
       return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    }
+    if (fs.existsSync(bundledFile)) {
+      const data = fs.readFileSync(bundledFile, 'utf-8');
+      try { fs.writeFileSync(filePath, data, 'utf-8'); } catch {}
+      return JSON.parse(data);
     }
   } catch {}
   return [];

@@ -68,10 +68,18 @@ export async function GET(req: Request) {
     try {
       const fs = await import('fs');
       const path = await import('path');
-      const SESSIONS_DIR = path.join(process.cwd(), 'data', 'micro_apps');
+      const isServerless = Boolean(
+        process.env.VERCEL ||
+        process.env.AWS_LAMBDA_FUNCTION_NAME ||
+        (typeof process.cwd === 'function' && process.cwd().startsWith('/var/task'))
+      );
+      const SESSIONS_DIR = isServerless ? path.join('/tmp', 'micro_apps') : path.join(process.cwd(), 'data', 'micro_apps');
+      const bundledDir = path.join(process.cwd(), 'data', 'micro_apps');
       const ordersFile = path.join(SESSIONS_DIR, 'orders.json');
-      if (fs.existsSync(ordersFile)) {
-        const allAppOrders: any[] = JSON.parse(fs.readFileSync(ordersFile, 'utf-8'));
+      const bundledOrdersFile = path.join(bundledDir, 'orders.json');
+      const targetOrdersFile = fs.existsSync(ordersFile) ? ordersFile : fs.existsSync(bundledOrdersFile) ? bundledOrdersFile : null;
+      if (targetOrdersFile) {
+        const allAppOrders: any[] = JSON.parse(fs.readFileSync(targetOrdersFile, 'utf-8'));
         const pendingAppOrders = allAppOrders.filter(
           (o) => (o.status === 'wait' || o.status === 'in_progress' || !o.status) && o.provider_order_id
         );
@@ -138,7 +146,10 @@ export async function GET(req: Request) {
             }
           }
           if (appChanged) {
-            fs.writeFileSync(ordersFile, JSON.stringify(allAppOrders.slice(0, 100), null, 2), 'utf-8');
+            try {
+              if (!fs.existsSync(SESSIONS_DIR)) fs.mkdirSync(SESSIONS_DIR, { recursive: true });
+              fs.writeFileSync(ordersFile, JSON.stringify(allAppOrders.slice(0, 100), null, 2), 'utf-8');
+            } catch {}
           }
         }
       }
