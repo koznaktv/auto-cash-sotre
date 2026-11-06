@@ -290,6 +290,16 @@ export default function AppsHubPage() {
   const handleVerifyShamcashTalon = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!talonCode.trim()) return;
+
+    if (!session && !localStorage.getItem('maxbazar_unified_session') && !localStorage.getItem('autocash_user')) {
+      setShowLoginModal(true);
+      setTalonFeedback({
+        ok: false,
+        msg: 'قالدۇق قاچىلاش ئۈچۈن ئالدى بىلەن ھېساباتىڭىزغا كىرىڭ!'
+      });
+      return;
+    }
+
     setIsVerifyingTalon(true);
     setTalonFeedback(null);
 
@@ -297,35 +307,37 @@ export default function AppsHubPage() {
       const res = await fetch('/api/deposit/verify-talon', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           talon: talonCode.trim(),
           source: 'maxbazar_wallet',
           userToken: session?.token,
-          identity: session?.identity
+          identity: session?.identity || ''
         })
       });
-      const data = await res.json();
-      if (data?.success) {
+      const data = await res.json().catch(() => null);
+      if (data?.success || data?.ok) {
         setTalonFeedback({
           ok: true,
-          msg: `✅ تالون تەستىقلاندى! $${Number(data.amount || 0).toFixed(2)} قالدۇقىڭىزغا دەرھال قوشۇلدى.`
+          msg: data?.message || `✅ تالون تەستىقلاندى! $${Number(data?.amount || 0).toFixed(2)} قالدۇقىڭىزغا دەرھال قوشۇلدى.`
         });
         setTalonCode('');
-        if (session && typeof data.newBalance === 'number') {
-          const updated = { ...session, balance: data.newBalance };
+        if (typeof data?.newBalance === 'number') {
+          const updated = { ...(session || { token: 'active', identity: 'User', balance: 0 }), balance: data.newBalance };
           setSession(updated);
           localStorage.setItem('maxbazar_unified_session', JSON.stringify(updated));
+          window.dispatchEvent(new CustomEvent('maxbazar-auth-changed', { detail: updated }));
         }
       } else {
         setTalonFeedback({
           ok: false,
-          msg: data?.error || 'تالون تەكشۈرۈش مەغلۇپ بولدى، نومۇرنى توغرا كىرگۈزۈڭ ياكى سەل تەخىر قىلىڭ.'
+          msg: data?.error || data?.message || 'تالون تەكشۈرۈش مەغلۇپ بولدى، نومۇرنى توغرا كىرگۈزۈڭ ياكى سەل تەخىر قىلىڭ.'
         });
       }
-    } catch {
+    } catch (err: any) {
       setTalonFeedback({
         ok: false,
-        msg: 'تور ئۇلىنىشىدا كاشىلا كۆرۈلدى. سەل تەخىر قىلىپ قايتا سىناڭ.'
+        msg: err?.message || 'تور ئۇلىنىشىدا كاشىلا كۆرۈلدى. سەل تەخىر قىلىپ قايتا سىناڭ.'
       });
     } finally {
       setIsVerifyingTalon(false);
@@ -1649,7 +1661,7 @@ export default function AppsHubPage() {
                 <div className="text-right space-y-0.5">
                   <span className="text-[10px] text-slate-400 block font-bold">رەسمىي شامكەش ئادرېسىمىز:</span>
                   <span className="font-mono text-amber-300 font-bold text-xs select-all">
-                    084c7e47a9ef332ca98418c399b6ea7d
+                    efe8a2b200d66411c7c7e296369cbba8
                   </span>
                 </div>
                 <button
