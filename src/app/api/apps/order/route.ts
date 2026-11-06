@@ -14,6 +14,7 @@ import {
   getAllUsersAsync,
   adjustUserBalanceAsync,
   OrderRecord,
+  getAllOrdersAsync,
 } from '@/lib/db';
 import { getMaxStoreBalance } from '@/lib/providers/maxstoreProvider';
 
@@ -298,12 +299,80 @@ export async function GET(req: NextRequest) {
     const app_id = searchParams.get('app_id');
     const isAdmin = searchParams.get('admin') === 'true';
 
-    const allOrders = getOrders();
+    const localOrders = getOrders();
     const cleanId = (identity || '').trim().replace(/^@/, '').toLowerCase();
+
+    // Fetch and merge central DB orders
+    let dbOrders: any[] = [];
+    try {
+      const allDb = await getAllOrdersAsync();
+      dbOrders = allDb.map((o) => {
+        const details = (o.details as any) || {};
+        let orderAppId = details.app_id;
+        if (!orderAppId) {
+          if (o.serviceId?.startsWith('maxbazar_')) {
+            orderAppId = o.serviceId.replace('maxbazar_', '');
+          } else if (o.serviceName?.toLowerCase().includes('pubg')) {
+            orderAppId = 'pubg';
+          } else if (o.serviceName?.toLowerCase().includes('honor')) {
+            orderAppId = 'honor-of-kings';
+          } else {
+            orderAppId = 'general';
+          }
+        }
+        return {
+          order_id: o.id,
+          provider_order_id: details.providerOrderId || null,
+          app_id: orderAppId,
+          identity: details.identity || o.userEmail || '',
+          player_id: o.targetAccount || details.playerId || '',
+          package_id: details.packageId || null,
+          package_name: o.packageTitle || o.serviceName,
+          price: o.amount,
+          status: o.status,
+          created_at: o.createdAt,
+          user_id: o.userId,
+        };
+      });
+    } catch (e: any) {
+      console.warn('[getAllOrdersAsync in apps/order warn]:', e?.message);
+    }
+
+    const orderMap = new Map<string, any>();
+    for (const o of localOrders) {
+      if (o?.order_id) orderMap.set(o.order_id, o);
+    }
+    for (const o of dbOrders) {
+      if (o?.order_id && !orderMap.has(o.order_id)) {
+        orderMap.set(o.order_id, o);
+      }
+    }
+    const allOrders = Array.from(orderMap.values());
+
+    // Resolve all linked identities for the user (email, telegram, chat_id, id)
+    let userIdentities = new Set<string>();
+    if (cleanId) {
+      userIdentities.add(cleanId);
+      try {
+        const dbUser = await findOrCreateDbUserForIdentity(cleanId);
+        if (dbUser) {
+          if (dbUser.email) userIdentities.add(dbUser.email.toLowerCase().trim());
+          if (dbUser.telegramUsername) userIdentities.add(dbUser.telegramUsername.toLowerCase().trim().replace(/^@/, ''));
+          if (dbUser.telegramChatId) userIdentities.add(String(dbUser.telegramChatId).trim());
+          if (dbUser.id) userIdentities.add(dbUser.id.toLowerCase().trim());
+          if (dbUser.name) userIdentities.add(dbUser.name.toLowerCase().trim());
+        }
+      } catch {}
+    }
 
     let filtered = allOrders.filter((o) => {
       if (app_id && app_id !== 'all' && o.app_id !== app_id) return false;
-      if (!isAdmin && cleanId && (o.identity || '').toLowerCase() !== cleanId) return false;
+      if (!isAdmin && cleanId) {
+        const orderIden = (o.identity || '').toLowerCase().trim().replace(/^@/, '');
+        const orderUserId = (o.user_id || '').toLowerCase().trim();
+        const matches = userIdentities.has(orderIden) || (orderUserId && userIdentities.has(orderUserId));
+        if (!matches) return false;
+      }
       return true;
     });
 

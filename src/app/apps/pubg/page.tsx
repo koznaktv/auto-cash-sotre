@@ -336,32 +336,84 @@ export default function PubgAppPage() {
 
     // 2. Load User Session (Unified across MAX-BAZAR)
     try {
+      let parsed: any = null;
       const saved = localStorage.getItem('maxbazar_unified_session') || localStorage.getItem('maxbazar_pubg_session');
       if (saved) {
-        const parsed = JSON.parse(saved);
-        setSession(parsed);
-        if (parsed.photo_url) {
-          setAvatarUrl(parsed.photo_url);
-        } else if (parsed.identity) {
-          setAvatarUrl(`/api/apps/avatar?user=${encodeURIComponent(parsed.identity)}`);
+        try { parsed = JSON.parse(saved); } catch {}
+      }
+      if (!parsed) {
+        const localAuth = localStorage.getItem('autocash_user');
+        if (localAuth) {
+          try { parsed = JSON.parse(localAuth); } catch {}
+        }
+      }
+      if (!parsed) {
+        const email = localStorage.getItem('autocash_email');
+        const name = localStorage.getItem('autocash_username');
+        const bal = localStorage.getItem('autocash_balance');
+        const avatar = localStorage.getItem('autocash_avatar');
+        if (email || name) {
+          parsed = {
+            email: email || '',
+            name: name || '',
+            balance: bal ? Number(bal) : 0,
+            avatarUrl: avatar || '',
+          };
+        }
+      }
+      if (!parsed) {
+        try {
+          fetch('/api/auth/me')
+            .then((r) => r.json())
+            .then((meData) => {
+              if (meData?.success && meData.user) {
+                const u = meData.user;
+                const norm = {
+                  token: 'token_' + (u.id || Date.now()),
+                  identity: u.email || u.name || '',
+                  balance: Number(u.balance) || 0,
+                  photo_url: u.avatarUrl || '',
+                };
+                setSession(norm);
+                try {
+                  localStorage.setItem('maxbazar_pubg_session', JSON.stringify(norm));
+                  localStorage.setItem('maxbazar_unified_session', JSON.stringify(norm));
+                } catch {}
+              }
+            }).catch(() => {});
+        } catch {}
+      }
+
+      if (parsed) {
+        const identity = parsed.identity || parsed.email || parsed.user?.email || parsed.name || '';
+        const balance = typeof parsed.balance === 'number'
+          ? parsed.balance
+          : typeof parsed.user?.balance === 'number'
+          ? parsed.user.balance
+          : 0;
+        const norm = {
+          token: parsed.token || 'token_' + Date.now(),
+          identity,
+          balance,
+          photo_url: parsed.photo_url || parsed.avatarUrl || parsed.user?.avatarUrl || '',
+        };
+        setSession(norm);
+        if (norm.photo_url) {
+          setAvatarUrl(norm.photo_url);
+        } else if (norm.identity) {
+          setAvatarUrl(`/api/apps/avatar?user=${encodeURIComponent(norm.identity)}`);
         }
         // Refresh live balance from server
-        fetch(`/api/apps/otp`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'get_balance',
-            phone_or_username: parsed.identity,
-            app_id: 'pubg',
-          }),
-        })
-          .then((r) => r.json())
-          .then((res) => {
-            if (res.ok) {
-              setSession((prev: any) => ({ ...prev, balance: res.balance }));
-            }
-          })
-          .catch(() => {});
+        if (norm.identity) {
+          fetch(`/api/apps/order?identity=${encodeURIComponent(norm.identity)}&app_id=pubg`)
+            .then((r) => r.json())
+            .then((res) => {
+              if (res.ok && typeof res.live_balance === 'number') {
+                setSession((prev: any) => ({ ...prev, balance: res.live_balance }));
+              }
+            })
+            .catch(() => {});
+        }
       }
     } catch {}
 
@@ -477,20 +529,37 @@ export default function PubgAppPage() {
     }, 200);
 
     const onAuthChanged = (e: any) => {
-      if (e?.detail) {
-        setSession(e.detail);
-        if (e.detail.photo_url) {
-          setAvatarUrl(e.detail.photo_url);
-        } else if (e.detail.identity) {
-          setAvatarUrl(`/api/apps/avatar?user=${encodeURIComponent(e.detail.identity)}`);
+      let d = e?.detail;
+      if (!d) {
+        try {
+          const saved = localStorage.getItem('maxbazar_unified_session') || localStorage.getItem('autocash_user');
+          if (saved) d = JSON.parse(saved);
+        } catch {}
+      }
+      if (d) {
+        const id = d.identity || d.email || d.user?.email || d.name || '';
+        const b = Number(d.balance ?? d.user?.balance ?? 0) || 0;
+        const norm = {
+          token: d.token || 'token_' + Date.now(),
+          identity: id,
+          balance: b,
+          photo_url: d.photo_url || d.avatarUrl || d.user?.avatarUrl || '',
+        };
+        setSession(norm);
+        if (norm.photo_url) {
+          setAvatarUrl(norm.photo_url);
+        } else if (norm.identity) {
+          setAvatarUrl(`/api/apps/avatar?user=${encodeURIComponent(norm.identity)}`);
         }
       }
     };
     window.addEventListener('maxbazar-auth-changed', onAuthChanged);
+    window.addEventListener('autocash-auth-changed', onAuthChanged);
 
     return () => {
       clearInterval(tgTimer);
       window.removeEventListener('maxbazar-auth-changed', onAuthChanged);
+      window.removeEventListener('autocash-auth-changed', onAuthChanged);
     };
   }, []);
 

@@ -199,20 +199,24 @@ export default function AuthModal({
         throw new Error(data.message || 'Gmail ئارقىلىق كىرىش مەغلۇپ بولدى');
       }
 
+      const unifiedSession = {
+        token: 'token_' + (data.user.id || Date.now()),
+        identity: data.user.email || data.user.name || '',
+        balance: Number(data.user.balance) || 0,
+        photo_url: data.user.avatarUrl || '',
+        user: data.user,
+        loginTime: new Date().toISOString(),
+      };
+
       storeLocalAuth(data.user);
       if (typeof window !== 'undefined') {
         try {
-          localStorage.setItem(
-            'maxbazar_unified_session',
-            JSON.stringify({
-              identity: data.user.email,
-              user: data.user,
-              loginTime: new Date().toISOString(),
-            })
-          );
+          localStorage.setItem('maxbazar_unified_session', JSON.stringify(unifiedSession));
+          localStorage.setItem('maxbazar_pubg_session', JSON.stringify(unifiedSession));
+          localStorage.setItem('maxbazar_hok_session', JSON.stringify(unifiedSession));
         } catch {}
+        window.dispatchEvent(new CustomEvent('maxbazar-auth-changed', { detail: unifiedSession }));
         window.dispatchEvent(new Event('autocash-auth-changed'));
-        window.dispatchEvent(new Event('maxbazar-auth-changed'));
       }
 
       showToast(data.message || 'Gmail ئارقىلىق مۇۋەپپەقىيەتلىك كىردىڭىز!', 'success');

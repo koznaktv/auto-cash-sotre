@@ -25,6 +25,7 @@ export function notifyAuthChanged(): void {
 export function storeLocalAuth(user: ClientUser, options?: { skipNotify?: boolean }): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem('autocash_is_logged_in', 'true');
+  try { localStorage.setItem('autocash_user', JSON.stringify(user)); } catch {}
   localStorage.setItem('autocash_username', user.name);
   localStorage.setItem('autocash_email', user.email);
   if (user.id) localStorage.setItem('autocash_userId', user.id);
@@ -49,6 +50,23 @@ export function storeLocalAuth(user: ClientUser, options?: { skipNotify?: boolea
   if (user.apiEnabled !== undefined) {
     localStorage.setItem('autocash_apiEnabled', String(user.apiEnabled));
   }
+
+  // Seamlessly sync with MAX-BAZAR unified session
+  try {
+    const maxbazarSession = {
+      token: 'token_' + (user.id || Date.now()),
+      identity: user.email || user.name || '',
+      balance: Number(user.balance) || 0,
+      photo_url: user.avatarUrl || '',
+      user: user,
+      loginTime: new Date().toISOString(),
+    };
+    localStorage.setItem('maxbazar_unified_session', JSON.stringify(maxbazarSession));
+    localStorage.setItem('maxbazar_pubg_session', JSON.stringify(maxbazarSession));
+    localStorage.setItem('maxbazar_hok_session', JSON.stringify(maxbazarSession));
+    window.dispatchEvent(new CustomEvent('maxbazar-auth-changed', { detail: maxbazarSession }));
+  } catch {}
+
   if (!options?.skipNotify) {
     notifyAuthChanged();
   }
@@ -70,6 +88,16 @@ export function clearLocalAuth(): void {
   localStorage.removeItem('autocash_apiKey');
   localStorage.removeItem('autocash_apiKeyCreatedAt');
   localStorage.removeItem('autocash_apiEnabled');
+  localStorage.removeItem('autocash_user');
+
+  // Clear MAX-BAZAR sessions
+  try {
+    localStorage.removeItem('maxbazar_unified_session');
+    localStorage.removeItem('maxbazar_pubg_session');
+    localStorage.removeItem('maxbazar_hok_session');
+    window.dispatchEvent(new CustomEvent('maxbazar-auth-changed', { detail: null }));
+  } catch {}
+
   notifyAuthChanged();
 }
 

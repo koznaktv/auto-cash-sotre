@@ -81,10 +81,26 @@ function CallbackHandler() {
       setMessage('سىستېما ئۇچۇرى ماس قەدەملىنىۋاتىدۇ...');
 
       // The server verifies the token and sets the session cookie
-      await syncSupabaseSession(accessToken);
+      const syncedUser = await syncSupabaseSession(accessToken);
 
       // Trigger global event for navbar/drawer listeners
       window.dispatchEvent(new Event('autocash-auth-changed'));
+      if (syncedUser) {
+        const unifiedSession = {
+          token: 'token_' + (syncedUser.id || Date.now()),
+          identity: syncedUser.email || syncedUser.name || '',
+          balance: Number(syncedUser.balance) || 0,
+          photo_url: syncedUser.avatarUrl || '',
+          user: syncedUser,
+          loginTime: new Date().toISOString(),
+        };
+        try {
+          localStorage.setItem('maxbazar_unified_session', JSON.stringify(unifiedSession));
+          localStorage.setItem('maxbazar_pubg_session', JSON.stringify(unifiedSession));
+          localStorage.setItem('maxbazar_hok_session', JSON.stringify(unifiedSession));
+        } catch {}
+        window.dispatchEvent(new CustomEvent('maxbazar-auth-changed', { detail: unifiedSession }));
+      }
 
       setStatus('success');
       setMessage('مۇۋەپپەقىيەتلىك كىردىڭىز! بەتكە يۆتكىلىۋاتىدۇ...');

@@ -54,6 +54,7 @@ import {
   Crown,
   Activity,
   LogOut,
+  LogIn,
   HelpCircle,
   ArrowUpRight
 } from 'lucide-react';
@@ -129,62 +130,141 @@ export default function AppsHubPage() {
 
   // Load Session and refresh live unified balance
   useEffect(() => {
-    try {
-      const saved =
-        localStorage.getItem('maxbazar_unified_session') ||
-        localStorage.getItem('maxbazar_pubg_session') ||
-        localStorage.getItem('maxbazar_hok_session');
+    const loadSessionAndOrders = async () => {
+      try {
+        let rawUser: any = null;
+        const saved =
+          localStorage.getItem('maxbazar_unified_session') ||
+          localStorage.getItem('maxbazar_pubg_session') ||
+          localStorage.getItem('maxbazar_hok_session');
 
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setSession(parsed);
+        if (saved) {
+          try { rawUser = JSON.parse(saved); } catch {}
+        }
+        if (!rawUser) {
+          const localAuth = localStorage.getItem('autocash_user');
+          if (localAuth) {
+            try { rawUser = JSON.parse(localAuth); } catch {}
+          }
+        }
+        if (!rawUser) {
+          const email = localStorage.getItem('autocash_email');
+          const name = localStorage.getItem('autocash_username');
+          const bal = localStorage.getItem('autocash_balance');
+          const avatar = localStorage.getItem('autocash_avatar');
+          if (email || name) {
+            rawUser = {
+              email: email || '',
+              name: name || '',
+              balance: bal ? Number(bal) : 0,
+              avatarUrl: avatar || '',
+            };
+          }
+        }
 
-        // Fetch fresh unified balance
-        fetch('/api/apps/otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'get_balance',
-            token: parsed.token || '',
-            identity: parsed.identity || ''
-          })
-        })
-          .then((r) => r.json())
-          .then((data) => {
-            if (data?.success && typeof data.balance === 'number') {
-              const updated = { ...parsed, balance: data.balance };
-              setSession(updated);
-              localStorage.setItem('maxbazar_unified_session', JSON.stringify(updated));
-            }
-          })
-          .catch(() => {});
-      }
-    } catch {}
+        // Always check session cookie via /api/auth/me to get the freshest session & balance
+        try {
+          const meRes = await fetch('/api/auth/me');
+          const meData = await meRes.json();
+          if (meData?.success && meData.user) {
+            rawUser = meData.user;
+          }
+        } catch {}
+
+        if (rawUser) {
+          const identity =
+            rawUser.identity ||
+            rawUser.email ||
+            rawUser.user?.email ||
+            rawUser.name ||
+            rawUser.user?.name ||
+            '';
+          const balance =
+            typeof rawUser.balance === 'number'
+              ? rawUser.balance
+              : typeof rawUser.user?.balance === 'number'
+              ? rawUser.user.balance
+              : 0;
+
+          const normalized = {
+            token: rawUser.token || 'token_' + (rawUser.id || rawUser.user?.id || Date.now()),
+            identity: identity,
+            balance: balance,
+            photo_url: rawUser.photo_url || rawUser.avatarUrl || rawUser.user?.avatarUrl || '',
+            telegram_id: rawUser.telegram_id || rawUser.telegramChatId || rawUser.user?.telegramChatId || '',
+          };
+
+          setSession(normalized);
+          try {
+            localStorage.setItem('maxbazar_unified_session', JSON.stringify(normalized));
+          } catch {}
+
+          // Refresh live unified balance and orders history from server
+          if (identity) {
+            fetch(`/api/apps/order?identity=${encodeURIComponent(identity)}&app_id=all`)
+              .then((r) => r.json())
+              .then((data) => {
+                if (data?.ok) {
+                  if (typeof data.live_balance === 'number') {
+                    const fresh = { ...normalized, balance: data.live_balance };
+                    setSession(fresh);
+                    try {
+                      localStorage.setItem('maxbazar_unified_session', JSON.stringify(fresh));
+                    } catch {}
+                  }
+                  if (Array.isArray(data.orders)) {
+                    setOrdersHistory(data.orders);
+                  }
+                }
+              })
+              .catch(() => {});
+          }
+        }
+      } catch {}
+    };
+
+    loadSessionAndOrders();
 
     const handleAuthChanged = (e: any) => {
-      if (e?.detail) setSession(e.detail);
+      if (e?.detail && typeof e.detail === 'object') {
+        const d = e.detail;
+        const id = d.identity || d.email || d.user?.email || '';
+        const b = Number(d.balance ?? d.user?.balance ?? 0) || 0;
+        const s = {
+          token: d.token || 'token_' + Date.now(),
+          identity: id,
+          balance: b,
+          photo_url: d.photo_url || d.avatarUrl || d.user?.avatarUrl || '',
+          telegram_id: d.telegram_id || d.telegramChatId || d.user?.telegramChatId || '',
+        };
+        setSession(s);
+      }
+      loadSessionAndOrders();
     };
+
     window.addEventListener('maxbazar-auth-changed', handleAuthChanged);
-    return () => window.removeEventListener('maxbazar-auth-changed', handleAuthChanged);
+    window.addEventListener('autocash-auth-changed', handleAuthChanged);
+    return () => {
+      window.removeEventListener('maxbazar-auth-changed', handleAuthChanged);
+      window.removeEventListener('autocash-auth-changed', handleAuthChanged);
+    };
   }, []);
 
   // Fetch Orders History when navigating to orders tab
   const fetchOrdersHistory = () => {
-    if (!session?.token && !session?.identity) return;
+    const ident = session?.identity || (session as any)?.user?.email;
+    if (!ident) return;
     setLoadingOrders(true);
-    fetch('/api/apps/order', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'history',
-        token: session.token || '',
-        phone_or_username: session.identity || ''
-      })
-    })
+    fetch(`/api/apps/order?identity=${encodeURIComponent(ident)}&app_id=all`)
       .then((r) => r.json())
       .then((data) => {
-        if (data?.success && Array.isArray(data.orders)) {
-          setOrdersHistory(data.orders);
+        if (data?.ok) {
+          if (Array.isArray(data.orders)) {
+            setOrdersHistory(data.orders);
+          }
+          if (typeof data.live_balance === 'number') {
+            setSession((prev) => (prev ? { ...prev, balance: data.live_balance } : prev));
+          }
         }
       })
       .catch(() => {})
@@ -194,14 +274,14 @@ export default function AppsHubPage() {
   };
 
   useEffect(() => {
-    if (activeNavTab === 'orders') {
+    if (activeNavTab === 'orders' || activeNavTab === 'account') {
       fetchOrdersHistory();
     }
-  }, [activeNavTab, session]);
+  }, [activeNavTab, session?.identity]);
 
   // Handle Copy Shamcash Address
   const handleCopyShamcashAddress = () => {
-    navigator.clipboard.writeText('084c7e47a9ef332ca98418c399b6ea7d');
+    navigator.clipboard.writeText('efe8a2b200d66411c7c7e296369cbba8');
     setCopiedShamAddress(true);
     setTimeout(() => setCopiedShamAddress(false), 2000);
   };
@@ -596,7 +676,7 @@ export default function AppsHubPage() {
               <div className="text-right">
                 <span className="block text-[9px] text-amber-200/90 font-bold leading-none mb-0.5">قالدۇق</span>
                 <span className="text-xs sm:text-sm font-black text-amber-300 font-mono tracking-tight group-hover:text-amber-200 transition-colors">
-                  ${session ? session.balance.toFixed(2) : '0.00'}
+                  ${Number(session?.balance ?? 0).toFixed(2)}
                 </span>
               </div>
               <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-600 group-hover:brightness-110 text-slate-950 flex items-center justify-center transition shadow-md shrink-0">
@@ -1515,7 +1595,7 @@ export default function AppsHubPage() {
                 </span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl sm:text-4xl font-black font-mono text-amber-300 tracking-tight text-shadow-sm">
-                    ${session ? session.balance.toFixed(2) : '0.00'}
+                    ${Number(session?.balance ?? 0).toFixed(2)}
                   </span>
                   <span className="text-xs text-amber-400 font-black font-mono">USD</span>
                 </div>
@@ -1734,10 +1814,10 @@ export default function AppsHubPage() {
                 </div>
                 <button
                   onClick={() => setShowLoginModal(true)}
-                  className="py-3 px-6 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-purple-600 text-white font-black text-xs shadow-lg transition active:scale-95 inline-flex items-center gap-2 cursor-pointer"
+                  className="py-3 px-7 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-emerald-600 hover:from-amber-400 hover:to-emerald-500 text-white font-black text-xs shadow-xl shadow-amber-500/20 transition active:scale-95 inline-flex items-center gap-2.5 cursor-pointer"
                 >
-                  <Send className="w-4 h-4" />
-                  <span>تېلېگرامما ئارقىلىق كىرىش</span>
+                  <LogIn className="w-4 h-4" />
+                  <span>ھېساباتقا كىرىش / تىزىملىتىش</span>
                 </button>
               </div>
             ) : (
@@ -1777,7 +1857,7 @@ export default function AppsHubPage() {
                   {/* Quick Balance Chip */}
                   <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-[#080d18] border border-amber-500/30 text-amber-300 font-mono text-xs font-bold">
                     <span>قالدۇقىڭىز:</span>
-                    <span className="text-sm text-amber-400 font-black">${session.balance.toFixed(2)}</span>
+                    <span className="text-sm text-amber-400 font-black">${Number(session?.balance ?? 0).toFixed(2)}</span>
                   </div>
                 </div>
 
