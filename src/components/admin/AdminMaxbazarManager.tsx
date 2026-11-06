@@ -139,6 +139,28 @@ export default function AdminMaxbazarManager() {
     }
   };
 
+  const handleBroadcastChannel = async (orderId: string) => {
+    try {
+      setActionLoadingId(orderId);
+      const res = await fetch('/api/apps/order', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'broadcast_channel', order_id: orderId }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setMessage({ type: 'success', text: `📢 زاكاز #${orderId} مۇۋەپپەقىيەتلىك ھالدا @autocash_cannel قانىلىغا چىقىرىلدى!` });
+      } else {
+        setMessage({ type: 'error', text: data.error || 'قانالغا چىقىرىش مەغلۇپ بولدى' });
+      }
+    } catch (e: any) {
+      setMessage({ type: 'error', text: e?.message || 'تور خاتالىقى' });
+    } finally {
+      setActionLoadingId(null);
+      setTimeout(() => setMessage(null), 3500);
+    }
+  };
+
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
@@ -590,14 +612,24 @@ export default function AdminMaxbazarManager() {
                             </>
                           )}
                           {isSuccess && (
-                            <button
-                              disabled={isActioning}
-                              onClick={() => handleUpdateStatus(ord.order_id, 'refunded')}
-                              className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white text-[10px] font-medium transition"
-                              title="قايتۇرۇش"
-                            >
-                              قايتۇرۇش
-                            </button>
+                            <>
+                              <button
+                                disabled={isActioning}
+                                onClick={() => handleBroadcastChannel(ord.order_id)}
+                                className="px-2 py-1 rounded-lg bg-indigo-700 hover:bg-indigo-600 text-white text-[10px] font-bold transition disabled:opacity-50"
+                                title="بۇ زاكازنى رەسمىي تېلېگرامما قانىلىغا چىقىرىش"
+                              >
+                                📢 قانالغا
+                              </button>
+                              <button
+                                disabled={isActioning}
+                                onClick={() => handleUpdateStatus(ord.order_id, 'refunded')}
+                                className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white text-[10px] font-medium transition"
+                                title="قايتۇرۇش"
+                              >
+                                قايتۇرۇش
+                              </button>
+                            </>
                           )}
                           {isRefunded && (
                             <span className="text-[10px] text-slate-500">تاماملانغان</span>

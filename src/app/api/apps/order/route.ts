@@ -333,7 +333,7 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
-    const { order_id, new_status, refund_amount } = body;
+    const { order_id, new_status, refund_amount, action } = body;
     if (!order_id) {
       return NextResponse.json({ ok: false, error: 'order_id is required' }, { status: 400 });
     }
@@ -345,11 +345,63 @@ export async function PATCH(req: NextRequest) {
     }
 
     const order = allOrders[orderIndex];
+
+    // Manual broadcast action
+    if (action === 'broadcast_channel') {
+      try {
+        const { postOrderCompletedToChannel } = await import('@/lib/telegram');
+        const sent = await postOrderCompletedToChannel({
+          id: order.order_id,
+          serviceName: getAppServiceName(order.app_id),
+          packageTitle: order.package_name,
+          amount: order.price,
+          targetAccount: order.player_id,
+          userName: order.identity,
+          details: {
+            app_id: order.app_id,
+            playerId: order.player_id,
+            zoneId: order.zone_id,
+            nickname: order.nickname,
+          },
+          force: true,
+        });
+        return NextResponse.json({
+          ok: sent,
+          message: sent ? 'زاكاز قانالغا مۇۋەپپەقىيەتلىك چىقىرىلدى!' : 'قانالغا يوللاش مەغلۇپ بولدى',
+          order,
+        });
+      } catch (err: any) {
+        return NextResponse.json({ ok: false, error: err?.message || 'Broadcast failed' }, { status: 500 });
+      }
+    }
+
     const prevStatus = order.status;
     order.status = new_status;
 
     if (new_status === 'completed') {
       order.completed_at = new Date().toISOString();
+
+      // Broadcast completed order to Telegram Channel (@autocash_cannel)
+      try {
+        const { postOrderCompletedToChannel } = await import('@/lib/telegram');
+        await postOrderCompletedToChannel({
+          id: order.order_id,
+          serviceName: getAppServiceName(order.app_id),
+          packageTitle: order.package_name,
+          amount: order.price,
+          targetAccount: order.player_id,
+          userName: order.identity,
+          details: {
+            app_id: order.app_id,
+            playerId: order.player_id,
+            zoneId: order.zone_id,
+            nickname: order.nickname,
+          },
+          force: true,
+        });
+      } catch (broadErr: any) {
+        console.warn('[Broadcast to Channel Warn]:', broadErr?.message);
+      }
     } else if (new_status === 'refunded') {
       order.refunded_at = new Date().toISOString();
       if (prevStatus !== 'refunded') {

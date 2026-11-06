@@ -688,13 +688,16 @@ export async function postOrderCompletedToChannel(order: {
   userName?: string;
   userEmail?: string;
   details?: Record<string, any>;
+  force?: boolean;
 }): Promise<boolean> {
   if (!order || !order.id) return false;
   const normalizedId = String(order.id).trim();
 
-  // Deduplication guard: never broadcast the same order twice
-  if (postedChannelOrders.has(normalizedId) || order.details?.channelBroadcasted) {
-    return true;
+  // Deduplication guard: never broadcast the same order twice unless explicitly forced
+  if (!order.force) {
+    if (postedChannelOrders.has(normalizedId) || order.details?.channelBroadcasted) {
+      return true;
+    }
   }
 
   // Multi-process & Serverless Database Locking Deduplication
@@ -702,18 +705,18 @@ export async function postOrderCompletedToChannel(order: {
   try {
     const { getSupabase } = await import('@/lib/supabase');
     sbClient = getSupabase();
-    if (sbClient) {
+    if (sbClient && !order.force) {
       const { data: dbOrd } = await sbClient.from('orders').select('details').eq('id', normalizedId).maybeSingle();
       if (dbOrd?.details?.channelBroadcasted) {
         postedChannelOrders.add(normalizedId);
         return true;
       }
       const lock = dbOrd?.details?.channelBroadcastLock;
-      if (lock && Date.now() - Number(lock) < 20000) {
+      if (lock && Date.now() - Number(lock) < 10000) {
         // Another instance is currently broadcasting this order
         return true;
       }
-      // Set temporary 20-second lock (NOT marked as completed yet!)
+      // Set temporary 10-second lock (NOT marked as completed yet!)
       const mergedDetails = { ...(dbOrd?.details || order.details || {}), channelBroadcastLock: Date.now() };
       await sbClient.from('orders').update({ details: mergedDetails }).eq('id', normalizedId);
     }
@@ -724,16 +727,17 @@ export async function postOrderCompletedToChannel(order: {
   const token = getBotToken();
   if (!token) return false;
 
-  const targetChannel = TELEGRAM_CONFIG.channelId || `@${TELEGRAM_CONFIG.channelUsername}`;
+  const primaryChannel = TELEGRAM_CONFIG.channelId || '-1004310150591';
+  const fallbackChannel = '@' + TELEGRAM_CONFIG.channelUsername;
 
-  // Helper to mask secrets like 1******4 or 5***8 (matching sample in image 2)
+  // Helper to mask secrets like 1******4 or 5***8 (matching sample)
   const maskSecret = (val: string): string => {
     const s = String(val || '').trim();
     if (!s) return '—';
     if (s.length <= 2) return '**';
-    if (s.length <= 4) return `${s[0]}**${s[s.length - 1]}`;
+    if (s.length <= 4) return s[0] + '**' + s[s.length - 1];
     const starsCount = Math.min(6, Math.max(3, s.length - 2));
-    return `${s[0]}${'*'.repeat(starsCount)}${s[s.length - 1]}`;
+    return s[0] + '*'.repeat(starsCount) + s[s.length - 1];
   };
 
   // 1. Order numbers: Record number & Order number
@@ -766,7 +770,7 @@ export async function postOrderCompletedToChannel(order: {
     customerId = String(8600000000 + (Math.abs(uHash) % 90000000));
   }
 
-  // 3. Category detection & Title (matching image 2 format)
+  // 3. Category detection & Title (clean high-visibility emojis)
   const isWifi = Boolean(
     order.details?.wifiCard ||
     (order.serviceName || '').toLowerCase().includes('wifi') ||
@@ -803,14 +807,14 @@ export async function postOrderCompletedToChannel(order: {
   );
 
   const subHeader = isWifi
-    ? `${tgEmoji('zap', '📡')} <b>كارتا زاكىسى Wi-Fi</b> ${tgEmoji('check', '✅')}`
+    ? '📡 <b>كارتا زاكىسى Wi-Fi</b> ✅'
     : isGame
-    ? `${tgEmoji('game', '🎮')} <b>ئويۇن زاكىسى</b> ${tgEmoji('check', '✅')}`
+    ? '🎮 <b>ئويۇن زاكىسى</b> ✅'
     : isSub
-    ? `${tgEmoji('crown', '👑')} <b>ئەزالىق زاكىسى</b> ${tgEmoji('check', '✅')}`
+    ? '👑 <b>ئەزالىق زاكىسى</b> ✅'
     : isNumber
-    ? `📱 <b>مەۋھۇم نومۇر زاكىسى</b> ${tgEmoji('check', '✅')}`
-    : `${tgEmoji('diamond', '💎')} <b>پۇل قاچىلاش زاكىسى</b> ${tgEmoji('check', '✅')}`;
+    ? '📱 <b>مەۋھۇم نومۇر زاكىسى</b> ✅'
+    : '💎 <b>پۇل قاچىلاش زاكىسى</b> ✅';
 
   // 4. Product Details
   const cleanAmount = Number(order.amount || 0).toFixed(2);
@@ -824,69 +828,87 @@ export async function postOrderCompletedToChannel(order: {
     .replace(/\(شەدەن\)/g, '')
     .trim();
 
-  // Lines builder matching image 2 exact style
-  const lines: string[] = [
-    `<a href="https://t.me/${TELEGRAM_CONFIG.botUsername}"><b>AUTO CASH</b></a>`,
+  // Lines builder matching image exact style
+  const lines = [
+    '<a href="https://t.me/' + TELEGRAM_CONFIG.botUsername + '"><b>AUTO CASH</b></a>',
     subHeader,
     '',
-    `➖ 🔔 <b>خاتىرە نومۇرى:</b> ${recordNo} •`,
-    `➖ 📋 <b>زاكاس نومۇرى:</b> ${cleanOrderNo} •`,
-    `➖ 🆔 <b>خېرىدار ID:</b> ${customerId} •`,
+    '➖ 🔔 <b>خاتىرە نومۇرى:</b> ' + recordNo + ' •',
+    '➖ 📋 <b>زاكاس نومۇرى:</b> ' + cleanOrderNo + ' •',
+    '➖ 🆔 <b>خېرىدار ID:</b> ' + customerId + ' •',
   ];
 
   if (isWifi) {
     const netName = wifiCard?.networkName || wifiCard?.networkEn || sName;
-    lines.push(`➖ 🌐 <b>تور:</b> ${netName} •`);
-    lines.push(`➖ 📦 <b>پىلان:</b> ${pTitle || 'ئۆلچەملىك پىلان'} •`);
-    lines.push(`➖ 📱 <b>ئۈسكۈنە:</b> 1 دانە •`);
-    lines.push(`➖ 💲 <b>باھاسى:</b> $${cleanAmount} •`);
+    lines.push('➖ 🌐 <b>تور:</b> ' + netName + ' •');
+    lines.push('➖ 📦 <b>پىلان:</b> ' + (pTitle || 'ئۆلچەملىك پىلان') + ' •');
+    lines.push('➖ 📱 <b>ئۈسكۈنە:</b> 1 دانە •');
+    lines.push('➖ 💲 <b>باھاسى:</b> $' + cleanAmount + ' •');
     if (wifiCard?.username) {
-      lines.push(`➖ 👤 <b>ئىشلەتكۈچى نامى:</b> <code>${maskSecret(wifiCard.username)}</code> •`);
+      lines.push('➖ 👤 <b>ئىشلەتكۈچى نامى:</b> <code>' + maskSecret(wifiCard.username) + '</code> •');
     }
     if (wifiCard?.password) {
-      lines.push(`➖ 🔑 <b>پارول:</b> <code>${maskSecret(wifiCard.password)}</code> •`);
+      lines.push('➖ 🔑 <b>پارول:</b> <code>' + maskSecret(wifiCard.password) + '</code> •');
     }
   } else {
-    lines.push(`➖ 🌐 <b>مەھسۇلات:</b> ${sName} •`);
+    lines.push('➖ 🌐 <b>مەھسۇلات:</b> ' + sName + ' •');
     if (pTitle) {
-      lines.push(`➖ 📦 <b>بولاق:</b> ${pTitle} •`);
+      lines.push('➖ 📦 <b>بولاق:</b> ' + pTitle + ' •');
     }
     const rawTarget = String(order.targetAccount || (order as any).target_account || order.details?.targetAccount || order.details?.playerId || '').trim();
     if (rawTarget && !rawTarget.startsWith('Wi-Fi')) {
       const maskedTarget = maskSecret(rawTarget);
-      lines.push(`➖ 🎯 <b>قاچىلانغان ID:</b> <code>${maskedTarget}</code> •`);
+      lines.push('➖ 🎯 <b>قاچىلانغان ID:</b> <code>' + maskedTarget + '</code> •');
     }
-    lines.push(`➖ 💲 <b>باھاسى:</b> $${cleanAmount} •`);
+    lines.push('➖ 💲 <b>باھاسى:</b> $' + cleanAmount + ' •');
   }
 
-  lines.push(`➖ ${tgEmoji('check', '✅')} <b>ھالىتى:</b> سېتىۋېلىندى •`);
-  lines.push(`➖➖➖➖➖`);
+  lines.push('➖ ✅ <b>ھالىتى:</b> سېتىۋېلىندى •');
+  lines.push('➖➖➖➖➖');
 
   const channelText = lines.join('\n');
 
-  try {
-    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json; charset=utf-8' },
-      body: JSON.stringify({
-        chat_id: targetChannel,
-        text: channelText,
-        parse_mode: 'HTML',
-        disable_web_page_preview: true,
-        reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: 'سىزمۇ سېتىۋېلىڭ ↗',
-                url: `https://t.me/${TELEGRAM_CONFIG.botUsername}?startapp=order`,
-              },
+  // Dual-target send helper: try primary channel (ID), fallback to username
+  const sendToChat = async (targetChat: string): Promise<boolean> => {
+    try {
+      const res = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        body: JSON.stringify({
+          chat_id: targetChat,
+          text: channelText,
+          parse_mode: 'HTML',
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: 'سىزمۇ سېتىۋېلىڭ ↗',
+                  url: 'https://t.me/' + TELEGRAM_CONFIG.botUsername + '?startapp=order',
+                },
+              ],
             ],
-          ],
-        },
-      }),
-    });
-    const data = await res.json();
-    if (data.ok) {
+          },
+        }),
+      });
+      const data = await res.json();
+      if (data.ok) return true;
+      console.warn('[Telegram] Send to ' + targetChat + ' returned not ok:', data?.description || data);
+      return false;
+    } catch (err: any) {
+      console.warn('[Telegram] Network error sending to ' + targetChat + ':', err?.message);
+      return false;
+    }
+  };
+
+  try {
+    let sent = await sendToChat(primaryChannel);
+    if (!sent && fallbackChannel && fallbackChannel !== primaryChannel) {
+      console.log('[Telegram] Retrying broadcast with fallback channel:', fallbackChannel);
+      sent = await sendToChat(fallbackChannel);
+    }
+
+    if (sent) {
       postedChannelOrders.add(normalizedId);
       if (postedChannelOrders.size > 5000) {
         const oldest = postedChannelOrders.values().next().value;
@@ -895,15 +917,15 @@ export async function postOrderCompletedToChannel(order: {
       try {
         if (sbClient) {
           const { data: cur } = await sbClient.from('orders').select('details').eq('id', normalizedId).maybeSingle();
-          const finalDetails = { ...(cur?.details || order.details || {}), channelBroadcasted: true, channelBroadcastLock: null };
+          const finalDetails = { ...(cur?.details || order.details || {}), channelBroadcasted: true, channelBroadcastLock: null, channelBroadcastedAt: new Date().toISOString() };
           await sbClient.from('orders').update({ details: finalDetails }).eq('id', normalizedId);
         }
         const { updateOrderAsync } = await import('@/lib/db');
-        await updateOrderAsync(order.id, { detailsPatch: { channelBroadcasted: true, channelBroadcastLock: null } }).catch(() => {});
+        await updateOrderAsync(order.id, { detailsPatch: { channelBroadcasted: true, channelBroadcastLock: null, channelBroadcastedAt: new Date().toISOString() } }).catch(() => {});
       } catch {}
       return true;
     } else {
-      console.error('[Telegram] postOrderCompletedToChannel sendMessage failed:', data);
+      console.error('[Telegram] postOrderCompletedToChannel failed for both targets:', { primaryChannel, fallbackChannel, orderId: order.id });
       postedChannelOrders.delete(normalizedId);
       if (sbClient) {
         try {
@@ -915,7 +937,7 @@ export async function postOrderCompletedToChannel(order: {
       return false;
     }
   } catch (err: any) {
-    console.error('[Telegram] postOrderCompletedToChannel network error:', err?.message);
+    console.error('[Telegram] postOrderCompletedToChannel unexpected exception:', err?.message);
     postedChannelOrders.delete(normalizedId);
     if (sbClient) {
       try {
@@ -928,9 +950,6 @@ export async function postOrderCompletedToChannel(order: {
   }
 }
 
-/**
- * 2. Notify Admin when a customer submits a deposit request with 1-Click interactive action buttons
- */
 export async function notifyNewDeposit(deposit: {
   id?: string;
   amount: number | string;

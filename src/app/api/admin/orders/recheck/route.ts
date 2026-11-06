@@ -33,12 +33,32 @@ export async function POST(req: Request) {
       force: true,
     });
 
+    const updatedTarget = targetIds.length === 1 ? await getOrderByIdAsync(targetIds[0]) : undefined;
+    if (updatedTarget && updatedTarget.status === 'completed' && !updatedTarget.details?.channelBroadcasted) {
+      try {
+        const { postOrderCompletedToChannel } = await import('@/lib/telegram');
+        await postOrderCompletedToChannel({
+          id: updatedTarget.id,
+          serviceName: updatedTarget.serviceName,
+          packageTitle: updatedTarget.packageTitle,
+          amount: updatedTarget.amount,
+          targetAccount: (updatedTarget as any).targetAccount || updatedTarget.details?.targetAccount || updatedTarget.details?.playerId,
+          userName: (updatedTarget as any).userName,
+          userEmail: updatedTarget.userEmail,
+          details: updatedTarget.details,
+          force: true,
+        });
+      } catch (bcErr: any) {
+        console.warn('[Recheck] Channel broadcast error:', bcErr?.message);
+      }
+    }
+
     const allOrders = await getAllOrdersAsync();
     return NextResponse.json({
       success: true,
       summary,
       orders: allOrders,
-      order: targetIds.length === 1 ? await getOrderByIdAsync(targetIds[0]) : undefined,
+      order: updatedTarget,
     });
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err?.message || 'تەكشۈرۈش مەغلۇپ بولدى' }, { status: 500 });

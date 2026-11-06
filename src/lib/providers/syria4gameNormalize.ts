@@ -630,25 +630,53 @@ export function normalizeCheckStatus(raw: unknown): ProviderOrderStatus {
   if (s === '0' || s === '2') return 'PENDING';
   if (s === '-1' || s === '4' || s === '5' || s === '6') return 'FAILED';
 
-  // Exact keywords (English + Arabic)
-  if (/^(accept(ed)?|complete(d)?|done|success(ful)?|delivered|finished|approved|ok|true|مكتمل|تم|تم التنفيذ|تم التسليم|تم الطلب|ناجح|مقبول|منجز)$/i.test(s)) {
+  // Exact keywords (English + Arabic + Uyghur)
+  if (/^(accept(ed)?|complete(d)?|done|success(ful)?|delivered|finished|approved|ok|true|مكتمل|مكتملة|تم|تم التنفيذ|تم التسليم|تم الطلب|ناجح|مقبول|منجز|منجزة|تم الشحن|مشحون|تم بنجاح|شحن|تاماملاندى|پۈتتى)$/i.test(s)) {
     return 'COMPLETED';
   }
-  if (/^(reject(ed)?|fail(ed)?|cancel(l)?ed|cancel|refund(ed)?|error|declined|refused|false|ملغي|ملغى|مرفوض|فاشل|مسترجع|خطأ|غير متوفر|مرفوضة)$/i.test(s)) {
+  if (/^(reject(ed)?|fail(ed)?|cancel(l)?ed|cancel|refund(ed)?|error|declined|refused|false|ملغي|ملغى|مرفوض|مرفوضة|فاشل|مسترجع|مسترجعة|خطأ|غير متوفر|ملغاة|بىكار|رەت)$/i.test(s)) {
     return 'FAILED';
   }
-  if (/^(wait(ing)?|pend(ing)?|process(ing)?|in_progress|in progress|queued|new|hold|on_hold|قيد الانتظار|قيد الإنتظار|قيد التنفيذ|قيد المعالجة|انتظار|جديد|معلق)$/i.test(s)) {
+  if (/^(wait(ing)?|pend(ing)?|process(ing)?|in_progress|in progress|queued|new|hold|on_hold|قيد الانتظار|في الانتظار|قيد الإنتظار|قيد التنفيذ|قيد المعالجة|انتظار|جديد|معلق|ساقلاش|ساقلا)$/i.test(s)) {
     return 'PENDING';
   }
 
-  // Fallback substring checks for compound sentences (e.g. "طلب مكتمل", "تم التنفيذ بنجاح")
-  if (s.includes('مكتمل') || s.includes('تم التنفيذ') || s.includes('تم التسليم') || s.includes('success') || s.includes('completed')) {
+  // Fallback substring checks for compound sentences (e.g. "طلب مكتمل", "تم التنفيذ بنجاح", "تم الشحن بنجاح")
+  if (
+    s.includes('مكتمل') ||
+    s.includes('تم التنفيذ') ||
+    s.includes('تم التسليم') ||
+    s.includes('تم الشحن') ||
+    s.includes('مشحون') ||
+    s.includes('تم بنجاح') ||
+    s.includes('success') ||
+    s.includes('completed') ||
+    s.includes('delivered')
+  ) {
     return 'COMPLETED';
   }
-  if (s.includes('مرفوض') || s.includes('ملغي') || s.includes('ملغى') || s.includes('failed') || s.includes('cancelled') || s.includes('canceled')) {
+  if (
+    s.includes('مرفوض') ||
+    s.includes('ملغي') ||
+    s.includes('ملغى') ||
+    s.includes('فاشل') ||
+    s.includes('مسترجع') ||
+    s.includes('failed') ||
+    s.includes('cancelled') ||
+    s.includes('canceled') ||
+    s.includes('refund')
+  ) {
     return 'FAILED';
   }
-  if (s.includes('قيد') || s.includes('انتظار') || s.includes('pending') || s.includes('processing')) {
+  if (
+    s.includes('قيد') ||
+    s.includes('انتظار') ||
+    s.includes('معالجة') ||
+    s.includes('pending') ||
+    s.includes('processing') ||
+    s.includes('waiting') ||
+    s.includes('ساقلا')
+  ) {
     return 'PENDING';
   }
 

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import {
   getAllOrdersAsync,
   getOrdersByUserIdAsync,
+  getOrderByIdAsync,
+  updateOrderAsync,
   updateOrderStatusAsync,
   deductBalanceAndCreateOrderAtomicAsync,
   transitionOrderAsync,
@@ -590,30 +592,82 @@ export async function PATCH(req: Request) {
     }
 
     const body = await req.json();
-    const { orderId, status } = body;
+    const { orderId, status, action } = body;
 
-    if (typeof orderId !== 'string' || !ORDER_STATUSES.includes(status)) {
+    if (typeof orderId !== 'string') {
+      return NextResponse.json({ success: false, message: 'زاكاز نومۇرى كىرگۈزۈلمىدى' }, { status: 400 });
+    }
+
+    // Direct manual broadcast action requested by Admin
+    if (action === 'broadcast_channel') {
+      const order = await getOrderByIdAsync(orderId);
+      if (!order) {
+        return NextResponse.json({ success: false, message: 'زاكاز تېپىلمىدى' }, { status: 404 });
+      }
+
+      const sent = await postOrderCompletedToChannel({
+        id: order.id,
+        serviceName: order.serviceName,
+        packageTitle: order.packageTitle,
+        amount: order.amount,
+        targetAccount: (order as any).targetAccount || order.details?.targetAccount || order.details?.playerId,
+        userName: (order as any).userName,
+        userEmail: order.userEmail,
+        details: order.details,
+        force: true,
+      });
+
+      return NextResponse.json({
+        success: sent,
+        message: sent ? 'زاكاز مۇۋەپپەقىيەتلىك ھالدا قانالغا چىقىرىلدى!' : 'قانالغا يوللاش مەغلۇپ بولدى، تېلېگرامما بوت ھالىتىنى تەكشۈرۈڭ',
+        order,
+      });
+    }
+
+    if (!ORDER_STATUSES.includes(status)) {
       return NextResponse.json({ success: false, message: 'ھالەت تۈرى خاتا' }, { status: 400 });
     }
 
-    const updated = await updateOrderStatusAsync(orderId, status);
+    // When marking completed, also clear 'wait' / 'pending_provider' provider status in details
+    let updated: OrderRecord | null = null;
+    if (status === 'completed') {
+      updated = await updateOrderAsync(orderId, {
+        status: 'completed',
+        detailsPatch: {
+          providerStatus: 'COMPLETED',
+          manualCompleted: true,
+          completedAt: new Date().toISOString(),
+          channelBroadcastLock: null,
+        },
+      });
+    } else {
+      updated = await updateOrderStatusAsync(orderId, status);
+    }
+
     if (!updated) {
       return NextResponse.json({ success: false, message: 'زاكاز تېپىلمىدى' }, { status: 404 });
     }
 
+    let broadcasted = false;
     if (status === 'completed') {
-      postOrderCompletedToChannel({
-        id: updated.id,
-        serviceName: updated.serviceName,
-        packageTitle: updated.packageTitle,
-        amount: updated.amount,
-        targetAccount: (updated as any).targetAccount || updated.details?.targetAccount || updated.details?.playerId,
-        userName: (updated as any).userName,
-        userEmail: updated.userEmail,
-      }).catch(() => {});
+      try {
+        broadcasted = await postOrderCompletedToChannel({
+          id: updated.id,
+          serviceName: updated.serviceName,
+          packageTitle: updated.packageTitle,
+          amount: updated.amount,
+          targetAccount: (updated as any).targetAccount || updated.details?.targetAccount || updated.details?.playerId,
+          userName: (updated as any).userName,
+          userEmail: updated.userEmail,
+          details: updated.details,
+          force: true,
+        });
+      } catch (bcErr: any) {
+        console.warn('[PATCH Order] Channel broadcast error:', bcErr?.message);
+      }
     }
 
-    return NextResponse.json({ success: true, order: updated });
+    return NextResponse.json({ success: true, order: updated, broadcasted });
   } catch (err: any) {
     return NextResponse.json(
       { success: false, message: err?.message || 'ھالەتنى يېڭىلاش مەغلۇپ بولدى' },

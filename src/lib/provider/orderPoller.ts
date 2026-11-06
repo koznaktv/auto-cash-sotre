@@ -8,6 +8,7 @@ import {
   getOrderByIdAsync,
   refundOrderBalanceAtomicAsync,
   transitionOrderAsync,
+  updateOrderAsync,
   OrderRecord,
 } from '../db';
 import {
@@ -264,7 +265,7 @@ export async function pollProviderOrders(options: {
             const replyMsg = entry.message || deliv?.reply || deliv?.text;
             const activationUrl = deliv?.activationUrl || (deliv?.codes?.find((c: string) => /^https?:\/\//i.test(c))) || (replyMsg?.match(/https?:\/\/[^\s"'<>]+/i)?.[0]);
 
-            const settled = await transitionOrderAsync(order.id, IN_FLIGHT, 'completed', {
+            let settled = await transitionOrderAsync(order.id, IN_FLIGHT, 'completed', {
               providerStatus: 'COMPLETED',
               providerCheckedAt: now,
               providerCheckAttempts: attempts,
@@ -274,8 +275,17 @@ export async function pollProviderOrders(options: {
               ...(activationUrl ? { activationUrl, activationLink: activationUrl } : {}),
             });
             if (!settled) {
-              // Another worker or process already transitioned this order
-              continue;
+              settled = await updateOrderAsync(order.id, {
+                status: 'completed',
+                detailsPatch: {
+                  providerStatus: 'COMPLETED',
+                  providerCheckedAt: now,
+                  needsReview: false,
+                  ...(deliv ? { delivery: deliv } : {}),
+                  ...(replyMsg ? { providerReply: replyMsg, reply: replyMsg } : {}),
+                  ...(activationUrl ? { activationUrl, activationLink: activationUrl } : {}),
+                },
+              }).catch(() => null);
             }
             summary.completed++;
             await postOrderCompletedToChannel({
@@ -286,7 +296,8 @@ export async function pollProviderOrders(options: {
               targetAccount: (order as any).targetAccount || order.details?.targetAccount || order.details?.playerId,
               userName: (order as any).userName,
               userEmail: order.userEmail,
-              details: settled.details || order.details,
+              details: settled?.details || order.details,
+              force: true,
             }).catch((err: any) => console.error('[orderPoller 2] channel broadcast error:', err?.message));
             continue;
           }

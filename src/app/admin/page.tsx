@@ -1027,6 +1027,31 @@ export default function AdminPage() {
   };
 
   // Order Status Handler
+    const handleBroadcastOrderToChannel = async (orderId: string) => {
+    setActionLoading(orderId);
+    try {
+      const token = sessionStorage.getItem('autocash_admin_token');
+      const res = await fetch('/api/orders', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + token,
+        },
+        body: JSON.stringify({ action: 'broadcast_channel', orderId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('📢 زاكاز مۇۋەپپەقىيەتلىك ھالدا @autocash_cannel قانىلىغا چىقىرىلدى!');
+      } else {
+        alert(data.message || 'قانالغا چىقىرىش مەغلۇپ بولدى');
+      }
+    } catch (e: any) {
+      alert('تور خاتالىقى: ' + (e?.message || 'ئۇلىنىش مەغلۇپ بولدى'));
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const handleUpdateOrderStatus = async (orderId: string, newStatus: Order['status']) => {
     setActionLoading(orderId);
     try {
@@ -1042,8 +1067,22 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.success) {
         setOrders((prev) =>
-          prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
+          prev.map((o) =>
+            o.id === orderId
+              ? {
+                  ...o,
+                  status: newStatus,
+                  details: {
+                    ...(o.details || {}),
+                    providerStatus: newStatus === 'completed' ? 'COMPLETED' : o.details?.providerStatus,
+                  },
+                }
+              : o
+          )
         );
+        if (newStatus === 'completed') {
+          alert('✅ زاكاز تاماملىنىپ، تېلېگرامما قانىلىغا (@autocash_cannel) ئاپتوماتىك يوللاندى!');
+        }
       } else {
         alert(data.message || 'خاتالىق كۆرۈلدى');
       }
@@ -3982,9 +4021,17 @@ export default function AdminPage() {
                             <td className="py-3 px-3 font-mono text-amber-300 select-all font-bold">
                               {order.targetAccount}
                               {order.details?.providerOrderId && (
-                                <span className="block text-[10px] text-cyan-400 font-normal" dir="ltr">
+                                <span className={`block text-[10px] font-normal ${
+                                  order.status === 'completed' || order.details.providerStatus === 'COMPLETED'
+                                    ? 'text-emerald-400 font-bold'
+                                    : 'text-cyan-400'
+                                }`} dir="ltr">
                                   Othman Store #{order.details.providerOrderId}
-                                  {order.details.providerStatus ? ` · ${order.details.providerStatus}` : ''}
+                                  {order.status === 'completed' || order.details.providerStatus === 'COMPLETED'
+                                    ? ' · تامام (COMPLETED)'
+                                    : order.details.providerStatus
+                                    ? ` · ${order.details.providerStatus}`
+                                    : ''}
                                 </span>
                               )}
                               {order.details?.delivery?.codes?.length ? (
@@ -4036,8 +4083,17 @@ export default function AdminPage() {
                                   disabled={actionLoading === order.id}
                                   onClick={() => handleUpdateOrderStatus(order.id, 'completed')}
                                   className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] transition cursor-pointer"
+                                  title="زاكازنى تاماملاش ۋە قانالغا چىقىرىش"
                                 >
                                   پۈتتى
+                                </button>
+                                <button
+                                  disabled={actionLoading === order.id}
+                                  onClick={() => handleBroadcastOrderToChannel(order.id)}
+                                  className="px-2 py-1 rounded-lg bg-indigo-700 hover:bg-indigo-600 text-white font-bold text-[10px] transition cursor-pointer"
+                                  title="بۇ زاكازنى تېلېگرامما قانىلىغا دەقىقىدە چىقىرىش"
+                                >
+                                  📢 قانالغا
                                 </button>
                                 <button
                                   disabled={actionLoading === order.id}
