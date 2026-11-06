@@ -204,13 +204,19 @@ const ProductCard = React.memo(function ProductCard({
           </div>
         </div>
 
-        {/* Category Name Badge */}
-        <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 z-10 max-w-[70%] text-center pointer-events-none">
-          <div className="px-2 py-0.5 rounded-full bg-white/95 dark:bg-[#0c1424]/95 border border-emerald-500/40 shadow-xs flex items-center justify-center">
-            <span className="text-[8px] sm:text-[9.5px] font-black gold-title-shine truncate max-w-full font-alkatip">
-              {getCategoryName(service.category)}
-            </span>
-          </div>
+        {/* Category Name Badge or MLBB Relocation Badge */}
+        <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 z-10 max-w-[85%] text-center pointer-events-none">
+          {service.id === 'othman_mobile_legends' || (service.name || '').toLowerCase().includes('mobile legends') ? (
+            <div className="px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 border border-amber-300 shadow-md flex items-center justify-center font-black text-[8px] sm:text-[9.5px]">
+              <span>⚠️ MAX-BAZAR دىن ئېلىڭ</span>
+            </div>
+          ) : (
+            <div className="px-2 py-0.5 rounded-full bg-white/95 dark:bg-[#0c1424]/95 border border-emerald-500/40 shadow-xs flex items-center justify-center">
+              <span className="text-[8px] sm:text-[9.5px] font-black gold-title-shine truncate max-w-full font-alkatip">
+                {getCategoryName(service.category)}
+              </span>
+            </div>
+          )}
         </div>
 
       </div>
@@ -225,11 +231,17 @@ const ProductCard = React.memo(function ProductCard({
             <Globe className="w-3 h-3 text-slate-400 shrink-0" />
             <span>{translateBadge('دۇنياۋى') || t('globalBadge') || 'دۇنياۋى'}</span>
           </span>
-          <span className="text-[#059669] font-black font-mono">
-            {service.packages && service.packages.length > 0 && typeof service.packages[0].price === 'number' && service.packages[0].price > 0
-              ? `$${service.packages[0].price.toFixed(2)}`
-              : (translateBadge('ئاپتوماتىك') || t('autoBadge') || 'ئاپتوماتىك')}
-          </span>
+          {service.id === 'othman_mobile_legends' || (service.name || '').toLowerCase().includes('mobile legends') ? (
+            <span className="text-amber-400 font-black text-[10px]">
+              MAX-BAZAR ➔
+            </span>
+          ) : (
+            <span className="text-[#059669] font-black font-mono">
+              {service.packages && service.packages.length > 0 && typeof service.packages[0].price === 'number' && service.packages[0].price > 0
+                ? `$${service.packages[0].price.toFixed(2)}`
+                : (translateBadge('ئاپتوماتىك') || t('autoBadge') || 'ئاپتوماتىك')}
+            </span>
+          )}
         </div>
       </div>
     </div>

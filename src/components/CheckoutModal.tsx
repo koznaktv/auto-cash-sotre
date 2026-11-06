@@ -88,6 +88,13 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
 
   const isNoInputService = isWifiService || isRedemptionService || isReadyAccountService || (service as any)?.requiresInput === false;
 
+  const isMlbbService = Boolean(
+    service &&
+      (service.id === 'othman_mobile_legends' ||
+        (service.name || '').toLowerCase().includes('mobile legends') ||
+        (service.name || '').toLowerCase().includes('mlbb'))
+  );
+
   const [detail, setDetail] = useState<ServiceItem | null>(service || null);
   const [detailError, setDetailError] = useState('');
   const [selectedPkgId, setSelectedPkgId] = useState(initialPackageId || '');
@@ -697,7 +704,43 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
           </div>
         )}
 
-        {detail && (
+        {/* MLBB Service Pause Notice & 1-Click Redirect to MAX-BAZAR */}
+        {isMlbbService && (
+          <div className="p-5 rounded-3xl bg-gradient-to-br from-amber-500/20 via-yellow-500/10 to-amber-500/20 border-2 border-amber-400 text-right space-y-4 shadow-2xl my-2 animate-fadeIn">
+            <div className="flex items-center gap-2.5 text-amber-300 font-black text-sm sm:text-base">
+              <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 animate-bounce" />
+              <span>⚠️ بۇ يەردە مۇلازىمەت ۋاقىتلىق توختىتىلدى!</span>
+            </div>
+            
+            <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+              Mobile Legends (MLBB) مۇلازىمىتىنىڭ بارلىق <strong>3 خىل سەرۋىرى (🌐 Global، 🇹🇷 Turkey، ⚡ Special)</strong> تېخىمۇ ئەرزان باھادا ۋە سېكۇنتتا قاچىلىنىدىغان ھالەتتە <strong>MAX-BAZAR</strong> بازىرىمىزغا يۆتكەلدى.
+            </p>
+
+            <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-amber-500/30 text-xs text-amber-200 space-y-1.5 leading-relaxed">
+              <p>• 🌐 <strong>1. خەلقئارالىق سەرۋېر (Global):</strong> پۈتۈن دۇنيا مىقياسىدىكى بارلىق ئويۇنچىلار ئۈچۈن</p>
+              <p>• 🇹🇷 <strong>2. تۈركىيە سەرۋىرى (Turkey):</strong> تەننەرخى ئەڭ ئەرزان ئېتىبارلىق لىنىيە</p>
+              <p>• ⚡ <strong>3. ئالاھىدە تېز سەرۋېر (Special):</strong> 14 ئالماستىن باشلىنىدىغان تېز بولاقلار</p>
+            </div>
+
+            <a
+              href="/apps/mobile-legends"
+              className="w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:brightness-110 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xl shadow-amber-500/25 transition active:scale-95 cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4 fill-slate-950 text-slate-950" />
+              <span>🚀 MAX-BAZAR دىن سېتىۋېلىش (بىۋاسىتە كىرىش) ➔</span>
+            </a>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full py-2.5 rounded-xl border border-slate-700 text-slate-400 hover:text-white text-xs font-semibold transition"
+            >
+              كەينىگە قايتىش
+            </button>
+          </div>
+        )}
+
+        {detail && !isMlbbService && (
           purchasedWifiCard ? (
           <div className="space-y-4 pt-2">
             <div className="text-center space-y-1">

@@ -477,8 +477,8 @@
     "category": "games",
     "icon": "Sparkles",
     "image": "/images/services/mobile_legends.jpg",
-    "description": "Mobile Legends گىلوبال ۋە تۈركىيە سېرۋېر ئالماس، پاس ۋە كارت ئەزالىقلىرى. User ID ۋە Zone ID بىلەن دەرھال قاچىلىنىدۇ.",
-    "badge": "⚡ گىلوبال & تۈركىيە",
+    "description": "⚠️ بۇ يەردە مۇلازىمەت ۋاقىتلىق توختىتىلدى. Mobile Legends نىڭ 3 خىل سەرۋىرىنى (Global, Turkey, Special) MAX-BAZAR ئارقىلىق ئەرزان باھادا سېتىۋېلىڭ.",
+    "badge": "⚠️ MAX-BAZAR دىن ئېلىڭ",
     "inputLabel": "ئوينىغۇچى ID نومۇرى (User ID)",
     "inputPlaceholder": "مەسىلەن: 12345678",
     "requiresZoneId": true,
@@ -764,7 +764,8 @@
         "instructions": "Mobile Legends Turkish"
       }
     ],
-    "instructions": "الخدمة تعمل بشكل تلقائي على مدار 24 ساعةيرجى عدم اضافة () في السيرفر ارسل الرقم فقط"
+    "instructions": "الخدمة تعمل بشكل تلقائي على مدار 24 ساعةيرجى عدم اضافة () في السيرفر ارسل الرقم فقط",
+    "paused": true
   },
   {
     "id": "othman_free_fire",
