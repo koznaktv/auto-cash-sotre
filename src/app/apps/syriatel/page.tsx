@@ -86,10 +86,28 @@ export default function SyriatelAppPage() {
         if (res.ok) {
           const data = await res.json();
           if (data?.user) {
+            const ident = data.user.email || data.user.telegram_handle || data.user.telegramUsername || data.user.phone || data.user.name || 'User';
             setSession({
               token: 'active',
-              identity: data.user.telegram_handle || data.user.phone || 'User',
-              balance: data.user.balance || 0,
+              identity: ident,
+              balance: Number(data.user.balance || 0),
+            });
+            return;
+          }
+        }
+      } catch {}
+
+      try {
+        const local = localStorage.getItem('maxbazar_unified_session') || localStorage.getItem('autocash_user');
+        if (local) {
+          const parsed = JSON.parse(local);
+          if (parsed) {
+            const ident = parsed.email || parsed.identity || parsed.user?.email || parsed.username || parsed.name || 'User';
+            const bal = typeof parsed.balance === 'number' ? parsed.balance : (typeof parsed.user?.balance === 'number' ? parsed.user.balance : 0);
+            setSession({
+              token: 'active',
+              identity: ident,
+              balance: bal,
             });
           }
         }

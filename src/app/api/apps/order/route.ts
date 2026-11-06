@@ -116,9 +116,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: '⚠️ بۇ مۇلازىمەت ھازىرچە ۋاقتىنچە توختىتىلدى (تېخنىكىلىق رېمونت قىلىنىۋاتىدۇ).' }, { status: 400 });
     }
 
-    const cleanIdentity = (identity || '').trim().replace(/^@/, '');
-    if (!cleanIdentity) {
-      return NextResponse.json({ ok: false, error: 'ئالدى بىلەن تېلېگرامما كودى ئارقىلىق كىرىڭ' }, { status: 401 });
+    // 1. Authenticate user from session cookie if present
+    let verifiedUser: any = null;
+    try {
+      const { getSessionUser } = await import('@/lib/session');
+      verifiedUser = await getSessionUser(req);
+    } catch {}
+
+    let cleanIdentity = (identity || '').trim().replace(/^@/, '');
+    if (verifiedUser) {
+      cleanIdentity = verifiedUser.email || verifiedUser.telegramUsername || verifiedUser.phone || verifiedUser.name || cleanIdentity;
+    }
+
+    if (!cleanIdentity || cleanIdentity.toLowerCase() === 'user') {
+      if (verifiedUser) {
+        cleanIdentity = verifiedUser.email || verifiedUser.id;
+      } else {
+        return NextResponse.json({ ok: false, error: 'ئالدى بىلەن ھېساباتىڭىزغا كىرىڭ' }, { status: 401 });
+      }
     }
 
     if (!player_id || !player_id.trim()) {
@@ -130,8 +145,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: 'باھا خاتا' }, { status: 400 });
     }
 
-    // Check unified MAX-BAZAR wallet balance
-    const currentBalance = await getUnifiedWalletBalance(cleanIdentity);
+    // Check unified MAX-BAZAR wallet balance / verified user balance
+    let currentBalance = await getUnifiedWalletBalance(cleanIdentity);
+    if (verifiedUser && typeof verifiedUser.balance === 'number' && verifiedUser.balance > currentBalance) {
+      currentBalance = Number(verifiedUser.balance.toFixed(2));
+    }
 
     if (currentBalance < itemPrice) {
       return NextResponse.json({
@@ -209,9 +227,22 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // 4. Provider accepted order: Deduct price atomically from unified wallet
-    const deductRes = await deductUnifiedWalletBalance(cleanIdentity, itemPrice);
-    const newBalance = deductRes.newBalance;
+    // 4. Provider accepted order: Deduct price atomically from verified user and unified wallet
+    let newBalance = currentBalance - itemPrice;
+    if (verifiedUser && verifiedUser.id) {
+      try {
+        const updated = await adjustUserBalanceAsync(verifiedUser.id, -itemPrice);
+        if (updated && typeof updated.balance === 'number') {
+          newBalance = updated.balance;
+        }
+      } catch {}
+      try {
+        await deductUnifiedWalletBalance(cleanIdentity, itemPrice);
+      } catch {}
+    } else {
+      const deductRes = await deductUnifiedWalletBalance(cleanIdentity, itemPrice);
+      newBalance = deductRes.newBalance;
+    }
 
     const newOrder = {
       order_id: orderId,
@@ -230,7 +261,7 @@ export async function POST(req: NextRequest) {
 
     // 5. ALSO persist permanently into the unified central database (db.ts / Supabase)
     try {
-      const dbUser = await findOrCreateDbUserForIdentity(cleanIdentity);
+      const dbUser = verifiedUser || await findOrCreateDbUserForIdentity(cleanIdentity);
       await createOrderDirectAsync({
         id: orderId,
         userId: dbUser?.id,
@@ -299,8 +330,18 @@ export async function GET(req: NextRequest) {
     const app_id = searchParams.get('app_id');
     const isAdmin = searchParams.get('admin') === 'true';
 
+    // Authenticate session user from cookie if available
+    let sessionUser: any = null;
+    try {
+      const { getSessionUser } = await import('@/lib/session');
+      sessionUser = await getSessionUser(req);
+    } catch {}
+
     const localOrders = getOrders();
-    const cleanId = (identity || '').trim().replace(/^@/, '').toLowerCase();
+    let cleanId = (identity || '').trim().replace(/^@/, '').toLowerCase();
+    if ((!cleanId || cleanId === 'user') && sessionUser) {
+      cleanId = (sessionUser.email || sessionUser.telegramUsername || sessionUser.name || sessionUser.phone || '').toLowerCase().trim();
+    }
 
     // Fetch and merge central DB orders
     let dbOrders: any[] = [];
@@ -351,6 +392,13 @@ export async function GET(req: NextRequest) {
 
     // Resolve all linked identities for the user (email, telegram, chat_id, id)
     let userIdentities = new Set<string>();
+    if (sessionUser) {
+      if (sessionUser.id) userIdentities.add(sessionUser.id.toLowerCase().trim());
+      if (sessionUser.email) userIdentities.add(sessionUser.email.toLowerCase().trim());
+      if (sessionUser.telegramUsername) userIdentities.add(sessionUser.telegramUsername.toLowerCase().trim().replace(/^@/, ''));
+      if (sessionUser.telegramChatId) userIdentities.add(String(sessionUser.telegramChatId).trim());
+      if (sessionUser.name) userIdentities.add(sessionUser.name.toLowerCase().trim());
+    }
     if (cleanId) {
       userIdentities.add(cleanId);
       try {
@@ -503,7 +551,16 @@ export async function GET(req: NextRequest) {
     }
 
     // Get live unified wallet balance
-    const liveBalance = cleanId ? await getUnifiedWalletBalance(cleanId) : null;
+    let liveBalance: number | null = null;
+    if (sessionUser && typeof sessionUser.balance === 'number') {
+      liveBalance = Number(sessionUser.balance.toFixed(2));
+    }
+    if (cleanId) {
+      const unifiedBal = await getUnifiedWalletBalance(cleanId);
+      if (liveBalance === null || unifiedBal > liveBalance) {
+        liveBalance = unifiedBal;
+      }
+    }
 
     // Calculate admin statistics, profit, and members if in admin mode
     let stats: any = null;
