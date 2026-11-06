@@ -9,7 +9,7 @@ import { createAdminToken } from './adminAuth';
  */
 
 const MAXBAZAR_BOT_TOKEN =
-  process.env.MAXBAZAR_BOT_TOKEN || '9030046429:AAGgis0NFr7PPAZpsri7AJbvckZboj81J7c';
+  (process.env.MAXBAZAR_BOT_TOKEN || '9030046429:AAFNApZlCn8JoafL1B1P6A81aOgqk_srlC0').trim();
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || 'https://www.auto-cash.app';
