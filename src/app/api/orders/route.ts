@@ -598,6 +598,21 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ success: false, message: 'زاكاز نومۇرى كىرگۈزۈلمىدى' }, { status: 400 });
     }
 
+    // Direct action to dismiss/clear review warning on an order
+    if (action === 'dismiss_review' || action === 'clear_review') {
+      const updated = await updateOrderAsync(orderId, {
+        detailsPatch: {
+          needsReview: false,
+          reviewReason: null,
+        },
+      });
+      return NextResponse.json({
+        success: true,
+        message: 'تەكشۈرۈش ئاگاھلاندۇرۇشى مۇۋەپپەقىيەتلىك يۇيۇۋېتىلدى',
+        order: updated,
+      });
+    }
+
     // Direct manual broadcast action requested by Admin
     if (action === 'broadcast_channel') {
       const order = await getOrderByIdAsync(orderId);

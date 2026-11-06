@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { verifyAdminToken } from '@/lib/adminAuth';
-import { getOrderByIdAsync, refundOrderBalanceAtomicAsync } from '@/lib/db';
+import { getOrderByIdAsync, refundOrderBalanceAtomicAsync, updateOrderAsync } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,6 +29,12 @@ export async function POST(req: Request) {
           : result.message || 'پۇل قايتۇرۇلمىدى';
       return NextResponse.json({ success: false, message, needsForce: result.message === 'ORDER_NOT_REFUNDABLE' }, { status: 409 });
     }
+    await updateOrderAsync(orderId, {
+      detailsPatch: {
+        needsReview: false,
+        reviewReason: null,
+      },
+    }).catch(() => null);
     return NextResponse.json({ success: true, newBalance: result.newBalance, order: await getOrderByIdAsync(orderId) });
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err?.message || 'پۇل قايتۇرۇلمىدى' }, { status: 500 });

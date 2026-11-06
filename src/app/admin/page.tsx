@@ -1074,6 +1074,44 @@ export default function AdminPage() {
     }
   };
 
+  const handleDismissReview = async (orderId: string) => {
+    setActionLoading(orderId);
+    try {
+      const token = sessionStorage.getItem('autocash_admin_token');
+      const res = await fetch('/api/orders', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ orderId, action: 'dismiss_review' }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOrders((prev) =>
+          prev.map((o) =>
+            o.id === orderId
+              ? {
+                  ...o,
+                  details: {
+                    ...(o.details || {}),
+                    needsReview: false,
+                    reviewReason: undefined,
+                  },
+                }
+              : o
+          )
+        );
+      } else {
+        alert(data.message || 'خاتالىق كۆرۈلدى');
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const handleUpdateOrderStatus = async (orderId: string, newStatus: Order['status']) => {
     setActionLoading(orderId);
     try {
@@ -3115,7 +3153,7 @@ export default function AdminPage() {
         (statusFilter === 'processing'
           ? isOrderInProgress(o.status)
           : statusFilter === 'review'
-          ? Boolean(o.details?.needsReview)
+          ? Boolean(o.details?.needsReview && !['completed', 'refunded', 'cancelled'].includes(o.status))
           : statusFilter === 'cancelled'
           ? o.status === 'cancelled' || o.status === 'refunded'
           : o.status === statusFilter);
@@ -4023,7 +4061,7 @@ export default function AdminPage() {
                         : st === 'completed'
                         ? `تاماملاندى (${orders.filter((o) => o.status === 'completed').length})`
                         : st === 'review'
-                        ? `تەكشۈرۈش كېرەك (${orders.filter((o) => o.details?.needsReview).length})`
+                        ? `تەكشۈرۈش كېرەك (${orders.filter((o) => o.details?.needsReview && !['completed', 'refunded', 'cancelled'].includes(o.status)).length})`
                         : `بىكار قىلىندى (${orders.filter((o) => o.status === 'cancelled' || o.status === 'refunded').length})`}
                     </button>
                   ))}
@@ -4123,9 +4161,17 @@ export default function AdminPage() {
                                   {order.details.delivery.codes.join(' | ')}
                                 </span>
                               ) : null}
-                              {order.details?.needsReview && (
-                                <span className="block text-[10px] text-rose-300 font-normal font-alkatip">
-                                  ⚠ {order.details.reviewReason || 'تەكشۈرۈش كېرەك'}
+                              {order.details?.needsReview && !['completed', 'refunded', 'cancelled'].includes(order.status) && (
+                                <span className="inline-flex items-center gap-1.5 text-[10px] text-rose-300 font-normal font-alkatip mt-0.5">
+                                  <span>⚠ {order.details.reviewReason || 'تەكشۈرۈش كېرەك'}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDismissReview(order.id)}
+                                    className="text-[9px] text-slate-400 hover:text-white underline cursor-pointer"
+                                    title="تەكشۈرۈش ئاگاھلاندۇرۇشىنى يۇيۇۋېتىش"
+                                  >
+                                    [يۇيۇش]
+                                  </button>
                                 </span>
                               )}
                               {typeof order.details?.costTotal === 'number' && (
