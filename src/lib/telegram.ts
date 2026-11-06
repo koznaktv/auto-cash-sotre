@@ -806,7 +806,25 @@ export async function postOrderCompletedToChannel(order: {
     order.details?.virtualNumber
   );
 
-  const subHeader = isWifi
+  const isMaxBazar = Boolean(
+    order.details?.store?.toLowerCase() === 'maxbazar' ||
+    order.details?.store?.toLowerCase() === 'maxstore' ||
+    order.details?.source?.toLowerCase() === 'maxbazar' ||
+    (order.serviceName || '').includes('MAX-BAZAR') ||
+    (order.serviceName || '').includes('ماكس بازار') ||
+    (order as any).serviceId?.startsWith('maxbazar_') ||
+    (order.id || '').startsWith('HOK_') ||
+    (order.id || '').startsWith('MLBB_') ||
+    (order.id || '').startsWith('PUBG_')
+  );
+
+  const mainHeader = isMaxBazar
+    ? '<a href="https://www.auto-cash.app/apps"><b>MAX-BAZAR | ماكس بازار</b></a>'
+    : '<a href="https://t.me/' + TELEGRAM_CONFIG.botUsername + '"><b>AUTO CASH</b></a>';
+
+  const subHeader = isMaxBazar
+    ? '⚡ <b>ماكس بازار توربىتى تەرىپىدىن پۈتتۈرۈلدى</b> ✅'
+    : isWifi
     ? '📡 <b>كارتا زاكىسى Wi-Fi</b> ✅'
     : isGame
     ? '🎮 <b>ئويۇن زاكىسى</b> ✅'
@@ -830,7 +848,7 @@ export async function postOrderCompletedToChannel(order: {
 
   // Lines builder matching image exact style
   const lines = [
-    '<a href="https://t.me/' + TELEGRAM_CONFIG.botUsername + '"><b>AUTO CASH</b></a>',
+    mainHeader,
     subHeader,
     '',
     '➖ 🔔 <b>خاتىرە نومۇرى:</b> ' + recordNo + ' •',
@@ -863,7 +881,12 @@ export async function postOrderCompletedToChannel(order: {
     lines.push('➖ 💲 <b>باھاسى:</b> $' + cleanAmount + ' •');
   }
 
-  lines.push('➖ ✅ <b>ھالىتى:</b> سېتىۋېلىندى •');
+  if (isMaxBazar) {
+    lines.push('➖ 🏪 <b>سۇپا:</b> MAX-BAZAR (ماكس بازار) •');
+    lines.push('➖ ✅ <b>ھالىتى:</b> ماكس بازار توربىتى تەرىپىدىن پۈتتۈرۈلدى •');
+  } else {
+    lines.push('➖ ✅ <b>ھالىتى:</b> سېتىۋېلىندى •');
+  }
   lines.push('➖➖➖➖➖');
 
   const channelText = lines.join('\n');
@@ -883,8 +906,8 @@ export async function postOrderCompletedToChannel(order: {
             inline_keyboard: [
               [
                 {
-                  text: 'سىزمۇ سېتىۋېلىڭ ↗',
-                  url: 'https://t.me/' + TELEGRAM_CONFIG.botUsername + '?startapp=order',
+                  text: isMaxBazar ? 'ماكس بازارغا كىرىش ↗' : 'سىزمۇ سېتىۋېلىڭ ↗',
+                  url: isMaxBazar ? 'https://www.auto-cash.app/apps' : 'https://t.me/' + TELEGRAM_CONFIG.botUsername + '?startapp=order',
                 },
               ],
             ],

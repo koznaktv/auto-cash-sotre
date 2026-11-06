@@ -288,7 +288,7 @@ export async function POST(req: NextRequest) {
     }
 
     // If MaxStore immediately completed the order, broadcast to Telegram Channel (@autocash_cannel)
-    if (['completed', 'success', 'done', 'delivered'].includes(providerStatus.toLowerCase())) {
+    if (['completed', 'success', 'done', 'delivered', 'accept', 'ok'].includes(providerStatus.toLowerCase())) {
       try {
         const { postOrderCompletedToChannel } = await import('@/lib/telegram');
         postOrderCompletedToChannel({
@@ -450,7 +450,7 @@ export async function GET(req: NextRequest) {
             const providerStatus = (item.status || '').toLowerCase().trim();
 
             const isCompleted = [
-              'completed', 'success', 'done', 'delivered', 'ok', '1', '3',
+              'completed', 'success', 'done', 'delivered', 'ok', 'accept', '1', '3',
               'تم', 'مكتمل', 'مكتملة', 'تم الشحن', 'مشحون', 'تم التنفيذ', 'تم التسليم', 'تم الطلب', 'منجز'
             ].includes(providerStatus) ||
               providerStatus.includes('مكتمل') ||
@@ -460,7 +460,7 @@ export async function GET(req: NextRequest) {
               providerStatus.includes('منجز');
 
             const isFailed = [
-              'canceled', 'cancelled', 'rejected', 'refunded', 'failed', 'error',
+              'canceled', 'cancelled', 'rejected', 'reject', 'refunded', 'failed', 'error',
               '-1', '4', '5', '6',
               'ملغي', 'مرفوض', 'فشل', 'خطأ'
             ].includes(providerStatus) ||
