@@ -1709,11 +1709,11 @@ export default function PubgAppPage() {
             <label className="text-[11px] font-bold text-slate-400 block">شامكەش قاچىلاش ئادرېسىمىز (سۈرىيە پۇلى ياكى دوللار):</label>
             <div className="flex items-center gap-2 bg-slate-950 px-3 py-2.5 rounded-xl border border-slate-700">
               <span className="font-mono text-xs text-amber-300 select-all truncate flex-1">
-                9262e307f917537b98d28cfb06e7195c
+                efe8a2b200d66411c7c7e296369cbba8
               </span>
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText('9262e307f917537b98d28cfb06e7195c');
+                  navigator.clipboard.writeText('efe8a2b200d66411c7c7e296369cbba8');
                   setCopiedAddress(true);
                   setTimeout(() => setCopiedAddress(false), 2000);
                 }}
@@ -2004,11 +2004,11 @@ export default function PubgAppPage() {
               </span>
               <div className="flex items-center justify-between gap-2 bg-[#0F172A] p-2 rounded-xl border border-slate-700">
                 <span className="font-mono text-xs font-black text-amber-400 select-all">
-                  9262e307f917537b98d28cfb06e7195c
+                  efe8a2b200d66411c7c7e296369cbba8
                 </span>
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText('9262e307f917537b98d28cfb06e7195c');
+                    navigator.clipboard.writeText('efe8a2b200d66411c7c7e296369cbba8');
                     setCopiedAddress(true);
                     setTimeout(() => setCopiedAddress(false), 2000);
                   }}
