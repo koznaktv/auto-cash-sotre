@@ -41,6 +41,7 @@ interface AuthModalProps {
   onSuccess?: (user: UserSessionData) => void;
   defaultTab?: 'login' | 'register';
   initialMode?: 'login' | 'register' | string;
+  brand?: 'autocash' | 'maxbazar';
 }
 
 export default function AuthModal({
@@ -49,6 +50,7 @@ export default function AuthModal({
   onSuccess,
   defaultTab = 'login',
   initialMode,
+  brand = 'autocash',
 }: AuthModalProps) {
   const effectiveDefaultTab: 'login' | 'register' =
     initialMode === 'register' || defaultTab === 'register' ? 'register' : 'login';
@@ -157,7 +159,7 @@ export default function AuthModal({
   const handleTelegramLogin = async () => {
     setTgLoading(true);
     try {
-      const res = await fetch('/api/auth/telegram-session', { method: 'POST' });
+      const res = await fetch(`/api/auth/telegram-session${brand === 'maxbazar' ? '?bot=maxbazar' : ''}`, { method: 'POST' });
       const data = await res.json();
       if (!data.success || !data.token || !data.botUrl) {
         throw new Error(data.message || 'Telegram ئارقىلىق كىرىش مەغلۇپ بولدى');
@@ -287,6 +289,21 @@ export default function AuthModal({
       storeLocalAuth(data.user);
       notifyAuthChanged();
 
+      if (brand === 'maxbazar') {
+        try {
+          const appSession = {
+            token: 'active',
+            identity: data.user.name || data.user.email || data.user.phone || 'User',
+            balance: data.user.balance || 0,
+            photo_url: data.user.avatarUrl,
+          };
+          localStorage.setItem('maxbazar_unified_session', JSON.stringify(appSession));
+          localStorage.setItem('maxbazar_pubg_session', JSON.stringify(appSession));
+          localStorage.setItem('maxbazar_hok_session', JSON.stringify(appSession));
+          window.dispatchEvent(new CustomEvent('maxbazar-auth-changed', { detail: appSession }));
+        } catch {}
+      }
+
       // Instant UI response - close modal immediately
       onSuccess?.(data.user);
       onClose();
@@ -301,7 +318,7 @@ export default function AuthModal({
   if (!isOpen) return null;
 
   return (
-    <div className="neumorphic-auth-root neumorphic-modal-overlay" onClick={onClose}>
+    <div className={`neumorphic-auth-root neumorphic-modal-overlay ${brand === 'maxbazar' ? 'brand-maxbazar' : ''}`} onClick={onClose}>
       {/* ئۇچۇر ئەسكەرتىش قەۋىتى (Toast Notification) */}
       <div className={`toast ${toast.show ? `show ${toast.type}` : ''}`}>
         <span className="toast-icon">
@@ -332,20 +349,36 @@ export default function AuthModal({
           <div className="card-header">
             <div className="brand-icon-box">
               <div className="brand-icon-inner overflow-hidden p-0.5">
-                <img
-                  src="/logo.png"
-                  alt="AUTO CASH Logo"
-                  className="w-full h-full object-cover rounded-full"
-                />
+                {brand === 'maxbazar' ? (
+                  <div className="w-full h-full rounded-full bg-gradient-to-tr from-amber-400 via-emerald-600 to-teal-500 p-0.5 flex items-center justify-center">
+                    <img
+                      src="/images/apps/pubg/icon-512.png"
+                      alt="MAX-BAZAR Logo"
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  </div>
+                ) : (
+                  <img
+                    src="/logo.png"
+                    alt="AUTO CASH Logo"
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                )}
               </div>
             </div>
             <h1 className="header-title">
-              {mode === 'login' ? 'خوش كەپسىز' : 'ھېسابات قۇرۇش'}
+              {brand === 'maxbazar'
+                ? (mode === 'login' ? 'MAX-BAZAR غا كىرىش' : 'MAX-BAZAR غا تىزىملىتىش')
+                : (mode === 'login' ? 'خوش كەپسىز' : 'ھېسابات قۇرۇش')}
             </h1>
             <p className="header-subtitle">
-              {mode === 'login'
-                ? 'داۋاملاشتۇرۇش ئۈچۈن ھېساباتىڭىزغا كىرىڭ'
-                : 'يېڭى مۇلازىمەتلەردىن بەھرىمەن بولۇش ئۈچۈن تىزىملىتىڭ'}
+              {brand === 'maxbazar'
+                ? (mode === 'login'
+                    ? 'ئويۇن ۋە رەقەملىك دۇنيانىڭ ئالىي مۇلازىمەتلىرىدىن بەھرىمەن بولۇڭ'
+                    : 'شەخسىي ئويۇن ھەميانىڭىزنى دەرھال قۇرۇپ زاكاز بېرىڭ')
+                : (mode === 'login'
+                    ? 'داۋاملاشتۇرۇش ئۈچۈن ھېساباتىڭىزغا كىرىڭ'
+                    : 'يېڭى مۇلازىمەتلەردىن بەھرىمەن بولۇش ئۈچۈن تىزىملىتىڭ')}
             </p>
           </div>
 

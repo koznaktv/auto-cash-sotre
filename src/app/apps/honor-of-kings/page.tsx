@@ -1,5 +1,6 @@
 'use client';
 
+import AuthModal from '@/components/AuthModal';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import AppsBottomNav, { AppsNavTab } from '@/components/apps/AppsBottomNav';
@@ -2118,54 +2119,27 @@ export default function HonorOfKingsAppPage() {
         </div>
       )}
 
-      {/* 1-CLICK TELEGRAM SYNC MODAL */}
-      {showLoginModal && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-[#0F172A] border border-amber-500/40 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative text-center">
-            <button
-              onClick={() => {
-                setShowLoginModal(false);
-                setIsSyncWaiting(false);
-              }}
-              className="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center absolute top-4 left-4"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-500/20 to-blue-600/20 text-sky-400 flex items-center justify-center mx-auto mb-3 border border-sky-500/30">
-              <Send className="w-7 h-7" />
-            </div>
-
-            <h3 className="text-base font-black text-white">تېلېگرامما ئارقىلىق كىرىش</h3>
-            <p className="text-xs text-slate-400 mt-1 mb-5 leading-relaxed max-w-xs mx-auto">
-              پارول ياكى كود كىرگۈزۈش ھاجەتسىز. تۆۋەندىكى تۈگمىنى بېسىپ تېلېگراممىدا <strong>«Start (باشلاش)»</strong> نى بىرنىلا باسسىڭىز، بۇ ئەپ ئۆزلۈكىدىن دەرھال كىرىدۇ.
-            </p>
-
-            {isSyncWaiting ? (
-              <div className="p-4 rounded-2xl bg-sky-500/10 border border-sky-500/30 text-sky-300 text-xs text-center space-y-2 animate-pulse">
-                <div className="flex items-center justify-center gap-2 font-bold text-sm">
-                  <RefreshCw className="w-4 h-4 animate-spin text-sky-400" />
-                  <span>تېلېگراممىدىن جاۋاب كۈتۈۋاتىدۇ...</span>
-                </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed">
-                  تېلېگرامما ئېچىلغاندا <strong>«Start (باشلاش)»</strong> نى بېسىپ ئەپكە قايتىپ كېلىڭ، ئەپ دەرھال ئۆزلۈكىدىن كىرىدۇ!
-                </p>
-              </div>
-            ) : (
-              <a
-                href={syncBotUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setIsSyncWaiting(true)}
-                className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-purple-600 hover:from-sky-400 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-sky-500/25 transition active:scale-95"
-              >
-                <Send className="w-4 h-4 stroke-[2.5]" />
-                <span>تېلېگرامما ئارقىلىق كىرىش</span>
-              </a>
-            )}
-          </div>
-        </div>
-      )}
+      {/* MAX-BAZAR NEUMORPHIC AUTH MODAL */}
+      <AuthModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={(user) => {
+          const updated = {
+            token: 'active',
+            identity: user.name || user.email || user.phone || 'User',
+            balance: user.balance || 0,
+            photo_url: user.avatarUrl,
+          };
+          setSession(updated);
+          try {
+            localStorage.setItem('maxbazar_unified_session', JSON.stringify(updated));
+            localStorage.setItem('maxbazar_hok_session', JSON.stringify(updated));
+            window.dispatchEvent(new CustomEvent('maxbazar-auth-changed', { detail: updated }));
+          } catch {}
+          setShowLoginModal(false);
+        }}
+        brand="maxbazar"
+      />
 
       {/* DEDICATED APP INSTALLATION MODAL */}
       {showInstallGuide && (

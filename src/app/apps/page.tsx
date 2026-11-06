@@ -1,5 +1,6 @@
 'use client';
 
+import AuthModal from '@/components/AuthModal';
 import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -2189,68 +2190,29 @@ export default function AppsHubPage() {
       )}
 
       {/* =========================================================================
-          1-CLICK TELEGRAM SYNC MODAL
+          MAX-BAZAR NEUMORPHIC AUTH MODAL (LOGIN & REGISTRATION)
       ========================================================================= */}
-      {showLoginModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-gradient-to-b from-[#0f172a] via-[#091122] to-[#050914] border border-amber-500/40 w-full max-w-md rounded-3xl p-6 shadow-2xl relative text-center space-y-4">
-            <button
-              onClick={() => {
-                setShowLoginModal(false);
-                setIsSyncWaiting(false);
-              }}
-              className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center absolute top-4 left-4 cursor-pointer transition active:scale-95"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="w-14 h-14 rounded-2xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sky-400 mx-auto shadow-lg">
-              <Send className="w-7 h-7" />
-            </div>
-
-            <div className="space-y-1">
-              <h3 className="text-lg font-black text-white">
-                تېلېگراممىدا 1 سېكۇنتتا كىرىش
-              </h3>
-              <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
-                ھېچقانداق پارول ياكى ئەنگە ئېلىش ھاجەتسىز. كۇنۇپكىنى بېسىپ @maxbazar_bot نى بىر قېتىم قوزغاتسىڭىز، قالدۇقىڭىز ۋە زاكازلىرىڭىز شۇئان تەڭ قەدەملىشىدۇ.
-              </p>
-            </div>
-
-            {isSyncWaiting ? (
-              <div className="p-4 rounded-2xl bg-slate-900 border border-sky-500/40 space-y-3">
-                <div className="flex items-center justify-center gap-2 text-sky-300 font-bold text-xs">
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>تېلېگرامما جاۋابى كۈتۈلۈۋاتىدۇ...</span>
-                </div>
-                <p className="text-[11px] text-slate-400">
-                  بوتتا <strong>/start</strong> نى باسقان ھامان بۇ بەت ئۆزلۈكىدىن ئېچىلىدۇ.
-                </p>
-                <a
-                  href={syncBotUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block py-2.5 px-4 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-black text-xs shadow-md transition active:scale-95"
-                >
-                  تېلېگراممىنى قايتا ئېچىش ➔
-                </a>
-              </div>
-            ) : (
-              <button
-                onClick={startTelegramSync}
-                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:brightness-110 text-white font-black text-sm shadow-lg shadow-sky-500/25 transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Send className="w-4 h-4" />
-                <span>تېلېگرامما ئارقىلىق دەرھال ئۇلاش</span>
-              </button>
-            )}
-
-            <p className="text-[10px] text-slate-500">
-              * بۇ بىخەتەر ۋە رەسمىي تېلېگرامما دەلىللەش سىستېمىسى.
-            </p>
-          </div>
-        </div>
-      )}
+      <AuthModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={(user) => {
+          const updated = {
+            token: 'active',
+            identity: user.name || user.email || user.phone || 'User',
+            balance: user.balance || 0,
+            photo_url: user.avatarUrl,
+          };
+          setSession(updated);
+          try {
+            localStorage.setItem('maxbazar_unified_session', JSON.stringify(updated));
+            localStorage.setItem('maxbazar_pubg_session', JSON.stringify(updated));
+            localStorage.setItem('maxbazar_hok_session', JSON.stringify(updated));
+            window.dispatchEvent(new CustomEvent('maxbazar-auth-changed', { detail: updated }));
+          } catch {}
+          setShowLoginModal(false);
+        }}
+        brand="maxbazar"
+      />
 
     </div>
   );

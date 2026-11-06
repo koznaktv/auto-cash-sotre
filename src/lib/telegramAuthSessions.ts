@@ -56,7 +56,7 @@ function saveLocalSessions(map: Map<string, TelegramLoginSession>) {
 /**
  * Creates a new short-lived Telegram Login Session (valid for 5 minutes).
  */
-export async function createTelegramLoginSessionAsync(): Promise<{ token: string; botUrl: string }> {
+export async function createTelegramLoginSessionAsync(customBotUsername?: string): Promise<{ token: string; botUrl: string }> {
   const token = crypto.randomBytes(12).toString('hex');
   const now = Date.now();
   const session: TelegramLoginSession = {
@@ -88,7 +88,9 @@ export async function createTelegramLoginSessionAsync(): Promise<{ token: string
     }
   }
 
-  const botUsername = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'Autocash_24_bot';
+  const botUsername = (customBotUsername && customBotUsername.trim())
+    ? customBotUsername.trim()
+    : (process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'Autocash_24_bot');
   const botUrl = `https://t.me/${botUsername}?start=auth_${token}`;
 
   return { token, botUrl };

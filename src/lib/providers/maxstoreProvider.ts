@@ -71,8 +71,10 @@ function getBaseUrl(): string {
   return process.env.MAXSTORE_BASE_URL || 'https://maxstore1.com';
 }
 
+const DEFAULT_MAXSTORE_TOKEN = 'msk_6HAfwl0cSpjPJ0jeB25V52gC5ETq3seC29C1qlgpdvI';
+
 function getApiToken(): string {
-  return process.env.MAXSTORE_API_TOKEN || '';
+  return (process.env.MAXSTORE_API_TOKEN || DEFAULT_MAXSTORE_TOKEN).trim();
 }
 
 export function isMaxStoreConfigured(): boolean {

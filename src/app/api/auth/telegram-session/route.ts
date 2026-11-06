@@ -8,9 +8,12 @@ import { setSessionCookie, toSafeUser } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
 
-export async function POST() {
+export async function POST(req: Request) {
   try {
-    const { token, botUrl } = await createTelegramLoginSessionAsync();
+    const url = new URL(req.url);
+    const botParam = url.searchParams.get('bot');
+    const customBot = botParam === 'maxbazar' ? (process.env.MAXBAZAR_BOT_USERNAME || 'maxbazar_bot') : undefined;
+    const { token, botUrl } = await createTelegramLoginSessionAsync(customBot);
     return NextResponse.json({
       success: true,
       token,

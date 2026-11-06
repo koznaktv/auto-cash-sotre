@@ -86,6 +86,8 @@ export default function AdminMaxbazarManager() {
   const [members, setMembers] = useState<MaxbazarMember[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [providerBalance, setProviderBalance] = useState<number | null>(null);
+  const [providerError, setProviderError] = useState<string | null>(null);
+  const [providerProfile, setProviderProfile] = useState<{ username?: string; user_id?: number } | null>(null);
   const [refreshingProvider, setRefreshingProvider] = useState(false);
   const [loading, setLoading] = useState(true);
   
@@ -138,24 +140,32 @@ export default function AdminMaxbazarManager() {
   const refreshProviderBalance = async () => {
     try {
       setRefreshingProvider(true);
+      setProviderError(null);
       const res = await fetch('/api/maxstore/status');
       const data = await res.json();
       if (data.ok && typeof data.balance === 'number') {
         setProviderBalance(data.balance);
+        if (data.profile) setProviderProfile(data.profile);
+        setProviderError(null);
         setMessage({ type: 'success', text: `تەمىنلىگۈچى قالدۇق پۇلى يېڭىلاندى: $${data.balance.toFixed(2)}` });
       } else {
-        setMessage({ type: 'error', text: data.error || 'تەمىنلىگۈچىگە ئۇلىنالمىدى' });
+        const errText = data.error || data.message || 'تەمىنلىگۈچىگە ئۇلىنالمىدى';
+        setProviderError(errText);
+        setMessage({ type: 'error', text: errText });
       }
-    } catch {
-      setMessage({ type: 'error', text: 'تەمىنلىگۈچى قالدۇقىنى يېڭىلاش مەغلۇپ بولدى' });
+    } catch (e: any) {
+      const errText = e?.message || 'تەمىنلىگۈچى قالدۇقىنى يېڭىلاش مەغلۇپ بولدى';
+      setProviderError(errText);
+      setMessage({ type: 'error', text: errText });
     } finally {
       setRefreshingProvider(false);
-      setTimeout(() => setMessage(null), 3000);
+      setTimeout(() => setMessage(null), 3500);
     }
   };
 
   useEffect(() => {
     fetchOrders();
+    refreshProviderBalance();
     try {
       const saved = localStorage.getItem('maxbazar_app_states');
       if (saved) setAppStates(JSON.parse(saved));
@@ -423,14 +433,21 @@ export default function AdminMaxbazarManager() {
         </div>
 
         {/* Card 2: تەمىنلىگۈچى قالدۇق پۇلى (Wholesale Provider Balance) */}
-        <div className="p-4 rounded-3xl bg-gradient-to-br from-amber-950/30 via-slate-900/80 to-slate-900 border border-amber-500/30 shadow-xl relative overflow-hidden group">
+        <div 
+          onClick={refreshProviderBalance}
+          className="p-4 rounded-3xl bg-gradient-to-br from-amber-950/30 via-slate-900/80 to-slate-900 border border-amber-500/30 shadow-xl relative overflow-hidden group cursor-pointer hover:border-amber-500/60 transition"
+          title="قايتا سۈرۈشتۈرۈش ئۈچۈن چېكىڭ"
+        >
           <div className="flex items-center justify-between text-slate-400 text-xs">
             <span className="font-bold text-amber-300 flex items-center gap-1.5">
               <Coins className="w-4 h-4 text-amber-400" />
               <span>تەمىنلىگۈچىدىن قالغان پۇل</span>
             </span>
             <button
-              onClick={refreshProviderBalance}
+              onClick={(e) => {
+                e.stopPropagation();
+                refreshProviderBalance();
+              }}
               disabled={refreshingProvider}
               className="p-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 transition cursor-pointer"
               title="تەمىنلىگۈچى قالدۇقىنى قايتا سۈرۈشتۈرۈش"
@@ -439,14 +456,26 @@ export default function AdminMaxbazarManager() {
             </button>
           </div>
           <div className="text-3xl font-black text-amber-400 mt-2 font-mono">
-            {providerBalance !== null ? `$${providerBalance.toFixed(2)}` : 'ئۇلىنىۋاتىدۇ...'}
+            {refreshingProvider ? (
+              <span className="text-amber-300/80 text-2xl animate-pulse">سۈرۈشتۈرۈۋاتىدۇ...</span>
+            ) : providerBalance !== null ? (
+              `$${providerBalance.toFixed(2)}`
+            ) : providerError ? (
+              <span className="text-rose-400 text-sm font-sans flex items-center gap-1">
+                <span>ئۇلانمىدى (قايتا سىناڭ)</span>
+              </span>
+            ) : (
+              'ئۇلىنىۋاتىدۇ...'
+            )}
           </div>
           <div className="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
             <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              MaxStore توپ تارقىتىش API
+              <span className={`w-2 h-2 rounded-full ${providerBalance !== null ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+              MaxStore {providerProfile?.username ? `(${providerProfile.username})` : 'توپ تارقىتىش API'}
             </span>
-            <span className="text-amber-400/80 font-bold">قالدۇق</span>
+            <span className="text-amber-400/80 font-bold">
+              {providerBalance !== null ? 'ئاكتىپ' : 'قايتا سىناش'}
+            </span>
           </div>
         </div>
 
