@@ -172,6 +172,28 @@ export default function AppsHubPage() {
             rawUser = meData.user;
           }
         } catch {}
+        if (!rawUser) {
+          try {
+            const { getBrowserSupabase } = await import('@/lib/supabaseBrowser');
+            const sb = getBrowserSupabase();
+            if (sb) {
+              const { data: { session: sbSession } } = await sb.auth.getSession();
+              if (sbSession?.user) {
+                const { syncSupabaseSession } = await import('@/lib/clientAuth');
+                try {
+                  const synced = await syncSupabaseSession(sbSession.access_token);
+                  if (synced) rawUser = synced;
+                } catch {
+                  rawUser = {
+                    email: sbSession.user.email,
+                    name: sbSession.user.user_metadata?.full_name || sbSession.user.user_metadata?.name || sbSession.user.email?.split('@')[0],
+                    avatarUrl: sbSession.user.user_metadata?.avatar_url || '',
+                  };
+                }
+              }
+            }
+          } catch {}
+        }
 
         if (rawUser) {
           const identity =

@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import Script from 'next/script';
 import AppsTelegramAutoSync from '@/components/apps/AppsTelegramAutoSync';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: 'MAX-BAZAR ئەپ بازىرى - تاللاپ قاچىلاش مەركىزى',
   description: 'MAX-BAZAR رەسمىي ئەپ بازىرى',

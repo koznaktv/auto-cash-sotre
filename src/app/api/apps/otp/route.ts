@@ -685,11 +685,19 @@ export async function POST(req: NextRequest) {
     if (action === 'shamcash_talon') {
       const { talon } = body;
       const cleanTalon = sanitizeCode(talon);
-      if (!cleanIdentity) {
-        return NextResponse.json({ ok: false, error: 'ئالدى بىلەن تېلېگرامما ئارقىلىق كىرىڭ' }, { status: 401 });
+      let targetUser = cleanIdentity;
+      if (!targetUser) {
+        try {
+          const { getSessionUser } = await import('@/lib/session');
+          const sess = await getSessionUser(req);
+          if (sess) targetUser = sess.email || sess.name || '';
+        } catch {}
       }
-      if (!cleanTalon || cleanTalon.length < 5) {
-        return NextResponse.json({ ok: false, error: 'تالون نومۇرى كەم دېگەندە 5 خانىلىق بولۇشى كېرەك!' }, { status: 400 });
+      if (!targetUser) {
+        return NextResponse.json({ ok: false, error: 'ئالدى بىلەن ھېساباتىڭىزغا كىرىڭ' }, { status: 401 });
+      }
+      if (!cleanTalon || cleanTalon.length < 4) {
+        return NextResponse.json({ ok: false, error: 'تالون نومۇرى كەم دېگەندە 4 خانىلىق بولۇشى كېرەك!' }, { status: 400 });
       }
 
       // Check if talon already used (Anti-Double-Spend Protection)
@@ -717,9 +725,36 @@ export async function POST(req: NextRequest) {
         fs.writeFileSync(usedTalonsFile, JSON.stringify(usedTalons, null, 2), 'utf-8');
       } catch {}
 
-      // Add topup amount (Default $25.00 for verified Sham Cash talon) into unified wallet
-      const topupAmount = 25.00;
-      const creditRes = await creditUnifiedWalletBalance(cleanIdentity, topupAmount);
+      // Verify through official TSA Shamcash API if configured
+      let topupAmount = 25.00;
+      try {
+        const { getTsaConfig, verifyShamcashTransaction } = await import('@/lib/providers/tsaShamcash');
+        const tsaCfg = await getTsaConfig();
+        if (tsaCfg.apiKey && tsaCfg.autoDepositEnabled) {
+          const tsaRes = await verifyShamcashTransaction(cleanTalon, {
+            apiKey: tsaCfg.apiKey,
+            accountAddress: tsaCfg.shamcashAddress,
+            exchangeRate: tsaCfg.exchangeRate,
+          }).catch(() => null);
+
+          if (tsaRes?.expired) {
+            return NextResponse.json({
+              ok: false,
+              error: 'بۇ تالوننىڭ مۇددىتى ئۆتۈپ كەتكەن (كونا تالون)!'
+            }, { status: 400 });
+          }
+
+          if (tsaRes?.success && tsaRes.found && tsaRes.transaction) {
+            if (tsaRes.transaction.usdAmount > 0) {
+              topupAmount = Number(tsaRes.transaction.usdAmount.toFixed(2));
+            }
+          }
+        }
+      } catch (err: any) {
+        console.warn('TSA verification in OTP route:', err?.message);
+      }
+
+      const creditRes = await creditUnifiedWalletBalance(targetUser, topupAmount);
       const newBalance = creditRes.newBalance;
 
       // Record deposit in central DB
@@ -745,11 +780,12 @@ export async function POST(req: NextRequest) {
           `💵 يېڭى قالدۇق: *$${newBalance.toFixed(2)}*\n\n` +
           `⚡ سىستېما تەرىپىدىن ئاپتوماتىك تەستىقلاندى.`;
 
-        await fetch(`https://api.telegram.org/bot${MAXBAZAR_BOT_TOKEN}/sendMessage`, {
+        // Send to channel @autocashkirim
+        await fetch(`https://api.telegram.org/bot${MAXBAZAR_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            chat_id: '-1003463994356', // @autocash_cannel
+            chat_id: '@autocashkirim',
             text: topupNotifyText,
             parse_mode: 'Markdown',
           }),
