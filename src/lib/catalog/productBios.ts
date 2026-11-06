@@ -299,16 +299,16 @@ export function detectServiceInputs(
 
   // 2. Genshin Impact / Honkai or server param
   const hasServerParam = Array.isArray(params) && params.some((p) => /server|choose\s*the\s*server/i.test(p));
-  const isGenshin = /genshin|honkai/i.test(nameLower);
+  const isGenshin = /genshin|honkai|جينشن/i.test(nameLower);
 
   if (hasServerParam || isGenshin) {
     return {
       inputLabel: 'ئويۇنچى كىملىكى (UID)',
-      inputPlaceholder: 'مەسىلەن: 700123456',
+      inputPlaceholder: 'مەسىلەن: 1826028649 ياكى 700123456',
       requiresZoneId: true,
-      zoneIdLabel: 'مۇلازىمېتىر / رايون (Server)',
-      zoneIdPlaceholder: 'مەسىلەن: Asia, Europe, America',
-      helperNote: 'ئويۇن UID ۋە ئۆزىڭىز تەۋە مۇلازىمېتىر رايونىنى تاللاڭ ياكى كىرگۈزۈڭ.',
+      zoneIdLabel: 'مۇلازىمېتىر رايونى (Server)',
+      zoneIdPlaceholder: 'Asia / America / Europe / TW, HK, MO',
+      helperNote: '💡 پەقەت ئويۇندىكى 9-10 خانىلىق UID نى كىرگۈزۈپ، مۇلازىمېتىرنى تاللاڭ. قوشۇمچە رايون كودى تەلەپ قىلىنمايدۇ.',
       defaultBio: getServiceDefaultBio(name, cat),
     };
   }

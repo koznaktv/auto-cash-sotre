@@ -4351,10 +4351,10 @@
     "description": "Genshin Impact كرىستال ۋە ئايلىق نۇرلۇق قەمەر كارتىسى تولۇقلاش.",
     "badge": "⚡ كاپالەتلىك",
     "inputLabel": "ئويۇنچى ID (UID)",
-    "inputPlaceholder": "UID كىرگۈزۈڭ",
+    "inputPlaceholder": "مەسىلەن: 1826028649 ياكى 701234567",
     "requiresZoneId": true,
-    "zoneIdLabel": "مۇلازىمېتىر رايونى (Server)",
-    "zoneIdPlaceholder": "Asia / America / Europe",
+    "zoneIdLabel": "مۇلازىمېتىرنى تاللاڭ (Server)",
+    "zoneIdPlaceholder": "Asia / America / Europe / TW, HK, MO",
     "packages": [
       {
         "id": "pkg-othman-679",

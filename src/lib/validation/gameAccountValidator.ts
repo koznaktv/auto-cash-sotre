@@ -129,19 +129,23 @@ export function validateGameAccount(serviceId: string, input: string): Validatio
     }
   }
 
-  // 6. Genshin Impact (9 digits UID)
-  if (sid.includes('genshin')) {
-    const genshinRegex = /^\d{9}$/;
-    if (!genshinRegex.test(trimmed)) {
+  // 6. Genshin Impact & Honkai (9 or 10 digits UID, optional server like "1826028649 (Asia)")
+  if (sid.includes('genshin') || sid.includes('جينشن') || sid.includes('honkai') || sid.includes('star-rail') || sid.includes('starrail')) {
+    const match = trimmed.match(/^(\d{9,10})(?:[\s\(\-_/\|]+([a-zA-Z\u0600-\u06FF\s,]+)\)?)?$/);
+    if (!match) {
       return {
         isValid: false,
-        message: 'Genshin Impact UID نومۇرى 9 خانىلىق رەقەم بولۇشى كېرەك (مەسىلەن: 701234567).',
+        message: 'Genshin Impact UID نومۇرى 9 ياكى 10 خانىلىق رەقەم بولۇشى كېرەك (مەسىلەن: 1826028649 ياكى 701234567).',
         parsed: { userId: trimmed },
       };
     }
     return {
       isValid: true,
-      parsed: { userId: trimmed },
+      parsed: {
+        userId: match[1],
+        server: match[2]?.trim() || undefined,
+        zoneId: match[2]?.trim() || undefined,
+      },
     };
   }
 

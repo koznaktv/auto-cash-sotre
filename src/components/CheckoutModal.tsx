@@ -335,6 +335,8 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
     return /mobile\s*legend|mlbb|legend\s*mobile|موبايل\s*ليجند/i.test(s);
   }, [service, detail]);
 
+
+
   const requiresZoneId = Boolean(
     activeSubCat?.requiresZoneId !== undefined
       ? activeSubCat.requiresZoneId
@@ -352,6 +354,21 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
   const effectiveInputPlaceholder = activeSubCat?.inputPlaceholder || service?.inputPlaceholder || detail?.inputPlaceholder || 'مەسىلەن: 12345678';
   const effectiveZoneIdLabel = activeSubCat?.zoneIdLabel || service?.zoneIdLabel || detail?.zoneIdLabel || 'رايون كودى (Zone ID)';
   const effectiveZoneIdPlaceholder = activeSubCat?.zoneIdPlaceholder || service?.zoneIdPlaceholder || detail?.zoneIdPlaceholder || 'مەسىلەن: 1234';
+
+  const effectiveHelperNote = (activeSubCat as any)?.helperNote || (service as any)?.helperNote || (detail as any)?.helperNote;
+
+  const isServerGame = useMemo(() => {
+    if (!service) return false;
+    const s = `${service.id} ${service.name} ${detail?.name || ''} ${selectedPkg?.title || ''}`.toLowerCase();
+    const hasServerLabel = /server|مۇلازىمېتىر|السيرفر/i.test(effectiveZoneIdLabel || '');
+    return hasServerLabel || /genshin|honkai|star\s*rail|starrail|tower\s*of\s*fantasy|جينشن/i.test(s);
+  }, [service, detail, selectedPkg, effectiveZoneIdLabel]);
+
+  useEffect(() => {
+    if (isServerGame && !zoneInput) {
+      setZoneInput('Asia');
+    }
+  }, [isServerGame, zoneInput]);
 
   const productBio = useMemo(() => {
     if (!service) return null;
@@ -516,14 +533,15 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
       return;
     }
 
-    // For services requiring Zone ID
+    // For services requiring Zone ID or Server
+    const effectiveZone = zoneInput.trim() || (isServerGame ? 'Asia' : '');
     if (requiresZoneId) {
       if (!accountInput.trim()) {
         setErrorMsg(t('uidRequired'));
         return;
       }
-      if (!zoneInput.trim()) {
-        setErrorMsg(t('zoneIdRequired'));
+      if (!effectiveZone) {
+        setErrorMsg(isServerGame ? (lang === 'ug' ? 'مۇلازىمېتىر رايونىنى تاللاڭ!' : 'يرجى اختيار السيرفر!') : t('zoneIdRequired'));
         return;
       }
     }
@@ -550,15 +568,15 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
         setErrorMsg(qtyCheck.message || t('quantity'));
         return;
       }
-      const combined = requiresZoneId && zoneInput.trim()
-        ? `${accountInput.trim()} (${zoneInput.trim()})`
+      const combined = requiresZoneId && effectiveZone
+        ? `${accountInput.trim()} (${effectiveZone})`
         : accountInput.trim();
       await submitOrder(confirmTotal ?? estimatedTotal, isNoInputService ? undefined : combined);
       return;
     }
 
-    const combinedAccount = requiresZoneId && zoneInput.trim()
-      ? `${accountInput.trim()} (${zoneInput.trim()})`
+    const combinedAccount = requiresZoneId && effectiveZone
+      ? `${accountInput.trim()} (${effectiveZone})`
       : accountInput.trim();
 
     if (!isNoInputService && service.inputLabel && !combinedAccount) {
@@ -1275,21 +1293,62 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
-                          <span>{translateInputLabel(effectiveZoneIdLabel)}</span>
+                          <span>
+                            {isServerGame
+                              ? (lang === 'ug' ? 'مۇلازىمېتىرنى تاللاڭ (Server)' : lang === 'ar' ? 'اختر السيرفر (Server)' : 'Select Server')
+                              : translateInputLabel(effectiveZoneIdLabel)}
+                          </span>
                           <span className="text-rose-400 font-bold">*</span>
                         </label>
-                        <input
-                          type="text"
-                          value={zoneInput}
-                          onChange={(e) => setZoneInput(e.target.value)}
-                          placeholder={translateInputPlaceholder(effectiveZoneIdPlaceholder)}
-                          className={inputClass}
-                          dir="ltr"
-                        />
+                        {isServerGame ? (
+                          <div className="grid grid-cols-2 gap-1.5">
+                            {[
+                              { id: 'Asia', label: 'Asia (ئاسىيا)' },
+                              { id: 'America', label: 'America (ئامېرىكا)' },
+                              { id: 'Europe', label: 'Europe (ياۋروپا)' },
+                              { id: 'TW, HK, MO', label: 'TW/HK/MO' },
+                            ].map((srv) => {
+                              const isSelected = (zoneInput || 'Asia').toLowerCase() === srv.id.toLowerCase();
+                              return (
+                                <button
+                                  key={srv.id}
+                                  type="button"
+                                  onClick={() => setZoneInput(srv.id)}
+                                  className={`px-2 py-2 rounded-xl text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer border ${
+                                    isSelected
+                                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/40 border-emerald-400'
+                                      : 'bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 border-slate-200 dark:border-white/10'
+                                  }`}
+                                >
+                                  <span>{srv.label}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <input
+                            type="text"
+                            value={zoneInput}
+                            onChange={(e) => setZoneInput(e.target.value)}
+                            placeholder={translateInputPlaceholder(effectiveZoneIdPlaceholder)}
+                            className={inputClass}
+                            dir="ltr"
+                          />
+                        )}
                       </div>
                     </div>
                     <p className="mt-1 text-[11px] text-amber-300/90 flex items-center gap-1 font-alkatip">
-                      <span>{t('mlbbNotice')}</span>
+                      <span>
+                        {isServerGame
+                          ? (lang === 'ug'
+                              ? '💡 ئەسكەرتىش: پەقەت ئويۇندىكى 9-10 خانىلىق UID نى كىرگۈزۈپ، مۇلازىمېتىرنى تاللىسىڭىز كۇپايە. قوشۇمچە رايون كودى تەلەپ قىلىنمايدۇ.'
+                              : lang === 'ar'
+                              ? '💡 ملاحظة: أدخل معرف اللعبة (UID) المكون من 9-10 أرقام واختر السيرفر فقط. لا يلزم رمز منطقة إضافي.'
+                              : '💡 Note: Enter your 9-10 digit game UID and select your server. No additional zone code required.')
+                          : (isMlbb
+                              ? t('mlbbNotice')
+                              : (effectiveHelperNote || t('mlbbNotice')))}
+                      </span>
                     </p>
                   </div>
                 ) : (

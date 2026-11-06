@@ -1465,6 +1465,67 @@ ${statusTxt}
     return true;
   }
 
+  // 5.5 Server Selection for Games (Genshin, Honkai, etc.)
+  if (data.startsWith('tg_srv_')) {
+    const srvName = data.replace('tg_srv_', '');
+    const activeSession = botOrderSessions.get(fromId) || (chatId ? botOrderSessions.get(chatId) : null);
+    if (activeSession && activeSession.step === 'awaiting_zone_id') {
+      activeSession.zoneId = srvName;
+      activeSession.step = 'ready_to_confirm';
+      await answerCallbackQuery(cqId, `Selected: ${srvName}`);
+
+      const user = await getOrCreateTelegramUser(fromId, fromUser, cq.from?.first_name);
+      const balance = Number(user.balance || 0);
+      const remaining = balance - activeSession.price;
+      const isEnough = balance >= activeSession.price;
+
+      const isGame = activeSession.serviceId.includes('othman_') || activeSession.serviceId.includes('pubg') || activeSession.serviceId.includes('free_fire');
+      const sName = isGame
+        ? formatCleanGameBaseName(activeSession.serviceId, activeSession.serviceName)
+        : (lang === 'ug' ? activeSession.serviceName : smartTranslateTitle(activeSession.serviceName, lang as any));
+      const pTitle = activeSession.pkgTitle;
+
+      const titleCard = BOT_I18N.order.confirmOrderTitle[lang] || '⚡️ زاكازنى جەزملەشتۈرۈش';
+      const targetFull = `${activeSession.targetAccount} (${activeSession.zoneId})`;
+
+      const remainingText = isEnough
+        ? (lang === 'ar' ? `المتبقي بعد الشراء: ${remaining.toFixed(2)} USD` :
+           lang === 'tr' ? `Kalan Bakiye: ${remaining.toFixed(2)} USD` :
+           lang === 'en' ? `Remaining Balance: ${remaining.toFixed(2)} USD` :
+           lang === 'uz' ? `Qoladigan balans: ${remaining.toFixed(2)} USD` :
+           lang === 'ru' ? `Остаток после покупки: ${remaining.toFixed(2)} USD` :
+           `كېمەيتىلگەندىن كېيىن قالىدىغىنى: ${remaining.toFixed(2)} USD`)
+        : `⚠️ قالدۇق يەتمەيدۇ! كەم قالغىنى: ${(activeSession.price - balance).toFixed(2)} USD`;
+
+      const confirmMsg = [
+        `<b>${titleCard}</b>`,
+        '',
+        `${BOT_I18N.order.productLabel[lang] || '🛍️ مەھسۇلات:'} <b>${sName}</b>`,
+        `${BOT_I18N.order.packageLabel[lang] || '📦 بولاق:'} <b>${pTitle}</b>`,
+        `${BOT_I18N.order.targetAccountLabel[lang] || '🎯 نىشان ھېسابات:'} <code>${targetFull}</code>`,
+        `${BOT_I18N.order.priceLabel[lang] || '💰 باھاسى:'} <b>${activeSession.price.toFixed(2)} USD</b>`,
+        `${BOT_I18N.order.yourBalanceLabel[lang] || '💳 قالدۇقىڭىز:'} <b>${balance.toFixed(2)} USD</b>`,
+        '',
+        `📊 <b>${remainingText}</b>`,
+      ].filter(Boolean).join('\n');
+
+      const actionButtons = isEnough
+        ? [
+            [{ text: BOT_I18N.order.confirmBtn[lang] || '✅ دەرھال سېتىۋېلىش ⚡️', callback_data: 'tg_confirm_buy' }],
+            [{ text: BOT_I18N.order.cancelPurchase[lang] || '❌ بىكار قىلىش ↩️', callback_data: 'tg_cancel_order' }],
+          ]
+        : [
+            [{ text: BOT_I18N.storeButtons.deposit[lang] || '💎💳 ھېساباتقا پۇل سېلىش (شامكەش) ⚡️', callback_data: 'quick_deposit' }],
+            [{ text: BOT_I18N.order.cancelPurchase[lang] || '❌ بىكار قىلىش ↩️', callback_data: 'tg_cancel_order' }],
+          ];
+
+      await showOrEditMessage(chatId, messageId, confirmMsg, { inline_keyboard: actionButtons });
+      return true;
+    }
+    await answerCallbackQuery(cqId);
+    return true;
+  }
+
   // 6. Cancel Order Session
   if (data === 'tg_cancel_order') {
     botOrderSessions.delete(fromId);
@@ -1552,16 +1613,35 @@ export async function handleShopTextMessage(
 
       if (activeSession.requiresZoneId && !activeSession.zoneId) {
         activeSession.step = 'awaiting_zone_id';
-        const zonePrompt = `
+        const isServerGame = /genshin|honkai|star\s*rail|جينشن/i.test(activeSession.serviceId + ' ' + activeSession.serviceName);
+        const zonePrompt = isServerGame
+          ? `
+🌐 <b>مۇلازىمېتىر رايونىنى تاللاڭ (Server):</b>
+ئويۇن مۇلازىمېتىرىڭىزنى تۆۋەندىكى تىزىملىكتىن تاللاڭ ياكى يېزىپ ئەۋەتىڭ (مەسىلەن: Asia):
+`.trim()
+          : `
 🎯 <b>سېرۋېر رايون كودى (Server / Zone ID):</b>
 ئويۇن ياكى ئەپنىڭ رايون نومۇرىنى كىرگۈزۈڭ:
 <i>(مەسىلەن: 1234 ياكى 2001)</i>
 `.trim();
+
+        const inline_keyboard = isServerGame ? [
+          [
+            { text: 'Asia (ئاسىيا)', callback_data: 'tg_srv_Asia' },
+            { text: 'America (ئامېرىكا)', callback_data: 'tg_srv_America' },
+          ],
+          [
+            { text: 'Europe (ياۋروپا)', callback_data: 'tg_srv_Europe' },
+            { text: 'TW, HK, MO', callback_data: 'tg_srv_TW, HK, MO' },
+          ],
+          [{ text: BOT_I18N.order.cancelPurchase[lang] || '❌ بىكار قىلىش', callback_data: 'tg_cancel_order' }],
+        ] : [
+          [{ text: BOT_I18N.order.cancelPurchase[lang] || '❌ بىكار قىلىش', callback_data: 'tg_cancel_order' }],
+        ];
+
         await sendTelegramMessage(chatId, zonePrompt, {
           parse_mode: 'HTML',
-          reply_markup: {
-            inline_keyboard: [[{ text: BOT_I18N.order.cancelPurchase[lang] || '❌ بىكار قىلىش', callback_data: 'tg_cancel_order' }]],
-          },
+          reply_markup: { inline_keyboard },
         });
         return true;
       }
