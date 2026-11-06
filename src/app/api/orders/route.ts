@@ -645,18 +645,28 @@ export async function PATCH(req: Request) {
 
     // When marking completed, also clear 'wait' / 'pending_provider' provider status in details
     let updated: OrderRecord | null = null;
+    const nowIso = new Date().toISOString();
     if (status === 'completed') {
       updated = await updateOrderAsync(orderId, {
         status: 'completed',
         detailsPatch: {
           providerStatus: 'COMPLETED',
           manualCompleted: true,
-          completedAt: new Date().toISOString(),
+          completedAt: nowIso,
           channelBroadcastLock: null,
         },
       });
+      // Also sync micro-apps orders.json file atomically
+      try {
+        const { updateMicroAppOrderSync } = await import('@/lib/appWallets');
+        updateMicroAppOrderSync(orderId, 'completed', nowIso);
+      } catch {}
     } else {
       updated = await updateOrderStatusAsync(orderId, status);
+      try {
+        const { updateMicroAppOrderSync } = await import('@/lib/appWallets');
+        updateMicroAppOrderSync(orderId, status, nowIso);
+      } catch {}
     }
 
     if (!updated) {

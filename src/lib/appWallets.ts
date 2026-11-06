@@ -378,3 +378,29 @@ export async function creditUnifiedWalletBalance(
   syncLocalWalletCache(clean, newBal);
   return { success: true, newBalance: newBal };
 }
+
+/**
+ * Synchronizes order status into micro_apps/orders.json file atomically
+ */
+export function updateMicroAppOrderSync(orderId: string, status: string, completedAt?: string) {
+  try {
+    ensureDir();
+    const filePath = path.join(DATA_DIR, 'orders.json');
+    if (fs.existsSync(filePath)) {
+      const orders = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+      if (Array.isArray(orders)) {
+        let changed = false;
+        for (const o of orders) {
+          if (o && (o.order_id === orderId || o.id === orderId)) {
+            o.status = status;
+            if (completedAt) o.completed_at = completedAt;
+            changed = true;
+          }
+        }
+        if (changed) {
+          fs.writeFileSync(filePath, JSON.stringify(orders.slice(0, 500), null, 2), 'utf-8');
+        }
+      }
+    }
+  } catch {}
+}

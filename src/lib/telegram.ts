@@ -820,7 +820,7 @@ export async function postOrderCompletedToChannel(order: {
 
   const mainHeader = isMaxBazar
     ? '<a href="https://www.auto-cash.app/apps"><b>MAX-BAZAR | ماكس بازار</b></a>'
-    : '<a href="https://t.me/' + TELEGRAM_CONFIG.botUsername + '"><b>AUTO CASH</b></a>';
+    : '<a href="https://t.me/' + TELEGRAM_CONFIG.botUsername + '"><b>AUTO CASH | ئاپتو كاش</b></a>';
 
   const subHeader = isMaxBazar
     ? '⚡ <b>ماكس بازار توربىتى تەرىپىدىن پۈتتۈرۈلدى</b> ✅'
@@ -832,7 +832,7 @@ export async function postOrderCompletedToChannel(order: {
     ? '👑 <b>ئەزالىق زاكىسى</b> ✅'
     : isNumber
     ? '📱 <b>مەۋھۇم نومۇر زاكىسى</b> ✅'
-    : '💎 <b>پۇل قاچىلاش زاكىسى</b> ✅';
+    : '💎 <b>AUTO CASH توربىتى تەرىپىدىن پۈتتۈرۈلدى</b> ✅';
 
   // 4. Product Details
   const cleanAmount = Number(order.amount || 0).toFixed(2);
@@ -885,7 +885,8 @@ export async function postOrderCompletedToChannel(order: {
     lines.push('➖ 🏪 <b>سۇپا:</b> MAX-BAZAR (ماكس بازار) •');
     lines.push('➖ ✅ <b>ھالىتى:</b> ماكس بازار توربىتى تەرىپىدىن پۈتتۈرۈلدى •');
   } else {
-    lines.push('➖ ✅ <b>ھالىتى:</b> سېتىۋېلىندى •');
+    lines.push('➖ 🏪 <b>سۇپا:</b> AUTO CASH (ئاپتو كاش) •');
+    lines.push('➖ ✅ <b>ھالىتى:</b> AUTO CASH توربىتى تەرىپىدىن پۈتتۈرۈلدى •');
   }
   lines.push('➖➖➖➖➖');
 

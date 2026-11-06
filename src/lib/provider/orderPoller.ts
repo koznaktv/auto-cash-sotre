@@ -102,8 +102,15 @@ export async function pollProviderOrders(options: {
               (o.details?.providerProductId ||
                 o.details?.providerOrderId ||
                 o.details?.providerOrderUuid ||
+                o.details?.provider === 'maxstore' ||
+                o.details?.store === 'maxbazar' ||
+                o.details?.store === 'MaxStore' ||
+                o.serviceId?.startsWith('maxbazar_') ||
                 o.serviceId?.startsWith('s4g-') ||
-                o.serviceId?.includes('othman'))
+                o.serviceId?.includes('othman') ||
+                o.id.startsWith('HOK_') ||
+                o.id.startsWith('MLBB_') ||
+                o.id.startsWith('PUBG_'))
           )
       );
     } else {
@@ -235,8 +242,136 @@ export async function pollProviderOrders(options: {
 
     // 2. Orders with provider ID: query the provider directly
     if (withProviderId.length && Date.now() < options.deadlineMs) {
+      const isMaxStoreOrder = (o: OrderRecord) => Boolean(
+        o.details?.provider === 'maxstore' ||
+        o.details?.store === 'maxbazar' ||
+        o.details?.store === 'MaxStore' ||
+        o.serviceId?.startsWith('maxbazar_') ||
+        o.id.startsWith('HOK_') ||
+        o.id.startsWith('MLBB_') ||
+        o.id.startsWith('PUBG_') ||
+        o.details?.providerOrderId?.startsWith('MX-')
+      );
+
+      const maxStoreOrders = withProviderId.filter(isMaxStoreOrder);
+      const otherProviderOrders = withProviderId.filter((o) => !isMaxStoreOrder(o));
+
+      // 2.1 Polling MaxStore orders (MAX-BAZAR)
+      if (maxStoreOrders.length > 0 && Date.now() < options.deadlineMs) {
+        const maxstoreToken = process.env.MAXSTORE_API_TOKEN || 'msk_6HAfwl0cSpjPJ0jeB25V52gC5ETq3seC29C1qlgpdvI';
+        const maxStoreQueryIds = maxStoreOrders.map((o) => o.details!.providerOrderId).join(',');
+        try {
+          const msRes = await fetch(`https://maxstore1.com/api/v2/check?orders=${encodeURIComponent(maxStoreQueryIds)}`, {
+            headers: {
+              'api-token': maxstoreToken,
+              Accept: 'application/json',
+            },
+          });
+          const msData = await msRes.json();
+          if (msData.status === 'OK' && Array.isArray(msData.data)) {
+            const now = new Date().toISOString();
+            for (const item of msData.data) {
+              const matchedOrder = maxStoreOrders.find((o) => String(o.details!.providerOrderId) === String(item.order_id));
+              if (!matchedOrder) continue;
+              summary.checked++;
+
+              const pStatus = (item.status || '').toLowerCase().trim();
+              const isCompleted = [
+                'completed', 'success', 'done', 'delivered', 'ok', 'accept', '1', '3',
+                'تم', 'مكتمل', 'مكتملة', 'تم الشحن', 'مشحون', 'تم التنفيذ', 'تم التسليم', 'تم الطلب', 'منجز'
+              ].includes(pStatus) ||
+                pStatus.includes('مكتمل') ||
+                pStatus.includes('تم الشحن') ||
+                pStatus.includes('مشحون') ||
+                pStatus.includes('تم التنفيذ') ||
+                pStatus.includes('منجز');
+
+              const isFailed = [
+                'canceled', 'cancelled', 'rejected', 'reject', 'refunded', 'failed', 'error',
+                '-1', '4', '5', '6',
+                'ملغي', 'مرفوض', 'فشل', 'خطأ'
+              ].includes(pStatus) ||
+                pStatus.includes('ملغي') ||
+                pStatus.includes('مرفوض') ||
+                pStatus.includes('فشل');
+
+              if (isCompleted) {
+                const replayInfo = item.replay_api?.[0]?.replay?.join(', ') || null;
+                let settled = await transitionOrderAsync(matchedOrder.id, IN_FLIGHT, 'completed', {
+                  providerStatus: 'COMPLETED',
+                  providerCheckedAt: now,
+                  completedAt: now,
+                  needsReview: false,
+                  ...(replayInfo ? { providerReply: replayInfo, reply: replayInfo } : {}),
+                });
+                if (!settled) {
+                  settled = await updateOrderAsync(matchedOrder.id, {
+                    status: 'completed',
+                    detailsPatch: {
+                      providerStatus: 'COMPLETED',
+                      providerCheckedAt: now,
+                      completedAt: now,
+                      needsReview: false,
+                      ...(replayInfo ? { providerReply: replayInfo, reply: replayInfo } : {}),
+                    },
+                  }).catch(() => null);
+                }
+
+                // Also sync micro-apps orders.json file atomically
+                try {
+                  const { updateMicroAppOrderSync } = await import('@/lib/appWallets');
+                  updateMicroAppOrderSync(matchedOrder.id, 'completed', now);
+                } catch {}
+
+                summary.completed++;
+                await postOrderCompletedToChannel({
+                  id: matchedOrder.id,
+                  serviceName: matchedOrder.serviceName,
+                  packageTitle: matchedOrder.packageTitle,
+                  amount: matchedOrder.amount,
+                  targetAccount: (matchedOrder as any).targetAccount || matchedOrder.details?.targetAccount || matchedOrder.details?.playerId,
+                  userName: (matchedOrder as any).userName,
+                  userEmail: matchedOrder.userEmail,
+                  details: { ...(settled?.details || matchedOrder.details), store: 'maxbazar' },
+                  force: true,
+                }).catch(() => null);
+                continue;
+              }
+
+              if (isFailed) {
+                const refund = await refundOrderBalanceAtomicAsync(
+                  matchedOrder.id,
+                  `تەمىنلىگۈچى MaxStore رەت قىلدى: ${pStatus}`
+                );
+                if (refund.success) {
+                  summary.refunded++;
+                  try {
+                    const { updateMicroAppOrderSync } = await import('@/lib/appWallets');
+                    updateMicroAppOrderSync(matchedOrder.id, 'refunded', now);
+                  } catch {}
+                } else {
+                  summary.needsReview++;
+                }
+                continue;
+              }
+
+              // Still in progress / wait
+              await transitionOrderAsync(matchedOrder.id, IN_FLIGHT, 'processing', {
+                providerStatus: pStatus || 'wait',
+                providerCheckedAt: now,
+                providerNextCheckAt: nextCheckAt(1),
+              });
+              summary.pending++;
+            }
+          }
+        } catch (err: any) {
+          console.warn('[Poller MaxStore check error]:', err?.message);
+        }
+      }
+
+      // 2.2 Polling other providers (Othman Store, etc.)
       const checkGroups = [
-        { prov: othmanStoreProvider, orders: withProviderId },
+        { prov: othmanStoreProvider, orders: otherProviderOrders },
       ];
 
       for (const group of checkGroups) {
