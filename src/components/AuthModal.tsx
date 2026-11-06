@@ -80,6 +80,11 @@ export default function AuthModal({
   const [loading, setLoading] = useState(false);
   const [flyArrow, setFlyArrow] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [authView, setAuthView] = useState<'normal' | 'gmail'>('normal');
+  const [gmailAddress, setGmailAddress] = useState('');
+  const [gmailPassword, setGmailPassword] = useState('');
+  const [showGmailPass, setShowGmailPass] = useState(false);
+  const [gmailLoading, setGmailLoading] = useState(false);
   const [tgLoading, setTgLoading] = useState(false);
   const [tgPollingToken, setTgPollingToken] = useState<string | null>(null);
   const [tgBotUrl, setTgBotUrl] = useState<string | null>(null);
@@ -100,9 +105,15 @@ export default function AuthModal({
     }, 3800);
   };
 
+  const handleClose = () => {
+    setAuthView('normal');
+    onClose();
+  };
+
   useEffect(() => {
     if (isOpen) {
       setMode(effectiveDefaultTab);
+      setAuthView('normal');
       setSpinClass('');
       setIsSpinning(false);
     }
@@ -128,30 +139,92 @@ export default function AuthModal({
     }, 650);
   };
 
-  // Google OAuth
+  // Google OAuth / Gmail Fast Auth
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     try {
       const supabase = getBrowserSupabase();
-      if (!supabase) {
-        showToast('Google كىرىش ئۇلىنىشى تېپىلمىدى', 'error');
-        setGoogleLoading(false);
+      if (supabase) {
+        const origin = typeof window !== 'undefined' ? window.location.origin : '';
+        const nextPath = typeof window !== 'undefined' ? window.location.pathname : '/';
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
+            queryParams: { access_type: 'offline', prompt: 'consent' },
+          },
+        });
+        if (error) throw error;
         return;
       }
-      const origin = typeof window !== 'undefined' ? window.location.origin : '';
-      const nextPath = typeof window !== 'undefined' ? window.location.pathname : '/';
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
-          queryParams: { access_type: 'offline', prompt: 'consent' },
-        },
-      });
-      if (error) throw error;
+      // If Supabase OAuth is not active, seamlessly switch to native Gmail login
+      setAuthView('gmail');
     } catch (err: any) {
-      console.error('Google OAuth error:', err);
-      showToast(err?.message || 'Google بىلەن كىرىش مەغلۇپ بولدى', 'error');
+      console.warn('Google OAuth not active, switching to Gmail direct login:', err?.message);
+      setAuthView('gmail');
+    } finally {
       setGoogleLoading(false);
+    }
+  };
+
+  // Gmail Direct Login & Registration Submit
+  const handleGmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const rawMail = (gmailAddress || '').trim().toLowerCase();
+    const finalMail = rawMail.includes('@') ? rawMail : `${rawMail}@gmail.com`;
+
+    if (!finalMail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(finalMail)) {
+      showToast('توغرا بولغان Gmail ئادرېسى كىرگۈزۈڭ!', 'error');
+      return;
+    }
+
+    if (!gmailPassword || gmailPassword.length < 6) {
+      showToast('پارول ئەڭ ئاز دېگەندە 6 خانىلىق بولۇشى كېرەك!', 'error');
+      return;
+    }
+
+    setGmailLoading(true);
+    try {
+      const res = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: finalMail,
+          password: gmailPassword,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Gmail ئارقىلىق كىرىش مەغلۇپ بولدى');
+      }
+
+      storeLocalAuth(data.user);
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(
+            'maxbazar_unified_session',
+            JSON.stringify({
+              identity: data.user.email,
+              user: data.user,
+              loginTime: new Date().toISOString(),
+            })
+          );
+        } catch {}
+        window.dispatchEvent(new Event('autocash-auth-changed'));
+        window.dispatchEvent(new Event('maxbazar-auth-changed'));
+      }
+
+      showToast(data.message || 'Gmail ئارقىلىق مۇۋەپپەقىيەتلىك كىردىڭىز!', 'success');
+      if (onSuccess) onSuccess(data.user);
+
+      setTimeout(() => {
+        handleClose();
+      }, 900);
+    } catch (err: any) {
+      showToast(err?.message || 'Gmail ئارقىلىق كىرىش مەغلۇپ بولدى', 'error');
+    } finally {
+      setGmailLoading(false);
     }
   };
 
@@ -338,7 +411,7 @@ export default function AuthModal({
           <button
             type="button"
             className="auth-close-btn"
-            onClick={onClose}
+            onClick={handleClose}
             aria-label="يېپىش"
             title="يېپىش"
           >
@@ -349,7 +422,16 @@ export default function AuthModal({
           <div className="card-header">
             <div className="brand-icon-box">
               <div className="brand-icon-inner overflow-hidden p-0.5">
-                {brand === 'maxbazar' ? (
+                {authView === 'gmail' ? (
+                  <div className="w-full h-full rounded-full bg-white flex items-center justify-center p-1.5 shadow-md">
+                    <svg className="w-6 h-6" viewBox="0 0 24 24">
+                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                    </svg>
+                  </div>
+                ) : brand === 'maxbazar' ? (
                   <div className="w-full h-full rounded-full bg-gradient-to-tr from-amber-400 via-emerald-600 to-teal-500 p-0.5 flex items-center justify-center">
                     <img
                       src="/images/apps/pubg/icon-512.png"
@@ -367,12 +449,16 @@ export default function AuthModal({
               </div>
             </div>
             <h1 className="header-title">
-              {brand === 'maxbazar'
+              {authView === 'gmail'
+                ? 'Gmail ئارقىلىق تېز كىرىش'
+                : brand === 'maxbazar'
                 ? (mode === 'login' ? 'MAX-BAZAR غا كىرىش' : 'MAX-BAZAR غا تىزىملىتىش')
                 : (mode === 'login' ? 'خوش كەپسىز' : 'ھېسابات قۇرۇش')}
             </h1>
             <p className="header-subtitle">
-              {brand === 'maxbazar'
+              {authView === 'gmail'
+                ? 'گىمائىل ئادرېسىڭىز بىلەن 1 سېكۇنتتا بىۋاسىتە كىرىڭ ياكى يېڭى ھېسابات ئېچىڭ'
+                : brand === 'maxbazar'
                 ? (mode === 'login'
                     ? 'ئويۇن ۋە رەقەملىك دۇنيانىڭ ئالىي مۇلازىمەتلىرىدىن بەھرىمەن بولۇڭ'
                     : 'شەخسىي ئويۇن ھەميانىڭىزنى دەرھال قۇرۇپ زاكاز بېرىڭ')
@@ -383,33 +469,163 @@ export default function AuthModal({
           </div>
 
           {/* ئالماشتۇرغۇچ بەلۋاغ (Segmented Tab Switcher) */}
-          <div className="tab-switcher">
-            <div
-              className="tab-slider"
-              style={{
-                transform: mode === 'register' ? 'translateX(-100%)' : 'translateX(0)',
-              }}
-            />
-            <button
-              type="button"
-              className={`tab-btn flex items-center justify-center gap-1.5 ${mode === 'login' ? 'active' : ''}`}
-              onClick={() => handleSwitchTab('login')}
-            >
-              <LogIn className="w-4 h-4" />
-              <span>كىرىش</span>
-            </button>
-            <button
-              type="button"
-              className={`tab-btn flex items-center justify-center gap-1.5 ${mode === 'register' ? 'active' : ''}`}
-              onClick={() => handleSwitchTab('register')}
-            >
-              <UserPlus className="w-4 h-4" />
-              <span>تىزىملىتىش</span>
-            </button>
-          </div>
+          {authView === 'gmail' ? (
+            <div className="flex items-center justify-between px-3.5 py-2 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-500 text-xs font-bold mb-4">
+              <span className="flex items-center gap-1.5">
+                <svg className="w-4 h-4" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                <span>Google / Gmail ئارقىلىق تېز كىرىش</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setAuthView('normal')}
+                className="text-[11px] text-slate-400 hover:text-white cursor-pointer px-1 py-0.5"
+              >
+                قايتىش ✕
+              </button>
+            </div>
+          ) : (
+            <div className="tab-switcher">
+              <div
+                className="tab-slider"
+                style={{
+                  transform: mode === 'register' ? 'translateX(-100%)' : 'translateX(0)',
+                }}
+              />
+              <button
+                type="button"
+                className={`tab-btn flex items-center justify-center gap-1.5 ${mode === 'login' ? 'active' : ''}`}
+                onClick={() => handleSwitchTab('login')}
+              >
+                <LogIn className="w-4 h-4" />
+                <span>كىرىش</span>
+              </button>
+              <button
+                type="button"
+                className={`tab-btn flex items-center justify-center gap-1.5 ${mode === 'register' ? 'active' : ''}`}
+                onClick={() => handleSwitchTab('register')}
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>تىزىملىتىش</span>
+              </button>
+            </div>
+          )}
 
           {/* جەدۋەللەر بۆلىكى (Forms Wrapper) */}
           <div className="forms-wrapper">
+            {authView === 'gmail' ? (
+              /* ================= GMAIL QUICK AUTH FORM ================= */
+              <form
+                className="form active"
+                onSubmit={handleGmailSubmit}
+                autoComplete="on"
+              >
+                {/* Gmail ئادرېسى */}
+                <div className="input-group">
+                  <div className={`input-box ${gmailAddress ? 'has-value' : ''}`}>
+                    <span className="input-icon">
+                      <Mail className="w-4 h-4 text-emerald-500" />
+                    </span>
+                    <input
+                      type="text"
+                      id="modalGmailAddress"
+                      placeholder=" "
+                      value={gmailAddress}
+                      onChange={(e) => setGmailAddress(e.target.value)}
+                      inputMode="email"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
+                      autoComplete="email"
+                      required
+                      autoFocus
+                    />
+                    <label className="floating-label" htmlFor="modalGmailAddress">
+                      گىمائىل ئادرېسىڭىز (user@gmail.com)
+                    </label>
+                  </div>
+                  {/* Quick @gmail.com appender pill */}
+                  {gmailAddress && !gmailAddress.includes('@') && (
+                    <div className="flex justify-end mt-1 px-1">
+                      <button
+                        type="button"
+                        onClick={() => setGmailAddress((prev) => prev.trim() + '@gmail.com')}
+                        className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-500/30 transition cursor-pointer"
+                      >
+                        + @gmail.com نى قوشۇش
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* پارول */}
+                <div className="input-group">
+                  <div className={`input-box ${gmailPassword ? 'has-value' : ''}`}>
+                    <span className="input-icon">
+                      <Lock className="w-4 h-4 text-emerald-500" />
+                    </span>
+                    <input
+                      type={showGmailPass ? 'text' : 'password'}
+                      id="modalGmailPassword"
+                      placeholder=" "
+                      value={gmailPassword}
+                      onChange={(e) => setGmailPassword(e.target.value)}
+                      autoComplete="current-password"
+                      required
+                    />
+                    <label className="floating-label" htmlFor="modalGmailPassword">
+                      ھېسابات پارولى (ئەڭ ئاز 6 خانىلىق)
+                    </label>
+                    <button
+                      type="button"
+                      className="toggle-pwd-btn"
+                      onClick={() => setShowGmailPass(!showGmailPass)}
+                      tabIndex={-1}
+                      aria-label="پارولنى كۆرسىتىش ياكى يوشۇرۇش"
+                    >
+                      {showGmailPass ? (
+                        <EyeOff className="w-4 h-4 text-slate-400" />
+                      ) : (
+                        <Eye className="w-4 h-4 text-slate-400" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="text-[11px] text-slate-500 dark:text-slate-400 mb-3 px-1 leading-relaxed text-right">
+                  💡 ئەسكەرتىش: ئەگەر تۇنجى قېتىم كىرىشىڭىز بولسا، يېڭى ھېساباتىڭىز شۇ ھامان ئاپتوماتىك قۇرۇلىدۇ.
+                </div>
+
+                {/* Submit button */}
+                <button
+                  type="submit"
+                  className={`btn-submit w-full flex items-center justify-center gap-2 ${gmailLoading ? 'loading' : ''}`}
+                  disabled={gmailLoading}
+                >
+                  <span className="btn-text">
+                    {gmailLoading ? 'دەلىللىنىۋاتىدۇ...' : '⚡ Gmail بىلەن كىرىش / تىزىملىتىش'}
+                  </span>
+                  <ArrowRight className="w-4 h-4 btn-arrow" />
+                </button>
+
+                {/* Back button */}
+                <div className="text-center mt-3">
+                  <button
+                    type="button"
+                    onClick={() => setAuthView('normal')}
+                    className="text-xs text-slate-500 hover:text-emerald-500 dark:text-slate-400 dark:hover:text-emerald-400 transition cursor-pointer inline-flex items-center gap-1"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>ئادەتتىكى كىرىشكە قايتىش</span>
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <>
             {/* ================= 1. كىرىش جەدۋىلى (Login Form) ================= */}
             <form
               className={`form ${mode === 'login' ? 'active' : ''}`}
@@ -812,6 +1028,8 @@ export default function AuthModal({
                 </button>
               </div>
             </form>
+            </>
+            )}
           </div>
         </main>
       </div>

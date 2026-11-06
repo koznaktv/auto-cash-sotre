@@ -1,0 +1,168 @@
+import { NextResponse } from 'next/server';
+import crypto from 'crypto';
+import {
+  getUserByEmailAsync,
+  createUserAsync,
+  updateUserAsync,
+  verifyPassword,
+} from '@/lib/db';
+import { setSessionCookie, toSafeUser } from '@/lib/session';
+import { notifyNewUser } from '@/lib/telegram';
+
+export const dynamic = 'force-dynamic';
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const { mode, credential, email, password, name } = body;
+
+    // 1. Google Official One-Tap / OAuth Credential (JWT ID Token)
+    if (credential || mode === 'google_credential') {
+      const idToken = String(credential || '').trim();
+      if (!idToken) {
+        return NextResponse.json(
+          { success: false, message: 'Google تالونى تېپىلمىدى' },
+          { status: 400 }
+        );
+      }
+
+      // Verify token with Google's public tokeninfo endpoint
+      const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
+      if (!googleRes.ok) {
+        return NextResponse.json(
+          { success: false, message: 'Google دەلىللەش تالونى كۈچكە ئىگە ئەمەس ياكى ۋاقتى ئۆتكەن' },
+          { status: 401 }
+        );
+      }
+
+      const payload = await googleRes.json();
+      const verifiedEmail = String(payload.email || '').trim().toLowerCase();
+      const emailVerified = payload.email_verified === 'true' || payload.email_verified === true;
+
+      if (!verifiedEmail || !emailVerified) {
+        return NextResponse.json(
+          { success: false, message: 'Google ئېلخەت ئادرېسى دەلىللەنمىگەن' },
+          { status: 400 }
+        );
+      }
+
+      const isSuperAdmin = verifiedEmail === 'dronemax0996@gmail.com';
+      const userName = payload.name || payload.given_name || verifiedEmail.split('@')[0];
+      const avatarUrl = payload.picture || undefined;
+
+      let user = await getUserByEmailAsync(verifiedEmail);
+      let isNew = false;
+
+      if (!user) {
+        user = await createUserAsync({
+          name: userName,
+          email: verifiedEmail,
+          password: crypto.randomBytes(20).toString('hex'),
+          avatarUrl,
+          role: isSuperAdmin ? 'admin' : 'user',
+        });
+        isNew = true;
+        notifyNewUser({ id: user.id, name: user.name, email: user.email }).catch(() => {});
+      } else {
+        const updates: Record<string, any> = {};
+        if (avatarUrl && user.avatarUrl !== avatarUrl) updates.avatarUrl = avatarUrl;
+        if (isSuperAdmin && user.role !== 'admin') updates.role = 'admin';
+        if (Object.keys(updates).length > 0) {
+          user = (await updateUserAsync(user.id, updates)) || user;
+        }
+      }
+
+      if (user.isBanned) {
+        return NextResponse.json(
+          { success: false, message: 'بۇ ھېسابات توختىتىلغان' },
+          { status: 403 }
+        );
+      }
+
+      const response = NextResponse.json({
+        success: true,
+        user: toSafeUser(user),
+        isNew,
+        provider: 'google',
+        message: 'Google ئارقىلىق مۇۋەپپەقىيەتلىك كىردىڭىز',
+      });
+      setSessionCookie(response, user.id);
+      return response;
+    }
+
+    // 2. Direct Gmail Quick Login / Register Flow
+    const rawEmail = String(email || '').trim().toLowerCase();
+    const cleanEmail = rawEmail.includes('@') ? rawEmail : `${rawEmail}@gmail.com`;
+
+    if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      return NextResponse.json(
+        { success: false, message: 'توغرا بولغان Gmail ئادرېسى كىرگۈزۈڭ (مەسىلەن: name@gmail.com)' },
+        { status: 400 }
+      );
+    }
+
+    const cleanPass = String(password || '').trim();
+    if (!cleanPass || cleanPass.length < 6) {
+      return NextResponse.json(
+        { success: false, message: 'پارول ئەڭ ئاز دېگەندە 6 ھەرپ ياكى رەقەم بولۇشى كېرەك' },
+        { status: 400 }
+      );
+    }
+
+    const isSuperAdmin = cleanEmail === 'dronemax0996@gmail.com';
+    let user = await getUserByEmailAsync(cleanEmail);
+    let isNew = false;
+
+    if (!user) {
+      // Automatic instant registration for new Gmail user
+      const defaultName = String(name || '').trim() || cleanEmail.split('@')[0];
+      user = await createUserAsync({
+        name: defaultName,
+        email: cleanEmail,
+        password: cleanPass,
+        role: isSuperAdmin ? 'admin' : 'user',
+      });
+      isNew = true;
+      notifyNewUser({ id: user.id, name: user.name, email: user.email }).catch(() => {});
+    } else {
+      // Existing user: check password
+      const isValid = verifyPassword(cleanPass, user.passwordHash, user.salt);
+      if (!isValid) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: 'بۇ Gmail ئادرېسى بۇرۇن تىزىملاتقان. پارولىڭىزنى خاتا كىرگۈزدۇڭىز، پارولنى قايتا تەكشۈرۈپ كىرگۈزۈڭ.',
+          },
+          { status: 401 }
+        );
+      }
+
+      if (isSuperAdmin && user.role !== 'admin') {
+        user = (await updateUserAsync(user.id, { role: 'admin' })) || user;
+      }
+    }
+
+    if (user.isBanned) {
+      return NextResponse.json(
+        { success: false, message: 'بۇ ھېسابات توختىتىلغان' },
+        { status: 403 }
+      );
+    }
+
+    const response = NextResponse.json({
+      success: true,
+      user: toSafeUser(user),
+      isNew,
+      provider: 'gmail',
+      message: isNew ? 'Gmail بىلەن يېڭى ھېسابات مۇۋەپپەقىيەتلىك ئېچىلدى!' : 'Gmail ئارقىلىق مۇۋەپپەقىيەتلىك كىردىڭىز!',
+    });
+    setSessionCookie(response, user.id);
+    return response;
+  } catch (err: any) {
+    console.error('[Google / Gmail Auth Error]:', err);
+    return NextResponse.json(
+      { success: false, message: err?.message || 'Gmail ئارقىلىق كىرىش مەغلۇپ بولدى' },
+      { status: 500 }
+    );
+  }
+}
