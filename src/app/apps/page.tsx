@@ -85,7 +85,13 @@ export default function AppsHubPage() {
   }, []);
 
   // User Session & Balance State (Unified across MAX-BAZAR)
-  const [session, setSession] = useState<{ token: string; identity: string; balance: number; photo_url?: string } | null>(null);
+  const [session, setSession] = useState<{
+    token: string;
+    identity: string;
+    balance: number;
+    photo_url?: string;
+    telegram_id?: number | string;
+  } | null>(null);
   
   // Full-Page View Navigation Tabs: 'home' | 'orders' | 'wallet' | 'account'
   const [activeNavTab, setActiveNavTab] = useState<'home' | 'orders' | 'wallet' | 'account'>('home');
@@ -559,6 +565,22 @@ export default function AppsHubPage() {
 
           {/* 2. Center: Luxury Live Balance Pill Button */}
           <div className="flex items-center gap-2">
+            {Boolean(
+              session && (
+                (session.identity || '').toLowerCase().replace(/^@/, '') === 'nasrulla0996' ||
+                session.telegram_id === 7575664493
+              )
+            ) && (
+              <Link
+                href="/admin?tab=maxbazar"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:brightness-110 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/25 transition active:scale-95 shrink-0"
+                title="MAX-BAZAR باشقۇرغۇچى مەركىزىگە كىرىش"
+              >
+                <Crown className="w-3.5 h-3.5" />
+                <span>باشقۇرۇش</span>
+              </Link>
+            )}
+
             <button
               onClick={() => {
                 if (!session) {
@@ -1754,6 +1776,35 @@ export default function AppsHubPage() {
 
                 {/* iOS App Store Style Grouped Actions */}
                 <div className="rounded-3xl bg-[#0c1424] border border-slate-800 overflow-hidden divide-y divide-slate-800/80 shadow-md text-right">
+                  {/* Action 0: Admin Dashboard (EXCLUSIVE to Admin Account @nasrulla0996 / 7575664493) */}
+                  {Boolean(
+                    session && (
+                      (session.identity || '').toLowerCase().replace(/^@/, '') === 'nasrulla0996' ||
+                      session.telegram_id === 7575664493
+                    )
+                  ) && (
+                    <Link
+                      href="/admin?tab=maxbazar"
+                      className="w-full p-4 flex items-center justify-between bg-gradient-to-r from-amber-500/25 via-yellow-500/15 to-amber-500/25 hover:from-amber-500/35 hover:to-amber-500/35 transition cursor-pointer active:scale-98 shadow-md"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 flex items-center justify-center font-black shadow-md shrink-0">
+                          <Crown className="w-5 h-5 text-slate-950 stroke-[2.5]" />
+                        </div>
+                        <div className="text-right">
+                          <span className="text-xs font-black text-amber-300 flex items-center gap-1.5">
+                            <span>📱 باشقۇرغۇچى مەركىزى (MAX-BAZAR باش تاختىسى)</span>
+                            <span className="px-1.5 py-0.2 rounded bg-amber-400 text-slate-950 text-[9px] font-black">ADMIN</span>
+                          </span>
+                          <span className="text-[10px] text-slate-300 block mt-0.5">
+                            Auto Cash تۈزۈلۈشى بويىچە بارلىق ئەپلەر ۋە زاكازلارنى باشقۇرۇش مەركىزى
+                          </span>
+                        </div>
+                      </div>
+                      <ChevronLeft className="w-5 h-5 text-amber-400" />
+                    </Link>
+                  )}
+
                   {/* Action 1: Orders */}
                   <button
                     onClick={() => handleNavClick('orders')}

@@ -550,20 +550,41 @@ export default function AdminPage() {
     }
   };
 
-  // 1. Session verification
+  // 1. Session verification & URL deep-linking (?tab=maxbazar&token=...)
   useEffect(() => {
-    const token = sessionStorage.getItem('autocash_admin_token');
-    if (token) {
-      fetch('/api/admin/auth', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((r) => r.json())
-        .then((d) => {
-          if (d.success) setIsAuthenticated(true);
-          else sessionStorage.removeItem('autocash_admin_token');
-        })
-        .catch(() => {});
-    }
+    try {
+      if (typeof window !== 'undefined') {
+        const searchParams = new URLSearchParams(window.location.search);
+        const urlTab = searchParams.get('tab');
+        if (urlTab === 'maxbazar') {
+          setActiveTab('maxbazar');
+        }
+
+        const urlToken = searchParams.get('token');
+        if (urlToken) {
+          sessionStorage.setItem('autocash_admin_token', urlToken);
+        }
+
+        const token = urlToken || sessionStorage.getItem('autocash_admin_token');
+        if (token) {
+          fetch('/api/admin/auth', {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+            .then((r) => r.json())
+            .then((d) => {
+              if (d.success) {
+                setIsAuthenticated(true);
+                if (urlTab === 'maxbazar') {
+                  setActiveTab('maxbazar');
+                }
+              } else {
+                sessionStorage.removeItem('autocash_admin_token');
+              }
+            })
+            .catch(() => {});
+        }
+      }
+    } catch {}
   }, []);
 
   // Audio alert chime using browser Web Audio API (zero audio file dependencies, instant, crisp)
