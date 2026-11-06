@@ -6,7 +6,13 @@ import {
   getUnifiedWalletBalance,
   deductUnifiedWalletBalance,
   creditUnifiedWalletBalance,
+  findOrCreateDbUserForIdentity,
 } from '@/lib/appWallets';
+import {
+  createOrderDirectAsync,
+  updateOrderAsync,
+  OrderRecord,
+} from '@/lib/db';
 
 const SESSIONS_DIR = path.join(process.cwd(), 'data', 'micro_apps');
 function ensureDir() {
@@ -45,6 +51,15 @@ function getAppServiceName(appId: string): string {
   if (appId === 'mtn-syria' || appId === 'mtn') return 'MTN سۈرىيە (تېلېفون ۋە تور)';
   if (appId === 'syriatel') return 'Syriatel سۈرىيەتەل (تېلېفون ۋە تور)';
   return 'MAX-BAZAR تېز زاكاز';
+}
+
+function mapProviderStatusToDb(status: string): OrderRecord['status'] {
+  const s = (status || '').toLowerCase().trim();
+  if (['completed', 'success', 'done', 'delivered'].includes(s)) return 'completed';
+  if (['wait', 'in_progress', 'processing', 'pending'].includes(s)) return 'processing';
+  if (s === 'refunded') return 'refunded';
+  if (['failed', 'rejected', 'cancel', 'cancelled'].includes(s)) return 'failed';
+  return 'processing';
 }
 
 function getOrders(): any[] {
@@ -185,6 +200,34 @@ export async function POST(req: NextRequest) {
 
     saveOrder(newOrder);
 
+    // 5. ALSO persist permanently into the unified central database (db.ts / Supabase)
+    try {
+      const dbUser = await findOrCreateDbUserForIdentity(cleanIdentity);
+      await createOrderDirectAsync({
+        id: orderId,
+        userId: dbUser?.id,
+        userEmail: dbUser?.email || cleanIdentity,
+        serviceId: 'maxbazar_' + app_id,
+        serviceName: `[MAX-BAZAR] ${getAppServiceName(app_id)}`,
+        packageTitle: package_name,
+        amount: itemPrice,
+        targetAccount: player_id.trim(),
+        status: mapProviderStatusToDb(providerStatus),
+        createdAt: new Date().toISOString(),
+        details: {
+          store: 'maxbazar',
+          app_id,
+          provider: 'maxstore',
+          providerOrderId: providerOrderId || undefined,
+          playerId: player_id.trim(),
+          zoneId: body.zone_id || '',
+          identity: cleanIdentity,
+        },
+      });
+    } catch (dbOrderErr: any) {
+      console.warn('[Central DB Order Sync Warning]:', dbOrderErr?.message);
+    }
+
     // If MaxStore immediately completed the order, broadcast to Telegram Channel (@autocash_cannel)
     if (['completed', 'success', 'done', 'delivered'].includes(providerStatus.toLowerCase())) {
       try {
@@ -288,6 +331,12 @@ export async function GET(req: NextRequest) {
                 matchedOrder.completed_at = new Date().toISOString();
                 ordersChanged = true;
 
+                // Sync status to central DB
+                updateOrderAsync(matchedOrder.order_id, {
+                  status: 'completed',
+                  detailsPatch: { completed_at: matchedOrder.completed_at },
+                }).catch(() => null);
+
                 // Broadcast completed order to Telegram Channel (@autocash_cannel)
                 try {
                   const { postOrderCompletedToChannel } = await import('@/lib/telegram');
@@ -321,6 +370,15 @@ export async function GET(req: NextRequest) {
                 // Auto-refund balance back to customer unified wallet
                 await creditUnifiedWalletBalance(matchedOrder.identity, matchedOrder.price);
                 ordersChanged = true;
+
+                // Sync refund to central DB
+                updateOrderAsync(matchedOrder.order_id, {
+                  status: 'refunded',
+                  detailsPatch: {
+                    refunded_at: matchedOrder.refunded_at,
+                    refund_note: matchedOrder.refund_note,
+                  },
+                }).catch(() => null);
               }
             }
           }
@@ -453,6 +511,20 @@ export async function PATCH(req: NextRequest) {
 
     const filePath = path.join(SESSIONS_DIR, 'orders.json');
     fs.writeFileSync(filePath, JSON.stringify(allOrders, null, 2), 'utf-8');
+
+    // Sync status change to central DB
+    try {
+      await updateOrderAsync(order.order_id, {
+        status: mapProviderStatusToDb(order.status),
+        detailsPatch: {
+          completed_at: order.completed_at,
+          refunded_at: order.refunded_at,
+          refund_note: order.refund_note,
+        },
+      });
+    } catch (syncDbErr: any) {
+      console.warn('[PATCH central DB sync warn]:', syncDbErr?.message);
+    }
 
     return NextResponse.json({ ok: true, order });
   } catch (err: any) {

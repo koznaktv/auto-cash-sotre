@@ -374,6 +374,24 @@ export async function POST(req: NextRequest) {
       };
       saveAppUser(newUser);
 
+      // Ensure registered in central db.ts as well
+      try {
+        const { getUserByEmailAsync, createUserAsync } = await import('@/lib/db');
+        const dbEmail = rawUser.includes('@') ? rawUser : `${rawUser}@maxbazar.user`;
+        const existingDb = await getUserByEmailAsync(dbEmail);
+        if (!existingDb) {
+          await createUserAsync({
+            name: rawUser,
+            email: dbEmail,
+            password: rawPass,
+            telegramUsername: tgHandle || undefined,
+            role: 'user',
+          });
+        }
+      } catch (dbErr: any) {
+        console.warn('[app_register db sync warn]:', dbErr?.message);
+      }
+
       // Retrieve unified wallet
       const unifiedBal = await getUnifiedWalletBalance(rawUser);
 
@@ -703,6 +721,18 @@ export async function POST(req: NextRequest) {
       const topupAmount = 25.00;
       const creditRes = await creditUnifiedWalletBalance(cleanIdentity, topupAmount);
       const newBalance = creditRes.newBalance;
+
+      // Record deposit in central DB
+      try {
+        const { createDepositAsync } = await import('@/lib/db');
+        await createDepositAsync({
+          userName: cleanIdentity,
+          userEmail: `${cleanIdentity}@maxbazar.user`,
+          amount: topupAmount,
+          method: 'Sham Cash (MAX-BAZAR Talon)',
+          txId: cleanTalon,
+        });
+      } catch {}
 
       // Broadcast Sham Cash topup notification to Telegram Channel
       try {

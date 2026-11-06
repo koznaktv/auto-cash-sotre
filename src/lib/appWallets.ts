@@ -1,5 +1,15 @@
 import fs from 'fs';
 import path from 'path';
+import {
+  UserRecord,
+  getUserByTelegramUsernameAsync,
+  getUserByTelegramChatIdAsync,
+  getUserByEmailAsync,
+  getAllUsersAsync,
+  createUserAsync,
+  adjustUserBalanceAsync,
+  setUserBalanceExactAsync,
+} from './db';
 import { getSupabase, isSupabaseConfigured } from './supabase';
 
 const IS_SERVERLESS = Boolean(
@@ -51,6 +61,160 @@ export function normalizeWalletIdentity(identity: string): string {
 }
 
 /**
+ * Reads known Telegram mapping from telegram_users.json
+ */
+function getTelegramChatIdForUser(identifier: string): string | null {
+  const clean = normalizeWalletIdentity(identifier);
+  if (/^\d{6,15}$/.test(clean)) return clean;
+
+  const usersFile = path.join(DATA_DIR, 'telegram_users.json');
+  try {
+    if (fs.existsSync(usersFile)) {
+      const mapping = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
+      if (mapping[clean]) return String(mapping[clean]);
+    }
+  } catch {}
+
+  // Fallback check bundled data dir if on serverless
+  if (IS_SERVERLESS) {
+    try {
+      const bundled = path.join(process.cwd(), 'data', 'micro_apps', 'telegram_users.json');
+      if (fs.existsSync(bundled)) {
+        const mapping = JSON.parse(fs.readFileSync(bundled, 'utf-8'));
+        if (mapping[clean]) return String(mapping[clean]);
+      }
+    } catch {}
+  }
+
+  // Admin fallback
+  const adminUser = (process.env.TELEGRAM_ADMIN_USERNAME || 'nasrulla0996').toLowerCase();
+  const adminChat = process.env.TELEGRAM_ADMIN_CHAT_ID || '7575664493';
+  if (clean === adminUser && adminChat) {
+    return adminChat;
+  }
+
+  return null;
+}
+
+function syncLocalWalletCache(clean: string, finalBalance: number) {
+  const wallets = getLocalWallets();
+  wallets[`unified:${clean}`] = finalBalance;
+  wallets[`pubg:${clean}`] = finalBalance;
+  wallets[`honor-of-kings:${clean}`] = finalBalance;
+  wallets[`mobile-legends:${clean}`] = finalBalance;
+  wallets[clean] = finalBalance;
+  persistLocalWallets(wallets);
+}
+
+/**
+ * Resolves an identity (Telegram username, chat ID, phone, email, or nickname)
+ * to an existing central UserRecord in db.ts (Supabase / local DB).
+ * If the user does not exist yet, automatically creates one and carries over any legacy balance.
+ */
+export async function findOrCreateDbUserForIdentity(identity: string): Promise<UserRecord | null> {
+  const clean = normalizeWalletIdentity(identity);
+  if (!clean) return null;
+
+  // 1. Direct email lookup
+  if (clean.includes('@') && clean.includes('.')) {
+    try {
+      const byEmail = await getUserByEmailAsync(clean);
+      if (byEmail) return byEmail;
+    } catch {}
+  }
+
+  // 2. Telegram username lookup
+  try {
+    const byTgUser = await getUserByTelegramUsernameAsync(clean);
+    if (byTgUser) return byTgUser;
+  } catch {}
+
+  // 3. Telegram Chat ID lookup (numeric)
+  if (/^\d{6,15}$/.test(clean)) {
+    try {
+      const byTgChat = await getUserByTelegramChatIdAsync(clean);
+      if (byTgChat) return byTgChat;
+    } catch {}
+  }
+
+  // 4. Mapped Telegram Chat ID
+  const mappedChatId = getTelegramChatIdForUser(clean);
+  if (mappedChatId && mappedChatId !== clean) {
+    try {
+      const byMappedTg = await getUserByTelegramChatIdAsync(mappedChatId);
+      if (byMappedTg) return byMappedTg;
+    } catch {}
+  }
+
+  // 5. Synthetic micro-app email lookup
+  try {
+    const bySynthetic = await getUserByEmailAsync(`${clean}@maxbazar.user`);
+    if (bySynthetic) return bySynthetic;
+  } catch {}
+
+  // 6. Broad search across all registered users for phone or name matches
+  try {
+    const allUsers = await getAllUsersAsync();
+    const cleanPhone = clean.replace(/[\s\-\(\)]/g, '');
+    const matched = allUsers.find((u) => {
+      if (u.name && u.name.trim().toLowerCase() === clean) return true;
+      if (u.telegramUsername && u.telegramUsername.trim().replace(/^@/, '').toLowerCase() === clean) return true;
+      if (u.phone) {
+        const uPhone = u.phone.replace(/[\s\-\(\)]/g, '');
+        if (uPhone === cleanPhone || uPhone === '+' + cleanPhone || '+' + uPhone === cleanPhone) return true;
+      }
+      if (u.email && (u.email.toLowerCase() === clean || u.email.toLowerCase().startsWith(clean + '@'))) return true;
+      return false;
+    });
+    if (matched) return matched;
+  } catch (err: any) {
+    console.warn('[findOrCreateDbUser broad search warn]:', err?.message);
+  }
+
+  // 7. User does NOT exist in central database yet!
+  // Auto-create them in the unified database so their money is permanently saved and shared!
+  try {
+    const isEmail = clean.includes('@') && clean.includes('.');
+    const isDigits = /^\d{6,15}$/.test(clean);
+    const isPhone = /^\+?\d{8,15}$/.test(clean);
+
+    const email = isEmail ? clean : `${clean}@maxbazar.user`;
+    const name = clean;
+    const phone = isPhone ? clean : undefined;
+    const chatId = isDigits ? clean : (mappedChatId || undefined);
+    const tgUsername = !isDigits && !isEmail ? clean : undefined;
+
+    // Check if there was any legacy balance in app_wallets.json to carry over
+    const localWallets = getLocalWallets();
+    let legacyBal = 0;
+    if (typeof localWallets[`unified:${clean}`] === 'number') {
+      legacyBal = localWallets[`unified:${clean}`];
+    } else if (typeof localWallets[`honor-of-kings:${clean}`] === 'number') {
+      legacyBal = localWallets[`honor-of-kings:${clean}`];
+    } else if (typeof localWallets[`pubg:${clean}`] === 'number') {
+      legacyBal = localWallets[`pubg:${clean}`];
+    } else if (typeof localWallets[clean] === 'number') {
+      legacyBal = localWallets[clean];
+    }
+
+    const newUser = await createUserAsync({
+      name,
+      email,
+      phone,
+      telegramChatId: chatId,
+      telegramUsername: tgUsername,
+      balance: Math.max(0, Number(legacyBal.toFixed(2))),
+      role: 'user',
+    });
+
+    return newUser;
+  } catch (createErr: any) {
+    console.error('[Auto-create unified user error]:', createErr);
+    return null;
+  }
+}
+
+/**
  * Synchronous balance lookup from local memory/disk with legacy key aggregation.
  */
 export function getUnifiedWalletBalanceSync(identity: string): number {
@@ -72,143 +236,145 @@ export function getUnifiedWalletBalanceSync(identity: string): number {
   if (typeof wallets[`honor-of-kings:${clean}`] === 'number') {
     legacySum += wallets[`honor-of-kings:${clean}`];
   }
+  if (typeof wallets[`mobile-legends:${clean}`] === 'number') {
+    legacySum += wallets[`mobile-legends:${clean}`];
+  }
   if (typeof wallets[clean] === 'number') {
     legacySum = Math.max(legacySum, wallets[clean]);
   }
 
   const finalBalance = Math.max(0, Number(legacySum.toFixed(2)));
-  wallets[unifiedKey] = finalBalance;
-  wallets[`pubg:${clean}`] = finalBalance;
-  wallets[`honor-of-kings:${clean}`] = finalBalance;
-  wallets[clean] = finalBalance;
-  persistLocalWallets(wallets);
-
+  syncLocalWalletCache(clean, finalBalance);
   return finalBalance;
 }
 
 /**
- * Asynchronous balance lookup that checks Supabase first for multi-lambda persistence.
+ * Asynchronous balance lookup: Retrieves customer balance directly from the central database (db.ts / Supabase).
+ * Auto-creates the user record if new, guaranteeing balance persistence across all restarts.
  */
 export async function getUnifiedWalletBalance(identity: string): Promise<number> {
   const clean = normalizeWalletIdentity(identity);
   if (!clean) return 0.00;
 
-  // 1. Try Supabase system_settings if configured
-  if (isSupabaseConfigured()) {
-    try {
-      const sb = getSupabase();
-      if (sb) {
-        const { data } = await sb
-          .from('system_settings')
-          .select('site_name')
-          .eq('id', `wallet_${clean}`)
-          .maybeSingle();
-
-        if (data?.site_name) {
-          try {
-            const parsed = JSON.parse(data.site_name);
-            if (typeof parsed?.balance === 'number') {
-              const liveBal = Number(parsed.balance.toFixed(2));
-              // Cache locally
-              const wallets = getLocalWallets();
-              wallets[`unified:${clean}`] = liveBal;
-              wallets[`pubg:${clean}`] = liveBal;
-              wallets[`honor-of-kings:${clean}`] = liveBal;
-              wallets[clean] = liveBal;
-              persistLocalWallets(wallets);
-              return liveBal;
-            }
-          } catch {}
-        }
-      }
-    } catch {}
+  // 1. Look up or auto-register user in central database
+  try {
+    const dbUser = await findOrCreateDbUserForIdentity(clean);
+    if (dbUser) {
+      const liveBal = Number((dbUser.balance || 0).toFixed(2));
+      syncLocalWalletCache(clean, liveBal);
+      return liveBal;
+    }
+  } catch (err: any) {
+    console.warn('[getUnifiedWalletBalance DB warn]:', err?.message);
   }
 
-  // 2. Fall back to local memory/disk + legacy migration
+  // 2. Fall back to local memory/disk if DB temporarily unreachable
   return getUnifiedWalletBalanceSync(clean);
 }
 
 /**
- * Sets the unified wallet balance across memory, disk, and Supabase.
+ * Sets the unified wallet balance across central database and local cache.
  */
 export async function setUnifiedWalletBalance(identity: string, balance: number): Promise<number> {
   const clean = normalizeWalletIdentity(identity);
   if (!clean) return 0.00;
 
   const finalBalance = Math.max(0, Number(balance.toFixed(2)));
-  const wallets = getLocalWallets();
-  wallets[`unified:${clean}`] = finalBalance;
-  wallets[`pubg:${clean}`] = finalBalance;
-  wallets[`honor-of-kings:${clean}`] = finalBalance;
-  wallets[clean] = finalBalance;
-  persistLocalWallets(wallets);
 
-  // Sync to Supabase system_settings for persistent cross-container sync
-  if (isSupabaseConfigured()) {
-    try {
-      const sb = getSupabase();
-      if (sb) {
-        await sb.from('system_settings').upsert({
-          id: `wallet_${clean}`,
-          site_name: JSON.stringify({
-            identity: clean,
-            balance: finalBalance,
-            updatedAt: Date.now(),
-          }),
-          admin_pin: 'UNIFIED_WALLET',
-          shamcash_address: 'UNIFIED',
-          whatsapp_number: 'UNIFIED',
-          telegram_username: 'UNIFIED',
-        });
-      }
-    } catch (err: any) {
-      console.warn('[setUnifiedWalletBalance Supabase Sync Warning]:', err?.message);
+  try {
+    const dbUser = await findOrCreateDbUserForIdentity(clean);
+    if (dbUser) {
+      await setUserBalanceExactAsync(dbUser.id, finalBalance);
     }
+  } catch (err: any) {
+    console.warn('[setUnifiedWalletBalance DB warn]:', err?.message);
   }
 
+  syncLocalWalletCache(clean, finalBalance);
   return finalBalance;
 }
 
 /**
- * Deducts balance atomically. Fails if insufficient funds.
+ * Deducts balance atomically from the central user database.
+ * Fails if insufficient funds.
  */
 export async function deductUnifiedWalletBalance(
   identity: string,
   amount: number
 ): Promise<{ success: boolean; newBalance: number; error?: string }> {
-  const current = await getUnifiedWalletBalance(identity);
+  const clean = normalizeWalletIdentity(identity);
+  if (!clean) return { success: false, newBalance: 0, error: 'ئىشلەتكۈچى كىملىكى يوق' };
+
   const cost = Number(amount);
-
   if (isNaN(cost) || cost <= 0) {
-    return { success: false, newBalance: current, error: 'باھا خاتا' };
+    return { success: false, newBalance: await getUnifiedWalletBalance(clean), error: 'باھا خاتا' };
   }
 
-  if (current < cost) {
-    return {
-      success: false,
-      newBalance: current,
-      error: `قالدۇق پۇلىڭىز يەتمىدى! قالدۇقىڭىز: $${current.toFixed(2)}، تەلەپ قىلىنغىنى: $${cost.toFixed(2)}`,
-    };
-  }
+  try {
+    const dbUser = await findOrCreateDbUserForIdentity(clean);
+    if (!dbUser) {
+      return { success: false, newBalance: 0, error: 'ئىشلەتكۈچى ھېساباتى تېپىلمىدى' };
+    }
 
-  const updated = Math.max(0, Number((current - cost).toFixed(2)));
-  await setUnifiedWalletBalance(identity, updated);
-  return { success: true, newBalance: updated };
+    if (dbUser.balance < cost) {
+      return {
+        success: false,
+        newBalance: dbUser.balance,
+        error: `قالدۇق پۇلىڭىز يەتمىدى! قالدۇقىڭىز: $${dbUser.balance.toFixed(2)}، تەلەپ قىلىنغىنى: $${cost.toFixed(2)}`,
+      };
+    }
+
+    const updated = await adjustUserBalanceAsync(dbUser.id, -cost);
+    const newBal = updated ? updated.balance : Math.max(0, Number((dbUser.balance - cost).toFixed(2)));
+    syncLocalWalletCache(clean, newBal);
+    return { success: true, newBalance: newBal };
+  } catch (err: any) {
+    console.error('[deductUnifiedWalletBalance DB error]:', err);
+    // Fallback local memory/disk deduction
+    const cur = getUnifiedWalletBalanceSync(clean);
+    if (cur < cost) {
+      return {
+        success: false,
+        newBalance: cur,
+        error: `قالدۇق پۇلىڭىز يەتمىدى! قالدۇقىڭىز: $${cur.toFixed(2)}، تەلەپ قىلىنغىنى: $${cost.toFixed(2)}`,
+      };
+    }
+    const newBal = Math.max(0, Number((cur - cost).toFixed(2)));
+    syncLocalWalletCache(clean, newBal);
+    return { success: true, newBalance: newBal };
+  }
 }
 
 /**
- * Credits balance (topup, refund, talon redemption).
+ * Credits balance (topup, refund, talon redemption) to central user database.
  */
 export async function creditUnifiedWalletBalance(
   identity: string,
   amount: number
 ): Promise<{ success: boolean; newBalance: number }> {
-  const current = await getUnifiedWalletBalance(identity);
+  const clean = normalizeWalletIdentity(identity);
+  if (!clean) return { success: false, newBalance: 0 };
+
   const add = Number(amount);
   if (isNaN(add) || add <= 0) {
-    return { success: false, newBalance: current };
+    return { success: false, newBalance: await getUnifiedWalletBalance(clean) };
   }
-  const updated = Number((current + add).toFixed(2));
-  await setUnifiedWalletBalance(identity, updated);
-  return { success: true, newBalance: updated };
+
+  try {
+    const dbUser = await findOrCreateDbUserForIdentity(clean);
+    if (dbUser) {
+      const updated = await adjustUserBalanceAsync(dbUser.id, add);
+      const newBal = updated ? updated.balance : Number((dbUser.balance + add).toFixed(2));
+      syncLocalWalletCache(clean, newBal);
+      return { success: true, newBalance: newBal };
+    }
+  } catch (err: any) {
+    console.error('[creditUnifiedWalletBalance DB error]:', err);
+  }
+
+  // Fallback local memory/disk
+  const cur = getUnifiedWalletBalanceSync(clean);
+  const newBal = Number((cur + add).toFixed(2));
+  syncLocalWalletCache(clean, newBal);
+  return { success: true, newBalance: newBal };
 }

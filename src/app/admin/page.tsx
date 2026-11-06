@@ -302,6 +302,7 @@ export default function AdminPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [orderStoreFilter, setOrderStoreFilter] = useState<'all' | 'autocash' | 'maxbazar'>('all');
   const [userSortBy, setUserSortBy] = useState<'deposits' | 'profit' | 'balance' | 'spent'>('deposits');
 
   // Categories State
@@ -3118,9 +3119,14 @@ export default function AdminPage() {
           : statusFilter === 'cancelled'
           ? o.status === 'cancelled' || o.status === 'refunded'
           : o.status === statusFilter);
-      return matchSearch && matchStatus;
+      const isMaxBazar = (o.details as any)?.store === 'maxbazar' || Boolean(o.serviceId && o.serviceId.startsWith('maxbazar_'));
+      const matchStore =
+        orderStoreFilter === 'all' ||
+        (orderStoreFilter === 'maxbazar' && isMaxBazar) ||
+        (orderStoreFilter === 'autocash' && !isMaxBazar);
+      return matchSearch && matchStatus && matchStore;
     });
-  }, [orders, searchQuery, statusFilter]);
+  }, [orders, searchQuery, statusFilter, orderStoreFilter]);
 
   // Filtered Services & Pagination (Unified from Othman Store & Custom)
   const filteredServices = useMemo(() => {
@@ -3950,19 +3956,58 @@ export default function AdminPage() {
           {activeTab === 'orders' && (
             <div className="space-y-4 animate-in fade-in duration-300">
               {/* Filter and Search Bar */}
-              <div className={`p-4 rounded-2xl ${themeClasses.card} flex flex-col sm:flex-row items-center justify-between gap-3`}>
-                <div className="relative w-full sm:w-80">
-                  <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="زاكاز ID، ئىشلەتكۈچى ياكى تۈر بويىچە ئىزدەش..."
-                    className={`w-full pr-9 pl-3 py-2 rounded-xl text-xs ${themeClasses.input} focus:outline-none focus:border-amber-400 transition`}
-                  />
+              <div className={`p-4 rounded-2xl ${themeClasses.card} flex flex-col gap-3`}>
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div className="relative w-full sm:w-80">
+                    <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="زاكاز ID، ئىشلەتكۈچى ياكى تۈر بويىچە ئىزدەش..."
+                      className={`w-full pr-9 pl-3 py-2 rounded-xl text-xs ${themeClasses.input} focus:outline-none focus:border-amber-400 transition`}
+                    />
+                  </div>
+
+                  {/* Store Separation: Auto Cash vs MAX-BAZAR */}
+                  <div className="flex items-center gap-1 bg-slate-950/80 p-1 rounded-xl border border-slate-800/80 w-full sm:w-auto overflow-x-auto shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setOrderStoreFilter('all')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap ${
+                        orderStoreFilter === 'all'
+                          ? 'bg-amber-400 text-slate-950 shadow-sm'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      🌐 ھەممىسى ({orders.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setOrderStoreFilter('autocash')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap flex items-center gap-1 ${
+                        orderStoreFilter === 'autocash'
+                          ? 'bg-cyan-500 text-slate-950 shadow-sm'
+                          : 'text-cyan-400 hover:text-cyan-200'
+                      }`}
+                    >
+                      ⚡ Auto Cash ({orders.filter((o) => !((o.details as any)?.store === 'maxbazar' || (o.serviceId && o.serviceId.startsWith('maxbazar_')))).length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setOrderStoreFilter('maxbazar')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap flex items-center gap-1 ${
+                        orderStoreFilter === 'maxbazar'
+                          ? 'bg-purple-500 text-white shadow-sm'
+                          : 'text-purple-400 hover:text-purple-200'
+                      }`}
+                    >
+                      📱 MAX-BAZAR ({orders.filter((o) => (o.details as any)?.store === 'maxbazar' || (o.serviceId && o.serviceId.startsWith('maxbazar_'))).length})
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+                <div className="flex items-center gap-1.5 w-full overflow-x-auto pb-1 sm:pb-0 pt-1 border-t border-slate-800/40">
                   {['all', 'processing', 'review', 'completed', 'cancelled'].map((st) => (
                     <button
                       key={st}
@@ -4030,7 +4075,18 @@ export default function AdminPage() {
                         filteredOrders.map((order) => (
                           <tr key={order.id} className={`border-b ${themeClasses.tableRow}`}>
                             <td className="py-3 px-3 font-mono font-bold text-cyan-300">
-                              {order.id}
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span>{order.id}</span>
+                                {(order.details as any)?.store === 'maxbazar' || (order.serviceId && order.serviceId.startsWith('maxbazar_')) ? (
+                                  <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                                    📱 MAX-BAZAR
+                                  </span>
+                                ) : (
+                                  <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                                    ⚡ Auto Cash
+                                  </span>
+                                )}
+                              </div>
                               <span className="block text-[10px] text-slate-500 font-normal">
                                 {order.createdAt?.substring(0, 16).replace('T', ' ')}
                               </span>
@@ -4041,17 +4097,24 @@ export default function AdminPage() {
                             </td>
                             <td className="py-3 px-3 font-mono text-amber-300 select-all font-bold">
                               {order.targetAccount}
-                              {order.details?.providerOrderId && (
+                              {(order.details as any)?.provider === 'maxstore' && (order.details as any)?.providerOrderId && (
                                 <span className={`block text-[10px] font-normal ${
-                                  order.status === 'completed' || order.details.providerStatus === 'COMPLETED'
+                                  order.status === 'completed' ? 'text-emerald-400 font-bold' : 'text-purple-400'
+                                }`} dir="ltr">
+                                  MaxStore #{(order.details as any).providerOrderId}
+                                </span>
+                              )}
+                              {(order.details as any)?.provider !== 'maxstore' && (order.details as any)?.providerOrderId && (
+                                <span className={`block text-[10px] font-normal ${
+                                  order.status === 'completed' || (order.details as any).providerStatus === 'COMPLETED'
                                     ? 'text-emerald-400 font-bold'
                                     : 'text-cyan-400'
                                 }`} dir="ltr">
-                                  Othman Store #{order.details.providerOrderId}
-                                  {order.status === 'completed' || order.details.providerStatus === 'COMPLETED'
+                                  Othman Store #{(order.details as any).providerOrderId}
+                                  {order.status === 'completed' || (order.details as any)?.providerStatus === 'COMPLETED'
                                     ? ' · تامام (COMPLETED)'
-                                    : order.details.providerStatus
-                                    ? ` · ${order.details.providerStatus}`
+                                    : (order.details as any)?.providerStatus
+                                    ? ` · ${(order.details as any).providerStatus}`
                                     : ''}
                                 </span>
                               )}
@@ -5154,6 +5217,15 @@ export default function AdminPage() {
                                   {user.role === 'admin' && (
                                     <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-black border border-amber-500/40">
                                       👑 باشقۇرغۇچى
+                                    </span>
+                                  )}
+                                  {user.email?.includes('@maxbazar.user') ? (
+                                    <span className="px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 text-[9px] font-bold border border-purple-500/30">
+                                      📱 MAX-BAZAR
+                                    </span>
+                                  ) : (
+                                    <span className="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[9px] font-bold border border-cyan-500/30">
+                                      ⚡ Auto Cash
                                     </span>
                                   )}
                                 </div>

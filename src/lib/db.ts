@@ -456,16 +456,21 @@ export async function revokeUserApiKeyAsync(userId: string): Promise<boolean> {
 export async function createUserAsync(userData: {
   name: string;
   email: string;
-  password: string;
+  password?: string;
   phone?: string;
   avatarUrl?: string;
+  telegramChatId?: string | number;
+  telegramUsername?: string;
+  balance?: number;
   role?: 'user' | 'admin';
 }): Promise<UserRecord> {
-  const { passwordHash, salt } = hashPassword(userData.password);
+  const rawPassword = userData.password || crypto.randomBytes(16).toString('hex');
+  const { passwordHash, salt } = hashPassword(rawPassword);
   const id = randomId('USR');
   const email = userData.email.trim().toLowerCase();
   const name = userData.name.trim() || email.split('@')[0];
   const now = new Date().toISOString();
+  const initialBalance = Number.isFinite(userData.balance) ? Math.max(0, Number(userData.balance!.toFixed(2))) : 0;
 
   const sb = getSupabase();
   if (sb) {
@@ -476,7 +481,7 @@ export async function createUserAsync(userData: {
       phone: userData.phone?.trim() || null,
       password_hash: passwordHash,
       salt,
-      balance: 0,
+      balance: initialBalance,
       total_spent: 0,
       vip_tier: 'vip1',
       role: userData.role || 'user',
@@ -485,6 +490,12 @@ export async function createUserAsync(userData: {
     };
     if (userData.avatarUrl) {
       insertPayload.avatar_url = userData.avatarUrl;
+    }
+    if (userData.telegramChatId) {
+      insertPayload.telegram_chat_id = userData.telegramChatId;
+    }
+    if (userData.telegramUsername) {
+      insertPayload.telegram_username = userData.telegramUsername.replace(/^@/, '');
     }
     const { data, error } = await sb.from('users').insert(insertPayload).select().single();
     if (error) {
@@ -504,9 +515,11 @@ export async function createUserAsync(userData: {
     email,
     phone: userData.phone?.trim() || '',
     avatarUrl: userData.avatarUrl || undefined,
+    telegramChatId: userData.telegramChatId || undefined,
+    telegramUsername: userData.telegramUsername ? userData.telegramUsername.replace(/^@/, '') : undefined,
     passwordHash,
     salt,
-    balance: 0.0,
+    balance: initialBalance,
     totalSpent: 0.0,
     vipTier: 'vip1',
     role: userData.role || 'user',
@@ -656,6 +669,16 @@ export async function adjustUserBalanceAsync(id: string, deltaAmount: number): P
   user.balance = newBalance;
   saveDb(db);
   return user;
+}
+
+/** Sets exact balance safely via delta calculation */
+export async function setUserBalanceExactAsync(id: string, exactBalance: number): Promise<UserRecord | null> {
+  const finalBalance = Math.max(0, Number(exactBalance.toFixed(2)));
+  const user = await getUserByIdAsync(id);
+  if (!user) return null;
+  const delta = Math.round((finalBalance - user.balance) * 100) / 100;
+  if (Math.abs(delta) < 0.001) return user;
+  return adjustUserBalanceAsync(id, delta);
 }
 
 export async function deleteUserAsync(id: string): Promise<boolean> {
@@ -870,6 +893,54 @@ export async function updateOrderStatusAsync(
   newStatus: OrderRecord['status']
 ): Promise<OrderRecord | null> {
   return updateOrderAsync(orderId, { status: newStatus });
+}
+
+/**
+ * Direct order insertion for unified store orders (e.g. MAX-BAZAR micro-apps).
+ * Safely persists across Supabase and local JSON storage.
+ */
+export async function createOrderDirectAsync(orderData: OrderRecord): Promise<OrderRecord> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { data, error } = await sb
+        .from('orders')
+        .upsert({
+          id: orderData.id,
+          user_id: orderData.userId || null,
+          user_email: orderData.userEmail || null,
+          service_id: orderData.serviceId,
+          service_name: orderData.serviceName,
+          package_title: orderData.packageTitle,
+          amount: Number(orderData.amount || 0),
+          target_account: orderData.targetAccount,
+          status: orderData.status,
+          details: orderData.details || {},
+          created_at: orderData.createdAt || new Date().toISOString(),
+        })
+        .select()
+        .maybeSingle();
+
+      if (!error && data) {
+        return mapSupabaseOrder(data);
+      }
+      if (error) {
+        console.warn('[createOrderDirectAsync Supabase warning]:', error.message);
+      }
+    } catch (sbErr: any) {
+      console.warn('[createOrderDirectAsync Supabase exception]:', sbErr?.message);
+    }
+  }
+
+  const db = ensureDbFile();
+  const existingIdx = db.orders.findIndex((o) => o.id === orderData.id);
+  if (existingIdx >= 0) {
+    db.orders[existingIdx] = { ...db.orders[existingIdx], ...orderData };
+  } else {
+    db.orders.unshift(orderData);
+  }
+  saveDb(db);
+  return orderData;
 }
 
 export interface AtomicOrderResult {
