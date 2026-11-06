@@ -241,10 +241,29 @@ export async function GET(req: NextRequest) {
             const matchedOrder = allOrders.find((o) => o.provider_order_id === item.order_id);
             if (!matchedOrder) continue;
 
-            const providerStatus = (item.status || '').toLowerCase();
+            const providerStatus = (item.status || '').toLowerCase().trim();
+
+            const isCompleted = [
+              'completed', 'success', 'done', 'delivered', 'ok', '1', '3',
+              'تم', 'مكتمل', 'مكتملة', 'تم الشحن', 'مشحون', 'تم التنفيذ', 'تم التسليم', 'تم الطلب', 'منجز'
+            ].includes(providerStatus) ||
+              providerStatus.includes('مكتمل') ||
+              providerStatus.includes('تم الشحن') ||
+              providerStatus.includes('مشحون') ||
+              providerStatus.includes('تم التنفيذ') ||
+              providerStatus.includes('منجز');
+
+            const isFailed = [
+              'canceled', 'cancelled', 'rejected', 'refunded', 'failed', 'error',
+              '-1', '4', '5', '6',
+              'ملغي', 'مرفوض', 'فشل', 'خطأ'
+            ].includes(providerStatus) ||
+              providerStatus.includes('ملغي') ||
+              providerStatus.includes('مرفوض') ||
+              providerStatus.includes('فشل');
 
             // 1. COMPLETED: Order finished successfully!
-            if (['completed', 'success', 'done', 'delivered'].includes(providerStatus)) {
+            if (isCompleted) {
               if (matchedOrder.status !== 'completed') {
                 matchedOrder.status = 'completed';
                 matchedOrder.completed_at = new Date().toISOString();
@@ -274,7 +293,7 @@ export async function GET(req: NextRequest) {
               }
             }
             // 2. REJECTED / CANCELED: Automatic Refund & Notification!
-            else if (['canceled', 'cancelled', 'rejected', 'refunded', 'failed', 'error'].includes(providerStatus)) {
+            else if (isFailed) {
               if (matchedOrder.status !== 'refunded') {
                 matchedOrder.status = 'refunded';
                 matchedOrder.refunded_at = new Date().toISOString();
