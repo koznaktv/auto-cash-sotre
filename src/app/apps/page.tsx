@@ -864,12 +864,16 @@ export default function AppsHubPage() {
                             <h3 className="text-base font-black text-white group-hover:text-amber-300 transition-colors truncate">
                               {game.name}
                             </h3>
-                            <p className="text-[11px] text-amber-300/90 font-medium truncate">
-                              {game.tagline}
-                            </p>
-                            <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
-                              {game.description}
-                            </p>
+                            {game.tagline && (
+                              <p className="text-[11px] text-amber-300/90 font-medium truncate">
+                                {game.tagline}
+                              </p>
+                            )}
+                            {game.description && (
+                              <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
+                                {game.description}
+                              </p>
+                            )}
                           </div>
                         </div>
 
@@ -1091,12 +1095,16 @@ export default function AppsHubPage() {
                                 <h3 className="text-base font-black text-white group-hover:text-amber-300 transition-colors truncate">
                                   {game.name}
                                 </h3>
-                                <p className="text-[11px] text-amber-300/90 font-medium truncate">
-                                  {game.tagline}
-                                </p>
-                                <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
-                                  {game.description}
-                                </p>
+                                {game.tagline && (
+                                  <p className="text-[11px] text-amber-300/90 font-medium truncate">
+                                    {game.tagline}
+                                  </p>
+                                )}
+                                {game.description && (
+                                  <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
+                                    {game.description}
+                                  </p>
+                                )}
                               </div>
                             </div>
 

@@ -58,7 +58,7 @@ const PUBG_PACKAGES: PubgPackage[] = [
   // 1. UC PACKAGES (CALIBRATED WITH USER'S STRATEGY: 18-22% on small, 6-10% on large)
   { id: 60, name: '60 UC', uc: 60, bonus: 0, price: 1.10, category: 'uc' },
   { id: 54, name: '325 UC (300 + 25)', uc: 300, bonus: 25, price: 5.60, category: 'uc', tag: 'BEST VALUE' },
-  { id: 62, name: '660 UC (600 + 60)', uc: 600, bonus: 60, price: 10.95, category: 'uc', isPopular: true, tag: 'ROYALE PASS' },
+  { id: 62, name: '660 UC (600 + 60)', uc: 600, bonus: 60, price: 10.95, category: 'uc' },
   { id: 67, name: '985 UC (900 + 85)', uc: 900, bonus: 85, price: 16.20, category: 'uc' },
   { id: 49, name: '1320 UC (1200 + 120)', uc: 1200, bonus: 120, price: 21.50, category: 'uc' },
   { id: 51, name: '1800 UC (1500 + 300)', uc: 1500, bonus: 300, price: 25.90, category: 'uc', tag: 'BONUS' },
@@ -1093,7 +1093,7 @@ export default function PubgAppPage() {
                     <span>رەسمىي كاپالەتلىك قاچىلاش</span>
                   </div>
                   <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
-                    پابجى شدات (PUBG UC) قاچىلاش
+                    PUBG Mobile UC قاچىلاش
                   </h2>
                   <p className="text-xs text-slate-300 mt-0.5">
                     ئايدى كىرگۈزسىڭىزلا سېكۇنتتا ئويۇنغا بىۋاسىتە چۈشىدۇ ⚡
