@@ -12,6 +12,7 @@ import DynamicIcon from '@/components/DynamicIcon';
 import AdminWifiInventory from '@/components/admin/AdminWifiInventory';
 import AdminPromotionsManager from '@/components/admin/AdminPromotionsManager';
 import AdminPricingManager from '@/components/admin/AdminPricingManager';
+import AdminMaxbazarManager from '@/components/admin/AdminMaxbazarManager';
 import {
   LayoutDashboard,
   Flame,
@@ -269,7 +270,7 @@ export default function AdminPage() {
 
   // Navigation tab
   const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'orders' | 'pricing' | 'provider' | 'sms' | 'promotions' | 'banners' | 'deposits' | 'users' | 'finance' | 'settings' | 'wifi'
+    'dashboard' | 'orders' | 'pricing' | 'maxbazar' | 'provider' | 'sms' | 'promotions' | 'banners' | 'deposits' | 'users' | 'finance' | 'settings' | 'wifi'
   >('dashboard');
 
   // Main Data States
@@ -3315,6 +3316,7 @@ export default function AdminPage() {
               {
                 group: 'مەھسۇلات ۋە پائالىيەت',
                 items: [
+                  { id: 'maxbazar', label: '📱 MAX-BAZAR ئەپلەر مەركىزى', icon: Smartphone, badgeColor: 'bg-amber-500 text-slate-950 font-black' },
                   { id: 'promotions', label: '⚡️ چەكلىك ئېتىبار (Flash Sale)', icon: Flame, badgeColor: 'bg-red-500 text-white font-bold' },
                   { id: 'banners', label: 'باشبەت ئېلانلىرى (سلايدېر)', icon: ImageIcon, badge: banners.length, badgeColor: 'bg-teal-600 text-white' },
                   { id: 'wifi', label: 'Wi-Fi كارتىلار ئامبىرى', icon: Wifi, badgeColor: 'bg-sky-600 text-white' },
@@ -3420,6 +3422,7 @@ export default function AdminPage() {
             </button>
             <h2 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
               {activeTab === 'dashboard' && '📊 باش تاختا كۆرسەتكۈچلىرى'}
+              {activeTab === 'maxbazar' && '📱 MAX-BAZAR ئەپلەر ۋە زاكازلارنى باشقۇرۇش مەركىزى'}
               {activeTab === 'pricing' && '💰 باھا ۋە ساپ پايدا باشقۇرۇش مەركىزى'}
               {activeTab === 'orders' && '🛒 زاكازلارنى باشقۇرۇش مەركىزى'}
               {activeTab === 'promotions' && '⚡️ چەكلىك ۋاقىتلىق ئېتىبار پائالىيىتى مەركىزى (Flash Sale)'}
@@ -4595,6 +4598,11 @@ export default function AdminPage() {
                 </div>
               )}
             </div>
+          )}
+
+          {/* ================= TAB: MAX-BAZAR APPS & ORDERS MANAGEMENT ================= */}
+          {activeTab === 'maxbazar' && (
+            <AdminMaxbazarManager />
           )}
 
           {/* ================= TAB: PRICING & NET PROFIT MANAGEMENT ================= */}

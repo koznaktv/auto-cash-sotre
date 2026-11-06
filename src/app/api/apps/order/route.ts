@@ -40,8 +40,11 @@ function saveAppWallet(key: string, balance: number) {
 
 function getAppServiceName(appId: string): string {
   if (appId === 'pubg' || appId === 'pubg-mobile') return 'PUBG Mobile (پابجى كۆچمە نۇسخىسى)';
-  if (appId === 'honor-of-kings') return 'Honor of Kings (داڭلىقلار سەپىرى)';
-  return 'MaxStore تېز زاكاز';
+  if (appId === 'honor-of-kings' || appId === 'hok') return 'Honor of Kings (داڭلىقلار سەپىرى)';
+  if (appId === 'mobile-legends' || appId === 'mlbb') return 'Mobile Legends (ئالماس ۋە كارتىلار)';
+  if (appId === 'mtn-syria' || appId === 'mtn') return 'MTN سۈرىيە (تېلېفون ۋە تور)';
+  if (appId === 'syriatel') return 'Syriatel سۈرىيەتەل (تېلېفون ۋە تور)';
+  return 'MAX-BAZAR تېز زاكاز';
 }
 
 function getOrders(): any[] {
@@ -203,13 +206,17 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const identity = searchParams.get('identity');
-    const app_id = searchParams.get('app_id') || 'honor-of-kings';
+    const app_id = searchParams.get('app_id');
+    const isAdmin = searchParams.get('admin') === 'true';
 
     const allOrders = getOrders();
     const cleanId = (identity || '').trim().replace(/^@/, '').toLowerCase();
-    let filtered = allOrders.filter(
-      (o) => o.app_id === app_id && (!cleanId || o.identity.toLowerCase() === cleanId)
-    );
+
+    let filtered = allOrders.filter((o) => {
+      if (app_id && app_id !== 'all' && o.app_id !== app_id) return false;
+      if (!isAdmin && cleanId && (o.identity || '').toLowerCase() !== cleanId) return false;
+      return true;
+    });
 
     // Live Sync with MaxStore Wholesale API for pending orders
     const maxstoreToken = process.env.MAXSTORE_API_TOKEN || 'msk_6HAfwl0cSpjPJ0jeB25V52gC5ETq3seC29C1qlgpdvI';
@@ -288,23 +295,77 @@ export async function GET(req: NextRequest) {
     if (ordersChanged) {
       try {
         const filePath = path.join(SESSIONS_DIR, 'orders.json');
-        fs.writeFileSync(filePath, JSON.stringify(allOrders.slice(0, 100), null, 2), 'utf-8');
+        fs.writeFileSync(filePath, JSON.stringify(allOrders.slice(0, 500), null, 2), 'utf-8');
       } catch {}
       // Refresh filtered list after changes
-      filtered = allOrders.filter(
-        (o) => o.app_id === app_id && (!cleanId || o.identity.toLowerCase() === cleanId)
-      );
+      filtered = allOrders.filter((o) => {
+        if (app_id && app_id !== 'all' && o.app_id !== app_id) return false;
+        if (!isAdmin && cleanId && (o.identity || '').toLowerCase() !== cleanId) return false;
+        return true;
+      });
     }
 
     // Get live unified wallet balance
     const liveBalance = cleanId ? await getUnifiedWalletBalance(cleanId) : null;
 
+    // Calculate admin statistics if in admin mode
+    const stats = isAdmin
+      ? {
+          totalOrders: allOrders.length,
+          totalRevenue: allOrders.reduce((sum, o) => sum + (Number(o.price) || 0), 0),
+          completedCount: allOrders.filter((o) => o.status === 'completed').length,
+          pendingCount: allOrders.filter((o) => o.status === 'wait' || o.status === 'in_progress' || !o.status).length,
+          refundedCount: allOrders.filter((o) => o.status === 'refunded').length,
+        }
+      : null;
+
     return NextResponse.json({
       ok: true,
       orders: filtered,
       live_balance: liveBalance,
+      stats,
     });
   } catch (err: any) {
     return NextResponse.json({ ok: false, error: err?.message || 'Server Error' }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { order_id, new_status, refund_amount } = body;
+    if (!order_id) {
+      return NextResponse.json({ ok: false, error: 'order_id is required' }, { status: 400 });
+    }
+
+    const allOrders = getOrders();
+    const orderIndex = allOrders.findIndex((o) => o.order_id === order_id);
+    if (orderIndex === -1) {
+      return NextResponse.json({ ok: false, error: 'Order not found' }, { status: 404 });
+    }
+
+    const order = allOrders[orderIndex];
+    const prevStatus = order.status;
+    order.status = new_status;
+
+    if (new_status === 'completed') {
+      order.completed_at = new Date().toISOString();
+    } else if (new_status === 'refunded') {
+      order.refunded_at = new Date().toISOString();
+      if (prevStatus !== 'refunded') {
+        const refundVal = refund_amount !== undefined ? Number(refund_amount) : Number(order.price || 0);
+        if (refundVal > 0 && order.identity) {
+          await creditUnifiedWalletBalance(order.identity, refundVal);
+          order.refund_note = `باشقۇرغۇچى تەرىپىدىن قالدۇق قايتۇرۇلدى: $${refundVal.toFixed(2)}`;
+        }
+      }
+    }
+
+    const filePath = path.join(SESSIONS_DIR, 'orders.json');
+    fs.writeFileSync(filePath, JSON.stringify(allOrders, null, 2), 'utf-8');
+
+    return NextResponse.json({ ok: true, order });
+  } catch (err: any) {
+    return NextResponse.json({ ok: false, error: err?.message || 'Server error' }, { status: 500 });
   }
 }

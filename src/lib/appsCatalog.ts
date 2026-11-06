@@ -43,21 +43,21 @@ export interface CategoryItem {
 export const CATEGORIES: CategoryItem[] = [
   {
     id: 'games',
-    name: 'ئويۇنلار',
-    subtitle: 'PUBG ۋە HOK تەييار',
+    name: 'ئويۇنلار بۆلۈمى',
+    subtitle: 'PUBG, HOK ۋە MLBB تەييار',
     icon: Gamepad2,
     isReady: true,
-    countBadge: '2 ئويۇن تەييار',
+    countBadge: '3 ئويۇن تەييار',
     gradient: 'from-amber-500 via-orange-500 to-yellow-500',
     glowColor: 'rgba(245, 158, 11, 0.35)'
   },
   {
     id: 'apps',
-    name: 'ئەپلەر',
-    subtitle: 'پات يېقىندا',
+    name: 'تېلېفون ۋە تور بۆلۈمى',
+    subtitle: 'MTN ۋە Syriatel تېلېفون-تور تەييار',
     icon: Smartphone,
-    isReady: false,
-    countBadge: 'يېقىندا',
+    isReady: true,
+    countBadge: '2 مۇلازىمەت تەييار',
     gradient: 'from-sky-500 via-blue-500 to-indigo-500',
     glowColor: 'rgba(56, 189, 248, 0.35)'
   },
@@ -104,8 +104,12 @@ export const CATEGORIES: CategoryItem[] = [
 ];
 
 // =========================================================================
-// ھازىرقى پەقەت تولۇق پۈتكەن 2 ئويۇن
-// يېڭى ئەپ پۈتكەندە، ئىشلەتكۈچىنىڭ تەلەپ قىلغان كاتېگورىيەسىگە قوشۇلىدۇ
+// MAX-BAZAR رەسمىي ئەپلەر كاتالوگى
+// 1. PUBG Mobile UC
+// 2. Honor of Kings Token
+// 3. Mobile Legends: Bang Bang (ئالماس، ھەپتىلىك كارتىلار، سوۋغاتلار)
+// 4. MTN سۈرىيە (پۇل قاچىلاش ۋە مەخسۇس تور)
+// 5. Syriatel سۈرىيەتەل (ياشباك، قالدۇق پۇل ۋە سوپېر تور)
 // =========================================================================
 export const ACTIVE_CATALOG: ActiveApp[] = [
   {
@@ -142,6 +146,60 @@ export const ACTIVE_CATALOG: ActiveApp[] = [
     telegramAppUrl: 'https://t.me/maxbazar_bot/hok',
     priceNote: '$0.25 دىن باشلىنىدۇ (16 - 8,000 Token)',
     features: ['بىخەتەر ۋە رەسمىي يول', 'ئاپتوماتىك لاقىم (Nickname) دەلىللەش', 'سېكۇنتتا يېتىپ بارىدۇ'],
+    isMicroApp: true
+  },
+  {
+    id: 'mlbb',
+    name: 'Mobile Legends: Bang Bang بازىرى',
+    category: 'games',
+    tagline: 'User ID + Zone ID ئارقىلىق 3 سېكۇنتتا يېتىدۇ',
+    description: '',
+    icon: '/images/apps/mobile-legends/icon-512.png',
+    rating: 4.97,
+    ordersCount: '12.4k+ قاچىلانغان',
+    speed: '3 سېكۇنت',
+    badge: '⚔️ ئالماس ۋە كارتىلار',
+    badgeColor: 'from-blue-500 to-indigo-600',
+    webUrl: '/apps/mobile-legends',
+    telegramAppUrl: 'https://t.me/maxbazar_bot/mlbb',
+    priceNote: '$0.95 دىن باشلىنىدۇ (50 - 5,000 ئالماس)',
+    features: ['رەسمىي سەرۋەرگە بىۋاسىتە ئالماس', 'ھەپتىلىك ئالماس كارتىسى (Pass)', 'شامكەش شحن فوري'],
+    isMicroApp: true
+  },
+  {
+    id: 'mtn',
+    name: 'MTN سۈرىيە — تېلېفون ۋە تور بازىرى',
+    category: 'apps',
+    tagline: 'يانفونغا پۇل قاچىلاش ۋە مەخسۇس تور بولاقلىرى',
+    description: '',
+    icon: '/images/apps/mtn-syria/icon-512.png',
+    rating: 4.95,
+    ordersCount: '28.1k+ قاچىلانغان',
+    speed: '5 سېكۇنت',
+    badge: '📶 رەسمىي MTN سۈرىيە',
+    badgeColor: 'from-yellow-500 to-amber-600',
+    webUrl: '/apps/mtn-syria',
+    telegramAppUrl: 'https://t.me/maxbazar_bot/mtn',
+    priceNote: '$0.45 دىن باشلىنىدۇ (پۇل ۋە تور بولاقلىرى)',
+    features: ['بىۋاسىتە تېلېفونغا قالدۇق قاچىلاش', 'سۈرئەتلىك تور بولاقلىرى (1GB - 100GB)', 'سېكۇنتتا يېتىپ بېرىش'],
+    isMicroApp: true
+  },
+  {
+    id: 'syriatel',
+    name: 'Syriatel — تېلېفون ۋە تور بازىرى',
+    category: 'apps',
+    tagline: 'ياشباك، قالدۇق پۇل ۋە سوپېر تور بولاقلىرى',
+    description: '',
+    icon: '/images/apps/syriatel/icon-512.png',
+    rating: 4.98,
+    ordersCount: '34.6k+ قاچىلانغان',
+    speed: '5 سېكۇنت',
+    badge: '⚡ رەسمىي سيريتل',
+    badgeColor: 'from-red-500 to-rose-600',
+    webUrl: '/apps/syriatel',
+    telegramAppUrl: 'https://t.me/maxbazar_bot/syriatel',
+    priceNote: '$0.55 دىن باشلىنىدۇ (پۇل ۋە تور بولاقلىرى)',
+    features: ['سۈرىيەتەل ياشباك ۋە كاش', 'سوپېر تور بولاقلىرى (1.5GB - 70GB)', 'ئاپتوماتىك دەلىللەش'],
     isMicroApp: true
   }
 ];
