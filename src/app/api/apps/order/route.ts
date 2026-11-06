@@ -11,8 +11,11 @@ import {
 import {
   createOrderDirectAsync,
   updateOrderAsync,
+  getAllUsersAsync,
+  adjustUserBalanceAsync,
   OrderRecord,
 } from '@/lib/db';
+import { getMaxStoreBalance } from '@/lib/providers/maxstoreProvider';
 
 const SESSIONS_DIR = path.join(process.cwd(), 'data', 'micro_apps');
 function ensureDir() {
@@ -404,22 +407,99 @@ export async function GET(req: NextRequest) {
     // Get live unified wallet balance
     const liveBalance = cleanId ? await getUnifiedWalletBalance(cleanId) : null;
 
-    // Calculate admin statistics if in admin mode
-    const stats = isAdmin
-      ? {
-          totalOrders: allOrders.length,
-          totalRevenue: allOrders.reduce((sum, o) => sum + (Number(o.price) || 0), 0),
-          completedCount: allOrders.filter((o) => o.status === 'completed').length,
-          pendingCount: allOrders.filter((o) => o.status === 'wait' || o.status === 'in_progress' || !o.status).length,
-          refundedCount: allOrders.filter((o) => o.status === 'refunded').length,
+    // Calculate admin statistics, profit, and members if in admin mode
+    let stats: any = null;
+    let members: any[] = [];
+    let providerBalance: number | null = null;
+
+    if (isAdmin) {
+      // 1. Fetch live wholesale balance from MaxStore API
+      try {
+        const balRes = await getMaxStoreBalance();
+        if (balRes?.ok && typeof balRes.balance === 'number') {
+          providerBalance = balRes.balance;
         }
-      : null;
+      } catch (provErr: any) {
+        console.warn('[Fetch MaxStore balance warn]:', provErr?.message);
+      }
+
+      // 2. Calculate pure net profit (completed orders revenue minus wholesale cost ~88%)
+      const completedOrders = allOrders.filter((o) => o.status === 'completed');
+      const completedRevenue = completedOrders.reduce((sum, o) => sum + (Number(o.price) || 0), 0);
+      const estimatedWholesaleCost = Math.round(completedRevenue * 0.88 * 100) / 100;
+      const netProfit = Math.round((completedRevenue - estimatedWholesaleCost) * 100) / 100;
+      const profitMarginPercent = completedRevenue > 0 ? Number(((netProfit / completedRevenue) * 100).toFixed(1)) : 12.0;
+
+      // 3. Aggregate all MAX-BAZAR members
+      try {
+        const allDbUsers = await getAllUsersAsync();
+        const orderIdentityMap = new Map<string, { count: number; spent: number; lastActive?: string }>();
+        allOrders.forEach((o) => {
+          const key = (o.identity || '').toLowerCase().trim();
+          if (!key) return;
+          const cur = orderIdentityMap.get(key) || { count: 0, spent: 0, lastActive: o.created_at };
+          cur.count += 1;
+          if (o.status === 'completed') cur.spent += Number(o.price || 0);
+          if (o.created_at && (!cur.lastActive || o.created_at > cur.lastActive)) cur.lastActive = o.created_at;
+          orderIdentityMap.set(key, cur);
+        });
+
+        const maxbazarUsers = allDbUsers.filter((u) => {
+          const cleanName = (u.name || '').toLowerCase();
+          const cleanTg = (u.telegramUsername || '').toLowerCase();
+          const cleanEmail = (u.email || '').toLowerCase();
+          return (
+            cleanEmail.includes('@maxbazar.user') ||
+            Boolean(u.telegramUsername) ||
+            orderIdentityMap.has(cleanName) ||
+            orderIdentityMap.has(cleanTg) ||
+            orderIdentityMap.has(cleanEmail.split('@')[0])
+          );
+        });
+
+        members = maxbazarUsers.map((u) => {
+          const cleanName = (u.name || '').toLowerCase();
+          const cleanTg = (u.telegramUsername || '').toLowerCase();
+          const uStats = orderIdentityMap.get(cleanTg) || orderIdentityMap.get(cleanName) || { count: 0, spent: 0, lastActive: undefined };
+          return {
+            id: u.id,
+            name: u.name || u.telegramUsername || 'خېرىدار',
+            username: u.telegramUsername || u.name,
+            telegramChatId: u.telegramChatId || undefined,
+            phone: u.phone || undefined,
+            email: u.email,
+            balance: Number((u.balance || 0).toFixed(2)),
+            totalSpent: Number(uStats.spent.toFixed(2)),
+            orderCount: uStats.count,
+            vipTier: u.vipTier || 'vip1',
+            lastActive: uStats.lastActive || u.createdAt,
+            createdAt: u.createdAt,
+          };
+        });
+      } catch (usersErr: any) {
+        console.warn('[Fetch MAX-BAZAR members warn]:', usersErr?.message);
+      }
+
+      stats = {
+        totalOrders: allOrders.length,
+        totalRevenue: Number(allOrders.reduce((sum, o) => sum + (Number(o.price) || 0), 0).toFixed(2)),
+        completedCount: completedOrders.length,
+        pendingCount: allOrders.filter((o) => o.status === 'wait' || o.status === 'in_progress' || !o.status).length,
+        refundedCount: allOrders.filter((o) => o.status === 'refunded').length,
+        netProfit,
+        profitMarginPercent,
+        providerBalance,
+        memberCount: members.length,
+      };
+    }
 
     return NextResponse.json({
       ok: true,
       orders: filtered,
       live_balance: liveBalance,
       stats,
+      members,
+      provider_balance: providerBalance,
     });
   } catch (err: any) {
     return NextResponse.json({ ok: false, error: err?.message || 'Server Error' }, { status: 500 });
@@ -430,6 +510,26 @@ export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
     const { order_id, new_status, refund_amount, action } = body;
+
+    // Direct User Balance Adjustment from Admin
+    if (action === 'adjust_user_balance') {
+      const { user_id, identity, delta } = body;
+      const numDelta = Number(delta);
+      if (isNaN(numDelta) || numDelta === 0) {
+        return NextResponse.json({ ok: false, error: 'سومما خاتا كىرگۈزۈلدى' }, { status: 400 });
+      }
+      if (user_id) {
+        await adjustUserBalanceAsync(user_id, numDelta);
+      } else if (identity) {
+        if (numDelta > 0) {
+          await creditUnifiedWalletBalance(identity, numDelta);
+        } else {
+          await deductUnifiedWalletBalance(identity, Math.abs(numDelta));
+        }
+      }
+      return NextResponse.json({ ok: true, message: 'قالدۇق پۇل مۇۋەپپەقىيەتلىك تەڭشەلدى!' });
+    }
+
     if (!order_id) {
       return NextResponse.json({ ok: false, error: 'order_id is required' }, { status: 400 });
     }
