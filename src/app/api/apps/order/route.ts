@@ -427,7 +427,7 @@ export async function GET(req: NextRequest) {
     // Live Sync with MaxStore Wholesale API for pending orders
     const maxstoreToken = process.env.MAXSTORE_API_TOKEN || 'msk_6HAfwl0cSpjPJ0jeB25V52gC5ETq3seC29C1qlgpdvI';
     const pendingOrders = filtered.filter(
-      (o) => (o.status === 'wait' || o.status === 'in_progress' || !o.status) && o.provider_order_id
+      (o) => (['wait', 'in_progress', 'pending_provider', 'processing', 'pending'].includes(o.status) || !o.status) && o.provider_order_id
     );
 
     let ordersChanged = false;
@@ -478,7 +478,12 @@ export async function GET(req: NextRequest) {
                 // Sync status to central DB
                 updateOrderAsync(matchedOrder.order_id, {
                   status: 'completed',
-                  detailsPatch: { completed_at: matchedOrder.completed_at },
+                  detailsPatch: {
+                    completed_at: matchedOrder.completed_at,
+                    completedAt: matchedOrder.completed_at,
+                    providerStatus: 'COMPLETED',
+                    needsReview: false,
+                  },
                 }).catch(() => null);
 
                 // Broadcast completed order to Telegram Channel (@autocash_cannel)
