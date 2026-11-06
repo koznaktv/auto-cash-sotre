@@ -89,6 +89,43 @@ export async function handleMaxBazarWebhook(update: any) {
       } catch {}
     }
 
+    // Handle /start auth_XXXX or login_XXXX (1-Click Telegram Login from Website / App)
+    const authMatch = text.match(/^\/start\s+(?:auth_|login_)?([a-fA-F0-9_]{12,64})/i) || text.match(/^\/start\s+auth_([a-zA-Z0-9_]+)/i);
+    if (authMatch) {
+      const authToken = authMatch[1];
+      try {
+        const { approveTelegramLoginSessionAsync } = await import('./telegramAuthSessions');
+        const { getOrCreateTelegramUser } = await import('./telegramShop');
+
+        const user = await getOrCreateTelegramUser(chatId, username, firstName);
+        await approveTelegramLoginSessionAsync(authToken, user.id);
+
+        const returnUrl = `${SITE_URL}/apps`;
+        await callMaxBazarBotApi('sendMessage', {
+          chat_id: chatId,
+          text:
+            `🎉 *MAX-BAZAR غا كىرىش مۇۋەپپەقىيەتلىك تەستىقلاندى!* 🚀\n\n` +
+            `👤 ھېساباتىڭىز: *${user.name}*\n` +
+            `💰 ئورتاق قالدۇقىڭىز: *${Number(user.balance || 0).toFixed(2)} USD*\n\n` +
+            `⚡ ھازىر توربەت ياكى ئەپكە قايتسىڭىز، ھېساباتىڭىز ئۆزلۈكىدىن كىرىپ تەييار بولدى!`,
+          parse_mode: 'Markdown',
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: '🛍️ MAX-BAZAR ئەپ بازىرىنى ئېچىش',
+                  web_app: { url: returnUrl },
+                },
+              ],
+            ],
+          },
+        });
+      } catch (err: any) {
+        console.error('[MaxBazar Bot Auth Error]:', err?.message);
+      }
+      return;
+    }
+
     // Handle /start sync_XXXX (Instant 1-Click App Linking from Phone)
     const syncMatch = text.match(/^\/start\s+(sync_[a-zA-Z0-9_]+)/);
     if (syncMatch) {

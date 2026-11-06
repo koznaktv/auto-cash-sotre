@@ -368,15 +368,33 @@ export default function AppsHubPage() {
     }
   };
 
-  // Start 1-Click Telegram Sync Login
+  // Start 1-Click Telegram Sync Login (Works on Web & inside Telegram Mini App)
   const startTelegramSync = async () => {
+    // 1. If running inside Telegram Mini App / WebApp, instant auto-login!
+    if (typeof window !== 'undefined') {
+      const tgUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+      if (tgUser?.id) {
+        setIsSyncWaiting(true);
+        try {
+          const { autoLoginTelegramMiniApp } = await import('@/lib/telegramMiniApp');
+          const ok = await autoLoginTelegramMiniApp('maxbazar', (s) => {
+            setSession(s);
+            setIsSyncWaiting(false);
+            setShowLoginModal(false);
+          });
+          if (ok) return;
+        } catch {}
+      }
+    }
+
     setIsSyncWaiting(true);
     try {
       const r = await fetch('/api/apps/telegram-sync?action=create');
       const d = await r.json();
-      if (d?.sync_token) {
-        setSyncToken(d.sync_token);
-        const botUrl = `https://t.me/maxbazar_bot?start=sync_${d.sync_token}`;
+      const sToken = d.sync_token || d.token;
+      if (sToken) {
+        setSyncToken(sToken);
+        const botUrl = d.botUrl || `https://t.me/maxbazar_bot?start=auth_${sToken}`;
         setSyncBotUrl(botUrl);
 
         // Open Telegram Bot
@@ -387,13 +405,13 @@ export default function AppsHubPage() {
         // Poll for sync completion
         const startT = Date.now();
         const pollTimer = setInterval(async () => {
-          if (Date.now() - startT > 120000) {
+          if (Date.now() - startT > 180000) {
             clearInterval(pollTimer);
             setIsSyncWaiting(false);
             return;
           }
           try {
-            const pollRes = await fetch(`/api/apps/telegram-sync?action=poll&sync_token=${d.sync_token}`);
+            const pollRes = await fetch(`/api/apps/telegram-sync?action=poll&sync_token=${sToken}`);
             const pollData = await pollRes.json();
             if (pollData?.authenticated && pollData.session) {
               clearInterval(pollTimer);
@@ -401,9 +419,16 @@ export default function AppsHubPage() {
               setShowLoginModal(false);
               setSession(pollData.session);
               localStorage.setItem('maxbazar_unified_session', JSON.stringify(pollData.session));
+              localStorage.setItem('maxbazar_pubg_session', JSON.stringify(pollData.session));
+              localStorage.setItem('maxbazar_hok_session', JSON.stringify(pollData.session));
+              if (pollData.user) {
+                const { storeLocalAuth } = await import('@/lib/clientAuth');
+                storeLocalAuth(pollData.user);
+              }
+              window.dispatchEvent(new CustomEvent('maxbazar-auth-changed', { detail: pollData.session }));
             }
           } catch {}
-        }, 2000);
+        }, 1000);
       }
     } catch {
       setIsSyncWaiting(false);
@@ -1465,12 +1490,41 @@ export default function AppsHubPage() {
               {/* Telegram 1-Click Login Button */}
               <button
                 type="button"
-                onClick={() => setShowLoginModal(true)}
-                className="w-full sm:w-auto flex-1 py-3 px-5 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-purple-600 hover:from-sky-400 hover:to-purple-500 text-white font-black text-xs shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                onClick={startTelegramSync}
+                disabled={isSyncWaiting}
+                className="w-full sm:w-auto flex-1 py-3 px-5 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-purple-600 hover:from-sky-400 hover:to-purple-500 text-white font-black text-xs shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
               >
                 <Send className="w-4 h-4" />
-                <span>تېلېگرامما ئارقىلىق كىرىش</span>
+                <span>{isSyncWaiting ? 'تېلېگراممىدا تەستىقلاڭ...' : 'تېلېگرامما ئارقىلىق كىرىش'}</span>
               </button>
+            {isSyncWaiting && (
+              <div className="p-3.5 rounded-2xl bg-sky-950/40 border border-sky-500/40 text-center space-y-2 animate-pulse my-2">
+                <div className="flex items-center justify-center gap-2 text-sky-300 font-bold text-xs">
+                  <div className="w-3.5 h-3.5 border-2 border-sky-400 border-t-transparent rounded-full animate-spin" />
+                  <span>تېلېگراممىدا «Start» نى بېسىڭ...</span>
+                </div>
+                <p className="text-[11px] text-sky-200/80 leading-relaxed">
+                  تېلېگراممىدا ئېچىلغان <b>@maxbazar_bot</b> تا <b>Start</b> نى باسسىڭىز، بۇ يەرگە ئۆزلۈكىدىن كىرىدۇ.
+                </p>
+                <div className="flex items-center justify-center gap-2 pt-1">
+                  <a
+                    href={syncBotUrl || 'https://t.me/maxbazar_bot'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3.5 py-1.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs shadow-md transition active:scale-95"
+                  >
+                    تېلېگراممىنى قايتا ئېچىش ➔
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setIsSyncWaiting(false)}
+                    className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs"
+                  >
+                    بىكار قىلىش
+                  </button>
+                </div>
+              </div>
+            )}
             </div>
 
             <div className="pt-1">
@@ -1884,12 +1938,41 @@ export default function AppsHubPage() {
                   {/* Telegram 1-Click Login Button */}
                   <button
                     type="button"
-                    onClick={() => setShowLoginModal(true)}
-                    className="w-full sm:w-auto flex-1 py-3 px-5 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-purple-600 hover:from-sky-400 hover:to-purple-500 text-white font-black text-xs shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                    onClick={startTelegramSync}
+                    disabled={isSyncWaiting}
+                    className="w-full sm:w-auto flex-1 py-3 px-5 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-purple-600 hover:from-sky-400 hover:to-purple-500 text-white font-black text-xs shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                   >
                     <Send className="w-4 h-4" />
-                    <span>تېلېگرامما ئارقىلىق كىرىش</span>
+                    <span>{isSyncWaiting ? 'تېلېگراممىدا تەستىقلاڭ...' : 'تېلېگرامما ئارقىلىق كىرىش'}</span>
                   </button>
+            {isSyncWaiting && (
+              <div className="p-3.5 rounded-2xl bg-sky-950/40 border border-sky-500/40 text-center space-y-2 animate-pulse my-2">
+                <div className="flex items-center justify-center gap-2 text-sky-300 font-bold text-xs">
+                  <div className="w-3.5 h-3.5 border-2 border-sky-400 border-t-transparent rounded-full animate-spin" />
+                  <span>تېلېگراممىدا «Start» نى بېسىڭ...</span>
+                </div>
+                <p className="text-[11px] text-sky-200/80 leading-relaxed">
+                  تېلېگراممىدا ئېچىلغان <b>@maxbazar_bot</b> تا <b>Start</b> نى باسسىڭىز، بۇ يەرگە ئۆزلۈكىدىن كىرىدۇ.
+                </p>
+                <div className="flex items-center justify-center gap-2 pt-1">
+                  <a
+                    href={syncBotUrl || 'https://t.me/maxbazar_bot'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3.5 py-1.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs shadow-md transition active:scale-95"
+                  >
+                    تېلېگراممىنى قايتا ئېچىش ➔
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setIsSyncWaiting(false)}
+                    className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs"
+                  >
+                    بىكار قىلىش
+                  </button>
+                </div>
+              </div>
+            )}
                 </div>
 
                 <div className="pt-1">
