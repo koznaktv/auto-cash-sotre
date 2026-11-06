@@ -116,6 +116,11 @@ export default function SyriatelAppPage() {
 
   // Submit Syriatel Order
   const handlePlaceOrder = async () => {
+    const isPaused = true;
+    if (isPaused) {
+      setOrderError('⚠️ بۇ مۇلازىمەت ھازىرچە ۋاقتىنچە توختىتىلدى (رېمونت قىلىنىۋاتىدۇ).');
+      return;
+    }
     if (!session) {
       setShowLoginModal(true);
       return;
@@ -414,7 +419,7 @@ export default function SyriatelAppPage() {
 
           <button
             onClick={handlePlaceOrder}
-            disabled={isOrdering}
+            disabled={true}
             className="w-full py-4 rounded-2xl bg-gradient-to-r from-rose-500 via-red-500 to-rose-600 hover:brightness-110 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-rose-500/20 transition active:scale-95 cursor-pointer disabled:opacity-50"
           >
             {isOrdering ? (
@@ -425,7 +430,7 @@ export default function SyriatelAppPage() {
             ) : (
               <>
                 <Zap className="w-4 h-4 fill-white" />
-                <span>{activeTab === 'credit' ? 'دەرھال پۇل قاچىلاش' : 'دەرھال تورنى سېتىۋېلىش'}</span>
+                <span>⏸️ مۇلازىمەت ۋاقتىنچە توختىتىلدى</span>
               </>
             )}
           </button>

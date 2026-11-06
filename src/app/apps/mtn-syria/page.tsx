@@ -118,6 +118,11 @@ export default function MtnSyriaAppPage() {
 
   // Submit MTN Order
   const handlePlaceOrder = async () => {
+    const isPaused = true;
+    if (isPaused) {
+      setOrderError('⚠️ بۇ مۇلازىمەت ھازىرچە ۋاقتىنچە توختىتىلدى (رېمونت قىلىنىۋاتىدۇ).');
+      return;
+    }
     if (!session) {
       setShowLoginModal(true);
       return;
@@ -253,6 +258,17 @@ export default function MtnSyriaAppPage() {
             <div className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 drop-shadow-[0_0_20px_rgba(234,179,8,0.4)]">
               <Image src="/images/apps/mtn-syria/icon-512.png" alt="MTN" fill className="object-cover rounded-2xl" />
             </div>
+          </div>
+        </div>
+
+        {/* PAUSED NOTICE BANNER */}
+        <div className="p-4 rounded-3xl bg-rose-500/10 border border-rose-500/30 text-rose-200 text-xs flex items-center gap-3 shadow-lg">
+          <AlertCircle className="w-6 h-6 text-rose-400 shrink-0" />
+          <div className="space-y-0.5 text-right">
+            <span className="font-bold text-rose-300 block text-sm">⚠️ مۇلازىمەت ۋاقتىنچە توختىتىلدى</span>
+            <p className="text-[11px] text-rose-200/90 leading-relaxed">
+              MTN سۈرىيە مۇلازىمىتى ھازىرچە ۋاقتىنچە توختىتىلدى (تېخنىكىلىق رېمونت قىلىنىۋاتىدۇ). زاكاز تاپشۇرۇش ئېتىۋار بىلەن قايتا ئېچىلىدۇ.
+            </p>
           </div>
         </div>
 
@@ -416,7 +432,7 @@ export default function MtnSyriaAppPage() {
 
           <button
             onClick={handlePlaceOrder}
-            disabled={isOrdering}
+            disabled={true}
             className="w-full py-4 rounded-2xl bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 hover:brightness-110 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-yellow-500/20 transition active:scale-95 cursor-pointer disabled:opacity-50"
           >
             {isOrdering ? (
@@ -427,7 +443,7 @@ export default function MtnSyriaAppPage() {
             ) : (
               <>
                 <Zap className="w-4 h-4 fill-slate-950" />
-                <span>{activeTab === 'credit' ? 'دەرھال پۇل قاچىلاش' : 'دەرھال تورنى سېتىۋېلىش'}</span>
+                <span>⏸️ مۇلازىمەت ۋاقتىنچە توختىتىلدى</span>
               </>
             )}
           </button>

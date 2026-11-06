@@ -27,6 +27,8 @@ export interface ActiveApp {
   priceNote: string;
   features: string[];
   isMicroApp?: boolean;
+  isPaused?: boolean;
+  pausedMessage?: string;
 }
 
 export interface CategoryItem {
@@ -54,12 +56,12 @@ export const CATEGORIES: CategoryItem[] = [
   {
     id: 'apps',
     name: 'تېلېفون ۋە تور بۆلۈمى',
-    subtitle: 'MTN ۋە Syriatel تېلېفون-تور تەييار',
+    subtitle: 'ۋاقتىنچە توختىتىلدى',
     icon: Smartphone,
-    isReady: true,
-    countBadge: '2 مۇلازىمەت تەييار',
-    gradient: 'from-sky-500 via-blue-500 to-indigo-500',
-    glowColor: 'rgba(56, 189, 248, 0.35)'
+    isReady: false,
+    countBadge: 'ۋاقتىنچە توختىتىلدى',
+    gradient: 'from-slate-600 via-zinc-600 to-gray-700',
+    glowColor: 'rgba(100, 116, 139, 0.35)'
   },
   {
     id: 'cards',
@@ -175,14 +177,16 @@ export const ACTIVE_CATALOG: ActiveApp[] = [
     icon: '/images/apps/mtn-syria/icon-512.png',
     rating: 4.95,
     ordersCount: '28.1k+ قاچىلانغان',
-    speed: '5 سېكۇنت',
-    badge: '📶 رەسمىي MTN سۈرىيە',
-    badgeColor: 'from-yellow-500 to-amber-600',
+    speed: 'ۋاقتىنچە توختىتىلدى',
+    badge: '⏸️ ۋاقتىنچە توختىتىلدى',
+    badgeColor: 'from-rose-500 to-amber-600',
     webUrl: '/apps/mtn-syria',
     telegramAppUrl: 'https://t.me/maxbazar_bot/mtn',
-    priceNote: '$0.40 دىن باشلىنىدۇ (پۇل ۋە تور بولاقلىرى)',
+    priceNote: 'مۇلازىمەت ۋاقتىنچە توختىتىلدى',
     features: ['بىۋاسىتە تېلېفونغا قالدۇق قاچىلاش', 'سۈرئەتلىك تور بولاقلىرى (1GB - 100GB)', 'سېكۇنتتا يېتىپ بېرىش'],
-    isMicroApp: true
+    isMicroApp: true,
+    isPaused: true,
+    pausedMessage: 'بۇ مۇلازىمەت ھازىرچە ۋاقتىنچە توختىتىلدى (تېخنىكىلىق رېمونت قىلىنىۋاتىدۇ).'
   },
   {
     id: 'syriatel',
@@ -193,14 +197,16 @@ export const ACTIVE_CATALOG: ActiveApp[] = [
     icon: '/images/apps/syriatel/icon-512.png',
     rating: 4.98,
     ordersCount: '34.6k+ قاچىلانغان',
-    speed: '5 سېكۇنت',
-    badge: '⚡ رەسمىي سيريتل',
-    badgeColor: 'from-red-500 to-rose-600',
+    speed: 'ۋاقتىنچە توختىتىلدى',
+    badge: '⏸️ ۋاقتىنچە توختىتىلدى',
+    badgeColor: 'from-rose-500 to-amber-600',
     webUrl: '/apps/syriatel',
     telegramAppUrl: 'https://t.me/maxbazar_bot/syriatel',
-    priceNote: '$0.49 دىن باشلىنىدۇ (پۇل ۋە تور بولاقلىرى)',
+    priceNote: 'مۇلازىمەت ۋاقتىنچە توختىتىلدى',
     features: ['سۈرىيەتەل ياشباك ۋە كاش', 'سوپېر تور بولاقلىرى (1.5GB - 70GB)', 'ئاپتوماتىك دەلىللەش'],
-    isMicroApp: true
+    isMicroApp: true,
+    isPaused: true,
+    pausedMessage: 'بۇ مۇلازىمەت ھازىرچە ۋاقتىنچە توختىتىلدى (تېخنىكىلىق رېمونت قىلىنىۋاتىدۇ).'
   }
 ];
 

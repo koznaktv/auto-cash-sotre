@@ -91,6 +91,11 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { identity, player_id, package_id, package_name, price, app_id = 'honor-of-kings' } = body;
 
+    const cleanAppId = String(app_id || '').toLowerCase();
+    if (cleanAppId === 'mtn' || cleanAppId === 'mtn-syria' || cleanAppId === 'syriatel') {
+      return NextResponse.json({ ok: false, error: '⚠️ بۇ مۇلازىمەت ھازىرچە ۋاقتىنچە توختىتىلدى (تېخنىكىلىق رېمونت قىلىنىۋاتىدۇ).' }, { status: 400 });
+    }
+
     const cleanIdentity = (identity || '').trim().replace(/^@/, '');
     if (!cleanIdentity) {
       return NextResponse.json({ ok: false, error: 'ئالدى بىلەن تېلېگرامما كودى ئارقىلىق كىرىڭ' }, { status: 401 });

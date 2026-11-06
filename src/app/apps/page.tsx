@@ -940,13 +940,19 @@ export default function AppsHubPage() {
                             )}
                           </button>
 
-                          <Link
-                            href={game.webUrl}
-                            className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/20 transition active:scale-95"
-                          >
-                            <span>ئېچىش ۋە سېتىۋېلىش</span>
-                            <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
-                          </Link>
+                          {game.isPaused ? (
+                            <div className="py-2.5 px-3 rounded-xl bg-slate-800 text-slate-400 font-bold text-xs flex items-center justify-center gap-1.5 border border-slate-700 cursor-not-allowed">
+                              <span>⏸️ ۋاقتىنچە توختىتىلدى</span>
+                            </div>
+                          ) : (
+                            <Link
+                              href={game.webUrl}
+                              className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/20 transition active:scale-95"
+                            >
+                              <span>ئېچىش ۋە سېتىۋېلىش</span>
+                              <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
+                            </Link>
+                          )}
                         </div>
                       </div>
                     ))}
