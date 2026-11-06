@@ -472,6 +472,7 @@ export default function SideDrawer({
                   <Smartphone className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition" />
                 </span>
                 <span className="font-bold text-cyan-200 group-hover:text-cyan-100">مەۋھۇم نومۇر (SMS)</span>
+                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold">توختىتىلدى</span>
               </div>
               <span className="px-2 py-0.5 rounded-md bg-cyan-950/80 border border-cyan-500/40 text-[10px] text-cyan-300 font-bold">
                 يېڭى

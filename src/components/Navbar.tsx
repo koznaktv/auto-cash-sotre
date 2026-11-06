@@ -283,9 +283,10 @@ export default function Navbar({
                 <CreditCard className="w-4 h-4 text-amber-400" />
                 <span>{t('deposit')}</span>
               </Link>
-              <Link href="/numbers" className="hover:text-cyan-300 transition-colors flex items-center gap-1 text-cyan-300">
-                <Smartphone className="w-4 h-4 text-cyan-400" />
+              <Link href="/numbers" className="hover:text-amber-300 transition-colors flex items-center gap-1.5 text-slate-400 opacity-80">
+                <Smartphone className="w-4 h-4 text-amber-400/80" />
                 <span>مەۋھۇم نومۇر</span>
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold">توختىتىلدى</span>
               </Link>
               <Link href="/membership" className="hover:text-amber-400 transition-colors flex items-center gap-1 text-amber-300">
                 <Crown className="w-4 h-4 text-amber-400 animate-crown-wiggle" />

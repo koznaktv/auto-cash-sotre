@@ -507,6 +507,43 @@ export default function NumbersPage() {
     }
   };
 
+  const isNumbersPaused = true;
+  if (isNumbersPaused) {
+    return (
+      <SGCSubpageLayout
+        title="مەۋھۇم نومۇرلار (SMS دەلىللەش)"
+        subtitle="تېلېگرام، ۋاتساپ، ChatGPT، گۇگۇل، تىكتوك ۋە 180+ ئەپلەرنىڭ نەق مەيدان SMS كود مەۋھۇم نومۇرلىرى"
+      >
+        <div className="max-w-2xl mx-auto py-20 px-4 text-center space-y-6">
+          <div className="w-24 h-24 rounded-full bg-amber-500/10 border-2 border-amber-500/40 flex items-center justify-center mx-auto text-amber-500 shadow-[0_0_35px_rgba(245,158,11,0.25)] animate-pulse">
+            <Clock className="w-12 h-12" />
+          </div>
+          <div className="space-y-3">
+            <span className="inline-block px-4 py-1.5 rounded-full text-xs font-black bg-amber-500/15 border border-amber-500/40 text-amber-500">
+              ⚠️ ۋاقىتلىق توختىتىلدى (تېخنىكىلىق رېمونت ئېلىپ بېرىلىۋاتىدۇ)
+            </span>
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white">
+              مەۋھۇم نومۇر مۇلازىمىتى ۋاقىتلىق توختىتىلدى
+            </h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+              ھۆرمەتلىك خېرىدار، مەۋھۇم نومۇرلار بۆلىكى ھازىرچە تېخنىكىلىق رېمونت قىلىنىش ۋە لىنىيە كۈچەيتىلىش سەۋەبىدىن ۋاقىتلىق توختىتىلدى. پات يېقىندا يېڭى نۇسخىدا تېخىمۇ تېز قايتا ئېچىلىدۇ.
+            </p>
+          </div>
+          <div className="pt-4 flex items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => router.push('/')}
+              className="px-6 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-lg transition active:scale-95 inline-flex items-center gap-2 cursor-pointer"
+            >
+              <ArrowRight className="w-4 h-4" />
+              <span>باشبەتكە قايتىش</span>
+            </button>
+          </div>
+        </div>
+      </SGCSubpageLayout>
+    );
+  }
+
   const formatTimer = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;

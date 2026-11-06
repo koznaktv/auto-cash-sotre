@@ -107,7 +107,7 @@ function CallbackHandler() {
 
       const nextUrl = safeRedirectPath(searchParams.get('next'));
       setTimeout(() => {
-        router.replace(nextUrl);
+        window.location.href = nextUrl;
       }, 1000);
     }
 

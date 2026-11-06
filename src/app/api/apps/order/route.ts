@@ -492,7 +492,12 @@ export async function GET(req: NextRequest) {
       // Refresh filtered list after changes
       filtered = allOrders.filter((o) => {
         if (app_id && app_id !== 'all' && o.app_id !== app_id) return false;
-        if (!isAdmin && cleanId && (o.identity || '').toLowerCase() !== cleanId) return false;
+        if (!isAdmin && cleanId) {
+        const orderIden = (o.identity || '').toLowerCase().trim().replace(/^@/, '');
+        const orderUserId = (o.user_id || '').toLowerCase().trim();
+        const matches = userIdentities.has(orderIden) || (orderUserId && userIdentities.has(orderUserId));
+        if (!matches) return false;
+      }
         return true;
       });
     }
