@@ -36,21 +36,21 @@ export interface SyriatelProduct {
 }
 
 const SYRIATEL_CREDIT_PACKAGES: SyriatelProduct[] = [
-  { id: 401, name: '10,000 لىرا ياشباك قالدۇق', type: 'credit', sypAmount: 10000, price: 0.70 },
-  { id: 402, name: '25,000 لىرا ياشباك قالدۇق', type: 'credit', sypAmount: 25000, price: 1.75, tag: 'POPULAR' },
-  { id: 403, name: '50,000 لىرا ياشباك قالدۇق', type: 'credit', sypAmount: 50000, price: 3.45, isPopular: true },
-  { id: 404, name: '100,000 لىرا ياشباك قالدۇق', type: 'credit', sypAmount: 100000, price: 6.80, tag: 'BEST VALUE' },
-  { id: 405, name: '250,000 لىرا ياشباك قالدۇق', type: 'credit', sypAmount: 250000, price: 16.90 },
-  { id: 406, name: '500,000 لىرا ياشباك قالدۇق', type: 'credit', sypAmount: 500000, price: 33.50, tag: 'VIP' },
+  { id: 401, name: '10,000 لىرا ياشباك قالدۇق', type: 'credit', sypAmount: 10000, price: 0.63 },
+  { id: 402, name: '25,000 لىرا ياشباك قالدۇق', type: 'credit', sypAmount: 25000, price: 1.57, tag: 'POPULAR' },
+  { id: 403, name: '50,000 لىرا ياشباك قالدۇق', type: 'credit', sypAmount: 50000, price: 3.10, isPopular: true },
+  { id: 404, name: '100,000 لىرا ياشباك قالدۇق', type: 'credit', sypAmount: 100000, price: 6.12, tag: 'BEST VALUE' },
+  { id: 405, name: '250,000 لىرا ياشباك قالدۇق', type: 'credit', sypAmount: 250000, price: 15.21 },
+  { id: 406, name: '500,000 لىرا ياشباك قالدۇق', type: 'credit', sypAmount: 500000, price: 30.15, tag: 'VIP' },
 ];
 
 const SYRIATEL_BUNDLE_PACKAGES: SyriatelProduct[] = [
-  { id: 410, name: '1.5GB تېز كۈنلۈك تور', type: 'bundle', dataSize: '1.5GB', duration: '1 كۈن', price: 0.55 },
-  { id: 411, name: '4GB ھەپتىلىك تور', type: 'bundle', dataSize: '4GB', duration: '7 كۈن', price: 1.40 },
-  { id: 412, name: '8GB ئايلىق سوپېر تېزلىك', type: 'bundle', dataSize: '8GB', duration: '30 كۈن', price: 2.80, isPopular: true, tag: 'HOT' },
-  { id: 413, name: '16GB ئايلىق كۈچەيتىلگەن سۈرئەت', type: 'bundle', dataSize: '16GB', duration: '30 كۈن', price: 5.20, tag: 'SUPER' },
-  { id: 414, name: '35GB ئايلىق چەكسىز بەھرىمەن بولۇش', type: 'bundle', dataSize: '35GB', duration: '30 كۈن', price: 10.90 },
-  { id: 415, name: '70GB سوپېر VIP چەكسىز تور', type: 'bundle', dataSize: '70GB', duration: '30 كۈن', price: 19.90, tag: 'PRO MAX' },
+  { id: 410, name: '1.5GB تېز كۈنلۈك تور', type: 'bundle', dataSize: '1.5GB', duration: '1 كۈن', price: 0.49 },
+  { id: 411, name: '4GB ھەپتىلىك تور', type: 'bundle', dataSize: '4GB', duration: '7 كۈن', price: 1.26 },
+  { id: 412, name: '8GB ئايلىق سوپېر تېزلىك', type: 'bundle', dataSize: '8GB', duration: '30 كۈن', price: 2.52, isPopular: true, tag: 'HOT' },
+  { id: 413, name: '16GB ئايلىق كۈچەيتىلگەن سۈرئەت', type: 'bundle', dataSize: '16GB', duration: '30 كۈن', price: 4.68, tag: 'SUPER' },
+  { id: 414, name: '35GB ئايلىق چەكسىز بەھرىمەن بولۇش', type: 'bundle', dataSize: '35GB', duration: '30 كۈن', price: 9.81 },
+  { id: 415, name: '70GB سوپېر VIP چەكسىز تور', type: 'bundle', dataSize: '70GB', duration: '30 كۈن', price: 17.91, tag: 'PRO MAX' },
 ];
 
 export default function SyriatelAppPage() {

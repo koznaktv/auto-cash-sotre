@@ -52,20 +52,20 @@ interface HokPackage {
 }
 
 const HOK_PACKAGES: HokPackage[] = [
-  { id: 758, name: '16 Tokens', tokens: 16, bonus: 0, price: 0.22, category: 'tokens' },
-  { id: 764, name: '80 Tokens', tokens: 80, bonus: 8, price: 1.05, category: 'tokens', isPopular: true },
-  { id: 759, name: '240 Tokens', tokens: 240, bonus: 17, price: 2.99, category: 'tokens' },
-  { id: 761, name: '400 Tokens', tokens: 400, bonus: 32, price: 4.89, category: 'tokens' },
-  { id: 763, name: '560 Tokens', tokens: 560, bonus: 45, price: 6.85, category: 'tokens' },
-  { id: 765, name: '830 Tokens', tokens: 830, bonus: 72, price: 9.75, category: 'tokens', tag: 'BEST DEAL' },
-  { id: 757, name: '1245 Tokens', tokens: 1245, bonus: 125, price: 14.50, category: 'tokens' },
-  { id: 760, name: '2508 Tokens', tokens: 2508, bonus: 260, price: 28.90, category: 'tokens' },
-  { id: 762, name: '4180 Tokens', tokens: 4180, bonus: 450, price: 47.90, category: 'tokens' },
-  { id: 766, name: '8360 Tokens', tokens: 8360, bonus: 950, price: 94.50, category: 'tokens' },
-  { id: 772, name: 'Weekly Card', tokens: 100, bonus: 0, price: 1.15, category: 'bundles', tag: 'WEEKLY' },
-  { id: 773, name: 'Weekly Card Plus', tokens: 280, bonus: 0, price: 3.20, category: 'bundles', isPopular: true },
-  { id: 767, name: 'Double Token Lucky Bag', tokens: 60, bonus: 20, price: 0.35, category: 'bundles' },
-  { id: 769, name: 'Infernal Shadow Zilong Pack', tokens: 120, bonus: 0, price: 0.58, category: 'bundles', tag: 'HERO SKIN' },
+  { id: 758, name: '16 Tokens', tokens: 16, bonus: 0, price: 0.20, category: 'tokens' },
+  { id: 764, name: '80 Tokens', tokens: 80, bonus: 8, price: 0.95, category: 'tokens', isPopular: true },
+  { id: 759, name: '240 Tokens', tokens: 240, bonus: 17, price: 2.69, category: 'tokens' },
+  { id: 761, name: '400 Tokens', tokens: 400, bonus: 32, price: 4.40, category: 'tokens' },
+  { id: 763, name: '560 Tokens', tokens: 560, bonus: 45, price: 6.16, category: 'tokens' },
+  { id: 765, name: '830 Tokens', tokens: 830, bonus: 72, price: 8.77, category: 'tokens', tag: 'BEST DEAL' },
+  { id: 757, name: '1245 Tokens', tokens: 1245, bonus: 125, price: 13.05, category: 'tokens' },
+  { id: 760, name: '2508 Tokens', tokens: 2508, bonus: 260, price: 26.01, category: 'tokens' },
+  { id: 762, name: '4180 Tokens', tokens: 4180, bonus: 450, price: 43.11, category: 'tokens' },
+  { id: 766, name: '8360 Tokens', tokens: 8360, bonus: 950, price: 85.05, category: 'tokens' },
+  { id: 772, name: 'Weekly Card', tokens: 100, bonus: 0, price: 1.03, category: 'bundles', tag: 'WEEKLY' },
+  { id: 773, name: 'Weekly Card Plus', tokens: 280, bonus: 0, price: 2.88, category: 'bundles', isPopular: true },
+  { id: 767, name: 'Double Token Lucky Bag', tokens: 60, bonus: 20, price: 0.31, category: 'bundles' },
+  { id: 769, name: 'Infernal Shadow Zilong Pack', tokens: 120, bonus: 0, price: 0.52, category: 'bundles', tag: 'HERO SKIN' },
 ];
 
 const SHAMCASH_ADDRESS = 'efe8a2b200d66411c7c7e296369cbba8';

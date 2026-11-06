@@ -126,7 +126,7 @@ export const ACTIVE_CATALOG: ActiveApp[] = [
     badgeColor: 'from-amber-500 to-yellow-600',
     webUrl: '/apps/pubg',
     telegramAppUrl: 'https://t.me/maxbazar_bot/pubg',
-    priceNote: '$1.10 دىن باشلىنىدۇ (60 - 16,200 UC)',
+    priceNote: '$0.99 دىن باشلىنىدۇ (60 - 16,200 UC)',
     features: ['رەسمىي سەرۋەرگە بىۋاسىتە كىرىدۇ', 'ئويۇن كىملىكى (UID) تەكشۈرۈش', 'شامكەش شحن فوري'],
     isMicroApp: true
   },
@@ -144,7 +144,7 @@ export const ACTIVE_CATALOG: ActiveApp[] = [
     badgeColor: 'from-purple-500 to-indigo-600',
     webUrl: '/apps/honor-of-kings',
     telegramAppUrl: 'https://t.me/maxbazar_bot/hok',
-    priceNote: '$0.25 دىن باشلىنىدۇ (16 - 8,000 Token)',
+    priceNote: '$0.20 دىن باشلىنىدۇ (16 - 8,000 Token)',
     features: ['بىخەتەر ۋە رەسمىي يول', 'ئاپتوماتىك لاقىم (Nickname) دەلىللەش', 'سېكۇنتتا يېتىپ بارىدۇ'],
     isMicroApp: true
   },
@@ -162,7 +162,7 @@ export const ACTIVE_CATALOG: ActiveApp[] = [
     badgeColor: 'from-blue-500 to-indigo-600',
     webUrl: '/apps/mobile-legends',
     telegramAppUrl: 'https://t.me/maxbazar_bot/mlbb',
-    priceNote: '$0.95 دىن باشلىنىدۇ (50 - 5,000 ئالماس)',
+    priceNote: '$0.27 دىن باشلىنىدۇ (10 - 6,000 ئالماس)',
     features: ['رەسمىي سەرۋەرگە بىۋاسىتە ئالماس', 'ھەپتىلىك ئالماس كارتىسى (Pass)', 'شامكەش شحن فوري'],
     isMicroApp: true
   },
@@ -180,7 +180,7 @@ export const ACTIVE_CATALOG: ActiveApp[] = [
     badgeColor: 'from-yellow-500 to-amber-600',
     webUrl: '/apps/mtn-syria',
     telegramAppUrl: 'https://t.me/maxbazar_bot/mtn',
-    priceNote: '$0.45 دىن باشلىنىدۇ (پۇل ۋە تور بولاقلىرى)',
+    priceNote: '$0.40 دىن باشلىنىدۇ (پۇل ۋە تور بولاقلىرى)',
     features: ['بىۋاسىتە تېلېفونغا قالدۇق قاچىلاش', 'سۈرئەتلىك تور بولاقلىرى (1GB - 100GB)', 'سېكۇنتتا يېتىپ بېرىش'],
     isMicroApp: true
   },
@@ -198,7 +198,7 @@ export const ACTIVE_CATALOG: ActiveApp[] = [
     badgeColor: 'from-red-500 to-rose-600',
     webUrl: '/apps/syriatel',
     telegramAppUrl: 'https://t.me/maxbazar_bot/syriatel',
-    priceNote: '$0.55 دىن باشلىنىدۇ (پۇل ۋە تور بولاقلىرى)',
+    priceNote: '$0.49 دىن باشلىنىدۇ (پۇل ۋە تور بولاقلىرى)',
     features: ['سۈرىيەتەل ياشباك ۋە كاش', 'سوپېر تور بولاقلىرى (1.5GB - 70GB)', 'ئاپتوماتىك دەلىللەش'],
     isMicroApp: true
   }

@@ -37,22 +37,22 @@ export interface MtnProduct {
 }
 
 const MTN_CREDIT_PACKAGES: MtnProduct[] = [
-  { id: 301, name: '10,000 لىرا قالدۇق', type: 'credit', sypAmount: 10000, price: 0.70 },
-  { id: 302, name: '25,000 لىرا قالدۇق', type: 'credit', sypAmount: 25000, price: 1.75, tag: 'POPULAR' },
-  { id: 303, name: '50,000 لىرا قالدۇق', type: 'credit', sypAmount: 50000, price: 3.45, isPopular: true },
-  { id: 304, name: '100,000 لىرا قالدۇق', type: 'credit', sypAmount: 100000, price: 6.80, tag: 'BEST VALUE' },
-  { id: 305, name: '250,000 لىرا قالدۇق', type: 'credit', sypAmount: 250000, price: 16.90 },
-  { id: 306, name: '500,000 لىرا قالدۇق', type: 'credit', sypAmount: 500000, price: 33.50, tag: 'VIP' },
+  { id: 301, name: '10,000 لىرا قالدۇق', type: 'credit', sypAmount: 10000, price: 0.63 },
+  { id: 302, name: '25,000 لىرا قالدۇق', type: 'credit', sypAmount: 25000, price: 1.57, tag: 'POPULAR' },
+  { id: 303, name: '50,000 لىرا قالدۇق', type: 'credit', sypAmount: 50000, price: 3.10, isPopular: true },
+  { id: 304, name: '100,000 لىرا قالدۇق', type: 'credit', sypAmount: 100000, price: 6.12, tag: 'BEST VALUE' },
+  { id: 305, name: '250,000 لىرا قالدۇق', type: 'credit', sypAmount: 250000, price: 15.21 },
+  { id: 306, name: '500,000 لىرا قالدۇق', type: 'credit', sypAmount: 500000, price: 30.15, tag: 'VIP' },
 ];
 
 const MTN_BUNDLE_PACKAGES: MtnProduct[] = [
-  { id: 310, name: '1GB كۈنلۈك تېز تور', type: 'bundle', dataSize: '1GB', duration: '1 كۈن', price: 0.45 },
-  { id: 311, name: '3GB 10 كۈنلۈك تور', type: 'bundle', dataSize: '3GB', duration: '10 كۈن', price: 1.20 },
-  { id: 312, name: '5GB ئايلىق سوپېر تېزلىك', type: 'bundle', dataSize: '5GB', duration: '30 كۈن', price: 1.90, isPopular: true, tag: 'HOT' },
-  { id: 313, name: '10GB ئايلىق يۇقىرى سۈرئەت', type: 'bundle', dataSize: '10GB', duration: '30 كۈن', price: 3.60, tag: 'RECOMMENDED' },
-  { id: 314, name: '25GB ئايلىق مەخسۇس ئېقىم', type: 'bundle', dataSize: '25GB', duration: '30 كۈن', price: 7.90 },
-  { id: 315, name: '50GB ئايلىق چوڭ سىغىم', type: 'bundle', dataSize: '50GB', duration: '30 كۈن', price: 14.50, tag: 'PRO' },
-  { id: 316, name: '100GB VIP چەكسىز تور', type: 'bundle', dataSize: '100GB', duration: '30 كۈن', price: 27.90 },
+  { id: 310, name: '1GB كۈنلۈك تېز تور', type: 'bundle', dataSize: '1GB', duration: '1 كۈن', price: 0.40 },
+  { id: 311, name: '3GB 10 كۈنلۈك تور', type: 'bundle', dataSize: '3GB', duration: '10 كۈن', price: 1.08 },
+  { id: 312, name: '5GB ئايلىق سوپېر تېزلىك', type: 'bundle', dataSize: '5GB', duration: '30 كۈن', price: 1.71, isPopular: true, tag: 'HOT' },
+  { id: 313, name: '10GB ئايلىق يۇقىرى سۈرئەت', type: 'bundle', dataSize: '10GB', duration: '30 كۈن', price: 3.24, tag: 'RECOMMENDED' },
+  { id: 314, name: '25GB ئايلىق مەخسۇس ئېقىم', type: 'bundle', dataSize: '25GB', duration: '30 كۈن', price: 7.11 },
+  { id: 315, name: '50GB ئايلىق چوڭ سىغىم', type: 'bundle', dataSize: '50GB', duration: '30 كۈن', price: 13.05, tag: 'PRO' },
+  { id: 316, name: '100GB VIP چەكسىز تور', type: 'bundle', dataSize: '100GB', duration: '30 كۈن', price: 25.11 },
 ];
 
 export default function MtnSyriaAppPage() {

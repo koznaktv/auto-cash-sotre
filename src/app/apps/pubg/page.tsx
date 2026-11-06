@@ -55,28 +55,28 @@ export interface PubgPackage {
 }
 
 const PUBG_PACKAGES: PubgPackage[] = [
-  // 1. UC PACKAGES (CALIBRATED WITH USER'S STRATEGY: 18-22% on small, 6-10% on large)
-  { id: 60, name: '60 UC', uc: 60, bonus: 0, price: 1.10, category: 'uc' },
-  { id: 54, name: '325 UC (300 + 25)', uc: 300, bonus: 25, price: 5.60, category: 'uc', tag: 'BEST VALUE' },
-  { id: 62, name: '660 UC (600 + 60)', uc: 600, bonus: 60, price: 10.95, category: 'uc' },
-  { id: 67, name: '985 UC (900 + 85)', uc: 900, bonus: 85, price: 16.20, category: 'uc' },
-  { id: 49, name: '1320 UC (1200 + 120)', uc: 1200, bonus: 120, price: 21.50, category: 'uc' },
-  { id: 51, name: '1800 UC (1500 + 300)', uc: 1500, bonus: 300, price: 25.90, category: 'uc', tag: 'BONUS' },
-  { id: 53, name: '2460 UC (2100 + 360)', uc: 2100, bonus: 360, price: 36.50, category: 'uc' },
-  { id: 57, name: '3850 UC (3000 + 850)', uc: 3000, bonus: 850, price: 49.90, category: 'uc', tag: 'DISCOUNT' },
-  { id: 59, name: '5650 UC (4500 + 1150)', uc: 4500, bonus: 1150, price: 75.90, category: 'uc' },
-  { id: 65, name: '8100 UC (6000 + 2100)', uc: 6000, bonus: 2100, price: 96.90, category: 'uc', isPopular: true, tag: 'MEGA PACK' },
-  { id: 48, name: '11950 UC', uc: 11950, bonus: 0, price: 149.90, category: 'uc' },
-  { id: 50, name: '16200 UC (12000 + 4200)', uc: 12000, bonus: 4200, price: 197.50, category: 'uc', tag: 'VIP WHALE' },
+  // 1. UC PACKAGES (10% DISCOUNT APPLIED)
+  { id: 60, name: '60 UC', uc: 60, bonus: 0, price: 0.99, category: 'uc' },
+  { id: 54, name: '325 UC (300 + 25)', uc: 300, bonus: 25, price: 5.04, category: 'uc', tag: 'BEST VALUE' },
+  { id: 62, name: '660 UC (600 + 60)', uc: 600, bonus: 60, price: 9.85, category: 'uc' },
+  { id: 67, name: '985 UC (900 + 85)', uc: 900, bonus: 85, price: 14.58, category: 'uc' },
+  { id: 49, name: '1320 UC (1200 + 120)', uc: 1200, bonus: 120, price: 19.35, category: 'uc' },
+  { id: 51, name: '1800 UC (1500 + 300)', uc: 1500, bonus: 300, price: 23.31, category: 'uc', tag: 'BONUS' },
+  { id: 53, name: '2460 UC (2100 + 360)', uc: 2100, bonus: 360, price: 32.85, category: 'uc' },
+  { id: 57, name: '3850 UC (3000 + 850)', uc: 3000, bonus: 850, price: 44.91, category: 'uc', tag: 'DISCOUNT' },
+  { id: 59, name: '5650 UC (4500 + 1150)', uc: 4500, bonus: 1150, price: 68.31, category: 'uc' },
+  { id: 65, name: '8100 UC (6000 + 2100)', uc: 6000, bonus: 2100, price: 87.21, category: 'uc', isPopular: true, tag: 'MEGA PACK' },
+  { id: 48, name: '11950 UC', uc: 11950, bonus: 0, price: 134.91, category: 'uc' },
+  { id: 50, name: '16200 UC (12000 + 4200)', uc: 12000, bonus: 4200, price: 177.75, category: 'uc', tag: 'VIP WHALE' },
 
   // 2. PASSES & MEMBERSHIPS (حزم واشتراكات Pubg)
-  { id: 857, name: 'Elite Pass LV1-50', uc: 360, bonus: 0, price: 6.49, category: 'passes', tag: 'A-SERIES PASS', image: '/images/services/pubg_memberships.webp' },
-  { id: 856, name: 'Elite Pass LV1-100', uc: 720, bonus: 0, price: 12.90, category: 'passes', isPopular: true, tag: 'FULL PASS', image: '/images/services/pubg_memberships.webp' },
-  { id: 858, name: 'Elite Pass Plus LV1-100', uc: 1920, bonus: 0, price: 29.90, category: 'passes', tag: 'ELITE PLUS', image: '/images/services/pubg_memberships.webp' },
-  { id: 861, name: 'برايم ئەزالىق (Prime 1 Mo)', uc: 150, bonus: 0, price: 1.15, category: 'passes', tag: 'DAILY UC' },
-  { id: 865, name: 'برايم بلس (Prime Plus 1 Mo)', uc: 900, bonus: 0, price: 10.80, category: 'passes', tag: '300 UC + CRATES', isPopular: true },
-  { id: 867, name: 'برايم بلس 3 ئاي (Prime Plus 3 Mo)', uc: 2700, bonus: 0, price: 31.90, category: 'passes' },
-  { id: 859, name: 'تۇنجى قېتىملىق سوۋغات بولىقى (First Pack)', uc: 60, bonus: 0, price: 1.15, category: 'passes' },
+  { id: 857, name: 'Elite Pass LV1-50', uc: 360, bonus: 0, price: 5.84, category: 'passes', tag: 'A-SERIES PASS', image: '/images/services/pubg_memberships.webp' },
+  { id: 856, name: 'Elite Pass LV1-100', uc: 720, bonus: 0, price: 11.61, category: 'passes', isPopular: true, tag: 'FULL PASS', image: '/images/services/pubg_memberships.webp' },
+  { id: 858, name: 'Elite Pass Plus LV1-100', uc: 1920, bonus: 0, price: 26.91, category: 'passes', tag: 'ELITE PLUS', image: '/images/services/pubg_memberships.webp' },
+  { id: 861, name: 'برايم ئەزالىق (Prime 1 Mo)', uc: 150, bonus: 0, price: 1.03, category: 'passes', tag: 'DAILY UC' },
+  { id: 865, name: 'برايم بلس (Prime Plus 1 Mo)', uc: 900, bonus: 0, price: 9.72, category: 'passes', tag: '300 UC + CRATES', isPopular: true },
+  { id: 867, name: 'برايم بلس 3 ئاي (Prime Plus 3 Mo)', uc: 2700, bonus: 0, price: 28.71, category: 'passes' },
+  { id: 859, name: 'تۇنجى قېتىملىق سوۋغات بولىقى (First Pack)', uc: 60, bonus: 0, price: 1.03, category: 'passes' },
 ];
 
 export default function PubgAppPage() {
