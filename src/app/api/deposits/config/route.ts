@@ -13,7 +13,8 @@ const NO_CACHE_HEADERS = {
 export async function GET() {
   try {
     const settings = await getSystemSettingsAsync();
-    const shamcashAddress = (settings.shamcashAddress || process.env.SHAMCASH_ADDRESS || 'efe8a2b200d66411c7c7e296369cbba8').trim();
+    const rawAddr = (settings.shamcashAddress || process.env.SHAMCASH_ADDRESS || '').trim();
+    const shamcashAddress = (!rawAddr || rawAddr.includes('084c7e47')) ? 'efe8a2b200d66411c7c7e296369cbba8' : rawAddr;
     const baseRate = Number(settings.shamcashBaseRate || 14375);
     const margin = Number(settings.shamcashRateMargin !== undefined ? settings.shamcashRateMargin : 15);
     const exchangeRate = Number(settings.shamcashExchangeRate || (baseRate + margin));

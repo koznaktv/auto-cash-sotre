@@ -109,6 +109,7 @@ export default function AppsHubPage() {
   const [isVerifyingTalon, setIsVerifyingTalon] = useState(false);
   const [talonFeedback, setTalonFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
   const [copiedShamAddress, setCopiedShamAddress] = useState(false);
+  const [shamAddress, setShamAddress] = useState<string>('efe8a2b200d66411c7c7e296369cbba8');
 
   // Orders Page Filter & Search State
   const [ordersHistory, setOrdersHistory] = useState<any[]>([]);
@@ -130,6 +131,7 @@ export default function AppsHubPage() {
 
   // Load Session and refresh live unified balance
   useEffect(() => {
+    fetch('/api/deposits/config').then(r => r.json()).then(cfg => { if (cfg?.shamcashAddress) setShamAddress(cfg.shamcashAddress); }).catch(() => {});
     const loadSessionAndOrders = async () => {
       try {
         let rawUser: any = null;
@@ -281,7 +283,7 @@ export default function AppsHubPage() {
 
   // Handle Copy Shamcash Address
   const handleCopyShamcashAddress = () => {
-    navigator.clipboard.writeText('efe8a2b200d66411c7c7e296369cbba8');
+    navigator.clipboard.writeText(shamAddress);
     setCopiedShamAddress(true);
     setTimeout(() => setCopiedShamAddress(false), 2000);
   };
@@ -1661,7 +1663,7 @@ export default function AppsHubPage() {
                 <div className="text-right space-y-0.5">
                   <span className="text-[10px] text-slate-400 block font-bold">رەسمىي شامكەش ئادرېسىمىز:</span>
                   <span className="font-mono text-amber-300 font-bold text-xs select-all">
-                    efe8a2b200d66411c7c7e296369cbba8
+                    {shamAddress}
                   </span>
                 </div>
                 <button
