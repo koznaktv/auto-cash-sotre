@@ -220,12 +220,60 @@ export function getServicesForCategory(catKey: string): ServiceItem[] {
   return all.filter((s) => s.category === catKey);
 }
 
+export function isMlbbServiceId(serviceId = '', serviceName = ''): boolean {
+  const id = (serviceId || '').toLowerCase();
+  const name = (serviceName || '').toLowerCase();
+  return (
+    id.includes('mobile_legends') ||
+    id === 'mlbb' ||
+    name.includes('mobile legends') ||
+    name.includes('mlbb')
+  );
+}
+
+export function getMlbbSuspendedView() {
+  const text = [
+    '⚠️ <b>بۇ يەردە مۇلازىمەت ۋاقىتلىق توختىتىلدى!</b>',
+    '━━━━━━━━━━━━━━━━━━━',
+    'Mobile Legends (MLBB) مۇلازىمىتىنىڭ بارلىق <b>3 خىل سەرۋىرى (🌐 Global، 🇹🇷 Turkey، ⚡ Special)</b> تېخىمۇ ئەرزان باھادا ۋە سېكۇنتتا قاچىلىنىدىغان ھالەتتە <b>MAX-BAZAR</b> بازىرىمىزغا يۆتكەلدى.',
+    '',
+    '• 🌐 <b>1. خەلقئارالىق سەرۋېر (Global):</b> پۈتۈن دۇنيا مىقياسىدىكى بارلىق ئويۇنچىلار ئۈچۈن',
+    '• 🇹🇷 <b>2. تۈركىيە سەرۋىرى (Turkey):</b> تەننەرخى ئەڭ ئەرزان ئېتىبارلىق لىنىيە',
+    '• ⚡ <b>3. ئالاھىدە تېز سەرۋېر (Special):</b> 14 ئالماستىن باشلىنىدىغان تېز بولاقلار',
+    '',
+    '🚀 <b>ماكس بازاردىن بىۋاسىتە سېتىۋېلىش ئۈچۈن تۆۋەندىكى كۇنۇپكىنى بېسىڭ:</b>',
+  ].join('\n');
+
+  const keyboard = {
+    inline_keyboard: [
+      [
+        {
+          text: '🚀 MAX-BAZAR دىن سېتىۋېلىش (بىۋاسىتە كىرىش) ➔',
+          web_app: { url: 'https://www.auto-cash.app/apps/mobile-legends' },
+        },
+      ],
+      [
+        {
+          text: '🌐 تور كۆرگۈچتە ئېچىش ↗',
+          url: 'https://www.auto-cash.app/apps/mobile-legends',
+        },
+      ],
+      [
+        { text: '👈 باشقا ئويۇنلارغا قايتىش 🎮', callback_data: 'tgcat:games' },
+        { text: '🏠 دۇكان باش تىزىملىكى', callback_data: 'bot_shopping_menu' },
+      ],
+    ],
+  };
+
+  return { text, keyboard };
+}
+
 export function formatCleanGameTitle(serviceId: string, rawName: string): string {
   const id = (serviceId || '').toLowerCase();
   const name = (rawName || '').toLowerCase();
 
   if (id.includes('mobile_legends') || name.includes('mobile legends')) {
-    return '💎 Mobile Legends: Bang Bang';
+    return '💎 Mobile Legends (🚀 MAX-BAZAR دىن ئېلىڭ)';
   }
   if (id.includes('pubg') || name.includes('pubg')) {
     return '🎮 PUBG Mobile (UC قاچىلاش)';
@@ -839,6 +887,12 @@ ${isEmpty ? emptyNotice : `📌 <b>${choosePrompt}</b>\n<i>${countPrompt}</i>`}
       return true;
     }
 
+    if (isMlbbServiceId(service.id, service.name)) {
+      const { text: mlbbNotice, keyboard: mlbbKb } = getMlbbSuspendedView();
+      await showOrEditMessage(chatId, messageId, mlbbNotice, mlbbKb);
+      return true;
+    }
+
     const user = await getOrCreateTelegramUser(fromId, fromUser, cq.from?.first_name);
     const balanceStr = Number(user.balance || 0).toFixed(2);
 
@@ -941,6 +995,12 @@ ${service.description ? `<i>${service.description}</i>` : ''}
     const pkg = service?.packages.find((p) => p.id === pkgId);
     if (!service || !pkg) {
       await answerCallbackQuery(cqId, '❌ Package not found', true);
+      return true;
+    }
+
+    if (isMlbbServiceId(service.id, service.name)) {
+      const { text: mlbbNotice, keyboard: mlbbKb } = getMlbbSuspendedView();
+      await showOrEditMessage(chatId, messageId, mlbbNotice, mlbbKb);
       return true;
     }
 
@@ -1080,6 +1140,14 @@ ${service.description ? `<i>${service.description}</i>` : ''}
                            lang === 'ru' ? '⚠️ Время сессии истекло, выберите заново.' :
                            '⚠️ زاكاز ۋاقتى ئۆتۈپ كەتتى، قايتا تاللاڭ.';
       await answerCallbackQuery(cqId, expiredAlert, true);
+      return true;
+    }
+
+    if (isMlbbServiceId(session.serviceId, session.serviceName)) {
+      botOrderSessions.delete(fromId);
+      if (chatId) botOrderSessions.delete(chatId);
+      const { text: mlbbNotice, keyboard: mlbbKb } = getMlbbSuspendedView();
+      await showOrEditMessage(chatId, messageId, mlbbNotice, mlbbKb);
       return true;
     }
     await answerCallbackQuery(cqId, '⏳ Processing order...');
@@ -1608,6 +1676,17 @@ export async function handleShopTextMessage(
   const lang: BotLanguage = getUserLanguage(from?.id || chatId) || 'ug';
 
   if (activeSession && activeSession.step !== 'ready_to_confirm') {
+    if (isMlbbServiceId(activeSession.serviceId, activeSession.serviceName)) {
+      botOrderSessions.delete(from?.id || chatId);
+      if (chatId) botOrderSessions.delete(chatId);
+      const { text: mlbbNotice, keyboard: mlbbKb } = getMlbbSuspendedView();
+      await sendTelegramMessage(chatId, mlbbNotice, {
+        parse_mode: 'HTML',
+        reply_markup: mlbbKb,
+      });
+      return true;
+    }
+
     if (activeSession.step === 'awaiting_target_account') {
       activeSession.targetAccount = text;
 
