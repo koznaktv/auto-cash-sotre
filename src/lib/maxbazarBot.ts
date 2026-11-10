@@ -1014,11 +1014,7 @@ function getMenuContent(
   if (menuId === 'games:mlbb') {
     const text =
       `⚔️ <b>Mobile Legends: Bang Bang</b>\n\n` +
-      `🕹️ <b>سېرۋىر بۆلىكىنى تاللاڭ:</b>\n\n` +
-      `• <b>💎 گىلوبال:</b> پۈتۈن دۇنيا گىلوبال سېرۋىر ئالماس قاچىلاش\n` +
-      `• <b>💎 تۈركىيە:</b> مەخسۇس تۈركىيە سېرۋىرىدىكى ھېساباتلار ئۈچۈن قولايلىق باھا\n` +
-      `• <b>💎 ئاسىيا فىلىپپىن:</b> ئاسىيا / فىلىپپىن سېرۋىرى ئۈچۈن ئالاھىدە ئېتىبارلىق باھا\n` +
-      `• <b>🎟️ ھەپتىلىك كارتا ۋە ئەزالىقلار:</b> ھەپتىلىك ئالماس پاسس، تۇۋايلايت ۋە سەرخىل بوغچىلار`;
+      `🕹️ <b>سېرۋىر بۆلىكىنى تاللاڭ:</b>`;
 
     const inline_keyboard: any[][] = [
       [{ text: '💎 گىلوبال', callback_data: 'games:mlbb_global' }],
@@ -1036,10 +1032,8 @@ function getMenuContent(
   // 7.2 PUBG Mobile Submenu
   if (menuId === 'games:pubg') {
     const text =
-      `🪂 <b>PUBG Mobile UC ۋە ئەزالىق</b>\n\n` +
-      `تۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:\n\n` +
-      `• <b>🪙 PUBG UC قاچىلاش:</b> 60 UC تىن 8100 UC غىچە بىۋاسىتە Player ID قاچىلاش\n` +
-      `• <b>🎟️ كىملىك / ئەزالىق ۋە پاسس:</b> Royale Pass, Prime, Prime Plus (1, 3, 6, 12 ئايلىق)`;
+      `🪂 <b>PUBG Mobile</b>\n\n` +
+      `📦 <b>ئېھتىياجلىق تۈرنى تاللاڭ:</b>`;
 
     const inline_keyboard: any[][] = [
       [{ text: '🪙 PUBG UC قاچىلاش (Direct UC)', callback_data: 'games:pubg_uc' }],
@@ -1055,10 +1049,8 @@ function getMenuContent(
   // 7.3 Free Fire Submenu
   if (menuId === 'games:freefire') {
     const text =
-      `🔥 <b>Garena Free Fire ئالماس ۋە ئەزالىق</b>\n\n` +
-      `تۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:\n\n` +
-      `• <b>💎 Free Fire ئالماس قاچىلاش:</b> Player ID ئارقىلىق 110 تىن 2420 ئالماسقىچە\n` +
-      `• <b>🎟️ ھەپتىلىك ۋە ئايلىق ئەزالىق:</b> Weekly Membership, Monthly Membership, Booyah Pass`;
+      `🔥 <b>Garena Free Fire</b>\n\n` +
+      `📦 <b>ئېھتىياجلىق تۈرنى تاللاڭ:</b>`;
 
     const inline_keyboard: any[][] = [
       [{ text: '💎 Free Fire ئالماس قاچىلاش (Diamonds)', callback_data: 'games:freefire_diamonds' }],
@@ -1074,10 +1066,8 @@ function getMenuContent(
   // 7.5 Honor of Kings Submenu
   if (menuId === 'games:hok') {
     const text =
-      `👑 <b>Honor of Kings توكېن ۋە پاسسلار</b>\n\n` +
-      `تۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:\n\n` +
-      `• <b>👑 توكېن قاچىلاش:</b> 16 Tokens تىن 8360 Tokens غىچە قاچىلاش\n` +
-      `• <b>🎟️ ھەپتىلىك كارتا ۋە پاسس:</b> Weekly Card, Weekly Card Plus, Lucky Bag, Rebate Packs`;
+      `👑 <b>Honor of Kings</b>\n\n` +
+      `📦 <b>ئېھتىياجلىق تۈرنى تاللاڭ:</b>`;
 
     const inline_keyboard: any[][] = [
       [{ text: '👑 Honor of Kings توكېن قاچىلاش (Tokens)', callback_data: 'games:hok_tokens' }],
@@ -1093,10 +1083,8 @@ function getMenuContent(
   // 7.6 Arena Breakout Submenu
   if (menuId === 'games:arena') {
     const text =
-      `🛡️ <b>Arena Breakout Bonds ۋە پاسسلار</b>\n\n` +
-      `تۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:\n\n` +
-      `• <b>💰 Bonds قاچىلاش:</b> 66 Bonds تىن 20460 Bonds غىچە قاچىلاش\n` +
-      `• <b>🛡️ قوغداش قېپى ۋە باتتىل پاسس:</b> Bulletproof Case, Composite Case, Monthly/Quarterly Battle Pass`;
+      `🛡️ <b>Arena Breakout</b>\n\n` +
+      `📦 <b>ئېھتىياجلىق تۈرنى تاللاڭ:</b>`;
 
     const inline_keyboard: any[][] = [
       [{ text: '💰 Arena Breakout Bonds قاچىلاش (Bonds)', callback_data: 'games:arena_bonds' }],
@@ -1112,11 +1100,8 @@ function getMenuContent(
   // 7.7 Clash of Clans Submenu
   if (menuId === 'games:clash') {
     const text =
-      `🏰 <b>Clash of Clans ئالتۇن بېلەت ۋە پاسسلار</b>\n\n` +
-      `تۆۋەندىكى تۈردىن كىرىپ ئېھتىياجلىق بېلەتنى تاللاڭ:\n\n` +
-      `• <b>🎟️ ئالتۇن بېلەت (Gold Pass):</b> فئة A, فئة B, فئة C\n` +
-      `• <b>🎪 تەبرىكلەش بېلىتى (Event Pass):</b> تذكرة الحدث\n\n` +
-      `ℹ️ <i>بۇ مەھسۇلات نۆۋەتتە Max Store تەمىنلىگۈچى تەرەپتە تەمىنلەنگەن.</i>`;
+      `🏰 <b>Clash of Clans</b>\n\n` +
+      `📦 <b>ئېھتىياجلىق تۈرنى تاللاڭ:</b>`;
 
     const inline_keyboard: any[][] = [
       [{ text: '🏰 Clash of Clans ئالتۇن بېلەت ۋە پاسسلار', callback_data: 'games:clash_passes' }],
@@ -1157,25 +1142,14 @@ function getMenuContent(
     let text = '';
     const inline_keyboard: any[][] = [];
 
-    let extraDescription = '';
-    if (menuId === 'games:mlbb_passes') {
-      extraDescription =
-        `📋 <b>كارتىلارنىڭ ئىشلىتىلىشى ۋە خۇسۇسىيىتى:</b>\n` +
-        `• <b>ھەپتىلىك ئالماس پاسس:</b> كۈندىلىك ئالماس ۋە قوشۇمچە سەرخىل مۇكاپاتلارنى ئېلىشقا ئىشلىتىلىدۇ.\n` +
-        `• <b>Twilight ئەزالىق پاسسى:</b> ئالاھىدە مەخسۇس Skin، پەللە كارتىسى ۋە قوشۇمچە ئىمتىيازلارنى ئاچىدۇ.\n` +
-        `• <b>سەرخىل بوغچىلار:</b> سېھىرلىك چاڭ، خىرالار ۋە قەھرىمان دەرىجىسى ئۆستۈرۈشكە ئىشلىتىلىدۇ.\n\n`;
-    }
-
     if (isTopup || isWifi) {
       text =
         `${item.name}\n\n` +
-        extraDescription +
         `💳 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
         `📦 <b>تۆۋەندىن ئېھتىياجلىق بولاقنى تاللاڭ:</b>`;
     } else {
       text =
         `${item.name}\n\n` +
-        extraDescription +
         `💰 <b>باھا تۈرى:</b> <b>${providerTag}</b>\n` +
         `💳 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
         `💡 <b>كۆرسەتمە:</b> ئىككى توربەتنىڭ باھا ھالىتى ئوخشىمايدۇ، خالىغاننى ئالماشتۇرۇپ سىناپ بېقىڭ:\n` +
