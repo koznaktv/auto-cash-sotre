@@ -34,7 +34,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   topup_balance: '5008131840813303418', // 🇸🇾 قالدۇق قاچىلاش / شامكەش (Free Syria Flag animated video sticker)
   orders: '5204324795843375748', // 🛍 زاكازلىرىم (Animated 3D Shopping bag)
   balance_history: '5204213079449038715', // 🛍 قالدۇق تارىخى (Animated Shopping bag)
-  lang: '5201732344993576400', // 🌐 تىل تاللاش (Animated Globe)
+  lang: '5397753673130463064', // 🌏 تىل تاللاش (Animated Earth Globe)
   channel: '6127360976250474761', // 📢 قانال (Animated 3D Megaphone)
   home: '5416041192905265756', // 🏠 باش بەت (Animated 3D Home)
   back: '5807540866528581427', // ⬅️ كەينىگە (Animated Back arrow)
@@ -1331,7 +1331,7 @@ function getMenuContent(
   // 12. Language Settings
   if (menuId === 'settings:lang') {
     const text =
-      `<tg-emoji emoji-id="5201732344993576400">🌐</tg-emoji> <b>تىلنى تاللاڭ / Choose Language:</b>\n\n` +
+      `<tg-emoji emoji-id="5397753673130463064">🌏</tg-emoji> <b>تىلنى تاللاڭ / Choose Language:</b>\n\n` +
       `بۇ تىزىملىكتىن ئۆزىڭىزگە قولايلىق تىلنى تاللاڭ:`;
 
     const inline_keyboard: any[][] = [
