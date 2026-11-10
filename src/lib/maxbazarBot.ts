@@ -45,7 +45,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   games: '5467583879948803288', // 🎮 ئويۇنلار (Animated Game Controller)
   arena: '5202206616757238053', // 🛡️ Arena Breakout (Animated 3D Shield)
   syriatel: '5005811690890069852', // 🇸🇾 سۈرىيەتىل (Free Syria Flag animated video sticker)
-  mtn: '5008131840813303418', // 🇸🇾 ئىمتىئىن (Free Syria Flag animated video sticker)
+  mtn: '5008461419423729981', // 🇸🇾 ئىمتىئىن (Free Syria Flag animated video sticker)
   turkey: '5807943566957223210', // 🔽 تۈركىيە كارتىسى
   tg_premium: '5350501108659790021', // ⭐️ تىلگىرام Premium (Animated Glowing Star)
   tg_stars: '6136464120779638846', // ⭐ تىلگىرام يۇلتۇز سېتىۋېلىش (Animated Stars)
@@ -240,7 +240,7 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'topup:mtn': {
-    name: '<tg-emoji emoji-id="5008131840813303418">🇸🇾</tg-emoji> ئىمتىئىن (MTN سۈرىيە لىراسى)',
+    name: '<tg-emoji emoji-id="5008461419423729981">🇸🇾</tg-emoji> ئىمتىئىن (MTN سۈرىيە لىراسى)',
     autocash: [],
     maxbazar: [
       { title: '🛍️ 10 سۈرىيە لىراسى — 0.08$', code: 'mtn:10:mb', price: 0.08 },
@@ -868,7 +868,7 @@ function getMenuContent(
       `• قالدۇق سومما: <code>*100#</code>\n` +
       `• كەسىپ ئېچىش: <code>*999#</code>\n` +
       `• 4G قىلىش: <code>*055#</code>\n\n` +
-      `<tg-emoji emoji-id="5008131840813303418">🇸🇾</tg-emoji> <b>ئىمتىئىن (MTN):</b>\n` +
+      `<tg-emoji emoji-id="5008461419423729981">🇸🇾</tg-emoji> <b>ئىمتىئىن (MTN):</b>\n` +
       `• نومۇرىنى كۆرۈش: <code>*124#</code>\n` +
       `• يىللىق سالاھىيەت: <code>*365#</code>\n` +
       `• قالدۇق سومما: <code>*100#</code>\n` +
