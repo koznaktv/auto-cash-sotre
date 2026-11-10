@@ -1859,7 +1859,7 @@ export async function handleMaxBazarWebhook(update: any) {
         await callMaxBazarBotApi('sendMessage', {
           chat_id: chatId,
           text:
-            `🎉 <b>MAX-BAZAR غا كىرىش مۇۋەپپەقىيەتلىك تەستىقلاندى!</b> 🚀\n\n` +
+            `🎉 <b>MAX-BAZAR غا كىرىش مۇۋەپپەقىيەتلىك تەستىقلاندى!</b>\n\n` +
             `👤 ھېساباتىڭىز: <b>${user.name}</b>\n` +
             `💰 ئورتاق قالدۇقىڭىز: <b>$${Number(user.balance || 0).toFixed(2)} USD</b>\n\n` +
             `⚡️ ھازىر توربەت ياكى ئەپكە قايتسىڭىز، ھېساباتىڭىز ئۆزلۈكىدىن كىرىپ تەييار بولدى!`,
@@ -1973,7 +1973,7 @@ export async function handleMaxBazarWebhook(update: any) {
       // Step 1: Send persistent bottom keyboard
       await callMaxBazarBotApi('sendMessage', {
         chat_id: chatId,
-        text: `<tg-emoji emoji-id="5998929578515504488">#⃣</tg-emoji> <b>MAX-BAZAR | ئەڭ ئەرزان رەقەملىك ئەپلەر بازىرى</b> 🚀`,
+        text: `<tg-emoji emoji-id="5998929578515504488">#⃣</tg-emoji> <b>MAX-BAZAR | ئەڭ ئەرزان رەقەملىك ئەپلەر بازىرى</b>`,
         parse_mode: 'HTML',
         reply_markup: MAXBAZAR_PERSISTENT_KEYBOARD,
       });
