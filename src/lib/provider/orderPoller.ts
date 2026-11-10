@@ -246,10 +246,14 @@ export async function pollProviderOrders(options: {
         o.details?.provider === 'maxstore' ||
         o.details?.store === 'maxbazar' ||
         o.details?.store === 'MaxStore' ||
+        o.details?.store === 'MAX-BAZAR' ||
         o.serviceId?.startsWith('maxbazar_') ||
         o.id.startsWith('HOK_') ||
         o.id.startsWith('MLBB_') ||
         o.id.startsWith('PUBG_') ||
+        o.id.startsWith('ORD-') ||
+        Boolean(o.details?.maxstoreProductId) ||
+        Boolean(o.details?.providerOrderId) ||
         o.details?.providerOrderId?.startsWith('MX-')
       );
 

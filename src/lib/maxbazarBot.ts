@@ -155,6 +155,110 @@ function getSession(userId: string | number): MaxBazarSession {
   return s;
 }
 
+export const MAXSTORE_PRODUCT_MAP: Record<string, number> = {
+  // Syriatel Units
+  'syr:1_92:mb': 1,
+  'syr:100_96:mb': 2,
+  'syr:105_77:mb': 3,
+  'syr:1057_69:mb': 4,
+  'syr:115_38:mb': 5,
+  'syr:130_77:mb': 6,
+  'syr:144_23:mb': 7,
+  'syr:160_58:mb': 8,
+  'syr:163_46:mb': 9,
+  'syr:173_08:mb': 10,
+  'syr:183_65:mb': 11,
+  'syr:192_31:mb': 12,
+  'syr:2_88:mb': 13,
+  'syr:20_19:mb': 14,
+  'syr:211_54:mb': 15,
+  'syr:23_08:mb': 16,
+  'syr:24_04:mb': 17,
+  'syr:240_38:mb': 18,
+  'syr:2403_85:mb': 19,
+  'syr:288_46:mb': 20,
+  'syr:3_85:mb': 21,
+  'syr:30_76:mb': 22,
+  'syr:317_31:mb': 23,
+  'syr:370_19:mb': 24,
+  'syr:4_81:mb': 25,
+  'syr:40_38:mb': 26,
+  'syr:432_69:mb': 27,
+  'syr:45_19:mb': 28,
+  'syr:480_77:mb': 29,
+  'syr:5_77:mb': 30,
+  'syr:52_88:mb': 31,
+  'syr:62_50:mb': 32,
+  'syr:68_27:mb': 33,
+  'syr:72_12:mb': 34,
+  'syr:77_88:mb': 35,
+  'syr:81_73:mb': 36,
+  'syr:86_54:mb': 37,
+  'syr:9_62:mb': 38,
+  'syr:951_92:mb': 39,
+  'syr:96_15:mb': 40,
+
+  // Syriatel Monthly Bundles
+  'syr_m:6gb:mb': 2300,
+  'syr_m:10gb:mb': 2301,
+  'syr_m:20gb:mb': 2303,
+  'syr_m:35gb:mb': 2304,
+  'syr_m:75gb:mb': 2305,
+
+  // MTN Units
+  'mtn:10:mb': 204,
+  'mtn:100:mb': 205,
+  'mtn:1000:mb': 206,
+  'mtn:12:mb': 207,
+  'mtn:15:mb': 208,
+  'mtn:1500:mb': 209,
+  'mtn:170:mb': 210,
+  'mtn:20:mb': 211,
+  'mtn:200:mb': 212,
+  'mtn:2000:mb': 213,
+  'mtn:25:mb': 214,
+  'mtn:2500:mb': 215,
+  'mtn:280:mb': 216,
+  'mtn:30:mb': 217,
+  'mtn:3000:mb': 218,
+  'mtn:35:mb': 219,
+  'mtn:360:mb': 220,
+  'mtn:40:mb': 221,
+  'mtn:400:mb': 222,
+  'mtn:50:mb': 223,
+  'mtn:500:mb': 224,
+  'mtn:5000:mb': 225,
+  'mtn:60:mb': 226,
+  'mtn:600:mb': 227,
+  'mtn:70:mb': 228,
+  'mtn:750:mb': 229,
+  'mtn:85:mb': 230,
+
+  // MTN Monthly Bundles
+  'mtn_m:6gb:mb': 2260,
+  'mtn_m:10gb:mb': 2257,
+  'mtn_m:15gb:mb': 2258,
+  'mtn_m:25gb:mb': 2259,
+};
+
+export function normalizeTargetAccount(target: string, kind: string): string {
+  const trimmed = (target || '').trim();
+  if (kind === 'syriatel' || kind === 'mtn' || kind === 'turkcell') {
+    let digits = trimmed.replace(/\D/g, '');
+    if (kind === 'syriatel' || kind === 'mtn') {
+      if (digits.startsWith('00963')) digits = '0' + digits.slice(5);
+      else if (digits.startsWith('963')) digits = '0' + digits.slice(3);
+      else if (!digits.startsWith('0') && digits.length === 9) digits = '0' + digits;
+    } else if (kind === 'turkcell') {
+      if (digits.startsWith('0090')) digits = '0' + digits.slice(4);
+      else if (digits.startsWith('90')) digits = '0' + digits.slice(2);
+      else if (!digits.startsWith('0') && digits.length === 10) digits = '0' + digits;
+    }
+    return digits || trimmed;
+  }
+  return trimmed;
+}
+
 export interface ProductRequirement {
   requiresInput: boolean;
   kind: 'wifi' | 'mlbb' | 'pubg' | 'ff' | 'hok' | 'arena' | 'coc' | 'syriatel' | 'mtn' | 'turkcell' | 'telegram' | 'app_account';
@@ -170,11 +274,13 @@ export function getProductRequirement(pkgCode: string, catKey: string = ''): Pro
   const code = (pkgCode || '').toLowerCase();
   const cat = (catKey || '').toLowerCase();
 
-  // Extract MaxStore product ID if ending with :<number>:mb
-  let maxstoreProductId: number | undefined;
-  const numMatch = pkgCode.match(/:(\d+):mb$/);
-  if (numMatch) {
-    maxstoreProductId = Number(numMatch[1]);
+  // Extract MaxStore product ID
+  let maxstoreProductId: number | undefined = MAXSTORE_PRODUCT_MAP[pkgCode];
+  if (!maxstoreProductId) {
+    const numMatch = pkgCode.match(/:(\d+):mb$/);
+    if (numMatch) {
+      maxstoreProductId = Number(numMatch[1]);
+    }
   }
 
   // 1. Wi-Fi cards -> No user input needed (instant code delivery)
@@ -1903,6 +2009,179 @@ async function handleShamCashTxVerify(
 }
 
 // ==========================================
+// 5.5 WATCH & BROADCAST MAXSTORE ORDERS
+// ==========================================
+export async function watchAndBroadcastMaxStoreOrder(params: {
+  orderId: string;
+  providerOrderId: string;
+  chatId: number | string;
+  title: string;
+  targetAccount: string;
+  price: number;
+  userName?: string;
+  userEmail?: string;
+  token: string;
+}) {
+  const {
+    orderId,
+    providerOrderId,
+    chatId,
+    title,
+    targetAccount,
+    price,
+    userName,
+    userEmail,
+    token,
+  } = params;
+
+  // Poll intervals in ms: 3s, 5s, 8s, 12s, 15s, 20s, 25s, 30s, 40s, 60s
+  const intervals = [3000, 5000, 8000, 12000, 15000, 20000, 25000, 30000, 40000, 60000];
+  const maxstoreToken = (process.env.MAXSTORE_API_TOKEN || 'msk_6HAfwl0cSpjPJ0jeB25V52gC5ETq3seC29C1qlgpdvI').trim();
+
+  for (let i = 0; i < intervals.length; i++) {
+    await new Promise((resolve) => setTimeout(resolve, intervals[i]));
+
+    try {
+      const msRes = await fetch(`https://maxstore1.com/api/v2/check?orders=${encodeURIComponent(providerOrderId)}`, {
+        headers: {
+          'api-token': maxstoreToken,
+          Accept: 'application/json',
+        },
+      });
+      const msData = await msRes.json();
+      if (msData.status !== 'OK' || !Array.isArray(msData.data) || msData.data.length === 0) {
+        continue;
+      }
+
+      const item = msData.data[0];
+      const pStatus = (item.status || '').toLowerCase().trim();
+
+      const isCompleted =
+        ['completed', 'success', 'done', 'delivered', 'ok', 'accept', '1', '3', 'تم', 'مكتمل', 'مكتملة', 'تم الشحن', 'مشحون', 'تم التنفيذ', 'تم التسليم', 'تم الطلب', 'منجز'].includes(pStatus) ||
+        pStatus.includes('مكتمل') ||
+        pStatus.includes('تم الشحن') ||
+        pStatus.includes('مشحون') ||
+        pStatus.includes('تم التنفيذ') ||
+        pStatus.includes('منجز');
+
+      const isFailed =
+        ['canceled', 'cancelled', 'rejected', 'reject', 'refunded', 'failed', 'error', '-1', '4', '5', '6', 'ملغي', 'مرفوض', 'فشل', 'خطأ'].includes(pStatus) ||
+        pStatus.includes('ملغي') ||
+        pStatus.includes('مرفوض') ||
+        pStatus.includes('فشل');
+
+      if (isCompleted) {
+        const now = new Date().toISOString();
+        try {
+          const { updateOrderAsync } = await import('@/lib/db');
+          await updateOrderAsync(orderId, {
+            status: 'completed',
+            detailsPatch: {
+              providerStatus: 'COMPLETED',
+              providerCheckedAt: now,
+              completedAt: now,
+              needsReview: false,
+            },
+          });
+        } catch {}
+
+        try {
+          const { updateMicroAppOrderSync } = await import('@/lib/appWallets');
+          updateMicroAppOrderSync(orderId, 'completed', now);
+        } catch {}
+
+        // Broadcast to channel immediately
+        try {
+          const { postOrderCompletedToChannel } = await import('./telegram');
+          await postOrderCompletedToChannel({
+            id: orderId,
+            serviceName: title,
+            packageTitle: title,
+            amount: price,
+            targetAccount,
+            userName,
+            userEmail,
+            details: {
+              store: 'maxbazar',
+              provider: 'maxstore',
+              providerOrderId,
+            },
+            force: true,
+          });
+        } catch {}
+
+        // Send DM notification to customer
+        try {
+          await callBotApi(
+            'sendMessage',
+            {
+              chat_id: chatId,
+              text:
+                `🎉 <b>زاكازىڭىز تولۇق قاچىلاندى!</b>\n\n` +
+                `📦 <b>مەھسۇلات:</b> ${title}\n` +
+                `🧾 <b>زاكاز نومۇرى:</b> <code>#${orderId}</code>\n` +
+                `🔢 <b>تەمىنلىگۈچى نومۇرى:</b> <code>#${providerOrderId}</code>\n` +
+                `🎯 <b>نىشان:</b> <code>${targetAccount}</code>\n\n` +
+                `✅ <b>ھالىتى:</b> تەمىنلىگۈچى تەرەپتىن قاچىلاش مۇۋەپپەقىيەتلىك تاماملىنىپ، قانالغا يوللاندى! رەھمەت!`,
+              parse_mode: 'HTML',
+              reply_markup: {
+                inline_keyboard: [
+                  [{ text: '🛍 زاكازلىرىمنى كۆرۈش', callback_data: 'orders:list' }],
+                  [{ text: '🏪 دۇكانغا كىرىش', callback_data: 'shop:home' }],
+                ],
+              },
+            },
+            token
+          );
+        } catch {}
+
+        return; // Completed!
+      }
+
+      if (isFailed) {
+        const now = new Date().toISOString();
+        try {
+          const { refundOrderBalanceAtomicAsync } = await import('@/lib/db');
+          await refundOrderBalanceAtomicAsync(orderId, `تەمىنلىگۈچى MaxStore رەت قىلدى: ${pStatus}`);
+        } catch {}
+
+        try {
+          const { updateMicroAppOrderSync } = await import('@/lib/appWallets');
+          updateMicroAppOrderSync(orderId, 'refunded', now);
+        } catch {}
+
+        try {
+          await callBotApi(
+            'sendMessage',
+            {
+              chat_id: chatId,
+              text:
+                `❌ <b>زاكازىڭىز قاچىلانمىدى!</b>\n\n` +
+                `📦 <b>مەھسۇلات:</b> ${title}\n` +
+                `🧾 <b>زاكاز نومۇرى:</b> <code>#${orderId}</code>\n` +
+                `💰 <b>تۆلەنگەن سومما:</b> $${price.toFixed(2)} USD\n\n` +
+                `💡 <i>تەمىنلىگۈچى تەرەپ زاكازنى رەت قىلغانلىقى ئۈچۈن، پۇلىڭىز ھېساباتىڭىزغا 100% قايتۇرۇلدى! كىملىك ياكى نومۇرىڭىزنى تەكشۈرۈپ قايتا سىناڭ.</i>`,
+              parse_mode: 'HTML',
+              reply_markup: {
+                inline_keyboard: [
+                  [{ text: '🏦 قالدۇق تەكشۈرۈش', callback_data: 'balance:topup' }],
+                  [{ text: '🏪 قايتا سېتىۋېلىش', callback_data: 'shop:home' }],
+                ],
+              },
+            },
+            token
+          );
+        } catch {}
+
+        return; // Refunded!
+      }
+    } catch (pollErr: any) {
+      console.warn('[watchAndBroadcastMaxStoreOrder] error:', pollErr?.message);
+    }
+  }
+}
+
+// ==========================================
 // 6. MAIN WEBHOOK HANDLER (UNIFIED)
 // ==========================================
 export async function handleStoreBotWebhook(update: any, configOverride?: Partial<BotConfig>) {
@@ -1923,22 +2202,6 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
       .toLowerCase()
       .replace(/^@/, '')
       .trim();
-    const TEST_CUSTOMER_CHAT_ID = String(process.env.TELEGRAM_TEST_CUSTOMER_CHAT_ID || '8612107028').trim();
-
-    const ALLOWED_TEST_IDS = new Set([ADMIN_CHAT_ID, '7575664493', TEST_CUSTOMER_CHAT_ID, '8612107028']);
-
-    const isAllowedTester = (id: string | number, uname?: string) => {
-      if (config.isPublic) return true;
-      const idStr = String(id || '').trim();
-      const u = (uname || '').toLowerCase().replace(/^@/, '').trim();
-      return ALLOWED_TEST_IDS.has(idStr) || (Boolean(u) && u === ADMIN_USERNAME);
-    };
-
-    const MAINTENANCE_NOTICE =
-      `🛠️ <b>بوت تەھرىرلىنىۋاتىدۇ</b>\n\n` +
-      `ھۆرمەتلىك خېرىدار، نۆۋەتتە <b>${config.brand}</b> بوت سىستېمىسى سىناق ۋە تەھرىرلىنىش باسقۇچىدا تۇرۇۋاتىدۇ.\n` +
-      `پات يېقىندا كۆپ خىل يېڭى مۇلازىمەتلەر بىلەن رەسمىي ئېچىۋېتىلىدۇ!\n\n` +
-      `📞 ئالاقىلىشىش ياكى سۈرۈشتۈرۈش ئۈچۈن: @${ADMIN_USERNAME}`;
 
     // ----------------------------------------------------
     // A. HANDLE INLINE BUTTON CALLBACK QUERIES
@@ -1951,15 +2214,6 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
       const messageId = cq.message?.message_id;
       const username = (cq.from?.username || '').trim().replace(/^@/, '').toLowerCase();
       const firstName = cq.from?.first_name || 'خېرىدار';
-
-      if (!isAllowedTester(chatId, username)) {
-        await api('answerCallbackQuery', {
-          callback_query_id: cqId,
-          text: '⚠️ نۆۋەتتە بوت سىستېمىسى تەھرىرلىنىۋاتىدۇ، پات يېقىندا رەسمىي ئېچىۋېتىلىدۇ.',
-          show_alert: true,
-        });
-        return;
-      }
 
       await api('answerCallbackQuery', { callback_query_id: cqId });
 
@@ -2201,7 +2455,8 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
         }
 
         const reqInfo = getProductRequirement(pkgCode, session.pendingOrder?.catKey || '');
-        const targetAcc = (session.pendingOrder?.targetAccount || '').trim();
+        const rawTargetAcc = (session.pendingOrder?.targetAccount || '').trim();
+        const targetAcc = normalizeTargetAccount(rawTargetAcc, reqInfo.kind);
         const zoneId = (session.pendingOrder?.zoneId || '').trim();
 
         // If product requires user input, ensure targetAccount is present
@@ -2209,6 +2464,43 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
           const menu = getMenuContent(`buy|${session.pendingOrder?.catKey || 'shop:home'}|${pkgCode}`, user, session, chatId, isAdmin, config);
           await showMessage(chatId, messageId, menu.text, { inline_keyboard: menu.inline_keyboard });
           return;
+        }
+
+        // Wi-Fi cards inventory pre-check: strictly require valid card in stock
+        let wifiCardExtra = '';
+        let claimedWifiCard: any = null;
+        if (isWifi) {
+          try {
+            const { claimAvailableWifiCardAsync } = await import('./wifiInventoryDb');
+            claimedWifiCard = await claimAvailableWifiCardAsync({
+              serviceId: pkgCode.split(':')[1] || 'fursan_net',
+              packageId: pkgCode,
+              orderId: 'ORD-' + Date.now().toString(36).toUpperCase(),
+              userId: user.id,
+              userEmail: user.email,
+            });
+          } catch {}
+
+          if (!claimedWifiCard) {
+            const outOfStockText =
+              `⚠️ <b>كەچۈرۈڭ، بۇ Wi-Fi كارتا نۆۋەتتە تۈگىدى!</b>\n\n` +
+              `نۆۋەتتە مەزكۇر تۈردىكى كارتىنىڭ ئامبىرى قۇرۇق بولغانلىقى ئۈچۈن زاكاز قوبۇل قىلىنمىدى.\n` +
+              `ھېسابات قالدۇقىڭىزدىن ھېچقانداق پۇل كېسىلمىدى! ئامبار تولۇقلانغاندا سېتىۋالالايسىز.`;
+
+            await showMessage(chatId, messageId, outOfStockText, {
+              inline_keyboard: [
+                [btnWithIcon('باشقا كارتىلارنى كۆرۈش', 'wifi', '📶', { callback_data: 'shop:wifi' })],
+                [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
+              ],
+            });
+            return;
+          }
+
+          wifiCardExtra =
+            `\n📶 <b>Wi-Fi كارتا ئۇچۇرى:</b>\n` +
+            `👤 <b>ئىشلەتكۈچى:</b> <code>${claimedWifiCard.username}</code> <i>(نۇسخىلاش ئۈچۈن بىر چېكىڭ 👆)</i>\n` +
+            `🔑 <b>پارولى:</b> <code>${claimedWifiCard.password}</code> <i>(نۇسخىلاش ئۈچۈن بىر چېكىڭ 👆)</i>\n` +
+            `🔢 <b>كارتا نومۇرى:</b> <code>${claimedWifiCard.cardNumber}</code>\n`;
         }
 
         // DISPATCH TO MAXSTORE WHOLESALE PROVIDER (IF MAXSTORE PRODUCT)
@@ -2313,6 +2605,8 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
         };
         session.localOrders.unshift(orderRecord);
 
+        const isCompletedNow = isWifi || providerStatus === 'completed' || providerStatus === 'accept';
+
         // Also create atomic order record in database
         try {
           await deductBalanceAndCreateOrderAtomicAsync({
@@ -2331,47 +2625,11 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
               targetAccount: targetAcc,
               zoneId: zoneId || undefined,
               maxstoreProductId,
+              ...(claimedWifiCard ? { wifiCard: claimedWifiCard } : {}),
             },
-            initialStatus: providerStatus === 'in_progress' ? 'processing' : 'completed',
+            initialStatus: isCompletedNow ? 'completed' : 'processing',
           });
         } catch {}
-
-        let wifiCardExtra = '';
-        if (pkgCode.startsWith('wifi:')) {
-          try {
-            const { claimAvailableWifiCardAsync } = await import('./wifiInventoryDb');
-            const claimed = await claimAvailableWifiCardAsync({
-              serviceId: pkgCode.split(':')[1] || 'fursan_net',
-              packageId: pkgCode,
-              orderId: newOrderId,
-              userId: user.id,
-              userEmail: user.email,
-            });
-            if (claimed) {
-              wifiCardExtra =
-                `\n📶 <b>Wi-Fi كارتا ئۇچۇرى:</b>\n` +
-                `👤 <b>ئىشلەتكۈچى:</b> <code>${claimed.username}</code> <i>(نۇسخىلاش ئۈچۈن بىر چېكىڭ 👆)</i>\n` +
-                `🔑 <b>پارولى:</b> <code>${claimed.password}</code> <i>(نۇسخىلاش ئۈچۈن بىر چېكىڭ 👆)</i>\n` +
-                `🔢 <b>كارتا نومۇرى:</b> <code>${claimed.cardNumber}</code>\n`;
-            } else {
-              const simUser = 'wf_' + Math.floor(100000 + Math.random() * 900000);
-              const simPass = Math.floor(1000 + Math.random() * 9000);
-              const simCard = 'NET-' + Math.floor(10000000 + Math.random() * 90000000);
-              wifiCardExtra =
-                `\n📶 <b>Wi-Fi كارتا ئۇچۇرى (دەرھال كۈچكە ئىگە):</b>\n` +
-                `👤 <b>ئىشلەتكۈچى:</b> <code>${simUser}</code> <i>(نۇسخىلاش ئۈچۈن بىر چېكىڭ 👆)</i>\n` +
-                `🔑 <b>پارولى:</b> <code>${simPass}</code> <i>(نۇسخىلاش ئۈچۈن بىر چېكىڭ 👆)</i>\n` +
-                `🔢 <b>كارتا نومۇرى:</b> <code>${simCard}</code>\n`;
-            }
-          } catch {
-            const simUser = 'wf_' + Math.floor(100000 + Math.random() * 900000);
-            const simPass = Math.floor(1000 + Math.random() * 9000);
-            wifiCardExtra =
-              `\n📶 <b>Wi-Fi كارتا ئۇچۇرى:</b>\n` +
-              `👤 <b>ئىشلەتكۈچى:</b> <code>${simUser}</code> <i>(نۇسخىلاش ئۈچۈن بىر چېكىڭ 👆)</i>\n` +
-              `🔑 <b>پارولى:</b> <code>${simPass}</code> <i>(نۇسخىلاش ئۈچۈن بىر چېكىڭ 👆)</i>\n`;
-          }
-        }
 
         const isTopup =
           pkgCode.startsWith('syr:') ||
@@ -2379,6 +2637,11 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
           pkgCode.startsWith('mtn:') ||
           pkgCode.startsWith('mtn_m:') ||
           pkgCode.startsWith('tr:');
+
+        const statusDisplay = isCompletedNow
+          ? `✅ <b>ھالىتى:</b> <b>زاكاز تولۇق قاچىلاندى!</b>`
+          : `<tg-emoji emoji-id="5370896319210595146">🤔</tg-emoji> <b>ھالىتى:</b> <b>زاكاز قوبۇل قىلىندى، قاچىلىنىۋاتىدۇ... ⚡</b>`;
+
         const successText =
           `🎉 <b>زاكاز مۇۋەپپەقىيەتلىك تاپشۇرۇلدى!</b>\n\n` +
           `📦 <b>مەھسۇلات:</b> ${rawTitle}\n` +
@@ -2388,30 +2651,47 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
           (!isWifi && !isTopup ? `💰 <b>باھا تۈرى:</b> <b>${effectiveProvider}</b>\n` : '') +
           `💰 <b>كېسىلگەن سومما:</b> -$${price.toFixed(2)} USD\n` +
           `💳 <b>قالغان قالدۇقىڭىز:</b> <b>${newBalance.toFixed(2)} USD</b>\n` +
-          `<tg-emoji emoji-id="5370896319210595146">🤔</tg-emoji> <b>ھالىتى:</b> <b>زاكاز قوبۇل قىلىندى، قاچىلىنىۋاتىدۇ... ⚡</b>\n` +
+          statusDisplay + '\n' +
           wifiCardExtra +
           `\nمەھسۇلات ئاپتوماتىك قاچىلىنىدۇ. رەھمەت!`;
 
         // Clear active pending order
         session.pendingOrder = null;
 
-        // Broadcast to channel if completed
-        try {
-          const { postOrderCompletedToChannel } = await import('./telegram');
-          postOrderCompletedToChannel({
-            id: newOrderId,
-            serviceName: rawTitle,
-            packageTitle: rawTitle,
-            amount: price,
+        // If completed immediately (e.g. Wi-Fi card or instant provider completion), broadcast now!
+        if (isCompletedNow) {
+          try {
+            const { postOrderCompletedToChannel } = await import('./telegram');
+            postOrderCompletedToChannel({
+              id: newOrderId,
+              serviceName: rawTitle,
+              packageTitle: rawTitle,
+              amount: price,
+              targetAccount: targetAccountFull,
+              userName: user.name || user.email || String(chatId),
+              details: {
+                store: config.brand,
+                provider: isWifi ? 'autocash' : session.selectedProvider,
+                providerOrderId,
+                ...(claimedWifiCard ? { wifiCard: claimedWifiCard } : {}),
+              },
+              force: true,
+            }).catch(() => null);
+          } catch {}
+        } else if (providerOrderId) {
+          // If pending provider completion, watch and broadcast the exact instant it finishes!
+          watchAndBroadcastMaxStoreOrder({
+            orderId: newOrderId,
+            providerOrderId,
+            chatId,
+            title: rawTitle,
             targetAccount: targetAccountFull,
+            price,
             userName: user.name || user.email || String(chatId),
-            details: {
-              store: config.brand,
-              provider: isWifi ? 'autocash' : session.selectedProvider,
-              providerOrderId,
-            },
-          }).catch(() => null);
-        } catch {}
+            userEmail: user.email,
+            token: config.token,
+          }).catch((err) => console.error('[watchAndBroadcastMaxStoreOrder] failed:', err));
+        }
 
         await showMessage(chatId, messageId, successText, {
           inline_keyboard: [
@@ -2561,18 +2841,6 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
     const username = (message.from?.username || '').trim().replace(/^@/, '').toLowerCase();
     const text = (message.text || '').trim();
     const firstName = message.from?.first_name || 'خېرىدار';
-
-    if (!isAllowedTester(chatId, username)) {
-      await api('sendMessage', {
-        chat_id: chatId,
-        text: MAINTENANCE_NOTICE,
-        parse_mode: 'HTML',
-        reply_markup: {
-          remove_keyboard: true,
-        },
-      });
-      return;
-    }
 
     const isAdmin = String(chatId) === ADMIN_CHAT_ID || (Boolean(username) && username === ADMIN_USERNAME);
     const session = getSession(chatId);
