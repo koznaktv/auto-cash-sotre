@@ -18,7 +18,7 @@ const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || 'https://www.auto-cash.app';
 
 export const MAXBAZAR_PERSISTENT_KEYBOARD = {
-  keyboard: [[{ text: 'باشلاش', icon_custom_emoji_id: '5998929578515504488' }]],
+  keyboard: [[{ text: 'باشلاش', icon_custom_emoji_id: '5807943566957223210' }]],
   resize_keyboard: true,
   is_persistent: true,
 };
