@@ -58,10 +58,10 @@ export const CUSTOM_ICONS: Record<string, string> = {
   enter_bot: '5998929578515504488', // 🔑 بوتقا كىرىش (Logo Custom Emoji)
   admin: '5998929578515504488', // 👑 باشقۇرغۇچى مەركىزى (Logo)
   shop: '5807531546449549750', // 🔴 دۇكان (Animated Red Icon)
-  topup_balance: '5264895611517300926', // 🏦 قالدۇق قاچىلاش (Animated Bank)
+  topup_balance: '5204470768896864316', // 💳 قالدۇق قاچىلاش (3D Animated Card, ownner_by_TgEmodziBot)
   orders: '5204021180310252946', // ✔️ زاكازلىرىم (Animated 3D Check)
   balance_history: '5816480536012527182', // 🚨 قالدۇق تارىخى (Animated Beacon)
-  lang: '5397753673130463064', // 🌏 تىل تاللاش (Animated Earth Globe)
+  lang: '5201732344993576400', // 🌐 تىل تاللاش (3D Animated Globe, ownner_by_TgEmodziBot)
   channel: '6127360976250474761', // 📢 قانال (Animated 3D Megaphone)
   home: '5416041192905265756', // 🏠 باش بەت (Animated 3D Home)
   back: '5807540866528581427', // ⬅️ كەينىگە (Animated Back arrow)
@@ -74,7 +74,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   arena: '6138450886751424946', // 🌟 Arena Breakout (Custom Emoji)
   syriatel: '5005811690890069852', // 🇸🇾 سۈرىيەتىل (Free Syria Flag animated video sticker)
   mtn: '5008461419423729981', // 🇸🇾 ئىمتىئىن (Free Syria Flag animated video sticker)
-  turkey: '5226948110873278599', // 🇹🇷 تۈركىيە كارتىسى (Animated Turkey Flag)
+  turkey: '5204470768896864316', // 💳 تۈركىيە كارتىسى (Animated 3D Card)
   tg_premium: '5350501108659790021', // ⭐️ تىلگىرام Premium (Animated Glowing Star)
   tg_stars: '6136464120779638846', // ⭐ تىلگىرام يۇلتۇز سېتىۋېلىش (Animated Stars)
   chatgpt: '5204437027633786910', // 🍏 ChatGPT (Animated App)
@@ -88,9 +88,9 @@ export const CUSTOM_ICONS: Record<string, string> = {
   cancel: '5316999925664347033', // ❌ بىكار قىلىش (Animated Red Cross)
   money: '5348576314771144671', // 💵 پۇل / باھا (Animated Dollar)
   order_processing: '5370896319210595146', // 🤔 زاكاز ماقۇللىنىۋاتىدۇ (Animated Thinking/Processing Emoji)
-  profile_user: '5373012449597335010', // 👤 ئىشلەتكۈچى / ئىسمىڭىز (Animated User Profile)
-  wallet_balance: '5375296873982604963', // 💰 ھەميان قالدۇقى (Animated Money Bag)
-  lightning: '5431449001532594346', // ⚡️ كېرەكلىك بۆلەكنى تاللاڭ (Animated Lightning)
+  profile_user: '5201906965478930360', // 👑 ئىشلەتكۈچى / ئىسمىڭىز (3D Animated Crown, ownner_by_TgEmodziBot)
+  wallet_balance: '5204179389725568654', // 💸 ھەميان قالدۇقى (3D Animated Cash, ownner_by_TgEmodziBot)
+  lightning: '5201945242227472933', // ⚡️ كېرەكلىك بۆلەكنى تاللاڭ (3D Animated Lightning, ownner_by_TgEmodziBot)
 };
 
 export function btnWithIcon(label: string, iconKey: string, defaultEmoji: string, extra: Record<string, any> = {}) {
@@ -305,7 +305,7 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'topup:turkey': {
-    name: '<tg-emoji emoji-id="5226948110873278599">🇹🇷</tg-emoji> تۈركىيە كارتىسى (Turkcell لىرا قاچىلاش)',
+    name: '<tg-emoji emoji-id="5204470768896864316">🇹🇷</tg-emoji> تۈركىيە كارتىسى (Turkcell لىرا قاچىلاش)',
     autocash: [
       { title: '🇹🇷 50 TL لىرا قاچىلاش — $2.41', code: 'tr:50tl:ac', price: 2.41 },
       { title: '🇹🇷 150 TL لىرا قاچىلاش — $7.07', code: 'tr:150tl:ac', price: 7.07 },
@@ -316,7 +316,7 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'topup:turkey_monthly': {
-    name: '<tg-emoji emoji-id="5226948110873278599">🇹🇷</tg-emoji> Turkcell ئايلىق تور بوغچىلىرى (تور + سۆزلىشىش)',
+    name: '<tg-emoji emoji-id="5204470768896864316">🇹🇷</tg-emoji> Turkcell ئايلىق تور بوغچىلىرى (تور + سۆزلىشىش)',
     autocash: [
       { title: '📦 2 GB تور + 1000 دەقىقە سۆزلىشىش — $13.95', code: 'tr:1000dk_2gb:ac', price: 13.95 },
       { title: '📦 4 GB تور + 1000 دەقىقە سۆزلىشىش — $16.03', code: 'tr:1000dk_4gb:ac', price: 16.03 },
@@ -785,10 +785,10 @@ function getMenuContent(
     const displayName = (user.name || 'ھۆرمەتلىك خېرىدار').trim();
     const text =
       `🌙 <b>السلام عليكم ورحمة الله وبركاته، ھۆرمەتلىك خېرىدار!</b>\n\n` +
-      `<tg-emoji emoji-id="5373012449597335010">👤</tg-emoji> <b>ئىسمىڭىز:</b> ${displayName}\n` +
+      `<tg-emoji emoji-id="5201906965478930360">👤</tg-emoji> <b>ئىسمىڭىز:</b> ${displayName}\n` +
       `🆔 <b>تېلېگرامما ID:</b> <code>${chatId}</code>\n` +
-      `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> <b>ھەميان قالدۇقى:</b> <b>$${balance} USD</b>\n\n` +
-      `<tg-emoji emoji-id="5431449001532594346">⚡️</tg-emoji> <i>كېرەكلىك بۆلەكنى تۆۋەندىن تاللاڭ:</i>`;
+      `<tg-emoji emoji-id="5204179389725568654">💰</tg-emoji> <b>ھەميان قالدۇقى:</b> <b>$${balance} USD</b>\n\n` +
+      `<tg-emoji emoji-id="5201945242227472933">⚡️</tg-emoji> <i>كېرەكلىك بۆلەكنى تۆۋەندىن تاللاڭ:</i>`;
 
     const inline_keyboard: any[][] = [
       [
@@ -914,7 +914,7 @@ function getMenuContent(
       `• قالدۇق سومما: <code>*100#</code>\n` +
       `• كەسىپ ئېچىش: <code>*999#</code>\n` +
       `• 4G قىلىش: <code>*062#</code>\n\n` +
-      `<tg-emoji emoji-id="5226948110873278599">🇹🇷</tg-emoji> <b>تۈركىيە (Turkcell):</b>\n` +
+      `<tg-emoji emoji-id="5204470768896864316">🇹🇷</tg-emoji> <b>تۈركىيە (Turkcell):</b>\n` +
       `• قالدۇق سوراش: <code>*123#</code>\n` +
       `• بايلىق قالدۇقى (KALAN): <code>2222</code> گە <code>KALAN</code> دەپ ئۇچۇر ئەۋەتىش`;
 
@@ -1330,7 +1330,7 @@ function getMenuContent(
   // 10. ShamCash Deposit Topup (balance:topup)
   if (menuId === 'balance:topup') {
     const text =
-      `<tg-emoji emoji-id="5264895611517300926">🏦</tg-emoji> <b>شامكەش ئارقىلىق قالدۇق قاچىلاش</b>\n\n` +
+      `<tg-emoji emoji-id="5204470768896864316">🏦</tg-emoji> <b>شامكەش ئارقىلىق قالدۇق قاچىلاش</b>\n\n` +
       `شامكەش نۇمۇرىمىزنى كۆچۈرۈڭ (چەكسىڭىز كۆچۈرۈلىدۇ):\n` +
       `<code>efe8a2b200d66411c7c7e296369cbba8</code>\n\n` +
       `⚠️ <i>شامكەشتىن دوللار ئېتىڭ، سۈرىيە لىراسى قوبۇل قىلىنمايدۇ !!!</i>\n\n` +
@@ -1372,7 +1372,7 @@ function getMenuContent(
   // 12. Language Settings
   if (menuId === 'settings:lang') {
     const text =
-      `<tg-emoji emoji-id="5397753673130463064">🌏</tg-emoji> <b>تىلنى تاللاڭ / Choose Language:</b>\n\n` +
+      `<tg-emoji emoji-id="5201732344993576400">🌏</tg-emoji> <b>تىلنى تاللاڭ / Choose Language:</b>\n\n` +
       `بۇ تىزىملىكتىن ئۆزىڭىزگە قولايلىق تىلنى تاللاڭ:`;
 
     const inline_keyboard: any[][] = [
@@ -1515,7 +1515,7 @@ async function handleShamCashTxVerify(
                 `🎉 <b>تالون دەلىللەندى! قالدۇق مۇۋەپپەقىيەتلىك قوشۇلدى</b>\n\n` +
                 `🧾 <b>تالون نومۇرى:</b> <code>${cleanTxId}</code>\n` +
                 `💵 <b>قوشۇلغان سومما:</b> <b>+$${creditedAmount.toFixed(2)} USD</b>\n` +
-                `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> <b>يېڭى قالدۇقىڭىز:</b> <b>$${updatedBalance.toFixed(2)} USD</b>\n\n` +
+                `<tg-emoji emoji-id="5204179389725568654">💰</tg-emoji> <b>يېڭى قالدۇقىڭىز:</b> <b>$${updatedBalance.toFixed(2)} USD</b>\n\n` +
                 `ھازىر دۇكان بۆلۈمىگە كىرىپ خالىغان مەھسۇلاتنى سېتىۋالالايسىز:`,
               parse_mode: 'HTML',
               reply_markup: {
@@ -1749,7 +1749,7 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
                 `🎉 <b>پۇل كىرگۈزۈش تەستىقلاندى! قالدۇق مۇۋەپپەقىيەتلىك كىرگۈزۈلدى</b>\n\n` +
                 `🧾 <b>تالون نومۇرى:</b> <code>${deposit.txId || '—'}</code>\n` +
                 `💵 <b>قوشۇلغان سومما:</b> <b>+$${finalAmount.toFixed(2)} USD</b>\n` +
-                `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${newBal.toFixed(2)} USD</b>\n\n` +
+                `<tg-emoji emoji-id="5204179389725568654">💰</tg-emoji> <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${newBal.toFixed(2)} USD</b>\n\n` +
                 `دۇكاندىن خالىغان مەھسۇلاتنى سېتىۋالسىڭىز بولىدۇ:`,
               parse_mode: 'HTML',
               reply_markup: {
@@ -2167,8 +2167,8 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
           chat_id: chatId,
           text:
             `🎉 <b>${config.brand} غا كىرىش مۇۋەپپەقىيەتلىك تەستىقلاندى!</b>\n\n` +
-            `<tg-emoji emoji-id="5373012449597335010">👤</tg-emoji> ھېساباتىڭىز: <b>${user.name}</b>\n` +
-            `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> ئورتاق قالدۇقىڭىز: <b>$${Number(
+            `<tg-emoji emoji-id="5201906965478930360">👤</tg-emoji> ھېساباتىڭىز: <b>${user.name}</b>\n` +
+            `<tg-emoji emoji-id="5204179389725568654">💰</tg-emoji> ئورتاق قالدۇقىڭىز: <b>$${Number(
               user.balance || 0
             ).toFixed(2)} USD</b>\n\n` +
             `⚡️ ھازىر توربەت ياكى ئەپكە قايتسىڭىز، ھېساباتىڭىز ئۆزلۈكىدىن كىرىپ تەييار بولدى!`,
@@ -2202,8 +2202,8 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
           text:
             `🎉 <b>ھېساباتىڭىز تېلېفوندىكى ئەپكە دەرھال ئۇلاندى!</b>\n\n` +
             `🎮 ئەپ: <b>${appName}</b>\n` +
-            `<tg-emoji emoji-id="5373012449597335010">👤</tg-emoji> كىملىكىڭىز: <b>${verified.identity}</b>\n` +
-            `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> قالدۇقىڭىز: <b>$${verified.balance.toFixed(
+            `<tg-emoji emoji-id="5201906965478930360">👤</tg-emoji> كىملىكىڭىز: <b>${verified.identity}</b>\n` +
+            `<tg-emoji emoji-id="5204179389725568654">💰</tg-emoji> قالدۇقىڭىز: <b>$${verified.balance.toFixed(
               2
             )} USD</b>\n\n` +
             `📱 تېلېفوندىكى ئەپىڭىز ئۆزلۈكىدىن كىردى، ئەپكە قايتىپ بىمالال داۋاملاشتۇرۇڭ.`,
