@@ -53,7 +53,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   chatgpt: '5204437027633786910', // 🍏 ChatGPT (Animated App)
   pubg: '6167965794635353576', // 🌟 PUBG Mobile (Custom Emoji)
   freefire: '5807428574608627564', // 🔥 Free Fire (Animated Neon Fire)
-  mlbb: '5314551360513916833', // 🤩 Mobile Legends (MLBB Logo Custom Emoji)
+  mlbb: '6167873461428423592', // 🌟 Mobile Legends: Bang Bang (Custom Emoji)
   hok: '6300958645207175466', // 🌟 Honor of Kings (Custom Emoji)
   card_codes: '5204096174734207869', // ✉️ كارتا كودلىرى (Animated Envelope/SMS)
   shamcash_verify: '5807943566957223210', // 🔽 شامكەش تالون
@@ -956,7 +956,7 @@ function getMenuContent(
   // 7.1 Mobile Legends Submenu
   if (menuId === 'games:mlbb') {
     const text =
-      `<tg-emoji emoji-id="5314551360513916833">🤩</tg-emoji> <b>Mobile Legends: Bang Bang</b>\n\n` +
+      `<tg-emoji emoji-id="6167873461428423592">🌟</tg-emoji> <b>Mobile Legends: Bang Bang</b>\n\n` +
       `🕹️ <b>سېرۋىر بۆلىكىنى تاللاڭ:</b>`;
 
     const inline_keyboard: any[][] = [
