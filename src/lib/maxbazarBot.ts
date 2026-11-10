@@ -40,14 +40,14 @@ export const CUSTOM_ICONS: Record<string, string> = {
   back: '5807540866528581427', // ⬅️ كەينىگە (Animated Back arrow)
   sim_cards: '5316523549366716514', // 💳 كارتىلارغا پۇل قاچىلاش (Animated 3D Card)
   wifi: '5201735372945520721', // 🛜 Wi-Fi بېتاقە كارتىلىرى (Animated 3D Wi-Fi)
-  telegram_sub: '5202036282649244841', // ⭐️ تىلگىرام ئەزالىق ئېچىش (Animated 3D Star)
+  telegram_sub: '5350501108659790021', // ⭐️ تىلگىرام ئەزالىق ئېچىش (Animated Glowing Star)
   ai_apps: '5204437027633786910', // 🍏 AI ۋە ئەپلەر (Animated Apple/Apps)
   games: '5336838590057974764', // 🤩 ئويۇنلار (Animated Star-Eyes Gamer)
   arena: '5202206616757238053', // 🛡️ Arena Breakout (Animated 3D Shield)
   syriatel: '5005811690890069852', // 🇸🇾 سۈرىيەتىل (Free Syria Flag animated video sticker)
   mtn: '5008131840813303418', // 🇸🇾 ئىمتىئىن (Free Syria Flag animated video sticker)
   turkey: '5807943566957223210', // 🔽 تۈركىيە كارتىسى
-  tg_premium: '5202036282649244841', // ⭐️ تىلگىرام Premium (Animated 3D Star)
+  tg_premium: '5350501108659790021', // ⭐️ تىلگىرام Premium (Animated Glowing Star)
   tg_stars: '6136464120779638846', // ⭐ تىلگىرام يۇلتۇز سېتىۋېلىش (Animated Stars)
   chatgpt: '5204437027633786910', // 🍏 ChatGPT (Animated App)
   pubg: '5397808249279909223', // 🤓 PUBG Mobile (Animated Gamer)
@@ -889,7 +889,7 @@ function getMenuContent(
 
   // 5. Sub-category: Telegram Membership
   if (menuId === 'shop:membership') {
-    const text = `<tg-emoji emoji-id="5202036282649244841">⭐️</tg-emoji> <b>تىلگىرام ئەزالىق ئېچىش</b>\n\nبىرىنى تاللاڭ:`;
+    const text = `<tg-emoji emoji-id="5350501108659790021">⭐️</tg-emoji> <b>تىلگىرام ئەزالىق ئېچىش</b>\n\nبىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
       [btnWithIcon('تىلگىرام Premium', 'tg_premium', '💎', { callback_data: 'tg:premium' })],
       [btnWithIcon('تىلگىرام يۇلتۇز سېتىۋېلىش', 'tg_stars', '🌟', { callback_data: 'tg:stars' })],
