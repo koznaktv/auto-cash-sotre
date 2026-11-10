@@ -389,7 +389,7 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
 'games:mlbb_global': {
-    name: '⚔️ MLBB گىلوبال ئالماس (Global Server)',
+    name: '⚔️ MLBB — گىلوبال',
     autocash: [
       { title: '💎 78 ئالماس — $1.32', code: 'mlbb_g:415:ac', price: 1.32 },
       { title: '💎 156 ئالماس — $2.61', code: 'mlbb_g:416:ac', price: 2.61 },
@@ -418,7 +418,7 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'games:mlbb_turkey': {
-    name: '⚔️ MLBB تۈركىيە ئالماس (Turkey Server)',
+    name: '⚔️ MLBB — تۈركىيە',
     autocash: [
       { title: '💎 88 ئالماس (TR) — $1.47', code: 'mlbb_tr:428:ac', price: 1.47 },
       { title: '💎 133 ئالماس (TR) — $2.23', code: 'mlbb_tr:429:ac', price: 2.23 },
@@ -440,54 +440,54 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'games:mlbb_special': {
-    name: '⚔️ MLBB ئالاھىدە ئالماس (Special Server)',
+    name: '⚔️ MLBB — ئاسىيا فىلىپپىن',
     autocash: [
     ],
     maxbazar: [
-      { title: '💎 14 ئالماس (Special) — $0.28', code: 'mlbb_sp:941:mb', price: 0.28 },
-      { title: '💎 28 ئالماس (Special) — $0.57', code: 'mlbb_sp:948:mb', price: 0.57 },
-      { title: '💎 42 ئالماس (Special) — $0.85', code: 'mlbb_sp:951:mb', price: 0.85 },
-      { title: '💎 55 ئالماس (Special) — $1.11', code: 'mlbb_sp:952:mb', price: 1.11 },
-      { title: '💎 140 ئالماس (Special) — $2.82', code: 'mlbb_sp:942:mb', price: 2.82 },
-      { title: '💎 165 ئالماس (Special) — $3.29', code: 'mlbb_sp:943:mb', price: 3.29 },
-      { title: '💎 182 ئالماس (Special) — $3.67', code: 'mlbb_sp:944:mb', price: 3.67 },
-      { title: '💎 210 ئالماس (Special) — $4.23', code: 'mlbb_sp:945:mb', price: 4.23 },
-      { title: '💎 275 ئالماس (Special) — $5.48', code: 'mlbb_sp:947:mb', price: 5.48 },
-      { title: '💎 355 ئالماس (Special) — $7.06', code: 'mlbb_sp:950:mb', price: 7.06 },
-      { title: '💎 1060 ئالماس (Special) — $21.04', code: 'mlbb_sp:936:mb', price: 21.04 },
-      { title: '💎 1084 ئالماس (Special) — $21.12', code: 'mlbb_sp:938:mb', price: 21.12 },
-      { title: '💎 1071 ئالماس (Special) — $21.18', code: 'mlbb_sp:937:mb', price: 21.18 },
-      { title: '💎 1085 ئالماس (Special) — $21.47', code: 'mlbb_sp:939:mb', price: 21.47 },
-      { title: '💎 1285 ئالماس (Special) — $25.41', code: 'mlbb_sp:940:mb', price: 25.41 },
-      { title: '💎 2162 ئالماس (Special) — $42.28', code: 'mlbb_sp:946:mb', price: 42.28 },
-      { title: '💎 3005 ئالماس (Special) — $52.14', code: 'mlbb_sp:949:mb', price: 52.14 },
+      { title: '💎 14 ئالماس (ئاسىيا فىلىپپىن) — $0.28', code: 'mlbb_sp:941:mb', price: 0.28 },
+      { title: '💎 28 ئالماس (ئاسىيا فىلىپپىن) — $0.57', code: 'mlbb_sp:948:mb', price: 0.57 },
+      { title: '💎 42 ئالماس (ئاسىيا فىلىپپىن) — $0.85', code: 'mlbb_sp:951:mb', price: 0.85 },
+      { title: '💎 55 ئالماس (ئاسىيا فىلىپپىن) — $1.11', code: 'mlbb_sp:952:mb', price: 1.11 },
+      { title: '💎 140 ئالماس (ئاسىيا فىلىپپىن) — $2.82', code: 'mlbb_sp:942:mb', price: 2.82 },
+      { title: '💎 165 ئالماس (ئاسىيا فىلىپپىن) — $3.29', code: 'mlbb_sp:943:mb', price: 3.29 },
+      { title: '💎 182 ئالماس (ئاسىيا فىلىپپىن) — $3.67', code: 'mlbb_sp:944:mb', price: 3.67 },
+      { title: '💎 210 ئالماس (ئاسىيا فىلىپپىن) — $4.23', code: 'mlbb_sp:945:mb', price: 4.23 },
+      { title: '💎 275 ئالماس (ئاسىيا فىلىپپىن) — $5.48', code: 'mlbb_sp:947:mb', price: 5.48 },
+      { title: '💎 355 ئالماس (ئاسىيا فىلىپپىن) — $7.06', code: 'mlbb_sp:950:mb', price: 7.06 },
+      { title: '💎 1060 ئالماس (ئاسىيا فىلىپپىن) — $21.04', code: 'mlbb_sp:936:mb', price: 21.04 },
+      { title: '💎 1084 ئالماس (ئاسىيا فىلىپپىن) — $21.12', code: 'mlbb_sp:938:mb', price: 21.12 },
+      { title: '💎 1071 ئالماس (ئاسىيا فىلىپپىن) — $21.18', code: 'mlbb_sp:937:mb', price: 21.18 },
+      { title: '💎 1085 ئالماس (ئاسىيا فىلىپپىن) — $21.47', code: 'mlbb_sp:939:mb', price: 21.47 },
+      { title: '💎 1285 ئالماس (ئاسىيا فىلىپپىن) — $25.41', code: 'mlbb_sp:940:mb', price: 25.41 },
+      { title: '💎 2162 ئالماس (ئاسىيا فىلىپپىن) — $42.28', code: 'mlbb_sp:946:mb', price: 42.28 },
+      { title: '💎 3005 ئالماس (ئاسىيا فىلىپپىن) — $52.14', code: 'mlbb_sp:949:mb', price: 52.14 },
     ],
   },
   'games:mlbb_passes': {
-    name: '🎟️ MLBB ھەپتىلىك كارتا ۋە ئەزالىق (Weekly / Twilight Pass)',
+    name: '🎟️ MLBB — ھەپتىلىك كارتا ۋە ئەزالىقلار',
     autocash: [
-      { title: '🎟️ Limited-Time Value Pack — $0.23', code: 'mlbb_pass:434:ac', price: 0.23 },
-      { title: '🎟️ Weekly Elite Bundle ML — $0.85', code: 'mlbb_pass:423:ac', price: 0.85 },
-      { title: '🎟️ Weekly Elite Pack TR — $0.96', code: 'mlbb_pass:437:ac', price: 0.96 },
-      { title: '🎟️ Weekly Diamond Pass — $1.61', code: 'mlbb_pass:425:ac', price: 1.61 },
-      { title: '🎟️ Weekly Pass TR — $2.21', code: 'mlbb_pass:438:ac', price: 2.21 },
-      { title: '🎟️ Monthly Elite Bundle ML — $4.27', code: 'mlbb_pass:424:ac', price: 4.27 },
-      { title: '🎟️ Monthly Elite Pack TR — $4.75', code: 'mlbb_pass:435:ac', price: 4.75 },
-      { title: '🎟️ Mobile Legends Twilight Pass — $8.71', code: 'mlbb_pass:426:ac', price: 8.71 },
-      { title: '🎟️ Twilight Pass TR — $9.13', code: 'mlbb_pass:436:ac', price: 9.13 },
+      { title: '🎟️ قىممەت بوغچىسى — $0.23', code: 'mlbb_pass:434:ac', price: 0.23 },
+      { title: '🎟️ ھەپتىلىك سەرخىل بوغچا — $0.85', code: 'mlbb_pass:423:ac', price: 0.85 },
+      { title: '🎟️ ھەپتىلىك سەرخىل (TR) — $0.96', code: 'mlbb_pass:437:ac', price: 0.96 },
+      { title: '🎟️ ھەپتىلىك ئالماس پاسس — $1.61', code: 'mlbb_pass:425:ac', price: 1.61 },
+      { title: '🎟️ ھەپتىلىك پاسس (TR) — $2.21', code: 'mlbb_pass:438:ac', price: 2.21 },
+      { title: '🎟️ ئايلىق سەرخىل بوغچا — $4.27', code: 'mlbb_pass:424:ac', price: 4.27 },
+      { title: '🎟️ ئايلىق سەرخىل (TR) — $4.75', code: 'mlbb_pass:435:ac', price: 4.75 },
+      { title: '🎟️ Twilight ئەزالىق پاسسى — $8.71', code: 'mlbb_pass:426:ac', price: 8.71 },
+      { title: '🎟️ Twilight پاسسى (TR) — $9.13', code: 'mlbb_pass:436:ac', price: 9.13 },
     ],
     maxbazar: [
-      { title: '🎟️ Limited (TR) — $0.23', code: 'mlbb_pass:965:mb', price: 0.23 },
-      { title: '🎟️ Weekly Elite Pack — $0.85', code: 'mlbb_pass:1897:mb', price: 0.85 },
-      { title: '🎟️ Weekly Elite Pack (TR) — $0.96', code: 'mlbb_pass:968:mb', price: 0.96 },
-      { title: '🎟️ Weekly Elite Pack (Special) — $1.11', code: 'mlbb_pass:955:mb', price: 1.11 },
-      { title: '🎟️ Weekly — $1.63', code: 'mlbb_pass:1896:mb', price: 1.63 },
-      { title: '🎟️ Weekly (TR) — $1.90', code: 'mlbb_pass:967:mb', price: 1.9 },
-      { title: '🎟️ Weekly (Special) — $2.42', code: 'mlbb_pass:954:mb', price: 2.42 },
-      { title: '🎟️ Monthly Elite Pack — $4.26', code: 'mlbb_pass:1894:mb', price: 4.26 },
-      { title: '🎟️ Monthly Elite Pack (TR) — $4.77', code: 'mlbb_pass:966:mb', price: 4.77 },
-      { title: '🎟️ Monthly Elite Pack (Special) — $5.47', code: 'mlbb_pass:953:mb', price: 5.47 },
-      { title: '🎟️ Twilight — $8.67', code: 'mlbb_pass:1895:mb', price: 8.67 },
+      { title: '🎟️ قىممەت بوغچىسى (TR) — $0.23', code: 'mlbb_pass:965:mb', price: 0.23 },
+      { title: '🎟️ ھەپتىلىك سەرخىل بوغچا — $0.85', code: 'mlbb_pass:1897:mb', price: 0.85 },
+      { title: '🎟️ ھەپتىلىك سەرخىل (TR) — $0.96', code: 'mlbb_pass:968:mb', price: 0.96 },
+      { title: '🎟️ ھەپتىلىك سەرخىل (فىلىپپىن) — $1.11', code: 'mlbb_pass:955:mb', price: 1.11 },
+      { title: '🎟️ ھەپتىلىك ئالماس پاسس — $1.63', code: 'mlbb_pass:1896:mb', price: 1.63 },
+      { title: '🎟️ ھەپتىلىك پاسس (TR) — $1.90', code: 'mlbb_pass:967:mb', price: 1.9 },
+      { title: '🎟️ ھەپتىلىك پاسس (فىلىپپىن) — $2.42', code: 'mlbb_pass:954:mb', price: 2.42 },
+      { title: '🎟️ ئايلىق سەرخىل بوغچا — $4.26', code: 'mlbb_pass:1894:mb', price: 4.26 },
+      { title: '🎟️ ئايلىق سەرخىل (TR) — $4.77', code: 'mlbb_pass:966:mb', price: 4.77 },
+      { title: '🎟️ ئايلىق سەرخىل (فىلىپپىن) — $5.47', code: 'mlbb_pass:953:mb', price: 5.47 },
+      { title: '🎟️ Twilight ئەزالىق پاسسى — $8.67', code: 'mlbb_pass:1895:mb', price: 8.67 },
     ],
   },
   'games:pubg_uc': {
@@ -993,7 +993,6 @@ function getMenuContent(
       [{ text: '⚔️ Mobile Legends', callback_data: 'games:mlbb' }],
       [{ text: '🪂 PUBG Mobile', callback_data: 'games:pubg' }],
       [{ text: '🔥 Free Fire', callback_data: 'games:freefire' }],
-      [{ text: '🎯 Call of Duty', callback_data: 'games:cod' }],
       [{ text: '👑 Honor of Kings', callback_data: 'games:hok' }],
       [{ text: '🛡️ Arena Breakout', callback_data: 'games:arena' }],
       [{ text: '🏰 Clash of Clans', callback_data: 'games:clash' }],
@@ -1015,17 +1014,17 @@ function getMenuContent(
   if (menuId === 'games:mlbb') {
     const text =
       `⚔️ <b>Mobile Legends: Bang Bang</b>\n\n` +
-      `📌 <b>سېرۋىر ۋە بولاق تۈرىنى تاللاڭ:</b>\n\n` +
-      `• <b>🌐 گىلوبال سېرۋىر ئالماس:</b> بارلىق دۆلەت ۋە سېرۋىرلارغا ئالماس قاچىلاش\n` +
-      `• <b>🇹🇷 تۈركىيە سېرۋىر ئالماس:</b> مەخسۇس تۈركىيە ھېساباتلىرى ئۈچۈن قولايلىق باھا\n` +
-      `• <b>⚡️ ئالاھىدە سېرۋىر ئالماس:</b> Max Store ئالاھىدە ئېتىبارلىق ئالماس سېپى (14 تىن 3005 ئالماسقىچە)\n` +
-      `• <b>🎟️ ھەپتىلىك كارتا ۋە ئەزالىق:</b> Weekly Diamond Pass, Twilight Pass, Elite Packs`;
+      `🕹️ <b>سېرۋىر بۆلىكىنى تاللاڭ:</b>\n\n` +
+      `• <b>💎 گىلوبال:</b> پۈتۈن دۇنيا گىلوبال سېرۋىر ئالماس قاچىلاش\n` +
+      `• <b>💎 تۈركىيە:</b> مەخسۇس تۈركىيە سېرۋىرىدىكى ھېساباتلار ئۈچۈن قولايلىق باھا\n` +
+      `• <b>💎 ئاسىيا فىلىپپىن:</b> ئاسىيا / فىلىپپىن سېرۋىرى ئۈچۈن ئالاھىدە ئېتىبارلىق باھا\n` +
+      `• <b>🎟️ ھەپتىلىك كارتا ۋە ئەزالىقلار:</b> ھەپتىلىك ئالماس پاسس، تۇۋايلايت ۋە سەرخىل بوغچىلار`;
 
     const inline_keyboard: any[][] = [
-      [{ text: '💎 گىلوبال ئالماس (Global Server)', callback_data: 'games:mlbb_global' }],
-      [{ text: '💎 تۈركىيە ئالماس (Turkey Server)', callback_data: 'games:mlbb_turkey' }],
-      [{ text: '💎 ئالاھىدە ئالماس (Special Server - Max)', callback_data: 'games:mlbb_special' }],
-      [{ text: '🎟️ ھەپتىلىك كارتا ۋە ئەزالىق (Weekly / Twilight Pass)', callback_data: 'games:mlbb_passes' }],
+      [{ text: '💎 گىلوبال', callback_data: 'games:mlbb_global' }],
+      [{ text: '💎 تۈركىيە', callback_data: 'games:mlbb_turkey' }],
+      [{ text: '💎 ئاسىيا فىلىپپىن', callback_data: 'games:mlbb_special' }],
+      [{ text: '🎟️ ھەپتىلىك كارتا ۋە ئەزالىقلار', callback_data: 'games:mlbb_passes' }],
       [
         { text: '◀️ كەينىگە', callback_data: 'shop:games' },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
@@ -1064,23 +1063,6 @@ function getMenuContent(
     const inline_keyboard: any[][] = [
       [{ text: '💎 Free Fire ئالماس قاچىلاش (Diamonds)', callback_data: 'games:freefire_diamonds' }],
       [{ text: '🎟️ ھەپتىلىك ۋە ئايلىق ئەزالىق (Memberships)', callback_data: 'games:freefire_memberships' }],
-      [
-        { text: '◀️ كەينىگە', callback_data: 'shop:games' },
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
-      ],
-    ];
-    return { text, inline_keyboard };
-  }
-
-  // 7.4 Call of Duty Notice
-  if (menuId === 'games:cod') {
-    const text =
-      `🎯 <b>Call of Duty Mobile</b>\n\n` +
-      `⚠️ <b>نۆۋەتتە تەمىنلەنمەيدۇ:</b>\n` +
-      `Max Store ۋە Othman Store ئىككىلا تەمىنلىگۈچى تەرەپنىڭ ئامبىرىدا Call of Duty مەھسۇلاتلىرى نۆۋەتتە مەۋجۇت ئەمەس (ۋاقىتلىق تەمىنلەنمىگەن).\n\n` +
-      `💡 سىزنىڭ «يوقلىرىنى ھەرگىز ئۆزۈڭ بىلىپ قوشما بارنى قوشقىن» دېگەن كۆرسەتمىڭىز بويىچە يالغان مەھسۇلات قوشۇلمىدى. تەمىنلىگۈچىلەردە ئېچىلغان ھامان بۇ يەردە دەرھال ئېچىلىدۇ.`;
-
-    const inline_keyboard: any[][] = [
       [
         { text: '◀️ كەينىگە', callback_data: 'shop:games' },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
@@ -1175,14 +1157,25 @@ function getMenuContent(
     let text = '';
     const inline_keyboard: any[][] = [];
 
+    let extraDescription = '';
+    if (menuId === 'games:mlbb_passes') {
+      extraDescription =
+        `📋 <b>كارتىلارنىڭ ئىشلىتىلىشى ۋە خۇسۇسىيىتى:</b>\n` +
+        `• <b>ھەپتىلىك ئالماس پاسس:</b> كۈندىلىك ئالماس ۋە قوشۇمچە سەرخىل مۇكاپاتلارنى ئېلىشقا ئىشلىتىلىدۇ.\n` +
+        `• <b>Twilight ئەزالىق پاسسى:</b> ئالاھىدە مەخسۇس Skin، پەللە كارتىسى ۋە قوشۇمچە ئىمتىيازلارنى ئاچىدۇ.\n` +
+        `• <b>سەرخىل بوغچىلار:</b> سېھىرلىك چاڭ، خىرالار ۋە قەھرىمان دەرىجىسى ئۆستۈرۈشكە ئىشلىتىلىدۇ.\n\n`;
+    }
+
     if (isTopup || isWifi) {
       text =
         `${item.name}\n\n` +
+        extraDescription +
         `💳 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
         `📦 <b>تۆۋەندىن ئېھتىياجلىق بولاقنى تاللاڭ:</b>`;
     } else {
       text =
         `${item.name}\n\n` +
+        extraDescription +
         `💰 <b>باھا تۈرى:</b> <b>${providerTag}</b>\n` +
         `💳 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
         `💡 <b>كۆرسەتمە:</b> ئىككى توربەتنىڭ باھا ھالىتى ئوخشىمايدۇ، خالىغاننى ئالماشتۇرۇپ سىناپ بېقىڭ:\n` +
@@ -1303,8 +1296,22 @@ function getMenuContent(
     const title = pkg?.title || pkgCode;
     const price = pkg?.price || 1.0;
 
+    let usageHint = '';
+    if (pkgCode.startsWith('mlbb_pass:')) {
+      if (title.includes('Twilight') || title.includes('تۇۋايلايت')) {
+        usageHint = `📌 <b>ئىشلىتىلىشى:</b> ئالاھىدە مەخسۇس قەھرىمان Skin، پەللە كارتىسى ۋە ئەۋزەللىكلەرنى ئاچىدۇ.\n\n`;
+      } else if (title.includes('ئالماس پاسس') || title.includes('Weekly') || title.includes('ھەپتىلىك')) {
+        usageHint = `📌 <b>ئىشلىتىلىشى:</b> 7 كۈن بويىچە كۈندىلىك ئالماس ۋە قوشۇمچە سەرخىل مۇكاپاتلارنى بېرىدۇ.\n\n`;
+      } else if (title.includes('سەرخىل') || title.includes('Elite')) {
+        usageHint = `📌 <b>ئىشلىتىلىشى:</b> سېھىرلىك چاڭ، خىرالار ۋە كۈچلۈك تۇمارلار بىلەن قەھرىماننى دەرىجە كۆتۈرۈشكە ئىشلىتىلىدۇ.\n\n`;
+      } else {
+        usageHint = `📌 <b>ئىشلىتىلىشى:</b> قوشۇمچە قىممەت بۇيۇملىرى ۋە مەخسۇس تۇمارلارنى ئېلىشقا ئىشلىتىلىدۇ.\n\n`;
+      }
+    }
+
     const text =
       `🛒 <b>سېتىۋېلىشنى جەزملەش</b>\n\n` +
+      usageHint +
       `📦 <b>مەھسۇلات:</b> ${title}\n` +
       `💰 <b>باھاسى:</b> <b>$${price.toFixed(2)} USD</b>\n` +
       `💳 <b>سىزنىڭ قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
