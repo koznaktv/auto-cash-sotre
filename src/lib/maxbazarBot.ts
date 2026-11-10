@@ -33,7 +33,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   shop: '5807531546449549750', // 🔴 دۇكان (Animated Red Icon)
   topup_balance: '5008131840813303418', // 🇸🇾 قالدۇق قاچىلاش / شامكەش (Free Syria Flag animated video sticker)
   orders: '5204324795843375748', // 🛍 زاكازلىرىم (Animated 3D Shopping bag)
-  balance_history: '5204213079449038715', // 🛍 قالدۇق تارىخى (Animated Shopping bag)
+  balance_history: '5816480536012527182', // 🚨 قالدۇق تارىخى (Animated Beacon)
   lang: '5397753673130463064', // 🌏 تىل تاللاش (Animated Earth Globe)
   channel: '6127360976250474761', // 📢 قانال (Animated 3D Megaphone)
   home: '5416041192905265756', // 🏠 باش بەت (Animated 3D Home)
