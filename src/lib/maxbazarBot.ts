@@ -441,6 +441,21 @@ function getMenuContent(
         },
       ]),
       [
+        {
+          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+          web_app: {
+            url:
+              menuId === 'topup:syriatel'
+                ? `${SITE_URL}/apps/syriatel`
+                : menuId === 'topup:mtn'
+                ? `${SITE_URL}/apps/mtn-syria`
+                : menuId === 'games:pubg'
+                ? `${SITE_URL}/apps/pubg`
+                : `${SITE_URL}/apps`,
+          },
+        },
+      ],
+      [
         { text: '◀️ كەينىگە', callback_data: 'shop:home' },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
