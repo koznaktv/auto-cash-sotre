@@ -27,32 +27,32 @@ export const MAXBAZAR_PERSISTENT_KEYBOARD = {
 // CUSTOM PREMIUM ANIMATED EMOJIS REGISTRY
 // ==========================================
 export const CUSTOM_ICONS: Record<string, string> = {
-  webapp: '5204382305455467942', // 🌍 توربەتكە كىرىش / تېخىمۇ كۆپ (توربەتتە كۆرۈش) (Animated Globe)
+  webapp: '5204382305455467942', // 🌍 توربەتكە كىرىش / تېخىمۇ كۆپ (Animated Spinning Globe)
   enter_bot: '5998929578515504488', // 🔑 بوتقا كىرىش (Logo Custom Emoji)
   admin: '', // 👑 باشقۇرغۇچى مەركىزى
-  shop: '', // 🏪 دۇكان (Classic store icon)
-  topup_balance: '5334976159094423531', // 💵 قالدۇق قاچىلاش (Cash stack)
-  orders: '5204324795843375748', // 🛍 زاكازلىرىم (3D Shopping bag)
-  balance_history: '5316898581616035042', // 💰 قالدۇق تارىخى (Money bag)
+  shop: '', // 🏪 دۇكان
+  topup_balance: '5203955226792454971', // 🔝 قالدۇق قاچىلاش (Animated Top-Up badge)
+  orders: '5204324795843375748', // 🛍 زاكازلىرىم (Animated 3D Shopping bag)
+  balance_history: '5204213079449038715', // 🛍 قالدۇق تارىخى (Animated Shopping bag)
   lang: '5201732344993576400', // 🌐 تىل تاللاش (Animated Globe)
-  channel: '6127360976250474761', // 📢 قانال (3D Megaphone)
+  channel: '6127360976250474761', // 📢 قانال (Animated 3D Megaphone)
   home: '', // 🏠 باش بەت
   back: '5807540866528581427', // ⬅️ كەينىگە (Animated Back arrow)
-  sim_cards: '5334976159094423531', // 💵 كارتىلارغا پۇل قاچىلاش
+  sim_cards: '5807943566957223210', // 🔽 كارتىلارغا پۇل قاچىلاش (Animated Arrow)
   wifi: '5807653471981149580', // 📍 Wi-Fi بېتاقە كارتىلىرى (Animated Pin)
-  telegram_sub: '5202036282649244841', // ⭐ تىلگىرام ئەزالىق ئېچىش (3D Star)
-  ai_apps: '5309803007880231518', // 🤖 AI ۋە ئەپلەر (Neon Robot)
-  games: '', // 🎮 ئويۇنلار
+  telegram_sub: '5202036282649244841', // ⭐️ تىلگىرام ئەزالىق ئېچىش (Animated 3D Star)
+  ai_apps: '5204437027633786910', // 🍏 AI ۋە ئەپلەر (Animated Apple/Apps)
+  games: '5336838590057974764', // 🤩 ئويۇنلار (Animated Star-Eyes Gamer)
   syriatel: '', // 📱 سۈرىيەتىل
   mtn: '', // 📱 ئىمتىئىن
   turkey: '', // 🇹🇷 تۈركىيە كارتىسى
-  tg_premium: '5202036282649244841', // ⭐ تىلگىرام Premium (3D Star)
-  tg_stars: '6136464120779638846', // ⭐ تىلگىرام يۇلتۇز سېتىۋېلىش (Stars)
-  chatgpt: '5309803007880231518', // 🤖 ChatGPT (Neon Robot)
-  pubg: '5325945676821971883', // 🪖 PUBG Mobile (Level 3 Helmet)
-  freefire: '6125128297631190435', // ❤️‍🔥 Free Fire (Fire flame)
-  card_codes: '5318854071635965131', // 🔍 كارتا كودلىرى (Magnifying glass)
-  shamcash_verify: '5809674511791954676', // ⚡️ شامكەش تالون
+  tg_premium: '5202036282649244841', // ⭐️ تىلگىرام Premium (Animated 3D Star)
+  tg_stars: '6136464120779638846', // ⭐ تىلگىرام يۇلتۇز سېتىۋېلىش (Animated Stars)
+  chatgpt: '5204437027633786910', // 🍏 ChatGPT (Animated App)
+  pubg: '5397808249279909223', // 🤓 PUBG Mobile (Animated Gamer)
+  freefire: '6125128297631190435', // ❤️‍🔥 Free Fire (Animated Flaming Fire)
+  card_codes: '5204096174734207869', // ✉️ كارتا كودلىرى (Animated Envelope/SMS)
+  shamcash_verify: '5807943566957223210', // 🔽 شامكەش تالون
 };
 
 export function btnWithIcon(label: string, iconKey: string, defaultEmoji: string, extra: Record<string, any> = {}) {
@@ -772,7 +772,7 @@ function getMenuContent(
       [btnWithIcon('كارتىلارغا پۇل قاچىلاش', 'sim_cards', '💳', { callback_data: 'shop:topup' })],
       [btnWithIcon('تىلگىرام ئەزالىق ئېچىش', 'telegram_sub', '⭐', { callback_data: 'shop:membership' })],
       [btnWithIcon('AI ۋە ئەپلەر', 'ai_apps', '📱', { callback_data: 'shop:apps' })],
-      [{ text: '🎮 ئويۇنلار', callback_data: 'shop:games' }],
+      [btnWithIcon('ئويۇنلار', 'games', '🎮', { callback_data: 'shop:games' })],
       [
         btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'menu:enter' }),
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
