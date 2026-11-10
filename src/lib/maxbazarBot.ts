@@ -459,11 +459,12 @@ function getMenuContent(
 
   // 2. Profile Dashboard (menu:enter)
   if (menuId === 'menu:enter') {
+    const displayName = (user.name || 'ھۆرمەتلىك خېرىدار').trim();
     const text =
-      `👋 <b>ئەسسالامۇ ئەلەيكۇم ھۆرمەتلىك خېرىدار!</b>\n\n` +
-      `👤 <b>سىزنىڭ ئىسمىڭىز:</b> ${user.name || 'خېرىدار'}\n` +
-      `🆔 <b>سىزنىڭ ID نۇمۇرىڭىز:</b> <code>${chatId}</code>\n` +
-      `💰 <b>سىزنىڭ قالدۇق سوممىڭىز:</b> <b>$${balance} USD</b>\n\n` +
+      `👋 <b>ئەسسالامۇ ئەلەيكۇم، ھۆرمەتلىك خېرىدار!</b>\n\n` +
+      `👤 <b>ئىسمىڭىز:</b> ${displayName}\n` +
+      `🆔 <b>تېلېگرامما ID:</b> <code>${chatId}</code>\n` +
+      `💰 <b>ھەميان قالدۇقى:</b> <b>$${balance} USD</b>\n\n` +
       `⚡️ <i>كېرەكلىك بۆلەكنى تۆۋەندىن تاللاڭ:</i>`;
 
     const inline_keyboard: any[][] = [
