@@ -57,6 +57,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   confirm: '5317020017521359483', // ✔️ جەزملەش (Animated Green Check)
   cancel: '5316999925664347033', // ❌ بىكار قىلىش (Animated Red Cross)
   money: '5348576314771144671', // 💵 پۇل / باھا (Animated Dollar)
+  order_processing: '5370896319210595146', // 🤔 زاكاز ماقۇللىنىۋاتىدۇ (Animated Thinking/Processing Emoji)
 };
 
 export function btnWithIcon(label: string, iconKey: string, defaultEmoji: string, extra: Record<string, any> = {}) {
@@ -1657,14 +1658,15 @@ export async function handleMaxBazarWebhook(update: any) {
           pkgCode.startsWith('mtn_m:') ||
           pkgCode.startsWith('tr:');
         const successText =
-          `🎉 <b>زاكاز مۇۋەپپەقىيەتلىك بېجىرىلدى!</b>\n\n` +
+          `🎉 <b>زاكاز مۇۋەپپەقىيەتلىك تاپشۇرۇلدى!</b>\n\n` +
           `📦 <b>مەھسۇلات:</b> ${rawTitle}\n` +
           `🧾 <b>زاكاز نومۇرى:</b> <code>#${newOrderId}</code>\n` +
           (!isWifi && !isTopup ? `💰 <b>باھا تۈرى:</b> <b>${effectiveProvider}</b>\n` : '') +
           `💰 <b>كېسىلگەن سومما:</b> -${price.toFixed(2)} USD\n` +
           `💳 <b>قالغان قالدۇقىڭىز:</b> <b>${newBalance.toFixed(2)} USD</b>\n` +
+          `<tg-emoji emoji-id="5370896319210595146">🤔</tg-emoji> <b>ھالىتى:</b> <b>زاكاز ماقۇللىنىۋاتىدۇ...</b>\n` +
           wifiCardExtra +
-          `\nمەھسۇلات ئۇچۇرى ئاپتوماتىك ئەۋەتىلدى. رەھمەت!`;
+          `\nمەھسۇلات ئۇچۇرى ئاپتوماتىك تەمىنلىنىدۇ. رەھمەت!`;
 
         await showOrEditMessage(chatId, messageId, successText, {
           inline_keyboard: [
@@ -1715,7 +1717,8 @@ export async function handleMaxBazarWebhook(update: any) {
           .map(
             (o) =>
               `▫️ <b>${o.title}</b>\n` +
-              `   كود: <code>#${o.orderId}</code> | بەدەل: $${o.price.toFixed(2)} | ۋاقىت: ${o.date}`
+              `   كود: <code>#${o.orderId}</code> | بەدەل: $${o.price.toFixed(2)} | ۋاقىت: ${o.date}\n` +
+              `   <tg-emoji emoji-id="5370896319210595146">🤔</tg-emoji> <b>ھالىتى:</b> زاكاز ماقۇللىنىۋاتىدۇ`
           )
           .join('\n\n');
 

@@ -605,7 +605,7 @@ export async function notifyNewOrder(order: {
 💰 <b>سوممىسى:</b> <b>$${Number(order.amount || 0).toFixed(2)} USD</b>
 🎯 <b>قاچىلاش ھېساباتى / ID:</b> <code>${order.targetAccount || '—'}</code>
 ${fieldsText ? `📝 <b>قوشۇمچە ئۇچۇرلار:</b>\n${fieldsText}\n` : ''}👤 <b>خېرىدار:</b> ${order.userName || 'ئەزا'} (<code>${order.userEmail || '—'}</code>)
-⏳ <b>ھالىتى:</b> <b>${order.status || 'سۈرۈشتۈرۈلمەكتە'}</b>
+<tg-emoji emoji-id="5370896319210595146">🤔</tg-emoji> <b>ھالىتى:</b> <b>${order.status || 'زاكاز ماقۇللىنىۋاتىدۇ'}</b>
 ⏰ <b>ۋاقتى:</b> ${new Date().toLocaleString('ug-CN', { timeZone: 'Asia/Urumqi' })}
 
 `.trim();
@@ -1536,7 +1536,7 @@ function formatOrderTrackingCard(order: OrderRecord) {
       ].join('\n');
     } else {
       statusBadge = [
-        '⏳ <b>بىر تەرەپ قىلىنىۋاتىدۇ (سەل تەخىر قىلىڭ ⚡️)</b>',
+        '<tg-emoji emoji-id="5370896319210595146">🤔</tg-emoji> <b>زاكاز ماقۇللىنىۋاتىدۇ (سەل تەخىر قىلىڭ ⚡️)</b>',
         '<i>زاكىسىڭىز ھازىر ئاپتوماتىك تەستىقلىنىش ۋە قاچىلىنىش باسقۇچىدا (ئادەتتە 1-3 مىنۇت).</i>',
         '',
         '🛡️ <b>100% قالدۇق كاپالىتى:</b>',

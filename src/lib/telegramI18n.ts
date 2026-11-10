@@ -768,7 +768,7 @@ ${tgEmoji('sparkles', '✨')} Пожалуйста, выберите подхо�
       ru: '🆔 Номер заказа:',
     },
     orderStatusLabel: {
-      ug: '⏳ ھالىتى: تەستىقلىنىۋاتىدۇ (سەل تەخىر قىلىڭ ⚡️)',
+      ug: '<tg-emoji emoji-id="5370896319210595146">🤔</tg-emoji> ھالىتى: زاكاز ماقۇللىنىۋاتىدۇ (سەل تەخىر قىلىڭ ⚡️)',
       ar: '⏳ الحالة: قيد المعالجة والتنفيذ (يرجى الانتظار قليلاً ⚡️)',
       tr: '⏳ Durum: İşleniyor ve Onaylanıyor (Lütfen bekleyin ⚡️)',
       en: '⏳ Status: Processing & Verifying (Please wait a moment ⚡️)',
