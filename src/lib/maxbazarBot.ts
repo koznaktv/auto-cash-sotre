@@ -59,6 +59,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   money: '5348576314771144671', // 💵 پۇل / باھا (Animated Dollar)
   order_processing: '5370896319210595146', // 🤔 زاكاز ماقۇللىنىۋاتىدۇ (Animated Thinking/Processing Emoji)
   profile_user: '5373012449597335010', // 👤 ئىشلەتكۈچى / ئىسمىڭىز (Animated User Profile)
+  wallet_balance: '5375296873982604963', // 💰 ھەميان قالدۇقى (Animated Money Bag)
 };
 
 export function btnWithIcon(label: string, iconKey: string, defaultEmoji: string, extra: Record<string, any> = {}) {
@@ -745,7 +746,7 @@ function getMenuContent(
       `🌙 <b>السلام عليكم ورحمة الله وبركاته، ھۆرمەتلىك خېرىدار!</b>\n\n` +
       `<tg-emoji emoji-id="5373012449597335010">👤</tg-emoji> <b>ئىسمىڭىز:</b> ${displayName}\n` +
       `🆔 <b>تېلېگرامما ID:</b> <code>${chatId}</code>\n` +
-      `💰 <b>ھەميان قالدۇقى:</b> <b>$${balance} USD</b>\n\n` +
+      `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> <b>ھەميان قالدۇقى:</b> <b>$${balance} USD</b>\n\n` +
       `⚡️ <i>كېرەكلىك بۆلەكنى تۆۋەندىن تاللاڭ:</i>`;
 
     const inline_keyboard: any[][] = [
@@ -1395,7 +1396,7 @@ async function handleShamCashTxVerify(chatId: number | string, txId: string, use
         `🎉 <b>تالون تەستىقلاندى! قالدۇق مۇۋەپپەقىيەتلىك قوشۇلدى</b>\n\n` +
         `🧾 <b>تالون نومۇرى:</b> <code>${id}</code>\n` +
         `💵 <b>قوشۇلغان سومما:</b> <b>+$${creditAmount.toFixed(2)} USD</b>\n` +
-        `💰 <b>يېڭى قالدۇقىڭىز:</b> <b>$${updatedBalance.toFixed(2)} USD</b>\n\n` +
+        `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> <b>يېڭى قالدۇقىڭىز:</b> <b>$${updatedBalance.toFixed(2)} USD</b>\n\n` +
         `ھازىر دۇكان بۆلۈمىگە كىرىپ خالىغان مەھسۇلاتنى سېتىۋالالايسىز:`,
       parse_mode: 'HTML',
       reply_markup: {
@@ -1420,7 +1421,7 @@ async function handleShamCashTxVerify(chatId: number | string, txId: string, use
         `🎉 <b>سىناق تالون دەلىللەندى! +$${testAmount.toFixed(2)} پۇل قوشۇلدى</b>\n\n` +
         `🧾 <b>تالون:</b> <code>${id}</code>\n` +
         `💵 <b>سومما:</b> <b>+$${testAmount.toFixed(2)} USD</b>\n` +
-        `💰 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${updatedBalance.toFixed(2)} USD</b>\n\n` +
+        `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${updatedBalance.toFixed(2)} USD</b>\n\n` +
         `ئەمدى دۇكاندىن بىمالال مال سېتىۋالسىڭىز بولىدۇ:`,
       parse_mode: 'HTML',
       reply_markup: {
@@ -1862,7 +1863,7 @@ export async function handleMaxBazarWebhook(update: any) {
           text:
             `🎉 <b>MAX-BAZAR غا كىرىش مۇۋەپپەقىيەتلىك تەستىقلاندى!</b>\n\n` +
             `<tg-emoji emoji-id="5373012449597335010">👤</tg-emoji> ھېساباتىڭىز: <b>${user.name}</b>\n` +
-            `💰 ئورتاق قالدۇقىڭىز: <b>$${Number(user.balance || 0).toFixed(2)} USD</b>\n\n` +
+            `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> ئورتاق قالدۇقىڭىز: <b>$${Number(user.balance || 0).toFixed(2)} USD</b>\n\n` +
             `⚡️ ھازىر توربەت ياكى ئەپكە قايتسىڭىز، ھېساباتىڭىز ئۆزلۈكىدىن كىرىپ تەييار بولدى!`,
           parse_mode: 'HTML',
           reply_markup: {
@@ -1897,7 +1898,7 @@ export async function handleMaxBazarWebhook(update: any) {
             `🎉 <b>ھېساباتىڭىز تېلېفوندىكى ئەپكە دەرھال ئۇلاندى!</b>\n\n` +
             `🎮 ئەپ: <b>${appName}</b>\n` +
             `<tg-emoji emoji-id="5373012449597335010">👤</tg-emoji> كىملىكىڭىز: <b>${verified.identity}</b>\n` +
-            `💰 قالدۇقىڭىز: <b>$${verified.balance.toFixed(2)} USD</b>\n\n` +
+            `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> قالدۇقىڭىز: <b>$${verified.balance.toFixed(2)} USD</b>\n\n` +
             `📱 تېلېفوندىكى ئەپىڭىز ئۆزلۈكىدىن كىردى، ئەپكە قايتىپ بىمالال داۋاملاشتۇرۇڭ.`,
           parse_mode: 'HTML',
           reply_markup: {
