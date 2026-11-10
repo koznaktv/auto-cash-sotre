@@ -51,7 +51,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   tg_stars: '6136464120779638846', // ⭐ تىلگىرام يۇلتۇز سېتىۋېلىش (Animated Stars)
   chatgpt: '5204437027633786910', // 🍏 ChatGPT (Animated App)
   pubg: '5397808249279909223', // 🤓 PUBG Mobile (Animated Gamer)
-  freefire: '6125128297631190435', // ❤️‍🔥 Free Fire (Animated Flaming Fire)
+  freefire: '5807428574608627564', // 🔥 Free Fire (Animated Neon Fire)
   card_codes: '5204096174734207869', // ✉️ كارتا كودلىرى (Animated Envelope/SMS)
   shamcash_verify: '5807943566957223210', // 🔽 شامكەش تالون
   confirm: '5317020017521359483', // ✔️ جەزملەش (Animated Green Check)
@@ -999,7 +999,7 @@ function getMenuContent(
   // 7.3 Free Fire Submenu
   if (menuId === 'games:freefire') {
     const text =
-      `<tg-emoji emoji-id="6125128297631190435">❤️‍🔥</tg-emoji> <b>Garena Free Fire</b>\n\n` +
+      `<tg-emoji emoji-id="5807428574608627564">🔥</tg-emoji> <b>Garena Free Fire</b>\n\n` +
       `📦 <b>ئېھتىياجلىق تۈرنى تاللاڭ:</b>`;
 
     const inline_keyboard: any[][] = [
