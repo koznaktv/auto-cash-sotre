@@ -259,17 +259,105 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
       { title: '👥 1 ئايلىق ئورتاق ھېسابات — $4.50', code: 'gpt:1m_s:mb', price: 4.50 },
     ],
   },
+  'games:mlbb': {
+    name: '⚔️ Mobile Legends: Bang Bang',
+    autocash: [
+      { title: '💎 86 ئالماس — $1.33', code: 'mlbb:86:ac', price: 1.33 },
+      { title: '💎 172 ئالماس — $2.63', code: 'mlbb:172:ac', price: 2.63 },
+      { title: '💎 257 ئالماس — $3.81', code: 'mlbb:257:ac', price: 3.81 },
+      { title: '💎 706 ئالماس — $10.40', code: 'mlbb:706:ac', price: 10.40 },
+    ],
+    maxbazar: [
+      { title: '💎 86 ئالماس — $1.29', code: 'mlbb:86:mb', price: 1.29 },
+      { title: '💎 172 ئالماس — $2.55', code: 'mlbb:172:mb', price: 2.55 },
+      { title: '💎 257 ئالماس — $3.70', code: 'mlbb:257:mb', price: 3.70 },
+      { title: '💎 706 ئالماس — $10.10', code: 'mlbb:706:mb', price: 10.10 },
+    ],
+  },
   'games:pubg': {
     name: '🪂 PUBG Mobile UC',
     autocash: [
       { title: '🪙 60 UC — $0.98', code: 'pubg:60:ac', price: 0.98 },
       { title: '🪙 325 UC — $4.85', code: 'pubg:325:ac', price: 4.85 },
       { title: '🪙 660 UC — $9.60', code: 'pubg:660:ac', price: 9.60 },
+      { title: '🪙 1800 UC — $24.50', code: 'pubg:1800:ac', price: 24.50 },
     ],
     maxbazar: [
       { title: '🪙 60 UC — $0.94', code: 'pubg:60:mb', price: 0.94 },
       { title: '🪙 325 UC — $4.65', code: 'pubg:325:mb', price: 4.65 },
       { title: '🪙 660 UC — $9.20', code: 'pubg:660:mb', price: 9.20 },
+      { title: '🪙 1800 UC — $23.50', code: 'pubg:1800:mb', price: 23.50 },
+    ],
+  },
+  'games:freefire': {
+    name: '🔥 Garena Free Fire',
+    autocash: [
+      { title: '💎 110 ئالماس (100+10) — $0.99', code: 'ff:110:ac', price: 0.99 },
+      { title: '💎 231 ئالماس (210+21) — $2.00', code: 'ff:231:ac', price: 2.00 },
+      { title: '💎 583 ئالماس (530+53) — $5.00', code: 'ff:583:ac', price: 5.00 },
+      { title: '💎 1188 ئالماس (1080+108) — $10.00', code: 'ff:1188:ac', price: 10.00 },
+    ],
+    maxbazar: [
+      { title: '💎 110 ئالماس (100+10) — $0.96', code: 'ff:110:mb', price: 0.96 },
+      { title: '💎 231 ئالماس (210+21) — $1.93', code: 'ff:231:mb', price: 1.93 },
+      { title: '💎 583 ئالماس (530+53) — $4.85', code: 'ff:583:mb', price: 4.85 },
+      { title: '💎 1188 ئالماس (1080+108) — $9.70', code: 'ff:1188:mb', price: 9.70 },
+    ],
+  },
+  'games:cod': {
+    name: '🎯 Call of Duty Mobile',
+    autocash: [
+      { title: '🎖️ 80 CP — $0.99', code: 'cod:80:ac', price: 0.99 },
+      { title: '🎖️ 420 CP — $4.99', code: 'cod:420:ac', price: 4.99 },
+      { title: '🎖️ 880 CP — $9.99', code: 'cod:880:ac', price: 9.99 },
+    ],
+    maxbazar: [
+      { title: '🎖️ 80 CP — $0.95', code: 'cod:80:mb', price: 0.95 },
+      { title: '🎖️ 420 CP — $4.75', code: 'cod:420:mb', price: 4.75 },
+      { title: '🎖️ 880 CP — $9.50', code: 'cod:880:mb', price: 9.50 },
+    ],
+  },
+  'games:hok': {
+    name: '👑 Honor of Kings',
+    autocash: [
+      { title: '👑 80 Tokens — $0.88', code: 'hok:80:ac', price: 0.88 },
+      { title: '👑 240 Tokens — $2.60', code: 'hok:240:ac', price: 2.60 },
+      { title: '👑 400 Tokens — $4.30', code: 'hok:400:ac', price: 4.30 },
+      { title: '👑 800 Tokens — $8.50', code: 'hok:800:ac', price: 8.50 },
+    ],
+    maxbazar: [
+      { title: '👑 80 Tokens — $0.85', code: 'hok:80:mb', price: 0.85 },
+      { title: '👑 240 Tokens — $2.48', code: 'hok:240:mb', price: 2.48 },
+      { title: '👑 400 Tokens — $4.10', code: 'hok:400:mb', price: 4.10 },
+      { title: '👑 800 Tokens — $8.20', code: 'hok:800:mb', price: 8.20 },
+    ],
+  },
+  'games:arena': {
+    name: '🛡️ Arena Breakout',
+    autocash: [
+      { title: '🛡️ 66 Bonds — $0.87', code: 'arena:66:ac', price: 0.87 },
+      { title: '🛡️ 330 Bonds — $4.20', code: 'arena:330:ac', price: 4.20 },
+      { title: '🛡️ 660 Bonds — $8.30', code: 'arena:660:ac', price: 8.30 },
+      { title: '🎫 ئايلىق Battle Pass — $3.90', code: 'arena:bp:ac', price: 3.90 },
+    ],
+    maxbazar: [
+      { title: '🛡️ 66 Bonds — $0.84', code: 'arena:66:mb', price: 0.84 },
+      { title: '🛡️ 330 Bonds — $4.05', code: 'arena:330:mb', price: 4.05 },
+      { title: '🛡️ 660 Bonds — $8.00', code: 'arena:660:mb', price: 8.00 },
+      { title: '🎫 ئايلىق Battle Pass — $3.75', code: 'arena:bp:mb', price: 3.75 },
+    ],
+  },
+  'games:clash': {
+    name: '🏰 Clash of Clans',
+    autocash: [
+      { title: '🏰 80 Gems — $0.99', code: 'coc:80:ac', price: 0.99 },
+      { title: '🏰 500 Gems — $4.99', code: 'coc:500:ac', price: 4.99 },
+      { title: '🎟️ ئالتۇن بېلەت (Gold Pass) — $6.99', code: 'coc:gp:ac', price: 6.99 },
+    ],
+    maxbazar: [
+      { title: '🏰 80 Gems — $0.95', code: 'coc:80:mb', price: 0.95 },
+      { title: '🏰 500 Gems — $4.75', code: 'coc:500:mb', price: 4.75 },
+      { title: '🎟️ ئالتۇن بېلەت (Gold Pass) — $6.65', code: 'coc:gp:mb', price: 6.65 },
     ],
   },
 };
@@ -437,7 +525,14 @@ function getMenuContent(
         },
       ],
       [
-        { text: '◀️ كەينىگە', callback_data: menuId.startsWith('wifi:') ? 'shop:wifi' : 'shop:home' },
+        {
+          text: '◀️ كەينىگە',
+          callback_data: menuId.startsWith('wifi:')
+            ? 'shop:wifi'
+            : menuId.startsWith('games:')
+            ? 'shop:games'
+            : 'shop:home',
+        },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -488,9 +583,21 @@ function getMenuContent(
 
   // 7. Sub-category: Games
   if (menuId === 'shop:games') {
-    const text = `🎮 <b>ئويۇنلار</b>\n\nبىرىنى تاللاڭ:`;
+    const text = `🎮 <b>ئويۇنلار (Game Top-Up)</b>\n\nئېھتىياجلىق ئويۇننى تاللاڭ:`;
     const inline_keyboard: any[][] = [
+      [{ text: '⚔️ Mobile Legends', callback_data: 'games:mlbb' }],
       [{ text: '🪂 PUBG Mobile', callback_data: 'games:pubg' }],
+      [{ text: '🔥 Free Fire', callback_data: 'games:freefire' }],
+      [{ text: '🎯 Call of Duty', callback_data: 'games:cod' }],
+      [{ text: '👑 Honor of Kings', callback_data: 'games:hok' }],
+      [{ text: '🛡️ Arena Breakout', callback_data: 'games:arena' }],
+      [{ text: '🏰 Clash of Clans', callback_data: 'games:clash' }],
+      [
+        {
+          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+          web_app: { url: `${SITE_URL}/apps` },
+        },
+      ],
       [
         { text: '◀️ كەينىگە', callback_data: 'shop:home' },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
@@ -538,6 +645,10 @@ function getMenuContent(
                 ? `${SITE_URL}/apps/mtn-syria`
                 : menuId === 'games:pubg'
                 ? `${SITE_URL}/apps/pubg`
+                : menuId === 'games:mlbb'
+                ? `${SITE_URL}/apps/mobile-legends`
+                : menuId === 'games:hok'
+                ? `${SITE_URL}/apps/honor-of-kings`
                 : `${SITE_URL}/apps`,
           },
         },
