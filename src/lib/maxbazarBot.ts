@@ -618,18 +618,19 @@ function getMenuContent(
 
     const text =
       `${item.name}\n\n` +
-      `🌐 <b>تەمىنلىگۈچى:</b> <b>${providerTag}</b>\n` +
+      `💰 <b>باھا تۈرى:</b> <b>${providerTag}</b>\n` +
       `💳 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
-      `تۆۋەندىن ئېھتىياجلىق بولاقنى تاللاڭ:`;
+      `💡 <i>كۆرسەتمە: باھانى ئالماشتۇرۇش ئۈچۈن تۆۋەندىكى تۈگمىنى چېكىڭ!</i>\n` +
+      `📦 <b>تۆۋەندىن ئېھتىياجلىق بولاقنى تاللاڭ:</b>`;
 
     const inline_keyboard: any[][] = [
       [
         {
-          text: `${isAc ? '🔘' : '⚪'} AUTO CASH`,
+          text: `${isAc ? '🟢' : '⚪'} AUTO CASH`,
           callback_data: `set_prov:autocash:${menuId}`,
         },
         {
-          text: `${!isAc ? '🔘' : '⚪'} MAX-BAZAR`,
+          text: `${!isAc ? '🟢' : '⚪'} MAX-BAZAR`,
           callback_data: `set_prov:maxbazar:${menuId}`,
         },
       ],
@@ -676,7 +677,7 @@ function getMenuContent(
       `📦 <b>مەھسۇلات:</b> ${title}\n` +
       `💰 <b>باھاسى:</b> <b>$${price.toFixed(2)} USD</b>\n` +
       `💳 <b>سىزنىڭ قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n` +
-      `🌐 <b>تەمىنلىگۈچى:</b> <b>${providerTag}</b>\n\n` +
+      `💰 <b>باھا تۈرى:</b> <b>${providerTag}</b>\n\n` +
       `زاكاسنى جەزملەشتۈرۈپ ھېساباتتىن كېسىشنى خالامسىز؟`;
 
     const inline_keyboard: any[][] = [
@@ -1041,7 +1042,7 @@ export async function handleMaxBazarWebhook(update: any) {
           `🎉 <b>زاكاز مۇۋەپپەقىيەتلىك بېجىرىلدى!</b>\n\n` +
           `📦 <b>مەھسۇلات:</b> ${rawTitle}\n` +
           `🧾 <b>زاكاز نومۇرى:</b> <code>#${newOrderId}</code>\n` +
-          `🌐 <b>تەمىنلىگۈچى:</b> <b>${session.selectedProvider.toUpperCase()}</b>\n` +
+          `💰 <b>باھا تۈرى:</b> <b>${session.selectedProvider.toUpperCase()}</b>\n` +
           `💰 <b>كېسىلگەن سومما:</b> -${price.toFixed(2)} USD\n` +
           `💳 <b>قالغان قالدۇقىڭىز:</b> <b>${newBalance.toFixed(2)} USD</b>\n` +
           wifiCardExtra +
