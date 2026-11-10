@@ -27,7 +27,7 @@ export const MAXBAZAR_PERSISTENT_KEYBOARD = {
 // CUSTOM PREMIUM ANIMATED EMOJIS REGISTRY
 // ==========================================
 export const CUSTOM_ICONS: Record<string, string> = {
-  webapp: '5938398023137628324', // 🌐 توربەتتىن سېتىۋېلىش (Tested & Active)
+  webapp: '5204382305455467942', // 🌍 توربەتكە كىرىش / تېخىمۇ كۆپ (توربەتتە كۆرۈش) (Animated Globe)
   enter_bot: '5998929578515504488', // 🔑 بوتقا كىرىش (Logo Custom Emoji)
   admin: '', // 👑 باشقۇرغۇچى مەركىزى
   shop: '5998929578515504488', // 🏪 دۇكان (Logo Custom Emoji)
@@ -714,7 +714,7 @@ function getMenuContent(
 
     const inline_keyboard: any[][] = [
       [btnWithIcon('بوتقا كىرىش', 'enter_bot', '🔑', { callback_data: 'menu:enter' })],
-      [btnWithIcon('توربەتتىن سېتىۋېلىش', 'webapp', '🌐', { web_app: { url: `${SITE_URL}` } })],
+      [btnWithIcon('توربەتكە كىرىش', 'webapp', '🌐', { web_app: { url: `${SITE_URL}` } })],
     ];
 
     if (isAdmin) {
@@ -883,10 +883,9 @@ function getMenuContent(
       [{ text: '💎 تىلگىرام Premium', callback_data: 'tg:premium' }],
       [{ text: '🌟 تىلگىرام يۇلتۇز سېتىۋېلىش', callback_data: 'tg:stars' }],
       [
-        {
-          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+        btnWithIcon('تېخىمۇ كۆپ (توربەتتە كۆرۈش)', 'webapp', '🌐', {
           web_app: { url: `${SITE_URL}` },
-        },
+        }),
       ],
       [
         { text: '◀️ كەينىگە', callback_data: 'shop:home' },
@@ -905,10 +904,9 @@ function getMenuContent(
       [{ text: '🎬 CapCut PRO', callback_data: 'apps:capcut' }],
       [{ text: '🎨 Canva PRO', callback_data: 'apps:canva' }],
       [
-        {
-          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+        btnWithIcon('تېخىمۇ كۆپ (توربەتتە كۆرۈش)', 'webapp', '🌐', {
           web_app: { url: `${SITE_URL}` },
-        },
+        }),
       ],
       [
         { text: '◀️ كەينىگە', callback_data: 'shop:home' },
@@ -929,10 +927,9 @@ function getMenuContent(
       [{ text: '🛡️ Arena Breakout', callback_data: 'games:arena' }],
       [{ text: '🏰 Clash of Clans', callback_data: 'games:clash' }],
       [
-        {
-          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+        btnWithIcon('تېخىمۇ كۆپ (توربەتتە كۆرۈش)', 'webapp', '🌐', {
           web_app: { url: `${SITE_URL}` },
-        },
+        }),
       ],
       [
         { text: '◀️ كەينىگە', callback_data: 'shop:home' },
@@ -954,10 +951,9 @@ function getMenuContent(
       [{ text: '💎 ئاسىيا فىلىپپىن', callback_data: 'games:mlbb_special' }],
       [{ text: '🎟️ ھەپتىلىك كارتا', callback_data: 'games:mlbb_passes' }],
       [
-        {
-          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+        btnWithIcon('تېخىمۇ كۆپ (توربەتتە كۆرۈش)', 'webapp', '🌐', {
           web_app: { url: `${SITE_URL}` },
-        },
+        }),
       ],
       [
         { text: '◀️ كەينىگە', callback_data: 'shop:games' },
@@ -977,10 +973,9 @@ function getMenuContent(
       [{ text: '🪙 PUBG UC قاچىلاش (Direct UC)', callback_data: 'games:pubg_uc' }],
       [{ text: '🎟️ كىملىك ۋە ئەزالىق كارتىلىرى', callback_data: 'games:pubg_passes' }],
       [
-        {
-          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+        btnWithIcon('تېخىمۇ كۆپ (توربەتتە كۆرۈش)', 'webapp', '🌐', {
           web_app: { url: `${SITE_URL}` },
-        },
+        }),
       ],
       [
         { text: '◀️ كەينىگە', callback_data: 'shop:games' },
@@ -1000,10 +995,9 @@ function getMenuContent(
       [{ text: '💎 Free Fire ئالماس قاچىلاش (Diamonds)', callback_data: 'games:freefire_diamonds' }],
       [{ text: '🎟️ ھەپتىلىك ۋە ئايلىق ئەزالىق (Memberships)', callback_data: 'games:freefire_memberships' }],
       [
-        {
-          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+        btnWithIcon('تېخىمۇ كۆپ (توربەتتە كۆرۈش)', 'webapp', '🌐', {
           web_app: { url: `${SITE_URL}` },
-        },
+        }),
       ],
       [
         { text: '◀️ كەينىگە', callback_data: 'shop:games' },
@@ -1023,10 +1017,9 @@ function getMenuContent(
       [{ text: '👑 Honor of Kings توكېن قاچىلاش (Tokens)', callback_data: 'games:hok_tokens' }],
       [{ text: '🎟️ ھەپتىلىك كارتىلار', callback_data: 'games:hok_passes' }],
       [
-        {
-          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+        btnWithIcon('تېخىمۇ كۆپ (توربەتتە كۆرۈش)', 'webapp', '🌐', {
           web_app: { url: `${SITE_URL}` },
-        },
+        }),
       ],
       [
         { text: '◀️ كەينىگە', callback_data: 'shop:games' },
@@ -1046,10 +1039,9 @@ function getMenuContent(
       [{ text: '💰 Arena Breakout Bonds قاچىلاش (Bonds)', callback_data: 'games:arena_bonds' }],
       [{ text: '🛡️ ئەزالىق ۋە قوغداش قېپى', callback_data: 'games:arena_passes' }],
       [
-        {
-          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+        btnWithIcon('تېخىمۇ كۆپ (توربەتتە كۆرۈش)', 'webapp', '🌐', {
           web_app: { url: `${SITE_URL}` },
-        },
+        }),
       ],
       [
         { text: '◀️ كەينىگە', callback_data: 'shop:games' },
@@ -1068,10 +1060,9 @@ function getMenuContent(
     const inline_keyboard: any[][] = [
       [{ text: '🏰 Clash of Clans ئالتۇن بېلەت ۋە تالونلار', callback_data: 'games:clash_passes' }],
       [
-        {
-          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+        btnWithIcon('تېخىمۇ كۆپ (توربەتتە كۆرۈش)', 'webapp', '🌐', {
           web_app: { url: `${SITE_URL}` },
-        },
+        }),
       ],
       [
         { text: '◀️ كەينىگە', callback_data: 'shop:games' },
@@ -1211,10 +1202,9 @@ function getMenuContent(
 
     if (menuId.startsWith('games:') || menuId.startsWith('apps:') || menuId.startsWith('tg:')) {
       inline_keyboard.push([
-        {
-          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+        btnWithIcon('تېخىمۇ كۆپ (توربەتتە كۆرۈش)', 'webapp', '🌐', {
           web_app: { url: `${SITE_URL}` },
-        },
+        }),
       ]);
     }
 
