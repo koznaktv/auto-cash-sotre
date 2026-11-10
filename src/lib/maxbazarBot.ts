@@ -43,7 +43,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   telegram_sub: '5350501108659790021', // ⭐️ تىلگىرام ئەزالىق ئېچىش (Animated Glowing Star)
   ai_apps: '5204437027633786910', // 🍏 AI ۋە ئەپلەر (Animated Apple/Apps)
   games: '5467583879948803288', // 🎮 ئويۇنلار (Animated Game Controller)
-  arena: '5202206616757238053', // 🛡️ Arena Breakout (Animated 3D Shield)
+  arena: '6138450886751424946', // 🌟 Arena Breakout (Custom Emoji)
   syriatel: '5005811690890069852', // 🇸🇾 سۈرىيەتىل (Free Syria Flag animated video sticker)
   mtn: '5008461419423729981', // 🇸🇾 ئىمتىئىن (Free Syria Flag animated video sticker)
   turkey: '5226948110873278599', // 🇹🇷 تۈركىيە كارتىسى (Animated Turkey Flag)
@@ -596,7 +596,7 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'games:arena_bonds': {
-    name: '💰 Arena Breakout Bonds قاچىلاش (Bonds)',
+    name: '<tg-emoji emoji-id="6138450886751424946">🌟</tg-emoji> Arena Breakout Bonds قاچىلاش (Bonds)',
     autocash: [
       { title: '💰 66 Bonds — $0.93', code: 'arena_b:657:ac', price: 0.93 },
       { title: '💰 335 Bonds — $4.71', code: 'arena_b:658:ac', price: 4.71 },
@@ -1045,7 +1045,7 @@ function getMenuContent(
   // 7.6 Arena Breakout Submenu
   if (menuId === 'games:arena') {
     const text =
-      `<tg-emoji emoji-id="5202206616757238053">🛡</tg-emoji> <b>Arena Breakout</b>\n\n` +
+      `<tg-emoji emoji-id="6138450886751424946">🌟</tg-emoji> <b>Arena Breakout</b>\n\n` +
       `📦 <b>ئېھتىياجلىق تۈرنى تاللاڭ:</b>`;
 
     const inline_keyboard: any[][] = [
