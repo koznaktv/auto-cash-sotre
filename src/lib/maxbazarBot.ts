@@ -388,105 +388,310 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
       { title: '🎨 Canva Pro (2 يىللىق 500 تەكلىپنامىلىك) — $27.51', code: 'canva:2y_500:mb', price: 27.51 },
     ],
   },
-  'games:mlbb': {
-    name: '⚔️ Mobile Legends: Bang Bang',
+'games:mlbb_global': {
+    name: '⚔️ MLBB گىلوبال ئالماس (Global Server)',
     autocash: [
-      { title: '💎 86 ئالماس — $1.33', code: 'mlbb:86:ac', price: 1.33 },
-      { title: '💎 172 ئالماس — $2.63', code: 'mlbb:172:ac', price: 2.63 },
-      { title: '💎 257 ئالماس — $3.81', code: 'mlbb:257:ac', price: 3.81 },
-      { title: '💎 706 ئالماس — $10.40', code: 'mlbb:706:ac', price: 10.40 },
+      { title: '💎 78 ئالماس — $1.32', code: 'mlbb_g:415:ac', price: 1.32 },
+      { title: '💎 156 ئالماس — $2.61', code: 'mlbb_g:416:ac', price: 2.61 },
+      { title: '💎 234 ئالماس — $3.77', code: 'mlbb_g:417:ac', price: 3.77 },
+      { title: '💎 625 ئالماس — $10.12', code: 'mlbb_g:418:ac', price: 10.12 },
+      { title: '💎 1860 ئالماس — $31.00', code: 'mlbb_g:419:ac', price: 31.0 },
+      { title: '💎 3099 ئالماس — $51.05', code: 'mlbb_g:420:ac', price: 51.05 },
+      { title: '💎 4649 ئالماس — $77.10', code: 'mlbb_g:421:ac', price: 77.1 },
+      { title: '💎 7740 ئالماس — $128.04', code: 'mlbb_g:422:ac', price: 128.04 },
     ],
     maxbazar: [
-      { title: '💎 86 ئالماس — $1.29', code: 'mlbb:86:mb', price: 1.29 },
-      { title: '💎 172 ئالماس — $2.55', code: 'mlbb:172:mb', price: 2.55 },
-      { title: '💎 257 ئالماس — $3.70', code: 'mlbb:257:mb', price: 3.70 },
-      { title: '💎 706 ئالماس — $10.10', code: 'mlbb:706:mb', price: 10.10 },
+      { title: '💎 55 ئالماس — $0.84', code: 'mlbb_g:1891:mb', price: 0.84 },
+      { title: '💎 86 ئالماس — $1.33', code: 'mlbb_g:1893:mb', price: 1.33 },
+      { title: '💎 165 ئالماس — $2.52', code: 'mlbb_g:1883:mb', price: 2.52 },
+      { title: '💎 275 ئالماس — $4.04', code: 'mlbb_g:1886:mb', price: 4.04 },
+      { title: '💎 429 ئالماس — $6.39', code: 'mlbb_g:1890:mb', price: 6.39 },
+      { title: '💎 706 ئالماس — $10.35', code: 'mlbb_g:1892:mb', price: 10.35 },
+      { title: '💎 1050 ئالماس — $15.60', code: 'mlbb_g:1880:mb', price: 15.6 },
+      { title: '💎 1308 ئالماس — $19.56', code: 'mlbb_g:1881:mb', price: 19.56 },
+      { title: '💎 1498 ئالماس — $22.01', code: 'mlbb_g:1882:mb', price: 22.01 },
+      { title: '💎 1756 ئالماس — $25.94', code: 'mlbb_g:1884:mb', price: 25.94 },
+      { title: '💎 2195 ئالماس — $31.29', code: 'mlbb_g:1885:mb', price: 31.29 },
+      { title: '💎 3073 ئالماس — $44.27', code: 'mlbb_g:1887:mb', price: 44.27 },
+      { title: '💎 3774 ئالماس — $53.54', code: 'mlbb_g:1888:mb', price: 53.54 },
+      { title: '💎 4204 ئالماس — $60.09', code: 'mlbb_g:1889:mb', price: 60.09 },
     ],
   },
-  'games:pubg': {
-    name: '🪂 PUBG Mobile UC',
+  'games:mlbb_turkey': {
+    name: '⚔️ MLBB تۈركىيە ئالماس (Turkey Server)',
     autocash: [
-      { title: '🪙 60 UC — $0.98', code: 'pubg:60:ac', price: 0.98 },
-      { title: '🪙 325 UC — $4.85', code: 'pubg:325:ac', price: 4.85 },
-      { title: '🪙 660 UC — $9.60', code: 'pubg:660:ac', price: 9.60 },
-      { title: '🪙 1800 UC — $24.50', code: 'pubg:1800:ac', price: 24.50 },
+      { title: '💎 88 ئالماس (TR) — $1.47', code: 'mlbb_tr:428:ac', price: 1.47 },
+      { title: '💎 133 ئالماس (TR) — $2.23', code: 'mlbb_tr:429:ac', price: 2.23 },
+      { title: '💎 221 ئالماس (TR) — $3.69', code: 'mlbb_tr:430:ac', price: 3.69 },
+      { title: '💎 494 ئالماس (TR) — $8.21', code: 'mlbb_tr:431:ac', price: 8.21 },
+      { title: '💎 1041 ئالماس (TR) — $16.42', code: 'mlbb_tr:432:ac', price: 16.42 },
+      { title: '💎 2645 ئالماس (TR) — $41.01', code: 'mlbb_tr:433:ac', price: 41.01 },
     ],
     maxbazar: [
-      { title: '🪙 60 UC — $0.94', code: 'pubg:60:mb', price: 0.94 },
-      { title: '🪙 325 UC — $4.65', code: 'pubg:325:mb', price: 4.65 },
-      { title: '🪙 660 UC — $9.20', code: 'pubg:660:mb', price: 9.20 },
-      { title: '🪙 1800 UC — $23.50', code: 'pubg:1800:mb', price: 23.50 },
+      { title: '💎 16 ئالماس (TR) — $0.27', code: 'mlbb_tr:958:mb', price: 0.27 },
+      { title: '💎 44 ئالماس (TR) — $0.74', code: 'mlbb_tr:961:mb', price: 0.74 },
+      { title: '💎 88 ئالماس (TR) — $1.48', code: 'mlbb_tr:964:mb', price: 1.48 },
+      { title: '💎 133 ئالماس (TR) — $2.23', code: 'mlbb_tr:957:mb', price: 2.23 },
+      { title: '💎 221 ئالماس (TR) — $3.71', code: 'mlbb_tr:959:mb', price: 3.71 },
+      { title: '💎 494 ئالماس (TR) — $8.26', code: 'mlbb_tr:962:mb', price: 8.26 },
+      { title: '💎 1041 ئالماس (TR) — $16.54', code: 'mlbb_tr:956:mb', price: 16.54 },
+      { title: '💎 2645 ئالماس (TR) — $41.29', code: 'mlbb_tr:960:mb', price: 41.29 },
+      { title: '💎 6146 ئالماس (TR) — $94.26', code: 'mlbb_tr:963:mb', price: 94.26 },
     ],
   },
-  'games:freefire': {
-    name: '🔥 Garena Free Fire',
+  'games:mlbb_special': {
+    name: '⚔️ MLBB ئالاھىدە ئالماس (Special Server)',
     autocash: [
-      { title: '💎 110 ئالماس (100+10) — $0.99', code: 'ff:110:ac', price: 0.99 },
-      { title: '💎 231 ئالماس (210+21) — $2.00', code: 'ff:231:ac', price: 2.00 },
-      { title: '💎 583 ئالماس (530+53) — $5.00', code: 'ff:583:ac', price: 5.00 },
-      { title: '💎 1188 ئالماس (1080+108) — $10.00', code: 'ff:1188:ac', price: 10.00 },
     ],
     maxbazar: [
-      { title: '💎 110 ئالماس (100+10) — $0.96', code: 'ff:110:mb', price: 0.96 },
-      { title: '💎 231 ئالماس (210+21) — $1.93', code: 'ff:231:mb', price: 1.93 },
-      { title: '💎 583 ئالماس (530+53) — $4.85', code: 'ff:583:mb', price: 4.85 },
-      { title: '💎 1188 ئالماس (1080+108) — $9.70', code: 'ff:1188:mb', price: 9.70 },
+      { title: '💎 14 ئالماس (Special) — $0.28', code: 'mlbb_sp:941:mb', price: 0.28 },
+      { title: '💎 28 ئالماس (Special) — $0.57', code: 'mlbb_sp:948:mb', price: 0.57 },
+      { title: '💎 42 ئالماس (Special) — $0.85', code: 'mlbb_sp:951:mb', price: 0.85 },
+      { title: '💎 55 ئالماس (Special) — $1.11', code: 'mlbb_sp:952:mb', price: 1.11 },
+      { title: '💎 140 ئالماس (Special) — $2.82', code: 'mlbb_sp:942:mb', price: 2.82 },
+      { title: '💎 165 ئالماس (Special) — $3.29', code: 'mlbb_sp:943:mb', price: 3.29 },
+      { title: '💎 182 ئالماس (Special) — $3.67', code: 'mlbb_sp:944:mb', price: 3.67 },
+      { title: '💎 210 ئالماس (Special) — $4.23', code: 'mlbb_sp:945:mb', price: 4.23 },
+      { title: '💎 275 ئالماس (Special) — $5.48', code: 'mlbb_sp:947:mb', price: 5.48 },
+      { title: '💎 355 ئالماس (Special) — $7.06', code: 'mlbb_sp:950:mb', price: 7.06 },
+      { title: '💎 1060 ئالماس (Special) — $21.04', code: 'mlbb_sp:936:mb', price: 21.04 },
+      { title: '💎 1084 ئالماس (Special) — $21.12', code: 'mlbb_sp:938:mb', price: 21.12 },
+      { title: '💎 1071 ئالماس (Special) — $21.18', code: 'mlbb_sp:937:mb', price: 21.18 },
+      { title: '💎 1085 ئالماس (Special) — $21.47', code: 'mlbb_sp:939:mb', price: 21.47 },
+      { title: '💎 1285 ئالماس (Special) — $25.41', code: 'mlbb_sp:940:mb', price: 25.41 },
+      { title: '💎 2162 ئالماس (Special) — $42.28', code: 'mlbb_sp:946:mb', price: 42.28 },
+      { title: '💎 3005 ئالماس (Special) — $52.14', code: 'mlbb_sp:949:mb', price: 52.14 },
     ],
   },
-  'games:cod': {
-    name: '🎯 Call of Duty Mobile',
+  'games:mlbb_passes': {
+    name: '🎟️ MLBB ھەپتىلىك كارتا ۋە ئەزالىق (Weekly / Twilight Pass)',
     autocash: [
-      { title: '🎖️ 80 CP — $0.99', code: 'cod:80:ac', price: 0.99 },
-      { title: '🎖️ 420 CP — $4.99', code: 'cod:420:ac', price: 4.99 },
-      { title: '🎖️ 880 CP — $9.99', code: 'cod:880:ac', price: 9.99 },
+      { title: '🎟️ Limited-Time Value Pack — $0.23', code: 'mlbb_pass:434:ac', price: 0.23 },
+      { title: '🎟️ Weekly Elite Bundle ML — $0.85', code: 'mlbb_pass:423:ac', price: 0.85 },
+      { title: '🎟️ Weekly Elite Pack TR — $0.96', code: 'mlbb_pass:437:ac', price: 0.96 },
+      { title: '🎟️ Weekly Diamond Pass — $1.61', code: 'mlbb_pass:425:ac', price: 1.61 },
+      { title: '🎟️ Weekly Pass TR — $2.21', code: 'mlbb_pass:438:ac', price: 2.21 },
+      { title: '🎟️ Monthly Elite Bundle ML — $4.27', code: 'mlbb_pass:424:ac', price: 4.27 },
+      { title: '🎟️ Monthly Elite Pack TR — $4.75', code: 'mlbb_pass:435:ac', price: 4.75 },
+      { title: '🎟️ Mobile Legends Twilight Pass — $8.71', code: 'mlbb_pass:426:ac', price: 8.71 },
+      { title: '🎟️ Twilight Pass TR — $9.13', code: 'mlbb_pass:436:ac', price: 9.13 },
     ],
     maxbazar: [
-      { title: '🎖️ 80 CP — $0.95', code: 'cod:80:mb', price: 0.95 },
-      { title: '🎖️ 420 CP — $4.75', code: 'cod:420:mb', price: 4.75 },
-      { title: '🎖️ 880 CP — $9.50', code: 'cod:880:mb', price: 9.50 },
+      { title: '🎟️ Limited (TR) — $0.23', code: 'mlbb_pass:965:mb', price: 0.23 },
+      { title: '🎟️ Weekly Elite Pack — $0.85', code: 'mlbb_pass:1897:mb', price: 0.85 },
+      { title: '🎟️ Weekly Elite Pack (TR) — $0.96', code: 'mlbb_pass:968:mb', price: 0.96 },
+      { title: '🎟️ Weekly Elite Pack (Special) — $1.11', code: 'mlbb_pass:955:mb', price: 1.11 },
+      { title: '🎟️ Weekly — $1.63', code: 'mlbb_pass:1896:mb', price: 1.63 },
+      { title: '🎟️ Weekly (TR) — $1.90', code: 'mlbb_pass:967:mb', price: 1.9 },
+      { title: '🎟️ Weekly (Special) — $2.42', code: 'mlbb_pass:954:mb', price: 2.42 },
+      { title: '🎟️ Monthly Elite Pack — $4.26', code: 'mlbb_pass:1894:mb', price: 4.26 },
+      { title: '🎟️ Monthly Elite Pack (TR) — $4.77', code: 'mlbb_pass:966:mb', price: 4.77 },
+      { title: '🎟️ Monthly Elite Pack (Special) — $5.47', code: 'mlbb_pass:953:mb', price: 5.47 },
+      { title: '🎟️ Twilight — $8.67', code: 'mlbb_pass:1895:mb', price: 8.67 },
     ],
   },
-  'games:hok': {
-    name: '👑 Honor of Kings',
+  'games:pubg_uc': {
+    name: '🪂 PUBG Mobile UC قاچىلاش (Direct UC)',
     autocash: [
-      { title: '👑 80 Tokens — $0.88', code: 'hok:80:ac', price: 0.88 },
-      { title: '👑 240 Tokens — $2.60', code: 'hok:240:ac', price: 2.60 },
-      { title: '👑 400 Tokens — $4.30', code: 'hok:400:ac', price: 4.30 },
-      { title: '👑 800 Tokens — $8.50', code: 'hok:800:ac', price: 8.50 },
+      { title: '🪙 60 UC — $1.01', code: 'pubg_uc:346:ac', price: 1.01 },
+      { title: '🪙 325 UC — $5.08', code: 'pubg_uc:350:ac', price: 5.08 },
+      { title: '🪙 660 UC — $10.19', code: 'pubg_uc:347:ac', price: 10.19 },
+      { title: '🪙 1800 UC — $25.73', code: 'pubg_uc:348:ac', price: 25.73 },
+      { title: '🪙 3850 UC — $49.47', code: 'pubg_uc:349:ac', price: 49.47 },
+      { title: '🪙 8100 UC — $98.12', code: 'pubg_uc:351:ac', price: 98.12 },
     ],
     maxbazar: [
-      { title: '👑 80 Tokens — $0.85', code: 'hok:80:mb', price: 0.85 },
-      { title: '👑 240 Tokens — $2.48', code: 'hok:240:mb', price: 2.48 },
-      { title: '👑 400 Tokens — $4.10', code: 'hok:400:mb', price: 4.10 },
-      { title: '👑 800 Tokens — $8.20', code: 'hok:800:mb', price: 8.20 },
+      { title: '🪙 60 UC — $1.05', code: 'pubg_uc:60:mb', price: 1.05 },
+      { title: '🪙 325 UC — $5.38', code: 'pubg_uc:54:mb', price: 5.38 },
+      { title: '🪙 660 UC — $10.76', code: 'pubg_uc:62:mb', price: 10.76 },
+      { title: '🪙 985 UC — $16.15', code: 'pubg_uc:67:mb', price: 16.15 },
+      { title: '🪙 1320 UC — $21.53', code: 'pubg_uc:49:mb', price: 21.53 },
+      { title: '🪙 1800 UC — $26.61', code: 'pubg_uc:51:mb', price: 26.61 },
+      { title: '🪙 2460 UC — $37.67', code: 'pubg_uc:53:mb', price: 37.67 },
+      { title: '🪙 3850 UC — $53.22', code: 'pubg_uc:56:mb', price: 53.22 },
+      { title: '🪙 5650 UC — $80.73', code: 'pubg_uc:59:mb', price: 80.73 },
+      { title: '🪙 8100 UC — $106.88', code: 'pubg_uc:64:mb', price: 106.88 },
+      { title: '🪙 11950 UC — $161.46', code: 'pubg_uc:48:mb', price: 161.46 },
+      { title: '🪙 16200 UC — $212.89', code: 'pubg_uc:50:mb', price: 212.89 },
     ],
   },
-  'games:arena': {
-    name: '🛡️ Arena Breakout',
+  'games:pubg_passes': {
+    name: '🎟️ PUBG كىملىك / ئەزالىق ۋە پاسس (Pass & Prime)',
     autocash: [
-      { title: '🛡️ 66 Bonds — $0.87', code: 'arena:66:ac', price: 0.87 },
-      { title: '🛡️ 330 Bonds — $4.20', code: 'arena:330:ac', price: 4.20 },
-      { title: '🛡️ 660 Bonds — $8.30', code: 'arena:660:ac', price: 8.30 },
-      { title: '🎫 ئايلىق Battle Pass — $3.90', code: 'arena:bp:ac', price: 3.90 },
+      { title: '🎟️ حزمة الصفقات الأسبوعية 1 — $1.02', code: 'pubg_pass:720:ac', price: 1.02 },
+      { title: '🎟️ Prime ( من الشهور 1) — $1.05', code: 'pubg_pass:709:ac', price: 1.05 },
+      { title: '🎟️ حزمة الشراء الأول — $1.05', code: 'pubg_pass:706:ac', price: 1.05 },
+      { title: '🎟️ حزمة الصفقات الأسبوعية 2 — $3.06', code: 'pubg_pass:721:ac', price: 3.06 },
+      { title: '🎟️ Prime ( من الشهور 3) — $3.13', code: 'pubg_pass:710:ac', price: 3.13 },
+      { title: '🎟️ حزمة ترقية للأسلحة النارية — $3.19', code: 'pubg_pass:707:ac', price: 3.19 },
+      { title: '🎟️ حزمة الشعار الاسطوري الاسبوعي (بلورة حمراء) — $3.98', code: 'pubg_pass:722:ac', price: 3.98 },
+      { title: '🎟️ حزمة الشعار الخرافي — $5.12', code: 'pubg_pass:708:ac', price: 5.12 },
+      { title: '🎟️ Prime ( من الشهور 6) — $6.26', code: 'pubg_pass:711:ac', price: 6.26 },
+      { title: '🎟️ بطاقة النخبة (lv1-50) — $6.29', code: 'pubg_pass:717:ac', price: 6.29 },
+      { title: '🎟️ Prime Plus (من الشهور 1) — $10.53', code: 'pubg_pass:713:ac', price: 10.53 },
+      { title: '🎟️ Prime ( من الشهور 12) — $12.52', code: 'pubg_pass:712:ac', price: 12.52 },
+      { title: '🎟️ بطاقة النخبة (lv1-100) — $12.68', code: 'pubg_pass:718:ac', price: 12.68 },
+      { title: '🎟️ بطاقة النخبة بلس (lv1-100) — $30.07', code: 'pubg_pass:719:ac', price: 30.07 },
+      { title: '🎟️ Prime Plus (من الشهور 3) — $31.31', code: 'pubg_pass:714:ac', price: 31.31 },
+      { title: '🎟️ Prime Plus (من الشهور 6) — $61.67', code: 'pubg_pass:715:ac', price: 61.67 },
+      { title: '🎟️ Prime Plus (من الشهور 12) — $124.52', code: 'pubg_pass:716:ac', price: 124.52 },
     ],
     maxbazar: [
-      { title: '🛡️ 66 Bonds — $0.84', code: 'arena:66:mb', price: 0.84 },
-      { title: '🛡️ 330 Bonds — $4.05', code: 'arena:330:mb', price: 4.05 },
-      { title: '🛡️ 660 Bonds — $8.00', code: 'arena:660:mb', price: 8.00 },
-      { title: '🎫 ئايلىق Battle Pass — $3.75', code: 'arena:bp:mb', price: 3.75 },
+      { title: '🎟️ حزمة الشراء الأولى — $1.05', code: 'pubg_pass:859:mb', price: 1.05 },
+      { title: '🎟️ برايم 1 شهر — $1.05', code: 'pubg_pass:861:mb', price: 1.05 },
+      { title: '🎟️ حزمة الصفقات الاسبوعية 1 — $1.07', code: 'pubg_pass:870:mb', price: 1.07 },
+      { title: '🎟️ حزمة ازدهار ماتيريال — $3.14', code: 'pubg_pass:869:mb', price: 3.14 },
+      { title: '🎟️ برايم 3 أشهر — $3.16', code: 'pubg_pass:863:mb', price: 3.16 },
+      { title: '🎟️ حزمة الصفقات الاسبوعية 2 — $3.19', code: 'pubg_pass:871:mb', price: 3.19 },
+      { title: '🎟️ حزمة قيمة الشعار الخرافي الاسبوعية — $3.19', code: 'pubg_pass:872:mb', price: 3.19 },
+      { title: '🎟️ حزمة ازدهار شعار خرافي — $5.25', code: 'pubg_pass:860:mb', price: 5.25 },
+      { title: '🎟️ برايم 6 أشهر — $6.31', code: 'pubg_pass:864:mb', price: 6.31 },
+      { title: '🎟️ Elite Pass LV1 — $6.34', code: 'pubg_pass:857:mb', price: 6.34 },
+      { title: '🎟️ برايم بلس 1 شهر — $10.52', code: 'pubg_pass:865:mb', price: 10.52 },
+      { title: '🎟️ برايم 12 شهر — $12.63', code: 'pubg_pass:862:mb', price: 12.63 },
+      { title: '🎟️ Elite Pass LV1 — $12.79', code: 'pubg_pass:856:mb', price: 12.79 },
+      { title: '🎟️ Elite Pass Plus LV1 — $31.36', code: 'pubg_pass:858:mb', price: 31.36 },
+      { title: '🎟️ برايم بلس 3 أشهر — $31.57', code: 'pubg_pass:867:mb', price: 31.57 },
+      { title: '🎟️ برايم بلس 6 أشهر — $62.19', code: 'pubg_pass:868:mb', price: 62.19 },
+      { title: '🎟️ برايم بلس 12 أشهر — $125.58', code: 'pubg_pass:866:mb', price: 125.58 },
     ],
   },
-  'games:clash': {
-    name: '🏰 Clash of Clans',
+  'games:freefire_diamonds': {
+    name: '🔥 Free Fire ئالماس قاچىلاش (Diamonds)',
     autocash: [
-      { title: '🏰 80 Gems — $0.99', code: 'coc:80:ac', price: 0.99 },
-      { title: '🏰 500 Gems — $4.99', code: 'coc:500:ac', price: 4.99 },
-      { title: '🎟️ ئالتۇن بېلەت (Gold Pass) — $6.99', code: 'coc:gp:ac', price: 6.99 },
+      { title: '💎 100+10 ئالماس — $1.06', code: 'ff_d:352:ac', price: 1.06 },
+      { title: '💎 210+21 ئالماس — $2.15', code: 'ff_d:353:ac', price: 2.15 },
+      { title: '💎 530+53 ئالماس — $5.42', code: 'ff_d:354:ac', price: 5.42 },
+      { title: '💎 1080+108 ئالماس — $10.83', code: 'ff_d:355:ac', price: 10.83 },
+      { title: '💎 2200+220 ئالماس — $21.67', code: 'ff_d:356:ac', price: 21.67 },
     ],
     maxbazar: [
-      { title: '🏰 80 Gems — $0.95', code: 'coc:80:mb', price: 0.95 },
-      { title: '🏰 500 Gems — $4.75', code: 'coc:500:mb', price: 4.75 },
-      { title: '🎟️ ئالتۇن بېلەت (Gold Pass) — $6.65', code: 'coc:gp:mb', price: 6.65 },
+      { title: '💎 110 ئالماس — $1.11', code: 'ff_d:231:mb', price: 1.11 },
+      { title: '💎 231 ئالماس — $2.22', code: 'ff_d:233:mb', price: 2.22 },
+      { title: '💎 583 ئالماس — $5.60', code: 'ff_d:235:mb', price: 5.6 },
+      { title: '💎 1188 ئالماس — $11.18', code: 'ff_d:232:mb', price: 11.18 },
+      { title: '💎 2420 ئالماس — $22.25', code: 'ff_d:234:mb', price: 22.25 },
+    ],
+  },
+  'games:freefire_memberships': {
+    name: '🎟️ Free Fire ھەپتىلىك ۋە ئايلىق ئەزالىق (Memberships)',
+    autocash: [
+      { title: '🎟️ عضوية اسبوعية — $2.31', code: 'ff_pass:949:ac', price: 2.31 },
+      { title: '🎟️ Booyah Pass — $3.47', code: 'ff_pass:961:ac', price: 3.47 },
+      { title: '🎟️ عضوية شهرية — $11.44', code: 'ff_pass:950:ac', price: 11.44 },
+    ],
+    maxbazar: [
+      { title: '🎟️ حزمة ترقية المستوى 6 — $0.51', code: 'ff_pass:242:mb', price: 0.51 },
+      { title: '🎟️ حزمة ترقية المستوى 10 — $0.81', code: 'ff_pass:237:mb', price: 0.81 },
+      { title: '🎟️ حزمة ترقية المستوى 15 — $0.81', code: 'ff_pass:238:mb', price: 0.81 },
+      { title: '🎟️ حزمة ترقية المستوى 20 — $0.81', code: 'ff_pass:239:mb', price: 0.81 },
+      { title: '🎟️ حزمة ترقية المستوى 25 — $0.81', code: 'ff_pass:240:mb', price: 0.81 },
+      { title: '🎟️ حزمة ترقية المستوى 30 — $1.15', code: 'ff_pass:241:mb', price: 1.15 },
+      { title: '🎟️ عضوية اسبوعية — $2.51', code: 'ff_pass:2222:mb', price: 2.51 },
+      { title: '🎟️ عضوية اسبوعية — $3.03', code: 'ff_pass:244:mb', price: 3.03 },
+      { title: '🎟️ بوياه باس — $3.50', code: 'ff_pass:236:mb', price: 3.5 },
+      { title: '🎟️ عضوية شهرية — $11.24', code: 'ff_pass:2221:mb', price: 11.24 },
+      { title: '🎟️ عضوية شهرية — $13.04', code: 'ff_pass:243:mb', price: 13.04 },
+    ],
+  },
+  'games:hok_tokens': {
+    name: '👑 Honor of Kings توكېن قاچىلاش (Tokens)',
+    autocash: [
+      { title: '👑 16 Tokens — $0.20', code: 'hok_t:633:ac', price: 0.2 },
+      { title: '👑 80 Tokens — $1.00', code: 'hok_t:634:ac', price: 1.0 },
+      { title: '👑 240 Tokens — $2.98', code: 'hok_t:635:ac', price: 2.98 },
+      { title: '👑 400 Tokens — $4.97', code: 'hok_t:636:ac', price: 4.97 },
+      { title: '👑 560 Tokens — $6.96', code: 'hok_t:637:ac', price: 6.96 },
+      { title: '👑 830 Tokens — $9.94', code: 'hok_t:638:ac', price: 9.94 },
+      { title: '👑 1245 Tokens — $14.91', code: 'hok_t:639:ac', price: 14.91 },
+      { title: '👑 2580 Tokens — $29.83', code: 'hok_t:640:ac', price: 29.83 },
+      { title: '👑 4180 Tokens — $49.71', code: 'hok_t:641:ac', price: 49.71 },
+      { title: '👑 8360 Tokens — $99.43', code: 'hok_t:642:ac', price: 99.43 },
+    ],
+    maxbazar: [
+      { title: '👑 16 Tokens — $0.21', code: 'hok_t:758:mb', price: 0.21 },
+      { title: '👑 80 Tokens — $1.01', code: 'hok_t:764:mb', price: 1.01 },
+      { title: '👑 240 Tokens — $3.05', code: 'hok_t:759:mb', price: 3.05 },
+      { title: '👑 400 Tokens — $5.11', code: 'hok_t:761:mb', price: 5.11 },
+      { title: '👑 560 Tokens — $7.15', code: 'hok_t:763:mb', price: 7.15 },
+      { title: '👑 830 Tokens — $10.21', code: 'hok_t:765:mb', price: 10.21 },
+      { title: '👑 1245 Tokens — $15.33', code: 'hok_t:757:mb', price: 15.33 },
+      { title: '👑 2508 Tokens — $30.67', code: 'hok_t:760:mb', price: 30.67 },
+      { title: '👑 4180 Tokens — $51.13', code: 'hok_t:762:mb', price: 51.13 },
+      { title: '👑 8360 Tokens — $102.25', code: 'hok_t:766:mb', price: 102.25 },
+    ],
+  },
+  'games:hok_passes': {
+    name: '🎟️ Honor of Kings ھەپتىلىك كارتا ۋە پاسس (Weekly Card & Packs)',
+    autocash: [
+      { title: '🎟️ Standard Purchase Rebate Pack — $0.38', code: 'hok_pass:646:ac', price: 0.38 },
+      { title: '🎟️ Honor Point Value Pack — $0.38', code: 'hok_pass:644:ac', price: 0.38 },
+      { title: '🎟️ Double Token Lucky Bag — $0.38', code: 'hok_pass:643:ac', price: 0.38 },
+      { title: '🎟️ Weekly Card  Honor — $1.10', code: 'hok_pass:648:ac', price: 1.1 },
+      { title: '🎟️ Premium Purchase Rebate Pack — $1.38', code: 'hok_pass:645:ac', price: 1.38 },
+      { title: '🎟️ Weekly Card Plus Honor — $3.37', code: 'hok_pass:647:ac', price: 3.37 },
+    ],
+    maxbazar: [
+      { title: '🎟️ Double Token Lucky Bag — $0.32', code: 'hok_pass:767:mb', price: 0.32 },
+      { title: '🎟️ Honor Point Value Pack — $0.32', code: 'hok_pass:768:mb', price: 0.32 },
+      { title: '🎟️ Standard Purchase Rebate Pack — $0.32', code: 'hok_pass:771:mb', price: 0.32 },
+      { title: '🎟️ Infernal Shadow Zilong — $0.56', code: 'hok_pass:769:mb', price: 0.56 },
+      { title: '🎟️ Weekly Card — $1.12', code: 'hok_pass:772:mb', price: 1.12 },
+      { title: '🎟️ Premium Purchase Rebate Pack — $1.29', code: 'hok_pass:770:mb', price: 1.29 },
+      { title: '🎟️ Weekly Card Plus — $3.31', code: 'hok_pass:773:mb', price: 3.31 },
+    ],
+  },
+  'games:arena_bonds': {
+    name: '💰 Arena Breakout Bonds قاچىلاش (Bonds)',
+    autocash: [
+      { title: '💰 66 Bonds — $0.93', code: 'arena_b:657:ac', price: 0.93 },
+      { title: '💰 335 Bonds — $4.71', code: 'arena_b:658:ac', price: 4.71 },
+      { title: '💰 675 Bonds — $9.35', code: 'arena_b:659:ac', price: 9.35 },
+      { title: '💰 1690 Bonds — $23.42', code: 'arena_b:660:ac', price: 23.42 },
+      { title: '💰 3400 Bonds — $46.77', code: 'arena_b:661:ac', price: 46.77 },
+      { title: '💰 6820 Bonds — $93.38', code: 'arena_b:662:ac', price: 93.38 },
+    ],
+    maxbazar: [
+      { title: '💰 66 Bonds — $0.94', code: 'arena_b:634:mb', price: 0.94 },
+      { title: '💰 335 Bonds — $4.75', code: 'arena_b:632:mb', price: 4.75 },
+      { title: '💰 675 Bonds — $9.50', code: 'arena_b:635:mb', price: 9.5 },
+      { title: '💰 1690 Bonds — $23.73', code: 'arena_b:630:mb', price: 23.73 },
+      { title: '💰 3400 Bonds — $47.54', code: 'arena_b:633:mb', price: 47.54 },
+      { title: '💰 6820 Bonds — $94.93', code: 'arena_b:636:mb', price: 94.93 },
+      { title: '💰 13640 Bonds — $189.86', code: 'arena_b:629:mb', price: 189.86 },
+      { title: '💰 20460 Bonds — $284.78', code: 'arena_b:631:mb', price: 284.78 },
+    ],
+  },
+  'games:arena_passes': {
+    name: '🛡️ Arena Breakout قوغداش قېپى ۋە پاسسلار (Cases & Passes)',
+    autocash: [
+      { title: '🛡️ Beginner Select — $0.85', code: 'arena_pass:663:ac', price: 0.85 },
+      { title: '🛡️ Monthly Advanced Battle Pass Activation Pass — $1.02', code: 'arena_pass:668:ac', price: 1.02 },
+      { title: '🛡️ Bulletproof Case (30d) — $2.55', code: 'arena_pass:664:ac', price: 2.55 },
+      { title: '🛡️ Bulletproof Case Privileges — $2.59', code: 'arena_pass:665:ac', price: 2.59 },
+      { title: '🛡️ Monthly Premium Battle Pass Activation Pass — $4.08', code: 'arena_pass:669:ac', price: 4.08 },
+      { title: '🛡️ Composite Case Privileges — $7.68', code: 'arena_pass:666:ac', price: 7.68 },
+      { title: '🛡️ Composition Case (30d) — $7.70', code: 'arena_pass:667:ac', price: 7.7 },
+      { title: '🛡️ Quarterly Premium Battle Pass Bundle Activation Pass Bundle — $12.39', code: 'arena_pass:670:ac', price: 12.39 },
+    ],
+    maxbazar: [
+      { title: '🛡️ Beginner Select — $0.85', code: 'arena_pass:637:mb', price: 0.85 },
+      { title: '🛡️ Monthly Advanced Battle Pass Activation Pass — $1.02', code: 'arena_pass:640:mb', price: 1.02 },
+      { title: '🛡️ Bulletproof Case (30d) — $2.57', code: 'arena_pass:638:mb', price: 2.57 },
+      { title: '🛡️ Monthly Premium Battle Pass Activation Pass — $4.11', code: 'arena_pass:641:mb', price: 4.11 },
+      { title: '🛡️ Composition Case (30d) — $7.78', code: 'arena_pass:639:mb', price: 7.78 },
+      { title: '🛡️ Quarterly Premium Battle Pass Bundle Activation Pass Bundle — $12.37', code: 'arena_pass:642:mb', price: 12.37 },
+    ],
+  },
+  'games:clash_passes': {
+    name: '🏰 Clash of Clans ئالتۇن بېلەت ۋە پاسسلار (Gold Pass & Event)',
+    autocash: [
+    ],
+    maxbazar: [
+      { title: '🏰 التذكرة الذهبية فئة C — $1.40', code: 'coc:836:mb', price: 1.4 },
+      { title: '🏰 التذكرة الذهبية فئة B — $1.67', code: 'coc:835:mb', price: 1.67 },
+      { title: '🏰 التذكرة الذهبية فئة A — $2.59', code: 'coc:834:mb', price: 2.59 },
+      { title: '🏰 تذكرة الحدث — $6.28', code: 'coc:837:mb', price: 6.28 },
     ],
   },
 };
@@ -783,7 +988,7 @@ function getMenuContent(
 
   // 7. Sub-category: Games
   if (menuId === 'shop:games') {
-    const text = `🎮 <b>ئويۇنلار (Game Top-Up)</b>\n\nئېھتىياجلىق ئويۇننى تاللاڭ:`;
+    const text = `🎮 <b>ئويۇنلار بۆلىكى (Game Top-Up)</b>\n\nتۆۋەندىكى ئويۇنلاردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
       [{ text: '⚔️ Mobile Legends', callback_data: 'games:mlbb' }],
       [{ text: '🪂 PUBG Mobile', callback_data: 'games:pubg' }],
@@ -800,6 +1005,141 @@ function getMenuContent(
       ],
       [
         { text: '◀️ كەينىگە', callback_data: 'shop:home' },
+        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+      ],
+    ];
+    return { text, inline_keyboard };
+  }
+
+  // 7.1 Mobile Legends Submenu
+  if (menuId === 'games:mlbb') {
+    const text =
+      `⚔️ <b>Mobile Legends: Bang Bang</b>\n\n` +
+      `📌 <b>سېرۋىر ۋە بولاق تۈرىنى تاللاڭ:</b>\n\n` +
+      `• <b>🌐 گىلوبال سېرۋىر ئالماس:</b> بارلىق دۆلەت ۋە سېرۋىرلارغا ئالماس قاچىلاش\n` +
+      `• <b>🇹🇷 تۈركىيە سېرۋىر ئالماس:</b> مەخسۇس تۈركىيە ھېساباتلىرى ئۈچۈن قولايلىق باھا\n` +
+      `• <b>⚡️ ئالاھىدە سېرۋىر ئالماس:</b> Max Store ئالاھىدە ئېتىبارلىق ئالماس سېپى (14 تىن 3005 ئالماسقىچە)\n` +
+      `• <b>🎟️ ھەپتىلىك كارتا ۋە ئەزالىق:</b> Weekly Diamond Pass, Twilight Pass, Elite Packs`;
+
+    const inline_keyboard: any[][] = [
+      [{ text: '💎 گىلوبال ئالماس (Global Server)', callback_data: 'games:mlbb_global' }],
+      [{ text: '💎 تۈركىيە ئالماس (Turkey Server)', callback_data: 'games:mlbb_turkey' }],
+      [{ text: '💎 ئالاھىدە ئالماس (Special Server - Max)', callback_data: 'games:mlbb_special' }],
+      [{ text: '🎟️ ھەپتىلىك كارتا ۋە ئەزالىق (Weekly / Twilight Pass)', callback_data: 'games:mlbb_passes' }],
+      [
+        { text: '◀️ كەينىگە', callback_data: 'shop:games' },
+        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+      ],
+    ];
+    return { text, inline_keyboard };
+  }
+
+  // 7.2 PUBG Mobile Submenu
+  if (menuId === 'games:pubg') {
+    const text =
+      `🪂 <b>PUBG Mobile UC ۋە ئەزالىق</b>\n\n` +
+      `تۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:\n\n` +
+      `• <b>🪙 PUBG UC قاچىلاش:</b> 60 UC تىن 8100 UC غىچە بىۋاسىتە Player ID قاچىلاش\n` +
+      `• <b>🎟️ كىملىك / ئەزالىق ۋە پاسس:</b> Royale Pass, Prime, Prime Plus (1, 3, 6, 12 ئايلىق)`;
+
+    const inline_keyboard: any[][] = [
+      [{ text: '🪙 PUBG UC قاچىلاش (Direct UC)', callback_data: 'games:pubg_uc' }],
+      [{ text: '🎟️ كىملىك / ئەزالىق ۋە پاسس (Pass & Prime)', callback_data: 'games:pubg_passes' }],
+      [
+        { text: '◀️ كەينىگە', callback_data: 'shop:games' },
+        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+      ],
+    ];
+    return { text, inline_keyboard };
+  }
+
+  // 7.3 Free Fire Submenu
+  if (menuId === 'games:freefire') {
+    const text =
+      `🔥 <b>Garena Free Fire ئالماس ۋە ئەزالىق</b>\n\n` +
+      `تۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:\n\n` +
+      `• <b>💎 Free Fire ئالماس قاچىلاش:</b> Player ID ئارقىلىق 110 تىن 2420 ئالماسقىچە\n` +
+      `• <b>🎟️ ھەپتىلىك ۋە ئايلىق ئەزالىق:</b> Weekly Membership, Monthly Membership, Booyah Pass`;
+
+    const inline_keyboard: any[][] = [
+      [{ text: '💎 Free Fire ئالماس قاچىلاش (Diamonds)', callback_data: 'games:freefire_diamonds' }],
+      [{ text: '🎟️ ھەپتىلىك ۋە ئايلىق ئەزالىق (Memberships)', callback_data: 'games:freefire_memberships' }],
+      [
+        { text: '◀️ كەينىگە', callback_data: 'shop:games' },
+        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+      ],
+    ];
+    return { text, inline_keyboard };
+  }
+
+  // 7.4 Call of Duty Notice
+  if (menuId === 'games:cod') {
+    const text =
+      `🎯 <b>Call of Duty Mobile</b>\n\n` +
+      `⚠️ <b>نۆۋەتتە تەمىنلەنمەيدۇ:</b>\n` +
+      `Max Store ۋە Othman Store ئىككىلا تەمىنلىگۈچى تەرەپنىڭ ئامبىرىدا Call of Duty مەھسۇلاتلىرى نۆۋەتتە مەۋجۇت ئەمەس (ۋاقىتلىق تەمىنلەنمىگەن).\n\n` +
+      `💡 سىزنىڭ «يوقلىرىنى ھەرگىز ئۆزۈڭ بىلىپ قوشما بارنى قوشقىن» دېگەن كۆرسەتمىڭىز بويىچە يالغان مەھسۇلات قوشۇلمىدى. تەمىنلىگۈچىلەردە ئېچىلغان ھامان بۇ يەردە دەرھال ئېچىلىدۇ.`;
+
+    const inline_keyboard: any[][] = [
+      [
+        { text: '◀️ كەينىگە', callback_data: 'shop:games' },
+        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+      ],
+    ];
+    return { text, inline_keyboard };
+  }
+
+  // 7.5 Honor of Kings Submenu
+  if (menuId === 'games:hok') {
+    const text =
+      `👑 <b>Honor of Kings توكېن ۋە پاسسلار</b>\n\n` +
+      `تۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:\n\n` +
+      `• <b>👑 توكېن قاچىلاش:</b> 16 Tokens تىن 8360 Tokens غىچە قاچىلاش\n` +
+      `• <b>🎟️ ھەپتىلىك كارتا ۋە پاسس:</b> Weekly Card, Weekly Card Plus, Lucky Bag, Rebate Packs`;
+
+    const inline_keyboard: any[][] = [
+      [{ text: '👑 Honor of Kings توكېن قاچىلاش (Tokens)', callback_data: 'games:hok_tokens' }],
+      [{ text: '🎟️ ھەپتىلىك كارتا ۋە پاسسلار (Weekly & Packs)', callback_data: 'games:hok_passes' }],
+      [
+        { text: '◀️ كەينىگە', callback_data: 'shop:games' },
+        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+      ],
+    ];
+    return { text, inline_keyboard };
+  }
+
+  // 7.6 Arena Breakout Submenu
+  if (menuId === 'games:arena') {
+    const text =
+      `🛡️ <b>Arena Breakout Bonds ۋە پاسسلار</b>\n\n` +
+      `تۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:\n\n` +
+      `• <b>💰 Bonds قاچىلاش:</b> 66 Bonds تىن 20460 Bonds غىچە قاچىلاش\n` +
+      `• <b>🛡️ قوغداش قېپى ۋە باتتىل پاسس:</b> Bulletproof Case, Composite Case, Monthly/Quarterly Battle Pass`;
+
+    const inline_keyboard: any[][] = [
+      [{ text: '💰 Arena Breakout Bonds قاچىلاش (Bonds)', callback_data: 'games:arena_bonds' }],
+      [{ text: '🛡️ قوغداش قېپى ۋە پاسسلار (Cases & Passes)', callback_data: 'games:arena_passes' }],
+      [
+        { text: '◀️ كەينىگە', callback_data: 'shop:games' },
+        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+      ],
+    ];
+    return { text, inline_keyboard };
+  }
+
+  // 7.7 Clash of Clans Submenu
+  if (menuId === 'games:clash') {
+    const text =
+      `🏰 <b>Clash of Clans ئالتۇن بېلەت ۋە پاسسلار</b>\n\n` +
+      `تۆۋەندىكى تۈردىن كىرىپ ئېھتىياجلىق بېلەتنى تاللاڭ:\n\n` +
+      `• <b>🎟️ ئالتۇن بېلەت (Gold Pass):</b> فئة A, فئة B, فئة C\n` +
+      `• <b>🎪 تەبرىكلەش بېلىتى (Event Pass):</b> تذكرة الحدث\n\n` +
+      `ℹ️ <i>بۇ مەھسۇلات نۆۋەتتە Max Store تەمىنلىگۈچى تەرەپتە تەمىنلەنگەن.</i>`;
+
+    const inline_keyboard: any[][] = [
+      [{ text: '🏰 Clash of Clans ئالتۇن بېلەت ۋە پاسسلار', callback_data: 'games:clash_passes' }],
+      [
+        { text: '◀️ كەينىگە', callback_data: 'shop:games' },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -901,6 +1241,18 @@ function getMenuContent(
       ? 'topup:units_menu'
       : menuId.startsWith('wifi:')
       ? 'shop:wifi'
+      : menuId.startsWith('games:mlbb_')
+      ? 'games:mlbb'
+      : menuId.startsWith('games:pubg_')
+      ? 'games:pubg'
+      : menuId.startsWith('games:freefire_')
+      ? 'games:freefire'
+      : menuId.startsWith('games:hok_')
+      ? 'games:hok'
+      : menuId.startsWith('games:arena_')
+      ? 'games:arena'
+      : menuId.startsWith('games:clash_')
+      ? 'games:clash'
       : menuId.startsWith('games:')
       ? 'shop:games'
       : menuId.startsWith('topup:')
