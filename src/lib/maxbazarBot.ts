@@ -182,30 +182,30 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'topup:syriatel': {
-    name: '📱 سۈرىيەتىل (Syriatel)',
+    name: '📱 سۈرىيەتىل (Syriatel بىرلىك)',
     autocash: [
-      { title: '⚡️ 10,000 كاش (SYRIATEL CASH) — $0.86', code: 'syr:10k_cash:ac', price: 0.86 },
-      { title: '⚡️ 25,000 كاش (SYRIATEL CASH) — $2.15', code: 'syr:25k_cash:ac', price: 2.15 },
-      { title: '⚡️ 50,000 كاش (SYRIATEL CASH) — $4.29', code: 'syr:50k_cash:ac', price: 4.29 },
-      { title: '⚡️ 100,000 كاش (SYRIATEL CASH) — $8.59', code: 'syr:100k_cash:ac', price: 8.59 },
-      { title: '⚡️ 250,000 كاش (SYRIATEL CASH) — $21.47', code: 'syr:250k_cash:ac', price: 21.47 },
+      { title: '📱 20.19 بىرلىك (وحدة) — $0.18', code: 'syr:20u:ac', price: 0.18 },
+      { title: '📱 52.88 بىرلىك (وحدة) — $0.46', code: 'syr:52u:ac', price: 0.46 },
       { title: '📱 100.96 بىرلىك (وحدة) — $0.88', code: 'syr:100u:ac', price: 0.88 },
+      { title: '📱 144.23 بىرلىك (وحدة) — $1.26', code: 'syr:144u:ac', price: 1.26 },
       { title: '📱 240.38 بىرلىك (وحدة) — $2.10', code: 'syr:240u:ac', price: 2.10 },
+      { title: '📱 370.19 بىرلىك (وحدة) — $3.24', code: 'syr:370u:ac', price: 3.24 },
       { title: '📱 480.76 بىرلىك (وحدة) — $4.21', code: 'syr:480u:ac', price: 4.21 },
+      { title: '📱 721.15 بىرلىك (وحدة) — $6.31', code: 'syr:721u:ac', price: 6.31 },
     ],
     maxbazar: [
-      { title: '⚡️ 10,000 كاش (SYRIATEL CASH) — $0.80', code: 'syr:10k_cash:mb', price: 0.80 },
-      { title: '⚡️ 25,000 كاش (SYRIATEL CASH) — $1.98', code: 'syr:25k_cash:mb', price: 1.98 },
-      { title: '⚡️ 50,000 كاش (SYRIATEL CASH) — $3.95', code: 'syr:50k_cash:mb', price: 3.95 },
-      { title: '⚡️ 100,000 كاش (SYRIATEL CASH) — $7.85', code: 'syr:100k_cash:mb', price: 7.85 },
-      { title: '⚡️ 250,000 كاش (SYRIATEL CASH) — $19.60', code: 'syr:250k_cash:mb', price: 19.60 },
+      { title: '📱 20.19 بىرلىك (وحدة) — $0.15', code: 'syr:20u:mb', price: 0.15 },
+      { title: '📱 52.88 بىرلىك (وحدة) — $0.40', code: 'syr:52u:mb', price: 0.40 },
       { title: '📱 100.96 بىرلىك (وحدة) — $0.76', code: 'syr:100u:mb', price: 0.76 },
+      { title: '📱 144.23 بىرلىك (وحدة) — $1.08', code: 'syr:144u:mb', price: 1.08 },
       { title: '📱 240.38 بىرلىك (وحدة) — $1.80', code: 'syr:240u:mb', price: 1.80 },
+      { title: '📱 370.19 بىرلىك (وحدة) — $2.77', code: 'syr:370u:mb', price: 2.77 },
       { title: '📱 480.76 بىرلىك (وحدة) — $3.60', code: 'syr:480u:mb', price: 3.60 },
+      { title: '📱 721.15 بىرلىك (وحدة) — $5.40', code: 'syr:721u:mb', price: 5.40 },
     ],
   },
   'topup:mtn': {
-    name: '📱 ئىمتىئىن (MTN سۈرىيە)',
+    name: '📱 ئىمتىئىن (MTN بىرلىك)',
     autocash: [
       { title: '📱 100 بىرلىك (وحدة) — $0.87', code: 'mtn:100u:ac', price: 0.87 },
       { title: '📱 200 بىرلىك (وحدة) — $1.74', code: 'mtn:200u:ac', price: 1.74 },
@@ -675,7 +675,7 @@ function getMenuContent(
       ...pkgs.map((p) => [
         {
           text: p.title,
-          callback_data: `buy:${menuId}:${p.code}`,
+          callback_data: `buy|${menuId}|${p.code}`,
         },
       ]),
       [
@@ -700,14 +700,22 @@ function getMenuContent(
     return { text, inline_keyboard };
   }
 
-  // 9. Buy Confirmation Screen (buy:...)
-  if (menuId.startsWith('buy:')) {
-    const parts = menuId.split(':');
-    const catKey = parts[1] + ':' + parts[2];
-    const pkgCode = parts[3];
+  // 9. Buy Confirmation Screen (buy|... or buy:...)
+  if (menuId.startsWith('buy|') || menuId.startsWith('buy:')) {
+    let catKey = '';
+    let pkgCode = '';
+    if (menuId.startsWith('buy|')) {
+      const parts = menuId.split('|');
+      catKey = parts[1] || '';
+      pkgCode = parts[2] || '';
+    } else {
+      const parts = menuId.split(':');
+      catKey = parts[1] + ':' + parts[2];
+      pkgCode = parts.slice(3).join(':');
+    }
     const isWifi = pkgCode.startsWith('wifi:') || catKey.startsWith('wifi:');
 
-    const pkg = findPackageByCode(pkgCode, isWifi ? 'autocash' : session.selectedProvider);
+    const pkg = findPackageByCode(pkgCode, isWifi ? 'autocash' : session.selectedProvider) || findPackageByCode(pkgCode, 'autocash') || findPackageByCode(pkgCode, 'maxbazar');
     const title = pkg?.title || pkgCode;
     const price = pkg?.price || 1.0;
 
@@ -723,11 +731,11 @@ function getMenuContent(
       [
         {
           text: `✅ سېتىۋېلىشنى جەزملەش ($${price.toFixed(2)})`,
-          callback_data: `do_buy:${pkgCode}:${price}:${encodeURIComponent(title)}`,
+          callback_data: `do_buy|${pkgCode}`,
         },
       ],
       [
-        { text: '❌ بىكار قىلىش', callback_data: catKey },
+        { text: '❌ بىكار قىلىش', callback_data: catKey || 'shop:home' },
       ],
     ];
 
@@ -981,12 +989,21 @@ export async function handleMaxBazarWebhook(update: any) {
         return;
       }
 
-      // A.3 Order Execution (do_buy:CODE:PRICE:TITLE)
-      if (data.startsWith('do_buy:')) {
-        const parts = data.split(':');
-        const pkgCode = parts[1];
-        const price = parseFloat(parts[2]) || 1.0;
-        const rawTitle = decodeURIComponent(parts.slice(3).join(':'));
+      // A.3 Order Execution (do_buy|CODE or do_buy:CODE)
+      if (data.startsWith('do_buy|') || data.startsWith('do_buy:')) {
+        let pkgCode = '';
+        if (data.startsWith('do_buy|')) {
+          pkgCode = data.split('|')[1] || '';
+        } else {
+          const parts = data.split(':');
+          pkgCode = parts.length > 3 ? parts[1] : parts.slice(1).join(':');
+        }
+
+        const isWifi = pkgCode.startsWith('wifi:');
+        const effectiveProvider = isWifi ? 'autocash' : session.selectedProvider;
+        const pkg = findPackageByCode(pkgCode, effectiveProvider) || findPackageByCode(pkgCode, 'autocash') || findPackageByCode(pkgCode, 'maxbazar');
+        const price = pkg?.price || 1.0;
+        const rawTitle = pkg?.title || pkgCode;
 
         const currentBalance = Number(user.balance || 0);
 
@@ -1014,15 +1031,14 @@ export async function handleMaxBazarWebhook(update: any) {
         const newBalance = Math.max(0, currentBalance - price);
 
         // Record order locally and in session
-        const isWifi = pkgCode.startsWith('wifi:');
-        const effectiveProvider = isWifi ? 'AUTOCASH' : session.selectedProvider.toUpperCase();
+        const providerUpper = isWifi ? 'AUTOCASH' : session.selectedProvider.toUpperCase();
 
         const orderRecord = {
           orderId: newOrderId,
           title: rawTitle,
           code: pkgCode,
           price,
-          provider: effectiveProvider,
+          provider: providerUpper,
           date: new Date().toLocaleTimeString('ug', { hour: '2-digit', minute: '2-digit' }),
         };
         session.localOrders.unshift(orderRecord);
