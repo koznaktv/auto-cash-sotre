@@ -618,17 +618,26 @@ function getMenuContent(
   // 8. Specific Product Package Page (with Provider Switcher)
   if (PROVIDER_DATA[menuId]) {
     const item = PROVIDER_DATA[menuId];
-    const pkgs = isAc ? item.autocash : item.maxbazar;
+    const isWifi = menuId.startsWith('wifi:');
+    const pkgs = (isWifi || isAc) ? item.autocash : item.maxbazar;
 
-    const text =
-      `${item.name}\n\n` +
-      `💰 <b>باھا تۈرى:</b> <b>${providerTag}</b>\n` +
-      `💳 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
-      `💡 <b>كۆرسەتمە:</b> ئىككى توربەتنىڭ باھا ھالىتى ئوخشىمايدۇ، خالىغاننى ئالماشتۇرۇپ سىناپ بېقىڭ:\n` +
-      `👇 AUTO CASH  🔄  MAX-BAZAR 👇`;
+    let text = '';
+    const inline_keyboard: any[][] = [];
 
-    const inline_keyboard: any[][] = [
-      [
+    if (isWifi) {
+      text =
+        `${item.name}\n\n` +
+        `💳 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
+        `📦 <b>تۆۋەندىن ئېھتىياجلىق بولاقنى تاللاڭ:</b>`;
+    } else {
+      text =
+        `${item.name}\n\n` +
+        `💰 <b>باھا تۈرى:</b> <b>${providerTag}</b>\n` +
+        `💳 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
+        `💡 <b>كۆرسەتمە:</b> ئىككى توربەتنىڭ باھا ھالىتى ئوخشىمايدۇ، خالىغاننى ئالماشتۇرۇپ سىناپ بېقىڭ:\n` +
+        `👇 AUTO CASH  🔄  MAX-BAZAR 👇`;
+
+      inline_keyboard.push([
         {
           text: `${isAc ? '🟢' : '⚪'} AUTO CASH`,
           callback_data: `set_prov:autocash:${menuId}`,
@@ -637,7 +646,10 @@ function getMenuContent(
           text: `${!isAc ? '🟢' : '⚪'} MAX-BAZAR`,
           callback_data: `set_prov:maxbazar:${menuId}`,
         },
-      ],
+      ]);
+    }
+
+    inline_keyboard.push(
       ...pkgs.map((p) => [
         {
           text: p.title,
@@ -660,8 +672,8 @@ function getMenuContent(
             : 'shop:home',
         },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
-      ],
-    ];
+      ]
+    );
 
     return { text, inline_keyboard };
   }
@@ -671,8 +683,9 @@ function getMenuContent(
     const parts = menuId.split(':');
     const catKey = parts[1] + ':' + parts[2];
     const pkgCode = parts[3];
+    const isWifi = pkgCode.startsWith('wifi:') || catKey.startsWith('wifi:');
 
-    const pkg = findPackageByCode(pkgCode, session.selectedProvider);
+    const pkg = findPackageByCode(pkgCode, isWifi ? 'autocash' : session.selectedProvider);
     const title = pkg?.title || pkgCode;
     const price = pkg?.price || 1.0;
 
@@ -681,7 +694,7 @@ function getMenuContent(
       `📦 <b>مەھسۇلات:</b> ${title}\n` +
       `💰 <b>باھاسى:</b> <b>$${price.toFixed(2)} USD</b>\n` +
       `💳 <b>سىزنىڭ قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n` +
-      `💰 <b>باھا تۈرى:</b> <b>${providerTag}</b>\n\n` +
+      (!isWifi ? `💰 <b>باھا تۈرى:</b> <b>${providerTag}</b>\n\n` : '\n') +
       `زاكاسنى جەزملەشتۈرۈپ ھېساباتتىن كېسىشنى خالامسىز؟`;
 
     const inline_keyboard: any[][] = [
@@ -979,12 +992,15 @@ export async function handleMaxBazarWebhook(update: any) {
         const newBalance = Math.max(0, currentBalance - price);
 
         // Record order locally and in session
+        const isWifi = pkgCode.startsWith('wifi:');
+        const effectiveProvider = isWifi ? 'AUTOCASH' : session.selectedProvider.toUpperCase();
+
         const orderRecord = {
           orderId: newOrderId,
           title: rawTitle,
           code: pkgCode,
           price,
-          provider: session.selectedProvider.toUpperCase(),
+          provider: effectiveProvider,
           date: new Date().toLocaleTimeString('ug', { hour: '2-digit', minute: '2-digit' }),
         };
         session.localOrders.unshift(orderRecord);
@@ -1000,7 +1016,7 @@ export async function handleMaxBazarWebhook(update: any) {
             amount: price,
             targetAccount: String(chatId),
             orderId: newOrderId,
-            details: { store: 'maxbazar', provider: session.selectedProvider },
+            details: { store: 'maxbazar', provider: isWifi ? 'autocash' : session.selectedProvider },
             initialStatus: 'completed',
           });
         } catch {}
@@ -1046,7 +1062,7 @@ export async function handleMaxBazarWebhook(update: any) {
           `🎉 <b>زاكاز مۇۋەپپەقىيەتلىك بېجىرىلدى!</b>\n\n` +
           `📦 <b>مەھسۇلات:</b> ${rawTitle}\n` +
           `🧾 <b>زاكاز نومۇرى:</b> <code>#${newOrderId}</code>\n` +
-          `💰 <b>باھا تۈرى:</b> <b>${session.selectedProvider.toUpperCase()}</b>\n` +
+          (!isWifi ? `💰 <b>باھا تۈرى:</b> <b>${effectiveProvider}</b>\n` : '') +
           `💰 <b>كېسىلگەن سومما:</b> -${price.toFixed(2)} USD\n` +
           `💳 <b>قالغان قالدۇقىڭىز:</b> <b>${newBalance.toFixed(2)} USD</b>\n` +
           wifiCardExtra +
