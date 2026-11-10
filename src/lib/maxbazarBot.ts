@@ -519,20 +519,7 @@ function getMenuContent(
       [{ text: '📶 ئەزىز نىت (Azez Net)', callback_data: 'wifi:azez_net' }],
       [{ text: '📶 مۇجاھىد نىت (Al Mujahid Net)', callback_data: 'wifi:almujahid_net' }],
       [
-        {
-          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
-          web_app: { url: `${SITE_URL}/apps` },
-        },
-      ],
-      [
-        {
-          text: '◀️ كەينىگە',
-          callback_data: menuId.startsWith('wifi:')
-            ? 'shop:wifi'
-            : menuId.startsWith('games:')
-            ? 'shop:games'
-            : 'shop:home',
-        },
+        { text: '◀️ كەينىگە', callback_data: 'shop:home' },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -546,6 +533,12 @@ function getMenuContent(
       [{ text: '📱 سۈرىيەتىل', callback_data: 'topup:syriatel' }],
       [{ text: '📱 ئىمتىئىن', callback_data: 'topup:mtn' }],
       [{ text: '🇹🇷 تۈركىيە كارتىسى', callback_data: 'topup:turkey' }],
+      [
+        {
+          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+          web_app: { url: `${SITE_URL}/apps` },
+        },
+      ],
       [
         { text: '◀️ كەينىگە', callback_data: 'shop:home' },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
@@ -561,6 +554,12 @@ function getMenuContent(
       [{ text: '💎 تىلگىرام Premium', callback_data: 'tg:premium' }],
       [{ text: '🌟 تىلگىرام يۇلتۇز سېتىۋېلىش', callback_data: 'tg:stars' }],
       [
+        {
+          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+          web_app: { url: `${SITE_URL}/apps` },
+        },
+      ],
+      [
         { text: '◀️ كەينىگە', callback_data: 'shop:home' },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
@@ -573,6 +572,12 @@ function getMenuContent(
     const text = `📱 <b>ھەر خىل AI ۋە ئەپلەرگە ئەزالىق ئېچىش</b>\n\nبىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
       [{ text: '🤖 ChatGPT', callback_data: 'apps:chatgpt' }],
+      [
+        {
+          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+          web_app: { url: `${SITE_URL}/apps` },
+        },
+      ],
       [
         { text: '◀️ كەينىگە', callback_data: 'shop:home' },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
@@ -636,25 +641,19 @@ function getMenuContent(
       ]),
       [
         {
-          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
-          web_app: {
-            url:
-              menuId === 'topup:syriatel'
-                ? `${SITE_URL}/apps/syriatel`
-                : menuId === 'topup:mtn'
-                ? `${SITE_URL}/apps/mtn-syria`
-                : menuId === 'games:pubg'
-                ? `${SITE_URL}/apps/pubg`
-                : menuId === 'games:mlbb'
-                ? `${SITE_URL}/apps/mobile-legends`
-                : menuId === 'games:hok'
-                ? `${SITE_URL}/apps/honor-of-kings`
-                : `${SITE_URL}/apps`,
-          },
+          text: '◀️ كەينىگە',
+          callback_data: menuId.startsWith('wifi:')
+            ? 'shop:wifi'
+            : menuId.startsWith('games:')
+            ? 'shop:games'
+            : menuId.startsWith('topup:')
+            ? 'shop:topup'
+            : menuId.startsWith('tg:')
+            ? 'shop:membership'
+            : menuId.startsWith('apps:')
+            ? 'shop:apps'
+            : 'shop:home',
         },
-      ],
-      [
-        { text: '◀️ كەينىگە', callback_data: 'shop:home' },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
