@@ -3,16 +3,42 @@ import path from 'path';
 import { verifySyncSession } from './syncSessions';
 import { createAdminToken } from './adminAuth';
 import { getOrCreateTelegramUser } from './telegramShop';
-import { adjustUserBalanceAsync, getOrdersByUserIdAsync, deductBalanceAndCreateOrderAtomicAsync } from './db';
+import {
+  adjustUserBalanceAsync,
+  getOrdersByUserIdAsync,
+  deductBalanceAndCreateOrderAtomicAsync,
+  isTxIdAlreadyCompletedAsync,
+  createDepositAsync,
+  updateDepositStatusAsync,
+  getDepositByIdAsync,
+} from './db';
+import { verifyShamcashTransaction, normalizeTxId, getTsaConfig } from './providers/tsaShamcash';
 
 /**
- * MAX-BAZAR Telegram Mini App & Interactive Shopping Bot
- * Bot: @maxbazar_bot
- * Implements the architecture designed in 'بوت لاھىيەسى/auto_cash.html'
+ * AUTO CASH & MAX-BAZAR Interactive Telegram Shopping Engine
+ * Powers @Autocash_24_bot and @maxbazar_bot
  */
 
-const MAXBAZAR_BOT_TOKEN =
-  (process.env.MAXBAZAR_BOT_TOKEN || '9030046429:AAFNApZlCn8JoafL1B1P6A81aOgqk_srlC0').trim();
+export interface BotConfig {
+  token: string;
+  username: string;
+  brand: string;
+  isPublic?: boolean;
+}
+
+export const DEFAULT_AUTOCASH_BOT_CONFIG: BotConfig = {
+  token: (process.env.TELEGRAM_BOT_TOKEN || '8886426395:AAHTtOA5ilIoNUfmcfVf44mCK6gJo7gjhd0').trim(),
+  username: 'Autocash_24_bot',
+  brand: 'AUTO CASH',
+  isPublic: true,
+};
+
+export const DEFAULT_MAXBAZAR_BOT_CONFIG: BotConfig = {
+  token: (process.env.MAXBAZAR_BOT_TOKEN || '9030046429:AAFNApZlCn8JoafL1B1P6A81aOgqk_srlC0').trim(),
+  username: 'maxbazar_bot',
+  brand: 'MAX-BAZAR',
+  isPublic: true,
+};
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || 'https://www.auto-cash.app';
@@ -22,6 +48,7 @@ export const MAXBAZAR_PERSISTENT_KEYBOARD = {
   resize_keyboard: true,
   is_persistent: true,
 };
+export const STORE_PERSISTENT_KEYBOARD = MAXBAZAR_PERSISTENT_KEYBOARD;
 
 // ==========================================
 // CUSTOM PREMIUM ANIMATED EMOJIS REGISTRY
@@ -112,12 +139,7 @@ function getSession(userId: string | number): MaxBazarSession {
   return s;
 }
 
-// Mock/Sandbox ShamCash Transaction Ledger
-const MOCK_TX_DB: Record<string, { amount: number; used: boolean; desc: string }> = {
-  '571734143': { amount: 10.0, used: false, desc: 'شامكەش كۆڭۈلدىكى تالون' },
-  '999888777': { amount: 25.5, used: false, desc: 'چوڭ سوممىلىق سىناق تالون' },
-  '111222333': { amount: 5.0, used: true, desc: 'ئاللىقاچان ئىشلىتىلگەن تالون' },
-};
+
 
 // ==========================================
 // 2. PRODUCT DATA & PACKAGES (Matching auto_cash.html)
@@ -664,46 +686,59 @@ function findPackageByCode(code: string, provider: 'maxbazar' | 'autocash'): { t
 // ==========================================
 // 3. API CALLER
 // ==========================================
-export async function callMaxBazarBotApi(method: string, payload: any) {
+export async function callBotApi(method: string, payload: any, tokenOverride?: string) {
+  const token = (tokenOverride || process.env.TELEGRAM_BOT_TOKEN || DEFAULT_AUTOCASH_BOT_CONFIG.token || '').trim();
   try {
-    const res = await fetch(`https://api.telegram.org/bot${MAXBAZAR_BOT_TOKEN}/${method}`, {
+    const res = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
     return await res.json();
   } catch (err: any) {
-    console.error(`[MaxBazar Bot API Error] ${method}:`, err?.message);
+    console.error(`[Bot API Error] ${method}:`, err?.message);
     return { ok: false, error: err?.message };
   }
 }
+
+export const callMaxBazarBotApi = (method: string, payload: any) =>
+  callBotApi(method, payload, DEFAULT_MAXBAZAR_BOT_CONFIG.token);
 
 async function showOrEditMessage(
   chatId: number | string,
   messageId: number | undefined,
   text: string,
-  replyMarkup?: any
+  replyMarkup?: any,
+  token?: string
 ) {
   if (messageId) {
     try {
-      const editRes = await callMaxBazarBotApi('editMessageText', {
-        chat_id: chatId,
-        message_id: messageId,
-        text,
-        parse_mode: 'HTML',
-        reply_markup: replyMarkup,
-        disable_web_page_preview: true,
-      });
+      const editRes = await callBotApi(
+        'editMessageText',
+        {
+          chat_id: chatId,
+          message_id: messageId,
+          text,
+          parse_mode: 'HTML',
+          reply_markup: replyMarkup,
+          disable_web_page_preview: true,
+        },
+        token
+      );
       if (editRes && editRes.ok) return editRes;
     } catch {}
   }
-  return await callMaxBazarBotApi('sendMessage', {
-    chat_id: chatId,
-    text,
-    parse_mode: 'HTML',
-    reply_markup: replyMarkup,
-    disable_web_page_preview: true,
-  });
+  return await callBotApi(
+    'sendMessage',
+    {
+      chat_id: chatId,
+      text,
+      parse_mode: 'HTML',
+      reply_markup: replyMarkup,
+      disable_web_page_preview: true,
+    },
+    token
+  );
 }
 
 // ==========================================
@@ -714,8 +749,10 @@ function getMenuContent(
   user: any,
   session: MaxBazarSession,
   chatId: number | string,
-  isAdmin: boolean
+  isAdmin: boolean,
+  config?: BotConfig
 ): { text: string; inline_keyboard: any[][] } {
+  const brand = config?.brand || 'AUTO CASH';
   const isAc = session.selectedProvider === 'autocash';
   const providerTag = isAc ? 'AUTO CASH' : 'MAX-BAZAR';
   const balance = Number(user.balance || 0).toFixed(2);
@@ -723,7 +760,7 @@ function getMenuContent(
   // 1. Main Welcome Screen (menu:main)
   if (menuId === 'menu:main') {
     const text =
-      `<tg-emoji emoji-id="5998929578515504488">#⃣</tg-emoji> <b>ئەسسالامۇ ئەلەيكۇم، MAX-BAZAR بوت سۇپىمىزغا كەلگىنىڭىزنى قارشى ئالىمىز!</b>\n\n` +
+      `<tg-emoji emoji-id="5998929578515504488">#⃣</tg-emoji> <b>ئەسسالامۇ ئەلەيكۇم، ${brand} بوت سۇپىمىزغا كەلگىنىڭىزنى قارشى ئالىمىز!</b>\n\n` +
       `تۆۋەندىن بىر بۆلەكنى تاللاڭ:`;
 
     const inline_keyboard: any[][] = [
@@ -734,7 +771,7 @@ function getMenuContent(
     if (isAdmin) {
       const adminToken = createAdminToken();
       inline_keyboard.push([
-        btnWithIcon('باشقۇرغۇچى مەركىزى (MAX-BAZAR)', 'admin', '👑', {
+        btnWithIcon(`باشقۇرغۇچى مەركىزى (${brand})`, 'admin', '👑', {
           web_app: { url: `${SITE_URL}/admin?tab=maxbazar&token=${adminToken}` },
         }),
       ]);
@@ -1300,8 +1337,7 @@ function getMenuContent(
       `پۇل ئاتقان تالون نومۇرىنى (رقم العملية) بۇ چاتقا يېزىپ يوللاڭ ياكى تۆۋەندىكى تۈگمىلەرنى چىكىڭ:`;
 
     const inline_keyboard: any[][] = [
-      [btnWithIcon('تالوننى تەكشۈرۈڭ', 'shamcash_verify', '🔍', { callback_data: 'balance:check_tx' })],
-      [{ text: '⚡️ سىناق تالون كىرگۈزۈش (571734143)', callback_data: 'test:send_sample_tx' }],
+      [btnWithIcon('تالوننى تەكشۈرۈش', 'shamcash_verify', '🔍', { callback_data: 'balance:check_tx' })],
       [{ text: '❓ (رقم العملية) دېگەن نېمە؟', callback_data: 'balance:faq_tx' }],
       [
         btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'menu:enter' }),
@@ -1321,10 +1357,9 @@ function getMenuContent(
       `1️⃣ شامكەش نومۇرىمىزغا كېرەكلىك دوللارنى ئەۋەتىڭ:\n` +
       `<code>efe8a2b200d66411c7c7e296369cbba8</code>\n` +
       `2️⃣ تالوندىكى نومۇرنى (مەسىلەن: <code>571734143</code>) مۇشۇ چاتقا يېزىپ يوللاڭ.\n` +
-      `3️⃣ سىستېما نومۇرنى ئاپتوماتىك دەلىللەپ، قالدۇقىڭىزنى ھېساباتىڭىزغا قوشۇپ بېرىدۇ.`;
+      `3️⃣ سىستېما نومۇرنى دەلىللەپ، قالدۇقىڭىزنى ھېساباتىڭىزغا قوشۇپ بېرىدۇ.`;
 
     const inline_keyboard: any[][] = [
-      [{ text: '⚡️ سىناق تالون (571734143) بىلەن سىناش ($10.00)', callback_data: 'test:send_sample_tx' }],
       [
         btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'balance:topup' }),
         btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
@@ -1363,20 +1398,49 @@ function getMenuContent(
 }
 
 // ==========================================
-// 5. SHAMCASH VERIFICATION ENGINE
+// 5. SHAMCASH VERIFICATION ENGINE (PRODUCTION)
 // ==========================================
-async function handleShamCashTxVerify(chatId: number | string, txId: string, user: any) {
-  const id = txId.trim();
+async function handleShamCashTxVerify(
+  chatId: number | string,
+  txId: string,
+  user: any,
+  config: BotConfig
+) {
+  const cleanTxId = normalizeTxId(txId);
+  const ADMIN_CHAT_ID = String(process.env.TELEGRAM_ADMIN_CHAT_ID || '7575664493').trim();
 
-  // 1. Mock DB Check
-  if (MOCK_TX_DB[id]) {
-    const record = MOCK_TX_DB[id];
-    if (record.used) {
-      await callMaxBazarBotApi('sendMessage', {
+  if (!cleanTxId || cleanTxId.length < 5) {
+    await callBotApi(
+      'sendMessage',
+      {
         chat_id: chatId,
         text:
-          `⚠️ <b>بۇ تالون نومۇرى ئاللىقاچان ئىشلىتىلىپ بولغان!</b>\n\n` +
-          `نومۇر: <code>${id}</code>\n` +
+          `⚠️ <b>ئىناۋەتسىز تالون نومۇرى!</b>\n\n` +
+          `شامكەش تالون نومۇرى ئادەتتە ئەڭ ئاز دېگەندە 5 رەقەمدىن تەشكىل تاپىدۇ (مەسىلەن: <code>571734143</code>).\n` +
+          `قايتا تەكشۈرۈپ كىرگۈزۈڭ.`,
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '🔄 قايتا كىرگۈزۈش', callback_data: 'balance:topup' }],
+            [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
+          ],
+        },
+      },
+      config.token
+    );
+    return;
+  }
+
+  // 1. Anti-Double-Spend Check in DB
+  const alreadyUsed = await isTxIdAlreadyCompletedAsync(cleanTxId);
+  if (alreadyUsed) {
+    await callBotApi(
+      'sendMessage',
+      {
+        chat_id: chatId,
+        text:
+          `⚠️ <b>بۇ تالون نومۇرى ئاللىقاچان ئىشلىتىلگەن!</b>\n\n` +
+          `نومۇر: <code>${cleanTxId}</code>\n` +
           `سەۋەبى: تالون بىرلا قېتىم قوبۇل قىلىنىدۇ. يېڭى پۇل ئاتقان نومۇرنى كىرگۈزۈڭ.`,
         parse_mode: 'HTML',
         reply_markup: {
@@ -1385,97 +1449,191 @@ async function handleShamCashTxVerify(chatId: number | string, txId: string, use
             [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
           ],
         },
+      },
+      config.token
+    );
+    return;
+  }
+
+  // 2. Real TSA API Automated Verification
+  const tsaConfig = await getTsaConfig();
+  if (tsaConfig.autoDepositEnabled && tsaConfig.apiKey && tsaConfig.shamcashAddress) {
+    try {
+      const verifyRes = await verifyShamcashTransaction(cleanTxId, {
+        apiKey: tsaConfig.apiKey,
+        accountAddress: tsaConfig.shamcashAddress,
+        exchangeRate: tsaConfig.exchangeRate,
+        maxAgeMinutes: tsaConfig.maxAgeMinutes,
       });
-      return;
+
+      if (verifyRes.expired) {
+        await callBotApi(
+          'sendMessage',
+          {
+            chat_id: chatId,
+            text:
+              `⚠️ <b>بۇ تالوننىڭ مۇددىتى ئۆتۈپ كەتكەن (كونا تالون)!</b>\n\n` +
+              `نومۇر: <code>${cleanTxId}</code>\n` +
+              `پەقەت يېقىنقى 45 مىنۇت ئىچىدىكى يېڭى تالونلارلا قوبۇل قىلىنىدۇ.`,
+            parse_mode: 'HTML',
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: '🔄 قايتا تەكشۈرۈش', callback_data: 'balance:topup' }],
+                [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
+              ],
+            },
+          },
+          config.token
+        );
+        return;
+      }
+
+      if (verifyRes.success && verifyRes.found && verifyRes.transaction) {
+        const tx = verifyRes.transaction;
+        const creditedAmount =
+          tx.usdAmount > 0
+            ? tx.usdAmount
+            : Math.round((tx.amount / (tsaConfig.exchangeRate || 14390)) * 100) / 100;
+
+        if (creditedAmount > 0) {
+          const deposit = await createDepositAsync({
+            userId: user.id,
+            userName: user.name,
+            userEmail: user.email,
+            method: 'شامكەش (Sham Cash - Auto Verified)',
+            amount: creditedAmount,
+            txId: tx.tranId || cleanTxId,
+          });
+          await updateDepositStatusAsync(deposit.id, 'completed');
+
+          const updatedBalance = Number(user.balance || 0) + creditedAmount;
+          await callBotApi(
+            'sendMessage',
+            {
+              chat_id: chatId,
+              text:
+                `🎉 <b>تالون دەلىللەندى! قالدۇق مۇۋەپپەقىيەتلىك قوشۇلدى</b>\n\n` +
+                `🧾 <b>تالون نومۇرى:</b> <code>${cleanTxId}</code>\n` +
+                `💵 <b>قوشۇلغان سومما:</b> <b>+$${creditedAmount.toFixed(2)} USD</b>\n` +
+                `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> <b>يېڭى قالدۇقىڭىز:</b> <b>$${updatedBalance.toFixed(2)} USD</b>\n\n` +
+                `ھازىر دۇكان بۆلۈمىگە كىرىپ خالىغان مەھسۇلاتنى سېتىۋالالايسىز:`,
+              parse_mode: 'HTML',
+              reply_markup: {
+                inline_keyboard: [
+                  [btnWithIcon('دۇكانغا كىرىش', 'shop', '🏪', { callback_data: 'shop:home' })],
+                  [btnWithIcon('ھېسابات تاختىسى', 'enter_bot', '🔑', { callback_data: 'menu:enter' })],
+                ],
+              },
+            },
+            config.token
+          );
+          return;
+        }
+      }
+    } catch (tsaErr: any) {
+      console.warn('[ShamCash TSA auto-verify warning]:', tsaErr?.message);
     }
-
-    record.used = true;
-    const creditAmount = record.amount;
-    await adjustUserBalanceAsync(user.id, creditAmount);
-    const updatedBalance = Number(user.balance || 0) + creditAmount;
-
-    await callMaxBazarBotApi('sendMessage', {
-      chat_id: chatId,
-      text:
-        `🎉 <b>تالون تەستىقلاندى! قالدۇق مۇۋەپپەقىيەتلىك قوشۇلدى</b>\n\n` +
-        `🧾 <b>تالون نومۇرى:</b> <code>${id}</code>\n` +
-        `💵 <b>قوشۇلغان سومما:</b> <b>+$${creditAmount.toFixed(2)} USD</b>\n` +
-        `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> <b>يېڭى قالدۇقىڭىز:</b> <b>$${updatedBalance.toFixed(2)} USD</b>\n\n` +
-        `ھازىر دۇكان بۆلۈمىگە كىرىپ خالىغان مەھسۇلاتنى سېتىۋالالايسىز:`,
-      parse_mode: 'HTML',
-      reply_markup: {
-        inline_keyboard: [
-          [btnWithIcon('دۇكانغا كىرىش', 'shop', '🏪', { callback_data: 'shop:home' })],
-          [btnWithIcon('ھېسابات تاختىسى', 'enter_bot', '🔑', { callback_data: 'menu:enter' })],
-        ],
-      },
-    });
-    return;
   }
 
-  // 2. Dynamic Sandbox Auto-Credit for any 8-11 digit test numbers
-  if (/^\d{8,11}$/.test(id)) {
-    const testAmount = 5.0;
-    await adjustUserBalanceAsync(user.id, testAmount);
-    const updatedBalance = Number(user.balance || 0) + testAmount;
-
-    await callMaxBazarBotApi('sendMessage', {
-      chat_id: chatId,
-      text:
-        `🎉 <b>سىناق تالون دەلىللەندى! +$${testAmount.toFixed(2)} پۇل قوشۇلدى</b>\n\n` +
-        `🧾 <b>تالون:</b> <code>${id}</code>\n` +
-        `💵 <b>سومما:</b> <b>+$${testAmount.toFixed(2)} USD</b>\n` +
-        `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${updatedBalance.toFixed(2)} USD</b>\n\n` +
-        `ئەمدى دۇكاندىن بىمالال مال سېتىۋالسىڭىز بولىدۇ:`,
-      parse_mode: 'HTML',
-      reply_markup: {
-        inline_keyboard: [
-          [btnWithIcon('دۇكانغا كىرىش', 'shop', '🏪', { callback_data: 'shop:home' })],
-          [btnWithIcon('ھېسابات تاختىسى', 'enter_bot', '🔑', { callback_data: 'menu:enter' })],
-        ],
-      },
-    });
-    return;
-  }
-
-  // 3. Invalid Transaction
-  await callMaxBazarBotApi('sendMessage', {
-    chat_id: chatId,
-    text:
-      `❌ <b>تالون نومۇرى تېپىلمىدى ياكى ئىناۋەتسىز.</b>\n\n` +
-      `شامكەشتىن چىققان تالوندىكى (رقم العملية) نى قايتا دەلىللەپ يېزىڭ (مەسىلەن: <code>571734143</code>).`,
-    parse_mode: 'HTML',
-    reply_markup: {
-      inline_keyboard: [
-        [{ text: '🔄 قايتا تەكشۈرۈش', callback_data: 'balance:topup' }],
-        [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
-      ],
-    },
+  // 3. Fallback: Save pending deposit record & send 1-tap admin approval notification
+  const pendingDeposit = await createDepositAsync({
+    userId: user.id,
+    userName: user.name,
+    userEmail: user.email,
+    method: 'شامكەش (Sham Cash)',
+    amount: 0,
+    txId: cleanTxId,
   });
+
+  // Reply to customer: Pending verification notice
+  await callBotApi(
+    'sendMessage',
+    {
+      chat_id: chatId,
+      text:
+        `⏳ <b>تالون تاپشۇرۇلدى! تەكشۈرۈلمەكتە...</b>\n\n` +
+        `🧾 <b>تالون نومۇرى:</b> <code>${cleanTxId}</code>\n` +
+        `👤 <b>ئىشلەتكۈچى:</b> ${user.name}\n\n` +
+        `💡 <i>ئەسكەرتىش: شامكەش تورىدا بىر ئاز كېچىكىش بولۇشى مۇمكىن. تالون دەلىللىنىشى بىلەن تەڭ مەبلەغ ئاپتوماتىك ھېساباتىڭىزغا كىرىدۇ ھەم سىزگە مۇشۇ چاتتا ئۇقتۇرۇش كېلىدۇ.</i>`,
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [btnWithIcon('ھېسابات تاختىسى', 'enter_bot', '🔑', { callback_data: 'menu:enter' })],
+          [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
+        ],
+      },
+    },
+    config.token
+  );
+
+  // Send 1-tap approval card to Admin
+  const adminAlertText =
+    `💸💳 <b>يېڭى شامكەش تالونى تاپشۇرۇلدى!</b>\n\n` +
+    `🧾 <b>تالون (TxID):</b> <code>${cleanTxId}</code>\n` +
+    `👤 <b>خېرىدار:</b> ${user.name} (ID: <code>${chatId}</code>)\n` +
+    `⏳ <b>ھالىتى:</b> تەكشۈرۈلمەكتە (Pending)\n` +
+    `🤖 <b>بوت:</b> @${config.username}\n\n` +
+    `👇 <b>تۆۋەندىكى تۈگمىلەردىن سوممىنى 1لا چېكىپ تەستىقلاڭ ياكى رەت قىلىڭ:</b>`;
+
+  const adminButtons = [
+    [
+      { text: '✅ $5 تەستىقلاش', callback_data: `dep_approve:${pendingDeposit.id}:5:${chatId}` },
+      { text: '✅ $10 تەستىقلاش', callback_data: `dep_approve:${pendingDeposit.id}:10:${chatId}` },
+    ],
+    [
+      { text: '✅ $20 تەستىقلاش', callback_data: `dep_approve:${pendingDeposit.id}:20:${chatId}` },
+      { text: '✅ $25 تەستىقلاش', callback_data: `dep_approve:${pendingDeposit.id}:25:${chatId}` },
+    ],
+    [
+      { text: '✅ $50 تەستىقلاش', callback_data: `dep_approve:${pendingDeposit.id}:50:${chatId}` },
+      { text: '✅ $100 تەستىقلاش', callback_data: `dep_approve:${pendingDeposit.id}:100:${chatId}` },
+    ],
+    [
+      { text: '✅ ئەسلىدىكىدەك تەستىقلاش', callback_data: `dep_approve:${pendingDeposit.id}` },
+      { text: '❌ رەت قىلىش', callback_data: `dep_reject:${pendingDeposit.id}:${chatId}` },
+    ],
+    [{ text: '🖥️ باشقۇرۇش مەركىزى', url: `${SITE_URL}/admin` }],
+  ];
+
+  await callBotApi(
+    'sendMessage',
+    {
+      chat_id: ADMIN_CHAT_ID,
+      text: adminAlertText,
+      parse_mode: 'HTML',
+      reply_markup: { inline_keyboard: adminButtons },
+    },
+    config.token
+  );
 }
 
 // ==========================================
-// 6. MAIN WEBHOOK HANDLER
+// 6. MAIN WEBHOOK HANDLER (UNIFIED)
 // ==========================================
-export async function handleMaxBazarWebhook(update: any) {
+export async function handleStoreBotWebhook(update: any, configOverride?: Partial<BotConfig>) {
   try {
     if (!update) return;
 
+    const config: BotConfig = {
+      ...DEFAULT_AUTOCASH_BOT_CONFIG,
+      ...configOverride,
+    };
+
+    const api = (method: string, payload: any) => callBotApi(method, payload, config.token);
+    const showMessage = (cId: number | string, mId: number | undefined, t: string, rm?: any) =>
+      showOrEditMessage(cId, mId, t, rm, config.token);
+
     const ADMIN_CHAT_ID = String(process.env.TELEGRAM_ADMIN_CHAT_ID || '7575664493').trim();
-    const ADMIN_USERNAME = (process.env.TELEGRAM_ADMIN_USERNAME || 'nasrulla0996').toLowerCase().replace(/^@/, '').trim();
+    const ADMIN_USERNAME = (process.env.TELEGRAM_ADMIN_USERNAME || 'nasrulla0996')
+      .toLowerCase()
+      .replace(/^@/, '')
+      .trim();
     const TEST_CUSTOMER_CHAT_ID = String(process.env.TELEGRAM_TEST_CUSTOMER_CHAT_ID || '8612107028').trim();
 
-    // Whitelist for trial/testing phase:
-    // 1. Admin mode: ADMIN_CHAT_ID (7575664493) or ADMIN_USERNAME (nasrulla0996)
-    // 2. Customer test mode: TEST_CUSTOMER_CHAT_ID (8612107028)
-    const ALLOWED_TEST_IDS = new Set([
-      ADMIN_CHAT_ID,
-      '7575664493',
-      TEST_CUSTOMER_CHAT_ID,
-      '8612107028',
-    ]);
+    const ALLOWED_TEST_IDS = new Set([ADMIN_CHAT_ID, '7575664493', TEST_CUSTOMER_CHAT_ID, '8612107028']);
 
     const isAllowedTester = (id: string | number, uname?: string) => {
+      if (config.isPublic) return true;
       const idStr = String(id || '').trim();
       const u = (uname || '').toLowerCase().replace(/^@/, '').trim();
       return ALLOWED_TEST_IDS.has(idStr) || (Boolean(u) && u === ADMIN_USERNAME);
@@ -1483,7 +1641,7 @@ export async function handleMaxBazarWebhook(update: any) {
 
     const MAINTENANCE_NOTICE =
       `🛠️ <b>بوت تەھرىرلىنىۋاتىدۇ</b>\n\n` +
-      `ھۆرمەتلىك خېرىدار، نۆۋەتتە <b>MAX-BAZAR</b> بوت سىستېمىسى سىناق ۋە تەھرىرلىنىش باسقۇچىدا تۇرۇۋاتىدۇ.\n` +
+      `ھۆرمەتلىك خېرىدار، نۆۋەتتە <b>${config.brand}</b> بوت سىستېمىسى سىناق ۋە تەھرىرلىنىش باسقۇچىدا تۇرۇۋاتىدۇ.\n` +
       `پات يېقىندا كۆپ خىل يېڭى مۇلازىمەتلەر بىلەن رەسمىي ئېچىۋېتىلىدۇ!\n\n` +
       `📞 ئالاقىلىشىش ياكى سۈرۈشتۈرۈش ئۈچۈن: @${ADMIN_USERNAME}`;
 
@@ -1499,9 +1657,8 @@ export async function handleMaxBazarWebhook(update: any) {
       const username = (cq.from?.username || '').trim().replace(/^@/, '').toLowerCase();
       const firstName = cq.from?.first_name || 'خېرىدار';
 
-      // Whitelist check for trial phase
       if (!isAllowedTester(chatId, username)) {
-        await callMaxBazarBotApi('answerCallbackQuery', {
+        await api('answerCallbackQuery', {
           callback_query_id: cqId,
           text: '⚠️ نۆۋەتتە بوت سىستېمىسى تەھرىرلىنىۋاتىدۇ، پات يېقىندا رەسمىي ئېچىۋېتىلىدۇ.',
           show_alert: true,
@@ -1509,12 +1666,154 @@ export async function handleMaxBazarWebhook(update: any) {
         return;
       }
 
-      // Always answer callback query immediately to stop spinner
-      await callMaxBazarBotApi('answerCallbackQuery', { callback_query_id: cqId });
+      await api('answerCallbackQuery', { callback_query_id: cqId });
 
       const user = await getOrCreateTelegramUser(chatId, username, firstName);
       const session = getSession(chatId);
       const isAdmin = String(chatId) === ADMIN_CHAT_ID || (Boolean(username) && username === ADMIN_USERNAME);
+
+      // A.0 Deposit Approval from Admin
+      if (data.startsWith('dep_approve:')) {
+        if (!isAdmin) {
+          await api('answerCallbackQuery', {
+            callback_query_id: cqId,
+            text: '⚠️ كەچۈرۈڭ، بۇ مەشغۇلاتنى پەقەت مەسئۇل باشقۇرغۇچىلا قىلالايدۇ!',
+            show_alert: true,
+          });
+          return;
+        }
+
+        const parts = data.split(':');
+        const depositId = parts[1];
+        const customAmount = parts[2] ? parseFloat(parts[2]) : undefined;
+        const customerChatId = parts[3] || undefined;
+
+        const deposit = await getDepositByIdAsync(depositId);
+        if (!deposit) {
+          await api('answerCallbackQuery', {
+            callback_query_id: cqId,
+            text: '❌ بۇ تالون خاتىرىسى تېپىلمىدى',
+            show_alert: true,
+          });
+          return;
+        }
+
+        if (deposit.status !== 'pending') {
+          await api('answerCallbackQuery', {
+            callback_query_id: cqId,
+            text: `⚠️ بۇ تالون ئاللىقاچان بىر تەرەپ قىلىنغان (${deposit.status})`,
+            show_alert: true,
+          });
+          return;
+        }
+
+        if (customAmount && customAmount > 0) {
+          deposit.amount = customAmount;
+        }
+
+        const updated = await updateDepositStatusAsync(depositId, 'completed');
+        const finalAmount = Number(deposit.amount || customAmount || 0);
+
+        await api('answerCallbackQuery', {
+          callback_query_id: cqId,
+          text: `✅ $${finalAmount.toFixed(2)} خېرىدار ھەميانىغا كىرگۈزۈلدى!`,
+          show_alert: false,
+        });
+
+        const adminDoneText =
+          `✅ <b>پۇل كىرگۈزۈش تەستىقلاندى! (COMPLETED)</b>\n\n` +
+          `💰 <b>سوممىسى:</b> <b>$${finalAmount.toFixed(2)} USD</b>\n` +
+          `🧾 <b>تالون (TxID):</b> <code>${deposit.txId || '—'}</code>\n` +
+          `👤 <b>خېرىدار:</b> ${deposit.userName || 'خېرىدار'}\n` +
+          `👑 <b>تەستىقلىغۇچى:</b> @${username || 'Admin'}\n` +
+          `⏰ <b>ۋاقتى:</b> ${new Date().toLocaleTimeString('ug', { hour: '2-digit', minute: '2-digit' })}`;
+
+        await showMessage(chatId, messageId, adminDoneText, {
+          inline_keyboard: [[{ text: '🖥️ باشقۇرۇش مەركىزى', url: `${SITE_URL}/admin` }]],
+        });
+
+        const targetChatId =
+          customerChatId ||
+          (deposit.userEmail && deposit.userEmail.includes('@telegram')
+            ? deposit.userEmail.replace('@telegram.org', '')
+            : null) ||
+          deposit.userId;
+
+        if (targetChatId) {
+          try {
+            const targetUser = await getOrCreateTelegramUser(targetChatId);
+            const newBal = Number(targetUser.balance || 0);
+            await api('sendMessage', {
+              chat_id: targetChatId,
+              text:
+                `🎉 <b>پۇل كىرگۈزۈش تەستىقلاندى! قالدۇق مۇۋەپپەقىيەتلىك كىرگۈزۈلدى</b>\n\n` +
+                `🧾 <b>تالون نومۇرى:</b> <code>${deposit.txId || '—'}</code>\n` +
+                `💵 <b>قوشۇلغان سومما:</b> <b>+$${finalAmount.toFixed(2)} USD</b>\n` +
+                `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${newBal.toFixed(2)} USD</b>\n\n` +
+                `دۇكاندىن خالىغان مەھسۇلاتنى سېتىۋالسىڭىز بولىدۇ:`,
+              parse_mode: 'HTML',
+              reply_markup: {
+                inline_keyboard: [
+                  [btnWithIcon('دۇكانغا كىرىش', 'shop', '🏪', { callback_data: 'shop:home' })],
+                  [btnWithIcon('ھېسابات تاختىسى', 'enter_bot', '🔑', { callback_data: 'menu:enter' })],
+                ],
+              },
+            });
+          } catch (e: any) {
+            console.warn('[Customer celebrate send error]:', e?.message);
+          }
+        }
+        return;
+      }
+
+      // A.0.1 Deposit Rejection from Admin
+      if (data.startsWith('dep_reject:')) {
+        if (!isAdmin) {
+          await api('answerCallbackQuery', {
+            callback_query_id: cqId,
+            text: '⚠️ كەچۈرۈڭ، بۇ مەشغۇلاتنى پەقەت باشقۇرغۇچىلا قىلالايدۇ!',
+            show_alert: true,
+          });
+          return;
+        }
+
+        const parts = data.split(':');
+        const depositId = parts[1];
+        const customerChatId = parts[2];
+
+        await updateDepositStatusAsync(depositId, 'rejected').catch(() => null);
+        await api('answerCallbackQuery', {
+          callback_query_id: cqId,
+          text: '❌ تالون رەت قىلىندى',
+        });
+
+        await showMessage(
+          chatId,
+          messageId,
+          `❌ <b>تالون رەت قىلىندى (REJECTED)</b>\n\nتالون ID: <code>${depositId}</code>`,
+          {
+            inline_keyboard: [[{ text: '🖥️ باشقۇرۇش مەركىزى', url: `${SITE_URL}/admin` }]],
+          }
+        );
+
+        if (customerChatId) {
+          await api('sendMessage', {
+            chat_id: customerChatId,
+            text:
+              `❌ <b>كەچۈرۈڭ، تاپشۇرغان تالونىڭىز تەستىقلانمىدى.</b>\n\n` +
+              `سەۋەبى: تالون مەبلىغى ھېساباتقا چۈشمىگەن ياكى خاتا نومۇر كىرگۈزۈلگەن.\n` +
+              `سۈرۈشتۈرۈش ئۈچۈن باشقۇرغۇچى بىلەن ئالاقىلىشىڭ: @${ADMIN_USERNAME}`,
+            parse_mode: 'HTML',
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: '🔄 قايتا كىرگۈزۈش', callback_data: 'balance:topup' }],
+                [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
+              ],
+            },
+          });
+        }
+        return;
+      }
 
       // A.1 Toggle Provider (set_prov:autocash:XXX / set_prov:maxbazar:XXX)
       if (data.startsWith('set_prov:')) {
@@ -1527,7 +1826,7 @@ export async function handleMaxBazarWebhook(update: any) {
         if (targetCat) {
           const count = newProv === 'autocash' ? targetCat.autocash.length : targetCat.maxbazar.length;
           if (count === 0) {
-            await callMaxBazarBotApi('answerCallbackQuery', {
+            await api('answerCallbackQuery', {
               callback_query_id: cqId,
               text: '⚠️ بۇ تەرەپ تەمىنلىگۈچىنىڭ باھا بۆلىكى يوق، باشقىلىرىنى سىناڭ.',
               show_alert: true,
@@ -1535,18 +1834,8 @@ export async function handleMaxBazarWebhook(update: any) {
           }
         }
 
-        const menu = getMenuContent(returnId, user, session, chatId, isAdmin);
-        await showOrEditMessage(chatId, messageId, menu.text, { inline_keyboard: menu.inline_keyboard });
-        return;
-      }
-
-      // A.2 Quick Test Deposit Simulation
-      if (data === 'test:send_sample_tx') {
-        await handleShamCashTxVerify(chatId, '571734143', user);
-        return;
-      }
-      if (data === 'test:send_bad_tx') {
-        await handleShamCashTxVerify(chatId, '00000000', user);
+        const menu = getMenuContent(returnId, user, session, chatId, isAdmin, config);
+        await showMessage(chatId, messageId, menu.text, { inline_keyboard: menu.inline_keyboard });
         return;
       }
 
@@ -1562,7 +1851,10 @@ export async function handleMaxBazarWebhook(update: any) {
 
         const isWifi = pkgCode.startsWith('wifi:');
         const effectiveProvider = isWifi ? 'autocash' : session.selectedProvider;
-        const pkg = findPackageByCode(pkgCode, effectiveProvider) || findPackageByCode(pkgCode, 'autocash') || findPackageByCode(pkgCode, 'maxbazar');
+        const pkg =
+          findPackageByCode(pkgCode, effectiveProvider) ||
+          findPackageByCode(pkgCode, 'autocash') ||
+          findPackageByCode(pkgCode, 'maxbazar');
         const price = pkg?.price || 1.0;
         const rawTitle = pkg?.title || pkgCode;
 
@@ -1577,7 +1869,7 @@ export async function handleMaxBazarWebhook(update: any) {
             `سىزنىڭ قالدۇقىڭىز: <b>$${currentBalance.toFixed(2)} USD</b>\n\n` +
             `داۋاملاشتۇرۇش ئۈچۈن ئالدى بىلەن قالدۇق تولۇقلاڭ:`;
 
-          await showOrEditMessage(chatId, messageId, failText, {
+          await showMessage(chatId, messageId, failText, {
             inline_keyboard: [
               [btnWithIcon('قالدۇق قاچىلاش', 'topup_balance', '🏦', { callback_data: 'balance:topup' })],
               [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
@@ -1609,13 +1901,13 @@ export async function handleMaxBazarWebhook(update: any) {
           await deductBalanceAndCreateOrderAtomicAsync({
             userId: user.id,
             userEmail: user.email,
-            serviceId: `maxbazar_${pkgCode}`,
+            serviceId: `${config.username}_${pkgCode}`,
             serviceName: rawTitle,
             packageTitle: rawTitle,
             amount: price,
             targetAccount: String(chatId),
             orderId: newOrderId,
-            details: { store: 'maxbazar', provider: isWifi ? 'autocash' : session.selectedProvider },
+            details: { store: config.brand, provider: isWifi ? 'autocash' : session.selectedProvider },
             initialStatus: 'completed',
           });
         } catch {}
@@ -1674,7 +1966,7 @@ export async function handleMaxBazarWebhook(update: any) {
           wifiCardExtra +
           `\nمەھسۇلات ئۇچۇرى ئاپتوماتىك تەمىنلىنىدۇ. رەھمەت!`;
 
-        await showOrEditMessage(chatId, messageId, successText, {
+        await showMessage(chatId, messageId, successText, {
           inline_keyboard: [
             [btnWithIcon('زاكازلىرىمنى كۆرۈش', 'orders', '🛍', { callback_data: 'orders:list' })],
             [btnWithIcon('دۇكانغا كىرىش', 'shop', '🏪', { callback_data: 'shop:home' })],
@@ -1696,8 +1988,11 @@ export async function handleMaxBazarWebhook(update: any) {
                 title: o.packageTitle || o.serviceName,
                 code: o.serviceId || 'app',
                 price: Number(o.amount || 0),
-                provider: 'MAX-BAZAR',
-                date: new Date(o.createdAt || Date.now()).toLocaleTimeString('ug', { hour: '2-digit', minute: '2-digit' }),
+                provider: config.brand,
+                date: new Date(o.createdAt || Date.now()).toLocaleTimeString('ug', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                }),
               });
             }
           });
@@ -1709,7 +2004,7 @@ export async function handleMaxBazarWebhook(update: any) {
             `سىز تېخى بىرەر زاكاز بەرمىدىڭىز.\n` +
             `دۇكان بۆلۈمىگە كىرىپ ئېھتىياجلىق مەھسۇلاتنى سېتىۋالسىڭىز بولىدۇ.`;
 
-          await showOrEditMessage(chatId, messageId, emptyText, {
+          await showMessage(chatId, messageId, emptyText, {
             inline_keyboard: [
               [btnWithIcon('دۇكانغا كىرىش', 'shop', '🏪', { callback_data: 'shop:home' })],
               [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
@@ -1730,7 +2025,7 @@ export async function handleMaxBazarWebhook(update: any) {
 
         const ordersText = `<tg-emoji emoji-id="5204021180310252946">✔️</tg-emoji> <b>سىزنىڭ زاكازلىرىڭىز (${allOrders.length} دانە):</b>\n\n${orderLines}`;
 
-        await showOrEditMessage(chatId, messageId, ordersText, {
+        await showMessage(chatId, messageId, ordersText, {
           inline_keyboard: [
             [btnWithIcon('داۋاملىق سېتىۋېلىش', 'shop', '🛍', { callback_data: 'shop:home' })],
             [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
@@ -1751,7 +2046,7 @@ export async function handleMaxBazarWebhook(update: any) {
         };
 
         const confirmText = `✅ تىل مۇۋەپپەقىيەتلىك ھالدا «<b>${langLabels[langCode] || langCode}</b>» غا تەڭشەلدى.`;
-        await showOrEditMessage(chatId, messageId, confirmText, {
+        await showMessage(chatId, messageId, confirmText, {
           inline_keyboard: [
             [btnWithIcon('ھېسابات تاختىسىغا قايتىش', 'enter_bot', '🔑', { callback_data: 'menu:enter' })],
             [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
@@ -1786,23 +2081,26 @@ export async function handleMaxBazarWebhook(update: any) {
         session.history.push(data);
       }
 
-      // Smart Auto-Selection when navigating into any category:
-      // Whichever game/category user selects, if the current provider has 0 packages,
-      // but the other provider has packages, automatically display the provider that has packages!
       const targetCategoryData = PROVIDER_DATA[nextMenuId];
       if (targetCategoryData && !nextMenuId.startsWith('topup:') && !nextMenuId.startsWith('wifi:')) {
         const curProv = session.selectedProvider;
-        const curCount = curProv === 'autocash' ? (targetCategoryData.autocash?.length || 0) : (targetCategoryData.maxbazar?.length || 0);
+        const curCount =
+          curProv === 'autocash'
+            ? targetCategoryData.autocash?.length || 0
+            : targetCategoryData.maxbazar?.length || 0;
         const altProv = curProv === 'autocash' ? 'maxbazar' : 'autocash';
-        const altCount = altProv === 'autocash' ? (targetCategoryData.autocash?.length || 0) : (targetCategoryData.maxbazar?.length || 0);
+        const altCount =
+          altProv === 'autocash'
+            ? targetCategoryData.autocash?.length || 0
+            : targetCategoryData.maxbazar?.length || 0;
 
         if (curCount === 0 && altCount > 0) {
           session.selectedProvider = altProv;
         }
       }
 
-      const menu = getMenuContent(nextMenuId, user, session, chatId, isAdmin);
-      await showOrEditMessage(chatId, messageId, menu.text, { inline_keyboard: menu.inline_keyboard });
+      const menu = getMenuContent(nextMenuId, user, session, chatId, isAdmin, config);
+      await showMessage(chatId, messageId, menu.text, { inline_keyboard: menu.inline_keyboard });
       return;
     }
 
@@ -1817,9 +2115,8 @@ export async function handleMaxBazarWebhook(update: any) {
     const text = (message.text || '').trim();
     const firstName = message.from?.first_name || 'خېرىدار';
 
-    // Whitelist check for trial phase
     if (!isAllowedTester(chatId, username)) {
-      await callMaxBazarBotApi('sendMessage', {
+      await api('sendMessage', {
         chat_id: chatId,
         text: MAINTENANCE_NOTICE,
         parse_mode: 'HTML',
@@ -1838,10 +2135,12 @@ export async function handleMaxBazarWebhook(update: any) {
     try {
       const IS_SERVERLESS = Boolean(
         process.env.VERCEL ||
-        process.env.AWS_LAMBDA_FUNCTION_NAME ||
-        (typeof process.cwd === 'function' && process.cwd().startsWith('/var/task'))
+          process.env.AWS_LAMBDA_FUNCTION_NAME ||
+          (typeof process.cwd === 'function' && process.cwd().startsWith('/var/task'))
       );
-      const SESSIONS_DIR = IS_SERVERLESS ? path.join('/tmp', 'micro_apps') : path.join(process.cwd(), 'data', 'micro_apps');
+      const SESSIONS_DIR = IS_SERVERLESS
+        ? path.join('/tmp', 'micro_apps')
+        : path.join(process.cwd(), 'data', 'micro_apps');
       if (!fs.existsSync(SESSIONS_DIR)) fs.mkdirSync(SESSIONS_DIR, { recursive: true });
       const usersFile = path.join(SESSIONS_DIR, 'telegram_users.json');
       let users: Record<string, any> = {};
@@ -1854,7 +2153,9 @@ export async function handleMaxBazarWebhook(update: any) {
     } catch {}
 
     // B.2 Deep Link: /start auth_XXXX (1-Click Login from Website / App)
-    const authMatch = text.match(/^\/start\s+(?:auth_|login_)?([a-fA-F0-9_]{12,64})/i) || text.match(/^\/start\s+auth_([a-zA-Z0-9_]+)/i);
+    const authMatch =
+      text.match(/^\/start\s+(?:auth_|login_)?([a-fA-F0-9_]{12,64})/i) ||
+      text.match(/^\/start\s+auth_([a-zA-Z0-9_]+)/i);
     if (authMatch) {
       const authToken = authMatch[1];
       try {
@@ -1862,22 +2163,22 @@ export async function handleMaxBazarWebhook(update: any) {
         await approveTelegramLoginSessionAsync(authToken, user.id);
 
         const returnUrl = `${SITE_URL}/apps`;
-        await callMaxBazarBotApi('sendMessage', {
+        await api('sendMessage', {
           chat_id: chatId,
           text:
-            `🎉 <b>MAX-BAZAR غا كىرىش مۇۋەپپەقىيەتلىك تەستىقلاندى!</b>\n\n` +
+            `🎉 <b>${config.brand} غا كىرىش مۇۋەپپەقىيەتلىك تەستىقلاندى!</b>\n\n` +
             `<tg-emoji emoji-id="5373012449597335010">👤</tg-emoji> ھېساباتىڭىز: <b>${user.name}</b>\n` +
-            `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> ئورتاق قالدۇقىڭىز: <b>$${Number(user.balance || 0).toFixed(2)} USD</b>\n\n` +
+            `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> ئورتاق قالدۇقىڭىز: <b>$${Number(
+              user.balance || 0
+            ).toFixed(2)} USD</b>\n\n` +
             `⚡️ ھازىر توربەت ياكى ئەپكە قايتسىڭىز، ھېساباتىڭىز ئۆزلۈكىدىن كىرىپ تەييار بولدى!`,
           parse_mode: 'HTML',
           reply_markup: {
-            inline_keyboard: [
-              [{ text: '🛍️ MAX-BAZAR ئەپ بازىرىنى ئېچىش', web_app: { url: returnUrl } }],
-            ],
+            inline_keyboard: [[{ text: `🛍️ ${config.brand} نى ئېچىش`, web_app: { url: returnUrl } }]],
           },
         });
       } catch (err: any) {
-        console.error('[MaxBazar Bot Auth Error]:', err?.message);
+        console.error('[Store Bot Auth Error]:', err?.message);
       }
       return;
     }
@@ -1896,13 +2197,15 @@ export async function handleMaxBazarWebhook(update: any) {
         const appName = verified.app_id === 'honor-of-kings' ? 'Honor of Kings' : 'PUBG Mobile UC';
         const appUrl = `${SITE_URL}/apps/${verified.app_id || 'pubg'}?sync_token=${syncToken}`;
 
-        await callMaxBazarBotApi('sendMessage', {
+        await api('sendMessage', {
           chat_id: chatId,
           text:
             `🎉 <b>ھېساباتىڭىز تېلېفوندىكى ئەپكە دەرھال ئۇلاندى!</b>\n\n` +
             `🎮 ئەپ: <b>${appName}</b>\n` +
             `<tg-emoji emoji-id="5373012449597335010">👤</tg-emoji> كىملىكىڭىز: <b>${verified.identity}</b>\n` +
-            `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> قالدۇقىڭىز: <b>$${verified.balance.toFixed(2)} USD</b>\n\n` +
+            `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> قالدۇقىڭىز: <b>$${verified.balance.toFixed(
+              2
+            )} USD</b>\n\n` +
             `📱 تېلېفوندىكى ئەپىڭىز ئۆزلۈكىدىن كىردى، ئەپكە قايتىپ بىمالال داۋاملاشتۇرۇڭ.`,
           parse_mode: 'HTML',
           reply_markup: {
@@ -1916,7 +2219,7 @@ export async function handleMaxBazarWebhook(update: any) {
     // B.4 Admin Command: /admin or /manage or 'باشقۇرۇش'
     if (text === '/admin' || text === '/manage' || text === 'باشقۇرۇش' || text === 'باش تاختا') {
       if (!isAdmin) {
-        await callMaxBazarBotApi('sendMessage', {
+        await api('sendMessage', {
           chat_id: chatId,
           text: '⚠️ <b>كەچۈرۈڭ، بۇ مەشغۇلات پەقەت ئاساسىي دۇكان باشقۇرغۇچىسىغىلا مەخسۇس ئېچىۋېتىلگەن.</b>',
           parse_mode: 'HTML',
@@ -1925,16 +2228,15 @@ export async function handleMaxBazarWebhook(update: any) {
       }
 
       const adminToken = createAdminToken();
-      const adminMaxBazarUrl = `${SITE_URL}/admin?tab=maxbazar&token=${adminToken}`;
+      const adminUrl = `${SITE_URL}/admin?tab=maxbazar&token=${adminToken}`;
 
-      await callMaxBazarBotApi('sendMessage', {
+      await api('sendMessage', {
         chat_id: chatId,
         text:
           `👑 <b>ھۆرمەتلىك دۇكان باشقۇرغۇچىسى @${ADMIN_USERNAME}!</b>\n\n` +
-          `📱 <b>MAX-BAZAR ۋە AUTO CASH باشقۇرغۇچى مەركىزى</b>\n` +
-          `(Auto Cash تۈزۈلۈشى بويىچە MAX-BAZAR باش تاختىسى)\n\n` +
+          `📱 <b>${config.brand} باشقۇرغۇچى مەركىزى</b>\n\n` +
           `• بارلىق ئەپلەرنىڭ (PUBG, HOK, MLBB, MTN, Syriatel) زاكازلىرىنى بىۋاسىتە باشقۇرۇش\n` +
-          `• تەمىنلىگۈچى (MaxStore) ھالىتىنى تەكشۈرۈش ۋە زاكازلارنى تاماملاش\n` +
+          `• تەمىنلىگۈچى ھالىتىنى تەكشۈرۈش ۋە زاكازلارنى تاماملاش\n` +
           `• تېلېگرامما قانىلىغا «📢 قانالغا» كۇنۇپكىسى بىلەن 1لا بېسىپ تالون چىقىرىش\n\n` +
           `تۆۋەندىكى كۇنۇپكىنى بېسىپ دەرھال باشقۇرۇش كۆزنىكىگە كىرىڭ:`,
         parse_mode: 'HTML',
@@ -1942,14 +2244,14 @@ export async function handleMaxBazarWebhook(update: any) {
           inline_keyboard: [
             [
               {
-                text: '📱 👑 MAX-BAZAR باش تاختىسىغا كىرىش',
-                web_app: { url: adminMaxBazarUrl },
+                text: `📱 👑 ${config.brand} باش تاختىسىغا كىرىش`,
+                web_app: { url: adminUrl },
               },
             ],
             [
               {
                 text: '🌐 تور كۆرگۈچتە ئېچىش',
-                url: adminMaxBazarUrl,
+                url: adminUrl,
               },
             ],
           ],
@@ -1958,13 +2260,17 @@ export async function handleMaxBazarWebhook(update: any) {
       return;
     }
 
-    // B.5 Numeric Input (ShamCash Transaction Verification)
-    if (/^\d{6,15}$/.test(text)) {
-      await handleShamCashTxVerify(chatId, text, user);
+    // B.5 ShamCash Transaction Verification (Customer sends transaction ID or receipt text)
+    const normalizedInputTx = normalizeTxId(text);
+    if (
+      /^\d{5,25}$/.test(normalizedInputTx) ||
+      (text.length >= 5 && text.length <= 32 && /^[a-zA-Z0-9_-]{5,32}$/.test(text) && !text.startsWith('/'))
+    ) {
+      await handleShamCashTxVerify(chatId, text, user, config);
       return;
     }
 
-    // B.6 Command /start or 'باشلاش 🚀' or 'باش بەت'
+    // B.6 Command /start or 'باشلاش' or 'باش بەت'
     if (
       text.startsWith('/start') ||
       text === 'باشلاش' ||
@@ -1974,18 +2280,18 @@ export async function handleMaxBazarWebhook(update: any) {
       text.toLowerCase() === 'start'
     ) {
       session.history = [];
-      const menu = getMenuContent('menu:main', user, session, chatId, isAdmin);
+      const menu = getMenuContent('menu:main', user, session, chatId, isAdmin, config);
 
       // Step 1: Send persistent bottom keyboard
-      await callMaxBazarBotApi('sendMessage', {
+      await api('sendMessage', {
         chat_id: chatId,
-        text: `<tg-emoji emoji-id="5998929578515504488">#⃣</tg-emoji> <b>MAX-BAZAR | ئەڭ ئەرزان رەقەملىك ئەپلەر بازىرى</b>`,
+        text: `<tg-emoji emoji-id="5998929578515504488">#⃣</tg-emoji> <b>${config.brand} | ئەڭ ئەرزان رەقەملىك ئەپلەر ۋە ئويۇن بازىرى</b>`,
         parse_mode: 'HTML',
-        reply_markup: MAXBAZAR_PERSISTENT_KEYBOARD,
+        reply_markup: STORE_PERSISTENT_KEYBOARD,
       });
 
       // Step 2: Send main menu with inline buttons
-      await callMaxBazarBotApi('sendMessage', {
+      await api('sendMessage', {
         chat_id: chatId,
         text: menu.text,
         parse_mode: 'HTML',
@@ -1995,7 +2301,7 @@ export async function handleMaxBazarWebhook(update: any) {
     }
 
     // B.7 Any other message: Show quick guide
-    await callMaxBazarBotApi('sendMessage', {
+    await api('sendMessage', {
       chat_id: chatId,
       text:
         `💡 سىز «<b>${text}</b>» دەپ ئەۋەتتىڭىز.\n\n` +
@@ -2010,6 +2316,9 @@ export async function handleMaxBazarWebhook(update: any) {
       },
     });
   } catch (err: any) {
-    console.error('[handleMaxBazarWebhook Error]:', err?.message);
+    console.error('[handleStoreBotWebhook Error]:', err?.message);
   }
 }
+
+export const handleMaxBazarWebhook = (update: any) =>
+  handleStoreBotWebhook(update, DEFAULT_MAXBAZAR_BOT_CONFIG);

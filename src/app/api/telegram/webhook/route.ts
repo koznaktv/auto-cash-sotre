@@ -44,7 +44,8 @@ export async function POST(req: Request) {
       } catch {}
     }
 
-    await handleTelegramWebhook(update);
+    const { handleStoreBotWebhook, DEFAULT_AUTOCASH_BOT_CONFIG } = await import('@/lib/maxbazarBot');
+    await handleStoreBotWebhook(update, DEFAULT_AUTOCASH_BOT_CONFIG);
     return NextResponse.json({ ok: true });
   } catch (err: any) {
     console.error('[Telegram Webhook Error]:', err?.message);
