@@ -303,27 +303,45 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
   'tg:premium': {
     name: '💎 تىلگىرام Premium ئەزالىق',
     autocash: [
-      { title: '⭐️ 3 ئايلىق — $12.50', code: 'tg:3m:ac', price: 12.50 },
-      { title: '⭐️ 6 ئايلىق — $18.90', code: 'tg:6m:ac', price: 18.90 },
-      { title: '⭐️ 12 ئايلىق (1 يىل) — $31.00', code: 'tg:12m:ac', price: 31.00 },
+      { title: '⭐️ 3 ئايلىق Premium — $14.47', code: 'tg:3m:ac', price: 14.47 },
+      { title: '⭐️ 6 ئايلىق Premium — $19.29', code: 'tg:6m:ac', price: 19.29 },
+      { title: '⭐️ 12 ئايلىق (1 يىل) — $34.98', code: 'tg:12m:ac', price: 34.98 },
     ],
     maxbazar: [
-      { title: '⭐️ 3 ئايلىق — $11.90', code: 'tg:3m:mb', price: 11.90 },
-      { title: '⭐️ 6 ئايلىق — $17.95', code: 'tg:6m:mb', price: 17.95 },
-      { title: '⭐️ 12 ئايلىق (1 يىل) — $29.80', code: 'tg:12m:mb', price: 29.80 },
+      { title: '⭐️ 3 ئايلىق Premium — $14.77', code: 'tg:3m:mb', price: 14.77 },
+      { title: '⭐️ 6 ئايلىق Premium — $19.69', code: 'tg:6m:mb', price: 19.69 },
+      { title: '⭐️ 12 ئايلىق (1 يىل) — $35.71', code: 'tg:12m:mb', price: 35.71 },
     ],
   },
   'tg:stars': {
     name: '🌟 تىلگىرام يۇلتۇز (Stars)',
     autocash: [
-      { title: '🌟 50 Stars — $1.10', code: 'stars:50:ac', price: 1.10 },
-      { title: '🌟 100 Stars — $2.15', code: 'stars:100:ac', price: 2.15 },
-      { title: '🌟 500 Stars — $10.20', code: 'stars:500:ac', price: 10.20 },
+      { title: '🌟 50 Stars — $0.91', code: 'stars:50:ac', price: 0.91 },
+      { title: '🌟 75 Stars — $1.36', code: 'stars:75:ac', price: 1.36 },
+      { title: '🌟 100 Stars — $1.81', code: 'stars:100:ac', price: 1.81 },
+      { title: '🌟 150 Stars — $2.72', code: 'stars:150:ac', price: 2.72 },
+      { title: '🌟 250 Stars — $4.53', code: 'stars:250:ac', price: 4.53 },
+      { title: '🌟 350 Stars — $6.34', code: 'stars:350:ac', price: 6.34 },
+      { title: '🌟 500 Stars — $9.05', code: 'stars:500:ac', price: 9.05 },
+      { title: '🌟 750 Stars — $13.58', code: 'stars:750:ac', price: 13.58 },
+      { title: '🌟 1000 Stars — $18.10', code: 'stars:1000:ac', price: 18.10 },
+      { title: '🌟 1500 Stars — $27.15', code: 'stars:1500:ac', price: 27.15 },
+      { title: '🌟 2500 Stars — $45.25', code: 'stars:2500:ac', price: 45.25 },
+      { title: '🌟 5000 Stars — $90.50', code: 'stars:5000:ac', price: 90.50 },
     ],
     maxbazar: [
-      { title: '🌟 50 Stars — $1.05', code: 'stars:50:mb', price: 1.05 },
-      { title: '🌟 100 Stars — $2.05', code: 'stars:100:mb', price: 2.05 },
-      { title: '🌟 500 Stars — $9.90', code: 'stars:500:mb', price: 9.90 },
+      { title: '🌟 50 Stars — $0.92', code: 'stars:50:mb', price: 0.92 },
+      { title: '🌟 75 Stars — $1.38', code: 'stars:75:mb', price: 1.38 },
+      { title: '🌟 100 Stars — $1.83', code: 'stars:100:mb', price: 1.83 },
+      { title: '🌟 150 Stars — $2.74', code: 'stars:150:mb', price: 2.74 },
+      { title: '🌟 250 Stars — $4.57', code: 'stars:250:mb', price: 4.57 },
+      { title: '🌟 350 Stars — $6.40', code: 'stars:350:mb', price: 6.40 },
+      { title: '🌟 500 Stars — $9.15', code: 'stars:500:mb', price: 9.15 },
+      { title: '🌟 750 Stars — $13.72', code: 'stars:750:mb', price: 13.72 },
+      { title: '🌟 1000 Stars — $18.30', code: 'stars:1000:mb', price: 18.30 },
+      { title: '🌟 1500 Stars — $27.45', code: 'stars:1500:mb', price: 27.45 },
+      { title: '🌟 2500 Stars — $45.75', code: 'stars:2500:mb', price: 45.75 },
+      { title: '🌟 5000 Stars — $91.49', code: 'stars:5000:mb', price: 91.49 },
     ],
   },
   'apps:chatgpt': {
@@ -760,7 +778,8 @@ function getMenuContent(
     const isGrid2Col =
       menuId === 'topup:syriatel' ||
       menuId === 'topup:mtn' ||
-      menuId === 'topup:turkey';
+      menuId === 'topup:turkey' ||
+      menuId === 'tg:stars';
 
     // Topup cards:
     // - Syriatel & MTN: strictly Max Store (item.maxbazar)
