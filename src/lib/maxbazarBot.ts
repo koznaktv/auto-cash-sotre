@@ -741,7 +741,7 @@ function getMenuContent(
   if (menuId === 'menu:enter') {
     const displayName = (user.name || 'ھۆرمەتلىك خېرىدار').trim();
     const text =
-      `👋 <b>ئەسسالامۇ ئەلەيكۇم، ھۆرمەتلىك خېرىدار!</b>\n\n` +
+      `🌙 <b>السلام عليكم ورحمة الله وبركاته، ھۆرمەتلىك خېرىدار!</b>\n\n` +
       `👤 <b>ئىسمىڭىز:</b> ${displayName}\n` +
       `🆔 <b>تېلېگرامما ID:</b> <code>${chatId}</code>\n` +
       `💰 <b>ھەميان قالدۇقى:</b> <b>$${balance} USD</b>\n\n` +
