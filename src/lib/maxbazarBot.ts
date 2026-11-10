@@ -108,10 +108,25 @@ export function btnWithIcon(label: string, iconKey: string, defaultEmoji: string
 // ==========================================
 // 1. GLOBAL STATE & SESSIONS
 // ==========================================
+export interface PendingOrderState {
+  catKey: string;
+  pkgCode: string;
+  title: string;
+  price: number;
+  provider: 'maxbazar' | 'autocash';
+  maxstoreProductId?: number;
+  kind: 'wifi' | 'mlbb' | 'pubg' | 'ff' | 'hok' | 'arena' | 'coc' | 'syriatel' | 'mtn' | 'turkcell' | 'telegram' | 'app_account';
+  step: 'awaiting_target' | 'awaiting_zone' | 'ready_to_confirm';
+  targetAccount?: string;
+  zoneId?: string;
+  timestamp: number;
+}
+
 interface MaxBazarSession {
   selectedProvider: 'maxbazar' | 'autocash';
   history: string[];
   lang: string;
+  pendingOrder?: PendingOrderState | null;
   localOrders: Array<{
     orderId: string;
     title: string;
@@ -119,6 +134,7 @@ interface MaxBazarSession {
     price: number;
     provider: string;
     date: string;
+    targetAccount?: string;
   }>;
 }
 
@@ -137,6 +153,192 @@ function getSession(userId: string | number): MaxBazarSession {
     sessions.set(key, s);
   }
   return s;
+}
+
+export interface ProductRequirement {
+  requiresInput: boolean;
+  kind: 'wifi' | 'mlbb' | 'pubg' | 'ff' | 'hok' | 'arena' | 'coc' | 'syriatel' | 'mtn' | 'turkcell' | 'telegram' | 'app_account';
+  appName: string;
+  fieldLabel: string;
+  example: string;
+  placeholder: string;
+  requiresZoneId: boolean;
+  maxstoreProductId?: number;
+}
+
+export function getProductRequirement(pkgCode: string, catKey: string = ''): ProductRequirement {
+  const code = (pkgCode || '').toLowerCase();
+  const cat = (catKey || '').toLowerCase();
+
+  // Extract MaxStore product ID if ending with :<number>:mb
+  let maxstoreProductId: number | undefined;
+  const numMatch = pkgCode.match(/:(\d+):mb$/);
+  if (numMatch) {
+    maxstoreProductId = Number(numMatch[1]);
+  }
+
+  // 1. Wi-Fi cards -> No user input needed (instant code delivery)
+  if (code.startsWith('wifi:') || cat.startsWith('wifi:')) {
+    return {
+      requiresInput: false,
+      kind: 'wifi',
+      appName: 'Wi-Fi كارتىسى',
+      fieldLabel: 'Wi-Fi كارتىسى',
+      example: '',
+      placeholder: '',
+      requiresZoneId: false,
+    };
+  }
+
+  // 2. Mobile Legends (MLBB) -> Requires Player ID & Zone ID
+  if (code.startsWith('mlbb_') || cat.includes('mlbb')) {
+    return {
+      requiresInput: true,
+      kind: 'mlbb',
+      appName: 'Mobile Legends: Bang Bang',
+      fieldLabel: 'ئويۇنچى كىملىكى (UID) ۋە رايون نومۇرى (Zone ID)',
+      example: '123456789 (2045) ياكى 123456789',
+      placeholder: 'مەسىلەن: 123456789 (2045)',
+      requiresZoneId: true,
+      maxstoreProductId,
+    };
+  }
+
+  // 3. PUBG Mobile -> Requires Player ID (UID)
+  if (code.startsWith('pubg_') || cat.includes('pubg')) {
+    return {
+      requiresInput: true,
+      kind: 'pubg',
+      appName: 'PUBG Mobile',
+      fieldLabel: 'پابجى ئويۇنچى كىملىكى (Player ID / UID)',
+      example: '5123456789 (ئويۇندىكى 9-10 خانىلىق سان)',
+      placeholder: '5123456789',
+      requiresZoneId: false,
+      maxstoreProductId,
+    };
+  }
+
+  // 4. Honor of Kings -> Requires Player ID (UID)
+  if (code.startsWith('hok_') || cat.includes('hok')) {
+    return {
+      requiresInput: true,
+      kind: 'hok',
+      appName: 'Honor of Kings',
+      fieldLabel: 'ئويۇنچى كىملىكى (Player ID / UID)',
+      example: '123456789012 (HOK ئارخىپىڭىزدىكى كىملىك)',
+      placeholder: '123456789012',
+      requiresZoneId: false,
+      maxstoreProductId,
+    };
+  }
+
+  // 5. Arena Breakout -> Requires Player ID (UID)
+  if (code.startsWith('arena_') || cat.includes('arena')) {
+    return {
+      requiresInput: true,
+      kind: 'arena',
+      appName: 'Arena Breakout',
+      fieldLabel: 'ئويۇنچى كىملىكى (Player ID / UID)',
+      example: '1002345678',
+      placeholder: '1002345678',
+      requiresZoneId: false,
+      maxstoreProductId,
+    };
+  }
+
+  // 6. Free Fire -> Requires Player ID (UID)
+  if (code.startsWith('ff_') || cat.includes('freefire')) {
+    return {
+      requiresInput: true,
+      kind: 'ff',
+      appName: 'Free Fire',
+      fieldLabel: 'فىفا ئويۇنچى كىملىكى (Player ID / UID)',
+      example: '123456789',
+      placeholder: '123456789',
+      requiresZoneId: false,
+      maxstoreProductId,
+    };
+  }
+
+  // 7. Clash of Clans / Clash Royale -> Requires Supercell Email
+  if (code.startsWith('coc:') || cat.includes('clash')) {
+    return {
+      requiresInput: true,
+      kind: 'coc',
+      appName: 'Clash of Clans',
+      fieldLabel: 'Supercell ID ئېلخەت ئادرېسى (Email)',
+      example: 'user@gmail.com',
+      placeholder: 'user@gmail.com',
+      requiresZoneId: false,
+      maxstoreProductId,
+    };
+  }
+
+  // 8. Syriatel -> Requires Phone Number
+  if (code.startsWith('syr:') || code.startsWith('syr_m:') || cat.includes('syriatel')) {
+    return {
+      requiresInput: true,
+      kind: 'syriatel',
+      appName: 'سۈرىيەتەل (Syriatel)',
+      fieldLabel: 'سۈرىيەتەل تېلېفون نومۇرى',
+      example: '0933123456 ياكى 933123456',
+      placeholder: '09xxxxxxxx',
+      requiresZoneId: false,
+      maxstoreProductId,
+    };
+  }
+
+  // 9. MTN Syria -> Requires Phone Number
+  if (code.startsWith('mtn:') || code.startsWith('mtn_m:') || cat.includes('mtn')) {
+    return {
+      requiresInput: true,
+      kind: 'mtn',
+      appName: 'MTN سۈرىيە',
+      fieldLabel: 'MTN تېلېفون نومۇرى',
+      example: '0944123456 ياكى 944123456',
+      placeholder: '09xxxxxxxx',
+      requiresZoneId: false,
+      maxstoreProductId,
+    };
+  }
+
+  // 10. Turkcell -> Requires Turkey Phone Number
+  if (code.startsWith('tr:') || cat.includes('turkey')) {
+    return {
+      requiresInput: true,
+      kind: 'turkcell',
+      appName: 'Turkcell تۈركىيە',
+      fieldLabel: 'تۈركىيە تېلېفون نومۇرى',
+      example: '05551234567',
+      placeholder: '05xxxxxxxxx',
+      requiresZoneId: false,
+    };
+  }
+
+  // 11. Telegram Premium & Stars -> Requires Telegram username or phone
+  if (code.startsWith('tg:') || code.startsWith('stars:') || cat.startsWith('tg:')) {
+    return {
+      requiresInput: true,
+      kind: 'telegram',
+      appName: 'Telegram',
+      fieldLabel: 'تىلگىرام نامىڭىز (@username) ياكى نومۇرىڭىز',
+      example: '@nasrulla0996',
+      placeholder: '@username',
+      requiresZoneId: false,
+    };
+  }
+
+  // 12. AI Apps & Other (ChatGPT, Gemini, Canva, CapCut) -> Requires Account / Email
+  return {
+    requiresInput: true,
+    kind: 'app_account',
+    appName: 'ئەپ ۋە مۇلازىمەت ھېساباتى',
+    fieldLabel: 'ھېسابات ئېلخەت ئادرېسى ياكى نامى',
+    example: 'user@gmail.com',
+    placeholder: 'user@gmail.com',
+    requiresZoneId: false,
+    maxstoreProductId,
+  };
 }
 
 
@@ -1299,17 +1501,101 @@ function getMenuContent(
     const title = pkg?.title || pkgCode;
     const price = pkg?.price || 1.0;
 
+    const reqInfo = getProductRequirement(pkgCode, catKey);
+
+    // Check if this pending order already has customer's target account
+    const activePending = session.pendingOrder;
+    const hasTargetAccount =
+      activePending &&
+      activePending.pkgCode === pkgCode &&
+      Boolean(activePending.targetAccount) &&
+      (!reqInfo.requiresZoneId || Boolean(activePending.zoneId));
+
+    // A. If this product requires input AND customer has not entered target account yet: Show Input Prompt!
+    if (reqInfo.requiresInput && !hasTargetAccount) {
+      session.pendingOrder = {
+        catKey,
+        pkgCode,
+        title,
+        price,
+        provider: isWifi ? 'autocash' : session.selectedProvider,
+        maxstoreProductId: reqInfo.maxstoreProductId,
+        kind: reqInfo.kind,
+        step: 'awaiting_target',
+        targetAccount: '',
+        zoneId: '',
+        timestamp: Date.now(),
+      };
+
+      let inputPromptExtra = '';
+      if (reqInfo.kind === 'mlbb') {
+        inputPromptExtra =
+          `💡 <b>ئەسكەرتىش:</b> كىملىك ۋە رايون كودىنى بىرگە ئەۋەتسىڭىزمۇ بولىدۇ.\n` +
+          `مەسىلەن: <code>123456789 (2045)</code> ياكى <code>123456789 2045</code>\n\n`;
+      } else if (reqInfo.kind === 'pubg') {
+        inputPromptExtra =
+          `💡 <b>ئەسكەرتىش:</b> پەقەت پابجى نۇمۇرلۇق كىملىكىڭىزنى (UID) ئەۋەتىڭ.\n` +
+          `مەسىلەن: <code>5123456789</code>\n\n`;
+      } else if (reqInfo.kind === 'hok') {
+        inputPromptExtra =
+          `💡 <b>ئەسكەرتىش:</b> HOK ئارخىپىڭىزدىكى كىملىك نومۇرىنى (UID) ئەۋەتىڭ.\n` +
+          `مەسىلەن: <code>123456789012</code>\n\n`;
+      } else if (reqInfo.kind === 'arena') {
+        inputPromptExtra =
+          `💡 <b>ئەسكەرتىش:</b> Arena Breakout ئويۇنچى كىملىكىڭىزنى ئەۋەتىڭ.\n` +
+          `مەسىلەن: <code>1002345678</code>\n\n`;
+      } else if (reqInfo.kind === 'coc') {
+        inputPromptExtra =
+          `💡 <b>ئەسكەرتىش:</b> Supercell ID غا باغلانغان رەسمىي ئېلخەت ئادرېسىڭىزنى يېزىپ ئەۋەتىڭ.\n` +
+          `مەسىلەن: <code>user@gmail.com</code>\n\n`;
+      } else if (reqInfo.kind === 'syriatel' || reqInfo.kind === 'mtn') {
+        inputPromptExtra =
+          `💡 <b>ئەسكەرتىش:</b> 10 خانىلىق تېلېفون نومۇرىڭىزنى يېزىپ ئەۋەتىڭ.\n` +
+          `مەسىلەن: <code>0933123456</code>\n\n`;
+      }
+
+      const promptText =
+        `<tg-emoji emoji-id="5807531546449549750">✍️</tg-emoji> <b>زاكاز ئۇچۇرىنى كىرگۈزۈڭ</b>\n\n` +
+        `📦 <b>مەھسۇلات:</b> <b>${title}</b>\n` +
+        `💰 <b>باھاسى:</b> <b>$${price.toFixed(2)} USD</b>\n` +
+        `💳 <b>قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
+        inputPromptExtra +
+        `🎯 <b>تەلەپ قىلىنىدىغان ئۇچۇر:</b> <b>${reqInfo.fieldLabel}</b>\n\n` +
+        `<i>👇 تۆۋەندىكى تېكىست كىرگۈزۈش قۇتىسىغا يېزىپ بۇ چاتقا ئەۋەتىڭ:</i>`;
+
+      const inputKb: any[][] = [];
+      if (reqInfo.kind === 'telegram') {
+        inputKb.push([
+          btnWithIcon('👤 ئۆزۈمنىڭ ھېساباتىغا ئېچىش', 'profile_user', '👤', {
+            callback_data: `tg_self|${pkgCode}`,
+          }),
+        ]);
+      }
+      inputKb.push([
+        btnWithIcon('بىكار قىلىش', 'cancel', '❌', { callback_data: catKey || 'shop:home' }),
+      ]);
+
+      return { text: promptText, inline_keyboard: inputKb };
+    }
+
+    // B. Target Account is ready (or Wi-Fi product) -> Show Final Confirmation Screen
+    const targetAccountDisplay =
+      reqInfo.kind === 'wifi'
+        ? 'Wi-Fi كارتىسى (ئامباردىن دەرھال چىقىپ بېرىدۇ)'
+        : `${activePending?.targetAccount || ''}${activePending?.zoneId ? ` (رايون: ${activePending.zoneId})` : ''}`;
+
     let usageHint = '';
     if (pkgCode.startsWith('mlbb_pass:')) {
       usageHint = `📌 <b>ئىشلىتىلىشى:</b> 7 كۈن بويىچە كۈندىلىك ئالماس ۋە قوشۇمچە سەرخىل مۇكاپاتلارنى بېرىدۇ.\n\n`;
     }
 
     const text =
-      `🛒 <b>سېتىۋېلىشنى جەزملەش</b>\n\n` +
+      `🛒 <b>سېتىۋېلىشنى جەزملەشتۈرۈش</b>\n\n` +
       usageHint +
-      `📦 <b>مەھسۇلات:</b> ${title}\n` +
+      `📦 <b>مەھسۇلات:</b> <b>${title}</b>\n` +
       `💰 <b>باھاسى:</b> <b>$${price.toFixed(2)} USD</b>\n` +
-      `💳 <b>سىزنىڭ قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
+      `💳 <b>سىزنىڭ قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n` +
+      `🎯 <b>نىشان كىملىك / نومۇر:</b> <code>${targetAccountDisplay}</code>\n\n` +
       (!isWifi && !isTopup ? `💰 <b>باھا تۈرى:</b> <b>${providerTag}</b>\n\n` : '') +
       `زاكاسنى جەزملەشتۈرۈپ ھېساباتتىن كېسىشنى خالامسىز؟`;
 
@@ -1319,10 +1605,19 @@ function getMenuContent(
           callback_data: `do_buy|${pkgCode}`,
         }),
       ],
-      [
-        btnWithIcon('بىكار قىلىش', 'cancel', '❌', { callback_data: catKey || 'shop:home' }),
-      ],
     ];
+
+    if (reqInfo.requiresInput) {
+      inline_keyboard.push([
+        btnWithIcon('كىملىكنى ئۆزگەرتىش', 'edit', '✏️', {
+          callback_data: `reinput|${catKey}|${pkgCode}`,
+        }),
+      ]);
+    }
+
+    inline_keyboard.push([
+      btnWithIcon('بىكار قىلىش', 'cancel', '❌', { callback_data: catKey || 'shop:home' }),
+    ]);
 
     return { text, inline_keyboard };
   }
@@ -1839,6 +2134,33 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
         return;
       }
 
+      // A.2 Re-input Target Account
+      if (data.startsWith('reinput|')) {
+        const parts = data.split('|');
+        const catKey = parts[1] || '';
+        const pkgCode = parts[2] || '';
+        if (session.pendingOrder) {
+          session.pendingOrder.targetAccount = '';
+          session.pendingOrder.zoneId = '';
+          session.pendingOrder.step = 'awaiting_target';
+        }
+        const menu = getMenuContent(`buy|${catKey}|${pkgCode}`, user, session, chatId, isAdmin, config);
+        await showMessage(chatId, messageId, menu.text, { inline_keyboard: menu.inline_keyboard });
+        return;
+      }
+
+      // A.2.1 Telegram Self Target
+      if (data.startsWith('tg_self|')) {
+        const pkgCode = data.split('|')[1] || '';
+        if (session.pendingOrder) {
+          session.pendingOrder.targetAccount = username ? `@${username}` : String(chatId);
+          session.pendingOrder.step = 'ready_to_confirm';
+          const menu = getMenuContent(`buy|${session.pendingOrder.catKey}|${pkgCode}`, user, session, chatId, isAdmin, config);
+          await showMessage(chatId, messageId, menu.text, { inline_keyboard: menu.inline_keyboard });
+        }
+        return;
+      }
+
       // A.3 Order Execution (do_buy|CODE or do_buy:CODE)
       if (data.startsWith('do_buy|') || data.startsWith('do_buy:')) {
         let pkgCode = '';
@@ -1878,10 +2200,104 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
           return;
         }
 
+        const reqInfo = getProductRequirement(pkgCode, session.pendingOrder?.catKey || '');
+        const targetAcc = (session.pendingOrder?.targetAccount || '').trim();
+        const zoneId = (session.pendingOrder?.zoneId || '').trim();
+
+        // If product requires user input, ensure targetAccount is present
+        if (reqInfo.requiresInput && (!targetAcc || (reqInfo.requiresZoneId && !zoneId))) {
+          const menu = getMenuContent(`buy|${session.pendingOrder?.catKey || 'shop:home'}|${pkgCode}`, user, session, chatId, isAdmin, config);
+          await showMessage(chatId, messageId, menu.text, { inline_keyboard: menu.inline_keyboard });
+          return;
+        }
+
+        // DISPATCH TO MAXSTORE WHOLESALE PROVIDER (IF MAXSTORE PRODUCT)
+        let providerOrderId: string | null = null;
+        let providerStatus = 'completed';
+        let providerError: string | null = null;
+
+        const maxstoreProductId = reqInfo.maxstoreProductId;
+        const maxstoreToken = (process.env.MAXSTORE_API_TOKEN || 'msk_6HAfwl0cSpjPJ0jeB25V52gC5ETq3seC29C1qlgpdvI').trim();
+
+        if (maxstoreProductId && maxstoreToken) {
+          try {
+            const orderUuid = 'ORD-' + Date.now().toString(36).toUpperCase() + Math.floor(1000 + Math.random() * 9000);
+            const orderParams: Record<string, any> = {
+              player_id: targetAcc,
+              Player_ID: targetAcc,
+              ID: targetAcc,
+              phone: targetAcc,
+              Phone_Number: targetAcc,
+              'ايدي اللاعب': targetAcc,
+              'رقم المشترك': targetAcc,
+              'ادخل رقم الهاتف بدون النداء': targetAcc,
+              'رقم الهاتف': targetAcc,
+              Email: targetAcc,
+              email: targetAcc,
+            };
+            if (zoneId) {
+              orderParams.server_id = zoneId;
+              orderParams['رقم السيرفر'] = zoneId;
+              orderParams.zoneId = zoneId;
+            }
+
+            const msRes = await fetch('https://maxstore1.com/api/v2/order', {
+              method: 'POST',
+              headers: {
+                'api-token': maxstoreToken,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                product_id: maxstoreProductId,
+                order_uuid: orderUuid,
+                qty: 1,
+                params: orderParams,
+              }),
+            });
+            const msData = await msRes.json();
+            if (msData.status === 'OK' && msData.data?.order_id) {
+              providerOrderId = String(msData.data.order_id);
+              providerStatus = msData.data.status || 'in_progress';
+            } else {
+              const detailMsg =
+                msData.detail?.message ||
+                (typeof msData.detail === 'string' ? msData.detail : null) ||
+                (Array.isArray(msData.detail) ? msData.detail[0]?.msg : null) ||
+                msData.error ||
+                'تەمىنلىگۈچى تەرەپ زاكازنى رەت قىلدى';
+              providerError = detailMsg;
+            }
+          } catch (e: any) {
+            providerError = 'تەمىنلىگۈچى تورى بىلەن ئۇلىنىش ئۈزۈلدى';
+          }
+        }
+
+        // IF PROVIDER REJECTED, PROTECT CUSTOMER FUNDS 100%!
+        if (providerError) {
+          const failMsg =
+            `❌ <b>تەمىنلىگۈچى زاكازنى قوبۇل قىلمىدى!</b>\n\n` +
+            `⚠️ <b>سەۋەبى:</b> ${providerError}\n\n` +
+            `💡 <i>كىرگۈزگەن كىملىك ياكى نومۇرىڭىزنى تەكشۈرۈپ قايتا سىناڭ. ھېسابات قالدۇقىڭىزدىن ھېچقانداق پۇل كېسىلمىدى!</i>`;
+
+          await showMessage(chatId, messageId, failMsg, {
+            inline_keyboard: [
+              [btnWithIcon('قايتا كىرگۈزۈش', 'edit', '✏️', {
+                callback_data: `reinput|${session.pendingOrder?.catKey || 'shop:home'}|${pkgCode}`,
+              })],
+              [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
+            ],
+          });
+          return;
+        }
+
         // Deduct balance atomically
         const newOrderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
         await adjustUserBalanceAsync(user.id, -price);
         const newBalance = Math.max(0, currentBalance - price);
+
+        const targetAccountFull = isWifi
+          ? 'Wi-Fi كارتىسى'
+          : `${targetAcc}${zoneId ? ` (Zone: ${zoneId})` : ''}`.trim() || String(chatId);
 
         // Record order locally and in session
         const providerUpper = isWifi ? 'AUTOCASH' : session.selectedProvider.toUpperCase();
@@ -1893,6 +2309,7 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
           price,
           provider: providerUpper,
           date: new Date().toLocaleTimeString('ug', { hour: '2-digit', minute: '2-digit' }),
+          targetAccount: targetAccountFull,
         };
         session.localOrders.unshift(orderRecord);
 
@@ -1905,10 +2322,17 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
             serviceName: rawTitle,
             packageTitle: rawTitle,
             amount: price,
-            targetAccount: String(chatId),
+            targetAccount: targetAccountFull,
             orderId: newOrderId,
-            details: { store: config.brand, provider: isWifi ? 'autocash' : session.selectedProvider },
-            initialStatus: 'completed',
+            details: {
+              store: config.brand,
+              provider: isWifi ? 'autocash' : session.selectedProvider,
+              providerOrderId: providerOrderId || undefined,
+              targetAccount: targetAcc,
+              zoneId: zoneId || undefined,
+              maxstoreProductId,
+            },
+            initialStatus: providerStatus === 'in_progress' ? 'processing' : 'completed',
           });
         } catch {}
 
@@ -1959,12 +2383,35 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
           `🎉 <b>زاكاز مۇۋەپپەقىيەتلىك تاپشۇرۇلدى!</b>\n\n` +
           `📦 <b>مەھسۇلات:</b> ${rawTitle}\n` +
           `🧾 <b>زاكاز نومۇرى:</b> <code>#${newOrderId}</code>\n` +
+          (providerOrderId ? `🔢 <b>تەمىنلىگۈچى نومۇرى:</b> <code>#${providerOrderId}</code>\n` : '') +
+          (!isWifi ? `🎯 <b>نىشان كىملىك:</b> <code>${targetAccountFull}</code>\n` : '') +
           (!isWifi && !isTopup ? `💰 <b>باھا تۈرى:</b> <b>${effectiveProvider}</b>\n` : '') +
-          `💰 <b>كېسىلگەن سومما:</b> -${price.toFixed(2)} USD\n` +
+          `💰 <b>كېسىلگەن سومما:</b> -$${price.toFixed(2)} USD\n` +
           `💳 <b>قالغان قالدۇقىڭىز:</b> <b>${newBalance.toFixed(2)} USD</b>\n` +
-          `<tg-emoji emoji-id="5370896319210595146">🤔</tg-emoji> <b>ھالىتى:</b> <b>زاكاز ماقۇللىنىۋاتىدۇ...</b>\n` +
+          `<tg-emoji emoji-id="5370896319210595146">🤔</tg-emoji> <b>ھالىتى:</b> <b>زاكاز قوبۇل قىلىندى، قاچىلىنىۋاتىدۇ... ⚡</b>\n` +
           wifiCardExtra +
-          `\nمەھسۇلات ئۇچۇرى ئاپتوماتىك تەمىنلىنىدۇ. رەھمەت!`;
+          `\nمەھسۇلات ئاپتوماتىك قاچىلىنىدۇ. رەھمەت!`;
+
+        // Clear active pending order
+        session.pendingOrder = null;
+
+        // Broadcast to channel if completed
+        try {
+          const { postOrderCompletedToChannel } = await import('./telegram');
+          postOrderCompletedToChannel({
+            id: newOrderId,
+            serviceName: rawTitle,
+            packageTitle: rawTitle,
+            amount: price,
+            targetAccount: targetAccountFull,
+            userName: user.name || user.email || String(chatId),
+            details: {
+              store: config.brand,
+              provider: isWifi ? 'autocash' : session.selectedProvider,
+              providerOrderId,
+            },
+          }).catch(() => null);
+        } catch {}
 
         await showMessage(chatId, messageId, successText, {
           inline_keyboard: [
@@ -2256,6 +2703,85 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
             ],
           ],
         },
+      });
+      return;
+    }
+
+    // B.4.1 Cancel Pending Order
+    if (
+      session.pendingOrder &&
+      (text === '/cancel' ||
+        text === 'بىكار قىلىش' ||
+        text === '❌ بىكار قىلىش' ||
+        text.toLowerCase() === 'cancel')
+    ) {
+      session.pendingOrder = null;
+      const menu = getMenuContent('menu:main', user, session, chatId, isAdmin, config);
+      await api('sendMessage', {
+        chat_id: chatId,
+        text: '❌ <b>زاكاز كىرگۈزۈش بىكار قىلىندى.</b>\n\nكېرەكلىك بۆلەكنى تاللاڭ:',
+        parse_mode: 'HTML',
+        reply_markup: { inline_keyboard: menu.inline_keyboard },
+      });
+      return;
+    }
+
+    // B.4.2 Handle Active Order Input (Player ID / Phone Number / Email / Zone ID)
+    if (
+      session.pendingOrder &&
+      (session.pendingOrder.step === 'awaiting_target' || session.pendingOrder.step === 'awaiting_zone') &&
+      !text.startsWith('/') &&
+      text !== 'باش بەت' &&
+      text !== 'باشلاش' &&
+      text !== '🚀 باشلاش' &&
+      text !== 'باشلاش 🚀'
+    ) {
+      const pending = session.pendingOrder;
+      const cleanInput = text.trim();
+
+      if (pending.step === 'awaiting_target') {
+        if (pending.kind === 'mlbb') {
+          // Check if user provided both UID and Zone ID in one string, e.g. "12345678 (2045)" or "12345678 2045"
+          const mlbbMatch = cleanInput.match(/^(\d{5,12})\s*[\(\[\{]?\s*(\d{3,6})\s*[\)\]\}]?$/);
+          if (mlbbMatch) {
+            pending.targetAccount = mlbbMatch[1];
+            pending.zoneId = mlbbMatch[2];
+            pending.step = 'ready_to_confirm';
+          } else {
+            pending.targetAccount = cleanInput.replace(/[\(\)\[\]]/g, '').trim();
+            pending.step = 'awaiting_zone';
+            await api('sendMessage', {
+              chat_id: chatId,
+              text:
+                `⚔️ <b>Mobile Legends رايون نومۇرى (Zone ID / Server ID)</b>\n\n` +
+                `ئويۇنچى كىملىكىڭىز: <code>${pending.targetAccount}</code>\n\n` +
+                `🎯 <b>ئەمدى ئويۇندىكى رايون نومۇرىڭىزنى (Zone ID) كىرگۈزۈڭ:</b>\n` +
+                `<i>💡 مەسىلەن: <code>2045</code> (ئويۇندىكى قاۋاق ئىچىدىكى 4-5 خانىلىق رايون كودى)</i>`,
+              parse_mode: 'HTML',
+              reply_markup: {
+                inline_keyboard: [
+                  [btnWithIcon('بىكار قىلىش', 'cancel', '❌', { callback_data: pending.catKey || 'shop:home' })],
+                ],
+              },
+            });
+            return;
+          }
+        } else {
+          pending.targetAccount = cleanInput;
+          pending.step = 'ready_to_confirm';
+        }
+      } else if (pending.step === 'awaiting_zone') {
+        pending.zoneId = cleanInput.replace(/[\(\)\[\]\{\}]/g, '').trim();
+        pending.step = 'ready_to_confirm';
+      }
+
+      // Show final confirmation menu
+      const menu = getMenuContent(`buy|${pending.catKey}|${pending.pkgCode}`, user, session, chatId, isAdmin, config);
+      await api('sendMessage', {
+        chat_id: chatId,
+        text: menu.text,
+        parse_mode: 'HTML',
+        reply_markup: { inline_keyboard: menu.inline_keyboard },
       });
       return;
     }
