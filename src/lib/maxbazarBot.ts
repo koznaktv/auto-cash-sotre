@@ -58,6 +58,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   cancel: '5316999925664347033', // ❌ بىكار قىلىش (Animated Red Cross)
   money: '5348576314771144671', // 💵 پۇل / باھا (Animated Dollar)
   order_processing: '5370896319210595146', // 🤔 زاكاز ماقۇللىنىۋاتىدۇ (Animated Thinking/Processing Emoji)
+  profile_user: '5373012449597335010', // 👤 ئىشلەتكۈچى / ئىسمىڭىز (Animated User Profile)
 };
 
 export function btnWithIcon(label: string, iconKey: string, defaultEmoji: string, extra: Record<string, any> = {}) {
@@ -742,7 +743,7 @@ function getMenuContent(
     const displayName = (user.name || 'ھۆرمەتلىك خېرىدار').trim();
     const text =
       `🌙 <b>السلام عليكم ورحمة الله وبركاته، ھۆرمەتلىك خېرىدار!</b>\n\n` +
-      `👤 <b>ئىسمىڭىز:</b> ${displayName}\n` +
+      `<tg-emoji emoji-id="5373012449597335010">👤</tg-emoji> <b>ئىسمىڭىز:</b> ${displayName}\n` +
       `🆔 <b>تېلېگرامما ID:</b> <code>${chatId}</code>\n` +
       `💰 <b>ھەميان قالدۇقى:</b> <b>$${balance} USD</b>\n\n` +
       `⚡️ <i>كېرەكلىك بۆلەكنى تۆۋەندىن تاللاڭ:</i>`;
@@ -1860,7 +1861,7 @@ export async function handleMaxBazarWebhook(update: any) {
           chat_id: chatId,
           text:
             `🎉 <b>MAX-BAZAR غا كىرىش مۇۋەپپەقىيەتلىك تەستىقلاندى!</b>\n\n` +
-            `👤 ھېساباتىڭىز: <b>${user.name}</b>\n` +
+            `<tg-emoji emoji-id="5373012449597335010">👤</tg-emoji> ھېساباتىڭىز: <b>${user.name}</b>\n` +
             `💰 ئورتاق قالدۇقىڭىز: <b>$${Number(user.balance || 0).toFixed(2)} USD</b>\n\n` +
             `⚡️ ھازىر توربەت ياكى ئەپكە قايتسىڭىز، ھېساباتىڭىز ئۆزلۈكىدىن كىرىپ تەييار بولدى!`,
           parse_mode: 'HTML',
@@ -1895,7 +1896,7 @@ export async function handleMaxBazarWebhook(update: any) {
           text:
             `🎉 <b>ھېساباتىڭىز تېلېفوندىكى ئەپكە دەرھال ئۇلاندى!</b>\n\n` +
             `🎮 ئەپ: <b>${appName}</b>\n` +
-            `👤 كىملىكىڭىز: <b>${verified.identity}</b>\n` +
+            `<tg-emoji emoji-id="5373012449597335010">👤</tg-emoji> كىملىكىڭىز: <b>${verified.identity}</b>\n` +
             `💰 قالدۇقىڭىز: <b>$${verified.balance.toFixed(2)} USD</b>\n\n` +
             `📱 تېلېفوندىكى ئەپىڭىز ئۆزلۈكىدىن كىردى، ئەپكە قايتىپ بىمالال داۋاملاشتۇرۇڭ.`,
           parse_mode: 'HTML',
