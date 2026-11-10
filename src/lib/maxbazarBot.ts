@@ -613,8 +613,31 @@ export async function handleMaxBazarWebhook(update: any) {
   try {
     if (!update) return;
 
-    const ADMIN_CHAT_ID = String(process.env.TELEGRAM_ADMIN_CHAT_ID || '7575664493');
-    const ADMIN_USERNAME = (process.env.TELEGRAM_ADMIN_USERNAME || 'nasrulla0996').toLowerCase().replace(/^@/, '');
+    const ADMIN_CHAT_ID = String(process.env.TELEGRAM_ADMIN_CHAT_ID || '7575664493').trim();
+    const ADMIN_USERNAME = (process.env.TELEGRAM_ADMIN_USERNAME || 'nasrulla0996').toLowerCase().replace(/^@/, '').trim();
+    const TEST_CUSTOMER_CHAT_ID = String(process.env.TELEGRAM_TEST_CUSTOMER_CHAT_ID || '8612107028').trim();
+
+    // Whitelist for trial/testing phase:
+    // 1. Admin mode: ADMIN_CHAT_ID (7575664493) or ADMIN_USERNAME (nasrulla0996)
+    // 2. Customer test mode: TEST_CUSTOMER_CHAT_ID (8612107028)
+    const ALLOWED_TEST_IDS = new Set([
+      ADMIN_CHAT_ID,
+      '7575664493',
+      TEST_CUSTOMER_CHAT_ID,
+      '8612107028',
+    ]);
+
+    const isAllowedTester = (id: string | number, uname?: string) => {
+      const idStr = String(id || '').trim();
+      const u = (uname || '').toLowerCase().replace(/^@/, '').trim();
+      return ALLOWED_TEST_IDS.has(idStr) || (Boolean(u) && u === ADMIN_USERNAME);
+    };
+
+    const MAINTENANCE_NOTICE =
+      `🛠️ <b>بوت تەھرىرلىنىۋاتىدۇ</b>\n\n` +
+      `ھۆرمەتلىك خېرىدار، نۆۋەتتە <b>MAX-BAZAR</b> بوت سىستېمىسى سىناق ۋە تەھرىرلىنىش باسقۇچىدا تۇرۇۋاتىدۇ.\n` +
+      `پات يېقىندا كۆپ خىل يېڭى مۇلازىمەتلەر بىلەن رەسمىي ئېچىۋېتىلىدۇ!\n\n` +
+      `📞 ئالاقىلىشىش ياكى سۈرۈشتۈرۈش ئۈچۈن: @${ADMIN_USERNAME}`;
 
     // ----------------------------------------------------
     // A. HANDLE INLINE BUTTON CALLBACK QUERIES
@@ -627,6 +650,16 @@ export async function handleMaxBazarWebhook(update: any) {
       const messageId = cq.message?.message_id;
       const username = (cq.from?.username || '').trim().replace(/^@/, '').toLowerCase();
       const firstName = cq.from?.first_name || 'خېرىدار';
+
+      // Whitelist check for trial phase
+      if (!isAllowedTester(chatId, username)) {
+        await callMaxBazarBotApi('answerCallbackQuery', {
+          callback_query_id: cqId,
+          text: '⚠️ نۆۋەتتە بوت سىستېمىسى تەھرىرلىنىۋاتىدۇ، پات يېقىندا رەسمىي ئېچىۋېتىلىدۇ.',
+          show_alert: true,
+        });
+        return;
+      }
 
       // Always answer callback query immediately to stop spinner
       await callMaxBazarBotApi('answerCallbackQuery', { callback_query_id: cqId });
@@ -835,6 +868,19 @@ export async function handleMaxBazarWebhook(update: any) {
     const username = (message.from?.username || '').trim().replace(/^@/, '').toLowerCase();
     const text = (message.text || '').trim();
     const firstName = message.from?.first_name || 'خېرىدار';
+
+    // Whitelist check for trial phase
+    if (!isAllowedTester(chatId, username)) {
+      await callMaxBazarBotApi('sendMessage', {
+        chat_id: chatId,
+        text: MAINTENANCE_NOTICE,
+        parse_mode: 'HTML',
+        reply_markup: {
+          remove_keyboard: true,
+        },
+      });
+      return;
+    }
 
     const isAdmin = String(chatId) === ADMIN_CHAT_ID || (Boolean(username) && username === ADMIN_USERNAME);
     const session = getSession(chatId);
