@@ -28,9 +28,9 @@ export const MAXBAZAR_PERSISTENT_KEYBOARD = {
 // ==========================================
 export const CUSTOM_ICONS: Record<string, string> = {
   webapp: '5938398023137628324', // 🌐 توربەتتىن سېتىۋېلىش (Tested & Active)
-  enter_bot: '', // 🔑 بوتقا كىرىش
+  enter_bot: '5998929578515504488', // 🔑 بوتقا كىرىش (Logo Custom Emoji)
   admin: '', // 👑 باشقۇرغۇچى مەركىزى
-  shop: '', // 🏪 دۇكان
+  shop: '5998929578515504488', // 🏪 دۇكان (Logo Custom Emoji)
   topup_balance: '', // 💳 قالدۇق قاچىلاش
   orders: '', // 📦 زاكازلىرىم
   balance_history: '', // 🛍 قالدۇق تارىخى
@@ -709,7 +709,7 @@ function getMenuContent(
   // 1. Main Welcome Screen (menu:main)
   if (menuId === 'menu:main') {
     const text =
-      `🌟 <b>ئەسسالامۇ ئەلەيكۇم، MAX-BAZAR بوت سۇپىمىزغا كەلگىنىڭىزنى قارشى ئالىمىز!</b>\n\n` +
+      `<tg-emoji emoji-id="5998929578515504488">#⃣</tg-emoji> <b>ئەسسالامۇ ئەلەيكۇم، MAX-BAZAR بوت سۇپىمىزغا كەلگىنىڭىزنى قارشى ئالىمىز!</b>\n\n` +
       `تۆۋەندىن بىر بۆلەكنى تاللاڭ:`;
 
     const inline_keyboard: any[][] = [
@@ -741,7 +741,7 @@ function getMenuContent(
 
     const inline_keyboard: any[][] = [
       [
-        { text: '🏪 دۇكان', callback_data: 'shop:home' },
+        btnWithIcon('دۇكان', 'shop', '🏪', { callback_data: 'shop:home' }),
         { text: '💳 قالدۇق قاچىلاش', callback_data: 'balance:topup' },
       ],
       [
@@ -761,7 +761,7 @@ function getMenuContent(
   // 3. Shop Categories Home (shop:home)
   if (menuId === 'shop:home') {
     const text =
-      `🏪 <b>دۇكان بۆلۈملىرى</b>\n\n` +
+      `<tg-emoji emoji-id="5998929578515504488">#⃣</tg-emoji> <b>دۇكان بۆلۈملىرى</b>\n\n` +
       `ئېھتىياجلىق مەھسۇلات تۈرىنى تاللاڭ:`;
 
     const inline_keyboard: any[][] = [
@@ -1402,7 +1402,7 @@ async function handleShamCashTxVerify(chatId: number | string, txId: string, use
       parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [
-          [{ text: '🏪 دۇكانغا كىرىش', callback_data: 'shop:home' }],
+          [btnWithIcon('دۇكانغا كىرىش', 'shop', '🏪', { callback_data: 'shop:home' })],
           [{ text: '🔑 ھېسابات تاختىسى', callback_data: 'menu:enter' }],
         ],
       },
@@ -1427,7 +1427,7 @@ async function handleShamCashTxVerify(chatId: number | string, txId: string, use
       parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [
-          [{ text: '🏪 دۇكانغا كىرىش', callback_data: 'shop:home' }],
+          [btnWithIcon('دۇكانغا كىرىش', 'shop', '🏪', { callback_data: 'shop:home' })],
           [{ text: '🔑 ھېسابات تاختىسى', callback_data: 'menu:enter' }],
         ],
       },
@@ -1673,7 +1673,7 @@ export async function handleMaxBazarWebhook(update: any) {
         await showOrEditMessage(chatId, messageId, successText, {
           inline_keyboard: [
             [{ text: '📦 زاكازلىرىمنى كۆرۈش', callback_data: 'orders:list' }],
-            [{ text: '🏪 دۇكانغا كىرىش', callback_data: 'shop:home' }],
+            [btnWithIcon('دۇكانغا كىرىش', 'shop', '🏪', { callback_data: 'shop:home' })],
             [{ text: '🏠 باش بەت', callback_data: 'menu:main' }],
           ],
         });
@@ -1707,7 +1707,7 @@ export async function handleMaxBazarWebhook(update: any) {
 
           await showOrEditMessage(chatId, messageId, emptyText, {
             inline_keyboard: [
-              [{ text: '🏪 دۇكانغا كىرىش', callback_data: 'shop:home' }],
+              [btnWithIcon('دۇكانغا كىرىش', 'shop', '🏪', { callback_data: 'shop:home' })],
               [{ text: '🏠 باش بەت', callback_data: 'menu:main' }],
             ],
           });
@@ -1974,7 +1974,7 @@ export async function handleMaxBazarWebhook(update: any) {
       // Step 1: Send persistent bottom keyboard
       await callMaxBazarBotApi('sendMessage', {
         chat_id: chatId,
-        text: `✨ <b>MAX-BAZAR | ئەڭ ئەرزان رەقەملىك ئەپلەر بازىرى</b> 🚀`,
+        text: `<tg-emoji emoji-id="5998929578515504488">#⃣</tg-emoji> <b>MAX-BAZAR | ئەڭ ئەرزان رەقەملىك ئەپلەر بازىرى</b> <tg-emoji emoji-id="5998929578515504488">#⃣</tg-emoji>`,
         parse_mode: 'HTML',
         reply_markup: MAXBAZAR_PERSISTENT_KEYBOARD,
       });
@@ -1999,7 +1999,7 @@ export async function handleMaxBazarWebhook(update: any) {
       parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [
-          [{ text: '🔑 بوتقا كىرىش', callback_data: 'menu:enter' }],
+          [btnWithIcon('بوتقا كىرىش', 'enter_bot', '🔑', { callback_data: 'menu:enter' })],
           [{ text: '🏠 باش بەت', callback_data: 'menu:main' }],
         ],
       },
