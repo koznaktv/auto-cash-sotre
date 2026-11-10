@@ -38,11 +38,12 @@ export const CUSTOM_ICONS: Record<string, string> = {
   channel: '6127360976250474761', // 📢 قانال (Animated 3D Megaphone)
   home: '5416041192905265756', // 🏠 باش بەت (Animated 3D Home)
   back: '5807540866528581427', // ⬅️ كەينىگە (Animated Back arrow)
-  sim_cards: '5316523549366716514', // 💳 كارتىلارغا پۇل قاچىلاش (Animated 3D Card)
+  sim_cards: '5204470768896864316', // 💳 كارتىلارغا پۇل قاچىلاش (Animated 3D Card)
   wifi: '5201735372945520721', // 🛜 Wi-Fi بېتاقە كارتىلىرى (Animated 3D Wi-Fi)
   telegram_sub: '5350501108659790021', // ⭐️ تىلگىرام ئەزالىق ئېچىش (Animated Glowing Star)
   ai_apps: '5204437027633786910', // 🍏 AI ۋە ئەپلەر (Animated Apple/Apps)
-  games: '5467583879948803288', // 🎮 ئويۇنلار (Animated Game Controller)
+  games: '5201939362417243050', // 🎮 ئويۇنلار (Animated 3D Game Controller)
+  clash: '5393123492226933240', // 🏰 Clash of Clans (Barbarian Custom Emoji)
   arena: '6138450886751424946', // 🌟 Arena Breakout (Custom Emoji)
   syriatel: '5005811690890069852', // 🇸🇾 سۈرىيەتىل (Free Syria Flag animated video sticker)
   mtn: '5008461419423729981', // 🇸🇾 ئىمتىئىن (Free Syria Flag animated video sticker)
@@ -632,7 +633,7 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'games:clash_passes': {
-    name: '🏰 Clash of Clans — ئالتۇن بېلەت ۋە تالونلار',
+    name: '<tg-emoji emoji-id="5393123492226933240">🏰</tg-emoji> Clash of Clans — ئالتۇن بېلەت ۋە تالونلار',
     autocash: [],
     maxbazar: [
       { title: '🏰 ئالتۇن بېلەت (Gold Pass) — $2.59', code: 'coc:834:mb', price: 2.59 },
@@ -817,7 +818,7 @@ function getMenuContent(
 
   // 4. Sub-category: Card Top-up Main Menu
   if (menuId === 'shop:topup') {
-    const text = `<tg-emoji emoji-id="5316523549366716514">💳</tg-emoji> <b>كارتىلار بۆلىكى</b>\n\nتۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:`;
+    const text = `<tg-emoji emoji-id="5204470768896864316">💳</tg-emoji> <b>كارتىلار بۆلىكى</b>\n\nتۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
       [btnWithIcon('پۇل قاچىلاش', 'sim_cards', '🔽', { callback_data: 'topup:units_menu' })],
       [btnWithIcon('تور قاچىلاش', 'lang', '🌐', { callback_data: 'topup:internet_menu' })],
@@ -931,14 +932,14 @@ function getMenuContent(
 
   // 7. Sub-category: Games
   if (menuId === 'shop:games') {
-    const text = `<tg-emoji emoji-id="5467583879948803288">🎮</tg-emoji> <b>ئويۇنلار بۆلىكى (Game Top-Up)</b>\n\nتۆۋەندىكى ئويۇنلاردىن بىرىنى تاللاڭ:`;
+    const text = `<tg-emoji emoji-id="5201939362417243050">🎮</tg-emoji> <b>ئويۇنلار بۆلىكى (Game Top-Up)</b>\n\nتۆۋەندىكى ئويۇنلاردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
       [btnWithIcon('Mobile Legends', 'mlbb', '⚔️', { callback_data: 'games:mlbb' })],
       [btnWithIcon('PUBG Mobile', 'pubg', '🪂', { callback_data: 'games:pubg' })],
       [btnWithIcon('Free Fire', 'freefire', '🔥', { callback_data: 'games:freefire' })],
       [btnWithIcon('Honor of Kings', 'hok', '👑', { callback_data: 'games:hok' })],
       [btnWithIcon('Arena Breakout', 'arena', '🛡️', { callback_data: 'games:arena' })],
-      [{ text: '🏰 Clash of Clans', callback_data: 'games:clash' }],
+      [btnWithIcon('Clash of Clans', 'clash', '🏰', { callback_data: 'games:clash' })],
       [
         btnWithIcon('تېخىمۇ كۆپ (توربەتتە كۆرۈش)', 'webapp', '🌐', {
           web_app: { url: `${SITE_URL}` },
@@ -1067,11 +1068,11 @@ function getMenuContent(
   // 7.7 Clash of Clans Submenu
   if (menuId === 'games:clash') {
     const text =
-      `🏰 <b>Clash of Clans</b>\n\n` +
+      `<tg-emoji emoji-id="5393123492226933240">🏰</tg-emoji> <b>Clash of Clans</b>\n\n` +
       `📦 <b>ئېھتىياجلىق تۈرنى تاللاڭ:</b>`;
 
     const inline_keyboard: any[][] = [
-      [{ text: '🏰 Clash of Clans ئالتۇن بېلەت ۋە تالونلار', callback_data: 'games:clash_passes' }],
+      [btnWithIcon('Clash of Clans ئالتۇن بېلەت ۋە تالونلار', 'clash', '🏰', { callback_data: 'games:clash_passes' })],
       [
         btnWithIcon('تېخىمۇ كۆپ (توربەتتە كۆرۈش)', 'webapp', '🌐', {
           web_app: { url: `${SITE_URL}` },
