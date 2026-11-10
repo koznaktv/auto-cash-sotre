@@ -234,22 +234,58 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'topup:mtn': {
-    name: '📱 ئىمتىئىن (MTN بىرلىك)',
+    name: '📱 ئىمتىئىن (MTN بىرلىكلىرى)',
     autocash: [
-      { title: '📱 100 بىرلىك (وحدة) — $0.87', code: 'mtn:100u:ac', price: 0.87 },
-      { title: '📱 200 بىرلىك (وحدة) — $1.74', code: 'mtn:200u:ac', price: 1.74 },
-      { title: '📱 300 بىرلىك (وحدة) — $2.62', code: 'mtn:300u:ac', price: 2.62 },
-      { title: '📱 500 بىرلىك (وحدة) — $4.36', code: 'mtn:500u:ac', price: 4.36 },
-      { title: '📱 1000 بىرلىك (وحدة) — $8.72', code: 'mtn:1000u:ac', price: 8.72 },
-      { title: '📱 2000 بىرلىك (وحدة) — $17.44', code: 'mtn:2000u:ac', price: 17.44 },
+      { title: '🛍️ 10 MTN — 0.08$', code: 'mtn:10:ac', price: 0.08 },
+      { title: '🛍️ 20 MTN — 0.16$', code: 'mtn:20:ac', price: 0.16 },
+      { title: '🛍️ 25 MTN — 0.20$', code: 'mtn:25:ac', price: 0.20 },
+      { title: '🛍️ 30 MTN — 0.24$', code: 'mtn:30:ac', price: 0.24 },
+      { title: '🛍️ 40 MTN — 0.32$', code: 'mtn:40:ac', price: 0.32 },
+      { title: '🛍️ 50 MTN — 0.40$', code: 'mtn:50:ac', price: 0.40 },
+      { title: '🛍️ 60 MTN — 0.49$', code: 'mtn:60:ac', price: 0.49 },
+      { title: '🛍️ 70 MTN — 0.57$', code: 'mtn:70:ac', price: 0.57 },
+      { title: '🛍️ 85 MTN — 0.69$', code: 'mtn:85:ac', price: 0.69 },
+      { title: '🛍️ 100 MTN — 0.81$', code: 'mtn:100:ac', price: 0.81 },
+      { title: '🛍️ 170 MTN — 1.38$', code: 'mtn:170:ac', price: 1.38 },
+      { title: '🛍️ 200 MTN — 1.62$', code: 'mtn:200:ac', price: 1.62 },
+      { title: '🛍️ 280 MTN — 2.26$', code: 'mtn:280:ac', price: 2.26 },
+      { title: '🛍️ 360 MTN — 2.91$', code: 'mtn:360:ac', price: 2.91 },
+      { title: '🛍️ 400 MTN — 3.24$', code: 'mtn:400:ac', price: 3.24 },
+      { title: '🛍️ 500 MTN — 4.04$', code: 'mtn:500:ac', price: 4.04 },
+      { title: '🛍️ 600 MTN — 4.85$', code: 'mtn:600:ac', price: 4.85 },
+      { title: '🛍️ 750 MTN — 6.07$', code: 'mtn:750:ac', price: 6.07 },
+      { title: '🛍️ 1000 MTN — 8.09$', code: 'mtn:1000:ac', price: 8.09 },
+      { title: '🛍️ 1500 MTN — 12.13$', code: 'mtn:1500:ac', price: 12.13 },
+      { title: '🛍️ 2000 MTN — 16.18$', code: 'mtn:2000:ac', price: 16.18 },
+      { title: '🛍️ 2500 MTN — 20.22$', code: 'mtn:2500:ac', price: 20.22 },
+      { title: '🛍️ 3000 MTN — 24.27$', code: 'mtn:3000:ac', price: 24.27 },
+      { title: '🛍️ 5000 MTN — 40.45$', code: 'mtn:5000:ac', price: 40.45 },
     ],
     maxbazar: [
-      { title: '📱 100 بىرلىك (وحدة) — $0.82', code: 'mtn:100u:mb', price: 0.82 },
-      { title: '📱 200 بىرلىك (وحدة) — $1.64', code: 'mtn:200u:mb', price: 1.64 },
-      { title: '📱 300 بىرلىك (وحدة) — $2.45', code: 'mtn:300u:mb', price: 2.45 },
-      { title: '📱 500 بىرلىك (وحدة) — $4.08', code: 'mtn:500u:mb', price: 4.08 },
-      { title: '📱 1000 بىرلىك (وحدة) — $8.15', code: 'mtn:1000u:mb', price: 8.15 },
-      { title: '📱 2000 بىرلىك (وحدة) — $16.31', code: 'mtn:2000u:mb', price: 16.31 },
+      { title: '🛍️ 10 MTN — 0.08$', code: 'mtn:10:mb', price: 0.08 },
+      { title: '🛍️ 20 MTN — 0.16$', code: 'mtn:20:mb', price: 0.16 },
+      { title: '🛍️ 25 MTN — 0.20$', code: 'mtn:25:mb', price: 0.20 },
+      { title: '🛍️ 30 MTN — 0.24$', code: 'mtn:30:mb', price: 0.24 },
+      { title: '🛍️ 40 MTN — 0.33$', code: 'mtn:40:mb', price: 0.33 },
+      { title: '🛍️ 50 MTN — 0.41$', code: 'mtn:50:mb', price: 0.41 },
+      { title: '🛍️ 60 MTN — 0.49$', code: 'mtn:60:mb', price: 0.49 },
+      { title: '🛍️ 70 MTN — 0.57$', code: 'mtn:70:mb', price: 0.57 },
+      { title: '🛍️ 85 MTN — 0.69$', code: 'mtn:85:mb', price: 0.69 },
+      { title: '🛍️ 100 MTN — 0.82$', code: 'mtn:100:mb', price: 0.82 },
+      { title: '🛍️ 170 MTN — 1.39$', code: 'mtn:170:mb', price: 1.39 },
+      { title: '🛍️ 200 MTN — 1.63$', code: 'mtn:200:mb', price: 1.63 },
+      { title: '🛍️ 280 MTN — 2.28$', code: 'mtn:280:mb', price: 2.28 },
+      { title: '🛍️ 360 MTN — 2.94$', code: 'mtn:360:mb', price: 2.94 },
+      { title: '🛍️ 400 MTN — 3.26$', code: 'mtn:400:mb', price: 3.26 },
+      { title: '🛍️ 500 MTN — 4.08$', code: 'mtn:500:mb', price: 4.08 },
+      { title: '🛍️ 600 MTN — 4.89$', code: 'mtn:600:mb', price: 4.89 },
+      { title: '🛍️ 750 MTN — 6.12$', code: 'mtn:750:mb', price: 6.12 },
+      { title: '🛍️ 1000 MTN — 8.15$', code: 'mtn:1000:mb', price: 8.15 },
+      { title: '🛍️ 1500 MTN — 12.23$', code: 'mtn:1500:mb', price: 12.23 },
+      { title: '🛍️ 2000 MTN — 16.31$', code: 'mtn:2000:mb', price: 16.31 },
+      { title: '🛍️ 2500 MTN — 20.38$', code: 'mtn:2500:mb', price: 20.38 },
+      { title: '🛍️ 3000 MTN — 24.46$', code: 'mtn:3000:mb', price: 24.46 },
+      { title: '🛍️ 5000 MTN — 40.77$', code: 'mtn:5000:mb', price: 40.77 },
     ],
   },
   'topup:mtn_monthly': {
@@ -732,7 +768,9 @@ function getMenuContent(
     const item = PROVIDER_DATA[menuId];
     const isWifi = menuId.startsWith('wifi:');
     const isSyriatel = menuId === 'topup:syriatel' || menuId === 'topup:syriatel_monthly';
-    const isGrid2Col = isSyriatel || menuId === 'topup:mtn_monthly';
+    const isMtnMonthlyAc = menuId === 'topup:mtn_monthly' && isAc;
+    const isPausedAc = (isSyriatel && isAc) || isMtnMonthlyAc;
+    const isGrid2Col = isSyriatel || menuId === 'topup:mtn' || menuId === 'topup:mtn_monthly';
     const pkgs = (isWifi || isAc) ? item.autocash : item.maxbazar;
 
     let text = '';
@@ -743,18 +781,25 @@ function getMenuContent(
         `${item.name}\n\n` +
         `💳 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
         `📦 <b>تۆۋەندىن ئېھتىياجلىق بولاقنى تاللاڭ:</b>`;
-    } else if (isSyriatel && isAc) {
+    } else if (isPausedAc) {
+      const reason = isSyriatel
+        ? `Othman Store تەمىنلىگۈچىدە سۈرىيەتىل (Syriatel) قاچىلاش مۇلازىمىتى <b>ۋاقىتلىق توختىتىلدى</b>.`
+        : `Othman Store تەمىنلىگۈچىدە MTN ئايلىق تور بوغچىلىرى تەمىنلەنمىگەن.`;
+      const actionTip = isSyriatel
+        ? `سۈرىيەتىلگە دەرھال پۇل قاچىلاش ئۈچۈن تۆۋەندىكى <b>«🟢 MAX-BAZAR»</b> كۇنۇپكىسىنى تاللاڭ (Max Store تەمىنلىگۈچىدە نورمال ئىشلەۋاتىدۇ):`
+        : `MTN ئايلىق تور بوغچىسىنى سېتىۋېلىش ئۈچۈن تۆۋەندىكى <b>«🟢 MAX-BAZAR»</b> كۇنۇپكىسىنى تاللاڭ (Max Store تەمىنلىگۈچىدە ھەممىسى تولۇق تەمىنلەنگەن):`;
+
       text =
         `${item.name}\n\n` +
         `💰 <b>باھا تۈرى:</b> <b>⚪ AUTO CASH</b>\n` +
         `💳 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
-        `⚠️ <b>ئەسكەرتىش:</b> Othman Store تەمىنلىگۈچىدە سۈرىيەتىل (Syriatel) قاچىلاش مۇلازىمىتى <b>ۋاقىتلىق توختىتىلدى</b>.\n\n` +
-        `سۈرىيەتىلگە دەرھال پۇل قاچىلاش ئۈچۈن تۆۋەندىكى <b>«🟢 MAX-BAZAR»</b> كۇنۇپكىسىنى تاللاڭ (Max Store تەمىنلىگۈچىدە نورمال ئىشلەۋاتىدۇ):`;
+        `⚠️ <b>ئەسكەرتىش:</b> ${reason}\n\n` +
+        actionTip;
 
       inline_keyboard.push(
         [
           {
-            text: `⚪ AUTO CASH (توختىتىلغان)`,
+            text: `⚪ AUTO CASH (${isSyriatel ? 'توختىتىلغان' : 'مەۋجۇت ئەمەس'})`,
             callback_data: `set_prov:autocash:${menuId}`,
           },
           {
@@ -790,7 +835,7 @@ function getMenuContent(
       ]);
     }
 
-    if (!(isSyriatel && isAc)) {
+    if (!isPausedAc) {
       if (isGrid2Col) {
         for (let i = 0; i < pkgs.length; i += 2) {
           const row: any[] = [
