@@ -32,7 +32,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   admin: '5998929578515504488', // 👑 باشقۇرغۇچى مەركىزى (Logo)
   shop: '5807531546449549750', // 🔴 دۇكان (Animated Red Icon)
   topup_balance: '5264895611517300926', // 🏦 قالدۇق قاچىلاش (Animated Bank)
-  orders: '5204324795843375748', // 🛍 زاكازلىرىم (Animated 3D Shopping bag)
+  orders: '5204021180310252946', // ✔️ زاكازلىرىم (Animated 3D Check)
   balance_history: '5816480536012527182', // 🚨 قالدۇق تارىخى (Animated Beacon)
   lang: '5397753673130463064', // 🌏 تىل تاللاش (Animated Earth Globe)
   channel: '6127360976250474761', // 📢 قانال (Animated 3D Megaphone)
@@ -1702,7 +1702,7 @@ export async function handleMaxBazarWebhook(update: any) {
 
         if (allOrders.length === 0) {
           const emptyText =
-            `<tg-emoji emoji-id="5204324795843375748">🛍</tg-emoji> <b>زاكازلىرىم</b>\n\n` +
+            `<tg-emoji emoji-id="5204021180310252946">✔️</tg-emoji> <b>زاكازلىرىم</b>\n\n` +
             `سىز تېخى بىرەر زاكاز بەرمىدىڭىز.\n` +
             `دۇكان بۆلۈمىگە كىرىپ ئېھتىياجلىق مەھسۇلاتنى سېتىۋالسىڭىز بولىدۇ.`;
 
@@ -1725,7 +1725,7 @@ export async function handleMaxBazarWebhook(update: any) {
           )
           .join('\n\n');
 
-        const ordersText = `<tg-emoji emoji-id="5204324795843375748">🛍</tg-emoji> <b>سىزنىڭ زاكازلىرىڭىز (${allOrders.length} دانە):</b>\n\n${orderLines}`;
+        const ordersText = `<tg-emoji emoji-id="5204021180310252946">✔️</tg-emoji> <b>سىزنىڭ زاكازلىرىڭىز (${allOrders.length} دانە):</b>\n\n${orderLines}`;
 
         await showOrEditMessage(chatId, messageId, ordersText, {
           inline_keyboard: [
