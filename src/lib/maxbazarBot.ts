@@ -345,14 +345,47 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'apps:chatgpt': {
-    name: '🤖 ChatGPT Plus / Team',
+    name: '🤖 ChatGPT (Plus / Go)',
     autocash: [
-      { title: '🔑 1 ئايلىق شەخسىي ئېچىش — $21.00', code: 'gpt:1m_p:ac', price: 21.00 },
-      { title: '👥 1 ئايلىق ئورتاق ھېسابات — $5.00', code: 'gpt:1m_s:ac', price: 5.00 },
+      { title: '🤖 ChatGPT GO (1 ئايلىق) — $12.93', code: 'gpt:go_1m:ac', price: 12.93 },
+      { title: '🔑 ChatGPT Plus (1 ئايلىق) — $27.04', code: 'gpt:plus_1m:ac', price: 27.04 },
     ],
     maxbazar: [
-      { title: '🔑 1 ئايلىق شەخسىي ئېچىش — $19.90', code: 'gpt:1m_p:mb', price: 19.90 },
-      { title: '👥 1 ئايلىق ئورتاق ھېسابات — $4.50', code: 'gpt:1m_s:mb', price: 4.50 },
+      { title: '🔑 ChatGPT Plus (1 ئايلىق - كاپالەتلىك) — $10.39', code: 'gpt:plus_1m:mb', price: 10.39 },
+    ],
+  },
+  'apps:gemini': {
+    name: '🔮 Google Gemini AI',
+    autocash: [
+      { title: '🔮 Gemini AI Pro (1 ئايلىق - شەخسىي ئېلخەت) — $6.01', code: 'gemini:1m:ac', price: 6.01 },
+      { title: '🔮 Gemini AI Pro (3 ئايلىق - شەخسىي ئېلخەت) — $17.44', code: 'gemini:3m:ac', price: 17.44 },
+      { title: '🔮 Gemini AI Pro (6 ئايلىق - شەخسىي ئېلخەت) — $30.09', code: 'gemini:6m:ac', price: 30.09 },
+    ],
+    maxbazar: [
+      { title: '🔮 Gemini Plus 400GB (12 ئايلىق / 1 يىل) — $2.99', code: 'gemini:12m:mb', price: 2.99 },
+    ],
+  },
+  'apps:capcut': {
+    name: '🎬 CapCut PRO (سۈرەت / سىن تەھرىرلەش)',
+    autocash: [
+      { title: '🎬 CapCut Pro (1 ئايلىق شەخسىي ھېسابات) — $3.76', code: 'capcut:1m_p:ac', price: 3.76 },
+    ],
+    maxbazar: [
+      { title: '🎬 CapCut Pro (1 ئايلىق ھېسابات) — $2.92', code: 'capcut:1m_mb:mb', price: 2.92 },
+      { title: '⚡️ CapCut Pro (1600 نومۇر / Credits) — $2.61', code: 'capcut:1600cr:mb', price: 2.61 },
+    ],
+  },
+  'apps:canva': {
+    name: '🎨 Canva PRO (لايىھىلەش ئەپى)',
+    autocash: [
+      { title: '🎨 Canva Pro (1 يىللىق ئېچىش) — $3.52', code: 'canva:1y:ac', price: 3.52 },
+      { title: '🎨 Canva Pro (2 يىللىق ئېچىش) — $7.02', code: 'canva:2y:ac', price: 7.02 },
+      { title: '🎨 Canva Pro (3 يىللىق ئېچىش) — $10.52', code: 'canva:3y:ac', price: 10.52 },
+      { title: '🎨 Canva Pro (4 يىللىق ئېچىش) — $14.03', code: 'canva:4y:ac', price: 14.03 },
+    ],
+    maxbazar: [
+      { title: '🎨 Canva Pro (2 يىللىق تەكلىپنامە) — $0.84', code: 'canva:2y_inv:mb', price: 0.84 },
+      { title: '🎨 Canva Pro (2 يىللىق 500 تەكلىپنامىلىك) — $27.51', code: 'canva:2y_500:mb', price: 27.51 },
     ],
   },
   'games:mlbb': {
@@ -728,9 +761,12 @@ function getMenuContent(
 
   // 6. Sub-category: AI & Apps
   if (menuId === 'shop:apps') {
-    const text = `📱 <b>ھەر خىل AI ۋە ئەپلەرگە ئەزالىق ئېچىش</b>\n\nبىرىنى تاللاڭ:`;
+    const text = `📱 <b>ھەر خىل AI ۋە ئەپلەرگە ئەزالىق ئېچىش</b>\n\nتۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
       [{ text: '🤖 ChatGPT', callback_data: 'apps:chatgpt' }],
+      [{ text: '🔮 Google Gemini AI', callback_data: 'apps:gemini' }],
+      [{ text: '🎬 CapCut PRO', callback_data: 'apps:capcut' }],
+      [{ text: '🎨 Canva PRO', callback_data: 'apps:canva' }],
       [
         {
           text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
