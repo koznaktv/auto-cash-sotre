@@ -45,7 +45,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   games: '5336838590057974764', // 🤩 ئويۇنلار (Animated Star-Eyes Gamer)
   arena: '5202206616757238053', // 🛡️ Arena Breakout (Animated 3D Shield)
   syriatel: '5807943566957223210', // 🔽 سۈرىيەتىل
-  mtn: '5807943566957223210', // 🔽 ئىمتىئىن
+  mtn: '5008131840813303418', // 🇸🇾 ئىمتىئىن (Free Syria Flag animated video sticker)
   turkey: '5807943566957223210', // 🔽 تۈركىيە كارتىسى
   tg_premium: '5202036282649244841', // ⭐️ تىلگىرام Premium (Animated 3D Star)
   tg_stars: '6136464120779638846', // ⭐ تىلگىرام يۇلتۇز سېتىۋېلىش (Animated Stars)
@@ -236,7 +236,7 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'topup:mtn': {
-    name: '📱 ئىمتىئىن (MTN سۈرىيە لىراسى)',
+    name: '<tg-emoji emoji-id="5008131840813303418">🇸🇾</tg-emoji> ئىمتىئىن (MTN سۈرىيە لىراسى)',
     autocash: [],
     maxbazar: [
       { title: '🛍️ 10 سۈرىيە لىراسى — 0.08$', code: 'mtn:10:mb', price: 0.08 },
@@ -829,7 +829,7 @@ function getMenuContent(
     const text = `<tg-emoji emoji-id="5807943566957223210">🔽</tg-emoji> <b>پۇل قاچىلاش (بىرلىكلەر)</b>\n\nتۆۋەندىكى تەمىنلىگۈچىلەردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
       [btnWithIcon('سۈرىيەتىل', 'sim_cards', '📱', { callback_data: 'topup:syriatel' })],
-      [btnWithIcon('ئىمتىئىن', 'sim_cards', '📱', { callback_data: 'topup:mtn' })],
+      [btnWithIcon('ئىمتىئىن', 'mtn', '🇸🇾', { callback_data: 'topup:mtn' })],
       [btnWithIcon('تۈركىيە كارتىسى (Turkcell)', 'sim_cards', '🇹🇷', { callback_data: 'topup:turkey' })],
       [
         btnWithIcon('قايتىش', 'back', '👈', { callback_data: 'shop:topup' }),
@@ -844,7 +844,7 @@ function getMenuContent(
     const text = `<tg-emoji emoji-id="5201732344993576400">🌐</tg-emoji> <b>تور قاچىلاش (ئايلىق تورلار)</b>\n\nتۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
       [btnWithIcon('SyriaTel ئايلىق تورلىرى', 'lang', '📦', { callback_data: 'topup:syriatel_monthly' })],
-      [btnWithIcon('MTN ئايلىق تورلىرى', 'lang', '📦', { callback_data: 'topup:mtn_monthly' })],
+      [btnWithIcon('MTN ئايلىق تورلىرى', 'mtn', '🇸🇾', { callback_data: 'topup:mtn_monthly' })],
       [btnWithIcon('Turkcell ئايلىق تور بوغچىلىرى', 'lang', '🇹🇷', { callback_data: 'topup:turkey_monthly' })],
       [
         btnWithIcon('قايتىش', 'back', '👈', { callback_data: 'shop:topup' }),
@@ -864,7 +864,7 @@ function getMenuContent(
       `• قالدۇق سومما: <code>*100#</code>\n` +
       `• كەسىپ ئېچىش: <code>*999#</code>\n` +
       `• 4G قىلىش: <code>*055#</code>\n\n` +
-      `📱 <b>ئىمتىئىن (MTN):</b>\n` +
+      `<tg-emoji emoji-id="5008131840813303418">🇸🇾</tg-emoji> <b>ئىمتىئىن (MTN):</b>\n` +
       `• نومۇرىنى كۆرۈش: <code>*124#</code>\n` +
       `• يىللىق سالاھىيەت: <code>*365#</code>\n` +
       `• قالدۇق سومما: <code>*100#</code>\n` +
