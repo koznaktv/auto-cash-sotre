@@ -38,7 +38,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   channel: '6127360976250474761', // 📢 قانال (Animated 3D Megaphone)
   home: '5416041192905265756', // 🏠 باش بەت (Animated 3D Home)
   back: '5807540866528581427', // ⬅️ كەينىگە (Animated Back arrow)
-  sim_cards: '5807943566957223210', // 🔽 كارتىلارغا پۇل قاچىلاش (Animated Arrow)
+  sim_cards: '5316523549366716514', // 💳 كارتىلارغا پۇل قاچىلاش (Animated 3D Card)
   wifi: '5201735372945520721', // 🛜 Wi-Fi بېتاقە كارتىلىرى (Animated 3D Wi-Fi)
   telegram_sub: '5202036282649244841', // ⭐️ تىلگىرام ئەزالىق ئېچىش (Animated 3D Star)
   ai_apps: '5204437027633786910', // 🍏 AI ۋە ئەپلەر (Animated Apple/Apps)
@@ -815,7 +815,7 @@ function getMenuContent(
 
   // 4. Sub-category: Card Top-up Main Menu
   if (menuId === 'shop:topup') {
-    const text = `<tg-emoji emoji-id="5807943566957223210">🔽</tg-emoji> <b>كارتىلار بۆلىكى</b>\n\nتۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:`;
+    const text = `<tg-emoji emoji-id="5316523549366716514">💳</tg-emoji> <b>كارتىلار بۆلىكى</b>\n\nتۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
       [btnWithIcon('پۇل قاچىلاش', 'sim_cards', '🔽', { callback_data: 'topup:units_menu' })],
       [btnWithIcon('تور قاچىلاش', 'lang', '🌐', { callback_data: 'topup:internet_menu' })],
