@@ -30,26 +30,29 @@ export const CUSTOM_ICONS: Record<string, string> = {
   webapp: '5204382305455467942', // 🌍 توربەتكە كىرىش / تېخىمۇ كۆپ (توربەتتە كۆرۈش) (Animated Globe)
   enter_bot: '5998929578515504488', // 🔑 بوتقا كىرىش (Logo Custom Emoji)
   admin: '', // 👑 باشقۇرغۇچى مەركىزى
-  shop: '', // 🏪 دۇكان (Reverted to classic store icon)
-  topup_balance: '', // 💳 قالدۇق قاچىلاش
-  orders: '', // 📦 زاكازلىرىم
-  balance_history: '', // 🛍 قالدۇق تارىخى
-  lang: '', // 🌐 تىل تاللاش
-  channel: '', // 📢 قانال
+  shop: '', // 🏪 دۇكان (Classic store icon)
+  topup_balance: '5334976159094423531', // 💵 قالدۇق قاچىلاش (Cash stack)
+  orders: '5204324795843375748', // 🛍 زاكازلىرىم (3D Shopping bag)
+  balance_history: '5316898581616035042', // 💰 قالدۇق تارىخى (Money bag)
+  lang: '5201732344993576400', // 🌐 تىل تاللاش (Animated Globe)
+  channel: '6127360976250474761', // 📢 قانال (3D Megaphone)
   home: '', // 🏠 باش بەت
-  back: '', // ◀️ كەينىگە
-  sim_cards: '', // 💳 كارتىلارغا پۇل قاچىلاش
-  telegram_sub: '', // ⭐ تىلگىرام ئەزالىق ئېچىش
-  ai_apps: '', // 📱 AI ۋە ئەپلەر
+  back: '5807540866528581427', // ⬅️ كەينىگە (Animated Back arrow)
+  sim_cards: '5334976159094423531', // 💵 كارتىلارغا پۇل قاچىلاش
+  wifi: '5807653471981149580', // 📍 Wi-Fi بېتاقە كارتىلىرى (Animated Pin)
+  telegram_sub: '5202036282649244841', // ⭐ تىلگىرام ئەزالىق ئېچىش (3D Star)
+  ai_apps: '5309803007880231518', // 🤖 AI ۋە ئەپلەر (Neon Robot)
   games: '', // 🎮 ئويۇنلار
   syriatel: '', // 📱 سۈرىيەتىل
   mtn: '', // 📱 ئىمتىئىن
   turkey: '', // 🇹🇷 تۈركىيە كارتىسى
-  tg_premium: '', // 💎 تىلگىرام Premium
-  tg_stars: '', // 🌟 تىلگىرام يۇلتۇز سېتىۋېلىش
-  chatgpt: '', // 🤖 ChatGPT
-  pubg: '', // 🪂 PUBG Mobile
-  shamcash_verify: '', // ⚡️ شامكەش تالون
+  tg_premium: '5202036282649244841', // ⭐ تىلگىرام Premium (3D Star)
+  tg_stars: '6136464120779638846', // ⭐ تىلگىرام يۇلتۇز سېتىۋېلىش (Stars)
+  chatgpt: '5309803007880231518', // 🤖 ChatGPT (Neon Robot)
+  pubg: '5325945676821971883', // 🪖 PUBG Mobile (Level 3 Helmet)
+  freefire: '6125128297631190435', // ❤️‍🔥 Free Fire (Fire flame)
+  card_codes: '5318854071635965131', // 🔍 كارتا كودلىرى (Magnifying glass)
+  shamcash_verify: '5809674511791954676', // ⚡️ شامكەش تالون
 };
 
 export function btnWithIcon(label: string, iconKey: string, defaultEmoji: string, extra: Record<string, any> = {}) {
@@ -742,15 +745,15 @@ function getMenuContent(
     const inline_keyboard: any[][] = [
       [
         btnWithIcon('دۇكان', 'shop', '🏪', { callback_data: 'shop:home' }),
-        { text: '💳 قالدۇق قاچىلاش', callback_data: 'balance:topup' },
+        btnWithIcon('قالدۇق قاچىلاش', 'topup_balance', '💳', { callback_data: 'balance:topup' }),
       ],
       [
-        { text: '📦 زاكازلىرىم', callback_data: 'orders:list' },
-        { text: '🛍 قالدۇق تارىخى', callback_data: 'orders:bought' },
+        btnWithIcon('زاكازلىرىم', 'orders', '📦', { callback_data: 'orders:list' }),
+        btnWithIcon('قالدۇق تارىخى', 'balance_history', '🛍', { callback_data: 'orders:bought' }),
       ],
       [
-        { text: '🌐 تىل تاللاش', callback_data: 'settings:lang' },
-        { text: '📢 قانال', url: 'https://t.me/Auto_Cash_24' },
+        btnWithIcon('تىل تاللاش', 'lang', '🌐', { callback_data: 'settings:lang' }),
+        btnWithIcon('قانال', 'channel', '📢', { url: 'https://t.me/Auto_Cash_24' }),
       ],
       [{ text: '🏠 باش بەتكە قايتىش', callback_data: 'menu:main' }],
     ];
@@ -765,13 +768,13 @@ function getMenuContent(
       `ئېھتىياجلىق مەھسۇلات تۈرىنى تاللاڭ:`;
 
     const inline_keyboard: any[][] = [
-      [{ text: '📶 Wi-Fi بېتاقە كارتىلىرى', callback_data: 'shop:wifi' }],
-      [{ text: '💳 كارتىلارغا پۇل قاچىلاش', callback_data: 'shop:topup' }],
-      [{ text: '⭐ تىلگىرام ئەزالىق ئېچىش', callback_data: 'shop:membership' }],
-      [{ text: '📱 AI ۋە ئەپلەر', callback_data: 'shop:apps' }],
+      [btnWithIcon('Wi-Fi بېتاقە كارتىلىرى', 'wifi', '📶', { callback_data: 'shop:wifi' })],
+      [btnWithIcon('كارتىلارغا پۇل قاچىلاش', 'sim_cards', '💳', { callback_data: 'shop:topup' })],
+      [btnWithIcon('تىلگىرام ئەزالىق ئېچىش', 'telegram_sub', '⭐', { callback_data: 'shop:membership' })],
+      [btnWithIcon('AI ۋە ئەپلەر', 'ai_apps', '📱', { callback_data: 'shop:apps' })],
       [{ text: '🎮 ئويۇنلار', callback_data: 'shop:games' }],
       [
-        { text: '◀️ كەينىگە', callback_data: 'menu:enter' },
+        btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'menu:enter' }),
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -795,7 +798,7 @@ function getMenuContent(
       [{ text: '📶 ئەزىز نىت (Azez Net)', callback_data: 'wifi:azez_net' }],
       [{ text: '📶 مۇجاھىد نىت (Al Mujahid Net)', callback_data: 'wifi:almujahid_net' }],
       [
-        { text: '◀️ كەينىگە', callback_data: 'shop:home' },
+        btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:home' }),
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -808,9 +811,9 @@ function getMenuContent(
     const inline_keyboard: any[][] = [
       [{ text: '💳 پۇل قاچىلاش', callback_data: 'topup:units_menu' }],
       [{ text: '🌐 تور قاچىلاش', callback_data: 'topup:internet_menu' }],
-      [{ text: '📋 كارتا كودلىرى', callback_data: 'topup:card_codes' }],
+      [btnWithIcon('كارتا كودلىرى', 'card_codes', '📋', { callback_data: 'topup:card_codes' })],
       [
-        { text: '👈 قايتىش', callback_data: 'shop:home' },
+        btnWithIcon('قايتىش', 'back', '👈', { callback_data: 'shop:home' }),
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -825,7 +828,7 @@ function getMenuContent(
       [{ text: '📱 ئىمتىئىن', callback_data: 'topup:mtn' }],
       [{ text: '🇹🇷 تۈركىيە كارتىسى (Turkcell)', callback_data: 'topup:turkey' }],
       [
-        { text: '👈 قايتىش', callback_data: 'shop:topup' },
+        btnWithIcon('قايتىش', 'back', '👈', { callback_data: 'shop:topup' }),
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -840,7 +843,7 @@ function getMenuContent(
       [{ text: '📦 MTN ئايلىق تورلىرى', callback_data: 'topup:mtn_monthly' }],
       [{ text: '🇹🇷 Turkcell ئايلىق تور بوغچىلىرى', callback_data: 'topup:turkey_monthly' }],
       [
-        { text: '👈 قايتىش', callback_data: 'shop:topup' },
+        btnWithIcon('قايتىش', 'back', '👈', { callback_data: 'shop:topup' }),
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -869,7 +872,7 @@ function getMenuContent(
 
     const inline_keyboard: any[][] = [
       [
-        { text: '👈 قايتىش', callback_data: 'shop:topup' },
+        btnWithIcon('قايتىش', 'back', '👈', { callback_data: 'shop:topup' }),
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -880,15 +883,15 @@ function getMenuContent(
   if (menuId === 'shop:membership') {
     const text = `⭐ <b>تىلگىرام ئەزالىق ئېچىش</b>\n\nبىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
-      [{ text: '💎 تىلگىرام Premium', callback_data: 'tg:premium' }],
-      [{ text: '🌟 تىلگىرام يۇلتۇز سېتىۋېلىش', callback_data: 'tg:stars' }],
+      [btnWithIcon('تىلگىرام Premium', 'tg_premium', '💎', { callback_data: 'tg:premium' })],
+      [btnWithIcon('تىلگىرام يۇلتۇز سېتىۋېلىش', 'tg_stars', '🌟', { callback_data: 'tg:stars' })],
       [
         btnWithIcon('تېخىمۇ كۆپ (توربەتتە كۆرۈش)', 'webapp', '🌐', {
           web_app: { url: `${SITE_URL}` },
         }),
       ],
       [
-        { text: '◀️ كەينىگە', callback_data: 'shop:home' },
+        btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:home' }),
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -899,7 +902,7 @@ function getMenuContent(
   if (menuId === 'shop:apps') {
     const text = `📱 <b>ھەر خىل AI ۋە ئەپلەرگە ئەزالىق ئېچىش</b>\n\nتۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
-      [{ text: '🤖 ChatGPT', callback_data: 'apps:chatgpt' }],
+      [btnWithIcon('ChatGPT', 'chatgpt', '🤖', { callback_data: 'apps:chatgpt' })],
       [{ text: '🔮 Google Gemini AI', callback_data: 'apps:gemini' }],
       [{ text: '🎬 CapCut PRO', callback_data: 'apps:capcut' }],
       [{ text: '🎨 Canva PRO', callback_data: 'apps:canva' }],
@@ -909,7 +912,7 @@ function getMenuContent(
         }),
       ],
       [
-        { text: '◀️ كەينىگە', callback_data: 'shop:home' },
+        btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:home' }),
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -921,8 +924,8 @@ function getMenuContent(
     const text = `🎮 <b>ئويۇنلار بۆلىكى (Game Top-Up)</b>\n\nتۆۋەندىكى ئويۇنلاردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
       [{ text: '⚔️ Mobile Legends', callback_data: 'games:mlbb' }],
-      [{ text: '🪂 PUBG Mobile', callback_data: 'games:pubg' }],
-      [{ text: '🔥 Free Fire', callback_data: 'games:freefire' }],
+      [btnWithIcon('PUBG Mobile', 'pubg', '🪂', { callback_data: 'games:pubg' })],
+      [btnWithIcon('Free Fire', 'freefire', '🔥', { callback_data: 'games:freefire' })],
       [{ text: '👑 Honor of Kings', callback_data: 'games:hok' }],
       [{ text: '🛡️ Arena Breakout', callback_data: 'games:arena' }],
       [{ text: '🏰 Clash of Clans', callback_data: 'games:clash' }],
@@ -932,7 +935,7 @@ function getMenuContent(
         }),
       ],
       [
-        { text: '◀️ كەينىگە', callback_data: 'shop:home' },
+        btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:home' }),
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -956,7 +959,7 @@ function getMenuContent(
         }),
       ],
       [
-        { text: '◀️ كەينىگە', callback_data: 'shop:games' },
+        btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:games' }),
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -978,7 +981,7 @@ function getMenuContent(
         }),
       ],
       [
-        { text: '◀️ كەينىگە', callback_data: 'shop:games' },
+        btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:games' }),
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -1000,7 +1003,7 @@ function getMenuContent(
         }),
       ],
       [
-        { text: '◀️ كەينىگە', callback_data: 'shop:games' },
+        btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:games' }),
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -1022,7 +1025,7 @@ function getMenuContent(
         }),
       ],
       [
-        { text: '◀️ كەينىگە', callback_data: 'shop:games' },
+        btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:games' }),
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -1044,7 +1047,7 @@ function getMenuContent(
         }),
       ],
       [
-        { text: '◀️ كەينىگە', callback_data: 'shop:games' },
+        btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:games' }),
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -1065,7 +1068,7 @@ function getMenuContent(
         }),
       ],
       [
-        { text: '◀️ كەينىگە', callback_data: 'shop:games' },
+        btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:games' }),
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -1291,7 +1294,7 @@ function getMenuContent(
       [{ text: '⚡️ سىناق تالون كىرگۈزۈش (571734143)', callback_data: 'test:send_sample_tx' }],
       [{ text: '❓ (رقم العملية) دېگەن نېمە؟', callback_data: 'balance:faq_tx' }],
       [
-        { text: '◀️ كەينىگە', callback_data: 'menu:enter' },
+        btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'menu:enter' }),
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -1313,7 +1316,7 @@ function getMenuContent(
     const inline_keyboard: any[][] = [
       [{ text: '⚡️ سىناق تالون (571734143) بىلەن سىناش ($10.00)', callback_data: 'test:send_sample_tx' }],
       [
-        { text: '◀️ كەينىگە', callback_data: 'balance:topup' },
+        btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'balance:topup' }),
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -1336,7 +1339,7 @@ function getMenuContent(
         { text: '🇹🇷 Türkçe', callback_data: 'lang:tr' },
         { text: '🇬🇧 English', callback_data: 'lang:en' },
       ],
-      [{ text: '◀️ كەينىگە', callback_data: 'menu:enter' }],
+      [btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'menu:enter' })],
     ];
 
     return { text, inline_keyboard };
