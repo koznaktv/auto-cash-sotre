@@ -52,6 +52,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   chatgpt: '5204437027633786910', // 🍏 ChatGPT (Animated App)
   pubg: '6167965794635353576', // 🌟 PUBG Mobile (Custom Emoji)
   freefire: '5807428574608627564', // 🔥 Free Fire (Animated Neon Fire)
+  mlbb: '5314551360513916833', // 🤩 Mobile Legends (MLBB Logo Custom Emoji)
   card_codes: '5204096174734207869', // ✉️ كارتا كودلىرى (Animated Envelope/SMS)
   shamcash_verify: '5807943566957223210', // 🔽 شامكەش تالون
   confirm: '5317020017521359483', // ✔️ جەزملەش (Animated Green Check)
@@ -931,7 +932,7 @@ function getMenuContent(
   if (menuId === 'shop:games') {
     const text = `<tg-emoji emoji-id="5467583879948803288">🎮</tg-emoji> <b>ئويۇنلار بۆلىكى (Game Top-Up)</b>\n\nتۆۋەندىكى ئويۇنلاردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
-      [{ text: '⚔️ Mobile Legends', callback_data: 'games:mlbb' }],
+      [btnWithIcon('Mobile Legends', 'mlbb', '⚔️', { callback_data: 'games:mlbb' })],
       [btnWithIcon('PUBG Mobile', 'pubg', '🪂', { callback_data: 'games:pubg' })],
       [btnWithIcon('Free Fire', 'freefire', '🔥', { callback_data: 'games:freefire' })],
       [{ text: '👑 Honor of Kings', callback_data: 'games:hok' }],
@@ -953,7 +954,7 @@ function getMenuContent(
   // 7.1 Mobile Legends Submenu
   if (menuId === 'games:mlbb') {
     const text =
-      `⚔️ <b>Mobile Legends: Bang Bang</b>\n\n` +
+      `<tg-emoji emoji-id="5314551360513916833">🤩</tg-emoji> <b>Mobile Legends: Bang Bang</b>\n\n` +
       `🕹️ <b>سېرۋىر بۆلىكىنى تاللاڭ:</b>`;
 
     const inline_keyboard: any[][] = [
