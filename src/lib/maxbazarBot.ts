@@ -202,6 +202,19 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
       { title: '📱 2403.85 بىرلىك (وحدة) — $19.41', code: 'syr:2403u:mb', price: 19.41 },
     ],
   },
+  'topup:syriatel_monthly': {
+    name: '📦 SyriaTel ئايلىق تورلىرى',
+    autocash: [
+      { title: '⚠️ Auto Cash تەرەپتە ۋاقتىنچە توختىتىلدى', code: 'syr_m:paused:ac', price: 0 },
+    ],
+    maxbazar: [
+      { title: '📦 6GB + 400 مىنۇت + 400 SMS — $3.88', code: 'syr_m:6gb:mb', price: 3.88 },
+      { title: '📦 10GB + 500 مىنۇت + 500 SMS — $5.66', code: 'syr_m:10gb:mb', price: 5.66 },
+      { title: '📦 20GB + 600 مىنۇت + 600 SMS — $9.69', code: 'syr_m:20gb:mb', price: 9.69 },
+      { title: '📦 35GB + 700 مىنۇت + 700 SMS — $15.34', code: 'syr_m:35gb:mb', price: 15.34 },
+      { title: '📦 75GB + 800 مىنۇت + 800 SMS — $24.23', code: 'syr_m:75gb:mb', price: 24.23 },
+    ],
+  },
   'topup:mtn': {
     name: '📱 ئىمتىئىن (MTN بىرلىك)',
     autocash: [
@@ -555,6 +568,7 @@ function getMenuContent(
     const text = `💳 <b>كارتىلارغا پۇل قاچىلاش</b>\n\nبىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
       [{ text: '📱 سۈرىيەتىل', callback_data: 'topup:syriatel' }],
+      [{ text: '📦 SyriaTel ئايلىق تورلىرى', callback_data: 'topup:syriatel_monthly' }],
       [{ text: '📱 ئىمتىئىن', callback_data: 'topup:mtn' }],
       [{ text: '🇹🇷 تۈركىيە كارتىسى', callback_data: 'topup:turkey' }],
       [
@@ -639,7 +653,7 @@ function getMenuContent(
   if (PROVIDER_DATA[menuId]) {
     const item = PROVIDER_DATA[menuId];
     const isWifi = menuId.startsWith('wifi:');
-    const isSyriatel = menuId === 'topup:syriatel';
+    const isSyriatel = menuId === 'topup:syriatel' || menuId === 'topup:syriatel_monthly';
     const pkgs = (isWifi || isAc) ? item.autocash : item.maxbazar;
 
     let text = '';
@@ -1222,7 +1236,7 @@ export async function handleMaxBazarWebhook(update: any) {
 
       // A.6 Navigation & Dynamic Menus
       let nextMenuId = data;
-      if (data === 'topup:syriatel' && session.selectedProvider === 'autocash') {
+      if ((data === 'topup:syriatel' || data === 'topup:syriatel_monthly') && session.selectedProvider === 'autocash') {
         session.selectedProvider = 'maxbazar';
       }
       if (data === '@back') {
