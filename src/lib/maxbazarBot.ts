@@ -60,6 +60,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   order_processing: '5370896319210595146', // 🤔 زاكاز ماقۇللىنىۋاتىدۇ (Animated Thinking/Processing Emoji)
   profile_user: '5373012449597335010', // 👤 ئىشلەتكۈچى / ئىسمىڭىز (Animated User Profile)
   wallet_balance: '5375296873982604963', // 💰 ھەميان قالدۇقى (Animated Money Bag)
+  lightning: '5431449001532594346', // ⚡️ كېرەكلىك بۆلەكنى تاللاڭ (Animated Lightning)
 };
 
 export function btnWithIcon(label: string, iconKey: string, defaultEmoji: string, extra: Record<string, any> = {}) {
@@ -747,7 +748,7 @@ function getMenuContent(
       `<tg-emoji emoji-id="5373012449597335010">👤</tg-emoji> <b>ئىسمىڭىز:</b> ${displayName}\n` +
       `🆔 <b>تېلېگرامما ID:</b> <code>${chatId}</code>\n` +
       `<tg-emoji emoji-id="5375296873982604963">💰</tg-emoji> <b>ھەميان قالدۇقى:</b> <b>$${balance} USD</b>\n\n` +
-      `⚡️ <i>كېرەكلىك بۆلەكنى تۆۋەندىن تاللاڭ:</i>`;
+      `<tg-emoji emoji-id="5431449001532594346">⚡️</tg-emoji> <i>كېرەكلىك بۆلەكنى تۆۋەندىن تاللاڭ:</i>`;
 
     const inline_keyboard: any[][] = [
       [
