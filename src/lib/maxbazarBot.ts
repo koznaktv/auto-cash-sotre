@@ -44,7 +44,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   ai_apps: '5204437027633786910', // 🍏 AI ۋە ئەپلەر (Animated Apple/Apps)
   games: '5336838590057974764', // 🤩 ئويۇنلار (Animated Star-Eyes Gamer)
   arena: '5202206616757238053', // 🛡️ Arena Breakout (Animated 3D Shield)
-  syriatel: '5807943566957223210', // 🔽 سۈرىيەتىل
+  syriatel: '5005811690890069852', // 🇸🇾 سۈرىيەتىل (Free Syria Flag animated video sticker)
   mtn: '5008131840813303418', // 🇸🇾 ئىمتىئىن (Free Syria Flag animated video sticker)
   turkey: '5807943566957223210', // 🔽 تۈركىيە كارتىسى
   tg_premium: '5202036282649244841', // ⭐️ تىلگىرام Premium (Animated 3D Star)
@@ -189,7 +189,7 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'topup:syriatel': {
-    name: '📱 سۈرىيەتىل (Syriatel پۇل بىرلىكلىرى)',
+    name: '<tg-emoji emoji-id="5005811690890069852">🇸🇾</tg-emoji> سۈرىيەتىل (Syriatel پۇل بىرلىكلىرى)',
     autocash: [],
     maxbazar: [
       { title: '🛍️ 20.19 سۈري — 0.16$', code: 'syr:20_19:mb', price: 0.16 },
@@ -225,7 +225,7 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'topup:syriatel_monthly': {
-    name: '📦 SyriaTel ئايلىق تورلىرى (تور + سۆزلىشىش)',
+    name: '<tg-emoji emoji-id="5005811690890069852">🇸🇾</tg-emoji> SyriaTel ئايلىق تورلىرى (تور + سۆزلىشىش)',
     autocash: [],
     maxbazar: [
       { title: '📦 6 GB تور + 400 دەقىقە سۆزلىشىش — $3.88', code: 'syr_m:6gb:mb', price: 3.88 },
@@ -828,7 +828,7 @@ function getMenuContent(
   if (menuId === 'topup:units_menu') {
     const text = `<tg-emoji emoji-id="5807943566957223210">🔽</tg-emoji> <b>پۇل قاچىلاش (بىرلىكلەر)</b>\n\nتۆۋەندىكى تەمىنلىگۈچىلەردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
-      [btnWithIcon('سۈرىيەتىل', 'sim_cards', '📱', { callback_data: 'topup:syriatel' })],
+      [btnWithIcon('سۈرىيەتىل', 'syriatel', '🇸🇾', { callback_data: 'topup:syriatel' })],
       [btnWithIcon('ئىمتىئىن', 'mtn', '🇸🇾', { callback_data: 'topup:mtn' })],
       [btnWithIcon('تۈركىيە كارتىسى (Turkcell)', 'sim_cards', '🇹🇷', { callback_data: 'topup:turkey' })],
       [
@@ -843,7 +843,7 @@ function getMenuContent(
   if (menuId === 'topup:internet_menu') {
     const text = `<tg-emoji emoji-id="5201732344993576400">🌐</tg-emoji> <b>تور قاچىلاش (ئايلىق تورلار)</b>\n\nتۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
-      [btnWithIcon('SyriaTel ئايلىق تورلىرى', 'lang', '📦', { callback_data: 'topup:syriatel_monthly' })],
+      [btnWithIcon('SyriaTel ئايلىق تورلىرى', 'syriatel', '🇸🇾', { callback_data: 'topup:syriatel_monthly' })],
       [btnWithIcon('MTN ئايلىق تورلىرى', 'mtn', '🇸🇾', { callback_data: 'topup:mtn_monthly' })],
       [btnWithIcon('Turkcell ئايلىق تور بوغچىلىرى', 'lang', '🇹🇷', { callback_data: 'topup:turkey_monthly' })],
       [
@@ -858,7 +858,7 @@ function getMenuContent(
   if (menuId === 'topup:card_codes') {
     const text =
       `<tg-emoji emoji-id="5204096174734207869">✉️</tg-emoji> <b>كارتا كودلىرى ۋە پايدىلىق بۇيرۇقلار</b>\n\n` +
-      `📱 <b>سۈرىيەتىل (Syriatel):</b>\n` +
+      `<tg-emoji emoji-id="5005811690890069852">🇸🇾</tg-emoji> <b>سۈرىيەتىل (Syriatel):</b>\n` +
       `• نومۇرنى كۆرۈش: <code>*111#2*1*1#</code>\n` +
       `• يىللىق سالاھىيەت: <code>*128#</code>\n` +
       `• قالدۇق سومما: <code>*100#</code>\n` +
