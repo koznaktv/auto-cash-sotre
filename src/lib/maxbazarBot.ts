@@ -30,7 +30,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   webapp: '5204382305455467942', // 🌍 توربەتكە كىرىش / تېخىمۇ كۆپ (توربەتتە كۆرۈش) (Animated Globe)
   enter_bot: '5998929578515504488', // 🔑 بوتقا كىرىش (Logo Custom Emoji)
   admin: '', // 👑 باشقۇرغۇچى مەركىزى
-  shop: '5998929578515504488', // 🏪 دۇكان (Logo Custom Emoji)
+  shop: '', // 🏪 دۇكان (Reverted to classic store icon)
   topup_balance: '', // 💳 قالدۇق قاچىلاش
   orders: '', // 📦 زاكازلىرىم
   balance_history: '', // 🛍 قالدۇق تارىخى
@@ -709,7 +709,7 @@ function getMenuContent(
   // 1. Main Welcome Screen (menu:main)
   if (menuId === 'menu:main') {
     const text =
-      `<tg-emoji emoji-id="5998929578515504488">#⃣</tg-emoji> <b>ئەسسالامۇ ئەلەيكۇم، MAX-BAZAR بوت سۇپىمىزغا كەلگىنىڭىزنى قارشى ئالىمىز!</b>\n\n` +
+      `🌟 <b>ئەسسالامۇ ئەلەيكۇم، MAX-BAZAR بوت سۇپىمىزغا كەلگىنىڭىزنى قارشى ئالىمىز!</b>\n\n` +
       `تۆۋەندىن بىر بۆلەكنى تاللاڭ:`;
 
     const inline_keyboard: any[][] = [
@@ -761,7 +761,7 @@ function getMenuContent(
   // 3. Shop Categories Home (shop:home)
   if (menuId === 'shop:home') {
     const text =
-      `<tg-emoji emoji-id="5998929578515504488">#⃣</tg-emoji> <b>دۇكان بۆلۈملىرى</b>\n\n` +
+      `🏪 <b>دۇكان بۆلۈملىرى</b>\n\n` +
       `ئېھتىياجلىق مەھسۇلات تۈرىنى تاللاڭ:`;
 
     const inline_keyboard: any[][] = [
@@ -1964,7 +1964,7 @@ export async function handleMaxBazarWebhook(update: any) {
       // Step 1: Send persistent bottom keyboard
       await callMaxBazarBotApi('sendMessage', {
         chat_id: chatId,
-        text: `<tg-emoji emoji-id="5998929578515504488">#⃣</tg-emoji> <b>MAX-BAZAR | ئەڭ ئەرزان رەقەملىك ئەپلەر بازىرى</b> <tg-emoji emoji-id="5998929578515504488">#⃣</tg-emoji>`,
+        text: `<tg-emoji emoji-id="5998929578515504488">#⃣</tg-emoji> <b>MAX-BAZAR | ئەڭ ئەرزان رەقەملىك ئەپلەر بازىرى</b> 🚀`,
         parse_mode: 'HTML',
         reply_markup: MAXBAZAR_PERSISTENT_KEYBOARD,
       });
