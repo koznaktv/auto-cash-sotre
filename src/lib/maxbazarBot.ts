@@ -42,7 +42,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   wifi: '5201735372945520721', // 🛜 Wi-Fi بېتاقە كارتىلىرى (Animated 3D Wi-Fi)
   telegram_sub: '5350501108659790021', // ⭐️ تىلگىرام ئەزالىق ئېچىش (Animated Glowing Star)
   ai_apps: '5204437027633786910', // 🍏 AI ۋە ئەپلەر (Animated Apple/Apps)
-  games: '5336838590057974764', // 🤩 ئويۇنلار (Animated Star-Eyes Gamer)
+  games: '5467583879948803288', // 🎮 ئويۇنلار (Animated Game Controller)
   arena: '5202206616757238053', // 🛡️ Arena Breakout (Animated 3D Shield)
   syriatel: '5005811690890069852', // 🇸🇾 سۈرىيەتىل (Free Syria Flag animated video sticker)
   mtn: '5008131840813303418', // 🇸🇾 ئىمتىئىن (Free Syria Flag animated video sticker)
@@ -929,7 +929,7 @@ function getMenuContent(
 
   // 7. Sub-category: Games
   if (menuId === 'shop:games') {
-    const text = `<tg-emoji emoji-id="5336838590057974764">🤩</tg-emoji> <b>ئويۇنلار بۆلىكى (Game Top-Up)</b>\n\nتۆۋەندىكى ئويۇنلاردىن بىرىنى تاللاڭ:`;
+    const text = `<tg-emoji emoji-id="5467583879948803288">🎮</tg-emoji> <b>ئويۇنلار بۆلىكى (Game Top-Up)</b>\n\nتۆۋەندىكى ئويۇنلاردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
       [{ text: '⚔️ Mobile Legends', callback_data: 'games:mlbb' }],
       [btnWithIcon('PUBG Mobile', 'pubg', '🪂', { callback_data: 'games:pubg' })],
