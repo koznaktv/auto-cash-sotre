@@ -46,6 +46,7 @@ import TelegramAutoLogin from '@/components/TelegramAutoLogin';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { StoreProvider } from '@/context/StoreContext';
 import DualGatewayModal from '@/components/DualGatewayModal';
+import MaintenanceGuard from '@/components/MaintenanceGuard';
 import Script from 'next/script';
 
 export default function RootLayout({
@@ -103,13 +104,15 @@ export default function RootLayout({
       <body className="bg-[#040d1a] text-slate-100 antialiased min-h-screen">
         <LanguageProvider>
           <StoreProvider>
-            {children}
-            <TelegramAutoLogin />
-            <TelegramFloat />
-            <BottomNav />
-            <AppUpdateNotifier />
-            <FirstTimeLanguageModal />
-            <DualGatewayModal />
+            <MaintenanceGuard>
+              {children}
+              <TelegramAutoLogin />
+              <TelegramFloat />
+              <BottomNav />
+              <AppUpdateNotifier />
+              <FirstTimeLanguageModal />
+              <DualGatewayModal />
+            </MaintenanceGuard>
           </StoreProvider>
         </LanguageProvider>
       </body>

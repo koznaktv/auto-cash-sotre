@@ -134,7 +134,8 @@ export function getCachedUser(): ClientUser | null {
   const vipTier = localStorage.getItem('autocash_vipTier') || 'vip1';
   const totalSpentVal = localStorage.getItem('autocash_totalSpent');
   const totalSpent = totalSpentVal !== null && !isNaN(Number(totalSpentVal)) ? Number(totalSpentVal) : 0.0;
-  const role = localStorage.getItem('autocash_role') || (email.toLowerCase() === 'dronemax0996@gmail.com' ? 'admin' : undefined);
+  const lowerEmail = email.toLowerCase().trim();
+  const role = localStorage.getItem('autocash_role') || (lowerEmail === 'dronemax0996@gmail.com' || lowerEmail === 'dronemax520@gmail.com' ? 'admin' : undefined);
   const apiKey = localStorage.getItem('autocash_apiKey') || undefined;
   const apiKeyCreatedAt = localStorage.getItem('autocash_apiKeyCreatedAt') || undefined;
   const apiEnabledVal = localStorage.getItem('autocash_apiEnabled');

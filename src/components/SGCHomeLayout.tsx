@@ -393,7 +393,8 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
     user && (
       (user.vipTier || '').toLowerCase().includes('vip5') ||
       user.role === 'admin' ||
-      (user.email || '').toLowerCase() === 'dronemax0996@gmail.com'
+      (user.email || '').toLowerCase() === 'dronemax0996@gmail.com' ||
+      (user.email || '').toLowerCase() === 'dronemax520@gmail.com'
     )
   );
 

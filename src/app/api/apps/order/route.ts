@@ -136,6 +136,24 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Maintenance guard: Only allowed admins can place orders via MAX-BAZAR web
+    const appBuyerEmail = (cleanIdentity || verifiedUser?.email || '').trim().toLowerCase();
+    const isAppAdmin =
+      appBuyerEmail === 'dronemax0996@gmail.com' ||
+      appBuyerEmail === 'dronemax520@gmail.com' ||
+      verifiedUser?.role === 'admin';
+
+    if (!isAppAdmin) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            'توربەت مۇلازىمىتى ۋاقتىنچە تاقالدى (تەھرىرلىنىۋاتىدۇ). زاكازلىرىڭىزنى رەسمىي تېلېگرامما بوتىمىز @Autocash_24_bot ئارقىلىق سېتىۋېلىڭ.',
+        },
+        { status: 503 }
+      );
+    }
+
     if (!player_id || !player_id.trim()) {
       return NextResponse.json({ ok: false, error: 'ئويۇنچى كىملىكى (UID) كىرگۈزۈلمىدى' }, { status: 400 });
     }

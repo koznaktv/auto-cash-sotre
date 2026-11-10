@@ -127,8 +127,10 @@ export default function Navbar({
   const currentEmail = activeUser?.email || savedEmail;
   const currentRole = (activeUser as any)?.role || savedRole;
 
+  const lowerCurrentEmail = currentEmail?.trim().toLowerCase();
   const isAdmin = Boolean(
-    currentEmail?.trim().toLowerCase() === 'dronemax0996@gmail.com' ||
+    lowerCurrentEmail === 'dronemax0996@gmail.com' ||
+    lowerCurrentEmail === 'dronemax520@gmail.com' ||
     currentRole === 'admin'
   );
 

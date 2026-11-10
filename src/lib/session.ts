@@ -43,7 +43,8 @@ export async function getSessionUser(req: Request): Promise<UserRecord | null> {
 }
 
 export function toSafeUser(user: UserRecord) {
-  const isSuperAdmin = user.email?.trim().toLowerCase() === 'dronemax0996@gmail.com';
+  const emailLower = user.email?.trim().toLowerCase();
+  const isSuperAdmin = emailLower === 'dronemax0996@gmail.com' || emailLower === 'dronemax520@gmail.com';
   return {
     id: user.id,
     name: user.name,

@@ -85,6 +85,25 @@ export async function POST(req: Request) {
       );
     }
 
+    // Maintenance guard: Only allowed admins can place orders via the website
+    const buyerEmail = (user.email || '').trim().toLowerCase();
+    const isWebAdmin =
+      buyerEmail === 'dronemax0996@gmail.com' ||
+      buyerEmail === 'dronemax520@gmail.com' ||
+      user.role === 'admin' ||
+      hasAdminBearer(req);
+
+    if (!isWebAdmin) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            'توربەت مۇلازىمىتى ۋاقتىنچە تاقالدى (تەھرىرلىنىۋاتىدۇ). زاكازلىرىڭىزنى رەسمىي تېلېگرامما بوتىمىز @Autocash_24_bot ئارقىلىق بېرىڭ.',
+        },
+        { status: 503 }
+      );
+    }
+
     const rawIdempotencyKey = req.headers.get('x-idempotency-key') || '';
     const idempotencyKey = /^[A-Za-z0-9_-]{8,100}$/.test(rawIdempotencyKey) ? rawIdempotencyKey : '';
     const body = await req.json();
