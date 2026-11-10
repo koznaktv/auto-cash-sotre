@@ -36,7 +36,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   balance_history: '5204213079449038715', // 🛍 قالدۇق تارىخى (Animated Shopping bag)
   lang: '5201732344993576400', // 🌐 تىل تاللاش (Animated Globe)
   channel: '6127360976250474761', // 📢 قانال (Animated 3D Megaphone)
-  home: '', // 🏠 باش بەت
+  home: '5416041192905265756', // 🏠 باش بەت (Animated 3D Home)
   back: '5807540866528581427', // ⬅️ كەينىگە (Animated Back arrow)
   sim_cards: '5807943566957223210', // 🔽 كارتىلارغا پۇل قاچىلاش (Animated Arrow)
   wifi: '5807653471981149580', // 📍 Wi-Fi بېتاقە كارتىلىرى (Animated Pin)
@@ -756,7 +756,7 @@ function getMenuContent(
         btnWithIcon('تىل تاللاش', 'lang', '🌐', { callback_data: 'settings:lang' }),
         btnWithIcon('قانال', 'channel', '📢', { url: 'https://t.me/Auto_Cash_24' }),
       ],
-      [{ text: '🏠 باش بەتكە قايتىش', callback_data: 'menu:main' }],
+      [btnWithIcon('باش بەتكە قايتىش', 'home', '🏠', { callback_data: 'menu:main' })],
     ];
 
     return { text, inline_keyboard };
@@ -776,7 +776,7 @@ function getMenuContent(
       [btnWithIcon('ئويۇنلار', 'games', '🎮', { callback_data: 'shop:games' })],
       [
         btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'menu:enter' }),
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+        btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
       ],
     ];
 
@@ -800,7 +800,7 @@ function getMenuContent(
       [{ text: '📶 مۇجاھىد نىت (Al Mujahid Net)', callback_data: 'wifi:almujahid_net' }],
       [
         btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:home' }),
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+        btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
       ],
     ];
     return { text, inline_keyboard };
@@ -815,7 +815,7 @@ function getMenuContent(
       [btnWithIcon('كارتا كودلىرى', 'card_codes', '📋', { callback_data: 'topup:card_codes' })],
       [
         btnWithIcon('قايتىش', 'back', '👈', { callback_data: 'shop:home' }),
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+        btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
       ],
     ];
     return { text, inline_keyboard };
@@ -830,7 +830,7 @@ function getMenuContent(
       [{ text: '🇹🇷 تۈركىيە كارتىسى (Turkcell)', callback_data: 'topup:turkey' }],
       [
         btnWithIcon('قايتىش', 'back', '👈', { callback_data: 'shop:topup' }),
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+        btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
       ],
     ];
     return { text, inline_keyboard };
@@ -845,7 +845,7 @@ function getMenuContent(
       [{ text: '🇹🇷 Turkcell ئايلىق تور بوغچىلىرى', callback_data: 'topup:turkey_monthly' }],
       [
         btnWithIcon('قايتىش', 'back', '👈', { callback_data: 'shop:topup' }),
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+        btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
       ],
     ];
     return { text, inline_keyboard };
@@ -874,7 +874,7 @@ function getMenuContent(
     const inline_keyboard: any[][] = [
       [
         btnWithIcon('قايتىش', 'back', '👈', { callback_data: 'shop:topup' }),
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+        btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
       ],
     ];
     return { text, inline_keyboard };
@@ -893,7 +893,7 @@ function getMenuContent(
       ],
       [
         btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:home' }),
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+        btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
       ],
     ];
     return { text, inline_keyboard };
@@ -914,7 +914,7 @@ function getMenuContent(
       ],
       [
         btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:home' }),
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+        btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
       ],
     ];
     return { text, inline_keyboard };
@@ -937,7 +937,7 @@ function getMenuContent(
       ],
       [
         btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:home' }),
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+        btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
       ],
     ];
     return { text, inline_keyboard };
@@ -961,7 +961,7 @@ function getMenuContent(
       ],
       [
         btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:games' }),
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+        btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
       ],
     ];
     return { text, inline_keyboard };
@@ -983,7 +983,7 @@ function getMenuContent(
       ],
       [
         btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:games' }),
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+        btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
       ],
     ];
     return { text, inline_keyboard };
@@ -1005,7 +1005,7 @@ function getMenuContent(
       ],
       [
         btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:games' }),
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+        btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
       ],
     ];
     return { text, inline_keyboard };
@@ -1027,7 +1027,7 @@ function getMenuContent(
       ],
       [
         btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:games' }),
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+        btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
       ],
     ];
     return { text, inline_keyboard };
@@ -1049,7 +1049,7 @@ function getMenuContent(
       ],
       [
         btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:games' }),
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+        btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
       ],
     ];
     return { text, inline_keyboard };
@@ -1070,7 +1070,7 @@ function getMenuContent(
       ],
       [
         btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:games' }),
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+        btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
       ],
     ];
     return { text, inline_keyboard };
@@ -1217,7 +1217,7 @@ function getMenuContent(
         text: '👈 قايتىش',
         callback_data: backTarget,
       },
-      { text: '🏠 باش بەت', callback_data: 'menu:main' },
+      btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
     ]);
 
     return { text, inline_keyboard };
@@ -1296,7 +1296,7 @@ function getMenuContent(
       [{ text: '❓ (رقم العملية) دېگەن نېمە؟', callback_data: 'balance:faq_tx' }],
       [
         btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'menu:enter' }),
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+        btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
       ],
     ];
 
@@ -1318,7 +1318,7 @@ function getMenuContent(
       [{ text: '⚡️ سىناق تالون (571734143) بىلەن سىناش ($10.00)', callback_data: 'test:send_sample_tx' }],
       [
         btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'balance:topup' }),
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+        btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
       ],
     ];
 
@@ -1349,7 +1349,7 @@ function getMenuContent(
   // Fallback
   return {
     text: `📌 <b>مەزكۇر سەھىپە تېز پۇرسەتتە يېڭىلىنىدۇ.</b>`,
-    inline_keyboard: [[{ text: '🏠 باش بەت', callback_data: 'menu:main' }]],
+    inline_keyboard: [[btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })]],
   };
 }
 
@@ -1373,7 +1373,7 @@ async function handleShamCashTxVerify(chatId: number | string, txId: string, use
         reply_markup: {
           inline_keyboard: [
             [{ text: '🔄 قايتا تەكشۈرۈش', callback_data: 'balance:topup' }],
-            [{ text: '🏠 باش بەت', callback_data: 'menu:main' }],
+            [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
           ],
         },
       });
@@ -1439,7 +1439,7 @@ async function handleShamCashTxVerify(chatId: number | string, txId: string, use
     reply_markup: {
       inline_keyboard: [
         [{ text: '🔄 قايتا تەكشۈرۈش', callback_data: 'balance:topup' }],
-        [{ text: '🏠 باش بەت', callback_data: 'menu:main' }],
+        [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
       ],
     },
   });
@@ -1571,7 +1571,7 @@ export async function handleMaxBazarWebhook(update: any) {
           await showOrEditMessage(chatId, messageId, failText, {
             inline_keyboard: [
               [{ text: '💳 قالدۇق قاچىلاش', callback_data: 'balance:topup' }],
-              [{ text: '🏠 باش بەت', callback_data: 'menu:main' }],
+              [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
             ],
           });
           return;
@@ -1668,7 +1668,7 @@ export async function handleMaxBazarWebhook(update: any) {
           inline_keyboard: [
             [{ text: '📦 زاكازلىرىمنى كۆرۈش', callback_data: 'orders:list' }],
             [btnWithIcon('دۇكانغا كىرىش', 'shop', '🏪', { callback_data: 'shop:home' })],
-            [{ text: '🏠 باش بەت', callback_data: 'menu:main' }],
+            [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
           ],
         });
         return;
@@ -1702,7 +1702,7 @@ export async function handleMaxBazarWebhook(update: any) {
           await showOrEditMessage(chatId, messageId, emptyText, {
             inline_keyboard: [
               [btnWithIcon('دۇكانغا كىرىش', 'shop', '🏪', { callback_data: 'shop:home' })],
-              [{ text: '🏠 باش بەت', callback_data: 'menu:main' }],
+              [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
             ],
           });
           return;
@@ -1722,7 +1722,7 @@ export async function handleMaxBazarWebhook(update: any) {
         await showOrEditMessage(chatId, messageId, ordersText, {
           inline_keyboard: [
             [{ text: '🏪 داۋاملىق سېتىۋېلىش', callback_data: 'shop:home' }],
-            [{ text: '🏠 باش بەت', callback_data: 'menu:main' }],
+            [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
           ],
         });
         return;
@@ -1743,7 +1743,7 @@ export async function handleMaxBazarWebhook(update: any) {
         await showOrEditMessage(chatId, messageId, confirmText, {
           inline_keyboard: [
             [{ text: '🔑 ھېسابات تاختىسىغا قايتىش', callback_data: 'menu:enter' }],
-            [{ text: '🏠 باش بەت', callback_data: 'menu:main' }],
+            [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
           ],
         });
         return;
@@ -1994,7 +1994,7 @@ export async function handleMaxBazarWebhook(update: any) {
       reply_markup: {
         inline_keyboard: [
           [btnWithIcon('بوتقا كىرىش', 'enter_bot', '🔑', { callback_data: 'menu:enter' })],
-          [{ text: '🏠 باش بەت', callback_data: 'menu:main' }],
+          [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
         ],
       },
     });
