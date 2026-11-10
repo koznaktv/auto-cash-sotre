@@ -18,7 +18,7 @@ const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || 'https://www.auto-cash.app';
 
 export const MAXBAZAR_PERSISTENT_KEYBOARD = {
-  keyboard: [[{ text: 'باشلاش 🚀' }]],
+  keyboard: [[{ text: 'باشلاش', icon_custom_emoji_id: '5998929578515504488' }]],
   resize_keyboard: true,
   is_persistent: true,
 };
@@ -29,9 +29,9 @@ export const MAXBAZAR_PERSISTENT_KEYBOARD = {
 export const CUSTOM_ICONS: Record<string, string> = {
   webapp: '5204382305455467942', // 🌍 توربەتكە كىرىش / تېخىمۇ كۆپ (Animated Spinning Globe)
   enter_bot: '5998929578515504488', // 🔑 بوتقا كىرىش (Logo Custom Emoji)
-  admin: '', // 👑 باشقۇرغۇچى مەركىزى
-  shop: '', // 🏪 دۇكان
-  topup_balance: '5203955226792454971', // 🔝 قالدۇق قاچىلاش (Animated Top-Up badge)
+  admin: '5998929578515504488', // 👑 باشقۇرغۇچى مەركىزى (Logo)
+  shop: '5204324795843375748', // 🛍 دۇكان (Animated 3D Shopping bag)
+  topup_balance: '5008131840813303418', // 🇸🇾 قالدۇق قاچىلاش / شامكەش (Free Syria Flag animated video sticker)
   orders: '5204324795843375748', // 🛍 زاكازلىرىم (Animated 3D Shopping bag)
   balance_history: '5204213079449038715', // 🛍 قالدۇق تارىخى (Animated Shopping bag)
   lang: '5201732344993576400', // 🌐 تىل تاللاش (Animated Globe)
@@ -44,9 +44,9 @@ export const CUSTOM_ICONS: Record<string, string> = {
   ai_apps: '5204437027633786910', // 🍏 AI ۋە ئەپلەر (Animated Apple/Apps)
   games: '5336838590057974764', // 🤩 ئويۇنلار (Animated Star-Eyes Gamer)
   arena: '5202206616757238053', // 🛡️ Arena Breakout (Animated 3D Shield)
-  syriatel: '', // 📱 سۈرىيەتىل
-  mtn: '', // 📱 ئىمتىئىن
-  turkey: '', // 🇹🇷 تۈركىيە كارتىسى
+  syriatel: '5807943566957223210', // 🔽 سۈرىيەتىل
+  mtn: '5807943566957223210', // 🔽 ئىمتىئىن
+  turkey: '5807943566957223210', // 🔽 تۈركىيە كارتىسى
   tg_premium: '5202036282649244841', // ⭐️ تىلگىرام Premium (Animated 3D Star)
   tg_stars: '6136464120779638846', // ⭐ تىلگىرام يۇلتۇز سېتىۋېلىش (Animated Stars)
   chatgpt: '5204437027633786910', // 🍏 ChatGPT (Animated App)
@@ -54,6 +54,9 @@ export const CUSTOM_ICONS: Record<string, string> = {
   freefire: '6125128297631190435', // ❤️‍🔥 Free Fire (Animated Flaming Fire)
   card_codes: '5204096174734207869', // ✉️ كارتا كودلىرى (Animated Envelope/SMS)
   shamcash_verify: '5807943566957223210', // 🔽 شامكەش تالون
+  confirm: '5317020017521359483', // ✔️ جەزملەش (Animated Green Check)
+  cancel: '5316999925664347033', // ❌ بىكار قىلىش (Animated Red Cross)
+  money: '5348576314771144671', // 💵 پۇل / باھا (Animated Dollar)
 };
 
 export function btnWithIcon(label: string, iconKey: string, defaultEmoji: string, extra: Record<string, any> = {}) {
@@ -713,7 +716,7 @@ function getMenuContent(
   // 1. Main Welcome Screen (menu:main)
   if (menuId === 'menu:main') {
     const text =
-      `🌟 <b>ئەسسالامۇ ئەلەيكۇم، MAX-BAZAR بوت سۇپىمىزغا كەلگىنىڭىزنى قارشى ئالىمىز!</b>\n\n` +
+      `<tg-emoji emoji-id="5998929578515504488">#⃣</tg-emoji> <b>ئەسسالامۇ ئەلەيكۇم، MAX-BAZAR بوت سۇپىمىزغا كەلگىنىڭىزنى قارشى ئالىمىز!</b>\n\n` +
       `تۆۋەندىن بىر بۆلەكنى تاللاڭ:`;
 
     const inline_keyboard: any[][] = [
@@ -765,7 +768,7 @@ function getMenuContent(
   // 3. Shop Categories Home (shop:home)
   if (menuId === 'shop:home') {
     const text =
-      `🏪 <b>دۇكان بۆلۈملىرى</b>\n\n` +
+      `<tg-emoji emoji-id="5204324795843375748">🛍</tg-emoji> <b>دۇكان بۆلۈملىرى</b>\n\n` +
       `ئېھتىياجلىق مەھسۇلات تۈرىنى تاللاڭ:`;
 
     const inline_keyboard: any[][] = [
@@ -786,7 +789,7 @@ function getMenuContent(
   // 3.1 Sub-category: Wi-Fi Cards (shop:wifi)
   if (menuId === 'shop:wifi') {
     const text =
-      `📶 <b>Wi-Fi بېتاقە كارتىلىرى</b>\n\n` +
+      `<tg-emoji emoji-id="5807653471981149580">📍</tg-emoji> <b>Wi-Fi بېتاقە كارتىلىرى</b>\n\n` +
       `⚠️ <b>ئەسكەرتىش:</b>\n` +
       `• بېتاقەنى ئۆزىڭىز تۇرۇشلۇق رايونىڭىزنىڭكىدىن سېتىۋېلىڭ.\n` +
       `• ئەگەر خاتا سېتىۋېلىپ تور ئىشلىمىسە بىز مەسئۇلىيىتىگە ئىگە ئەمەس.\n` +
@@ -794,10 +797,10 @@ function getMenuContent(
       `👇 <i>ئېھتىياجلىق Wi-Fi تورىنى تاللاڭ:</i>`;
 
     const inline_keyboard: any[][] = [
-      [{ text: '📶 فۇرسان نىت (كەفەريا)', callback_data: 'wifi:fursan_kafraya' }],
-      [{ text: '📶 فۇرسان نىت (كەفەر جالىس)', callback_data: 'wifi:fursan_kafer_jalis' }],
-      [{ text: '📶 ئەزىز نىت (Azez Net)', callback_data: 'wifi:azez_net' }],
-      [{ text: '📶 مۇجاھىد نىت (Al Mujahid Net)', callback_data: 'wifi:almujahid_net' }],
+      [btnWithIcon('فۇرسان نىت (كەفەريا)', 'wifi', '📍', { callback_data: 'wifi:fursan_kafraya' })],
+      [btnWithIcon('فۇرسان نىت (كەفەر جالىس)', 'wifi', '📍', { callback_data: 'wifi:fursan_kafer_jalis' })],
+      [btnWithIcon('ئەزىز نىت (Azez Net)', 'wifi', '📍', { callback_data: 'wifi:azez_net' })],
+      [btnWithIcon('مۇجاھىد نىت (Al Mujahid Net)', 'wifi', '📍', { callback_data: 'wifi:almujahid_net' })],
       [
         btnWithIcon('كەينىگە', 'back', '◀️', { callback_data: 'shop:home' }),
         btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
@@ -808,10 +811,10 @@ function getMenuContent(
 
   // 4. Sub-category: Card Top-up Main Menu
   if (menuId === 'shop:topup') {
-    const text = `💳 <b>كارتىلار بۆلىكى</b>\n\nتۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:`;
+    const text = `<tg-emoji emoji-id="5807943566957223210">🔽</tg-emoji> <b>كارتىلار بۆلىكى</b>\n\nتۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
-      [{ text: '💳 پۇل قاچىلاش', callback_data: 'topup:units_menu' }],
-      [{ text: '🌐 تور قاچىلاش', callback_data: 'topup:internet_menu' }],
+      [btnWithIcon('پۇل قاچىلاش', 'sim_cards', '🔽', { callback_data: 'topup:units_menu' })],
+      [btnWithIcon('تور قاچىلاش', 'lang', '🌐', { callback_data: 'topup:internet_menu' })],
       [btnWithIcon('كارتا كودلىرى', 'card_codes', '📋', { callback_data: 'topup:card_codes' })],
       [
         btnWithIcon('قايتىش', 'back', '👈', { callback_data: 'shop:home' }),
@@ -823,11 +826,11 @@ function getMenuContent(
 
   // 4.1 Sub-category: Units / Balance Menu
   if (menuId === 'topup:units_menu') {
-    const text = `💳 <b>پۇل قاچىلاش (بىرلىكلەر)</b>\n\nتۆۋەندىكى تەمىنلىگۈچىلەردىن بىرىنى تاللاڭ:`;
+    const text = `<tg-emoji emoji-id="5807943566957223210">🔽</tg-emoji> <b>پۇل قاچىلاش (بىرلىكلەر)</b>\n\nتۆۋەندىكى تەمىنلىگۈچىلەردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
-      [{ text: '📱 سۈرىيەتىل', callback_data: 'topup:syriatel' }],
-      [{ text: '📱 ئىمتىئىن', callback_data: 'topup:mtn' }],
-      [{ text: '🇹🇷 تۈركىيە كارتىسى (Turkcell)', callback_data: 'topup:turkey' }],
+      [btnWithIcon('سۈرىيەتىل', 'sim_cards', '📱', { callback_data: 'topup:syriatel' })],
+      [btnWithIcon('ئىمتىئىن', 'sim_cards', '📱', { callback_data: 'topup:mtn' })],
+      [btnWithIcon('تۈركىيە كارتىسى (Turkcell)', 'sim_cards', '🇹🇷', { callback_data: 'topup:turkey' })],
       [
         btnWithIcon('قايتىش', 'back', '👈', { callback_data: 'shop:topup' }),
         btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
@@ -838,11 +841,11 @@ function getMenuContent(
 
   // 4.2 Sub-category: Monthly Internet Bundles Menu
   if (menuId === 'topup:internet_menu') {
-    const text = `🌐 <b>تور قاچىلاش (ئايلىق تورلار)</b>\n\nتۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:`;
+    const text = `<tg-emoji emoji-id="5201732344993576400">🌐</tg-emoji> <b>تور قاچىلاش (ئايلىق تورلار)</b>\n\nتۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
-      [{ text: '📦 SyriaTel ئايلىق تورلىرى', callback_data: 'topup:syriatel_monthly' }],
-      [{ text: '📦 MTN ئايلىق تورلىرى', callback_data: 'topup:mtn_monthly' }],
-      [{ text: '🇹🇷 Turkcell ئايلىق تور بوغچىلىرى', callback_data: 'topup:turkey_monthly' }],
+      [btnWithIcon('SyriaTel ئايلىق تورلىرى', 'lang', '📦', { callback_data: 'topup:syriatel_monthly' })],
+      [btnWithIcon('MTN ئايلىق تورلىرى', 'lang', '📦', { callback_data: 'topup:mtn_monthly' })],
+      [btnWithIcon('Turkcell ئايلىق تور بوغچىلىرى', 'lang', '🇹🇷', { callback_data: 'topup:turkey_monthly' })],
       [
         btnWithIcon('قايتىش', 'back', '👈', { callback_data: 'shop:topup' }),
         btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
@@ -854,7 +857,7 @@ function getMenuContent(
   // 4.3 Sub-category: Card Inquiry Codes
   if (menuId === 'topup:card_codes') {
     const text =
-      `📋 <b>كارتا كودلىرى ۋە پايدىلىق بۇيرۇقلار</b>\n\n` +
+      `<tg-emoji emoji-id="5204096174734207869">✉️</tg-emoji> <b>كارتا كودلىرى ۋە پايدىلىق بۇيرۇقلار</b>\n\n` +
       `📱 <b>سۈرىيەتىل (Syriatel):</b>\n` +
       `• نومۇرنى كۆرۈش: <code>*111#2*1*1#</code>\n` +
       `• يىللىق سالاھىيەت: <code>*128#</code>\n` +
@@ -882,7 +885,7 @@ function getMenuContent(
 
   // 5. Sub-category: Telegram Membership
   if (menuId === 'shop:membership') {
-    const text = `⭐ <b>تىلگىرام ئەزالىق ئېچىش</b>\n\nبىرىنى تاللاڭ:`;
+    const text = `<tg-emoji emoji-id="5202036282649244841">⭐️</tg-emoji> <b>تىلگىرام ئەزالىق ئېچىش</b>\n\nبىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
       [btnWithIcon('تىلگىرام Premium', 'tg_premium', '💎', { callback_data: 'tg:premium' })],
       [btnWithIcon('تىلگىرام يۇلتۇز سېتىۋېلىش', 'tg_stars', '🌟', { callback_data: 'tg:stars' })],
@@ -901,7 +904,7 @@ function getMenuContent(
 
   // 6. Sub-category: AI & Apps
   if (menuId === 'shop:apps') {
-    const text = `📱 <b>ھەر خىل AI ۋە ئەپلەرگە ئەزالىق ئېچىش</b>\n\nتۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:`;
+    const text = `<tg-emoji emoji-id="5204437027633786910">🍏</tg-emoji> <b>ھەر خىل AI ۋە ئەپلەرگە ئەزالىق ئېچىش</b>\n\nتۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
       [btnWithIcon('ChatGPT', 'chatgpt', '🤖', { callback_data: 'apps:chatgpt' })],
       [{ text: '🔮 Google Gemini AI', callback_data: 'apps:gemini' }],
@@ -922,7 +925,7 @@ function getMenuContent(
 
   // 7. Sub-category: Games
   if (menuId === 'shop:games') {
-    const text = `🎮 <b>ئويۇنلار بۆلىكى (Game Top-Up)</b>\n\nتۆۋەندىكى ئويۇنلاردىن بىرىنى تاللاڭ:`;
+    const text = `<tg-emoji emoji-id="5336838590057974764">🤩</tg-emoji> <b>ئويۇنلار بۆلىكى (Game Top-Up)</b>\n\nتۆۋەندىكى ئويۇنلاردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
       [{ text: '⚔️ Mobile Legends', callback_data: 'games:mlbb' }],
       [btnWithIcon('PUBG Mobile', 'pubg', '🪂', { callback_data: 'games:pubg' })],
@@ -970,7 +973,7 @@ function getMenuContent(
   // 7.2 PUBG Mobile Submenu
   if (menuId === 'games:pubg') {
     const text =
-      `🪂 <b>PUBG Mobile</b>\n\n` +
+      `<tg-emoji emoji-id="5397808249279909223">🤓</tg-emoji> <b>PUBG Mobile</b>\n\n` +
       `📦 <b>ئېھتىياجلىق تۈرنى تاللاڭ:</b>`;
 
     const inline_keyboard: any[][] = [
@@ -992,7 +995,7 @@ function getMenuContent(
   // 7.3 Free Fire Submenu
   if (menuId === 'games:freefire') {
     const text =
-      `🔥 <b>Garena Free Fire</b>\n\n` +
+      `<tg-emoji emoji-id="6125128297631190435">❤️‍🔥</tg-emoji> <b>Garena Free Fire</b>\n\n` +
       `📦 <b>ئېھتىياجلىق تۈرنى تاللاڭ:</b>`;
 
     const inline_keyboard: any[][] = [
@@ -1036,7 +1039,7 @@ function getMenuContent(
   // 7.6 Arena Breakout Submenu
   if (menuId === 'games:arena') {
     const text =
-      `🛡️ <b>Arena Breakout</b>\n\n` +
+      `<tg-emoji emoji-id="5202206616757238053">🛡</tg-emoji> <b>Arena Breakout</b>\n\n` +
       `📦 <b>ئېھتىياجلىق تۈرنى تاللاڭ:</b>`;
 
     const inline_keyboard: any[][] = [
@@ -1268,13 +1271,12 @@ function getMenuContent(
 
     const inline_keyboard: any[][] = [
       [
-        {
-          text: `✅ سېتىۋېلىشنى جەزملەش ($${price.toFixed(2)})`,
+        btnWithIcon(`سېتىۋېلىشنى جەزملەش ($${price.toFixed(2)})`, 'confirm', '✅', {
           callback_data: `do_buy|${pkgCode}`,
-        },
+        }),
       ],
       [
-        { text: '❌ بىكار قىلىش', callback_data: catKey || 'shop:home' },
+        btnWithIcon('بىكار قىلىش', 'cancel', '❌', { callback_data: catKey || 'shop:home' }),
       ],
     ];
 
@@ -1284,14 +1286,14 @@ function getMenuContent(
   // 10. ShamCash Deposit Topup (balance:topup)
   if (menuId === 'balance:topup') {
     const text =
-      `💳 <b>شامكەش ئارقىلىق قالدۇق قاچىلاش</b>\n\n` +
+      `<tg-emoji emoji-id="5008131840813303418">🇸🇾</tg-emoji> <b>شامكەش ئارقىلىق قالدۇق قاچىلاش</b>\n\n` +
       `شامكەش نۇمۇرىمىزنى كۆچۈرۈڭ (چەكسىڭىز كۆچۈرۈلىدۇ):\n` +
       `<code>efe8a2b200d66411c7c7e296369cbba8</code>\n\n` +
       `⚠️ <i>شامكەشتىن دوللار ئېتىڭ، سۈرىيە لىراسى قوبۇل قىلىنمايدۇ !!!</i>\n\n` +
       `پۇل ئاتقان تالون نومۇرىنى (رقم العملية) بۇ چاتقا يېزىپ يوللاڭ ياكى تۆۋەندىكى تۈگمىلەرنى چىكىڭ:`;
 
     const inline_keyboard: any[][] = [
-      [{ text: '🔍 تالوننى تەكشۈرۈڭ', callback_data: 'balance:check_tx' }],
+      [btnWithIcon('تالوننى تەكشۈرۈڭ', 'shamcash_verify', '🔍', { callback_data: 'balance:check_tx' })],
       [{ text: '⚡️ سىناق تالون كىرگۈزۈش (571734143)', callback_data: 'test:send_sample_tx' }],
       [{ text: '❓ (رقم العملية) دېگەن نېمە؟', callback_data: 'balance:faq_tx' }],
       [
@@ -1328,7 +1330,7 @@ function getMenuContent(
   // 12. Language Settings
   if (menuId === 'settings:lang') {
     const text =
-      `🌐 <b>تىلنى تاللاڭ / Choose Language:</b>\n\n` +
+      `<tg-emoji emoji-id="5201732344993576400">🌐</tg-emoji> <b>تىلنى تاللاڭ / Choose Language:</b>\n\n` +
       `بۇ تىزىملىكتىن ئۆزىڭىزگە قولايلىق تىلنى تاللاڭ:`;
 
     const inline_keyboard: any[][] = [
@@ -1397,7 +1399,7 @@ async function handleShamCashTxVerify(chatId: number | string, txId: string, use
       reply_markup: {
         inline_keyboard: [
           [btnWithIcon('دۇكانغا كىرىش', 'shop', '🏪', { callback_data: 'shop:home' })],
-          [{ text: '🔑 ھېسابات تاختىسى', callback_data: 'menu:enter' }],
+          [btnWithIcon('ھېسابات تاختىسى', 'enter_bot', '🔑', { callback_data: 'menu:enter' })],
         ],
       },
     });
@@ -1422,7 +1424,7 @@ async function handleShamCashTxVerify(chatId: number | string, txId: string, use
       reply_markup: {
         inline_keyboard: [
           [btnWithIcon('دۇكانغا كىرىش', 'shop', '🏪', { callback_data: 'shop:home' })],
-          [{ text: '🔑 ھېسابات تاختىسى', callback_data: 'menu:enter' }],
+          [btnWithIcon('ھېسابات تاختىسى', 'enter_bot', '🔑', { callback_data: 'menu:enter' })],
         ],
       },
     });
@@ -1570,7 +1572,7 @@ export async function handleMaxBazarWebhook(update: any) {
 
           await showOrEditMessage(chatId, messageId, failText, {
             inline_keyboard: [
-              [{ text: '💳 قالدۇق قاچىلاش', callback_data: 'balance:topup' }],
+              [btnWithIcon('قالدۇق قاچىلاش', 'topup_balance', '🇸🇾', { callback_data: 'balance:topup' })],
               [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
             ],
           });
@@ -1666,7 +1668,7 @@ export async function handleMaxBazarWebhook(update: any) {
 
         await showOrEditMessage(chatId, messageId, successText, {
           inline_keyboard: [
-            [{ text: '📦 زاكازلىرىمنى كۆرۈش', callback_data: 'orders:list' }],
+            [btnWithIcon('زاكازلىرىمنى كۆرۈش', 'orders', '🛍', { callback_data: 'orders:list' })],
             [btnWithIcon('دۇكانغا كىرىش', 'shop', '🏪', { callback_data: 'shop:home' })],
             [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
           ],
@@ -1695,7 +1697,7 @@ export async function handleMaxBazarWebhook(update: any) {
 
         if (allOrders.length === 0) {
           const emptyText =
-            `📦 <b>زاكازلىرىم</b>\n\n` +
+            `<tg-emoji emoji-id="5204324795843375748">🛍</tg-emoji> <b>زاكازلىرىم</b>\n\n` +
             `سىز تېخى بىرەر زاكاز بەرمىدىڭىز.\n` +
             `دۇكان بۆلۈمىگە كىرىپ ئېھتىياجلىق مەھسۇلاتنى سېتىۋالسىڭىز بولىدۇ.`;
 
@@ -1717,11 +1719,11 @@ export async function handleMaxBazarWebhook(update: any) {
           )
           .join('\n\n');
 
-        const ordersText = `📦 <b>سىزنىڭ زاكازلىرىڭىز (${allOrders.length} دانە):</b>\n\n${orderLines}`;
+        const ordersText = `<tg-emoji emoji-id="5204324795843375748">🛍</tg-emoji> <b>سىزنىڭ زاكازلىرىڭىز (${allOrders.length} دانە):</b>\n\n${orderLines}`;
 
         await showOrEditMessage(chatId, messageId, ordersText, {
           inline_keyboard: [
-            [{ text: '🏪 داۋاملىق سېتىۋېلىش', callback_data: 'shop:home' }],
+            [btnWithIcon('داۋاملىق سېتىۋېلىش', 'shop', '🛍', { callback_data: 'shop:home' })],
             [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
           ],
         });
@@ -1742,7 +1744,7 @@ export async function handleMaxBazarWebhook(update: any) {
         const confirmText = `✅ تىل مۇۋەپپەقىيەتلىك ھالدا «<b>${langLabels[langCode] || langCode}</b>» غا تەڭشەلدى.`;
         await showOrEditMessage(chatId, messageId, confirmText, {
           inline_keyboard: [
-            [{ text: '🔑 ھېسابات تاختىسىغا قايتىش', callback_data: 'menu:enter' }],
+            [btnWithIcon('ھېسابات تاختىسىغا قايتىش', 'enter_bot', '🔑', { callback_data: 'menu:enter' })],
             [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
           ],
         });
