@@ -46,7 +46,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   arena: '5202206616757238053', // 🛡️ Arena Breakout (Animated 3D Shield)
   syriatel: '5005811690890069852', // 🇸🇾 سۈرىيەتىل (Free Syria Flag animated video sticker)
   mtn: '5008461419423729981', // 🇸🇾 ئىمتىئىن (Free Syria Flag animated video sticker)
-  turkey: '5807943566957223210', // 🔽 تۈركىيە كارتىسى
+  turkey: '5226948110873278599', // 🇹🇷 تۈركىيە كارتىسى (Animated Turkey Flag)
   tg_premium: '5350501108659790021', // ⭐️ تىلگىرام Premium (Animated Glowing Star)
   tg_stars: '6136464120779638846', // ⭐ تىلگىرام يۇلتۇز سېتىۋېلىش (Animated Stars)
   chatgpt: '5204437027633786910', // 🍏 ChatGPT (Animated App)
@@ -280,7 +280,7 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'topup:turkey': {
-    name: '🇹🇷 تۈركىيە كارتىسى (Turkcell لىرا قاچىلاش)',
+    name: '<tg-emoji emoji-id="5226948110873278599">🇹🇷</tg-emoji> تۈركىيە كارتىسى (Turkcell لىرا قاچىلاش)',
     autocash: [
       { title: '🇹🇷 50 TL لىرا قاچىلاش — $2.41', code: 'tr:50tl:ac', price: 2.41 },
       { title: '🇹🇷 150 TL لىرا قاچىلاش — $7.07', code: 'tr:150tl:ac', price: 7.07 },
@@ -291,7 +291,7 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'topup:turkey_monthly': {
-    name: '🇹🇷 Turkcell ئايلىق تور بوغچىلىرى (تور + سۆزلىشىش)',
+    name: '<tg-emoji emoji-id="5226948110873278599">🇹🇷</tg-emoji> Turkcell ئايلىق تور بوغچىلىرى (تور + سۆزلىشىش)',
     autocash: [
       { title: '📦 2 GB تور + 1000 دەقىقە سۆزلىشىش — $13.95', code: 'tr:1000dk_2gb:ac', price: 13.95 },
       { title: '📦 4 GB تور + 1000 دەقىقە سۆزلىشىش — $16.03', code: 'tr:1000dk_4gb:ac', price: 16.03 },
@@ -834,7 +834,7 @@ function getMenuContent(
     const inline_keyboard: any[][] = [
       [btnWithIcon('سۈرىيەتىل', 'syriatel', '🇸🇾', { callback_data: 'topup:syriatel' })],
       [btnWithIcon('ئىمتىئىن', 'mtn', '🇸🇾', { callback_data: 'topup:mtn' })],
-      [btnWithIcon('تۈركىيە كارتىسى (Turkcell)', 'sim_cards', '🇹🇷', { callback_data: 'topup:turkey' })],
+      [btnWithIcon('تۈركىيە كارتىسى (Turkcell)', 'turkey', '🇹🇷', { callback_data: 'topup:turkey' })],
       [
         btnWithIcon('قايتىش', 'back', '👈', { callback_data: 'shop:topup' }),
         btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
@@ -849,7 +849,7 @@ function getMenuContent(
     const inline_keyboard: any[][] = [
       [btnWithIcon('SyriaTel ئايلىق تورلىرى', 'syriatel', '🇸🇾', { callback_data: 'topup:syriatel_monthly' })],
       [btnWithIcon('MTN ئايلىق تورلىرى', 'mtn', '🇸🇾', { callback_data: 'topup:mtn_monthly' })],
-      [btnWithIcon('Turkcell ئايلىق تور بوغچىلىرى', 'lang', '🇹🇷', { callback_data: 'topup:turkey_monthly' })],
+      [btnWithIcon('Turkcell ئايلىق تور بوغچىلىرى', 'turkey', '🇹🇷', { callback_data: 'topup:turkey_monthly' })],
       [
         btnWithIcon('قايتىش', 'back', '👈', { callback_data: 'shop:topup' }),
         btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' }),
@@ -874,7 +874,7 @@ function getMenuContent(
       `• قالدۇق سومما: <code>*100#</code>\n` +
       `• كەسىپ ئېچىش: <code>*999#</code>\n` +
       `• 4G قىلىش: <code>*062#</code>\n\n` +
-      `🇹🇷 <b>تۈركىيە (Turkcell):</b>\n` +
+      `<tg-emoji emoji-id="5226948110873278599">🇹🇷</tg-emoji> <b>تۈركىيە (Turkcell):</b>\n` +
       `• قالدۇق سوراش: <code>*123#</code>\n` +
       `• بايلىق قالدۇقى (KALAN): <code>2222</code> گە <code>KALAN</code> دەپ ئۇچۇر ئەۋەتىش`;
 
