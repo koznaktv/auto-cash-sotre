@@ -43,6 +43,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   telegram_sub: '5202036282649244841', // ⭐️ تىلگىرام ئەزالىق ئېچىش (Animated 3D Star)
   ai_apps: '5204437027633786910', // 🍏 AI ۋە ئەپلەر (Animated Apple/Apps)
   games: '5336838590057974764', // 🤩 ئويۇنلار (Animated Star-Eyes Gamer)
+  arena: '5202206616757238053', // 🛡️ Arena Breakout (Animated 3D Shield)
   syriatel: '', // 📱 سۈرىيەتىل
   mtn: '', // 📱 ئىمتىئىن
   turkey: '', // 🇹🇷 تۈركىيە كارتىسى
@@ -927,7 +928,7 @@ function getMenuContent(
       [btnWithIcon('PUBG Mobile', 'pubg', '🪂', { callback_data: 'games:pubg' })],
       [btnWithIcon('Free Fire', 'freefire', '🔥', { callback_data: 'games:freefire' })],
       [{ text: '👑 Honor of Kings', callback_data: 'games:hok' }],
-      [{ text: '🛡️ Arena Breakout', callback_data: 'games:arena' }],
+      [btnWithIcon('Arena Breakout', 'arena', '🛡️', { callback_data: 'games:arena' })],
       [{ text: '🏰 Clash of Clans', callback_data: 'games:clash' }],
       [
         btnWithIcon('تېخىمۇ كۆپ (توربەتتە كۆرۈش)', 'webapp', '🌐', {
@@ -1040,7 +1041,7 @@ function getMenuContent(
 
     const inline_keyboard: any[][] = [
       [{ text: '💰 Arena Breakout Bonds قاچىلاش (Bonds)', callback_data: 'games:arena_bonds' }],
-      [{ text: '🛡️ ئەزالىق ۋە قوغداش قېپى', callback_data: 'games:arena_passes' }],
+      [btnWithIcon('ئەزالىق ۋە قوغداش قېپى', 'arena', '🛡️', { callback_data: 'games:arena_passes' })],
       [
         btnWithIcon('تېخىمۇ كۆپ (توربەتتە كۆرۈش)', 'webapp', '🌐', {
           web_app: { url: `${SITE_URL}` },
