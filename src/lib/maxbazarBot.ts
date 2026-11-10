@@ -182,24 +182,41 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'topup:syriatel': {
-    name: '📱 سۈرىيەتىل (Syriatel بىرلىك)',
+    name: '📱 سۈرىيەتىل (Syriatel پۇل بىرلىكلىرى)',
     autocash: [
       { title: '⚠️ Auto Cash تەرەپتە ۋاقتىنچە توختىتىلدى', code: 'syr:paused:ac', price: 0 },
     ],
     maxbazar: [
-      { title: '📱 1.92 بىرلىك (وحدة) — $0.02', code: 'syr:1u:mb', price: 0.02 },
-      { title: '📱 5.77 بىرلىك (وحدة) — $0.05', code: 'syr:5u:mb', price: 0.05 },
-      { title: '📱 9.62 بىرلىك (وحدة) — $0.08', code: 'syr:9u:mb', price: 0.08 },
-      { title: '📱 20.19 بىرلىك (وحدة) — $0.16', code: 'syr:20u:mb', price: 0.16 },
-      { title: '📱 40.38 بىرلىك (وحدة) — $0.33', code: 'syr:40u:mb', price: 0.33 },
-      { title: '📱 52.88 بىرلىك (وحدة) — $0.43', code: 'syr:52u:mb', price: 0.43 },
-      { title: '📱 100.96 بىرلىك (وحدة) — $0.82', code: 'syr:100u:mb', price: 0.82 },
-      { title: '📱 144.23 بىرلىك (وحدة) — $1.18', code: 'syr:144u:mb', price: 1.18 },
-      { title: '📱 240.38 بىرلىك (وحدة) — $1.96', code: 'syr:240u:mb', price: 1.96 },
-      { title: '📱 370.19 بىرلىك (وحدة) — $3.02', code: 'syr:370u:mb', price: 3.02 },
-      { title: '📱 480.76 بىرلىك (وحدة) — $3.92', code: 'syr:480u:mb', price: 3.92 },
-      { title: '📱 1057.69 بىرلىك (وحدة) — $8.54', code: 'syr:1057u:mb', price: 8.54 },
-      { title: '📱 2403.85 بىرلىك (وحدة) — $19.41', code: 'syr:2403u:mb', price: 19.41 },
+      { title: '🛍️ 20.19 سۈري — 0.18$', code: 'syr:20:mb', price: 0.18 },
+      { title: '🛍️ 30.76 سۈري — 0.28$', code: 'syr:30:mb', price: 0.28 },
+      { title: '🛍️ 40.38 سۈري — 0.37$', code: 'syr:40:mb', price: 0.37 },
+      { title: '🛍️ 52.88 سۈري — 0.48$', code: 'syr:52:mb', price: 0.48 },
+      { title: '🛍️ 68.27 سۈري — 0.62$', code: 'syr:68:mb', price: 0.62 },
+      { title: '🛍️ 72.12 سۈري — 0.66$', code: 'syr:72:mb', price: 0.66 },
+      { title: '🛍️ 77.88 سۈري — 0.71$', code: 'syr:77:mb', price: 0.71 },
+      { title: '🛍️ 81.73 سۈري — 0.74$', code: 'syr:81:mb', price: 0.74 },
+      { title: '🛍️ 86.54 سۈري — 0.79$', code: 'syr:86:mb', price: 0.79 },
+      { title: '🛍️ 96.15 سۈري — 0.87$', code: 'syr:96:mb', price: 0.87 },
+      { title: '🛍️ 100.96 سۈري — 0.92$', code: 'syr:100:mb', price: 0.92 },
+      { title: '🛍️ 105.77 سۈري — 0.96$', code: 'syr:105:mb', price: 0.96 },
+      { title: '🛍️ 115.38 سۈري — 1.05$', code: 'syr:115:mb', price: 1.05 },
+      { title: '🛍️ 130.77 سۈري — 1.19$', code: 'syr:130:mb', price: 1.19 },
+      { title: '🛍️ 144.23 سۈري — 1.31$', code: 'syr:144:mb', price: 1.31 },
+      { title: '🛍️ 160.58 سۈري — 1.46$', code: 'syr:160:mb', price: 1.46 },
+      { title: '🛍️ 163.46 سۈري — 1.49$', code: 'syr:163:mb', price: 1.49 },
+      { title: '🛍️ 173.08 سۈري — 1.57$', code: 'syr:173:mb', price: 1.57 },
+      { title: '🛍️ 183.65 سۈري — 1.67$', code: 'syr:183:mb', price: 1.67 },
+      { title: '🛍️ 192.31 سۈري — 1.75$', code: 'syr:192:mb', price: 1.75 },
+      { title: '🛍️ 211.54 سۈري — 1.92$', code: 'syr:211:mb', price: 1.92 },
+      { title: '🛍️ 240.38 سۈري — 2.19$', code: 'syr:240:mb', price: 2.19 },
+      { title: '🛍️ 288.46 سۈري — 2.62$', code: 'syr:288:mb', price: 2.62 },
+      { title: '🛍️ 317.31 سۈري — 2.88$', code: 'syr:317:mb', price: 2.88 },
+      { title: '🛍️ 370.19 سۈري — 3.37$', code: 'syr:370:mb', price: 3.37 },
+      { title: '🛍️ 432.69 سۈري — 3.93$', code: 'syr:432:mb', price: 3.93 },
+      { title: '🛍️ 480.77 سۈري — 4.37$', code: 'syr:480:mb', price: 4.37 },
+      { title: '🛍️ 951.92 سۈري — 8.65$', code: 'syr:951:mb', price: 8.65 },
+      { title: '🛍️ 1057.69 سۈري — 9.62$', code: 'syr:1057:mb', price: 9.62 },
+      { title: '🛍️ 2403.85 سۈري — 21.85$', code: 'syr:2403:mb', price: 21.85 },
     ],
   },
   'topup:syriatel_monthly': {
@@ -208,11 +225,12 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
       { title: '⚠️ Auto Cash تەرەپتە ۋاقتىنچە توختىتىلدى', code: 'syr_m:paused:ac', price: 0 },
     ],
     maxbazar: [
-      { title: '📦 6GB + 400 مىنۇت + 400 SMS — $3.88', code: 'syr_m:6gb:mb', price: 3.88 },
-      { title: '📦 10GB + 500 مىنۇت + 500 SMS — $5.66', code: 'syr_m:10gb:mb', price: 5.66 },
-      { title: '📦 20GB + 600 مىنۇت + 600 SMS — $9.69', code: 'syr_m:20gb:mb', price: 9.69 },
-      { title: '📦 35GB + 700 مىنۇت + 700 SMS — $15.34', code: 'syr_m:35gb:mb', price: 15.34 },
-      { title: '📦 75GB + 800 مىنۇت + 800 SMS — $24.23', code: 'syr_m:75gb:mb', price: 24.23 },
+      { title: '🛍️ 1.5 GB — 2.4$', code: 'syr_m:1.5gb:mb', price: 2.40 },
+      { title: '🛍️ 6 GB — 4.8$', code: 'syr_m:6gb:mb', price: 4.80 },
+      { title: '🛍️ 10 GB — 7$', code: 'syr_m:10gb:mb', price: 7.00 },
+      { title: '🛍️ 20 GB — 12$', code: 'syr_m:20gb:mb', price: 12.00 },
+      { title: '🛍️ 35 GB — 18$', code: 'syr_m:35gb:mb', price: 18.00 },
+      { title: '🛍️ 75 GB — 29$', code: 'syr_m:75gb:mb', price: 29.00 },
     ],
   },
   'topup:mtn': {
@@ -712,19 +730,37 @@ function getMenuContent(
     }
 
     if (!(isSyriatel && isAc)) {
-      inline_keyboard.push(
-        ...pkgs.map((p) => [
-          {
-            text: p.title,
-            callback_data: `buy|${menuId}|${p.code}`,
-          },
-        ])
-      );
+      if (isSyriatel) {
+        for (let i = 0; i < pkgs.length; i += 2) {
+          const row: any[] = [
+            {
+              text: pkgs[i].title,
+              callback_data: `buy|${menuId}|${pkgs[i].code}`,
+            },
+          ];
+          if (i + 1 < pkgs.length) {
+            row.push({
+              text: pkgs[i + 1].title,
+              callback_data: `buy|${menuId}|${pkgs[i + 1].code}`,
+            });
+          }
+          inline_keyboard.push(row);
+        }
+      } else {
+        inline_keyboard.push(
+          ...pkgs.map((p) => [
+            {
+              text: p.title,
+              callback_data: `buy|${menuId}|${p.code}`,
+            },
+          ])
+        );
+      }
     }
 
     inline_keyboard.push([
       {
-        text: '◀️ كەينىگە',
+        text: isSyriatel ? '↩️ قايتىش' : '◀️ كەينىگە',
         callback_data: menuId.startsWith('wifi:')
           ? 'shop:wifi'
           : menuId.startsWith('games:')
