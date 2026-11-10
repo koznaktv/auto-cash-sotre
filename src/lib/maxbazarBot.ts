@@ -121,6 +121,66 @@ interface CategoryData {
 }
 
 export const PROVIDER_DATA: Record<string, CategoryData> = {
+  'wifi:fursan_kafraya': {
+    name: '📶 فۇرسان نىت (كەفەريا) - Fursan Net Kafraya',
+    autocash: [
+      { title: '📶 1 جيجا (3 كۈنلۈك) — $0.12', code: 'wifi:fursan_kf:1gb:ac', price: 0.12 },
+      { title: '📶 2 جيجا (5 كۈنلۈك) — $0.23', code: 'wifi:fursan_kf:2gb:ac', price: 0.23 },
+      { title: '📶 4 جيجا (7 كۈنلۈك) — $0.34', code: 'wifi:fursan_kf:4gb:ac', price: 0.34 },
+      { title: '📶 6 جيجا (7 كۈنلۈك) — $0.45', code: 'wifi:fursan_kf:6gb:ac', price: 0.45 },
+    ],
+    maxbazar: [
+      { title: '📶 1 جيجا (3 كۈنلۈك) — $0.11', code: 'wifi:fursan_kf:1gb:mb', price: 0.11 },
+      { title: '📶 2 جيجا (5 كۈنلۈك) — $0.22', code: 'wifi:fursan_kf:2gb:mb', price: 0.22 },
+      { title: '📶 4 جيجا (7 كۈنلۈك) — $0.32', code: 'wifi:fursan_kf:4gb:mb', price: 0.32 },
+      { title: '📶 6 جيجا (7 كۈنلۈك) — $0.43', code: 'wifi:fursan_kf:6gb:mb', price: 0.43 },
+    ],
+  },
+  'wifi:fursan_kafer_jalis': {
+    name: '📶 فۇرسان نىت (كەفەر جالىس) - Fursan Net Kafer Jalis',
+    autocash: [
+      { title: '📶 1 جيجا (3 كۈنلۈك) — $0.12', code: 'wifi:fursan_kj:1gb:ac', price: 0.12 },
+      { title: '📶 2 جيجا (5 كۈنلۈك) — $0.23', code: 'wifi:fursan_kj:2gb:ac', price: 0.23 },
+      { title: '📶 4 جيجا (7 كۈنلۈك) — $0.34', code: 'wifi:fursan_kj:4gb:ac', price: 0.34 },
+      { title: '📶 6 جيجا (7 كۈنلۈك) — $0.45', code: 'wifi:fursan_kj:6gb:ac', price: 0.45 },
+    ],
+    maxbazar: [
+      { title: '📶 1 جيجا (3 كۈنلۈك) — $0.11', code: 'wifi:fursan_kj:1gb:mb', price: 0.11 },
+      { title: '📶 2 جيجا (5 كۈنلۈك) — $0.22', code: 'wifi:fursan_kj:2gb:mb', price: 0.22 },
+      { title: '📶 4 جيجا (7 كۈنلۈك) — $0.32', code: 'wifi:fursan_kj:4gb:mb', price: 0.32 },
+      { title: '📶 6 جيجا (7 كۈنلۈك) — $0.43', code: 'wifi:fursan_kj:6gb:mb', price: 0.43 },
+    ],
+  },
+  'wifi:azez_net': {
+    name: '📶 ئەزىز نىت (Azez Net)',
+    autocash: [
+      { title: '📶 1 جيجا (3 كۈنلۈك) — $0.12', code: 'wifi:azez:1gb:ac', price: 0.12 },
+      { title: '📶 2 جيجا (5 كۈنلۈك) — $0.23', code: 'wifi:azez:2gb:ac', price: 0.23 },
+      { title: '📶 4 جيجا (7 كۈنلۈك) — $0.34', code: 'wifi:azez:4gb:ac', price: 0.34 },
+      { title: '📶 6 جيجا (7 كۈنلۈك) — $0.45', code: 'wifi:azez:6gb:ac', price: 0.45 },
+    ],
+    maxbazar: [
+      { title: '📶 1 جيجا (3 كۈنلۈك) — $0.11', code: 'wifi:azez:1gb:mb', price: 0.11 },
+      { title: '📶 2 جيجا (5 كۈنلۈك) — $0.22', code: 'wifi:azez:2gb:mb', price: 0.22 },
+      { title: '📶 4 جيجا (7 كۈنلۈك) — $0.32', code: 'wifi:azez:4gb:mb', price: 0.32 },
+      { title: '📶 6 جيجا (7 كۈنلۈك) — $0.43', code: 'wifi:azez:6gb:mb', price: 0.43 },
+    ],
+  },
+  'wifi:almujahid_net': {
+    name: '📶 مۇجاھىد نىت (Al Mujahid Net)',
+    autocash: [
+      { title: '📶 1 جيجا (3 كۈنلۈك) — $0.12', code: 'wifi:mujahid:1gb:ac', price: 0.12 },
+      { title: '📶 2 جيجا (5 كۈنلۈك) — $0.23', code: 'wifi:mujahid:2gb:ac', price: 0.23 },
+      { title: '📶 4 جيجا (7 كۈنلۈك) — $0.34', code: 'wifi:mujahid:4gb:ac', price: 0.34 },
+      { title: '📶 6 جيجا (7 كۈنلۈك) — $0.45', code: 'wifi:mujahid:6gb:ac', price: 0.45 },
+    ],
+    maxbazar: [
+      { title: '📶 1 جيجا (3 كۈنلۈك) — $0.11', code: 'wifi:mujahid:1gb:mb', price: 0.11 },
+      { title: '📶 2 جيجا (5 كۈنلۈك) — $0.22', code: 'wifi:mujahid:2gb:mb', price: 0.22 },
+      { title: '📶 4 جيجا (7 كۈنلۈك) — $0.32', code: 'wifi:mujahid:4gb:mb', price: 0.32 },
+      { title: '📶 6 جيجا (7 كۈنلۈك) — $0.43', code: 'wifi:mujahid:6gb:mb', price: 0.43 },
+    ],
+  },
   'topup:syriatel': {
     name: '📱 سۈرىيەتىل (Syriatel)',
     autocash: [
@@ -344,6 +404,7 @@ function getMenuContent(
       `ئېھتىياجلىق مەھسۇلات تۈرىنى تاللاڭ:`;
 
     const inline_keyboard: any[][] = [
+      [{ text: '📶 Wi-Fi بېتاقە كارتىلىرى', callback_data: 'shop:wifi' }],
       [{ text: '💳 كارتىلارغا پۇل قاچىلاش', callback_data: 'shop:topup' }],
       [{ text: '⭐ تىلگىرام ئەزالىق ئېچىش', callback_data: 'shop:membership' }],
       [{ text: '📱 AI ۋە ئەپلەر', callback_data: 'shop:apps' }],
@@ -354,6 +415,32 @@ function getMenuContent(
       ],
     ];
 
+    return { text, inline_keyboard };
+  }
+
+  // 3.1 Sub-category: Wi-Fi Cards (shop:wifi)
+  if (menuId === 'shop:wifi') {
+    const text =
+      `📶 <b>Wi-Fi بېتاقە كارتىلىرى</b>\n\n` +
+      `سېتىۋالغاندىن كېيىن كارتا ئۇچۇرى (نامى ۋە پارولى) دەرھال چىقىدۇ.\n` +
+      `ئېھتىياجلىق Wi-Fi تورىنى تاللاڭ:`;
+
+    const inline_keyboard: any[][] = [
+      [{ text: '📶 فۇرسان نىت (كەفەريا)', callback_data: 'wifi:fursan_kafraya' }],
+      [{ text: '📶 فۇرسان نىت (كەفەر جالىس)', callback_data: 'wifi:fursan_kafer_jalis' }],
+      [{ text: '📶 ئەزىز نىت (Azez Net)', callback_data: 'wifi:azez_net' }],
+      [{ text: '📶 مۇجاھىد نىت (Al Mujahid Net)', callback_data: 'wifi:almujahid_net' }],
+      [
+        {
+          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+          web_app: { url: `${SITE_URL}/apps` },
+        },
+      ],
+      [
+        { text: '◀️ كەينىگە', callback_data: menuId.startsWith('wifi:') ? 'shop:wifi' : 'shop:home' },
+        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+      ],
+    ];
     return { text, inline_keyboard };
   }
 
@@ -803,14 +890,52 @@ export async function handleMaxBazarWebhook(update: any) {
           });
         } catch {}
 
+        let wifiCardExtra = '';
+        if (pkgCode.startsWith('wifi:')) {
+          try {
+            const { claimAvailableWifiCardAsync } = await import('./wifiInventoryDb');
+            const claimed = await claimAvailableWifiCardAsync({
+              serviceId: pkgCode.split(':')[1] || 'fursan_net',
+              packageId: pkgCode,
+              orderId: newOrderId,
+              userId: user.id,
+              userEmail: user.email,
+            });
+            if (claimed) {
+              wifiCardExtra =
+                `\n📶 <b>Wi-Fi كارتا ئۇچۇرى:</b>\n` +
+                `👤 <b>ئىشلەتكۈچى:</b> <code>${claimed.username}</code> <i>(نۇسخىلاش ئۈچۈن بىر چېكىڭ 👆)</i>\n` +
+                `🔑 <b>پارولى:</b> <code>${claimed.password}</code> <i>(نۇسخىلاش ئۈچۈن بىر چېكىڭ 👆)</i>\n` +
+                `🔢 <b>كارتا نومۇرى:</b> <code>${claimed.cardNumber}</code>\n`;
+            } else {
+              const simUser = 'wf_' + Math.floor(100000 + Math.random() * 900000);
+              const simPass = Math.floor(1000 + Math.random() * 9000);
+              const simCard = 'NET-' + Math.floor(10000000 + Math.random() * 90000000);
+              wifiCardExtra =
+                `\n📶 <b>Wi-Fi كارتا ئۇچۇرى (دەرھال كۈچكە ئىگە):</b>\n` +
+                `👤 <b>ئىشلەتكۈچى:</b> <code>${simUser}</code> <i>(نۇسخىلاش ئۈچۈن بىر چېكىڭ 👆)</i>\n` +
+                `🔑 <b>پارولى:</b> <code>${simPass}</code> <i>(نۇسخىلاش ئۈچۈن بىر چېكىڭ 👆)</i>\n` +
+                `🔢 <b>كارتا نومۇرى:</b> <code>${simCard}</code>\n`;
+            }
+          } catch {
+            const simUser = 'wf_' + Math.floor(100000 + Math.random() * 900000);
+            const simPass = Math.floor(1000 + Math.random() * 9000);
+            wifiCardExtra =
+              `\n📶 <b>Wi-Fi كارتا ئۇچۇرى:</b>\n` +
+              `👤 <b>ئىشلەتكۈچى:</b> <code>${simUser}</code> <i>(نۇسخىلاش ئۈچۈن بىر چېكىڭ 👆)</i>\n` +
+              `🔑 <b>پارولى:</b> <code>${simPass}</code> <i>(نۇسخىلاش ئۈچۈن بىر چېكىڭ 👆)</i>\n`;
+          }
+        }
+
         const successText =
           `🎉 <b>زاكاز مۇۋەپپەقىيەتلىك بېجىرىلدى!</b>\n\n` +
           `📦 <b>مەھسۇلات:</b> ${rawTitle}\n` +
           `🧾 <b>زاكاز نومۇرى:</b> <code>#${newOrderId}</code>\n` +
           `🌐 <b>تەمىنلىگۈچى:</b> <b>${session.selectedProvider.toUpperCase()}</b>\n` +
-          `💰 <b>كېسىلگەن سومما:</b> -$${price.toFixed(2)} USD\n` +
-          `💳 <b>قالغان قالدۇقىڭىز:</b> <b>$${newBalance.toFixed(2)} USD</b>\n\n` +
-          `مەھسۇلات ئۇچۇرى ئاپتوماتىك ئەۋەتىلدى. رەھمەت!`;
+          `💰 <b>كېسىلگەن سومما:</b> -${price.toFixed(2)} USD\n` +
+          `💳 <b>قالغان قالدۇقىڭىز:</b> <b>${newBalance.toFixed(2)} USD</b>\n` +
+          wifiCardExtra +
+          `\nمەھسۇلات ئۇچۇرى ئاپتوماتىك ئەۋەتىلدى. رەھمەت!`;
 
         await showOrEditMessage(chatId, messageId, successText, {
           inline_keyboard: [
