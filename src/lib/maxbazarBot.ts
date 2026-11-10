@@ -53,6 +53,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   pubg: '6167965794635353576', // 🌟 PUBG Mobile (Custom Emoji)
   freefire: '5807428574608627564', // 🔥 Free Fire (Animated Neon Fire)
   mlbb: '5314551360513916833', // 🤩 Mobile Legends (MLBB Logo Custom Emoji)
+  hok: '6300958645207175466', // 🌟 Honor of Kings (Custom Emoji)
   card_codes: '5204096174734207869', // ✉️ كارتا كودلىرى (Animated Envelope/SMS)
   shamcash_verify: '5807943566957223210', // 🔽 شامكەش تالون
   confirm: '5317020017521359483', // ✔️ جەزملەش (Animated Green Check)
@@ -557,7 +558,7 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'games:hok_tokens': {
-    name: '👑 Honor of Kings توكېن قاچىلاش (Tokens)',
+    name: '<tg-emoji emoji-id="6300958645207175466">🌟</tg-emoji> Honor of Kings توكېن قاچىلاش (Tokens)',
     autocash: [
       { title: '👑 16 Tokens — $0.20', code: 'hok_t:633:ac', price: 0.2 },
       { title: '👑 80 Tokens — $1.00', code: 'hok_t:634:ac', price: 1.0 },
@@ -935,7 +936,7 @@ function getMenuContent(
       [btnWithIcon('Mobile Legends', 'mlbb', '⚔️', { callback_data: 'games:mlbb' })],
       [btnWithIcon('PUBG Mobile', 'pubg', '🪂', { callback_data: 'games:pubg' })],
       [btnWithIcon('Free Fire', 'freefire', '🔥', { callback_data: 'games:freefire' })],
-      [{ text: '👑 Honor of Kings', callback_data: 'games:hok' }],
+      [btnWithIcon('Honor of Kings', 'hok', '👑', { callback_data: 'games:hok' })],
       [btnWithIcon('Arena Breakout', 'arena', '🛡️', { callback_data: 'games:arena' })],
       [{ text: '🏰 Clash of Clans', callback_data: 'games:clash' }],
       [
@@ -1022,7 +1023,7 @@ function getMenuContent(
   // 7.5 Honor of Kings Submenu
   if (menuId === 'games:hok') {
     const text =
-      `👑 <b>Honor of Kings</b>\n\n` +
+      `<tg-emoji emoji-id="6300958645207175466">🌟</tg-emoji> <b>Honor of Kings</b>\n\n` +
       `📦 <b>ئېھتىياجلىق تۈرنى تاللاڭ:</b>`;
 
     const inline_keyboard: any[][] = [
