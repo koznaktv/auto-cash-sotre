@@ -464,14 +464,14 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'games:mlbb_passes': {
-    name: '🎟️ MLBB — ھەپتىلىك كارتىلار (Weekly Diamond Pass)',
+    name: '🎟️ MLBB — ھەپتىلىك كارتىلار',
     autocash: [
-      { title: '🎟️ ھەپتىلىك ئالماس پاسس (Global) — $1.61', code: 'mlbb_pass:425:ac', price: 1.61 },
-      { title: '🎟️ ھەپتىلىك ئالماس پاسس (TR) — $2.21', code: 'mlbb_pass:438:ac', price: 2.21 },
+      { title: '🎟️ ھەپتىلىك (گىلوبال) — $1.61', code: 'mlbb_pass:425:ac', price: 1.61 },
+      { title: '🎟️ ھەپتىلىك (تۈركىيە) — $2.21', code: 'mlbb_pass:438:ac', price: 2.21 },
     ],
     maxbazar: [
-      { title: '🎟️ ھەپتىلىك ئالماس پاسس (Global) — $1.63', code: 'mlbb_pass:1896:mb', price: 1.63 },
-      { title: '🎟️ ھەپتىلىك ئالماس پاسس (TR) — $1.90', code: 'mlbb_pass:967:mb', price: 1.9 },
+      { title: '🎟️ ھەپتىلىك (گىلوبال) — $1.63', code: 'mlbb_pass:1896:mb', price: 1.63 },
+      { title: '🎟️ ھەپتىلىك (تۈركىيە) — $1.90', code: 'mlbb_pass:967:mb', price: 1.9 },
     ],
   },
   'games:pubg_uc': {
@@ -503,15 +503,15 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     name: '🎟️ PUBG — ھەپتىلىك ۋە ئايلىق ئەزالىقلار',
     autocash: [
       { title: '🎟️ برايم Prime (1 ئايلىق) — $1.05', code: 'pubg_pass:709:ac', price: 1.05 },
-      { title: '🎟️ Royale Pass Elite (LV1-50) — $6.29', code: 'pubg_pass:717:ac', price: 6.29 },
+      { title: '🎟️ رويال ئەزالىق Elite (LV1-50) — $6.29', code: 'pubg_pass:717:ac', price: 6.29 },
       { title: '🎟️ برايم بلس Prime Plus (1 ئايلىق) — $10.53', code: 'pubg_pass:713:ac', price: 10.53 },
-      { title: '🎟️ Royale Pass Elite (LV1-100) — $12.68', code: 'pubg_pass:718:ac', price: 12.68 },
+      { title: '🎟️ رويال ئەزالىق Elite (LV1-100) — $12.68', code: 'pubg_pass:718:ac', price: 12.68 },
     ],
     maxbazar: [
       { title: '🎟️ برايم Prime (1 ئايلىق) — $1.05', code: 'pubg_pass:861:mb', price: 1.05 },
-      { title: '🎟️ Royale Pass Elite (LV1-50) — $6.34', code: 'pubg_pass:857:mb', price: 6.34 },
+      { title: '🎟️ رويال ئەزالىق Elite (LV1-50) — $6.34', code: 'pubg_pass:857:mb', price: 6.34 },
       { title: '🎟️ برايم بلس Prime Plus (1 ئايلىق) — $10.52', code: 'pubg_pass:865:mb', price: 10.52 },
-      { title: '🎟️ Royale Pass Elite (LV1-100) — $12.79', code: 'pubg_pass:856:mb', price: 12.79 },
+      { title: '🎟️ رويال ئەزالىق Elite (LV1-100) — $12.79', code: 'pubg_pass:856:mb', price: 12.79 },
     ],
   },
   'games:freefire_diamonds': {
@@ -535,12 +535,12 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     name: '🎟️ Free Fire — ھەپتىلىك ۋە ئايلىق ئەزالىقلار',
     autocash: [
       { title: '🎟️ ھەپتىلىك ئەزالىق (Weekly) — $2.31', code: 'ff_pass:949:ac', price: 2.31 },
-      { title: '🎟️ بوياه باس (Booyah Pass) — $3.47', code: 'ff_pass:961:ac', price: 3.47 },
+      { title: '🎟️ بوياھ بېلىتى (Booyah) — $3.47', code: 'ff_pass:961:ac', price: 3.47 },
       { title: '🎟️ ئايلىق ئەزالىق (Monthly) — $11.44', code: 'ff_pass:950:ac', price: 11.44 },
     ],
     maxbazar: [
       { title: '🎟️ ھەپتىلىك ئەزالىق (Weekly) — $2.51', code: 'ff_pass:2222:mb', price: 2.51 },
-      { title: '🎟️ بوياه باس (Booyah Pass) — $3.50', code: 'ff_pass:236:mb', price: 3.5 },
+      { title: '🎟️ بوياھ بېلىتى (Booyah) — $3.50', code: 'ff_pass:236:mb', price: 3.5 },
       { title: '🎟️ ئايلىق ئەزالىق (Monthly) — $11.24', code: 'ff_pass:2221:mb', price: 11.24 },
     ],
   },
@@ -604,26 +604,26 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'games:arena_passes': {
-    name: '🛡️ Arena Breakout — ئايلىق پاسس ۋە قوغداش قېپى',
+    name: '🛡️ Arena Breakout — ئايلىق ئەزالىق ۋە قوغداش قېپى',
     autocash: [
-      { title: '🛡️ ئايلىق Battle Pass (Advanced) — $1.02', code: 'arena_pass:668:ac', price: 1.02 },
+      { title: '🛡️ ئايلىق ئىلغار ئەزالىق (Advanced) — $1.02', code: 'arena_pass:668:ac', price: 1.02 },
       { title: '🛡️ ئوق ئۆتمەس قاپ (Bulletproof Case 30d) — $2.55', code: 'arena_pass:664:ac', price: 2.55 },
-      { title: '🛡️ ئايلىق Battle Pass (Premium) — $4.08', code: 'arena_pass:669:ac', price: 4.08 },
+      { title: '🛡️ ئايلىق ئالىي ئەزالىق (Premium) — $4.08', code: 'arena_pass:669:ac', price: 4.08 },
       { title: '🛡️ مۇرەككەپ ماتېرىياللىق قاپ (Composite Case 30d) — $7.70', code: 'arena_pass:667:ac', price: 7.7 },
     ],
     maxbazar: [
-      { title: '🛡️ ئايلىق Battle Pass (Advanced) — $1.02', code: 'arena_pass:640:mb', price: 1.02 },
+      { title: '🛡️ ئايلىق ئىلغار ئەزالىق (Advanced) — $1.02', code: 'arena_pass:640:mb', price: 1.02 },
       { title: '🛡️ ئوق ئۆتمەس قاپ (Bulletproof Case 30d) — $2.57', code: 'arena_pass:638:mb', price: 2.57 },
-      { title: '🛡️ ئايلىق Battle Pass (Premium) — $4.11', code: 'arena_pass:641:mb', price: 4.11 },
+      { title: '🛡️ ئايلىق ئالىي ئەزالىق (Premium) — $4.11', code: 'arena_pass:641:mb', price: 4.11 },
       { title: '🛡️ مۇرەككەپ ماتېرىياللىق قاپ (Composite Case 30d) — $7.78', code: 'arena_pass:639:mb', price: 7.78 },
     ],
   },
   'games:clash_passes': {
-    name: '🏰 Clash of Clans — ئالتۇن بېلەت ۋە پاسسلار',
+    name: '🏰 Clash of Clans — ئالتۇن بېلەت ۋە تالونلار',
     autocash: [],
     maxbazar: [
-      { title: '🏰 ئالتۇن بېلەت (Gold Pass فئة A) — $2.59', code: 'coc:834:mb', price: 2.59 },
-      { title: '🎪 تەبرىكلەش بېلىتى (Event Pass) — $6.28', code: 'coc:837:mb', price: 6.28 },
+      { title: '🏰 ئالتۇن بېلەت (Gold Pass) — $2.59', code: 'coc:834:mb', price: 2.59 },
+      { title: '🎪 بايرام بېلىتى (Event Pass) — $6.28', code: 'coc:837:mb', price: 6.28 },
     ],
   },
 };
@@ -952,7 +952,7 @@ function getMenuContent(
       [{ text: '💎 گىلوبال', callback_data: 'games:mlbb_global' }],
       [{ text: '💎 تۈركىيە', callback_data: 'games:mlbb_turkey' }],
       [{ text: '💎 ئاسىيا فىلىپپىن', callback_data: 'games:mlbb_special' }],
-      [{ text: '🎟️ ھەپتىلىك كارتىلار (Weekly Diamond Pass)', callback_data: 'games:mlbb_passes' }],
+      [{ text: '🎟️ ھەپتىلىك كارتا', callback_data: 'games:mlbb_passes' }],
       [
         {
           text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
@@ -975,7 +975,7 @@ function getMenuContent(
 
     const inline_keyboard: any[][] = [
       [{ text: '🪙 PUBG UC قاچىلاش (Direct UC)', callback_data: 'games:pubg_uc' }],
-      [{ text: '🎟️ كىملىك / ئەزالىق ۋە پاسس (Pass & Prime)', callback_data: 'games:pubg_passes' }],
+      [{ text: '🎟️ كىملىك ۋە ئەزالىق كارتىلىرى', callback_data: 'games:pubg_passes' }],
       [
         {
           text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
@@ -1021,7 +1021,7 @@ function getMenuContent(
 
     const inline_keyboard: any[][] = [
       [{ text: '👑 Honor of Kings توكېن قاچىلاش (Tokens)', callback_data: 'games:hok_tokens' }],
-      [{ text: '🎟️ ھەپتىلىك كارتا ۋە پاسسلار (Weekly & Packs)', callback_data: 'games:hok_passes' }],
+      [{ text: '🎟️ ھەپتىلىك كارتىلار', callback_data: 'games:hok_passes' }],
       [
         {
           text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
@@ -1044,7 +1044,7 @@ function getMenuContent(
 
     const inline_keyboard: any[][] = [
       [{ text: '💰 Arena Breakout Bonds قاچىلاش (Bonds)', callback_data: 'games:arena_bonds' }],
-      [{ text: '🛡️ قوغداش قېپى ۋە پاسسلار (Cases & Passes)', callback_data: 'games:arena_passes' }],
+      [{ text: '🛡️ ئەزالىق ۋە قوغداش قېپى', callback_data: 'games:arena_passes' }],
       [
         {
           text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
@@ -1066,7 +1066,7 @@ function getMenuContent(
       `📦 <b>ئېھتىياجلىق تۈرنى تاللاڭ:</b>`;
 
     const inline_keyboard: any[][] = [
-      [{ text: '🏰 Clash of Clans ئالتۇن بېلەت ۋە پاسسلار', callback_data: 'games:clash_passes' }],
+      [{ text: '🏰 Clash of Clans ئالتۇن بېلەت ۋە تالونلار', callback_data: 'games:clash_passes' }],
       [
         {
           text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
@@ -1131,6 +1131,17 @@ function getMenuContent(
         {
           text: `${!isAc ? '🟢' : '⚪'} MAX-BAZAR`,
           callback_data: `set_prov:maxbazar:${menuId}`,
+        },
+      ]);
+    }
+
+    // If current viewed provider has 0 packages, show user-friendly message as requested
+    if (pkgs.length === 0) {
+      text += `\n\n⚠️ <b>بۇ تەرەپ تەمىنلىگۈچىنىڭ باھا بۆلىكى يوق، باشقىلىرىنى سىناڭ.</b>`;
+      inline_keyboard.push([
+        {
+          text: `🔄 ${isAc ? 'MAX-BAZAR' : 'AUTO CASH'} باھاسىنى كۆرۈش`,
+          callback_data: `set_prov:${isAc ? 'maxbazar' : 'autocash'}:${menuId}`,
         },
       ]);
     }
@@ -1249,15 +1260,7 @@ function getMenuContent(
 
     let usageHint = '';
     if (pkgCode.startsWith('mlbb_pass:')) {
-      if (title.includes('Twilight') || title.includes('تۇۋايلايت')) {
-        usageHint = `📌 <b>ئىشلىتىلىشى:</b> ئالاھىدە مەخسۇس قەھرىمان Skin، پەللە كارتىسى ۋە ئەۋزەللىكلەرنى ئاچىدۇ.\n\n`;
-      } else if (title.includes('ئالماس پاسس') || title.includes('Weekly') || title.includes('ھەپتىلىك')) {
-        usageHint = `📌 <b>ئىشلىتىلىشى:</b> 7 كۈن بويىچە كۈندىلىك ئالماس ۋە قوشۇمچە سەرخىل مۇكاپاتلارنى بېرىدۇ.\n\n`;
-      } else if (title.includes('سەرخىل') || title.includes('Elite')) {
-        usageHint = `📌 <b>ئىشلىتىلىشى:</b> سېھىرلىك چاڭ، خىرالار ۋە كۈچلۈك تۇمارلار بىلەن قەھرىماننى دەرىجە كۆتۈرۈشكە ئىشلىتىلىدۇ.\n\n`;
-      } else {
-        usageHint = `📌 <b>ئىشلىتىلىشى:</b> قوشۇمچە قىممەت بۇيۇملىرى ۋە مەخسۇس تۇمارلارنى ئېلىشقا ئىشلىتىلىدۇ.\n\n`;
-      }
+      usageHint = `📌 <b>ئىشلىتىلىشى:</b> 7 كۈن بويىچە كۈندىلىك ئالماس ۋە قوشۇمچە سەرخىل مۇكاپاتلارنى بېرىدۇ.\n\n`;
     }
 
     const text =
@@ -1516,6 +1519,19 @@ export async function handleMaxBazarWebhook(update: any) {
         const newProv = parts[1] as 'maxbazar' | 'autocash';
         const returnId = parts.slice(2).join(':');
         session.selectedProvider = newProv;
+
+        const targetCat = PROVIDER_DATA[returnId];
+        if (targetCat) {
+          const count = newProv === 'autocash' ? targetCat.autocash.length : targetCat.maxbazar.length;
+          if (count === 0) {
+            await callMaxBazarBotApi('answerCallbackQuery', {
+              callback_query_id: cqId,
+              text: '⚠️ بۇ تەرەپ تەمىنلىگۈچىنىڭ باھا بۆلىكى يوق، باشقىلىرىنى سىناڭ.',
+              show_alert: true,
+            });
+          }
+        }
+
         const menu = getMenuContent(returnId, user, session, chatId, isAdmin);
         await showOrEditMessage(chatId, messageId, menu.text, { inline_keyboard: menu.inline_keyboard });
         return;
@@ -1763,6 +1779,21 @@ export async function handleMaxBazarWebhook(update: any) {
         nextMenuId = 'menu:main';
       } else {
         session.history.push(data);
+      }
+
+      // Smart Auto-Selection when navigating into any category:
+      // Whichever game/category user selects, if the current provider has 0 packages,
+      // but the other provider has packages, automatically display the provider that has packages!
+      const targetCategoryData = PROVIDER_DATA[nextMenuId];
+      if (targetCategoryData && !nextMenuId.startsWith('topup:') && !nextMenuId.startsWith('wifi:')) {
+        const curProv = session.selectedProvider;
+        const curCount = curProv === 'autocash' ? (targetCategoryData.autocash?.length || 0) : (targetCategoryData.maxbazar?.length || 0);
+        const altProv = curProv === 'autocash' ? 'maxbazar' : 'autocash';
+        const altCount = altProv === 'autocash' ? (targetCategoryData.autocash?.length || 0) : (targetCategoryData.maxbazar?.length || 0);
+
+        if (curCount === 0 && altCount > 0) {
+          session.selectedProvider = altProv;
+        }
       }
 
       const menu = getMenuContent(nextMenuId, user, session, chatId, isAdmin);
