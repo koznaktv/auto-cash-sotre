@@ -50,7 +50,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   tg_premium: '5350501108659790021', // ⭐️ تىلگىرام Premium (Animated Glowing Star)
   tg_stars: '6136464120779638846', // ⭐ تىلگىرام يۇلتۇز سېتىۋېلىش (Animated Stars)
   chatgpt: '5204437027633786910', // 🍏 ChatGPT (Animated App)
-  pubg: '5397808249279909223', // 🤓 PUBG Mobile (Animated Gamer)
+  pubg: '6167965794635353576', // 🌟 PUBG Mobile (Custom Emoji)
   freefire: '5807428574608627564', // 🔥 Free Fire (Animated Neon Fire)
   card_codes: '5204096174734207869', // ✉️ كارتا كودلىرى (Animated Envelope/SMS)
   shamcash_verify: '5807943566957223210', // 🔽 شامكەش تالون
@@ -486,7 +486,7 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'games:pubg_uc': {
-    name: '🪂 PUBG Mobile UC قاچىلاش (Direct UC)',
+    name: '<tg-emoji emoji-id="6167965794635353576">🌟</tg-emoji> PUBG Mobile UC قاچىلاش (Direct UC)',
     autocash: [
       { title: '🪙 60 UC — $1.01', code: 'pubg_uc:346:ac', price: 1.01 },
       { title: '🪙 325 UC — $5.08', code: 'pubg_uc:350:ac', price: 5.08 },
@@ -977,7 +977,7 @@ function getMenuContent(
   // 7.2 PUBG Mobile Submenu
   if (menuId === 'games:pubg') {
     const text =
-      `<tg-emoji emoji-id="5397808249279909223">🤓</tg-emoji> <b>PUBG Mobile</b>\n\n` +
+      `<tg-emoji emoji-id="6167965794635353576">🌟</tg-emoji> <b>PUBG Mobile</b>\n\n` +
       `📦 <b>ئېھتىياجلىق تۈرنى تاللاڭ:</b>`;
 
     const inline_keyboard: any[][] = [
