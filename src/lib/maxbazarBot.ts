@@ -801,7 +801,7 @@ function getMenuContent(
       ],
       [
         btnWithIcon('تىل تاللاش', 'lang', '🌐', { callback_data: 'settings:lang' }),
-        btnWithIcon('قانال', 'channel', '📢', { url: 'https://t.me/Auto_Cash_24' }),
+        btnWithIcon('قانال', 'channel', '📢', { url: 'https://t.me/autocash_cannel' }),
       ],
       [btnWithIcon('باش بەتكە قايتىش', 'home', '🏠', { callback_data: 'menu:main' })],
     ];
