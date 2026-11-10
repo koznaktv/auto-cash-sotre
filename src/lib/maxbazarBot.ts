@@ -252,6 +252,18 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
       { title: '📱 2000 بىرلىك (وحدة) — $16.31', code: 'mtn:2000u:mb', price: 16.31 },
     ],
   },
+  'topup:mtn_monthly': {
+    name: '📦 MTN ئايلىق تورلىرى',
+    autocash: [
+      { title: '⚠️ Auto Cash تەرەپتە ۋاقتىنچە توختىتىلدى', code: 'mtn_m:paused:ac', price: 0 },
+    ],
+    maxbazar: [
+      { title: '🛍️ 6 GB — 4.02$', code: 'mtn_m:6gb:mb', price: 4.02 },
+      { title: '🛍️ 10 GB — 5.88$', code: 'mtn_m:10gb:mb', price: 5.88 },
+      { title: '🛍️ 15 GB — 7.57$', code: 'mtn_m:15gb:mb', price: 7.57 },
+      { title: '🛍️ 25 GB — 10.46$', code: 'mtn_m:25gb:mb', price: 10.46 },
+    ],
+  },
   'topup:turkey': {
     name: '🇹🇷 تۈركىيە كارتىسى (Turkcell)',
     autocash: [
@@ -581,22 +593,70 @@ function getMenuContent(
     return { text, inline_keyboard };
   }
 
-  // 4. Sub-category: Card Top-up
+  // 4. Sub-category: Card Top-up Main Menu
   if (menuId === 'shop:topup') {
-    const text = `💳 <b>كارتىلارغا پۇل قاچىلاش</b>\n\nبىرىنى تاللاڭ:`;
+    const text = `💳 <b>كارتىلار بۆلىكى</b>\n\nتۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:`;
+    const inline_keyboard: any[][] = [
+      [{ text: '💳 پۇل قاچىلاش', callback_data: 'topup:units_menu' }],
+      [{ text: '🌐 تور قاچىلاش', callback_data: 'topup:internet_menu' }],
+      [{ text: '📋 كارتا كودلىرى', callback_data: 'topup:card_codes' }],
+      [
+        { text: '👈 قايتىش', callback_data: 'shop:home' },
+        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+      ],
+    ];
+    return { text, inline_keyboard };
+  }
+
+  // 4.1 Sub-category: Units / Balance Menu
+  if (menuId === 'topup:units_menu') {
+    const text = `💳 <b>پۇل قاچىلاش (بىرلىكلەر)</b>\n\nتۆۋەندىكى تەمىنلىگۈچىلەردىن بىرىنى تاللاڭ:`;
     const inline_keyboard: any[][] = [
       [{ text: '📱 سۈرىيەتىل', callback_data: 'topup:syriatel' }],
-      [{ text: '📦 SyriaTel ئايلىق تورلىرى', callback_data: 'topup:syriatel_monthly' }],
       [{ text: '📱 ئىمتىئىن', callback_data: 'topup:mtn' }],
-      [{ text: '🇹🇷 تۈركىيە كارتىسى', callback_data: 'topup:turkey' }],
+      [{ text: '🇹🇷 تۈركىيە كارتىسى (Turkcell)', callback_data: 'topup:turkey' }],
       [
-        {
-          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
-          web_app: { url: `${SITE_URL}` },
-        },
+        { text: '👈 قايتىش', callback_data: 'shop:topup' },
+        { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
+    ];
+    return { text, inline_keyboard };
+  }
+
+  // 4.2 Sub-category: Monthly Internet Bundles Menu
+  if (menuId === 'topup:internet_menu') {
+    const text = `🌐 <b>تور قاچىلاش (ئايلىق تورلار)</b>\n\nتۆۋەندىكى تۈرلەردىن بىرىنى تاللاڭ:`;
+    const inline_keyboard: any[][] = [
+      [{ text: '📦 SyriaTel ئايلىق تورلىرى', callback_data: 'topup:syriatel_monthly' }],
+      [{ text: '📦 MTN ئايلىق تورلىرى', callback_data: 'topup:mtn_monthly' }],
       [
-        { text: '◀️ كەينىگە', callback_data: 'shop:home' },
+        { text: '👈 قايتىش', callback_data: 'shop:topup' },
+        { text: '🏠 باش بەت', callback_data: 'menu:main' },
+      ],
+    ];
+    return { text, inline_keyboard };
+  }
+
+  // 4.3 Sub-category: Card Inquiry Codes
+  if (menuId === 'topup:card_codes') {
+    const text =
+      `📋 <b>كارتا كودلىرى ۋە پايدىلىق بۇيرۇقلار</b>\n\n` +
+      `📱 <b>سۈرىيەتىل (Syriatel):</b>\n` +
+      `• قالدۇق پۇل تەكشۈرۈش: <code>*100#</code>\n` +
+      `• تور بايلىقىنى تەكشۈرۈش: <code>*100*1#</code>\n` +
+      `• مىنۇت تەكشۈرۈش: <code>*100*2#</code>\n` +
+      `• خېرىدارلار مۇلازىمىتى: <code>111</code>\n\n` +
+      `📱 <b>ئىمتىئىن (MTN):</b>\n` +
+      `• قالدۇق پۇل تەكشۈرۈش: <code>*111#</code>\n` +
+      `• تور تەكشۈرۈش: <code>*111*1#</code>\n` +
+      `• خېرىدارلار مۇلازىمىتى: <code>111</code>\n\n` +
+      `🇹🇷 <b>تۈركىيە (Turkcell):</b>\n` +
+      `• قالدۇق سوراش: <code>*123#</code>\n` +
+      `• بايلىق قالدۇقى (KALAN): <code>2222</code> گە <code>KALAN</code> دەپ ئۇچۇر ئەۋەتىش`;
+
+    const inline_keyboard: any[][] = [
+      [
+        { text: '👈 قايتىش', callback_data: 'shop:topup' },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
     ];
@@ -672,6 +732,7 @@ function getMenuContent(
     const item = PROVIDER_DATA[menuId];
     const isWifi = menuId.startsWith('wifi:');
     const isSyriatel = menuId === 'topup:syriatel' || menuId === 'topup:syriatel_monthly';
+    const isGrid2Col = isSyriatel || menuId === 'topup:mtn_monthly';
     const pkgs = (isWifi || isAc) ? item.autocash : item.maxbazar;
 
     let text = '';
@@ -730,7 +791,7 @@ function getMenuContent(
     }
 
     if (!(isSyriatel && isAc)) {
-      if (isSyriatel) {
+      if (isGrid2Col) {
         for (let i = 0; i < pkgs.length; i += 2) {
           const row: any[] = [
             {
@@ -758,20 +819,28 @@ function getMenuContent(
       }
     }
 
+    const isTopupMonthly = menuId === 'topup:syriatel_monthly' || menuId === 'topup:mtn_monthly';
+    const isTopupUnits = menuId === 'topup:syriatel' || menuId === 'topup:mtn' || menuId === 'topup:turkey';
+    const backTarget = isTopupMonthly
+      ? 'topup:internet_menu'
+      : isTopupUnits
+      ? 'topup:units_menu'
+      : menuId.startsWith('wifi:')
+      ? 'shop:wifi'
+      : menuId.startsWith('games:')
+      ? 'shop:games'
+      : menuId.startsWith('topup:')
+      ? 'shop:topup'
+      : menuId.startsWith('tg:')
+      ? 'shop:membership'
+      : menuId.startsWith('apps:')
+      ? 'shop:apps'
+      : 'shop:home';
+
     inline_keyboard.push([
       {
-        text: isSyriatel ? '↩️ قايتىش' : '◀️ كەينىگە',
-        callback_data: menuId.startsWith('wifi:')
-          ? 'shop:wifi'
-          : menuId.startsWith('games:')
-          ? 'shop:games'
-          : menuId.startsWith('topup:')
-          ? 'shop:topup'
-          : menuId.startsWith('tg:')
-          ? 'shop:membership'
-          : menuId.startsWith('apps:')
-          ? 'shop:apps'
-          : 'shop:home',
+        text: '👈 قايتىش',
+        callback_data: backTarget,
       },
       { text: '🏠 باش بەت', callback_data: 'menu:main' },
     ]);
