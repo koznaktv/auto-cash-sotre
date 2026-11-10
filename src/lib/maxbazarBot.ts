@@ -303,22 +303,18 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
   'topup:turkey': {
     name: '🇹🇷 تۈركىيە كارتىسى (Turkcell)',
     autocash: [
-      { title: '🇹🇷 50 TL لىرا قاچىلاش — $2.61', code: 'tr:50tl:ac', price: 2.61 },
-      { title: '🇹🇷 150 TL لىرا قاچىلاش — $7.65', code: 'tr:150tl:ac', price: 7.65 },
-      { title: '📦 1000DK + 2GB تور بولىقى — $15.08', code: 'tr:1000dk_2gb:ac', price: 15.08 },
-      { title: '📦 1000DK + 4GB تور بولىقى — $17.32', code: 'tr:1000dk_4gb:ac', price: 17.32 },
-      { title: '📦 1000DK + 8GB تور بولىقى — $20.80', code: 'tr:1000dk_8gb:ac', price: 20.80 },
-      { title: '📦 1000DK + 12GB تور بولىقى — $29.38', code: 'tr:1000dk_12gb:ac', price: 29.38 },
-      { title: '📦 1000DK + 20GB تور بولىقى — $31.94', code: 'tr:1000dk_20gb:ac', price: 31.94 },
+      { title: '🇹🇷 50 TL لىرا قاچىلاش — $2.29', code: 'tr:50tl:ac', price: 2.29 },
+      { title: '🇹🇷 150 TL لىرا قاچىلاش — $6.71', code: 'tr:150tl:ac', price: 6.71 },
+      { title: '📦 1000DK + 2GB تور بولىقى — $13.22', code: 'tr:1000dk_2gb:ac', price: 13.22 },
+      { title: '📦 1000DK + 4GB تور بولىقى — $15.19', code: 'tr:1000dk_4gb:ac', price: 15.19 },
+      { title: '📦 1000DK + 8GB تور بولىقى — $18.25', code: 'tr:1000dk_8gb:ac', price: 18.25 },
+      { title: '📦 1000DK + 12GB تور بولىقى — $25.77', code: 'tr:1000dk_12gb:ac', price: 25.77 },
+      { title: '📦 1000DK + 20GB تور بولىقى — $28.01', code: 'tr:1000dk_20gb:ac', price: 28.01 },
+      { title: '📦 1000DK + 34GB تور بولىقى — $22.87', code: 'tr:1000dk_34gb:ac', price: 22.87 },
+      { title: '📦 1000DK + 50GB تور بولىقى — $23.23', code: 'tr:1000dk_50gb:ac', price: 23.23 },
     ],
     maxbazar: [
-      { title: '🇹🇷 50 TL لىرا قاچىلاش — $2.48', code: 'tr:50tl:mb', price: 2.48 },
-      { title: '🇹🇷 150 TL لىرا قاچىلاش — $7.25', code: 'tr:150tl:mb', price: 7.25 },
-      { title: '📦 1000DK + 2GB تور بولىقى — $14.50', code: 'tr:1000dk_2gb:mb', price: 14.50 },
-      { title: '📦 1000DK + 4GB تور بولىقى — $16.60', code: 'tr:1000dk_4gb:mb', price: 16.60 },
-      { title: '📦 1000DK + 8GB تور بولىقى — $19.90', code: 'tr:1000dk_8gb:mb', price: 19.90 },
-      { title: '📦 1000DK + 12GB تور بولىقى — $28.20', code: 'tr:1000dk_12gb:mb', price: 28.20 },
-      { title: '📦 1000DK + 20GB تور بولىقى — $30.60', code: 'tr:1000dk_20gb:mb', price: 30.60 },
+      { title: '⚠️ Max Store تەرەپتە تۈركسىل تەمىنلەنمىگەن', code: 'tr:paused:mb', price: 0 },
     ],
   },
   'tg:premium': {
@@ -665,6 +661,7 @@ function getMenuContent(
     const inline_keyboard: any[][] = [
       [{ text: '📦 SyriaTel ئايلىق تورلىرى', callback_data: 'topup:syriatel_monthly' }],
       [{ text: '📦 MTN ئايلىق تورلىرى', callback_data: 'topup:mtn_monthly' }],
+      [{ text: '🇹🇷 Turkcell ئايلىق تور بوغچىلىرى', callback_data: 'topup:turkey' }],
       [
         { text: '👈 قايتىش', callback_data: 'shop:topup' },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
@@ -769,6 +766,7 @@ function getMenuContent(
     const isWifi = menuId.startsWith('wifi:');
     const isSyriatel = menuId === 'topup:syriatel' || menuId === 'topup:syriatel_monthly';
     const isMtnMonthlyAc = menuId === 'topup:mtn_monthly' && isAc;
+    const isTurkeyMb = menuId === 'topup:turkey' && !isAc;
     const isPausedAc = (isSyriatel && isAc) || isMtnMonthlyAc;
     const isGrid2Col = isSyriatel || menuId === 'topup:mtn' || menuId === 'topup:mtn_monthly';
     const pkgs = (isWifi || isAc) ? item.autocash : item.maxbazar;
@@ -814,12 +812,39 @@ function getMenuContent(
           },
         ]
       );
+    } else if (isTurkeyMb) {
+      text =
+        `${item.name}\n\n` +
+        `💰 <b>باھا تۈرى:</b> <b>⚪ MAX-BAZAR</b>\n` +
+        `💳 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
+        `⚠️ <b>ئەسكەرتىش:</b> Max Store تەمىنلىگۈچىدە تۈركسىل (Turkcell) مۇلازىمىتى مەۋجۇت ئەمەس.\n\n` +
+        `تۈركسىلغا پۇل ۋە تور قاچىلاش ئۈچۈن تۆۋەندىكى <b>«🟢 AUTO CASH»</b> كۇنۇپكىسىنى تاللاڭ (Othman Store ئارقىلىق رەسمىي تەمىنلەنگەن ⚡️):`;
+
+      inline_keyboard.push(
+        [
+          {
+            text: `🟢 AUTO CASH (ئىشلەۋاتىدۇ)`,
+            callback_data: `set_prov:autocash:${menuId}`,
+          },
+          {
+            text: `⚪ MAX-BAZAR (مەۋجۇت ئەمەس)`,
+            callback_data: `set_prov:maxbazar:${menuId}`,
+          },
+        ],
+        [
+          {
+            text: `⚡️ AUTO CASH ھالىتىگە ئۆتۈش (دەرھال كۆرۈش)`,
+            callback_data: `set_prov:autocash:${menuId}`,
+          },
+        ]
+      );
     } else {
       text =
         `${item.name}\n\n` +
         `💰 <b>باھا تۈرى:</b> <b>${providerTag}</b>\n` +
         `💳 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
         (isSyriatel ? `✅ <b>تەمىنلىگۈچى:</b> Max Store (نورمال رەسمىي ئىشلەۋاتىدۇ ⚡️)\n\n` : '') +
+        (menuId === 'topup:turkey' ? `✅ <b>تەمىنلىگۈچى:</b> Othman Store (نورمال رەسمىي ئىشلەۋاتىدۇ ⚡️)\n\n` : '') +
         `💡 <b>كۆرسەتمە:</b> ئىككى توربەتنىڭ باھا ھالىتى ئوخشىمايدۇ، خالىغاننى ئالماشتۇرۇپ سىناپ بېقىڭ:\n` +
         `👇 AUTO CASH  🔄  MAX-BAZAR 👇`;
 
@@ -829,13 +854,13 @@ function getMenuContent(
           callback_data: `set_prov:autocash:${menuId}`,
         },
         {
-          text: `${!isAc ? '🟢' : '⚪'} MAX-BAZAR`,
+          text: `${!isAc ? '🟢' : '⚪'} MAX-BAZAR${menuId === 'topup:turkey' ? ' (مەۋجۇت ئەمەس)' : ''}`,
           callback_data: `set_prov:maxbazar:${menuId}`,
         },
       ]);
     }
 
-    if (!isPausedAc) {
+    if (!isPausedAc && !isTurkeyMb) {
       if (isGrid2Col) {
         for (let i = 0; i < pkgs.length; i += 2) {
           const row: any[] = [
