@@ -184,24 +184,22 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
   'topup:syriatel': {
     name: '📱 سۈرىيەتىل (Syriatel بىرلىك)',
     autocash: [
-      { title: '📱 20.19 بىرلىك (وحدة) — $0.18', code: 'syr:20u:ac', price: 0.18 },
-      { title: '📱 52.88 بىرلىك (وحدة) — $0.46', code: 'syr:52u:ac', price: 0.46 },
-      { title: '📱 100.96 بىرلىك (وحدة) — $0.88', code: 'syr:100u:ac', price: 0.88 },
-      { title: '📱 144.23 بىرلىك (وحدة) — $1.26', code: 'syr:144u:ac', price: 1.26 },
-      { title: '📱 240.38 بىرلىك (وحدة) — $2.10', code: 'syr:240u:ac', price: 2.10 },
-      { title: '📱 370.19 بىرلىك (وحدة) — $3.24', code: 'syr:370u:ac', price: 3.24 },
-      { title: '📱 480.76 بىرلىك (وحدة) — $4.21', code: 'syr:480u:ac', price: 4.21 },
-      { title: '📱 721.15 بىرلىك (وحدة) — $6.31', code: 'syr:721u:ac', price: 6.31 },
+      { title: '⚠️ Auto Cash تەرەپتە ۋاقتىنچە توختىتىلدى', code: 'syr:paused:ac', price: 0 },
     ],
     maxbazar: [
+      { title: '📱 1.92 بىرلىك (وحدة) — $0.02', code: 'syr:1u:mb', price: 0.02 },
+      { title: '📱 5.77 بىرلىك (وحدة) — $0.05', code: 'syr:5u:mb', price: 0.05 },
+      { title: '📱 9.62 بىرلىك (وحدة) — $0.08', code: 'syr:9u:mb', price: 0.08 },
       { title: '📱 20.19 بىرلىك (وحدة) — $0.15', code: 'syr:20u:mb', price: 0.15 },
+      { title: '📱 40.38 بىرلىك (وحدة) — $0.30', code: 'syr:40u:mb', price: 0.30 },
       { title: '📱 52.88 بىرلىك (وحدة) — $0.40', code: 'syr:52u:mb', price: 0.40 },
       { title: '📱 100.96 بىرلىك (وحدة) — $0.76', code: 'syr:100u:mb', price: 0.76 },
       { title: '📱 144.23 بىرلىك (وحدة) — $1.08', code: 'syr:144u:mb', price: 1.08 },
       { title: '📱 240.38 بىرلىك (وحدة) — $1.80', code: 'syr:240u:mb', price: 1.80 },
       { title: '📱 370.19 بىرلىك (وحدة) — $2.77', code: 'syr:370u:mb', price: 2.77 },
       { title: '📱 480.76 بىرلىك (وحدة) — $3.60', code: 'syr:480u:mb', price: 3.60 },
-      { title: '📱 721.15 بىرلىك (وحدة) — $5.40', code: 'syr:721u:mb', price: 5.40 },
+      { title: '📱 1057.69 بىرلىك (وحدة) — $7.84', code: 'syr:1057u:mb', price: 7.84 },
+      { title: '📱 2403.85 بىرلىك (وحدة) — $17.81', code: 'syr:2403u:mb', price: 17.81 },
     ],
   },
   'topup:mtn': {
@@ -641,6 +639,7 @@ function getMenuContent(
   if (PROVIDER_DATA[menuId]) {
     const item = PROVIDER_DATA[menuId];
     const isWifi = menuId.startsWith('wifi:');
+    const isSyriatel = menuId === 'topup:syriatel';
     const pkgs = (isWifi || isAc) ? item.autocash : item.maxbazar;
 
     let text = '';
@@ -651,17 +650,44 @@ function getMenuContent(
         `${item.name}\n\n` +
         `💳 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
         `📦 <b>تۆۋەندىن ئېھتىياجلىق بولاقنى تاللاڭ:</b>`;
+    } else if (isSyriatel && isAc) {
+      text =
+        `${item.name}\n\n` +
+        `💰 <b>باھا تۈرى:</b> <b>⚪ AUTO CASH</b>\n` +
+        `💳 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
+        `⚠️ <b>ئەسكەرتىش:</b> Othman Store تەمىنلىگۈچىدە سۈرىيەتىل (Syriatel) قاچىلاش مۇلازىمىتى <b>ۋاقىتلىق توختىتىلدى</b>.\n\n` +
+        `سۈرىيەتىلگە دەرھال پۇل قاچىلاش ئۈچۈن تۆۋەندىكى <b>«🟢 MAX-BAZAR»</b> كۇنۇپكىسىنى تاللاڭ (Max Store تەمىنلىگۈچىدە نورمال ئىشلەۋاتىدۇ):`;
+
+      inline_keyboard.push(
+        [
+          {
+            text: `⚪ AUTO CASH (توختىتىلغان)`,
+            callback_data: `set_prov:autocash:${menuId}`,
+          },
+          {
+            text: `🟢 MAX-BAZAR (ئىشلەۋاتىدۇ)`,
+            callback_data: `set_prov:maxbazar:${menuId}`,
+          },
+        ],
+        [
+          {
+            text: `⚡️ MAX-BAZAR ھالىتىگە ئۆتۈش (دەرھال سېتىۋېلىش)`,
+            callback_data: `set_prov:maxbazar:${menuId}`,
+          },
+        ]
+      );
     } else {
       text =
         `${item.name}\n\n` +
         `💰 <b>باھا تۈرى:</b> <b>${providerTag}</b>\n` +
         `💳 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
+        (isSyriatel ? `✅ <b>تەمىنلىگۈچى:</b> Max Store (نورمال رەسمىي ئىشلەۋاتىدۇ ⚡️)\n\n` : '') +
         `💡 <b>كۆرسەتمە:</b> ئىككى توربەتنىڭ باھا ھالىتى ئوخشىمايدۇ، خالىغاننى ئالماشتۇرۇپ سىناپ بېقىڭ:\n` +
         `👇 AUTO CASH  🔄  MAX-BAZAR 👇`;
 
       inline_keyboard.push([
         {
-          text: `${isAc ? '🟢' : '⚪'} AUTO CASH`,
+          text: `${isAc ? '🟢' : '⚪'} AUTO CASH${isSyriatel ? ' (توختىتىلغان)' : ''}`,
           callback_data: `set_prov:autocash:${menuId}`,
         },
         {
@@ -671,31 +697,34 @@ function getMenuContent(
       ]);
     }
 
-    inline_keyboard.push(
-      ...pkgs.map((p) => [
-        {
-          text: p.title,
-          callback_data: `buy|${menuId}|${p.code}`,
-        },
-      ]),
-      [
-        {
-          text: '◀️ كەينىگە',
-          callback_data: menuId.startsWith('wifi:')
-            ? 'shop:wifi'
-            : menuId.startsWith('games:')
-            ? 'shop:games'
-            : menuId.startsWith('topup:')
-            ? 'shop:topup'
-            : menuId.startsWith('tg:')
-            ? 'shop:membership'
-            : menuId.startsWith('apps:')
-            ? 'shop:apps'
-            : 'shop:home',
-        },
-        { text: '🏠 باش بەت', callback_data: 'menu:main' },
-      ]
-    );
+    if (!(isSyriatel && isAc)) {
+      inline_keyboard.push(
+        ...pkgs.map((p) => [
+          {
+            text: p.title,
+            callback_data: `buy|${menuId}|${p.code}`,
+          },
+        ])
+      );
+    }
+
+    inline_keyboard.push([
+      {
+        text: '◀️ كەينىگە',
+        callback_data: menuId.startsWith('wifi:')
+          ? 'shop:wifi'
+          : menuId.startsWith('games:')
+          ? 'shop:games'
+          : menuId.startsWith('topup:')
+          ? 'shop:topup'
+          : menuId.startsWith('tg:')
+          ? 'shop:membership'
+          : menuId.startsWith('apps:')
+          ? 'shop:apps'
+          : 'shop:home',
+      },
+      { text: '🏠 باش بەت', callback_data: 'menu:main' },
+    ]);
 
     return { text, inline_keyboard };
   }
@@ -1193,6 +1222,9 @@ export async function handleMaxBazarWebhook(update: any) {
 
       // A.6 Navigation & Dynamic Menus
       let nextMenuId = data;
+      if (data === 'topup:syriatel' && session.selectedProvider === 'autocash') {
+        session.selectedProvider = 'maxbazar';
+      }
       if (data === '@back') {
         nextMenuId = session.history.pop() || 'menu:main';
       } else if (data === 'menu:main') {

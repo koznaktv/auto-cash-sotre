@@ -1918,7 +1918,7 @@
     "icon": "CreditCard",
     "image": "/images/services/syriatel_v2.jpg",
     "description": "سۈرىيەتەل تېلېفون پۇلى (وحدات)، Syriatel Cash، تالون تۆلەش ۋە كازىيە قاچىلاش مۇلازىمەتلىرى.",
-    "badge": "⚡ كاپالەتلىك",
+    "badge": "⚠️ ۋاقتىنچە توختىتىلدى",
     "inputLabel": "سۈرىيەتەل تېلېفون نومۇرى (Phone Number)",
     "inputPlaceholder": "09xxxxxxxx (مەسىلەن: 093, 098, 099)",
     "packages": [
