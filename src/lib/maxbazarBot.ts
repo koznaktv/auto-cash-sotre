@@ -24,6 +24,47 @@ export const MAXBAZAR_PERSISTENT_KEYBOARD = {
 };
 
 // ==========================================
+// CUSTOM PREMIUM ANIMATED EMOJIS REGISTRY
+// ==========================================
+export const CUSTOM_ICONS: Record<string, string> = {
+  webapp: '5938398023137628324', // 🌐 توربەتتىن سېتىۋېلىش (Tested & Active)
+  enter_bot: '', // 🔑 بوتقا كىرىش
+  admin: '', // 👑 باشقۇرغۇچى مەركىزى
+  shop: '', // 🏪 دۇكان
+  topup_balance: '', // 💳 قالدۇق قاچىلاش
+  orders: '', // 📦 زاكازلىرىم
+  balance_history: '', // 🛍 قالدۇق تارىخى
+  lang: '', // 🌐 تىل تاللاش
+  channel: '', // 📢 قانال
+  home: '', // 🏠 باش بەت
+  back: '', // ◀️ كەينىگە
+  sim_cards: '', // 💳 كارتىلارغا پۇل قاچىلاش
+  telegram_sub: '', // ⭐ تىلگىرام ئەزالىق ئېچىش
+  ai_apps: '', // 📱 AI ۋە ئەپلەر
+  games: '', // 🎮 ئويۇنلار
+  syriatel: '', // 📱 سۈرىيەتىل
+  mtn: '', // 📱 ئىمتىئىن
+  turkey: '', // 🇹🇷 تۈركىيە كارتىسى
+  tg_premium: '', // 💎 تىلگىرام Premium
+  tg_stars: '', // 🌟 تىلگىرام يۇلتۇز سېتىۋېلىش
+  chatgpt: '', // 🤖 ChatGPT
+  pubg: '', // 🪂 PUBG Mobile
+  shamcash_verify: '', // ⚡️ شامكەش تالون
+};
+
+export function btnWithIcon(label: string, iconKey: string, defaultEmoji: string, extra: Record<string, any> = {}) {
+  const iconId = CUSTOM_ICONS[iconKey];
+  const btn: any = { ...extra };
+  if (iconId) {
+    btn.text = label;
+    btn.icon_custom_emoji_id = iconId;
+  } else {
+    btn.text = defaultEmoji ? `${defaultEmoji} ${label}` : label;
+  }
+  return btn;
+}
+
+// ==========================================
 // 1. GLOBAL STATE & SESSIONS
 // ==========================================
 interface MaxBazarSession {
@@ -252,17 +293,16 @@ function getMenuContent(
       `تۆۋەندىن بىر بۆلەكنى تاللاڭ:`;
 
     const inline_keyboard: any[][] = [
-      [{ text: '🔑 بوتقا كىرىش', callback_data: 'menu:enter' }],
-      [{ text: '🌐 توربەتتىن سېتىۋېلىش', web_app: { url: `${SITE_URL}/apps` } }],
+      [btnWithIcon('بوتقا كىرىش', 'enter_bot', '🔑', { callback_data: 'menu:enter' })],
+      [btnWithIcon('توربەتتىن سېتىۋېلىش', 'webapp', '🌐', { web_app: { url: `${SITE_URL}/apps` } })],
     ];
 
     if (isAdmin) {
       const adminToken = createAdminToken();
       inline_keyboard.push([
-        {
-          text: '👑 باشقۇرغۇچى مەركىزى (MAX-BAZAR)',
+        btnWithIcon('باشقۇرغۇچى مەركىزى (MAX-BAZAR)', 'admin', '👑', {
           web_app: { url: `${SITE_URL}/admin?tab=maxbazar&token=${adminToken}` },
-        },
+        }),
       ]);
     }
 
