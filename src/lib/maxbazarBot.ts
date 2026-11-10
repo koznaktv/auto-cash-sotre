@@ -464,30 +464,14 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'games:mlbb_passes': {
-    name: '🎟️ MLBB — ھەپتىلىك كارتا ۋە ئەزالىقلار',
+    name: '🎟️ MLBB — ھەپتىلىك كارتىلار (Weekly Diamond Pass)',
     autocash: [
-      { title: '🎟️ قىممەت بوغچىسى — $0.23', code: 'mlbb_pass:434:ac', price: 0.23 },
-      { title: '🎟️ ھەپتىلىك سەرخىل بوغچا — $0.85', code: 'mlbb_pass:423:ac', price: 0.85 },
-      { title: '🎟️ ھەپتىلىك سەرخىل (TR) — $0.96', code: 'mlbb_pass:437:ac', price: 0.96 },
-      { title: '🎟️ ھەپتىلىك ئالماس پاسس — $1.61', code: 'mlbb_pass:425:ac', price: 1.61 },
-      { title: '🎟️ ھەپتىلىك پاسس (TR) — $2.21', code: 'mlbb_pass:438:ac', price: 2.21 },
-      { title: '🎟️ ئايلىق سەرخىل بوغچا — $4.27', code: 'mlbb_pass:424:ac', price: 4.27 },
-      { title: '🎟️ ئايلىق سەرخىل (TR) — $4.75', code: 'mlbb_pass:435:ac', price: 4.75 },
-      { title: '🎟️ Twilight ئەزالىق پاسسى — $8.71', code: 'mlbb_pass:426:ac', price: 8.71 },
-      { title: '🎟️ Twilight پاسسى (TR) — $9.13', code: 'mlbb_pass:436:ac', price: 9.13 },
+      { title: '🎟️ ھەپتىلىك ئالماس پاسس (Global) — $1.61', code: 'mlbb_pass:425:ac', price: 1.61 },
+      { title: '🎟️ ھەپتىلىك ئالماس پاسس (TR) — $2.21', code: 'mlbb_pass:438:ac', price: 2.21 },
     ],
     maxbazar: [
-      { title: '🎟️ قىممەت بوغچىسى (TR) — $0.23', code: 'mlbb_pass:965:mb', price: 0.23 },
-      { title: '🎟️ ھەپتىلىك سەرخىل بوغچا — $0.85', code: 'mlbb_pass:1897:mb', price: 0.85 },
-      { title: '🎟️ ھەپتىلىك سەرخىل (TR) — $0.96', code: 'mlbb_pass:968:mb', price: 0.96 },
-      { title: '🎟️ ھەپتىلىك سەرخىل (فىلىپپىن) — $1.11', code: 'mlbb_pass:955:mb', price: 1.11 },
-      { title: '🎟️ ھەپتىلىك ئالماس پاسس — $1.63', code: 'mlbb_pass:1896:mb', price: 1.63 },
-      { title: '🎟️ ھەپتىلىك پاسس (TR) — $1.90', code: 'mlbb_pass:967:mb', price: 1.9 },
-      { title: '🎟️ ھەپتىلىك پاسس (فىلىپپىن) — $2.42', code: 'mlbb_pass:954:mb', price: 2.42 },
-      { title: '🎟️ ئايلىق سەرخىل بوغچا — $4.26', code: 'mlbb_pass:1894:mb', price: 4.26 },
-      { title: '🎟️ ئايلىق سەرخىل (TR) — $4.77', code: 'mlbb_pass:966:mb', price: 4.77 },
-      { title: '🎟️ ئايلىق سەرخىل (فىلىپپىن) — $5.47', code: 'mlbb_pass:953:mb', price: 5.47 },
-      { title: '🎟️ Twilight ئەزالىق پاسسى — $8.67', code: 'mlbb_pass:1895:mb', price: 8.67 },
+      { title: '🎟️ ھەپتىلىك ئالماس پاسس (Global) — $1.63', code: 'mlbb_pass:1896:mb', price: 1.63 },
+      { title: '🎟️ ھەپتىلىك ئالماس پاسس (TR) — $1.90', code: 'mlbb_pass:967:mb', price: 1.9 },
     ],
   },
   'games:pubg_uc': {
@@ -516,44 +500,18 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'games:pubg_passes': {
-    name: '🎟️ PUBG كىملىك / ئەزالىق ۋە پاسس (Pass & Prime)',
+    name: '🎟️ PUBG — ھەپتىلىك ۋە ئايلىق ئەزالىقلار',
     autocash: [
-      { title: '🎟️ حزمة الصفقات الأسبوعية 1 — $1.02', code: 'pubg_pass:720:ac', price: 1.02 },
-      { title: '🎟️ Prime ( من الشهور 1) — $1.05', code: 'pubg_pass:709:ac', price: 1.05 },
-      { title: '🎟️ حزمة الشراء الأول — $1.05', code: 'pubg_pass:706:ac', price: 1.05 },
-      { title: '🎟️ حزمة الصفقات الأسبوعية 2 — $3.06', code: 'pubg_pass:721:ac', price: 3.06 },
-      { title: '🎟️ Prime ( من الشهور 3) — $3.13', code: 'pubg_pass:710:ac', price: 3.13 },
-      { title: '🎟️ حزمة ترقية للأسلحة النارية — $3.19', code: 'pubg_pass:707:ac', price: 3.19 },
-      { title: '🎟️ حزمة الشعار الاسطوري الاسبوعي (بلورة حمراء) — $3.98', code: 'pubg_pass:722:ac', price: 3.98 },
-      { title: '🎟️ حزمة الشعار الخرافي — $5.12', code: 'pubg_pass:708:ac', price: 5.12 },
-      { title: '🎟️ Prime ( من الشهور 6) — $6.26', code: 'pubg_pass:711:ac', price: 6.26 },
-      { title: '🎟️ بطاقة النخبة (lv1-50) — $6.29', code: 'pubg_pass:717:ac', price: 6.29 },
-      { title: '🎟️ Prime Plus (من الشهور 1) — $10.53', code: 'pubg_pass:713:ac', price: 10.53 },
-      { title: '🎟️ Prime ( من الشهور 12) — $12.52', code: 'pubg_pass:712:ac', price: 12.52 },
-      { title: '🎟️ بطاقة النخبة (lv1-100) — $12.68', code: 'pubg_pass:718:ac', price: 12.68 },
-      { title: '🎟️ بطاقة النخبة بلس (lv1-100) — $30.07', code: 'pubg_pass:719:ac', price: 30.07 },
-      { title: '🎟️ Prime Plus (من الشهور 3) — $31.31', code: 'pubg_pass:714:ac', price: 31.31 },
-      { title: '🎟️ Prime Plus (من الشهور 6) — $61.67', code: 'pubg_pass:715:ac', price: 61.67 },
-      { title: '🎟️ Prime Plus (من الشهور 12) — $124.52', code: 'pubg_pass:716:ac', price: 124.52 },
+      { title: '🎟️ برايم Prime (1 ئايلىق) — $1.05', code: 'pubg_pass:709:ac', price: 1.05 },
+      { title: '🎟️ Royale Pass Elite (LV1-50) — $6.29', code: 'pubg_pass:717:ac', price: 6.29 },
+      { title: '🎟️ برايم بلس Prime Plus (1 ئايلىق) — $10.53', code: 'pubg_pass:713:ac', price: 10.53 },
+      { title: '🎟️ Royale Pass Elite (LV1-100) — $12.68', code: 'pubg_pass:718:ac', price: 12.68 },
     ],
     maxbazar: [
-      { title: '🎟️ حزمة الشراء الأولى — $1.05', code: 'pubg_pass:859:mb', price: 1.05 },
-      { title: '🎟️ برايم 1 شهر — $1.05', code: 'pubg_pass:861:mb', price: 1.05 },
-      { title: '🎟️ حزمة الصفقات الاسبوعية 1 — $1.07', code: 'pubg_pass:870:mb', price: 1.07 },
-      { title: '🎟️ حزمة ازدهار ماتيريال — $3.14', code: 'pubg_pass:869:mb', price: 3.14 },
-      { title: '🎟️ برايم 3 أشهر — $3.16', code: 'pubg_pass:863:mb', price: 3.16 },
-      { title: '🎟️ حزمة الصفقات الاسبوعية 2 — $3.19', code: 'pubg_pass:871:mb', price: 3.19 },
-      { title: '🎟️ حزمة قيمة الشعار الخرافي الاسبوعية — $3.19', code: 'pubg_pass:872:mb', price: 3.19 },
-      { title: '🎟️ حزمة ازدهار شعار خرافي — $5.25', code: 'pubg_pass:860:mb', price: 5.25 },
-      { title: '🎟️ برايم 6 أشهر — $6.31', code: 'pubg_pass:864:mb', price: 6.31 },
-      { title: '🎟️ Elite Pass LV1 — $6.34', code: 'pubg_pass:857:mb', price: 6.34 },
-      { title: '🎟️ برايم بلس 1 شهر — $10.52', code: 'pubg_pass:865:mb', price: 10.52 },
-      { title: '🎟️ برايم 12 شهر — $12.63', code: 'pubg_pass:862:mb', price: 12.63 },
-      { title: '🎟️ Elite Pass LV1 — $12.79', code: 'pubg_pass:856:mb', price: 12.79 },
-      { title: '🎟️ Elite Pass Plus LV1 — $31.36', code: 'pubg_pass:858:mb', price: 31.36 },
-      { title: '🎟️ برايم بلس 3 أشهر — $31.57', code: 'pubg_pass:867:mb', price: 31.57 },
-      { title: '🎟️ برايم بلس 6 أشهر — $62.19', code: 'pubg_pass:868:mb', price: 62.19 },
-      { title: '🎟️ برايم بلس 12 أشهر — $125.58', code: 'pubg_pass:866:mb', price: 125.58 },
+      { title: '🎟️ برايم Prime (1 ئايلىق) — $1.05', code: 'pubg_pass:861:mb', price: 1.05 },
+      { title: '🎟️ Royale Pass Elite (LV1-50) — $6.34', code: 'pubg_pass:857:mb', price: 6.34 },
+      { title: '🎟️ برايم بلس Prime Plus (1 ئايلىق) — $10.52', code: 'pubg_pass:865:mb', price: 10.52 },
+      { title: '🎟️ Royale Pass Elite (LV1-100) — $12.79', code: 'pubg_pass:856:mb', price: 12.79 },
     ],
   },
   'games:freefire_diamonds': {
@@ -574,24 +532,16 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'games:freefire_memberships': {
-    name: '🎟️ Free Fire ھەپتىلىك ۋە ئايلىق ئەزالىق (Memberships)',
+    name: '🎟️ Free Fire — ھەپتىلىك ۋە ئايلىق ئەزالىقلار',
     autocash: [
-      { title: '🎟️ عضوية اسبوعية — $2.31', code: 'ff_pass:949:ac', price: 2.31 },
-      { title: '🎟️ Booyah Pass — $3.47', code: 'ff_pass:961:ac', price: 3.47 },
-      { title: '🎟️ عضوية شهرية — $11.44', code: 'ff_pass:950:ac', price: 11.44 },
+      { title: '🎟️ ھەپتىلىك ئەزالىق (Weekly) — $2.31', code: 'ff_pass:949:ac', price: 2.31 },
+      { title: '🎟️ بوياه باس (Booyah Pass) — $3.47', code: 'ff_pass:961:ac', price: 3.47 },
+      { title: '🎟️ ئايلىق ئەزالىق (Monthly) — $11.44', code: 'ff_pass:950:ac', price: 11.44 },
     ],
     maxbazar: [
-      { title: '🎟️ حزمة ترقية المستوى 6 — $0.51', code: 'ff_pass:242:mb', price: 0.51 },
-      { title: '🎟️ حزمة ترقية المستوى 10 — $0.81', code: 'ff_pass:237:mb', price: 0.81 },
-      { title: '🎟️ حزمة ترقية المستوى 15 — $0.81', code: 'ff_pass:238:mb', price: 0.81 },
-      { title: '🎟️ حزمة ترقية المستوى 20 — $0.81', code: 'ff_pass:239:mb', price: 0.81 },
-      { title: '🎟️ حزمة ترقية المستوى 25 — $0.81', code: 'ff_pass:240:mb', price: 0.81 },
-      { title: '🎟️ حزمة ترقية المستوى 30 — $1.15', code: 'ff_pass:241:mb', price: 1.15 },
-      { title: '🎟️ عضوية اسبوعية — $2.51', code: 'ff_pass:2222:mb', price: 2.51 },
-      { title: '🎟️ عضوية اسبوعية — $3.03', code: 'ff_pass:244:mb', price: 3.03 },
-      { title: '🎟️ بوياه باس — $3.50', code: 'ff_pass:236:mb', price: 3.5 },
-      { title: '🎟️ عضوية شهرية — $11.24', code: 'ff_pass:2221:mb', price: 11.24 },
-      { title: '🎟️ عضوية شهرية — $13.04', code: 'ff_pass:243:mb', price: 13.04 },
+      { title: '🎟️ ھەپتىلىك ئەزالىق (Weekly) — $2.51', code: 'ff_pass:2222:mb', price: 2.51 },
+      { title: '🎟️ بوياه باس (Booyah Pass) — $3.50', code: 'ff_pass:236:mb', price: 3.5 },
+      { title: '🎟️ ئايلىق ئەزالىق (Monthly) — $11.24', code: 'ff_pass:2221:mb', price: 11.24 },
     ],
   },
   'games:hok_tokens': {
@@ -622,23 +572,14 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'games:hok_passes': {
-    name: '🎟️ Honor of Kings ھەپتىلىك كارتا ۋە پاسس (Weekly Card & Packs)',
+    name: '🎟️ Honor of Kings — ھەپتىلىك كارتىلار',
     autocash: [
-      { title: '🎟️ Standard Purchase Rebate Pack — $0.38', code: 'hok_pass:646:ac', price: 0.38 },
-      { title: '🎟️ Honor Point Value Pack — $0.38', code: 'hok_pass:644:ac', price: 0.38 },
-      { title: '🎟️ Double Token Lucky Bag — $0.38', code: 'hok_pass:643:ac', price: 0.38 },
-      { title: '🎟️ Weekly Card  Honor — $1.10', code: 'hok_pass:648:ac', price: 1.1 },
-      { title: '🎟️ Premium Purchase Rebate Pack — $1.38', code: 'hok_pass:645:ac', price: 1.38 },
-      { title: '🎟️ Weekly Card Plus Honor — $3.37', code: 'hok_pass:647:ac', price: 3.37 },
+      { title: '🎟️ ھەپتىلىك كارتا (Weekly Card) — $1.10', code: 'hok_pass:648:ac', price: 1.1 },
+      { title: '🎟️ ھەپتىلىك كارتا Plus — $3.37', code: 'hok_pass:647:ac', price: 3.37 },
     ],
     maxbazar: [
-      { title: '🎟️ Double Token Lucky Bag — $0.32', code: 'hok_pass:767:mb', price: 0.32 },
-      { title: '🎟️ Honor Point Value Pack — $0.32', code: 'hok_pass:768:mb', price: 0.32 },
-      { title: '🎟️ Standard Purchase Rebate Pack — $0.32', code: 'hok_pass:771:mb', price: 0.32 },
-      { title: '🎟️ Infernal Shadow Zilong — $0.56', code: 'hok_pass:769:mb', price: 0.56 },
-      { title: '🎟️ Weekly Card — $1.12', code: 'hok_pass:772:mb', price: 1.12 },
-      { title: '🎟️ Premium Purchase Rebate Pack — $1.29', code: 'hok_pass:770:mb', price: 1.29 },
-      { title: '🎟️ Weekly Card Plus — $3.31', code: 'hok_pass:773:mb', price: 3.31 },
+      { title: '🎟️ ھەپتىلىك كارتا (Weekly Card) — $1.12', code: 'hok_pass:772:mb', price: 1.12 },
+      { title: '🎟️ ھەپتىلىك كارتا Plus — $3.31', code: 'hok_pass:773:mb', price: 3.31 },
     ],
   },
   'games:arena_bonds': {
@@ -663,35 +604,26 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     ],
   },
   'games:arena_passes': {
-    name: '🛡️ Arena Breakout قوغداش قېپى ۋە پاسسلار (Cases & Passes)',
+    name: '🛡️ Arena Breakout — ئايلىق پاسس ۋە قوغداش قېپى',
     autocash: [
-      { title: '🛡️ Beginner Select — $0.85', code: 'arena_pass:663:ac', price: 0.85 },
-      { title: '🛡️ Monthly Advanced Battle Pass Activation Pass — $1.02', code: 'arena_pass:668:ac', price: 1.02 },
-      { title: '🛡️ Bulletproof Case (30d) — $2.55', code: 'arena_pass:664:ac', price: 2.55 },
-      { title: '🛡️ Bulletproof Case Privileges — $2.59', code: 'arena_pass:665:ac', price: 2.59 },
-      { title: '🛡️ Monthly Premium Battle Pass Activation Pass — $4.08', code: 'arena_pass:669:ac', price: 4.08 },
-      { title: '🛡️ Composite Case Privileges — $7.68', code: 'arena_pass:666:ac', price: 7.68 },
-      { title: '🛡️ Composition Case (30d) — $7.70', code: 'arena_pass:667:ac', price: 7.7 },
-      { title: '🛡️ Quarterly Premium Battle Pass Bundle Activation Pass Bundle — $12.39', code: 'arena_pass:670:ac', price: 12.39 },
+      { title: '🛡️ ئايلىق Battle Pass (Advanced) — $1.02', code: 'arena_pass:668:ac', price: 1.02 },
+      { title: '🛡️ ئوق ئۆتمەس قاپ (Bulletproof Case 30d) — $2.55', code: 'arena_pass:664:ac', price: 2.55 },
+      { title: '🛡️ ئايلىق Battle Pass (Premium) — $4.08', code: 'arena_pass:669:ac', price: 4.08 },
+      { title: '🛡️ مۇرەككەپ ماتېرىياللىق قاپ (Composite Case 30d) — $7.70', code: 'arena_pass:667:ac', price: 7.7 },
     ],
     maxbazar: [
-      { title: '🛡️ Beginner Select — $0.85', code: 'arena_pass:637:mb', price: 0.85 },
-      { title: '🛡️ Monthly Advanced Battle Pass Activation Pass — $1.02', code: 'arena_pass:640:mb', price: 1.02 },
-      { title: '🛡️ Bulletproof Case (30d) — $2.57', code: 'arena_pass:638:mb', price: 2.57 },
-      { title: '🛡️ Monthly Premium Battle Pass Activation Pass — $4.11', code: 'arena_pass:641:mb', price: 4.11 },
-      { title: '🛡️ Composition Case (30d) — $7.78', code: 'arena_pass:639:mb', price: 7.78 },
-      { title: '🛡️ Quarterly Premium Battle Pass Bundle Activation Pass Bundle — $12.37', code: 'arena_pass:642:mb', price: 12.37 },
+      { title: '🛡️ ئايلىق Battle Pass (Advanced) — $1.02', code: 'arena_pass:640:mb', price: 1.02 },
+      { title: '🛡️ ئوق ئۆتمەس قاپ (Bulletproof Case 30d) — $2.57', code: 'arena_pass:638:mb', price: 2.57 },
+      { title: '🛡️ ئايلىق Battle Pass (Premium) — $4.11', code: 'arena_pass:641:mb', price: 4.11 },
+      { title: '🛡️ مۇرەككەپ ماتېرىياللىق قاپ (Composite Case 30d) — $7.78', code: 'arena_pass:639:mb', price: 7.78 },
     ],
   },
   'games:clash_passes': {
-    name: '🏰 Clash of Clans ئالتۇن بېلەت ۋە پاسسلار (Gold Pass & Event)',
-    autocash: [
-    ],
+    name: '🏰 Clash of Clans — ئالتۇن بېلەت ۋە پاسسلار',
+    autocash: [],
     maxbazar: [
-      { title: '🏰 التذكرة الذهبية فئة C — $1.40', code: 'coc:836:mb', price: 1.4 },
-      { title: '🏰 التذكرة الذهبية فئة B — $1.67', code: 'coc:835:mb', price: 1.67 },
-      { title: '🏰 التذكرة الذهبية فئة A — $2.59', code: 'coc:834:mb', price: 2.59 },
-      { title: '🏰 تذكرة الحدث — $6.28', code: 'coc:837:mb', price: 6.28 },
+      { title: '🏰 ئالتۇن بېلەت (Gold Pass فئة A) — $2.59', code: 'coc:834:mb', price: 2.59 },
+      { title: '🎪 تەبرىكلەش بېلىتى (Event Pass) — $6.28', code: 'coc:837:mb', price: 6.28 },
     ],
   },
 };
@@ -1020,7 +952,13 @@ function getMenuContent(
       [{ text: '💎 گىلوبال', callback_data: 'games:mlbb_global' }],
       [{ text: '💎 تۈركىيە', callback_data: 'games:mlbb_turkey' }],
       [{ text: '💎 ئاسىيا فىلىپپىن', callback_data: 'games:mlbb_special' }],
-      [{ text: '🎟️ ھەپتىلىك كارتا ۋە ئەزالىقلار', callback_data: 'games:mlbb_passes' }],
+      [{ text: '🎟️ ھەپتىلىك كارتىلار (Weekly Diamond Pass)', callback_data: 'games:mlbb_passes' }],
+      [
+        {
+          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+          web_app: { url: `${SITE_URL}` },
+        },
+      ],
       [
         { text: '◀️ كەينىگە', callback_data: 'shop:games' },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
@@ -1039,6 +977,12 @@ function getMenuContent(
       [{ text: '🪙 PUBG UC قاچىلاش (Direct UC)', callback_data: 'games:pubg_uc' }],
       [{ text: '🎟️ كىملىك / ئەزالىق ۋە پاسس (Pass & Prime)', callback_data: 'games:pubg_passes' }],
       [
+        {
+          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+          web_app: { url: `${SITE_URL}` },
+        },
+      ],
+      [
         { text: '◀️ كەينىگە', callback_data: 'shop:games' },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
@@ -1055,6 +999,12 @@ function getMenuContent(
     const inline_keyboard: any[][] = [
       [{ text: '💎 Free Fire ئالماس قاچىلاش (Diamonds)', callback_data: 'games:freefire_diamonds' }],
       [{ text: '🎟️ ھەپتىلىك ۋە ئايلىق ئەزالىق (Memberships)', callback_data: 'games:freefire_memberships' }],
+      [
+        {
+          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+          web_app: { url: `${SITE_URL}` },
+        },
+      ],
       [
         { text: '◀️ كەينىگە', callback_data: 'shop:games' },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
@@ -1073,6 +1023,12 @@ function getMenuContent(
       [{ text: '👑 Honor of Kings توكېن قاچىلاش (Tokens)', callback_data: 'games:hok_tokens' }],
       [{ text: '🎟️ ھەپتىلىك كارتا ۋە پاسسلار (Weekly & Packs)', callback_data: 'games:hok_passes' }],
       [
+        {
+          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+          web_app: { url: `${SITE_URL}` },
+        },
+      ],
+      [
         { text: '◀️ كەينىگە', callback_data: 'shop:games' },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
@@ -1090,6 +1046,12 @@ function getMenuContent(
       [{ text: '💰 Arena Breakout Bonds قاچىلاش (Bonds)', callback_data: 'games:arena_bonds' }],
       [{ text: '🛡️ قوغداش قېپى ۋە پاسسلار (Cases & Passes)', callback_data: 'games:arena_passes' }],
       [
+        {
+          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+          web_app: { url: `${SITE_URL}` },
+        },
+      ],
+      [
         { text: '◀️ كەينىگە', callback_data: 'shop:games' },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
       ],
@@ -1105,6 +1067,12 @@ function getMenuContent(
 
     const inline_keyboard: any[][] = [
       [{ text: '🏰 Clash of Clans ئالتۇن بېلەت ۋە پاسسلار', callback_data: 'games:clash_passes' }],
+      [
+        {
+          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+          web_app: { url: `${SITE_URL}` },
+        },
+      ],
       [
         { text: '◀️ كەينىگە', callback_data: 'shop:games' },
         { text: '🏠 باش بەت', callback_data: 'menu:main' },
@@ -1229,6 +1197,15 @@ function getMenuContent(
       : menuId.startsWith('apps:')
       ? 'shop:apps'
       : 'shop:home';
+
+    if (menuId.startsWith('games:') || menuId.startsWith('apps:') || menuId.startsWith('tg:')) {
+      inline_keyboard.push([
+        {
+          text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
+          web_app: { url: `${SITE_URL}` },
+        },
+      ]);
+    }
 
     inline_keyboard.push([
       {
