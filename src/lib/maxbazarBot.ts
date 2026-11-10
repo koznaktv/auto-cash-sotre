@@ -30,7 +30,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   webapp: '5204382305455467942', // 🌍 توربەتكە كىرىش / تېخىمۇ كۆپ (Animated Spinning Globe)
   enter_bot: '5998929578515504488', // 🔑 بوتقا كىرىش (Logo Custom Emoji)
   admin: '5998929578515504488', // 👑 باشقۇرغۇچى مەركىزى (Logo)
-  shop: '5204324795843375748', // 🛍 دۇكان (Animated 3D Shopping bag)
+  shop: '5807531546449549750', // 🔴 دۇكان (Animated Red Icon)
   topup_balance: '5008131840813303418', // 🇸🇾 قالدۇق قاچىلاش / شامكەش (Free Syria Flag animated video sticker)
   orders: '5204324795843375748', // 🛍 زاكازلىرىم (Animated 3D Shopping bag)
   balance_history: '5204213079449038715', // 🛍 قالدۇق تارىخى (Animated Shopping bag)
@@ -769,7 +769,7 @@ function getMenuContent(
   // 3. Shop Categories Home (shop:home)
   if (menuId === 'shop:home') {
     const text =
-      `<tg-emoji emoji-id="5204324795843375748">🛍</tg-emoji> <b>دۇكان بۆلۈملىرى</b>\n\n` +
+      `<tg-emoji emoji-id="5807531546449549750">🔴</tg-emoji> <b>دۇكان بۆلۈملىرى</b>\n\n` +
       `ئېھتىياجلىق مەھسۇلات تۈرىنى تاللاڭ:`;
 
     const inline_keyboard: any[][] = [
