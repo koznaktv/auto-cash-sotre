@@ -31,7 +31,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   enter_bot: '5998929578515504488', // 🔑 بوتقا كىرىش (Logo Custom Emoji)
   admin: '5998929578515504488', // 👑 باشقۇرغۇچى مەركىزى (Logo)
   shop: '5807531546449549750', // 🔴 دۇكان (Animated Red Icon)
-  topup_balance: '5008131840813303418', // 🇸🇾 قالدۇق قاچىلاش / شامكەش (Free Syria Flag animated video sticker)
+  topup_balance: '5264895611517300926', // 🏦 قالدۇق قاچىلاش (Animated Bank)
   orders: '5204324795843375748', // 🛍 زاكازلىرىم (Animated 3D Shopping bag)
   balance_history: '5816480536012527182', // 🚨 قالدۇق تارىخى (Animated Beacon)
   lang: '5397753673130463064', // 🌏 تىل تاللاش (Animated Earth Globe)
@@ -1287,7 +1287,7 @@ function getMenuContent(
   // 10. ShamCash Deposit Topup (balance:topup)
   if (menuId === 'balance:topup') {
     const text =
-      `<tg-emoji emoji-id="5008131840813303418">🇸🇾</tg-emoji> <b>شامكەش ئارقىلىق قالدۇق قاچىلاش</b>\n\n` +
+      `<tg-emoji emoji-id="5264895611517300926">🏦</tg-emoji> <b>شامكەش ئارقىلىق قالدۇق قاچىلاش</b>\n\n` +
       `شامكەش نۇمۇرىمىزنى كۆچۈرۈڭ (چەكسىڭىز كۆچۈرۈلىدۇ):\n` +
       `<code>efe8a2b200d66411c7c7e296369cbba8</code>\n\n` +
       `⚠️ <i>شامكەشتىن دوللار ئېتىڭ، سۈرىيە لىراسى قوبۇل قىلىنمايدۇ !!!</i>\n\n` +
@@ -1573,7 +1573,7 @@ export async function handleMaxBazarWebhook(update: any) {
 
           await showOrEditMessage(chatId, messageId, failText, {
             inline_keyboard: [
-              [btnWithIcon('قالدۇق قاچىلاش', 'topup_balance', '🇸🇾', { callback_data: 'balance:topup' })],
+              [btnWithIcon('قالدۇق قاچىلاش', 'topup_balance', '🏦', { callback_data: 'balance:topup' })],
               [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
             ],
           });
