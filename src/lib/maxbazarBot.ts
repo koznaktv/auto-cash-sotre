@@ -442,7 +442,7 @@ function getMenuContent(
 
     const inline_keyboard: any[][] = [
       [btnWithIcon('بوتقا كىرىش', 'enter_bot', '🔑', { callback_data: 'menu:enter' })],
-      [btnWithIcon('توربەتتىن سېتىۋېلىش', 'webapp', '🌐', { web_app: { url: `${SITE_URL}/apps` } })],
+      [btnWithIcon('توربەتتىن سېتىۋېلىش', 'webapp', '🌐', { web_app: { url: `${SITE_URL}` } })],
     ];
 
     if (isAdmin) {
@@ -536,7 +536,7 @@ function getMenuContent(
       [
         {
           text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
-          web_app: { url: `${SITE_URL}/apps` },
+          web_app: { url: `${SITE_URL}` },
         },
       ],
       [
@@ -556,7 +556,7 @@ function getMenuContent(
       [
         {
           text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
-          web_app: { url: `${SITE_URL}/apps` },
+          web_app: { url: `${SITE_URL}` },
         },
       ],
       [
@@ -575,7 +575,7 @@ function getMenuContent(
       [
         {
           text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
-          web_app: { url: `${SITE_URL}/apps` },
+          web_app: { url: `${SITE_URL}` },
         },
       ],
       [
@@ -600,7 +600,7 @@ function getMenuContent(
       [
         {
           text: '🌐 تېخىمۇ كۆپ (توربەتتە كۆرۈش)',
-          web_app: { url: `${SITE_URL}/apps` },
+          web_app: { url: `${SITE_URL}` },
         },
       ],
       [
