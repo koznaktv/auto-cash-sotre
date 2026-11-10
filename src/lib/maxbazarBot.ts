@@ -39,7 +39,7 @@ export const CUSTOM_ICONS: Record<string, string> = {
   home: '5416041192905265756', // 🏠 باش بەت (Animated 3D Home)
   back: '5807540866528581427', // ⬅️ كەينىگە (Animated Back arrow)
   sim_cards: '5807943566957223210', // 🔽 كارتىلارغا پۇل قاچىلاش (Animated Arrow)
-  wifi: '5807653471981149580', // 📍 Wi-Fi بېتاقە كارتىلىرى (Animated Pin)
+  wifi: '5201735372945520721', // 🛜 Wi-Fi بېتاقە كارتىلىرى (Animated 3D Wi-Fi)
   telegram_sub: '5202036282649244841', // ⭐️ تىلگىرام ئەزالىق ئېچىش (Animated 3D Star)
   ai_apps: '5204437027633786910', // 🍏 AI ۋە ئەپلەر (Animated Apple/Apps)
   games: '5336838590057974764', // 🤩 ئويۇنلار (Animated Star-Eyes Gamer)
@@ -793,7 +793,7 @@ function getMenuContent(
   // 3.1 Sub-category: Wi-Fi Cards (shop:wifi)
   if (menuId === 'shop:wifi') {
     const text =
-      `<tg-emoji emoji-id="5807653471981149580">📍</tg-emoji> <b>Wi-Fi بېتاقە كارتىلىرى</b>\n\n` +
+      `<tg-emoji emoji-id="5201735372945520721">🛜</tg-emoji> <b>Wi-Fi بېتاقە كارتىلىرى</b>\n\n` +
       `⚠️ <b>ئەسكەرتىش:</b>\n` +
       `• بېتاقەنى ئۆزىڭىز تۇرۇشلۇق رايونىڭىزنىڭكىدىن سېتىۋېلىڭ.\n` +
       `• ئەگەر خاتا سېتىۋېلىپ تور ئىشلىمىسە بىز مەسئۇلىيىتىگە ئىگە ئەمەس.\n` +
