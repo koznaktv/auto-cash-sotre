@@ -757,6 +757,19 @@ export async function postOrderCompletedToChannel(order: {
     return chars.slice(0, 3).join('') + '***' + chars.slice(-3).join('');
   };
 
+  // Helper for custom animated Telegram emojis
+  const anim = (id: string, fallback: string) => (id ? `<tg-emoji emoji-id="${id}">${fallback}</tg-emoji>` : fallback);
+
+  // Custom Animated Emoji IDs
+  const EMOJI_IDS = {
+    game: '5201939362417243050', // 🎮 Animated 3D Game controller
+    wifi: '5201735372945520721', // 🛜 / 📶 Animated 3D Wi-Fi
+    star: '5350501108659790021', // ⭐ Animated Glowing Star
+    apps: '5204437027633786910', // 🤖 / 🍏 Animated Apps
+    check: '5204021180310252946', // ✔️ Animated 3D Check
+    card: '5204470768896864316', // 💳 Animated 3D Card
+  };
+
   // 1. Order numbers
   const rawOrd = String(order.id || '').trim();
   const cleanOrderDigits = rawOrd.replace(/[^0-9]/g, '');
@@ -794,25 +807,20 @@ export async function postOrderCompletedToChannel(order: {
     (order.id || '').startsWith('PUBG_')
   );
 
-  let storeHeader = 'AUTO CASH';
-  let storeName = '⚡️ AUTO CASH (ئەرزان ۋە تېز)';
+  let storeBadge = '⚡️ AUTO CASH';
   if (isMaxBazar) {
-    storeHeader = 'MAX-BAZAR';
-    storeName = '🟢 MAX-BAZAR (ماكس دۇكىنى)';
+    storeBadge = '🟢 MAX-BAZAR';
   } else if (isWifi) {
-    storeHeader = 'Wi-Fi ئامبىرى';
-    storeName = '📡 يەرلىك Wi-Fi ئامبىرى';
+    storeBadge = '📡 Wi-Fi ئامبىرى';
   }
 
-  // 3. Category detection & Emojis (Smart Dynamic Categories)
+  // 3. Category detection & Animated Emojis
   const titleCombined = `${order.serviceName || ''} ${order.packageTitle || ''} ${order.id || ''}`.toLowerCase();
 
-  let categoryEmoji = '📦';
-  let categoryName = 'رەقەملىك مۇلازىمەت';
+  let categoryEmoji = anim(EMOJI_IDS.card, '📦');
 
   if (isWifi) {
-    categoryEmoji = '📡';
-    categoryName = 'ۋايفاي تور كارتىسى';
+    categoryEmoji = anim(EMOJI_IDS.wifi, '📶');
   } else if (
     titleCombined.includes('pubg') ||
     titleCombined.includes('mobile legends') ||
@@ -830,8 +838,7 @@ export async function postOrderCompletedToChannel(order: {
     titleCombined.includes('uc') ||
     titleCombined.includes('ئويۇن')
   ) {
-    categoryEmoji = '🎮';
-    categoryName = 'كۆچمە ئويۇن قاچىلاش';
+    categoryEmoji = anim(EMOJI_IDS.game, '🎮');
   } else if (
     titleCombined.includes('chatgpt') ||
     titleCombined.includes('gemini') ||
@@ -841,15 +848,13 @@ export async function postOrderCompletedToChannel(order: {
     titleCombined.includes('سۈنئىي') ||
     titleCombined.includes('ئەزالىق')
   ) {
-    categoryEmoji = '🤖';
-    categoryName = 'سۈنئىي ئەقىل ۋە ئەزالىق';
+    categoryEmoji = anim(EMOJI_IDS.apps, '🤖');
   } else if (
     titleCombined.includes('telegram') ||
     titleCombined.includes('premium') ||
     titleCombined.includes('تېلېگرام')
   ) {
-    categoryEmoji = '⭐';
-    categoryName = 'تېلېگرام ئەزالىقى';
+    categoryEmoji = anim(EMOJI_IDS.star, '⭐');
   } else if (
     titleCombined.includes('syriatel') ||
     titleCombined.includes('mtn') ||
@@ -860,8 +865,7 @@ export async function postOrderCompletedToChannel(order: {
     titleCombined.includes('sms') ||
     order.details?.virtualNumber
   ) {
-    categoryEmoji = '📱';
-    categoryName = 'كارتىلار ۋە تور بولىقى';
+    categoryEmoji = anim(EMOJI_IDS.card, '📱');
   }
 
   // 4. Product Details
@@ -912,43 +916,37 @@ export async function postOrderCompletedToChannel(order: {
   ).trim();
 
   const wifiCard = order.details?.wifiCard;
+  const checkAnim = anim(EMOJI_IDS.check, '✅');
 
-  // Format 2: Modern Clean Digital Receipt
+  // Ultra-Compact Format (Clean 3-4 Lines)
   const lines: string[] = [
-    `🧾 <b>رەسمىي سېتىۋېلىش تالونى | ${storeHeader}</b>`,
-    `🎉 <b>زاكاز مۇۋەپپەقىيەتلىك تاپشۇرۇلدى!</b>`,
+    `🎉 <b>زاكاز پۈتتى | ${storeBadge}</b>`,
     '',
-    `▫️ 🏪 <b>دۇكان تۈرى:</b> ${storeName}`,
-    `▫️ ${categoryEmoji} <b>تۈرى:</b> ${categoryName}`,
-    `▫️ 📦 <b>مەھسۇلات:</b> ${productName}`,
   ];
 
   if (isWifi) {
-    const netName = wifiCard?.networkName || wifiCard?.networkEn || sName;
-    lines.push(`▫️ 🌐 <b>تور نامى:</b> ${netName}`);
-    if (wifiCard?.username) {
-      lines.push(`▫️ 👤 <b>ئىشلەتكۈچى:</b> <code>${maskTargetId(wifiCard.username)}</code>`);
+    const netName = wifiCard?.networkName || wifiCard?.networkEn || productName;
+    lines.push(`▫️ ${categoryEmoji} <b>كارتا:</b> ${netName} — ${formattedPrice}`);
+    const u = wifiCard?.username ? maskTargetId(wifiCard.username) : '';
+    const p = wifiCard?.password ? maskTargetId(wifiCard.password) : '';
+    if (u || p) {
+      lines.push(`▫️ 🔑 <b>كودى:</b> <code>${u}</code> / <code>${p}</code>`);
     }
-    if (wifiCard?.password) {
-      lines.push(`▫️ 🔑 <b>پارول:</b> <code>${maskTargetId(wifiCard.password)}</code>`);
-    }
+    lines.push(`▫️ 🧾 <b>تەپسىلاتى:</b> <code>#ORD-${displayOrderNo}</code> • ⚡️ ئاپتوماتىك قاچىلاندى`);
   } else {
-    if (rawTarget && !rawTarget.toLowerCase().startsWith('wi-fi')) {
-      lines.push(`▫️ 🆔 <b>نىشان كىملىك:</b> <code>${maskTargetId(rawTarget)}</code>`);
-    }
-    if (rawPlayerName && !rawPlayerName.startsWith('tg_') && !rawPlayerName.includes('@')) {
-      lines.push(`▫️ 👤 <b>ئويۇنچى لەقىمى:</b> <b>${maskPlayerName(rawPlayerName)}</b>`);
-    }
-  }
+    lines.push(`▫️ ${categoryEmoji} <b>مەھسۇلات:</b> ${productName}`);
 
-  lines.push(`▫️ 🧾 <b>زاكاز كودى:</b> <code>#ORD-${displayOrderNo}</code>`);
-  lines.push(`▫️ 💵 <b>پۇل سوممىسى:</b> ${formattedPrice}`);
-  lines.push(`▫️ ⏱ <b>قاچىلاش سۈرئىتى:</b> سېكۇنتتا قاچىلاندى ⚡️`);
-  lines.push(`▫️ ✅ <b>نەتىجىسى:</b> 100% تولۇق قاچىلاندى`);
-  lines.push('');
-  lines.push('──────────────');
-  lines.push('🛍 <i>سىزمۇ ئاپتوماتىك قاچىلاپ سىناپ بېقىڭ:</i>');
-  lines.push(`🤖 <b>رەسمىي بوت:</b> @${TELEGRAM_CONFIG.botUsername || 'Autocash_24_bot'}`);
+    const maskedTargetStr = rawTarget && !rawTarget.toLowerCase().startsWith('wi-fi') ? maskTargetId(rawTarget) : '';
+    const maskedPlayerStr = rawPlayerName && !rawPlayerName.startsWith('tg_') && !rawPlayerName.includes('@') ? maskPlayerName(rawPlayerName) : '';
+
+    if (maskedTargetStr && maskedPlayerStr) {
+      lines.push(`▫️ 🎯 <b>نىشان ID:</b> <code>${maskedTargetStr}</code> (<b>${maskedPlayerStr}</b>)`);
+    } else if (maskedTargetStr) {
+      lines.push(`▫️ 🎯 <b>نىشان ID:</b> <code>${maskedTargetStr}</code>`);
+    }
+
+    lines.push(`▫️ 🧾 <b>تەپسىلاتى:</b> ${formattedPrice} • <code>#ORD-${displayOrderNo}</code> • ${checkAnim} پۈتتى`);
+  }
 
   const channelText = lines.join('\n');
 
