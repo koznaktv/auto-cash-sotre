@@ -1084,29 +1084,86 @@ export async function notifyNewDeposit(deposit: {
 }
 
 /**
- * 3. Notify Admin when a new customer registers on the website
+ * 3. Notify Admin when a new customer registers on the website or bot
  */
 export async function notifyNewUser(user: {
   name: string;
   email: string;
   id?: string;
+  telegramChatId?: string | number;
+  telegramUsername?: string;
+  source?: string;
 }): Promise<void> {
   try {
+    const tgInfo = user.telegramChatId
+      ? `\n💬 <b>تېلېگرام ID:</b> <code>${user.telegramChatId}</code>` +
+        (user.telegramUsername ? ` (@${user.telegramUsername.replace(/^@/, '')})` : '')
+      : '';
+    const srcInfo = user.source ? `\n🌐 <b>مەنبەسى:</b> <b>${user.source}</b>` : '';
+
     const message = `
 🎉✨ <b>يېڭى خېرىدار تىزىملاتتى!</b> ✨🎉
       👑 <i>AUTO CASH يېڭى ئەزا قوشۇلدى</i> 👑
 
 👤 <b>ئىسمى:</b> <b>${user.name}</b>
-📧 <b>ئېلخەت:</b> <code>${user.email}</code>
+📧 <b>ئېلخەت:</b> <code>${user.email}</code>${tgInfo}${srcInfo}
 🆔 <b>خېرىدار ID:</b> <code>${user.id || '—'}</code>
 ⏰ <b>ۋاقتى:</b> ${new Date().toLocaleString('ug-CN', { timeZone: 'Asia/Urumqi' })}
 
 🔗 <a href="${TELEGRAM_CONFIG.storeUrl}/admin">📊🖥️ باشقۇرۇش مەركىزىدىن تەپسىلاتىنى كۆرۈش</a>
 `.trim();
 
-    await sendAdminAlert(message);
+    await sendAdminAlert(message, {
+      inline_keyboard: [
+        [{ text: '📊🖥️ باشقۇرۇش مەركىزى', url: `${TELEGRAM_CONFIG.storeUrl}/admin` }],
+      ],
+    });
   } catch (e) {
     console.warn('[Telegram] notifyNewUser error:', e);
+  }
+}
+
+/**
+ * 6. Alert Admin immediately when an order fails or is rejected by upstream provider or system
+ */
+export async function notifyOrderError(data: {
+  orderId?: string;
+  serviceName?: string;
+  amount?: number | string;
+  targetAccount?: string;
+  userName?: string;
+  userEmail?: string;
+  provider?: string;
+  errorMessage: string;
+  isRefunded?: boolean;
+}): Promise<void> {
+  try {
+    const refundStatus = data.isRefunded
+      ? '💰 <b>پۇل ھالىتى:</b> 100% خېرىدارغا ئاپتوماتىك قايتۇرۇلدى ✅'
+      : '⚠️ <b>پۇل ھالىتى:</b> خېرىداردىن پۇل كېسىلمىدى';
+
+    const message = `
+🚨⚠️ <b>زاكازدا خاتالىق يۈز بەردى!</b> ⚠️🚨
+       🛑 <i>AUTO CASH سىستېما ئاگاھلاندۇرۇشى</i> 🛑
+
+${data.orderId ? `🧾 <b>زاكاز كودى:</b> <code>#${data.orderId}</code>\n` : ''}📦 <b>مەھسۇلات:</b> ${data.serviceName || 'رەقەملىك مۇلازىمەت'}
+💰 <b>سومما:</b> $${Number(data.amount || 0).toFixed(2)} USD
+🎯 <b>نىشان ID:</b> <code>${data.targetAccount || '—'}</code>
+👤 <b>خېرىدار:</b> ${data.userName || 'ئەزا'} (<code>${data.userEmail || '—'}</code>)
+${data.provider ? `🏪 <b>تەمىنلىگۈچى:</b> <b>${data.provider}</b>\n` : ''}❌ <b>خاتالىق سەۋەبى:</b> <code>${data.errorMessage}</code>
+${refundStatus}
+⏰ <b>ۋاقتى:</b> ${new Date().toLocaleString('ug-CN', { timeZone: 'Asia/Urumqi' })}
+
+💡 <i>بۇ زاكازنى باشقۇرۇش مەركىزىدىن تەكشۈرەلەيسىز.</i>
+`.trim();
+
+    await sendAdminAlert(message, {
+      inline_keyboard: [
+        [{ text: '📊🖥️ باشقۇرۇش كۆزنىكىدىن كۆرۈش', url: `${TELEGRAM_CONFIG.storeUrl}/admin` }],
+      ],
+    });
+  } catch (e) {
+    console.warn('[Telegram] notifyOrderError error:', e);
   }
 }
 

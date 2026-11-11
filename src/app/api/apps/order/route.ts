@@ -238,6 +238,20 @@ export async function POST(req: NextRequest) {
 
     // 3. IF provider rejected, DO NOT deduct customer balance! Protect customer funds 100%
     if (providerError) {
+      try {
+        const { notifyOrderError } = await import('@/lib/telegram');
+        notifyOrderError({
+          serviceName: `[MAX-BAZAR] ${getAppServiceName(app_id)} - ${package_name}`,
+          amount: itemPrice,
+          targetAccount: player_id.trim(),
+          userName: cleanIdentity,
+          userEmail: verifiedUser?.email || cleanIdentity,
+          provider: 'MaxStore',
+          errorMessage: providerError,
+          isRefunded: false,
+        }).catch(() => {});
+      } catch {}
+
       return NextResponse.json({
         ok: false,
         error: `تەمىنلىگۈچى زاكازنى قوبۇل قىلمىدى: ${providerError}. قالدۇقىڭىزدىن پۇل كېسىلمىدى! ئايدى نومۇرىڭىزنى تەكشۈرۈپ قايتا سىناڭ.`,
@@ -304,6 +318,26 @@ export async function POST(req: NextRequest) {
     } catch (dbOrderErr: any) {
       console.warn('[Central DB Order Sync Warning]:', dbOrderErr?.message);
     }
+
+    // Notify Admin immediately about the new micro-app order
+    try {
+      const { notifyNewOrder } = await import('@/lib/telegram');
+      notifyNewOrder({
+        id: orderId,
+        serviceName: `[MAX-BAZAR] ${getAppServiceName(app_id)}`,
+        packageTitle: package_name,
+        amount: itemPrice,
+        targetAccount: player_id.trim(),
+        userName: cleanIdentity,
+        userEmail: verifiedUser?.email || cleanIdentity,
+        status: providerStatus,
+        fields: {
+          'سۇپا': '🟢 MAX-BAZAR (Web/Micro-App)',
+          'تەمىنلىگۈچى نومۇرى': providerOrderId || '—',
+          'ئەپ ID': app_id,
+        },
+      }).catch(() => {});
+    } catch {}
 
     // If MaxStore immediately completed the order, broadcast to Telegram Channel (@autocash_cannel)
     if (['completed', 'success', 'done', 'delivered', 'accept', 'ok'].includes(providerStatus.toLowerCase())) {

@@ -2417,6 +2417,22 @@ export async function watchAndBroadcastMaxStoreOrder(params: {
           updateMicroAppOrderSync(orderId, 'refunded', now);
         } catch {}
 
+        // Notify Admin immediately about the failed/rejected order
+        try {
+          const { notifyOrderError } = await import('./telegram');
+          notifyOrderError({
+            orderId,
+            serviceName: title,
+            amount: price,
+            targetAccount,
+            userName: userName || userEmail || String(chatId),
+            userEmail,
+            provider: provider === 'othman' ? 'Othman Store' : 'MaxStore',
+            errorMessage: `تەمىنلىگۈچى زاكازنى رەت قىلدى (${pStatus})`,
+            isRefunded: true,
+          }).catch(() => {});
+        } catch {}
+
         try {
           await callBotApi(
             'sendMessage',
@@ -2915,6 +2931,21 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
 
         // IF PROVIDER REJECTED, PROTECT CUSTOMER FUNDS 100%!
         if (providerError) {
+          // Immediately alert Admin via Telegram about the error
+          try {
+            const { notifyOrderError } = await import('./telegram');
+            notifyOrderError({
+              serviceName: rawTitle,
+              amount: price,
+              targetAccount: targetAcc || String(chatId),
+              userName: user.name || user.email || String(chatId),
+              userEmail: user.email,
+              provider: chosenWholesaleProvider === 'othman' ? 'Othman Store' : 'MaxStore',
+              errorMessage: providerError,
+              isRefunded: false,
+            }).catch(() => {});
+          } catch {}
+
           const failMsg =
             `❌ <b>تەمىنلىگۈچى زاكازنى قوبۇل قىلمىدى!</b>\n\n` +
             `⚠️ <b>سەۋەبى:</b> ${providerError}\n\n` +
@@ -2981,6 +3012,26 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
             },
             initialStatus: isCompletedNow ? 'completed' : 'processing',
           });
+        } catch {}
+
+        // Notify Admin immediately about the new order
+        try {
+          const { notifyNewOrder } = await import('./telegram');
+          notifyNewOrder({
+            id: newOrderId,
+            serviceName: rawTitle,
+            packageTitle: rawTitle,
+            amount: price,
+            targetAccount: targetAccountFull,
+            userName: user.name || user.email || String(chatId),
+            userEmail: user.email,
+            status: isCompletedNow ? 'مۇۋەپپەقىيەتلىك پۈتتى' : 'تەمىنلىگۈچىگە يوللاندى، قاچىلىنىۋاتىدۇ',
+            fields: {
+              'سۇپا': isWifi ? '📡 Wi-Fi ئامبىرى' : (chosenWholesaleProvider === 'othman' ? '⚡️ AUTO CASH (Othman)' : '🟢 MAX-BAZAR (MaxStore)'),
+              'تەمىنلىگۈچى نومۇرى': providerOrderId || '—',
+              'خېرىدار ID': String(chatId),
+            },
+          }).catch(() => {});
         } catch {}
 
         const isTopup =

@@ -84,6 +84,20 @@ export async function getOrCreateTelegramUser(
     telegramChatId: fromId,
     telegramUsername: fromUsername || undefined,
   } as any);
+
+  // Notify platform admin immediately about the new customer
+  try {
+    const { notifyNewUser } = await import('./telegram');
+    notifyNewUser({
+      name: newUser.name,
+      email: newUser.email,
+      id: newUser.id,
+      telegramChatId: fromId,
+      telegramUsername: fromUsername || undefined,
+      source: 'Telegram Bot (@Autocash_24_bot)',
+    }).catch(() => {});
+  } catch {}
+
   return newUser;
 }
 
