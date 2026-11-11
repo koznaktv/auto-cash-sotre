@@ -411,6 +411,42 @@ export const MAXSTORE_PRODUCT_MAP: Record<string, number> = {
   'coc:837:mb': 837,
 };
 
+export const OTHMAN_STORE_PRODUCT_MAP: Record<string, number> = {
+  // Canva Pro
+  'canva:1y:ac': 579,
+  'canva:2y:ac': 580,
+  'canva:3y:ac': 581,
+  'canva:4y:ac': 582,
+
+  // ChatGPT
+  'gpt:go_1m:ac': 1099,
+  'gpt:plus_1m:ac': 1100,
+
+  // Google Gemini AI
+  'gemini:1m:ac': 1101,
+  'gemini:3m:ac': 1102,
+  'gemini:6m:ac': 1103,
+
+  // Capcut Pro
+  'capcut:1m_p:ac': 583,
+
+  // Telegram Premium
+  'tg:3m:ac': 563,
+  'tg:6m:ac': 564,
+  'tg:12m:ac': 565,
+
+  // Turkcell
+  'tr:50tl:ac': 746,
+  'tr:150tl:ac': 747,
+  'tr:1000dk_2gb:ac': 737,
+  'tr:1000dk_4gb:ac': 738,
+  'tr:1000dk_8gb:ac': 739,
+  'tr:1000dk_12gb:ac': 740,
+  'tr:1000dk_20gb:ac': 743,
+  'tr:1000dk_34gb:ac': 744,
+  'tr:1000dk_50gb:ac': 745,
+};
+
 export function normalizeTargetAccount(target: string, kind: string): string {
   const trimmed = (target || '').trim();
   if (kind === 'syriatel' || kind === 'mtn' || kind === 'turkcell') {
@@ -438,13 +474,23 @@ export interface ProductRequirement {
   placeholder: string;
   requiresZoneId: boolean;
   maxstoreProductId?: number;
+  othmanStoreProductId?: number;
 }
 
 export function getProductRequirement(pkgCode: string, catKey: string = ''): ProductRequirement {
   const code = (pkgCode || '').toLowerCase();
   const cat = (catKey || '').toLowerCase();
 
-  // Extract MaxStore product ID
+  // Extract Othman Store product ID (for AUTO CASH / :ac)
+  let othmanStoreProductId: number | undefined = OTHMAN_STORE_PRODUCT_MAP[pkgCode];
+  if (!othmanStoreProductId) {
+    const acNum = pkgCode.match(/:(\d+):ac$/);
+    if (acNum) {
+      othmanStoreProductId = Number(acNum[1]);
+    }
+  }
+
+  // Extract MaxStore product ID (for MAX-BAZAR / :mb)
   let maxstoreProductId: number | undefined = MAXSTORE_PRODUCT_MAP[pkgCode];
   if (!maxstoreProductId) {
     const numMatch = pkgCode.match(/:(\d+):(mb|ac)$/);
@@ -485,6 +531,7 @@ export function getProductRequirement(pkgCode: string, catKey: string = ''): Pro
       placeholder: 'مەسىلەن: 123456789 (2045)',
       requiresZoneId: true,
       maxstoreProductId,
+      othmanStoreProductId,
     };
   }
 
@@ -499,6 +546,7 @@ export function getProductRequirement(pkgCode: string, catKey: string = ''): Pro
       placeholder: '5123456789',
       requiresZoneId: false,
       maxstoreProductId,
+      othmanStoreProductId,
     };
   }
 
@@ -513,6 +561,7 @@ export function getProductRequirement(pkgCode: string, catKey: string = ''): Pro
       placeholder: '123456789012',
       requiresZoneId: false,
       maxstoreProductId,
+      othmanStoreProductId,
     };
   }
 
@@ -527,6 +576,7 @@ export function getProductRequirement(pkgCode: string, catKey: string = ''): Pro
       placeholder: '1002345678',
       requiresZoneId: false,
       maxstoreProductId,
+      othmanStoreProductId,
     };
   }
 
@@ -541,6 +591,7 @@ export function getProductRequirement(pkgCode: string, catKey: string = ''): Pro
       placeholder: '123456789',
       requiresZoneId: false,
       maxstoreProductId,
+      othmanStoreProductId,
     };
   }
 
@@ -555,6 +606,7 @@ export function getProductRequirement(pkgCode: string, catKey: string = ''): Pro
       placeholder: 'user@gmail.com',
       requiresZoneId: false,
       maxstoreProductId,
+      othmanStoreProductId,
     };
   }
 
@@ -569,6 +621,7 @@ export function getProductRequirement(pkgCode: string, catKey: string = ''): Pro
       placeholder: '09xxxxxxxx',
       requiresZoneId: false,
       maxstoreProductId,
+      othmanStoreProductId,
     };
   }
 
@@ -583,6 +636,7 @@ export function getProductRequirement(pkgCode: string, catKey: string = ''): Pro
       placeholder: '09xxxxxxxx',
       requiresZoneId: false,
       maxstoreProductId,
+      othmanStoreProductId,
     };
   }
 
@@ -596,6 +650,8 @@ export function getProductRequirement(pkgCode: string, catKey: string = ''): Pro
       example: '05551234567',
       placeholder: '05xxxxxxxxx',
       requiresZoneId: false,
+      maxstoreProductId,
+      othmanStoreProductId,
     };
   }
 
@@ -609,6 +665,8 @@ export function getProductRequirement(pkgCode: string, catKey: string = ''): Pro
       example: '@nasrulla0996',
       placeholder: '@username',
       requiresZoneId: false,
+      maxstoreProductId,
+      othmanStoreProductId,
     };
   }
 
@@ -622,6 +680,7 @@ export function getProductRequirement(pkgCode: string, catKey: string = ''): Pro
     placeholder: 'user@gmail.com',
     requiresZoneId: false,
     maxstoreProductId,
+    othmanStoreProductId,
   };
 }
 
@@ -2187,7 +2246,7 @@ async function handleShamCashTxVerify(
 }
 
 // ==========================================
-// 5.5 WATCH & BROADCAST MAXSTORE ORDERS
+// 5.5 WATCH & BROADCAST PROVIDER ORDERS (Othman Store & MaxStore)
 // ==========================================
 export async function watchAndBroadcastMaxStoreOrder(params: {
   orderId: string;
@@ -2199,6 +2258,7 @@ export async function watchAndBroadcastMaxStoreOrder(params: {
   userName?: string;
   userEmail?: string;
   token: string;
+  provider?: 'othman' | 'maxstore';
 }) {
   const {
     orderId,
@@ -2210,28 +2270,56 @@ export async function watchAndBroadcastMaxStoreOrder(params: {
     userName,
     userEmail,
     token,
+    provider = 'maxstore',
   } = params;
 
   // Poll intervals in ms: 3s, 5s, 8s, 12s, 15s, 20s, 25s, 30s, 40s, 60s
   const intervals = [3000, 5000, 8000, 12000, 15000, 20000, 25000, 30000, 40000, 60000];
   const maxstoreToken = (process.env.MAXSTORE_API_TOKEN || 'msk_6HAfwl0cSpjPJ0jeB25V52gC5ETq3seC29C1qlgpdvI').trim();
+  const othmanToken = (
+    process.env.OTHMAN_STORE_API_TOKEN ||
+    process.env.SYRIA4GAME_API_TOKEN ||
+    '-OrFU2hk5qtDMWfei8SpSmYWhtgD1O5Na57FKQH9G0Q8EAv2a2OS12Vqag5Q5AKN'
+  ).trim();
 
   for (let i = 0; i < intervals.length; i++) {
     await new Promise((resolve) => setTimeout(resolve, intervals[i]));
 
     try {
-      const msRes = await fetch(`https://maxstore1.com/api/v2/check?orders=${encodeURIComponent(providerOrderId)}`, {
-        headers: {
-          'api-token': maxstoreToken,
-          Accept: 'application/json',
-        },
-      });
-      const msData = await msRes.json();
-      if (msData.status !== 'OK' || !Array.isArray(msData.data) || msData.data.length === 0) {
-        continue;
+      let item: any = null;
+      if (provider === 'othman') {
+        const oRes = await fetch(
+          `https://api.othman-storee.com/client/api/check?orders=[${encodeURIComponent(providerOrderId)}]`,
+          {
+            headers: {
+              'api-token': othmanToken,
+              Accept: 'application/json',
+            },
+          }
+        );
+        const oData = await oRes.json();
+        if (oData.status === 'OK' && Array.isArray(oData.data) && oData.data.length > 0) {
+          item = oData.data[0];
+        }
+      } else {
+        const msRes = await fetch(
+          `https://maxstore1.com/api/v2/check?orders=${encodeURIComponent(providerOrderId)}`,
+          {
+            headers: {
+              'api-token': maxstoreToken,
+              Accept: 'application/json',
+            },
+          }
+        );
+        const msData = await msRes.json();
+        if (msData.status === 'OK' && Array.isArray(msData.data) && msData.data.length > 0) {
+          item = msData.data[0];
+        }
       }
 
-      const item = msData.data[0];
+      if (!item) {
+        continue;
+      }
       const pStatus = (item.status || '').toLowerCase().trim();
 
       const isCompleted =
@@ -2681,15 +2769,26 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
             `🔢 <b>كارتا نومۇرى:</b> <code>${claimedWifiCard.cardNumber}</code>\n`;
         }
 
-        // DISPATCH TO MAXSTORE WHOLESALE PROVIDER (IF MAXSTORE PRODUCT)
+        // DISPATCH TO DESIGNATED WHOLESALE PROVIDER:
+        // - 'autocash' (:ac) -> Othman Store (https://api.othman-storee.com)
+        // - 'maxbazar' (:mb) -> MaxStore (https://maxstore1.com)
         let providerOrderId: string | null = null;
         let providerStatus = 'completed';
         let providerError: string | null = null;
 
-        const maxstoreProductId = reqInfo.maxstoreProductId;
-        const maxstoreToken = (process.env.MAXSTORE_API_TOKEN || 'msk_6HAfwl0cSpjPJ0jeB25V52gC5ETq3seC29C1qlgpdvI').trim();
+        const isOthman = pkgCode.endsWith(':ac') || (effectiveProvider === 'autocash' && !pkgCode.endsWith(':mb'));
+        const chosenWholesaleProvider: 'othman' | 'maxstore' = isOthman ? 'othman' : 'maxstore';
 
-        if (!isWifi && !maxstoreProductId) {
+        const othmanProductId =
+          reqInfo.othmanStoreProductId ||
+          (pkgCode.match(/:(\d+):ac$/) ? Number(pkgCode.match(/:(\d+):ac$/)![1]) : undefined);
+        const maxstoreProductId =
+          reqInfo.maxstoreProductId ||
+          (pkgCode.match(/:(\d+):mb$/) ? Number(pkgCode.match(/:(\d+):mb$/)![1]) : undefined);
+
+        const targetProductId = chosenWholesaleProvider === 'othman' ? othmanProductId : maxstoreProductId;
+
+        if (!isWifi && !targetProductId) {
           const failMsg =
             `⚠️ <b>كەچۈرۈڭ، مەزكۇر مەھسۇلاتنىڭ تەمىنلىگۈچى لىنىيىسى نۆۋەتتە يېڭىلىنىۋاتىدۇ!</b>\n\n` +
             `زاكاز قوبۇل قىلىنمىدى ۋە ھېسابات قالدۇقىڭىزدىن ھېچقانداق پۇل كېسىلمىدى.\n` +
@@ -2704,9 +2803,65 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
           return;
         }
 
-        if (maxstoreProductId && maxstoreToken) {
+        const orderUuid = crypto.randomUUID();
+
+        // 1. DISPATCH TO OTHMAN STORE (AUTO CASH / :ac)
+        if (!isWifi && chosenWholesaleProvider === 'othman' && targetProductId) {
+          const othmanToken = (
+            process.env.OTHMAN_STORE_API_TOKEN ||
+            process.env.SYRIA4GAME_API_TOKEN ||
+            '-OrFU2hk5qtDMWfei8SpSmYWhtgD1O5Na57FKQH9G0Q8EAv2a2OS12Vqag5Q5AKN'
+          ).trim();
+
           try {
-            const orderUuid = crypto.randomUUID();
+            const query = new URLSearchParams({
+              qty: '1',
+              order_uuid: orderUuid,
+              'الايدي': targetAcc,
+              'ادخل رقم الهاتف بدون النداء': targetAcc,
+              'رقم المشترك': targetAcc,
+              'رقم الهاتف': targetAcc,
+              playerId: targetAcc,
+              player_id: targetAcc,
+              phone: targetAcc,
+              link: targetAcc,
+              url: targetAcc,
+              'الرابط': targetAcc,
+              email: targetAcc,
+            });
+            if (zoneId) {
+              query.set('رقم السيرفر', zoneId);
+              query.set('zoneId', zoneId);
+              query.set('server_id', zoneId);
+            }
+
+            const othmanUrl = `https://api.othman-storee.com/client/api/newOrder/${encodeURIComponent(String(targetProductId))}/params?${query.toString()}`;
+            const oRes = await fetch(othmanUrl, {
+              method: 'GET',
+              headers: {
+                'api-token': othmanToken,
+                Accept: 'application/json',
+              },
+            });
+            const oData = await oRes.json();
+            if (oData.status === 'OK' && (oData.data?.order_id || oData.order_id)) {
+              providerOrderId = String(oData.data?.order_id || oData.order_id);
+              providerStatus = oData.data?.status || 'in_progress';
+            } else {
+              providerError = oData.message || oData.detail?.message || oData.error || 'تەمىنلىگۈچى (Othman Store) زاكازنى رەت قىلدى';
+            }
+          } catch (e: any) {
+            providerError = 'تەمىنلىگۈچى (Othman Store) بىلەن ئۇلىنىش ئۈزۈلدى';
+          }
+        }
+
+        // 2. DISPATCH TO MAXSTORE (MAX-BAZAR / :mb)
+        else if (!isWifi && chosenWholesaleProvider === 'maxstore' && targetProductId) {
+          const maxstoreToken = (
+            process.env.MAXSTORE_API_TOKEN || 'msk_6HAfwl0cSpjPJ0jeB25V52gC5ETq3seC29C1qlgpdvI'
+          ).trim();
+
+          try {
             const orderParams: Record<string, any> = {
               player_id: targetAcc,
               Player_ID: targetAcc,
@@ -2733,7 +2888,7 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                product_id: maxstoreProductId,
+                product_id: targetProductId,
                 order_uuid: orderUuid,
                 qty: 1,
                 params: orderParams,
@@ -2749,11 +2904,11 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
                 (typeof msData.detail === 'string' ? msData.detail : null) ||
                 (Array.isArray(msData.detail) ? msData.detail[0]?.msg : null) ||
                 msData.error ||
-                'تەمىنلىگۈچى تەرەپ زاكازنى رەت قىلدى';
+                'تەمىنلىگۈچى (MaxStore) زاكازنى رەت قىلدى';
               providerError = detailMsg;
             }
           } catch (e: any) {
-            providerError = 'تەمىنلىگۈچى تورى بىلەن ئۇلىنىش ئۈزۈلدى';
+            providerError = 'تەمىنلىگۈچى (MaxStore) بىلەن ئۇلىنىش ئۈزۈلدى';
           }
         }
 
@@ -2812,12 +2967,15 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
             targetAccount: targetAccountFull,
             orderId: newOrderId,
             details: {
-              store: config.brand,
-              provider: isWifi ? 'autocash' : session.selectedProvider,
+              store: isWifi ? config.brand : (chosenWholesaleProvider === 'othman' ? 'AUTO CASH' : 'MAX-BAZAR'),
+              provider: isWifi ? 'autocash' : chosenWholesaleProvider,
+              providerKey: isWifi ? 'autocash' : chosenWholesaleProvider,
               providerOrderId: providerOrderId || undefined,
               targetAccount: targetAcc,
               zoneId: zoneId || undefined,
-              maxstoreProductId,
+              providerProductId: targetProductId,
+              maxstoreProductId: chosenWholesaleProvider === 'maxstore' ? targetProductId : undefined,
+              othmanProductId: chosenWholesaleProvider === 'othman' ? targetProductId : undefined,
               ...(claimedWifiCard ? { wifiCard: claimedWifiCard } : {}),
             },
             initialStatus: isCompletedNow ? 'completed' : 'processing',
@@ -2863,8 +3021,8 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
               targetAccount: targetAccountFull,
               userName: user.name || user.email || String(chatId),
               details: {
-                store: config.brand,
-                provider: isWifi ? 'autocash' : session.selectedProvider,
+                store: isWifi ? config.brand : (chosenWholesaleProvider === 'othman' ? 'AUTO CASH' : 'MAX-BAZAR'),
+                provider: isWifi ? 'autocash' : chosenWholesaleProvider,
                 providerOrderId,
                 ...(claimedWifiCard ? { wifiCard: claimedWifiCard } : {}),
               },
@@ -2883,6 +3041,7 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
             userName: user.name || user.email || String(chatId),
             userEmail: user.email,
             token: config.token,
+            provider: chosenWholesaleProvider,
           }).catch((err) => console.error('[watchAndBroadcastMaxStoreOrder] failed:', err));
         }
 
