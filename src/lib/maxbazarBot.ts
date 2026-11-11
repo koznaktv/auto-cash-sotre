@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { verifySyncSession } from './syncSessions';
 import { createAdminToken } from './adminAuth';
 import { getOrCreateTelegramUser } from './telegramShop';
@@ -239,6 +240,175 @@ export const MAXSTORE_PRODUCT_MAP: Record<string, number> = {
   'mtn_m:10gb:mb': 2257,
   'mtn_m:15gb:mb': 2258,
   'mtn_m:25gb:mb': 2259,
+
+  // Honor of Kings (Tokens & Passes)
+  'hok_t:633:ac': 758,
+  'hok_t:634:ac': 764,
+  'hok_t:635:ac': 759,
+  'hok_t:636:ac': 761,
+  'hok_t:637:ac': 763,
+  'hok_t:638:ac': 765,
+  'hok_t:639:ac': 757,
+  'hok_t:640:ac': 760,
+  'hok_t:641:ac': 762,
+  'hok_t:642:ac': 766,
+  'hok_t:758:mb': 758,
+  'hok_t:764:mb': 764,
+  'hok_t:759:mb': 759,
+  'hok_t:761:mb': 761,
+  'hok_t:763:mb': 763,
+  'hok_t:765:mb': 765,
+  'hok_t:757:mb': 757,
+  'hok_t:760:mb': 760,
+  'hok_t:762:mb': 762,
+  'hok_t:766:mb': 766,
+  'hok_pass:648:ac': 772,
+  'hok_pass:647:ac': 773,
+  'hok_pass:772:mb': 772,
+  'hok_pass:773:mb': 773,
+
+  // PUBG Mobile UC & Passes
+  'pubg_uc:346:ac': 60,
+  'pubg_uc:347:ac': 54,
+  'pubg_uc:348:ac': 62,
+  'pubg_uc:349:ac': 51,
+  'pubg_uc:350:ac': 56,
+  'pubg_uc:351:ac': 64,
+  'pubg_uc:60:mb': 60,
+  'pubg_uc:54:mb': 54,
+  'pubg_uc:62:mb': 62,
+  'pubg_uc:51:mb': 51,
+  'pubg_uc:56:mb': 56,
+  'pubg_uc:64:mb': 64,
+  'pubg_pass:709:ac': 861,
+  'pubg_pass:717:ac': 857,
+  'pubg_pass:713:ac': 865,
+  'pubg_pass:718:ac': 856,
+  'pubg_pass:861:mb': 861,
+  'pubg_pass:857:mb': 857,
+  'pubg_pass:865:mb': 865,
+  'pubg_pass:856:mb': 856,
+
+  // Free Fire Diamonds & Passes
+  'ff_d:352:ac': 231,
+  'ff_d:353:ac': 233,
+  'ff_d:354:ac': 235,
+  'ff_d:355:ac': 232,
+  'ff_d:356:ac': 234,
+  'ff_d:231:mb': 231,
+  'ff_d:233:mb': 233,
+  'ff_d:235:mb': 235,
+  'ff_d:232:mb': 232,
+  'ff_d:234:mb': 234,
+  'ff_pass:949:ac': 2222,
+  'ff_pass:961:ac': 236,
+  'ff_pass:950:ac': 2221,
+  'ff_pass:2222:mb': 2222,
+  'ff_pass:236:mb': 236,
+  'ff_pass:2221:mb': 2221,
+
+  // Arena Breakout Bonds & Passes
+  'arena_b:657:ac': 634,
+  'arena_b:658:ac': 632,
+  'arena_b:659:ac': 635,
+  'arena_b:660:ac': 630,
+  'arena_b:661:ac': 633,
+  'arena_b:662:ac': 636,
+  'arena_b:634:mb': 634,
+  'arena_b:632:mb': 632,
+  'arena_b:635:mb': 635,
+  'arena_b:630:mb': 630,
+  'arena_b:633:mb': 633,
+  'arena_b:636:mb': 636,
+  'arena_b:629:mb': 629,
+  'arena_b:631:mb': 631,
+  'arena_pass:668:ac': 640,
+  'arena_pass:664:ac': 638,
+  'arena_pass:669:ac': 641,
+  'arena_pass:667:ac': 639,
+  'arena_pass:640:mb': 640,
+  'arena_pass:638:mb': 638,
+  'arena_pass:641:mb': 641,
+  'arena_pass:639:mb': 639,
+
+  // Mobile Legends (MLBB)
+  'mlbb_g:415:ac': 1891,
+  'mlbb_g:416:ac': 1883,
+  'mlbb_g:417:ac': 1886,
+  'mlbb_g:418:ac': 1892,
+  'mlbb_g:419:ac': 1885,
+  'mlbb_g:420:ac': 1887,
+  'mlbb_g:421:ac': 1889,
+  'mlbb_g:422:ac': 1889,
+  'mlbb_g:1891:mb': 1891,
+  'mlbb_g:1893:mb': 1893,
+  'mlbb_g:1883:mb': 1883,
+  'mlbb_g:1886:mb': 1886,
+  'mlbb_g:1890:mb': 1890,
+  'mlbb_g:1892:mb': 1892,
+  'mlbb_g:1880:mb': 1880,
+  'mlbb_g:1881:mb': 1881,
+  'mlbb_g:1882:mb': 1882,
+  'mlbb_g:1884:mb': 1884,
+  'mlbb_g:1885:mb': 1885,
+  'mlbb_g:1887:mb': 1887,
+  'mlbb_g:1888:mb': 1888,
+  'mlbb_g:1889:mb': 1889,
+  'mlbb_tr:428:ac': 964,
+  'mlbb_tr:429:ac': 957,
+  'mlbb_tr:430:ac': 959,
+  'mlbb_tr:431:ac': 962,
+  'mlbb_tr:432:ac': 956,
+  'mlbb_tr:433:ac': 960,
+  'mlbb_tr:958:mb': 958,
+  'mlbb_tr:961:mb': 961,
+  'mlbb_tr:964:mb': 964,
+  'mlbb_tr:957:mb': 957,
+  'mlbb_tr:959:mb': 959,
+  'mlbb_tr:962:mb': 962,
+  'mlbb_tr:956:mb': 956,
+  'mlbb_tr:960:mb': 960,
+  'mlbb_tr:963:mb': 963,
+  'mlbb_pass:425:ac': 1896,
+  'mlbb_pass:438:ac': 967,
+  'mlbb_pass:1896:mb': 1896,
+  'mlbb_pass:967:mb': 967,
+
+  // Telegram Stars & Premium
+  'tg:3m:ac': 897,
+  'tg:6m:ac': 898,
+  'tg:12m:ac': 896,
+  'tg:3m:mb': 897,
+  'tg:6m:mb': 898,
+  'tg:12m:mb': 896,
+  'stars:50:ac': 891,
+  'stars:75:ac': 894,
+  'stars:100:ac': 883,
+  'stars:150:ac': 885,
+  'stars:250:ac': 889,
+  'stars:350:ac': 890,
+  'stars:500:ac': 892,
+  'stars:750:ac': 895,
+  'stars:1000:ac': 887,
+  'stars:1500:ac': 882,
+  'stars:2500:ac': 888,
+  'stars:5000:ac': 893,
+  'stars:50:mb': 891,
+  'stars:75:mb': 894,
+  'stars:100:mb': 883,
+  'stars:150:mb': 885,
+  'stars:250:mb': 889,
+  'stars:350:mb': 890,
+  'stars:500:mb': 892,
+  'stars:750:mb': 895,
+  'stars:1000:mb': 887,
+  'stars:1500:mb': 882,
+  'stars:2500:mb': 888,
+  'stars:5000:mb': 893,
+
+  // Clash of Clans
+  'coc:834:mb': 834,
+  'coc:837:mb': 837,
 };
 
 export function normalizeTargetAccount(target: string, kind: string): string {
@@ -277,9 +447,17 @@ export function getProductRequirement(pkgCode: string, catKey: string = ''): Pro
   // Extract MaxStore product ID
   let maxstoreProductId: number | undefined = MAXSTORE_PRODUCT_MAP[pkgCode];
   if (!maxstoreProductId) {
-    const numMatch = pkgCode.match(/:(\d+):mb$/);
+    const numMatch = pkgCode.match(/:(\d+):(mb|ac)$/);
     if (numMatch) {
       maxstoreProductId = Number(numMatch[1]);
+    }
+  }
+
+  // Fallback: Check if equivalent :mb code is registered
+  if (!maxstoreProductId && pkgCode.endsWith(':ac')) {
+    const mbEquivalent = pkgCode.replace(/:ac$/, ':mb');
+    if (MAXSTORE_PRODUCT_MAP[mbEquivalent]) {
+      maxstoreProductId = MAXSTORE_PRODUCT_MAP[mbEquivalent];
     }
   }
 
@@ -2511,9 +2689,24 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
         const maxstoreProductId = reqInfo.maxstoreProductId;
         const maxstoreToken = (process.env.MAXSTORE_API_TOKEN || 'msk_6HAfwl0cSpjPJ0jeB25V52gC5ETq3seC29C1qlgpdvI').trim();
 
+        if (!isWifi && !maxstoreProductId) {
+          const failMsg =
+            `⚠️ <b>كەچۈرۈڭ، مەزكۇر مەھسۇلاتنىڭ تەمىنلىگۈچى لىنىيىسى نۆۋەتتە يېڭىلىنىۋاتىدۇ!</b>\n\n` +
+            `زاكاز قوبۇل قىلىنمىدى ۋە ھېسابات قالدۇقىڭىزدىن ھېچقانداق پۇل كېسىلمىدى.\n` +
+            `سۈرۈشتۈرۈش ئۈچۈن باشقۇرغۇچى بىلەن ئالاقىلىشىڭ: @${ADMIN_USERNAME}`;
+
+          await showMessage(chatId, messageId, failMsg, {
+            inline_keyboard: [
+              [btnWithIcon('باشقا مەھسۇلاتلار', 'shop', '🛍️', { callback_data: 'shop:home' })],
+              [btnWithIcon('باش بەت', 'home', '🏠', { callback_data: 'menu:main' })],
+            ],
+          });
+          return;
+        }
+
         if (maxstoreProductId && maxstoreToken) {
           try {
-            const orderUuid = 'ORD-' + Date.now().toString(36).toUpperCase() + Math.floor(1000 + Math.random() * 9000);
+            const orderUuid = crypto.randomUUID();
             const orderParams: Record<string, any> = {
               player_id: targetAcc,
               Player_ID: targetAcc,
