@@ -70,8 +70,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const refreshBalances = useCallback(() => {
     if (typeof window !== 'undefined') {
-      setAutocashBalance(getCachedBalance('autocash'));
-      setMaxstoreBalance(getCachedMaxstoreBalance());
+      const unifiedBal = getCachedBalance('autocash');
+      setAutocashBalance(unifiedBal);
+      setMaxstoreBalance(unifiedBal); // 100% Unified
     }
   }, []);
 
@@ -145,7 +146,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const isMaxStore = activeStore === 'maxstore';
-  const currentStoreBalance = isMaxStore ? maxstoreBalance : autocashBalance;
+  const currentStoreBalance = autocashBalance; // 100% Unified: both stores always share the same balance!
   const storeMeta = STORE_METAS[activeStore];
 
   const value = useMemo<StoreContextValue>(() => ({

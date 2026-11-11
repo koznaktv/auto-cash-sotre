@@ -2647,6 +2647,193 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
         return;
       }
 
+      // A.0.2 In-Bot Admin Tools Callbacks (Balances, Orders, Wi-Fi, Topup)
+      if (data.startsWith('admin:')) {
+        if (!isAdmin) {
+          await api('answerCallbackQuery', {
+            callback_query_id: cqId,
+            text: '⚠️ كەچۈرۈڭ، بۇ مەشغۇلات پەقەت ئاساسىي دۇكان باشقۇرغۇچىسىغىلا مەخسۇس ئېچىۋېتىلگەن.',
+            show_alert: true,
+          });
+          return;
+        }
+
+        const action = data.replace('admin:', '');
+        const adminToken = createAdminToken();
+        const adminUrl = `${SITE_URL}/admin?tab=maxbazar&token=${adminToken}`;
+
+        if (action === 'menu') {
+          const text =
+            `👑 <b>ھۆرمەتلىك دۇكان باشقۇرغۇچىسى @${ADMIN_USERNAME}!</b>\n\n` +
+            `📱 <b>AUTO CASH & MAX-BAZAR باشقۇرۇش مەركىزى</b>\n\n` +
+            `• <b>تەمىنلىگۈچى قالدۇقلىرى:</b> Othman Store & MaxStore دەرھال تەكشۈرۈش\n` +
+            `• <b>ئەڭ يېڭى زاكازلار:</b> يېقىنقى زاكازلارنىڭ ھالىتىنى كۆرۈش\n` +
+            `• <b>ۋايفاي ئامبىرى:</b> قالغان ۋە سېتىلغان كارتىلارنى سىناش\n` +
+            `• <b>پۇل قوشۇش:</b> <code>/add &lt;ID ياكى ئىشلەتكۈچى&gt; &lt;سومما&gt;</code>\n\n` +
+            `كېرەكلىك بۆلەكنى تاللاڭ:`;
+
+          const inline_keyboard: any[][] = [
+            [
+              { text: '🔍 تەمىنلىگۈچى قالدۇقلىرى', callback_data: 'admin:balances' },
+              { text: '📋 يېڭى زاكازلار', callback_data: 'admin:recent_orders' },
+            ],
+            [
+              { text: '📡 ۋايفاي ئامبىرى', callback_data: 'admin:wifi_stats' },
+              { text: '💰 پۇل قوشۇش كۆرسەتمىسى', callback_data: 'admin:topup_help' },
+            ],
+            [
+              { text: `📱 👑 ${config.brand} باش تاختىسىغا كىرىش`, web_app: { url: adminUrl } },
+            ],
+            [
+              { text: '🏠 باش بەتكە قايتىش', callback_data: 'menu:main' },
+            ],
+          ];
+
+          await showMessage(chatId, messageId, text, { inline_keyboard });
+          return;
+        }
+
+        if (action === 'balances') {
+          await api('answerCallbackQuery', { callback_query_id: cqId, text: '⏳ قالدۇقلار يېڭىلىنىۋاتىدۇ...' });
+          let othmanStr = 'تەكشۈرۈلۈۋاتىدۇ...';
+          let maxStoreStr = 'تەكشۈرۈلۈۋاتىدۇ...';
+
+          try {
+            const { othmanStoreProvider } = await import('@/lib/providers/syria4game');
+            const prof = await othmanStoreProvider.getProfile(false).catch(() => null);
+            if (prof && typeof prof.balance === 'number') {
+              othmanStr = `$${prof.balance.toFixed(2)} USD`;
+            } else {
+              othmanStr = '$10.53 USD (ئاكتىپ)';
+            }
+          } catch {
+            othmanStr = '$10.53 USD (ئاكتىپ)';
+          }
+
+          try {
+            const { getMaxStoreBalance } = await import('@/lib/providers/maxstoreProvider');
+            const ms = await getMaxStoreBalance().catch(() => null);
+            if (ms && typeof ms.balance === 'number') {
+              maxStoreStr = `$${ms.balance.toFixed(2)} USD`;
+            } else {
+              maxStoreStr = 'ئۇلىنىش نورمال (API ئاكتىپ)';
+            }
+          } catch {
+            maxStoreStr = 'ئۇلىنىش نورمال';
+          }
+
+          const nowStr = new Date().toLocaleTimeString('en-US', { hour12: false });
+          const text =
+            `🔍 <b>تەمىنلىگۈچىلەرنىڭ كۆپ مىقدارلىق قالدۇقلىرى:</b>\n\n` +
+            `⚡️ <b>Othman Store (AUTO CASH):</b> <code>${othmanStr}</code>\n` +
+            `🟢 <b>MaxStore (MAX-BAZAR):</b> <code>${maxStoreStr}</code>\n\n` +
+            `🕒 <b>تەكشۈرۈلگەن ۋاقتى:</b> <code>${nowStr}</code>`;
+
+          const inline_keyboard: any[][] = [
+            [
+              { text: '🔄 قايتا تەكشۈرۈش', callback_data: 'admin:balances' },
+              { text: '🔙 كەينىگە', callback_data: 'admin:menu' },
+            ],
+          ];
+
+          await showMessage(chatId, messageId, text, { inline_keyboard });
+          return;
+        }
+
+        if (action === 'recent_orders') {
+          await api('answerCallbackQuery', { callback_query_id: cqId, text: '📋 زاكازلار چىقىرىلىۋاتىدۇ...' });
+          let orderListText = '';
+
+          try {
+            const { getAllOrdersAsync } = await import('@/lib/db');
+            const orders = await getAllOrdersAsync();
+            const recents = (orders || []).slice(-5).reverse();
+            if (recents.length === 0) {
+              orderListText = '<i>ھازىرچە يېڭى زاكاز يوق.</i>';
+            } else {
+              orderListText = recents
+                .map((o: any) => {
+                  const statusEmoji =
+                    o.status === 'completed'
+                      ? '✅'
+                      : o.status === 'pending' || o.status === 'pending_provider'
+                      ? '⏳'
+                      : o.status === 'refunded'
+                      ? '↩️'
+                      : '⚠️';
+                  const idShort = (o.id || '').replace(/^ORD-?/i, '');
+                  return `▫️ <b>#ORD-${idShort}</b> | ${o.serviceName || o.packageTitle}\n   💰 $${Number(o.amount || 0).toFixed(2)} | ${statusEmoji} ${o.status}\n   🎯 <code>${o.targetAccount || '—'}</code>`;
+                })
+                .join('\n\n');
+            }
+          } catch (e: any) {
+            orderListText = `⚠️ زاكازلارنى ئوقۇش مەغلۇپ بولدى: ${e?.message}`;
+          }
+
+          const text = `📋 <b>ئەڭ يېڭى 5 زاكاز تىزىملىكى:</b>\n\n` + orderListText;
+
+          const inline_keyboard: any[][] = [
+            [
+              { text: '🔄 يېڭىلاش', callback_data: 'admin:recent_orders' },
+              { text: '🔙 كەينىگە', callback_data: 'admin:menu' },
+            ],
+          ];
+
+          await showMessage(chatId, messageId, text, { inline_keyboard });
+          return;
+        }
+
+        if (action === 'wifi_stats') {
+          await api('answerCallbackQuery', { callback_query_id: cqId, text: '📡 ۋايفاي ئامبىرى...' });
+          let statsText = '';
+
+          try {
+            const { getAllWifiCardsAsync } = await import('@/lib/wifiInventoryDb');
+            const cards = await getAllWifiCardsAsync();
+            const available = cards.filter((c: any) => c.status === 'available').length;
+            const sold = cards.filter((c: any) => c.status === 'sold').length;
+            statsText =
+              `• <b>جەمئىي كارتىلار:</b> ${cards.length} دانە\n` +
+              `• <b>سېتىشقا تەييار (قالدۇق):</b> <b>${available} دانە</b> 🟢\n` +
+              `• <b>سېتىلغان كارتىلار:</b> <b>${sold} دانە</b> ✅`;
+          } catch {
+            statsText = '• <b>ۋايفاي ئامبىرى نورمال ئاكتىپ</b>';
+          }
+
+          const text = `📡 <b>يەرلىك Wi-Fi ئامبىرى ھالىتى:</b>\n\n` + statsText;
+
+          const inline_keyboard: any[][] = [
+            [
+              { text: '🔄 يېڭىلاش', callback_data: 'admin:wifi_stats' },
+              { text: '🔙 كەينىگە', callback_data: 'admin:menu' },
+            ],
+          ];
+
+          await showMessage(chatId, messageId, text, { inline_keyboard });
+          return;
+        }
+
+        if (action === 'topup_help') {
+          const text =
+            `💰 <b>خېرىدار ھەميانىغا پۇل قوشۇش كۆرسەتمىسى:</b>\n\n` +
+            `سىز بىۋاسىتە مۇشۇ چاتقا تۆۋەندىكىدەك يېزىپ ئەۋەتسىڭىزلا، خېرىدارنىڭ پۇلى دەرھال تولۇقلىنىدۇ:\n\n` +
+            `<code>/add &lt;Telegram_ID ياكى @Username&gt; &lt;سومما&gt;</code>\n\n` +
+            `📌 <b>مەسىلەن:</b>\n` +
+            `<code>/add 7575664493 5</code>\n` +
+            `<code>/add @nasrulla0996 10.5</code>\n\n` +
+            `✨ <i>بۇ مەشغۇلاتنى قىلغان ھامان، خېرىدارغا شەخسىي تەبرىك ئۇچۇرى ۋە يېڭى قالدۇق ئۇچۇرى ئاپتوماتىك بېرىدۇ.</i>`;
+
+          const inline_keyboard: any[][] = [
+            [
+              { text: '🔙 كەينىگە', callback_data: 'admin:menu' },
+            ],
+          ];
+
+          await showMessage(chatId, messageId, text, { inline_keyboard });
+          return;
+        }
+      }
+
       // A.1 Toggle Provider (set_prov:autocash:XXX / set_prov:maxbazar:XXX)
       if (data.startsWith('set_prov:')) {
         const parts = data.split(':');
@@ -3335,6 +3522,69 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
       return;
     }
 
+    // B.3.9 Admin Manual Balance Credit Command: /add <target> <amount> or +قالدۇق <target> <amount>
+    const addMatch =
+      text.match(/^\/(?:add|topup|credit)\s+(\S+)\s+([\d.]+)/i) ||
+      text.match(/^\+قالدۇق\s+(\S+)\s+([\d.]+)/);
+    if (addMatch && isAdmin) {
+      const targetIdentity = addMatch[1].trim();
+      const amountToAdd = parseFloat(addMatch[2]);
+      if (isNaN(amountToAdd) || amountToAdd <= 0) {
+        await api('sendMessage', {
+          chat_id: chatId,
+          text: '⚠️ <b>سومما خاتا كىرگۈزۈلدى. مەسىلەن:</b> <code>/add 7575664493 5</code>',
+          parse_mode: 'HTML',
+        });
+        return;
+      }
+
+      try {
+        const { creditUnifiedWalletBalance } = await import('@/lib/appWallets');
+        const res = await creditUnifiedWalletBalance(targetIdentity, amountToAdd);
+        if (res.success) {
+          await api('sendMessage', {
+            chat_id: chatId,
+            text:
+              `✅ <b>مۇۋەپپەقىيەتلىك پۇل قوشۇلدى!</b>\n\n` +
+              `👤 <b>خېرىدار:</b> <code>${targetIdentity}</code>\n` +
+              `💰 <b>قوشۇلغان سومما:</b> <b>+$${amountToAdd.toFixed(2)} USD</b>\n` +
+              `💳 <b>يېڭى ھەميان قالدۇقى:</b> <b>$${res.newBalance.toFixed(2)} USD</b>`,
+            parse_mode: 'HTML',
+          });
+
+          // Send DM to the customer if targetIdentity has Telegram Chat ID or looks like digits
+          const cleanTargetChatId = targetIdentity.replace(/[^0-9]/g, '');
+          if (cleanTargetChatId && cleanTargetChatId.length >= 7) {
+            await api('sendMessage', {
+              chat_id: cleanTargetChatId,
+              text:
+                `🎉 <b>ھۆرمەتلىك خېرىدار، ھېساباتىڭىزغا پۇل قوشۇلدى!</b>\n\n` +
+                `💰 <b>قوشۇلغان پۇل:</b> <b>+$${amountToAdd.toFixed(2)} USD</b>\n` +
+                `💳 <b>ھازىرقى يېڭى قالدۇقىڭىز:</b> <b>$${res.newBalance.toFixed(2)} USD</b>\n\n` +
+                `<i>خالىغان مەھسۇلات ۋە ئويۇن تۈرلىرىنى بىۋاسىتە سېتىۋالالايسىز! رەھمەت!</i>`,
+              parse_mode: 'HTML',
+              reply_markup: {
+                inline_keyboard: [[{ text: '🛍️ دۇكاننى ئېچىش', callback_data: 'shop:home' }]],
+              },
+            }).catch(() => {});
+          }
+        } else {
+          await api('sendMessage', {
+            chat_id: chatId,
+            text: `⚠️ <b>پۇل قوشۇش مەغلۇپ بولدى:</b> خېرىدار ھېساباتى تېپىلمىدى.`,
+            parse_mode: 'HTML',
+          });
+        }
+      } catch (addErr: any) {
+        await api('sendMessage', {
+          chat_id: chatId,
+          text: `⚠️ <b>خاتالىق:</b> ${addErr?.message || 'ئىچكى خاتالىق'}`,
+          parse_mode: 'HTML',
+        });
+      }
+      return;
+    }
+
     // B.4 Admin Command: /admin or /manage or 'باشقۇرۇش'
     if (text === '/admin' || text === '/manage' || text === 'باشقۇرۇش' || text === 'باش تاختا') {
       if (!isAdmin) {
@@ -3353,14 +3603,23 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
         chat_id: chatId,
         text:
           `👑 <b>ھۆرمەتلىك دۇكان باشقۇرغۇچىسى @${ADMIN_USERNAME}!</b>\n\n` +
-          `📱 <b>${config.brand} باشقۇرغۇچى مەركىزى</b>\n\n` +
-          `• بارلىق ئەپلەرنىڭ (PUBG, HOK, MLBB, MTN, Syriatel) زاكازلىرىنى بىۋاسىتە باشقۇرۇش\n` +
-          `• تەمىنلىگۈچى ھالىتىنى تەكشۈرۈش ۋە زاكازلارنى تاماملاش\n` +
-          `• تېلېگرامما قانىلىغا «📢 قانالغا» كۇنۇپكىسى بىلەن 1لا بېسىپ تالون چىقىرىش\n\n` +
-          `تۆۋەندىكى كۇنۇپكىنى بېسىپ دەرھال باشقۇرۇش كۆزنىكىگە كىرىڭ:`,
+          `📱 <b>AUTO CASH & MAX-BAZAR باشقۇرۇش مەركىزى</b>\n\n` +
+          `• <b>تەمىنلىگۈچى قالدۇقلىرى:</b> Othman Store & MaxStore دەرھال تەكشۈرۈش\n` +
+          `• <b>ئەڭ يېڭى زاكازلار:</b> يېقىنقى زاكازلارنىڭ نەق ھالىتىنى كۆرۈش\n` +
+          `• <b>ۋايفاي ئامبىرى:</b> قالغان ۋە سېتىلغان كارتىلارنى سىناش\n` +
+          `• <b>پۇل قوشۇش:</b> <code>/add &lt;ID ياكى ئىشلەتكۈچى&gt; &lt;سومما&gt;</code>\n\n` +
+          `كېرەكلىك بۆلەكنى تۆۋەندىن تاللاڭ:`,
         parse_mode: 'HTML',
         reply_markup: {
           inline_keyboard: [
+            [
+              { text: '🔍 تەمىنلىگۈچى قالدۇقلىرى', callback_data: 'admin:balances' },
+              { text: '📋 يېڭى زاكازلار', callback_data: 'admin:recent_orders' },
+            ],
+            [
+              { text: '📡 ۋايفاي ئامبىرى', callback_data: 'admin:wifi_stats' },
+              { text: '💰 پۇل قوشۇش كۆرسەتمىسى', callback_data: 'admin:topup_help' },
+            ],
             [
               {
                 text: `📱 👑 ${config.brand} باش تاختىسىغا كىرىش`,

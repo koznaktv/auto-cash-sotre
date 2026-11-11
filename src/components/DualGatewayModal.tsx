@@ -232,7 +232,7 @@ export default function DualGatewayModal() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
-                  <span>ئايرىم مۇستەقىل ھەميان ۋە زاكازلار</span>
+                  <span>بىرلەشتۈرۈلگەن ئورتاق ھەميان (بىر گەۋدە)</span>
                 </div>
               </div>
             </div>
@@ -242,10 +242,10 @@ export default function DualGatewayModal() {
               <div className="flex items-center justify-between text-xs mb-3 bg-blue-950/30 px-3 py-2 rounded-xl border border-blue-500/20">
                 <span className="text-slate-400 flex items-center gap-1.5">
                   <Wallet className="w-3.5 h-3.5 text-blue-400" />
-                  MAX-BAZAR قالدۇقى:
+                  ئورتاق ھەميان قالدۇقى:
                 </span>
                 <span className="font-bold text-blue-400">
-                  {formatSmartPrice(maxstoreBalance)}
+                  {formatSmartPrice(autocashBalance)}
                 </span>
               </div>
 

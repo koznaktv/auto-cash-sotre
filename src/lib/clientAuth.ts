@@ -34,8 +34,10 @@ export function storeLocalAuth(user: ClientUser, options?: { skipNotify?: boolea
   } else {
     localStorage.removeItem('autocash_avatar');
   }
-  if (typeof user.balance === 'number') localStorage.setItem('autocash_balance', String(user.balance));
-  if (typeof user.maxstoreBalance === 'number') localStorage.setItem('maxstore_balance', String(user.maxstoreBalance));
+  if (typeof user.balance === 'number') {
+    localStorage.setItem('autocash_balance', String(user.balance));
+    localStorage.setItem('maxstore_balance', String(user.balance)); // Keep 100% unified in sync
+  }
   if (user.vipTier) localStorage.setItem('autocash_vipTier', user.vipTier);
   if (typeof user.totalSpent === 'number') localStorage.setItem('autocash_totalSpent', String(user.totalSpent));
   if (user.role) localStorage.setItem('autocash_role', user.role);
@@ -105,14 +107,15 @@ export function getCachedBalance(store: 'autocash' | 'maxstore' = 'autocash'): n
   if (typeof window === 'undefined') return 0.0;
   const isLoggedIn = localStorage.getItem('autocash_is_logged_in');
   if (isLoggedIn !== 'true') return 0.0;
-  const key = store === 'maxstore' ? 'maxstore_balance' : 'autocash_balance';
-  const val = localStorage.getItem(key);
+  // 100% UNIFIED BALANCE: AUTO CASH and MAX-BAZAR share the exact same wallet balance!
+  const val = localStorage.getItem('autocash_balance') ?? localStorage.getItem('maxstore_balance');
   if (val !== null && !isNaN(Number(val))) return Number(val);
   return 0.0;
 }
 
 export function getCachedMaxstoreBalance(): number {
-  return getCachedBalance('maxstore');
+  // Always return the unified single balance
+  return getCachedBalance('autocash');
 }
 
 export function getCachedUser(): ClientUser | null {
@@ -127,10 +130,9 @@ export function getCachedUser(): ClientUser | null {
     localStorage.removeItem('autocash_avatar');
   }
   const avatarUrl = (rawAvatar && !rawAvatar.startsWith('data:')) ? rawAvatar : undefined;
-  const balanceVal = localStorage.getItem('autocash_balance');
+  const balanceVal = localStorage.getItem('autocash_balance') ?? localStorage.getItem('maxstore_balance');
   const balance = balanceVal !== null && !isNaN(Number(balanceVal)) ? Number(balanceVal) : 0.0;
-  const maxstoreVal = localStorage.getItem('maxstore_balance');
-  const maxstoreBalance = maxstoreVal !== null && !isNaN(Number(maxstoreVal)) ? Number(maxstoreVal) : 0.0;
+  const maxstoreBalance = balance; // 100% Unified
   const vipTier = localStorage.getItem('autocash_vipTier') || 'vip1';
   const totalSpentVal = localStorage.getItem('autocash_totalSpent');
   const totalSpent = totalSpentVal !== null && !isNaN(Number(totalSpentVal)) ? Number(totalSpentVal) : 0.0;

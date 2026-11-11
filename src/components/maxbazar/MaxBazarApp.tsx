@@ -1297,13 +1297,13 @@ export default function MaxBazarApp() {
     }
   };
 
-  const liveBalanceNum = providerProfile?.balance !== undefined
-    ? parseFloat(String(providerProfile.balance))
-    : (typeof maxstoreBalance === 'number' ? maxstoreBalance : 0.064);
-  const balanceUSD = isNaN(liveBalanceNum) ? 0.064 : liveBalanceNum;
-  const balanceDisplay = `${balanceUSD.toFixed(3)}$`;
+  const liveBalanceNum = typeof currentUser?.balance === 'number'
+    ? currentUser.balance
+    : (typeof maxstoreBalance === 'number' ? maxstoreBalance : 0.0);
+  const balanceUSD = isNaN(liveBalanceNum) ? 0.0 : liveBalanceNum;
+  const balanceDisplay = `${balanceUSD.toFixed(2)}$`;
 
-  const userId = providerProfile?.user_id ? String(providerProfile.user_id) : (currentUser?.id || '7575664493');
+  const userId = currentUser?.id || (currentUser?.email ? currentUser.email.split('@')[0] : '7575664493');
 
   const copyToClipboard = (text: string) => {
     try {
