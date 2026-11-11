@@ -445,6 +445,64 @@ export const OTHMAN_STORE_PRODUCT_MAP: Record<string, number> = {
   'tr:1000dk_20gb:ac': 743,
   'tr:1000dk_34gb:ac': 744,
   'tr:1000dk_50gb:ac': 745,
+
+  // Syriatel Units (Product ID 991)
+  'syr:20_19:ac': 991,
+  'syr:30_76:ac': 991,
+  'syr:40_38:ac': 991,
+  'syr:52_88:ac': 991,
+  'syr:68_27:ac': 991,
+  'syr:72_12:ac': 991,
+  'syr:77_88:ac': 991,
+  'syr:81_73:ac': 991,
+  'syr:86_54:ac': 991,
+  'syr:96_15:ac': 991,
+  'syr:100_96:ac': 991,
+  'syr:105_77:ac': 991,
+  'syr:115_38:ac': 991,
+  'syr:130_77:ac': 991,
+  'syr:144_23:ac': 991,
+  'syr:160_58:ac': 991,
+  'syr:163_46:ac': 991,
+  'syr:173_08:ac': 991,
+  'syr:183_65:ac': 991,
+  'syr:192_31:ac': 991,
+  'syr:211_54:ac': 991,
+  'syr:240_38:ac': 991,
+  'syr:288_46:ac': 991,
+  'syr:317_31:ac': 991,
+  'syr:370_19:ac': 991,
+  'syr:432_69:ac': 991,
+  'syr:480_77:ac': 991,
+  'syr:951_92:ac': 991,
+  'syr:1057_69:ac': 991,
+  'syr:2403_85:ac': 991,
+
+  // MTN Syria Units (Product ID 1024)
+  'mtn:10:ac': 1024,
+  'mtn:20:ac': 1024,
+  'mtn:25:ac': 1024,
+  'mtn:30:ac': 1024,
+  'mtn:40:ac': 1024,
+  'mtn:50:ac': 1024,
+  'mtn:60:ac': 1024,
+  'mtn:70:ac': 1024,
+  'mtn:85:ac': 1024,
+  'mtn:100:ac': 1024,
+  'mtn:170:ac': 1024,
+  'mtn:200:ac': 1024,
+  'mtn:280:ac': 1024,
+  'mtn:360:ac': 1024,
+  'mtn:400:ac': 1024,
+  'mtn:500:ac': 1024,
+  'mtn:600:ac': 1024,
+  'mtn:750:ac': 1024,
+  'mtn:1000:ac': 1024,
+  'mtn:1500:ac': 1024,
+  'mtn:2000:ac': 1024,
+  'mtn:2500:ac': 1024,
+  'mtn:3000:ac': 1024,
+  'mtn:5000:ac': 1024,
 };
 
 export function normalizeTargetAccount(target: string, kind: string): string {
@@ -475,6 +533,7 @@ export interface ProductRequirement {
   requiresZoneId: boolean;
   maxstoreProductId?: number;
   othmanStoreProductId?: number;
+  providerQty?: number;
 }
 
 export function getProductRequirement(pkgCode: string, catKey: string = ''): ProductRequirement {
@@ -612,6 +671,11 @@ export function getProductRequirement(pkgCode: string, catKey: string = ''): Pro
 
   // 8. Syriatel -> Requires Phone Number
   if (code.startsWith('syr:') || code.startsWith('syr_m:') || cat.includes('syriatel')) {
+    let providerQty: number | undefined = undefined;
+    const syrQtyMatch = code.match(/syr:(\d+)(?:_(\d+))?:/);
+    if (syrQtyMatch) {
+      providerQty = syrQtyMatch[2] ? parseFloat(`${syrQtyMatch[1]}.${syrQtyMatch[2]}`) : parseFloat(syrQtyMatch[1]);
+    }
     return {
       requiresInput: true,
       kind: 'syriatel',
@@ -621,12 +685,18 @@ export function getProductRequirement(pkgCode: string, catKey: string = ''): Pro
       placeholder: '09xxxxxxxx',
       requiresZoneId: false,
       maxstoreProductId,
-      othmanStoreProductId,
+      othmanStoreProductId: 991,
+      providerQty,
     };
   }
 
   // 9. MTN Syria -> Requires Phone Number
   if (code.startsWith('mtn:') || code.startsWith('mtn_m:') || cat.includes('mtn')) {
+    let providerQty: number | undefined = undefined;
+    const mtnQtyMatch = code.match(/mtn:(\d+):/);
+    if (mtnQtyMatch) {
+      providerQty = parseFloat(mtnQtyMatch[1]);
+    }
     return {
       requiresInput: true,
       kind: 'mtn',
@@ -636,7 +706,8 @@ export function getProductRequirement(pkgCode: string, catKey: string = ''): Pro
       placeholder: '09xxxxxxxx',
       requiresZoneId: false,
       maxstoreProductId,
-      othmanStoreProductId,
+      othmanStoreProductId: 1024,
+      providerQty,
     };
   }
 
@@ -764,7 +835,38 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
   },
   'topup:syriatel': {
     name: '<tg-emoji emoji-id="5005811690890069852">🇸🇾</tg-emoji> سۈرىيەتىل (Syriatel پۇل بىرلىكلىرى)',
-    autocash: [],
+    autocash: [
+      { title: '🛍️ 20.19 سۈري — 0.15$', code: 'syr:20_19:ac', price: 0.15 },
+      { title: '🛍️ 30.76 سۈري — 0.23$', code: 'syr:30_76:ac', price: 0.23 },
+      { title: '🛍️ 40.38 سۈري — 0.30$', code: 'syr:40_38:ac', price: 0.30 },
+      { title: '🛍️ 52.88 سۈري — 0.39$', code: 'syr:52_88:ac', price: 0.39 },
+      { title: '🛍️ 68.27 سۈري — 0.51$', code: 'syr:68_27:ac', price: 0.51 },
+      { title: '🛍️ 72.12 سۈري — 0.54$', code: 'syr:72_12:ac', price: 0.54 },
+      { title: '🛍️ 77.88 سۈري — 0.58$', code: 'syr:77_88:ac', price: 0.58 },
+      { title: '🛍️ 81.73 سۈري — 0.61$', code: 'syr:81_73:ac', price: 0.61 },
+      { title: '🛍️ 86.54 سۈري — 0.64$', code: 'syr:86_54:ac', price: 0.64 },
+      { title: '🛍️ 96.15 سۈري — 0.71$', code: 'syr:96_15:ac', price: 0.71 },
+      { title: '🛍️ 100.96 سۈري — 0.75$', code: 'syr:100_96:ac', price: 0.75 },
+      { title: '🛍️ 105.77 سۈري — 0.78$', code: 'syr:105_77:ac', price: 0.78 },
+      { title: '🛍️ 115.38 سۈري — 0.85$', code: 'syr:115_38:ac', price: 0.85 },
+      { title: '🛍️ 130.77 سۈري — 0.97$', code: 'syr:130_77:ac', price: 0.97 },
+      { title: '🛍️ 144.23 سۈري — 1.07$', code: 'syr:144_23:ac', price: 1.07 },
+      { title: '🛍️ 160.58 سۈري — 1.19$', code: 'syr:160_58:ac', price: 1.19 },
+      { title: '🛍️ 163.46 سۈري — 1.21$', code: 'syr:163_46:ac', price: 1.21 },
+      { title: '🛍️ 173.08 سۈري — 1.28$', code: 'syr:173_08:ac', price: 1.28 },
+      { title: '🛍️ 183.65 سۈري — 1.36$', code: 'syr:183_65:ac', price: 1.36 },
+      { title: '🛍️ 192.31 سۈري — 1.42$', code: 'syr:192_31:ac', price: 1.42 },
+      { title: '🛍️ 211.54 سۈري — 1.56$', code: 'syr:211_54:ac', price: 1.56 },
+      { title: '🛍️ 240.38 سۈري — 1.77$', code: 'syr:240_38:ac', price: 1.77 },
+      { title: '🛍️ 288.46 سۈري — 2.13$', code: 'syr:288_46:ac', price: 2.13 },
+      { title: '🛍️ 317.31 سۈري — 2.34$', code: 'syr:317_31:ac', price: 2.34 },
+      { title: '🛍️ 370.19 سۈري — 2.73$', code: 'syr:370_19:ac', price: 2.73 },
+      { title: '🛍️ 432.69 سۈري — 3.19$', code: 'syr:432_69:ac', price: 3.19 },
+      { title: '🛍️ 480.77 سۈري — 3.54$', code: 'syr:480_77:ac', price: 3.54 },
+      { title: '🛍️ 951.92 سۈري — 7.01$', code: 'syr:951_92:ac', price: 7.01 },
+      { title: '🛍️ 1057.69 سۈري — 7.79$', code: 'syr:1057_69:ac', price: 7.79 },
+      { title: '🛍️ 2403.85 سۈري — 17.70$', code: 'syr:2403_85:ac', price: 17.70 },
+    ],
     maxbazar: [
       { title: '🛍️ 20.19 سۈري — 0.16$', code: 'syr:20_19:mb', price: 0.16 },
       { title: '🛍️ 30.76 سۈري — 0.25$', code: 'syr:30_76:mb', price: 0.25 },
@@ -811,7 +913,32 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
   },
   'topup:mtn': {
     name: '<tg-emoji emoji-id="5008461419423729981">🇸🇾</tg-emoji> ئىمتىئىن (MTN سۈرىيە لىراسى)',
-    autocash: [],
+    autocash: [
+      { title: '🛍️ 10 سۈرىيە لىراسى — 0.07$', code: 'mtn:10:ac', price: 0.07 },
+      { title: '🛍️ 20 سۈرىيە لىراسى — 0.15$', code: 'mtn:20:ac', price: 0.15 },
+      { title: '🛍️ 25 سۈرىيە لىراسى — 0.19$', code: 'mtn:25:ac', price: 0.19 },
+      { title: '🛍️ 30 سۈرىيە لىراسى — 0.23$', code: 'mtn:30:ac', price: 0.23 },
+      { title: '🛍️ 40 سۈرىيە لىراسى — 0.30$', code: 'mtn:40:ac', price: 0.30 },
+      { title: '🛍️ 50 سۈرىيە لىراسى — 0.38$', code: 'mtn:50:ac', price: 0.38 },
+      { title: '🛍️ 60 سۈرىيە لىراسى — 0.45$', code: 'mtn:60:ac', price: 0.45 },
+      { title: '🛍️ 70 سۈرىيە لىراسى — 0.53$', code: 'mtn:70:ac', price: 0.53 },
+      { title: '🛍️ 85 سۈرىيە لىراسى — 0.64$', code: 'mtn:85:ac', price: 0.64 },
+      { title: '🛍️ 100 سۈرىيە لىراسى — 0.75$', code: 'mtn:100:ac', price: 0.75 },
+      { title: '🛍️ 170 سۈرىيە لىراسى — 1.28$', code: 'mtn:170:ac', price: 1.28 },
+      { title: '🛍️ 200 سۈرىيە لىراسى — 1.50$', code: 'mtn:200:ac', price: 1.50 },
+      { title: '🛍️ 280 سۈرىيە لىراسى — 2.10$', code: 'mtn:280:ac', price: 2.10 },
+      { title: '🛍️ 360 سۈرىيە لىراسى — 2.70$', code: 'mtn:360:ac', price: 2.70 },
+      { title: '🛍️ 400 سۈرىيە لىراسى — 3.00$', code: 'mtn:400:ac', price: 3.00 },
+      { title: '🛍️ 500 سۈرىيە لىراسى — 3.75$', code: 'mtn:500:ac', price: 3.75 },
+      { title: '🛍️ 600 سۈرىيە لىراسى — 4.50$', code: 'mtn:600:ac', price: 4.50 },
+      { title: '🛍️ 750 سۈرىيە لىراسى — 5.60$', code: 'mtn:750:ac', price: 5.60 },
+      { title: '🛍️ 1000 سۈرىيە لىراسى — 7.50$', code: 'mtn:1000:ac', price: 7.50 },
+      { title: '🛍️ 1500 سۈرىيە لىراسى — 11.20$', code: 'mtn:1500:ac', price: 11.20 },
+      { title: '🛍️ 2000 سۈرىيە لىراسى — 14.90$', code: 'mtn:2000:ac', price: 14.90 },
+      { title: '🛍️ 2500 سۈرىيە لىراسى — 18.60$', code: 'mtn:2500:ac', price: 18.60 },
+      { title: '🛍️ 3000 سۈرىيە لىراسى — 22.30$', code: 'mtn:3000:ac', price: 22.30 },
+      { title: '🛍️ 5000 سۈرىيە لىراسى — 37.00$', code: 'mtn:5000:ac', price: 37.00 },
+    ],
     maxbazar: [
       { title: '🛍️ 10 سۈرىيە لىراسى — 0.08$', code: 'mtn:10:mb', price: 0.08 },
       { title: '🛍️ 20 سۈرىيە لىراسى — 0.16$', code: 'mtn:20:mb', price: 0.16 },
@@ -1289,7 +1416,7 @@ async function showOrEditMessage(
 // ==========================================
 // 4. MENU RENDERER
 // ==========================================
-function getMenuContent(
+export function getMenuContent(
   menuId: string,
   user: any,
   session: MaxBazarSession,
@@ -1668,96 +1795,140 @@ function getMenuContent(
     return { text, inline_keyboard };
   }
 
+// Helper: Format compact dual-provider button label (Short & Clean)
+function formatDualButtonLabel(
+  p: ProductPackage,
+  provider: 'autocash' | 'maxbazar',
+  menuId: string
+): string {
+  const icon = provider === 'autocash' ? '⚡️' : '🟢';
+  const priceStr = `$${Number(p.price || 0).toFixed(2)}`;
+
+  // 1. Syriatel Units (e.g. 20.19 سۈرى)
+  if (menuId === 'topup:syriatel' || p.code.startsWith('syr:')) {
+    const unitMatch = p.code.match(/syr:(\d+)(?:_(\d+))?:/);
+    let unitNum = '';
+    if (unitMatch) {
+      unitNum = unitMatch[2] ? `${unitMatch[1]}.${unitMatch[2]}` : unitMatch[1];
+    } else {
+      unitNum = p.title.replace(/[^0-9.]/g, '');
+    }
+    return `${icon} ${unitNum} سۈرى: ${priceStr}`;
+  }
+
+  // 2. MTN Units (e.g. 10 لىرا)
+  if (menuId === 'topup:mtn' || p.code.startsWith('mtn:')) {
+    const unitMatch = p.code.match(/mtn:(\d+):/);
+    const unitNum = unitMatch ? unitMatch[1] : p.title.replace(/[^0-9]/g, '');
+    return `${icon} ${unitNum} لىرا: ${priceStr}`;
+  }
+
+  // 3. Honor of Kings Tokens (e.g. 16 T)
+  if (p.code.includes('hok_t:') || p.title.toLowerCase().includes('token')) {
+    const tokMatch = p.title.match(/(\d+)\s*Token/i);
+    const tokNum = tokMatch ? tokMatch[1] : p.title.replace(/[^0-9]/g, '');
+    return `${icon} ${tokNum} T: ${priceStr}`;
+  }
+
+  // 4. PUBG Mobile UC (e.g. 60 UC)
+  if (p.code.includes('pubg_uc:') || p.title.toLowerCase().includes('uc')) {
+    const ucMatch = p.title.match(/(\d+)\s*UC/i) || p.code.match(/uc:(\d+):/);
+    const ucNum = ucMatch ? ucMatch[1] : p.title.replace(/[^0-9]/g, '');
+    return `${icon} ${ucNum} UC: ${priceStr}`;
+  }
+
+  // 5. Free Fire Diamonds (e.g. 100 💎)
+  if (p.code.includes('ff_d:') || p.title.toLowerCase().includes('diamond') || p.title.includes('ئالماس')) {
+    const dMatch = p.title.match(/(\d+)(?:\+\d+)?\s*(?:Diamond|ئالماس)/i) || p.code.match(/ff_d:(\d+):/);
+    const dNum = dMatch ? dMatch[1] : p.title.replace(/[^0-9]/g, '');
+    return `${icon} ${dNum} 💎: ${priceStr}`;
+  }
+
+  // 6. Arena Breakout Bonds (e.g. 66 B)
+  if (p.code.includes('arena_b:') || p.title.toLowerCase().includes('bond')) {
+    const bMatch = p.title.match(/(\d+)\s*Bond/i);
+    const bNum = bMatch ? bMatch[1] : p.title.replace(/[^0-9]/g, '');
+    return `${icon} ${bNum} B: ${priceStr}`;
+  }
+
+  // 7. Telegram Stars (e.g. 50 ⭐)
+  if (p.code.startsWith('stars:') || p.title.toLowerCase().includes('star')) {
+    const sMatch = p.title.match(/(\d+)\s*Star/i) || p.code.match(/stars:(\d+):/);
+    const sNum = sMatch ? sMatch[1] : p.title.replace(/[^0-9]/g, '');
+    return `${icon} ${sNum} ⭐: ${priceStr}`;
+  }
+
+  // 8. Telegram Premium (e.g. 3 ئاي)
+  if (menuId === 'tg:premium' || p.code.includes('tg_p:') || p.code.startsWith('tg:')) {
+    if (p.code.includes('3m') || p.title.includes('3')) return `${icon} 3 ئاي: ${priceStr}`;
+    if (p.code.includes('6m') || p.title.includes('6')) return `${icon} 6 ئاي: ${priceStr}`;
+    if (p.code.includes('12m') || p.title.includes('12') || p.title.includes('1')) return `${icon} 12 ئاي: ${priceStr}`;
+  }
+
+  // 7. General fallback: clean title + price
+  let cleanT = p.title.replace(/^[🛍️📦👑⭐📶\s]+/, '').replace(/—.*$/, '').trim();
+  if (cleanT.length > 13) cleanT = cleanT.slice(0, 12) + '…';
+  return `${icon} ${cleanT}: ${priceStr}`;
+}
+
   // 8. Specific Product Package Page
   if (PROVIDER_DATA[menuId]) {
     const item = PROVIDER_DATA[menuId];
     const isWifi = menuId.startsWith('wifi:');
-    const isTopup = menuId.startsWith('topup:');
-    const isGrid2Col =
-      menuId === 'topup:syriatel' ||
-      menuId === 'topup:mtn' ||
-      menuId === 'topup:turkey' ||
-      menuId === 'tg:stars';
+    const hasBothProviders = !isWifi && item.autocash.length > 0 && item.maxbazar.length > 0;
 
-    // Topup cards:
-    // - Syriatel & MTN: strictly Max Store (item.maxbazar)
-    // - Turkcell: strictly Othman Store (item.autocash)
-    // Wifi: strictly item.autocash
-    // Others: follow session.selectedProvider
-    const pkgs = isWifi
-      ? item.autocash
-      : (menuId === 'topup:syriatel' || menuId === 'topup:syriatel_monthly' || menuId === 'topup:mtn' || menuId === 'topup:mtn_monthly')
-      ? item.maxbazar
-      : (menuId === 'topup:turkey' || menuId === 'topup:turkey_monthly')
-      ? item.autocash
-      : isAc
-      ? item.autocash
-      : item.maxbazar;
+    let text =
+      `${item.name}\n\n` +
+      `💳 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n`;
 
-    let text = '';
+    if (hasBothProviders) {
+      text +=
+        `💡 <b>تەمىنلىگۈچى باھالىرى يانمۇ-يان تىزىلدى:</b>\n` +
+        `<i>(ئوڭدا: ⚡️ Auto Cash | سولدا: 🟢 Max Bazar)</i>\n` +
+        `تۆۋەندىن خالىغان تەرەپنى 1لا بېسىپ سېتىۋالالايسىز:`;
+    } else {
+      text += `📦 <b>تۆۋەندىن ئېھتىياجلىق بولاقنى تاللاڭ:</b>`;
+    }
+
     const inline_keyboard: any[][] = [];
 
-    if (isTopup || isWifi) {
-      text =
-        `${item.name}\n\n` +
-        `💳 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
-        `📦 <b>تۆۋەندىن ئېھتىياجلىق بولاقنى تاللاڭ:</b>`;
-    } else {
-      text =
-        `${item.name}\n\n` +
-        `💰 <b>باھا تۈرى:</b> <b>${providerTag}</b>\n` +
-        `💳 <b>ھازىرقى قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n\n` +
-        `💡 <b>كۆرسەتمە:</b> ئىككى توربەتنىڭ باھا ھالىتى ئوخشىمايدۇ، خالىغاننى ئالماشتۇرۇپ سىناپ بېقىڭ:\n` +
-        `👇 AUTO CASH  🔄  MAX-BAZAR 👇`;
+    if (hasBothProviders) {
+      const maxLen = Math.max(item.autocash.length, item.maxbazar.length);
+      for (let i = 0; i < maxLen; i++) {
+        const acPkg = item.autocash[i];
+        const mbPkg = item.maxbazar[i];
 
-      inline_keyboard.push([
-        {
-          text: `${isAc ? '🟢' : '⚪'} AUTO CASH`,
-          callback_data: `set_prov:autocash:${menuId}`,
-        },
-        {
-          text: `${!isAc ? '🟢' : '⚪'} MAX-BAZAR`,
-          callback_data: `set_prov:maxbazar:${menuId}`,
-        },
-      ]);
-    }
-
-    // If current viewed provider has 0 packages, show user-friendly message as requested
-    if (pkgs.length === 0) {
-      text += `\n\n⚠️ <b>بۇ تەرەپ تەمىنلىگۈچىنىڭ باھا بۆلىكى يوق، باشقىلىرىنى سىناڭ.</b>`;
-      inline_keyboard.push([
-        {
-          text: `🔄 ${isAc ? 'MAX-BAZAR' : 'AUTO CASH'} باھاسىنى كۆرۈش`,
-          callback_data: `set_prov:${isAc ? 'maxbazar' : 'autocash'}:${menuId}`,
-        },
-      ]);
-    }
-
-    if (isGrid2Col) {
-      for (let i = 0; i < pkgs.length; i += 2) {
-        const row: any[] = [
-          {
-            text: pkgs[i].title,
-            callback_data: `buy|${menuId}|${pkgs[i].code}`,
-          },
-        ];
-        if (i + 1 < pkgs.length) {
-          row.push({
-            text: pkgs[i + 1].title,
-            callback_data: `buy|${menuId}|${pkgs[i + 1].code}`,
-          });
+        if (acPkg && mbPkg) {
+          const acLabel = formatDualButtonLabel(acPkg, 'autocash', menuId);
+          const mbLabel = formatDualButtonLabel(mbPkg, 'maxbazar', menuId);
+          // In Telegram [ LeftButton, RightButton ]:
+          // Left = MaxBazar, Right = AutoCash
+          inline_keyboard.push([
+            { text: mbLabel, callback_data: `buy|${menuId}|${mbPkg.code}` },
+            { text: acLabel, callback_data: `buy|${menuId}|${acPkg.code}` },
+          ]);
+        } else if (acPkg) {
+          const acLabel = formatDualButtonLabel(acPkg, 'autocash', menuId);
+          inline_keyboard.push([
+            { text: acLabel, callback_data: `buy|${menuId}|${acPkg.code}` },
+          ]);
+        } else if (mbPkg) {
+          const mbLabel = formatDualButtonLabel(mbPkg, 'maxbazar', menuId);
+          inline_keyboard.push([
+            { text: mbLabel, callback_data: `buy|${menuId}|${mbPkg.code}` },
+          ]);
         }
-        inline_keyboard.push(row);
       }
     } else {
-      inline_keyboard.push(
-        ...pkgs.map((p) => [
+      const pkgs = item.autocash.length > 0 ? item.autocash : item.maxbazar;
+      for (const p of pkgs) {
+        inline_keyboard.push([
           {
             text: p.title,
             callback_data: `buy|${menuId}|${p.code}`,
           },
-        ])
-      );
+        ]);
+      }
     }
 
     const isTopupMonthly =
@@ -1837,8 +2008,16 @@ function getMenuContent(
       pkgCode.startsWith('mtn_m:') ||
       pkgCode.startsWith('tr:');
 
+    const chosenProvider: 'maxbazar' | 'autocash' = isWifi
+      ? 'autocash'
+      : pkgCode.endsWith(':ac')
+      ? 'autocash'
+      : pkgCode.endsWith(':mb')
+      ? 'maxbazar'
+      : session.selectedProvider;
+
     const pkg =
-      findPackageByCode(pkgCode, isWifi ? 'autocash' : session.selectedProvider) ||
+      findPackageByCode(pkgCode, chosenProvider) ||
       findPackageByCode(pkgCode, 'autocash') ||
       findPackageByCode(pkgCode, 'maxbazar');
     const title = pkg?.title || pkgCode;
@@ -1861,7 +2040,7 @@ function getMenuContent(
         pkgCode,
         title,
         price,
-        provider: isWifi ? 'autocash' : session.selectedProvider,
+        provider: chosenProvider,
         maxstoreProductId: reqInfo.maxstoreProductId,
         kind: reqInfo.kind,
         step: 'awaiting_target',
@@ -1932,6 +2111,8 @@ function getMenuContent(
       usageHint = `📌 <b>ئىشلىتىلىشى:</b> 7 كۈن بويىچە كۈندىلىك ئالماس ۋە قوشۇمچە سەرخىل مۇكاپاتلارنى بېرىدۇ.\n\n`;
     }
 
+    const providerBadge = chosenProvider === 'autocash' ? '⚡️ AUTO CASH' : '🟢 MAX-BAZAR';
+
     const text =
       `🛒 <b>سېتىۋېلىشنى جەزملەشتۈرۈش</b>\n\n` +
       usageHint +
@@ -1939,7 +2120,7 @@ function getMenuContent(
       `💰 <b>باھاسى:</b> <b>$${price.toFixed(2)} USD</b>\n` +
       `💳 <b>سىزنىڭ قالدۇقىڭىز:</b> <b>$${balance} USD</b>\n` +
       `🎯 <b>نىشان كىملىك / نومۇر:</b> <code>${targetAccountDisplay}</code>\n\n` +
-      (!isWifi && !isTopup ? `💰 <b>باھا تۈرى:</b> <b>${providerTag}</b>\n\n` : '') +
+      (!isWifi ? `🏪 <b>تەمىنلىگۈچى:</b> <b>${providerBadge}</b>\n\n` : '') +
       `زاكاسنى جەزملەشتۈرۈپ ھېساباتتىن كېسىشنى خالامسىز؟`;
 
     const inline_keyboard: any[][] = [
@@ -2896,7 +3077,13 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
         }
 
         const isWifi = pkgCode.startsWith('wifi:');
-        const effectiveProvider = isWifi ? 'autocash' : session.selectedProvider;
+        const effectiveProvider: 'maxbazar' | 'autocash' = isWifi
+          ? 'autocash'
+          : pkgCode.endsWith(':ac')
+          ? 'autocash'
+          : pkgCode.endsWith(':mb')
+          ? 'maxbazar'
+          : session.selectedProvider;
         const pkg =
           findPackageByCode(pkgCode, effectiveProvider) ||
           findPackageByCode(pkgCode, 'autocash') ||
@@ -3019,7 +3206,7 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
 
           try {
             const query = new URLSearchParams({
-              qty: '1',
+              qty: String(reqInfo.providerQty || 1),
               order_uuid: orderUuid,
               'الايدي': targetAcc,
               'ادخل رقم الهاتف بدون النداء': targetAcc,
