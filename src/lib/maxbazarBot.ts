@@ -2368,9 +2368,10 @@ export async function watchAndBroadcastMaxStoreOrder(params: {
             userName,
             userEmail,
             details: {
-              store: 'maxbazar',
-              provider: 'maxstore',
+              store: provider === 'othman' ? 'autocash' : 'maxbazar',
+              provider: provider === 'othman' ? 'othman' : 'maxstore',
               providerOrderId,
+              playerName: item?.player_name || item?.playerName || item?.name,
             },
             force: true,
           });

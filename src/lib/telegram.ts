@@ -730,49 +730,49 @@ export async function postOrderCompletedToChannel(order: {
   const primaryChannel = TELEGRAM_CONFIG.channelId || '-1004310150591';
   const fallbackChannel = '@' + TELEGRAM_CONFIG.channelUsername;
 
-  // Helper to mask secrets like 1******4 or 5***8 (matching sample)
-  const maskSecret = (val: string): string => {
+  // Helper to partially mask target IDs (games, phones, emails)
+  const maskTargetId = (val: string): string => {
     const s = String(val || '').trim();
     if (!s) return '—';
-    if (s.length <= 2) return '**';
+    if (s.includes('@')) {
+      const parts = s.split('@');
+      const name = parts[0];
+      const domain = parts[1] || '';
+      const maskedName = name.length <= 2 ? name[0] + '**' : name.slice(0, 2) + '***' + name.slice(-1);
+      return `${maskedName}@${domain}`;
+    }
     if (s.length <= 4) return s[0] + '**' + s[s.length - 1];
-    const starsCount = Math.min(6, Math.max(3, s.length - 2));
-    return s[0] + '*'.repeat(starsCount) + s[s.length - 1];
+    if (s.length <= 8) return s.slice(0, 2) + '***' + s.slice(-2);
+    // For 9+ digits (game IDs, phone numbers)
+    return s.slice(0, 4) + '****' + s.slice(-4);
   };
 
-  // 1. Order numbers: Record number & Order number
-  const orderRaw = String(order.id || '').replace(/^ORD-?/i, '').trim();
-  const orderDigits = orderRaw.replace(/[^0-9]/g, '');
-  const cleanOrderNo = orderDigits.length >= 3 ? orderDigits.slice(-4) : (orderRaw.slice(0, 4) || '1936');
+  // Helper to partially mask player/user names
+  const maskPlayerName = (val: string): string => {
+    const s = String(val || '').trim();
+    if (!s) return '';
+    const chars = Array.from(s);
+    if (chars.length <= 3) return chars[0] + '**';
+    if (chars.length <= 6) return chars.slice(0, 2).join('') + '***' + chars.slice(-1).join('');
+    return chars.slice(0, 3).join('') + '***' + chars.slice(-3).join('');
+  };
 
-  // Stable 4-digit record number based on order ID
-  let hash = 0;
-  const hashStr = String(order.id);
-  for (let i = 0; i < hashStr.length; i++) {
-    hash = (hash << 5) - hash + hashStr.charCodeAt(i);
-    hash |= 0;
-  }
-  const recordNo = String(1000 + (Math.abs(hash) % 8900));
+  // 1. Order numbers
+  const rawOrd = String(order.id || '').trim();
+  const cleanOrderDigits = rawOrd.replace(/[^0-9]/g, '');
+  const displayOrderNo = cleanOrderDigits || rawOrd.replace(/^ORD-?/i, '') || '1001';
 
-  // 2. Customer ID (10-digit number like 8601840349)
-  let customerId = '';
-  const rawUser = String((order as any).userId || order.details?.userId || order.details?.telegramUserId || '').trim();
-  const userDigits = rawUser.replace(/^tg_|^telegram_/i, '').replace(/[^0-9]/g, '');
-  if (userDigits.length >= 5) {
-    customerId = userDigits;
-  } else {
-    const seed = String(order.userEmail || order.userName || order.id);
-    let uHash = 0;
-    for (let i = 0; i < seed.length; i++) {
-      uHash = (uHash << 5) - uHash + seed.charCodeAt(i);
-      uHash |= 0;
-    }
-    customerId = String(8600000000 + (Math.abs(uHash) % 90000000));
-  }
+  // 2. Store detection
+  const rawStore = String(
+    order.details?.store ||
+    order.details?.providerKey ||
+    order.details?.provider ||
+    ''
+  ).toLowerCase();
 
-  // 3. Category detection & Title (clean high-visibility emojis)
   const isWifi = Boolean(
     order.details?.wifiCard ||
+    rawStore === 'wifi' ||
     (order.serviceName || '').toLowerCase().includes('wifi') ||
     (order.serviceName || '').toLowerCase().includes('واي فاي') ||
     (order.serviceName || '').toLowerCase().includes('فۇرسان') ||
@@ -782,33 +782,9 @@ export async function postOrderCompletedToChannel(order: {
     (order as any).serviceId?.includes('net')
   );
 
-  const isGame = !isWifi && Boolean(
-    (order.serviceName || '').toLowerCase().includes('pubg') ||
-    (order.serviceName || '').toLowerCase().includes('mobile legends') ||
-    (order.serviceName || '').toLowerCase().includes('free fire') ||
-    (order.serviceName || '').toLowerCase().includes('honor') ||
-    (order.serviceName || '').toLowerCase().includes('arena') ||
-    (order.serviceName || '').toLowerCase().includes('delta') ||
-    (order.serviceName || '').toLowerCase().includes('ئويۇن')
-  );
-
-  const isSub = !isWifi && !isGame && Boolean(
-    (order.serviceName || '').toLowerCase().includes('telegram') ||
-    (order.serviceName || '').toLowerCase().includes('chatgpt') ||
-    (order.serviceName || '').toLowerCase().includes('gemini') ||
-    (order.serviceName || '').toLowerCase().includes('vpn') ||
-    (order.serviceName || '').toLowerCase().includes('ئەزالىق')
-  );
-
-  const isNumber = !isWifi && !isGame && !isSub && Boolean(
-    (order.serviceName || '').toLowerCase().includes('نومۇر') ||
-    (order.serviceName || '').toLowerCase().includes('sms') ||
-    order.details?.virtualNumber
-  );
-
-  const isMaxBazar = Boolean(
-    order.details?.store?.toLowerCase() === 'maxbazar' ||
-    order.details?.store?.toLowerCase() === 'maxstore' ||
+  const isMaxBazar = !isWifi && Boolean(
+    rawStore === 'maxbazar' ||
+    rawStore === 'maxstore' ||
     order.details?.source?.toLowerCase() === 'maxbazar' ||
     (order.serviceName || '').includes('MAX-BAZAR') ||
     (order.serviceName || '').includes('ماكس بازار') ||
@@ -818,77 +794,161 @@ export async function postOrderCompletedToChannel(order: {
     (order.id || '').startsWith('PUBG_')
   );
 
-  const mainHeader = isMaxBazar
-    ? '<a href="https://www.auto-cash.app/apps"><b>MAX-BAZAR | ماكس بازار</b></a>'
-    : '<a href="https://t.me/' + TELEGRAM_CONFIG.botUsername + '"><b>AUTO CASH | ئاپتو كاش</b></a>';
+  let storeHeader = 'AUTO CASH';
+  let storeName = '⚡️ AUTO CASH (ئەرزان ۋە تېز)';
+  if (isMaxBazar) {
+    storeHeader = 'MAX-BAZAR';
+    storeName = '🟢 MAX-BAZAR (ماكس دۇكىنى)';
+  } else if (isWifi) {
+    storeHeader = 'Wi-Fi ئامبىرى';
+    storeName = '📡 يەرلىك Wi-Fi ئامبىرى';
+  }
 
-  const subHeader = isMaxBazar
-    ? '⚡ <b>ماكس بازار توربىتى تەرىپىدىن پۈتتۈرۈلدى</b> ✅'
-    : isWifi
-    ? '📡 <b>كارتا زاكىسى Wi-Fi</b> ✅'
-    : isGame
-    ? '🎮 <b>ئويۇن زاكىسى</b> ✅'
-    : isSub
-    ? '👑 <b>ئەزالىق زاكىسى</b> ✅'
-    : isNumber
-    ? '📱 <b>مەۋھۇم نومۇر زاكىسى</b> ✅'
-    : '💎 <b>AUTO CASH توربىتى تەرىپىدىن پۈتتۈرۈلدى</b> ✅';
+  // 3. Category detection & Emojis (Smart Dynamic Categories)
+  const titleCombined = `${order.serviceName || ''} ${order.packageTitle || ''} ${order.id || ''}`.toLowerCase();
+
+  let categoryEmoji = '📦';
+  let categoryName = 'رەقەملىك مۇلازىمەت';
+
+  if (isWifi) {
+    categoryEmoji = '📡';
+    categoryName = 'ۋايفاي تور كارتىسى';
+  } else if (
+    titleCombined.includes('pubg') ||
+    titleCombined.includes('mobile legends') ||
+    titleCombined.includes('free fire') ||
+    titleCombined.includes('honor') ||
+    titleCombined.includes('arena') ||
+    titleCombined.includes('delta') ||
+    titleCombined.includes('clash') ||
+    titleCombined.includes('brawl') ||
+    titleCombined.includes('roblox') ||
+    titleCombined.includes('tokens') ||
+    titleCombined.includes('diamonds') ||
+    titleCombined.includes('شدات') ||
+    titleCombined.includes('جواهر') ||
+    titleCombined.includes('uc') ||
+    titleCombined.includes('ئويۇن')
+  ) {
+    categoryEmoji = '🎮';
+    categoryName = 'كۆچمە ئويۇن قاچىلاش';
+  } else if (
+    titleCombined.includes('chatgpt') ||
+    titleCombined.includes('gemini') ||
+    titleCombined.includes('canva') ||
+    titleCombined.includes('capcut') ||
+    titleCombined.includes('ai') ||
+    titleCombined.includes('سۈنئىي') ||
+    titleCombined.includes('ئەزالىق')
+  ) {
+    categoryEmoji = '🤖';
+    categoryName = 'سۈنئىي ئەقىل ۋە ئەزالىق';
+  } else if (
+    titleCombined.includes('telegram') ||
+    titleCombined.includes('premium') ||
+    titleCombined.includes('تېلېگرام')
+  ) {
+    categoryEmoji = '⭐';
+    categoryName = 'تېلېگرام ئەزالىقى';
+  } else if (
+    titleCombined.includes('syriatel') ||
+    titleCombined.includes('mtn') ||
+    titleCombined.includes('turkcell') ||
+    titleCombined.includes('سۈرىيە') ||
+    titleCombined.includes('تۈركىيە') ||
+    titleCombined.includes('نومۇر') ||
+    titleCombined.includes('sms') ||
+    order.details?.virtualNumber
+  ) {
+    categoryEmoji = '📱';
+    categoryName = 'كارتىلار ۋە تور بولىقى';
+  }
 
   // 4. Product Details
-  const cleanAmount = Number(order.amount || 0).toFixed(2);
+  let sName = (order.serviceName || 'رەقەملىك مۇلازىمەت').trim();
+  let pTitle = (order.packageTitle || '').trim();
+
+  sName = sName.replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش').trim();
+  pTitle = pTitle.replace(/\(شەن\)/g, '').replace(/\(شەدەن\)/g, '').trim();
+
+  let productName = sName;
+  if (pTitle && !sName.includes(pTitle)) {
+    productName = `${sName} — ${pTitle}`;
+  } else if (pTitle && !sName) {
+    productName = pTitle;
+  }
+
+  if (
+    productName.includes('Token') ||
+    productName.includes('Diamond') ||
+    productName.includes('UC') ||
+    productName.includes('Pro') ||
+    productName.includes('Plus') ||
+    productName.includes('Premium')
+  ) {
+    if (!productName.includes('👑') && !productName.includes('⭐')) {
+      productName = `${productName} 👑`;
+    }
+  }
+
+  const rawNum = typeof order.amount === 'number' ? order.amount : parseFloat(String(order.amount || 0));
+  const validAmount = isNaN(rawNum) ? 0 : rawNum;
+  const cleanAmount = validAmount.toFixed(2);
+  const formattedPrice = `$${cleanAmount} USD`;
+
+  const rawTarget = String(
+    order.targetAccount ||
+    (order as any).target_account ||
+    order.details?.targetAccount ||
+    order.details?.playerId ||
+    ''
+  ).trim();
+
+  const rawPlayerName = String(
+    order.details?.playerName ||
+    order.details?.player_name ||
+    order.details?.nickname ||
+    ''
+  ).trim();
+
   const wifiCard = order.details?.wifiCard;
 
-  const sName = (order.serviceName || 'رەقەملىك مۇلازىمەت')
-    .replace(/پابجى شەن ۋە ئەزالىق/g, 'پابجى قاچىلاش ۋە ئەزالىق')
-    .trim();
-  const pTitle = (order.packageTitle || '')
-    .replace(/\(شەن\)/g, '')
-    .replace(/\(شەدەن\)/g, '')
-    .trim();
-
-  // Lines builder matching image exact style
-  const lines = [
-    mainHeader,
-    subHeader,
+  // Format 2: Modern Clean Digital Receipt
+  const lines: string[] = [
+    `🧾 <b>رەسمىي سېتىۋېلىش تالونى | ${storeHeader}</b>`,
+    `🎉 <b>زاكاز مۇۋەپپەقىيەتلىك تاپشۇرۇلدى!</b>`,
     '',
-    '➖ 🔔 <b>خاتىرە نومۇرى:</b> ' + recordNo + ' •',
-    '➖ 📋 <b>زاكاس نومۇرى:</b> ' + cleanOrderNo + ' •',
-    '➖ 🆔 <b>خېرىدار ID:</b> ' + customerId + ' •',
+    `▫️ 🏪 <b>دۇكان تۈرى:</b> ${storeName}`,
+    `▫️ ${categoryEmoji} <b>تۈرى:</b> ${categoryName}`,
+    `▫️ 📦 <b>مەھسۇلات:</b> ${productName}`,
   ];
 
   if (isWifi) {
     const netName = wifiCard?.networkName || wifiCard?.networkEn || sName;
-    lines.push('➖ 🌐 <b>تور:</b> ' + netName + ' •');
-    lines.push('➖ 📦 <b>پىلان:</b> ' + (pTitle || 'ئۆلچەملىك پىلان') + ' •');
-    lines.push('➖ 📱 <b>ئۈسكۈنە:</b> 1 دانە •');
-    lines.push('➖ 💲 <b>باھاسى:</b> $' + cleanAmount + ' •');
+    lines.push(`▫️ 🌐 <b>تور نامى:</b> ${netName}`);
     if (wifiCard?.username) {
-      lines.push('➖ 👤 <b>ئىشلەتكۈچى نامى:</b> <code>' + maskSecret(wifiCard.username) + '</code> •');
+      lines.push(`▫️ 👤 <b>ئىشلەتكۈچى:</b> <code>${maskTargetId(wifiCard.username)}</code>`);
     }
     if (wifiCard?.password) {
-      lines.push('➖ 🔑 <b>پارول:</b> <code>' + maskSecret(wifiCard.password) + '</code> •');
+      lines.push(`▫️ 🔑 <b>پارول:</b> <code>${maskTargetId(wifiCard.password)}</code>`);
     }
   } else {
-    lines.push('➖ 🌐 <b>مەھسۇلات:</b> ' + sName + ' •');
-    if (pTitle) {
-      lines.push('➖ 📦 <b>بولاق:</b> ' + pTitle + ' •');
+    if (rawTarget && !rawTarget.toLowerCase().startsWith('wi-fi')) {
+      lines.push(`▫️ 🆔 <b>نىشان كىملىك:</b> <code>${maskTargetId(rawTarget)}</code>`);
     }
-    const rawTarget = String(order.targetAccount || (order as any).target_account || order.details?.targetAccount || order.details?.playerId || '').trim();
-    if (rawTarget && !rawTarget.startsWith('Wi-Fi')) {
-      const maskedTarget = maskSecret(rawTarget);
-      lines.push('➖ 🎯 <b>قاچىلانغان ID:</b> <code>' + maskedTarget + '</code> •');
+    if (rawPlayerName && !rawPlayerName.startsWith('tg_') && !rawPlayerName.includes('@')) {
+      lines.push(`▫️ 👤 <b>ئويۇنچى لەقىمى:</b> <b>${maskPlayerName(rawPlayerName)}</b>`);
     }
-    lines.push('➖ 💲 <b>باھاسى:</b> $' + cleanAmount + ' •');
   }
 
-  if (isMaxBazar) {
-    lines.push('➖ 🏪 <b>سۇپا:</b> MAX-BAZAR (ماكس بازار) •');
-    lines.push('➖ ✅ <b>ھالىتى:</b> ماكس بازار توربىتى تەرىپىدىن پۈتتۈرۈلدى •');
-  } else {
-    lines.push('➖ 🏪 <b>سۇپا:</b> AUTO CASH (ئاپتو كاش) •');
-    lines.push('➖ ✅ <b>ھالىتى:</b> AUTO CASH توربىتى تەرىپىدىن پۈتتۈرۈلدى •');
-  }
-  lines.push('➖➖➖➖➖');
+  lines.push(`▫️ 🧾 <b>زاكاز كودى:</b> <code>#ORD-${displayOrderNo}</code>`);
+  lines.push(`▫️ 💵 <b>پۇل سوممىسى:</b> ${formattedPrice}`);
+  lines.push(`▫️ ⏱ <b>قاچىلاش سۈرئىتى:</b> سېكۇنتتا قاچىلاندى ⚡️`);
+  lines.push(`▫️ ✅ <b>نەتىجىسى:</b> 100% تولۇق قاچىلاندى`);
+  lines.push('');
+  lines.push('──────────────');
+  lines.push('🛍 <i>سىزمۇ ئاپتوماتىك قاچىلاپ سىناپ بېقىڭ:</i>');
+  lines.push(`🤖 <b>رەسمىي بوت:</b> @${TELEGRAM_CONFIG.botUsername || 'Autocash_24_bot'}`);
 
   const channelText = lines.join('\n');
 
@@ -907,8 +967,12 @@ export async function postOrderCompletedToChannel(order: {
             inline_keyboard: [
               [
                 {
-                  text: isMaxBazar ? 'ماكس بازارغا كىرىش ↗' : 'سىزمۇ سېتىۋېلىڭ ↗',
-                  url: isMaxBazar ? 'https://www.auto-cash.app/apps' : 'https://t.me/' + TELEGRAM_CONFIG.botUsername + '?startapp=order',
+                  text: '🛍️ سىزمۇ سېتىۋېلىڭ ➔',
+                  url: 'https://t.me/' + (TELEGRAM_CONFIG.botUsername || 'Autocash_24_bot'),
+                },
+                {
+                  text: '📢 قانالغا قوشۇلۇش ↗',
+                  url: 'https://t.me/' + (TELEGRAM_CONFIG.channelUsername || 'autocash_cannel'),
                 },
               ],
             ],
