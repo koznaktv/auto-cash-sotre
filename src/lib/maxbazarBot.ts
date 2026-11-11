@@ -2645,6 +2645,165 @@ export async function watchAndBroadcastMaxStoreOrder(params: {
   }
 }
 
+export interface PromotionalAdDef {
+  name: string;
+  startKey: string;
+  text: string;
+}
+
+export const PROMOTIONAL_ADS: Record<string, PromotionalAdDef> = {
+  pubg: {
+    name: '🔫 PUBG Mobile UC',
+    startKey: 'games_pubg_uc',
+    text:
+      `🔥 <b>AUTO CASH | PUBG Mobile رەسمىي UC قاچىلاش دۇكىنى</b> ⚡️\n\n` +
+      `🎮 <b>پابجى ئويۇنچىلىرىنىڭ دىققىتىگە!</b>\n` +
+      `ئەڭ ئەرزان توپ سېتىش باھاسىدا، پەقەت ئويۇن كىملىكىڭىزگە (UID) ئاپتوماتىك UC قاچىلاپ بېرىمىز.\n\n` +
+      `⚡️ <b>ئارتۇقچىلىقلىرىمىز:</b>\n` +
+      `• ⏱ <b>شۇئان سۈرئەت:</b> 1-3 سېكۇنتتا بىۋاسىتە ئويۇنغا كىرىدۇ\n` +
+      `• 🛡 <b>100% كاپالەتلىك:</b> رەسمىي ۋە بىخەتەر قاچىلاش\n` +
+      `• 💰 <b>ئەڭ ئەرزان باھا:</b> پۈتۈن تور بويىچە ئەڭ تۆۋەن\n\n` +
+      `📦 <b>ئەڭ كۆپ سېتىلىۋاتقان بولاقلار:</b>\n` +
+      `  🔹 60 UC — <b>$1.01</b>\n` +
+      `  🔹 355 UC (325+30) — <b>$5.05</b>\n` +
+      `  🔹 720 UC (660+60) — <b>$10.10</b>\n` +
+      `  🔹 1950 UC (1800+150) — <b>$25.26</b>\n` +
+      `  🔹 🎟️ رويال ئەزالىق (Elite Pass) — <b>$6.34</b>\n\n` +
+      `👇 <i>تۆۋەندىكى كۇنۇپكىنى بېسىپ دەرھال ئۆزىڭىز قاچىلاڭ:</i>`,
+  },
+  freefire: {
+    name: '🔥 Free Fire ئالماس',
+    startKey: 'games_freefire_diamonds',
+    text:
+      `🔥 <b>AUTO CASH | Free Fire ئالماس قاچىلاش (Diamonds)</b> 💎\n\n` +
+      `🎮 <b>فىرى فايېر ھەۋەسكارلىرىنىڭ دىققىتىگە!</b>\n` +
+      `ئەڭ تېز ھەم ئىشەنچلىك، پەقەت ئويۇن كىملىكىڭىز (UID) ئارقىلىق شۇئان قاچىلاڭ.\n\n` +
+      `⚡️ <b>بىزنىڭ ئەۋزەللىكلىرىمىز:</b>\n` +
+      `• ⏱ <b>شۇئان يېتىپ بېرىش:</b> 1-3 سېكۇنتتا ھېساباتقا چۈشىدۇ\n` +
+      `• 🛡 <b>100% رەسمىي كاپالەت:</b> بىخەتەر ۋە ئاپتوماتىك\n` +
+      `• 💰 <b>ئەڭ تۆۋەن توپ باھاسى</b>\n\n` +
+      `📦 <b>قىزىق بولاقلار ۋە باھالار:</b>\n` +
+      `  🔹 100+10 💎 ئالماس — <b>$1.06</b>\n` +
+      `  🔹 210+21 💎 ئالماس — <b>$2.15</b>\n` +
+      `  🔹 530+53 💎 ئالماس — <b>$5.42</b>\n` +
+      `  🔹 1080+108 💎 ئالماس — <b>$10.83</b>\n` +
+      `  🔹 🎟️ ھەپتىلىك ئەزالىق (Weekly) — <b>$2.31</b>\n\n` +
+      `👇 <i>تۆۋەندىكى كۇنۇپكىنى بېسىپ دەرھال ئالماس قاچىلاڭ:</i>`,
+  },
+  hok: {
+    name: '👑 Honor of Kings',
+    startKey: 'games_hok_tokens',
+    text:
+      `🌟 <b>AUTO CASH | Honor of Kings رەسمىي توكېن (Tokens)</b> 👑\n\n` +
+      `🎮 <b>ھۆرمەتلىك Honor of Kings ئويۇنچىلىرى!</b>\n` +
+      `توكېن قاچىلاش ئەمدى 1 سېكۇنتتىلا ئاپتوماتىك ئەمەلگە ئاشىدۇ.\n\n` +
+      `⚡️ <b>ئالاھىدىلىكلىرى:</b>\n` +
+      `• ⏱ <b>شۇئان ئاپتوماتىك:</b> 1-3 سېكۇنتتا يېتىپ بارىدۇ\n` +
+      `• 🛡 <b>رەسمىي بىخەتەر:</b> پەقەت كىملىك نومۇر (UID) يېتەرلىك\n` +
+      `• 💰 <b>ئەڭ يېڭى تۆۋەن باھا</b>\n\n` +
+      `📦 <b>قىزىق بولاقلار ۋە باھالار:</b>\n` +
+      `  🔹 16 Tokens — <b>$0.20</b>\n` +
+      `  🔹 80 Tokens — <b>$1.00</b>\n` +
+      `  🔹 240 Tokens — <b>$2.98</b>\n` +
+      `  🔹 400 Tokens — <b>$4.97</b>\n` +
+      `  🔹 🎟️ ھەپتىلىك كارتا (Weekly Card) — <b>$1.10</b>\n\n` +
+      `👇 <i>تۆۋەندىكى كۇنۇپكىنى بېسىپ دەرھال توكېن قاچىلاڭ:</i>`,
+  },
+  mlbb: {
+    name: '⚔️ Mobile Legends',
+    startKey: 'games_mlbb_global',
+    text:
+      `⚔️ <b>AUTO CASH | Mobile Legends رەسمىي ئالماس قاچىلاش</b> 💎\n\n` +
+      `🎮 <b>MLBB ئويۇنچىلىرىنىڭ دىققىتىگە!</b>\n` +
+      `ئەڭ ئەرزان باھادا، پەقەت كىملىك ۋە رايون كودى ئارقىلىق شۇئان قاچىلاڭ.\n\n` +
+      `⚡️ <b>ئارتۇقچىلىقى:</b>\n` +
+      `• ⏱ <b>دەرھال قاچىلىنىدۇ:</b> سېكۇنت ئىچىدە كىرىدۇ\n` +
+      `• 🛡 <b>100% رەسمىي كاپالەتلىك</b>\n` +
+      `• 💰 <b>تۆۋەن باھا، ئەڭ يۇقىرى سۈپەت</b>\n\n` +
+      `📦 <b>قىزىق بولاقلار:</b>\n` +
+      `  🔹 55 ئالماس — <b>$0.84</b>\n` +
+      `  🔹 86 ئالماس — <b>$1.33</b>\n` +
+      `  🔹 165 ئالماس — <b>$2.52</b>\n` +
+      `  🔹 🎟️ ھەپتىلىك ئالماس پاسسى — <b>$2.05</b>\n\n` +
+      `👇 <i>تۆۋەندىكى كۇنۇپكىنى بېسىپ ھازىرلا سېتىۋېلىڭ:</i>`,
+  },
+  syriatel: {
+    name: '🇸🇾 سۈرىيەتىل پۇلى',
+    startKey: 'topup_syriatel',
+    text:
+      `🇸🇾 <b>AUTO CASH | سۈرىيەتىل (Syriatel) تېلېفون پۇلى قاچىلاش</b> ⚡️\n\n` +
+      `📱 <b>سۈرىيەدىكى قېرىنداشلارنىڭ دىققىتىگە!</b>\n` +
+      `سۈرىيەتىل تېلېفون نومۇرىڭىزغا ئەڭ ئەرزان ۋە شۇئان ئاپتوماتىك پۇل بىرلىكى تولۇقلاڭ.\n\n` +
+      `⚡️ <b>ئالاھىدىلىكلىرى:</b>\n` +
+      `• ⏱ <b>سېكۇنتتا يېتىپ بارىدۇ:</b> 24 سائەت بوشاشمايدۇ\n` +
+      `• 💰 <b>ئىككى چوڭ لىنىيە:</b> AUTO CASH & MAX-BAZAR توپ سېتىش باھاسى\n` +
+      `• 🛡 <b>100% كاپالەتلىك سېستىما</b>\n\n` +
+      `📦 <b>ئەڭ قىزىق بولاقلار ۋە باھالار:</b>\n` +
+      `  🔹 20.19 سۈرى — <b>$0.15</b>\n` +
+      `  🔹 30.76 سۈرى — <b>$0.23</b>\n` +
+      `  🔹 52.88 سۈرى — <b>$0.39</b>\n` +
+      `  🔹 100.96 سۈرى — <b>$0.75</b>\n` +
+      `  🔹 163.46 سۈرى — <b>$1.21</b>\n\n` +
+      `👇 <i>تۆۋەندىكى كۇنۇپكىنى بېسىپ تېلېفون نومۇرىڭىزغا پۇل قاچىلاڭ:</i>`,
+  },
+  mtn: {
+    name: '🇸🇾 MTN سۈرىيە پۇلى',
+    startKey: 'topup_mtn',
+    text:
+      `🇸🇾 <b>AUTO CASH | ئىمتىئىن (MTN Syria) پۇل بىرلىكى تولۇقلاش</b> ⚡️\n\n` +
+      `📱 <b>MTN تېلېفون لىنىيىسى ئىشلەتكۈچىلەرنىڭ دىققىتىگە!</b>\n` +
+      `ئەڭ ئەرزان، بىخەتەر ۋە سېكۇنتتا ھېساباتقا ئاپتوماتىك كىرىدىغان رەسمىي مۇلازىمەت.\n\n` +
+      `⚡️ <b>ئارتۇقچىلىقى:</b>\n` +
+      `• ⏱ <b>شۇئان ئاپتوماتىك يەتكۈزۈش</b>\n` +
+      `• 💰 <b>ئەڭ تۆۋەن توپ باھاسى</b>\n` +
+      `• 🛡 <b>24/7 كاپالەتلىك مۇلازىمەت</b>\n\n` +
+      `📦 <b>ئەڭ كۆپ ئېھتىياجلىق بولاقلار:</b>\n` +
+      `  🔹 10 لىرا — <b>$0.07</b>\n` +
+      `  🔹 20 لىرا — <b>$0.15</b>\n` +
+      `  🔹 50 لىرا — <b>$0.37</b>\n` +
+      `  🔹 100 لىرا — <b>$0.74</b>\n` +
+      `  🔹 500 لىرا — <b>$3.68</b>\n\n` +
+      `👇 <i>تۆۋەندىكى كۇنۇپكىنى بېسىپ دەرھال پۇل تولۇقلاڭ:</i>`,
+  },
+  tg: {
+    name: '💎 Telegram Premium & Stars',
+    startKey: 'tg_premium',
+    text:
+      `💎 <b>AUTO CASH | Telegram Premium ۋە Stars (يۇلتۇز)</b> 🌟\n\n` +
+      `✨ <b>تېلېگراممىڭىزنى كۈچەيتىڭ ۋە بارلىق ئىقتىدارلارنى ئېچىڭ!</b>\n` +
+      `ئەڭ ئەرزان باھادا، پەقەت تېلېگرام @Username كىملىكىڭىز ئارقىلىق رەسمىي ئەزالىق ئېچىڭ.\n\n` +
+      `⚡️ <b>ئەۋزەللىكلىرى:</b>\n` +
+      `• 🚀 <b>شۇئان ئاكتىپلاش:</b> ئۆزىڭىزگە ياكى باشقىلارغا سوۋغا قىلىش\n` +
+      `• 🛡 <b>100% رەسمىي:</b> شەخسىي پارول كېرەك قىلمايدۇ\n` +
+      `• 💰 <b>ئەڭ ئەرزان باھا</b>\n\n` +
+      `📦 <b>بولاقلار ۋە باھالار:</b>\n` +
+      `  🔹 ⭐️ 3 ئايلىق Premium — <b>$14.09</b>\n` +
+      `  🔹 ⭐️ 6 ئايلىق Premium — <b>$18.79</b>\n` +
+      `  🔹 ⭐️ 12 ئايلىق (1 يىل) — <b>$34.07</b>\n` +
+      `  🔹 🌟 50 Stars (يۇلتۇز) — <b>$0.88</b>\n` +
+      `  🔹 🌟 100 Stars (يۇلتۇز) — <b>$1.76</b>\n\n` +
+      `👇 <i>تۆۋەندىكى كۇنۇپكىنى بېسىپ دەرھال Premium ئېچىڭ:</i>`,
+  },
+  wifi: {
+    name: '📶 يەرلىك Wi-Fi كارتىلىرى',
+    startKey: 'shop_wifi',
+    text:
+      `📶 <b>AUTO CASH | يەرلىك Wi-Fi تور كارتىلىرى</b> 🚀\n\n` +
+      `📡 <b>Fursan Net, Star Net تور كارتا ئىشلەتكۈچىلەرنىڭ دىققىتىگە!</b>\n` +
+      `ئەمدى دۇكان ئىزدىمەي، ئۆيىڭىزدە تۇرۇپلا بىر سېكۇنتتا يەرلىك تور كارتىڭىزنى سېتىۋېلىڭ.\n\n` +
+      `⚡️ <b>ئالاھىدىلىكلىرى:</b>\n` +
+      `• ⏱ <b>ئامباردىن شۇئان چىقىدۇ:</b> كارتىنىڭ نامى ۋە پارولى شۇ ھامان بېرىلىدۇ\n` +
+      `• 💳 <b>ئەڭ ئەرزان يەرلىك باھا:</b> دۇكاندىنمۇ ئەرزان\n` +
+      `• 🛡 <b>24 سائەت بوشاشمايدىغان كاپالەت</b>\n\n` +
+      `📦 <b>كۆپ سېتىلىدىغان كارتىلار:</b>\n` +
+      `  🔹 1 كۈنلۈك كارتىلار — <b>$0.15 تىن</b>\n` +
+      `  🔹 3 كۈنلۈك كارتىلار — <b>$0.25 تىن</b>\n` +
+      `  🔹 1 ھەپتىلىك كارتىلار — <b>$0.50 تىن</b>\n` +
+      `  🔹 1 ئايلىق كارتىلار\n\n` +
+      `👇 <i>تۆۋەندىكى كۇنۇپكىنى بېسىپ دەرھال Wi-Fi كارتىسى ئېلىڭ:</i>`,
+  },
+};
+
 // ==========================================
 // 6. MAIN WEBHOOK HANDLER (UNIFIED)
 // ==========================================
@@ -2850,7 +3009,8 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
             `• <b>تەمىنلىگۈچى قالدۇقلىرى:</b> Othman Store & MaxStore دەرھال تەكشۈرۈش\n` +
             `• <b>ئەڭ يېڭى زاكازلار:</b> يېقىنقى زاكازلارنىڭ ھالىتىنى كۆرۈش\n` +
             `• <b>ۋايفاي ئامبىرى:</b> قالغان ۋە سېتىلغان كارتىلارنى سىناش\n` +
-            `• <b>پۇل قوشۇش:</b> <code>/add &lt;ID ياكى ئىشلەتكۈچى&gt; &lt;سومما&gt;</code>\n\n` +
+            `• <b>پۇل قوشۇش:</b> <code>/add &lt;ID ياكى ئىشلەتكۈچى&gt; &lt;سومما&gt;</code>\n` +
+            `• <b>قانالغا ئېلان:</b> 1 چېكىش بىلەن ئويۇن ئېلانى چىقىرىش\n\n` +
             `كېرەكلىك بۆلەكنى تاللاڭ:`;
 
           const inline_keyboard: any[][] = [
@@ -2861,6 +3021,9 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
             [
               { text: '📡 ۋايفاي ئامبىرى', callback_data: 'admin:wifi_stats' },
               { text: '💰 پۇل قوشۇش كۆرسەتمىسى', callback_data: 'admin:topup_help' },
+            ],
+            [
+              { text: '📢 قانالغا ئېلان يوللاش (@autocash_cannel)', callback_data: 'admin:ad_menu' },
             ],
             [
               { text: `📱 👑 ${config.brand} باش تاختىسىغا كىرىش`, web_app: { url: adminUrl } },
@@ -3012,6 +3175,163 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
 
           await showMessage(chatId, messageId, text, { inline_keyboard });
           return;
+        }
+
+        // Channel Ad Management
+        const CHANNEL_USERNAME = 'autocash_cannel';
+        const BOT_USERNAME = config.username || 'Autocash_24_bot';
+
+        if (action === 'ad_menu') {
+          const text =
+            `📢 <b>قانالغا ئېلان چىقىرىش مەركىزى (@${CHANNEL_USERNAME})</b>\n\n` +
+            `قايسى ئويۇن ياكى مەھسۇلاتنىڭ تەشۋىقات ئېلانىنى قانالغا چىقارماقچى؟\n` +
+            `تۆۋەندىن بىرىنى تاللاڭ (ئالدى بىلەن كۆرۈنۈشى سىزگە كۆرسىتىلىدۇ):\n\n` +
+            `💡 <i>ئەسكەرتىش: ئېلاننىڭ ئاستىغا خېرىدارلار بىر چېكىپلا شۇ مەھسۇلاتنى ئاچىدىغان تۈگمە ئاپتوماتىك چاپلىنىدۇ.</i>`;
+
+          const inline_keyboard: any[][] = [
+            [
+              { text: '🔫 PUBG Mobile', callback_data: 'admin:ad_prev:pubg' },
+              { text: '🔥 Free Fire', callback_data: 'admin:ad_prev:freefire' },
+            ],
+            [
+              { text: '👑 Honor of Kings', callback_data: 'admin:ad_prev:hok' },
+              { text: '⚔️ Mobile Legends', callback_data: 'admin:ad_prev:mlbb' },
+            ],
+            [
+              { text: '🇸🇾 سۈرىيەتىل پۇلى', callback_data: 'admin:ad_prev:syriatel' },
+              { text: '🇸🇾 MTN سۈرىيە', callback_data: 'admin:ad_prev:mtn' },
+            ],
+            [
+              { text: '💎 Telegram Premium', callback_data: 'admin:ad_prev:tg' },
+              { text: '📶 Wi-Fi كارتىلىرى', callback_data: 'admin:ad_prev:wifi' },
+            ],
+            [
+              { text: '✍️ ئۆزىڭىز خەت يېزىپ چىقىرىش', callback_data: 'admin:ad_prev:custom' },
+            ],
+            [
+              { text: '🔙 باشقۇرۇش مەركىزى', callback_data: 'admin:menu' },
+            ],
+          ];
+
+          await showMessage(chatId, messageId, text, { inline_keyboard });
+          return;
+        }
+
+        if (action.startsWith('ad_prev:')) {
+          const adKey = action.replace('ad_prev:', '');
+          if (adKey === 'custom') {
+            const customHelpText =
+              `✍️ <b>ئۆزىڭىز خەت يېزىپ قانالغا ئېلان يوللاش:</b>\n\n` +
+              `سىز چاتقا مۇنداق يېزىپلا ئەۋەتسىڭىز، بوت دەرھال قانالغا دۇكان تۈگمىلىرى بىلەن چىقىرىپ بېرىدۇ:\n\n` +
+              `<code>/ad سىزنىڭ ئېلان ياكى ئۇقتۇرۇش مەزمۇنىڭىز</code>\n\n` +
+              `📌 <b>مەسىلەن:</b>\n` +
+              `<code>/ad 🔥 بۈگۈن بارلىق بولاقلارغا ئالاھىدە ئېتىبار قوشۇلدى! كىرىپ سىناپ بېقىڭلار!</code>\n\n` +
+              `✨ <i>ئەگەر پەقەتلا خەتنى ئۆزىنىلا چىقارماقچى بولسىڭىز:\n<code>/chan سىزنىڭ خېتىڭىز</code> دەپ يازسىڭىز بولىدۇ.</i>`;
+
+            const inline_keyboard: any[][] = [
+              [{ text: '🔙 ئېلان تىزىملىكىگە قايتىش', callback_data: 'admin:ad_menu' }],
+            ];
+
+            await showMessage(chatId, messageId, customHelpText, { inline_keyboard });
+            return;
+          }
+
+          const adDef = PROMOTIONAL_ADS[adKey];
+          if (!adDef) {
+            await api('answerCallbackQuery', { callback_query_id: cqId, text: '⚠️ نامەلۇم ئېلان تۈرى.' });
+            return;
+          }
+
+          const previewText =
+            `👁️ <b>ئېلاننىڭ كۆرۈنۈشى (ئالدىن كۆرۈش):</b>\n` +
+            `━━━━━━━━━━━━━━━━━━━━\n` +
+            adDef.text + `\n` +
+            `━━━━━━━━━━━━━━━━━━━━\n\n` +
+            `❓ <b>بۇ تەشۋىقات ئېلانىنى @${CHANNEL_USERNAME} قانىلىغا چىقىرامسىز؟</b>`;
+
+          const inline_keyboard: any[][] = [
+            [
+              { text: '🚀 دەرھال قانالغا يوللاش', callback_data: `admin:ad_send:${adKey}` },
+            ],
+            [
+              { text: '🔙 ئېلان تىزىملىكىگە قايتىش', callback_data: 'admin:ad_menu' },
+            ],
+          ];
+
+          await showMessage(chatId, messageId, previewText, { inline_keyboard });
+          return;
+        }
+
+        if (action.startsWith('ad_send:')) {
+          const adKey = action.replace('ad_send:', '');
+          const adDef = PROMOTIONAL_ADS[adKey];
+          if (!adDef) {
+            await api('answerCallbackQuery', { callback_query_id: cqId, text: '⚠️ نامەلۇم ئېلان تۈرى.' });
+            return;
+          }
+
+          await api('answerCallbackQuery', { callback_query_id: cqId, text: '⏳ قانالغا يوللىنىۋاتىدۇ...' });
+
+          const channelKeyboard = {
+            inline_keyboard: [
+              [
+                {
+                  text: '🛍️ سىزمۇ سېتىۋېلىڭ / قاچىلاڭ ➔',
+                  url: `https://t.me/${BOT_USERNAME}?start=${adDef.startKey}`,
+                },
+              ],
+              [
+                {
+                  text: '📢 رەسمىي قانالغا قوشۇلۇش ↗',
+                  url: `https://t.me/${CHANNEL_USERNAME}`,
+                },
+                {
+                  text: '💬 خېرىدارلار مۇلازىمىتى 👨‍💻',
+                  url: `https://t.me/${ADMIN_USERNAME}`,
+                },
+              ],
+            ],
+          };
+
+          const sendRes = await callBotApi('sendMessage', {
+            chat_id: `@${CHANNEL_USERNAME}`,
+            text: adDef.text,
+            parse_mode: 'HTML',
+            reply_markup: channelKeyboard,
+            disable_web_page_preview: true,
+          });
+
+          if (sendRes && sendRes.ok) {
+            const successText =
+              `✅ <b>تەشۋىقات ئېلانى @${CHANNEL_USERNAME} قانىلىغا غەلىبىلىك تارقىتىلدى!</b> 📢\n\n` +
+              `📦 <b>ئېلان تۈرى:</b> ${adDef.name}\n` +
+              `🆔 <b>ئۇچۇر نومۇرى:</b> <code>#${sendRes.result?.message_id || 'OK'}</code>\n\n` +
+              `خېرىدارلار قانالدىكى كۇنۇپكىنى باسسا، دەرھال بوتتىكى شۇ مەھسۇلاتنى ئاچالايدۇ.`;
+
+            const inline_keyboard: any[][] = [
+              [{ text: '📢 باشقا ئېلان يوللاش', callback_data: 'admin:ad_menu' }],
+              [
+                { text: '👑 باشقۇرۇش مەركىزى', callback_data: 'admin:menu' },
+                { text: '🏠 باش بەت', callback_data: 'menu:main' },
+              ],
+            ];
+
+            await showMessage(chatId, messageId, successText, { inline_keyboard });
+            return;
+          } else {
+            const errText =
+              `⚠️ <b>قانالغا يوللاش مەغلۇپ بولدى!</b>\n\n` +
+              `سەۋەبى: ${sendRes?.description || sendRes?.error || 'نامەلۇم خاتالىق'}\n\n` +
+              `💡 <b>ئەسكەرتىش:</b> بوتنىڭ (@${BOT_USERNAME}) @${CHANNEL_USERNAME} قانىلىدا <b>ئۇچۇر يوللاش ھوقۇقى (Post Messages)</b> بار ياكى يوقلۇقىنى تەكشۈرۈڭ.`;
+
+            const inline_keyboard: any[][] = [
+              [{ text: '🔄 قايتا سىناش', callback_data: `admin:ad_send:${adKey}` }],
+              [{ text: '🔙 تىزىملىككە قايتىش', callback_data: 'admin:ad_menu' }],
+            ];
+
+            await showMessage(chatId, messageId, errText, { inline_keyboard });
+            return;
+          }
         }
       }
 
@@ -3772,6 +4092,106 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
       return;
     }
 
+    // B.3.9.1 Admin Command: /ad <text> or /elan <text> (Broadcast custom ad to channel)
+    if (text.startsWith('/ad ') || text.startsWith('/elan ')) {
+      if (!isAdmin) {
+        await api('sendMessage', {
+          chat_id: chatId,
+          text: '⚠️ <b>كەچۈرۈڭ، بۇ مەشغۇلات پەقەت ئاساسىي دۇكان باشقۇرغۇچىسىغىلا مەخسۇس ئېچىۋېتىلگەن.</b>',
+          parse_mode: 'HTML',
+        });
+        return;
+      }
+      const customContent = text.replace(/^\/(ad|elan)\s+/, '').trim();
+      if (!customContent) {
+        await api('sendMessage', {
+          chat_id: chatId,
+          text: '⚠️ <b>ئېلان مەزمۇنى يېزىلمىدى.</b> مەسىلەن: <code>/ad 🔥 بۈگۈن بارلىق بولاقلارغا ئالاھىدە ئېتىبار قوشۇلدى!</code>',
+          parse_mode: 'HTML',
+        });
+        return;
+      }
+
+      const CHANNEL_USERNAME = 'autocash_cannel';
+      const BOT_USERNAME = config.username || 'Autocash_24_bot';
+
+      const formattedCustomAd =
+        `🔥 <b>AUTO CASH | ئالاھىدە خەۋەر & تەشۋىقات</b> 🔥\n\n` +
+        customContent +
+        `\n\n⚡️ <b>ئەڭ ئەرزان باھا • 24/7 شۇئان قاچىلاش • بىخەتەر كاپالەت</b>\n` +
+        `🛒 <b>رەسمىي دۇكان بوتى:</b> @${BOT_USERNAME}\n` +
+        `📢 <b>تېلېگرام قانىلىمىز:</b> @${CHANNEL_USERNAME}\n` +
+        `💬 <b>خېرىدارلار مۇلازىمىتى:</b> @${ADMIN_USERNAME}`;
+
+      const customKeyboard = {
+        inline_keyboard: [
+          [
+            { text: '⚡️🛍️ دۇكاننى ئېچىش ➔', url: `https://t.me/${BOT_USERNAME}` },
+            { text: '📢 قانالغا قوشۇلۇش ↗', url: `https://t.me/${CHANNEL_USERNAME}` },
+          ],
+        ],
+      };
+
+      const sendRes = await callBotApi('sendMessage', {
+        chat_id: `@${CHANNEL_USERNAME}`,
+        text: formattedCustomAd,
+        parse_mode: 'HTML',
+        reply_markup: customKeyboard,
+        disable_web_page_preview: true,
+      });
+
+      if (sendRes && sendRes.ok) {
+        await api('sendMessage', {
+          chat_id: chatId,
+          text: `✅ <b>ئېلان @${CHANNEL_USERNAME} قانىلىغا مۇۋەپپەقىيەتلىك چىقىرىلدى!</b> 📢`,
+          parse_mode: 'HTML',
+        });
+      } else {
+        await api('sendMessage', {
+          chat_id: chatId,
+          text: `⚠️ <b>قانالغا چىقىرىش مەغلۇپ بولدى:</b> ${sendRes?.description || sendRes?.error}`,
+          parse_mode: 'HTML',
+        });
+      }
+      return;
+    }
+
+    // B.3.9.2 Admin Command: /chan <text> (Raw text ONLY to channel)
+    if (text.startsWith('/chan ')) {
+      if (!isAdmin) {
+        await api('sendMessage', {
+          chat_id: chatId,
+          text: '⚠️ <b>كەچۈرۈڭ، بۇ مەشغۇلات پەقەت ئاساسىي دۇكان باشقۇرغۇچىسىغىلا مەخسۇس ئېچىۋېتىلگەن.</b>',
+          parse_mode: 'HTML',
+        });
+        return;
+      }
+      const rawContent = text.replace(/^\/chan\s+/, '').trim();
+      const CHANNEL_USERNAME = 'autocash_cannel';
+
+      const sendRes = await callBotApi('sendMessage', {
+        chat_id: `@${CHANNEL_USERNAME}`,
+        text: rawContent,
+        parse_mode: 'HTML',
+        disable_web_page_preview: true,
+      });
+
+      if (sendRes && sendRes.ok) {
+        await api('sendMessage', {
+          chat_id: chatId,
+          text: `✅ <b>خېتىڭىز @${CHANNEL_USERNAME} قانىلىغا بىۋاسىتە چىقىرىلدى!</b> 💬`,
+          parse_mode: 'HTML',
+        });
+      } else {
+        await api('sendMessage', {
+          chat_id: chatId,
+          text: `⚠️ <b>قانالغا چىقىرىش مەغلۇپ بولدى:</b> ${sendRes?.description || sendRes?.error}`,
+          parse_mode: 'HTML',
+        });
+      }
+      return;
+    }
+
     // B.4 Admin Command: /admin or /manage or 'باشقۇرۇش'
     if (text === '/admin' || text === '/manage' || text === 'باشقۇرۇش' || text === 'باش تاختا') {
       if (!isAdmin) {
@@ -3794,7 +4214,8 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
           `• <b>تەمىنلىگۈچى قالدۇقلىرى:</b> Othman Store & MaxStore دەرھال تەكشۈرۈش\n` +
           `• <b>ئەڭ يېڭى زاكازلار:</b> يېقىنقى زاكازلارنىڭ نەق ھالىتىنى كۆرۈش\n` +
           `• <b>ۋايفاي ئامبىرى:</b> قالغان ۋە سېتىلغان كارتىلارنى سىناش\n` +
-          `• <b>پۇل قوشۇش:</b> <code>/add &lt;ID ياكى ئىشلەتكۈچى&gt; &lt;سومما&gt;</code>\n\n` +
+          `• <b>پۇل قوشۇش:</b> <code>/add &lt;ID ياكى ئىشلەتكۈچى&gt; &lt;سومما&gt;</code>\n` +
+          `• <b>قانالغا ئېلان:</b> 1 چېكىش بىلەن ئويۇن ئېلانى چىقىرىش\n\n` +
           `كېرەكلىك بۆلەكنى تۆۋەندىن تاللاڭ:`,
         parse_mode: 'HTML',
         reply_markup: {
@@ -3806,6 +4227,9 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
             [
               { text: '📡 ۋايفاي ئامبىرى', callback_data: 'admin:wifi_stats' },
               { text: '💰 پۇل قوشۇش كۆرسەتمىسى', callback_data: 'admin:topup_help' },
+            ],
+            [
+              { text: '📢 قانالغا ئېلان يوللاش (@autocash_cannel)', callback_data: 'admin:ad_menu' },
             ],
             [
               {
@@ -3924,6 +4348,38 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
       text.toLowerCase() === 'start'
     ) {
       session.history = [];
+
+      // Deep link direct jump (e.g. from Channel promo buttons: /start games_pubg_uc)
+      const startArg = text.replace(/^\/start\s*/, '').trim();
+      if (startArg && !startArg.startsWith('auth_') && !startArg.startsWith('sync_')) {
+        const mappedCat = startArg.replace(/_/g, ':');
+        if (
+          PROVIDER_DATA[mappedCat] ||
+          mappedCat.startsWith('games:') ||
+          mappedCat.startsWith('topup:') ||
+          mappedCat.startsWith('shop:') ||
+          mappedCat.startsWith('tg:')
+        ) {
+          session.history = ['menu:main'];
+          const targetMenu = getMenuContent(mappedCat, user, session, chatId, isAdmin, config);
+
+          await api('sendMessage', {
+            chat_id: chatId,
+            text: `<tg-emoji emoji-id="5998929578515504488">#⃣</tg-emoji> <b>${config.brand} | ئەڭ ئەرزان رەقەملىك ئەپلەر ۋە ئويۇن بازىرى</b>`,
+            parse_mode: 'HTML',
+            reply_markup: STORE_PERSISTENT_KEYBOARD,
+          });
+
+          await api('sendMessage', {
+            chat_id: chatId,
+            text: targetMenu.text,
+            parse_mode: 'HTML',
+            reply_markup: { inline_keyboard: targetMenu.inline_keyboard },
+          });
+          return;
+        }
+      }
+
       const menu = getMenuContent('menu:main', user, session, chatId, isAdmin, config);
 
       // Step 1: Send persistent bottom keyboard
