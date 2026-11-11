@@ -2583,6 +2583,28 @@ export async function watchAndBroadcastMaxStoreOrder(params: {
           );
         } catch {}
 
+        // Send notification to Admin DM as well
+        const ADMIN_CHAT_ID = String(process.env.TELEGRAM_ADMIN_CHAT_ID || '7575664493').trim();
+        try {
+          await callBotApi(
+            'sendMessage',
+            {
+              chat_id: ADMIN_CHAT_ID,
+              text:
+                `✅ <b>زاكاز مۇۋەپپەقىيەتلىك پۈتتى ھەم قانالغا يوللاندى!</b>\n\n` +
+                `📦 <b>مەھسۇلات:</b> ${title}\n` +
+                `💰 <b>سومما:</b> $${price.toFixed(2)} USD\n` +
+                `👤 <b>خېرىدار:</b> ${userName || userEmail || String(chatId)} (ID: <code>${chatId}</code>)\n` +
+                `🎯 <b>نىشان:</b> <code>${targetAccount}</code>\n` +
+                `🧾 <b>زاكاز كودى:</b> <code>#${orderId}</code>\n` +
+                `🔢 <b>تەمىنلىگۈچى كودى:</b> <code>#${providerOrderId}</code>\n\n` +
+                `📢 @autocash_cannel قانىلىغا ئاپتوماتىك مۇۋەپپەقىيەت تالونى تارقىتىلدى!`,
+              parse_mode: 'HTML',
+            },
+            token
+          );
+        } catch {}
+
         return; // Completed!
       }
 
@@ -3790,6 +3812,27 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
             provider: chosenWholesaleProvider,
           }).catch((err) => console.error('[watchAndBroadcastMaxStoreOrder] failed:', err));
         }
+
+        // Notify Admin directly via DM
+        try {
+          await callBotApi(
+            'sendMessage',
+            {
+              chat_id: ADMIN_CHAT_ID,
+              text:
+                `🛍️ <b>يېڭى زاكاز تاپشۇرۇلدى!</b>\n\n` +
+                `📦 <b>مەھسۇلات:</b> ${rawTitle}\n` +
+                `💰 <b>سومما:</b> $${price.toFixed(2)} USD\n` +
+                `👤 <b>خېرىدار:</b> ${user.name || user.email || String(chatId)} (ID: <code>${chatId}</code>)\n` +
+                (!isWifi ? `🎯 <b>نىشان:</b> <code>${targetAccountFull}</code>\n` : '') +
+                `🏪 <b>تەمىنلىگۈچى:</b> ${isWifi ? '📶 Wi-Fi ئامبىرى' : (chosenWholesaleProvider === 'othman' ? '⚡️ AUTO CASH' : '🟢 MAX-BAZAR')}\n` +
+                `🧾 <b>زاكاز كودى:</b> <code>#${newOrderId}</code>\n` +
+                `📢 <b>قانالغا يوللىنىشى:</b> ${isCompletedNow ? '✅ شۇ ھامان ئاپتوماتىك يوللاندى' : '⏳ تەمىنلىگۈچىدە پۈتكەن ھامان ئاپتوماتىك چىقىدۇ'}`,
+              parse_mode: 'HTML',
+            },
+            config.token
+          );
+        } catch {}
 
         await showMessage(chatId, messageId, successText, {
           inline_keyboard: [
