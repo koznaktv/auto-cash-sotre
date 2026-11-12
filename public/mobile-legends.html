@@ -1706,6 +1706,18 @@ function initTelegramAuth() {
     refreshUserBalanceFromBot(true);
     fetchServerOrders();
   }
+
+  // Auto-listen for app resume / focus to instantly finish Telegram 1-click login
+  window.addEventListener('autocash-app-resumed', function() {
+    if (activeLoginSessionToken) checkCurrentTelegramSessionNow();
+  });
+  window.addEventListener('focus', function() {
+    if (activeLoginSessionToken) checkCurrentTelegramSessionNow();
+  });
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden && activeLoginSessionToken) checkCurrentTelegramSessionNow();
+  });
+  setTimeout(preloadTelegramAuthSession, 1200);
 }
 
 function updateTelegramHeader() {
@@ -1738,6 +1750,7 @@ function updateTelegramHeader() {
 
 function openTelegramModal() {
   renderTelegramModalContent();
+  preloadTelegramAuthSession();
   var modal = document.getElementById('telegramModal');
   var card = document.getElementById('telegramCard');
   modal.classList.remove('hidden');
@@ -1925,76 +1938,149 @@ function renderTelegramModalContent() {
 
 var telegramAuthPollInterval = null;
 var oneTapBotUrl = '';
+var activeLoginSessionToken = null;
+var preloadedTelegramSession = null;
+var preloadingTelegramSessionPromise = null;
+
+function preloadTelegramAuthSession() {
+  if (currentTgUser) return Promise.resolve(null);
+  if (preloadedTelegramSession && preloadedTelegramSession.expiresAt > Date.now()) {
+    return Promise.resolve(preloadedTelegramSession);
+  }
+  if (preloadingTelegramSessionPromise) return preloadingTelegramSessionPromise;
+
+  preloadingTelegramSessionPromise = fetch('/api/auth/telegram-session', { method: 'POST' })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d && d.success && d.token) {
+        preloadedTelegramSession = {
+          token: d.token,
+          botUrl: d.botUrl,
+          tgAppUrl: d.tgAppUrl || d.botUrl,
+          expiresAt: Date.now() + 4 * 60 * 1000
+        };
+      }
+      preloadingTelegramSessionPromise = null;
+      return preloadedTelegramSession;
+    })
+    .catch(function() {
+      preloadingTelegramSessionPromise = null;
+      return null;
+    });
+
+  return preloadingTelegramSessionPromise;
+}
+
+async function checkCurrentTelegramSessionNow() {
+  if (!activeLoginSessionToken) return;
+  try {
+    var pollRes = await fetch('/api/auth/telegram-session?token=' + encodeURIComponent(activeLoginSessionToken));
+    var pollData = await pollRes.json();
+    if (pollData && pollData.approved && pollData.user) {
+      if (telegramAuthPollInterval) {
+        clearInterval(telegramAuthPollInterval);
+        telegramAuthPollInterval = null;
+      }
+      activeLoginSessionToken = null;
+      preloadedTelegramSession = null;
+      var u = pollData.user;
+      var custId = u.telegramChatId || u.id;
+      var photoUrl = u.avatarUrl || ('/api/apps/avatar?user=' + encodeURIComponent(custId));
+      currentTgUser = {
+        id: custId,
+        username: u.telegramUsername || u.name,
+        name: u.name,
+        photo: photoUrl,
+        balance: u.balance || 0
+      };
+      localStorage.setItem('autocash_tg_user', JSON.stringify(currentTgUser));
+      walletBalance = Number(u.balance || 0);
+      otpStep = 'input';
+      updateDisplays();
+      updateTelegramHeader();
+      renderTelegramModalContent();
+      showAppModal({
+        title: 'مۇۋەپپەقىيەتلىك كىردىڭىز',
+        message: '🎉 تېلېگرامما ئارقىلىق 1 سېكۇنتتا مۇۋەپپەقىيەتلىك كىردىڭىز! ھەميان قالدۇقىڭىز: $' + walletBalance.toFixed(2) + ' USD',
+        icon: '✅',
+        confirmText: 'ماقۇل'
+      });
+      setTimeout(function() {
+        closeTelegramModal();
+      }, 1200);
+    }
+  } catch (_) {}
+}
 
 async function startOneTapTelegramLogin() {
   otpStep = 'one_tap';
   renderTelegramModalContent();
 
-  try {
-    var res = await fetch('/api/auth/telegram-session', { method: 'POST' });
-    var data = await res.json();
-    if (!data.success || !data.token || !data.botUrl) {
-      showOtpAlert('تېلېگرام ئالاقىسى تەييارلانمىدى: ' + (data.message || 'قايتا سىناڭ'), 'error');
-      otpStep = 'input';
-      renderTelegramModalContent();
-      return;
-    }
-
-    oneTapBotUrl = data.botUrl;
-    var linkBtn = document.getElementById('oneTapBotLink');
-    if (linkBtn) linkBtn.href = data.botUrl;
-
+  var session = preloadedTelegramSession;
+  if (!session || session.expiresAt <= Date.now()) {
     try {
-      window.open(data.botUrl, '_blank');
+      session = await preloadTelegramAuthSession();
     } catch (_) {}
+  }
 
-    if (telegramAuthPollInterval) clearInterval(telegramAuthPollInterval);
-    var pollCount = 0;
-    telegramAuthPollInterval = setInterval(async function() {
-      pollCount++;
-      if (pollCount > 120) {
-        clearInterval(telegramAuthPollInterval);
-        otpStep = 'input';
-        renderTelegramModalContent();
-        showOtpAlert('ۋاقىت ئۆتۈپ كەتتى، قايتا سىناڭ.', 'error');
-        return;
+  if (!session || !session.token) {
+    try {
+      var res = await fetch('/api/auth/telegram-session', { method: 'POST' });
+      var data = await res.json();
+      if (data && data.success && data.token) {
+        session = {
+          token: data.token,
+          botUrl: data.botUrl,
+          tgAppUrl: data.tgAppUrl || data.botUrl,
+          expiresAt: Date.now() + 4 * 60 * 1000
+        };
       }
-      try {
-        var pollRes = await fetch('/api/auth/telegram-session?token=' + encodeURIComponent(data.token));
-        var pollData = await pollRes.json();
-        if (pollData && pollData.approved && pollData.user) {
-          clearInterval(telegramAuthPollInterval);
-          var u = pollData.user;
-          var custId = u.telegramChatId || u.id;
-          var photoUrl = u.avatarUrl || ('/api/apps/avatar?user=' + encodeURIComponent(custId));
-          currentTgUser = {
-            id: custId,
-            username: u.telegramUsername || u.name,
-            name: u.name,
-            photo: photoUrl,
-            balance: u.balance || 0
-          };
-          localStorage.setItem('autocash_tg_user', JSON.stringify(currentTgUser));
-          walletBalance = Number(u.balance || 0);
-          otpStep = 'input';
-          updateDisplays();
-          updateTelegramHeader();
-          renderTelegramModalContent();
-          showAppModal({
-            title: 'مۇۋەپپەقىيەتلىك كىردىڭىز',
-            message: '🎉 تېلېگرامما ئارقىلىق 1 سېكۇنتتا مۇۋەپپەقىيەتلىك كىردىڭىز! ھەميان قالدۇقىڭىز: $' + walletBalance.toFixed(2) + ' USD',
-            icon: '✅',
-            confirmText: 'ماقۇل'
-          });
-        }
-      } catch (_) {}
-    }, 1500);
+    } catch (_) {}
+  }
 
-  } catch (err) {
+  if (!session || !session.token) {
+    showOtpAlert('تېلېگرام ئالاقىسى تەييارلانمىدى، قايتا سىناڭ.', 'error');
     otpStep = 'input';
     renderTelegramModalContent();
-    showOtpAlert('كاشىلا كۆرۈلدى: ' + (err.message || 'قايتا سىناڭ'), 'error');
+    return;
   }
+
+  activeLoginSessionToken = session.token;
+  oneTapBotUrl = session.botUrl;
+
+  var linkBtn = document.getElementById('oneTapBotLink');
+  if (linkBtn) linkBtn.href = session.botUrl;
+
+  // Immediately fire native launch
+  var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  var isApp = navigator.userAgent.indexOf('AutoCashApp') !== -1 || Boolean(window.Android);
+
+  if (isApp || isMobile) {
+    window.location.href = session.tgAppUrl || session.botUrl;
+  } else {
+    try {
+      window.open(session.botUrl, '_blank');
+    } catch (_) {
+      window.location.href = session.botUrl;
+    }
+  }
+
+  // Fast polling: every 700ms!
+  if (telegramAuthPollInterval) clearInterval(telegramAuthPollInterval);
+  var pollCount = 0;
+  telegramAuthPollInterval = setInterval(async function() {
+    pollCount++;
+    if (pollCount > 150) {
+      clearInterval(telegramAuthPollInterval);
+      telegramAuthPollInterval = null;
+      activeLoginSessionToken = null;
+      otpStep = 'input';
+      renderTelegramModalContent();
+      showOtpAlert('ۋاقىت ئۆتۈپ كەتتى، قايتا سىناڭ.', 'error');
+      return;
+    }
+    await checkCurrentTelegramSessionNow();
+  }, 700);
 }
 
 function cancelOneTapLogin() {
@@ -2002,6 +2088,7 @@ function cancelOneTapLogin() {
     clearInterval(telegramAuthPollInterval);
     telegramAuthPollInterval = null;
   }
+  activeLoginSessionToken = null;
   otpStep = 'input';
   renderTelegramModalContent();
 }

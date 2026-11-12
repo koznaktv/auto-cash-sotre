@@ -56,7 +56,7 @@ function saveLocalSessions(map: Map<string, TelegramLoginSession>) {
 /**
  * Creates a new short-lived Telegram Login Session (valid for 5 minutes).
  */
-export async function createTelegramLoginSessionAsync(customBotUsername?: string): Promise<{ token: string; botUrl: string }> {
+export async function createTelegramLoginSessionAsync(customBotUsername?: string): Promise<{ token: string; botUrl: string; tgAppUrl: string }> {
   const token = crypto.randomBytes(12).toString('hex');
   const now = Date.now();
   const session: TelegramLoginSession = {
@@ -92,8 +92,9 @@ export async function createTelegramLoginSessionAsync(customBotUsername?: string
     ? customBotUsername.trim()
     : (process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'Autocash_24_bot');
   const botUrl = `https://t.me/${botUsername}?start=auth_${token}`;
+  const tgAppUrl = `tg://resolve?domain=${botUsername}&start=auth_${token}`;
 
-  return { token, botUrl };
+  return { token, botUrl, tgAppUrl };
 }
 
 /**
@@ -104,46 +105,21 @@ export async function approveTelegramLoginSessionAsync(
   userId: string
 ): Promise<{ success: boolean; session?: TelegramLoginSession }> {
   const cleanToken = token.trim();
-  let session = MEMORY_SESSIONS.get(cleanToken);
-
-  if (!session) {
-    const localMap = loadLocalSessions();
-    session = localMap.get(cleanToken);
-  }
-
-  const sb = getSupabase();
-  if (!session && sb) {
-    try {
-      const { data } = await sb
-        .from('system_settings')
-        .select('site_name')
-        .eq('id', `tg_auth_${cleanToken}`)
-        .single();
-      if (data?.site_name) {
-        session = JSON.parse(data.site_name);
-      }
-    } catch {}
-  }
-
-  if (!session) {
-    // If session wasn't found before, create it directly as approved
-    session = {
-      token: cleanToken,
-      status: 'approved',
-      userId,
-      createdAt: Date.now(),
-      expiresAt: Date.now() + 5 * 60 * 1000,
-    };
-  } else {
-    session.status = 'approved';
-    session.userId = userId;
-  }
+  const now = Date.now();
+  const session: TelegramLoginSession = {
+    token: cleanToken,
+    status: 'approved',
+    userId,
+    createdAt: now,
+    expiresAt: now + 5 * 60 * 1000,
+  };
 
   MEMORY_SESSIONS.set(cleanToken, session);
   const localMap = loadLocalSessions();
   localMap.set(cleanToken, session);
   saveLocalSessions(localMap);
 
+  const sb = getSupabase();
   if (sb) {
     try {
       await sb.from('system_settings').upsert({
@@ -154,7 +130,9 @@ export async function approveTelegramLoginSessionAsync(
         whatsapp_number: 'META',
         telegram_username: 'META',
       });
-    } catch {}
+    } catch (e: any) {
+      console.warn('[Telegram Auth Session] Supabase approve notice:', e?.message);
+    }
   }
 
   return { success: true, session };
@@ -162,6 +140,7 @@ export async function approveTelegramLoginSessionAsync(
 
 /**
  * Checks the status of a Telegram Login Session.
+ * Always synchronizes with Supabase to bridge serverless containers instantly.
  */
 export async function checkTelegramLoginSessionAsync(
   token: string
@@ -169,13 +148,14 @@ export async function checkTelegramLoginSessionAsync(
   const cleanToken = token.trim();
   let session = MEMORY_SESSIONS.get(cleanToken);
 
-  if (!session) {
-    const localMap = loadLocalSessions();
-    session = localMap.get(cleanToken);
+  // Fast in-memory hit if already approved and not expired
+  if (session && session.status === 'approved' && session.userId && session.expiresAt > Date.now()) {
+    return { approved: true, userId: session.userId, status: 'approved' };
   }
 
+  // Cross-container synchronization: if not approved in this memory instance, check Supabase
   const sb = getSupabase();
-  if (!session && sb) {
+  if (sb) {
     try {
       const { data } = await sb
         .from('system_settings')
@@ -183,9 +163,18 @@ export async function checkTelegramLoginSessionAsync(
         .eq('id', `tg_auth_${cleanToken}`)
         .single();
       if (data?.site_name) {
-        session = JSON.parse(data.site_name);
+        const remoteSession = JSON.parse(data.site_name);
+        if (remoteSession && remoteSession.token) {
+          session = remoteSession as TelegramLoginSession;
+          MEMORY_SESSIONS.set(cleanToken, session);
+        }
       }
     } catch {}
+  }
+
+  if (!session) {
+    const localMap = loadLocalSessions();
+    session = localMap.get(cleanToken);
   }
 
   if (!session) {

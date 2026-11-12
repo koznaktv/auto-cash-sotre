@@ -13,11 +13,12 @@ export async function POST(req: Request) {
     const url = new URL(req.url);
     const botParam = url.searchParams.get('bot');
     const customBot = botParam === 'maxbazar' ? (process.env.MAXBAZAR_BOT_USERNAME || 'maxbazar_bot') : undefined;
-    const { token, botUrl } = await createTelegramLoginSessionAsync(customBot);
+    const { token, botUrl, tgAppUrl } = await createTelegramLoginSessionAsync(customBot);
     return NextResponse.json({
       success: true,
       token,
       botUrl,
+      tgAppUrl,
     });
   } catch (err: any) {
     return NextResponse.json(
