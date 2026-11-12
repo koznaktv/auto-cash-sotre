@@ -31,8 +31,8 @@
     }
 
     body, html, button, input, select, textarea, div, span, p, h1, h2, h3, h4, h5, h6 {
-      font-family: 'UyghurModern', 'ALKATIP Basma', 'UKIJ Tuz', 'Alpida Unicode System', 'Noto Sans Arabic', 'Microsoft Uighur', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif;
-      text-rendering: optimizeSpeed;
+      font-family: 'Noto Sans Arabic', 'UyghurModern', 'ALKATIP Basma', 'UKIJ Tuz', 'Alpida Unicode System', 'Microsoft Uighur', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif;
+      text-rendering: optimizeLegibility;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       line-height: 1.6;
@@ -162,23 +162,27 @@
         </div>
 
         <!-- Tier 2: VIP Dollar Wallet Bar (Spacious, Metallic Gold, Zero Collision) -->
-        <div class="relative z-10 flex items-center justify-between gap-2 bg-gradient-to-r from-[#171e2e]/90 via-[#201908]/90 to-[#171e2e]/90 border border-amber-500/50 hover:border-amber-400 rounded-xl px-2.5 py-1.5 shadow-md shadow-amber-950/40 backdrop-blur-md transition-all">
+        <div class="relative z-10 flex items-center justify-between gap-2 bg-gradient-to-r from-[#171e2e]/95 via-[#231b08]/95 to-[#171e2e]/95 border border-amber-500/50 hover:border-amber-400 rounded-2xl px-3 py-2 shadow-lg shadow-amber-950/50 backdrop-blur-md transition-all">
           <!-- Right: 3D Metallic Golden Dollar Coin ($) Medallion & Balance -->
-          <div class="flex items-center gap-2 min-w-0">
-            <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-600 via-yellow-400 to-amber-200 p-[1.5px] shadow-sm shadow-amber-500/40 shrink-0 flex items-center justify-center">
-              <div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-black text-amber-300 text-xs font-mono shadow-inner">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="relative w-8 h-8 rounded-full bg-gradient-to-tr from-amber-600 via-yellow-300 to-amber-500 p-[1.5px] shadow-md shadow-amber-500/50 shrink-0 flex items-center justify-center">
+              <div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-black text-amber-300 text-sm font-mono shadow-inner">
                 $
               </div>
+              <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-yellow-300 border border-slate-950 animate-ping"></span>
             </div>
             <div class="flex flex-col text-right leading-none min-w-0">
-              <span class="text-[8.5px] text-slate-400 font-bold mb-0.5">ھەميان قالدۇقى</span>
-              <span class="font-mono font-black text-sm text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 whitespace-nowrap" id="headerWallet">$ 0.00</span>
+              <span class="text-[9px] text-slate-400 font-bold mb-0.5 flex items-center gap-1">
+                <span>ھەميان قالدۇقى</span>
+                <span class="text-[8px] px-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">USD</span>
+              </span>
+              <span class="font-mono font-black text-sm sm:text-base text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 whitespace-nowrap" id="headerWallet">$ 0.00</span>
             </div>
           </div>
 
           <!-- Left: + قاچىلاش Prominent Deposit Button -->
-          <button onclick="openDepositModal()" type="button" class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 text-xs font-black shadow-md shadow-amber-500/25 active:scale-95 transition-all cursor-pointer whitespace-nowrap shrink-0" title="قالدۇق قاچىلاش">
-            <span class="text-xs font-bold leading-none">+</span>
+          <button onclick="openDepositModal()" type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 text-xs font-black shadow-md shadow-amber-500/30 active:scale-95 transition-all cursor-pointer whitespace-nowrap shrink-0" title="قالدۇق قاچىلاش">
+            <span class="text-sm font-bold leading-none">+</span>
             <span>قالدۇق قاچىلاش</span>
           </button>
         </div>
@@ -187,8 +191,8 @@
       <!-- ================= 1-قەدەم (STEP 1): ئالدى بىلەن ID كىرگۈزۈش ۋە سېرۋېر دەلىللەش ================= -->
       <div class="glass-box rounded-2xl p-3.5 border border-slate-800 space-y-2.5">
         <div class="flex items-center justify-between">
-          <label class="text-xs font-black text-white flex items-center gap-1.5">
-            <span class="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs font-mono font-bold">1</span>
+          <label class="text-xs font-black text-white flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 text-slate-950 flex items-center justify-center text-[11px] font-mono font-black shadow-md shadow-cyan-500/40 shrink-0">1</span>
             <span>ئالدى بىلەن ئويۇن ID سى ۋە سېرۋېرىنى كىرگۈزۈڭ</span>
           </label>
           <span class="text-xs px-2.5 py-0.5 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 border border-cyan-400/40 font-bold flex items-center gap-1 shadow-sm">
@@ -230,20 +234,26 @@
           <button onclick="clearErrorState()" class="text-rose-400 hover:text-white text-xs px-1.5 py-0.5 rounded">✕</button>
         </div>
 
-        <!-- Quick Server Preview Section (Strictly 1 Row of Buttons!) -->
+        <!-- Quick Server Preview Section (Strictly 1 Row of VIP Badges!) -->
         <div class="space-y-1.5 pt-1">
           <div class="text-xs text-slate-400 font-bold px-0.5">
             ياكى سېرۋىر باھالىرىنى كۆرۈپ بېقىڭ:
           </div>
           <div class="grid grid-cols-3 gap-1.5 w-full">
-            <button onclick="previewServerOnly('global')" type="button" class="py-2 px-1 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 hover:border-cyan-400 font-black text-xs transition flex items-center justify-center gap-1 shadow-sm active:scale-95">
-              <span>🌐</span><span class="whitespace-nowrap">گىلوبال</span>
+            <button onclick="previewServerOnly('global')" type="button" class="group relative py-2 px-1.5 rounded-xl bg-gradient-to-b from-[#0c182e] to-[#070e1c] hover:from-[#112444] hover:to-[#0b172d] text-cyan-300 border border-cyan-500/40 hover:border-cyan-300 font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-md shadow-cyan-950/40 active:scale-95 cursor-pointer">
+              <span class="text-sm group-hover:scale-110 transition-transform">🌐</span>
+              <span class="whitespace-nowrap font-bold">گىلوبال</span>
+              <span class="text-[9px] font-mono px-1 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-400/30">GL</span>
             </button>
-            <button onclick="previewServerOnly('turkey')" type="button" class="py-2 px-1 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/40 hover:border-amber-400 font-black text-xs transition flex items-center justify-center gap-1 shadow-sm active:scale-95">
-              <span>🇹🇷</span><span class="whitespace-nowrap">تۈركىيە</span>
+            <button onclick="previewServerOnly('turkey')" type="button" class="group relative py-2 px-1.5 rounded-xl bg-gradient-to-b from-[#241315] to-[#120a0b] hover:from-[#351a1d] hover:to-[#1b0d0f] text-rose-300 border border-rose-500/40 hover:border-rose-300 font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-md shadow-rose-950/40 active:scale-95 cursor-pointer">
+              <span class="text-sm group-hover:scale-110 transition-transform">🇹🇷</span>
+              <span class="whitespace-nowrap font-bold">تۈركىيە</span>
+              <span class="text-[9px] font-mono px-1 rounded bg-rose-500/20 text-rose-300 border border-rose-400/30">TR</span>
             </button>
-            <button onclick="previewServerOnly('special')" type="button" class="py-2 px-1 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-emerald-300 border border-emerald-500/40 hover:border-emerald-400 font-black text-xs transition flex items-center justify-center gap-1 shadow-sm active:scale-95">
-              <span>🇵🇭</span><span class="whitespace-nowrap">فىلىپپىن</span>
+            <button onclick="previewServerOnly('special')" type="button" class="group relative py-2 px-1.5 rounded-xl bg-gradient-to-b from-[#0e221d] to-[#071310] hover:from-[#15342c] hover:to-[#0b1f1a] text-emerald-300 border border-emerald-500/40 hover:border-emerald-300 font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-md shadow-emerald-950/40 active:scale-95 cursor-pointer">
+              <span class="text-sm group-hover:scale-110 transition-transform">🇵🇭</span>
+              <span class="whitespace-nowrap font-bold">فىلىپپىن</span>
+              <span class="text-[9px] font-mono px-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">PH</span>
             </button>
           </div>
         </div>
@@ -298,33 +308,55 @@
       </div>
 
       <!-- ================= 2-قەدەم (STEP 2): ئالماس بوغچىسى تاللاش ================= -->
-      <div id="step2Section" class="space-y-2">
+      <div id="step2Section" class="space-y-2.5">
         <div class="flex justify-between items-center px-1">
-          <label class="text-xs font-black text-white flex items-center gap-1.5">
-            <span class="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs font-mono font-bold">2</span>
-            <span>ئالماس بوغچىسىنى تاللاڭ</span>
+          <label class="text-xs font-black text-white flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 text-white flex items-center justify-center text-[11px] font-mono font-black shadow-md shadow-purple-500/40 shrink-0">2</span>
+            <span class="text-sm font-black text-white tracking-wide">ئالماس بوغچىسىنى تاللاڭ</span>
           </label>
-          <span id="activeServerTag" class="hidden text-xs px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">
+          <span id="activeServerTag" class="hidden text-xs px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 border border-amber-500/40 font-black shadow-sm">
             🇹🇷 تۈركىيە باھاسى
           </span>
         </div>
 
-        <!-- Locked Notice (Shown before ID is entered and when not in preview mode) -->
-        <div id="lockedNotice" class="glass-box rounded-2xl p-4 sm:p-5 border border-dashed border-cyan-500/40 text-center space-y-3">
-          <div class="w-12 h-12 mx-auto rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xl shadow-inner">
-            🔒
+        <!-- Locked Notice (High-End Cyber Padlock Box with 3D Glowing Medallion) -->
+        <div id="lockedNotice" class="glass-box rounded-3xl p-5 border border-cyan-500/30 text-center space-y-3.5 relative overflow-hidden bg-gradient-to-b from-[#0a1224] via-[#090f1d] to-[#070b14] shadow-2xl">
+          <!-- Ambient decorative cyber glow -->
+          <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-44 h-24 bg-cyan-500/15 rounded-full blur-2xl pointer-events-none"></div>
+
+          <!-- 3D Glowing Cyber Padlock Medallion -->
+          <div class="relative w-16 h-16 mx-auto flex items-center justify-center">
+            <div class="absolute inset-0 rounded-2xl bg-gradient-to-tr from-cyan-500/30 via-blue-500/20 to-amber-500/30 blur-md animate-pulse"></div>
+            <div class="relative w-14 h-14 rounded-2xl bg-gradient-to-b from-slate-900 via-[#0d1628] to-slate-950 border-2 border-cyan-400/60 shadow-xl shadow-cyan-500/30 flex items-center justify-center">
+              <svg class="w-7 h-7 text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]" viewBox="0 0 24 24" fill="currentColor">
+                <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 00-7.5 0v3h7.5z" clip-rule="evenodd" />
+              </svg>
+              <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-cyan-400 border-2 border-slate-950 flex items-center justify-center text-[9px] font-black text-slate-950">✓</span>
+            </div>
           </div>
-          <h4 class="text-sm sm:text-base font-bold text-white leading-snug">ئالدى بىلەن ID نۇمۇرىڭىزنى جەزىملەشتۈرۈڭ</h4>
-          <p class="text-xs text-slate-300 leading-relaxed max-w-[300px] mx-auto">
-            ئويۇن ID سى دەلىللەنگەندىن كېيىن، سېرۋېرىڭىزغا ماس كېلىدىغان 100% توغرا باھا تىزىملىكى ئېچىلىدۇ.
-          </p>
-          <div class="flex items-center justify-center gap-2 pt-1 flex-wrap">
-            <button onclick="document.getElementById('mlbbInput').focus()" class="px-4 py-2 rounded-xl bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-300 border border-cyan-500/40 text-xs font-bold inline-flex items-center gap-1.5 transition active:scale-95 shadow">
-              <span>⬆️</span>
+
+          <!-- Titles & Explanations -->
+          <div class="space-y-1 relative z-10">
+            <h4 class="text-sm sm:text-base font-black text-white tracking-wide leading-snug">
+              ئالدى بىلەن ئويۇن كىملىكى (ID) نى دەلىللەڭ
+            </h4>
+            <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-[10.5px] font-bold">
+              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+              <span>سېرۋېرغا ماس ئەڭ ئەرزان باھالار ئېچىلىدۇ</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed max-w-[310px] mx-auto pt-1">
+              خاتا سېرۋېرغا پۇل سېلىۋېلىشتىن ساقلىنىش ئۈچۈن، 1-قەدەمدىن ID ۋە رايون كودى كىرگۈزۈلگەندە سىستېما باھالارنى تولۇق ئاچىدۇ.
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center justify-center gap-2 pt-1 flex-wrap relative z-10">
+            <button onclick="document.getElementById('mlbbInput').focus();" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-cyan-500 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-black inline-flex items-center gap-1.5 transition active:scale-95 shadow-lg shadow-cyan-500/30 cursor-pointer">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v4.59L7.3 9.39a.75.75 0 10-1.1 1.02l3.25 3.5a.75.75 0 001.1 0l3.25-3.5a.75.75 0 10-1.1-1.02l-1.95 2.1V6.75z" clip-rule="evenodd"/></svg>
               <span>ID كىرگۈزۈش</span>
             </button>
-            <button onclick="previewServerOnly('global')" class="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold inline-flex items-center gap-1.5 transition active:scale-95 shadow">
-              <span>ياكى سېرۋىر باھالىرىنى كۆرۈپ بېقىڭ</span>
+            <button onclick="previewServerOnly('global')" class="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-slate-900 to-[#192233] hover:from-slate-800 hover:to-[#222e44] text-amber-300 border border-amber-500/50 hover:border-amber-400 text-xs font-black inline-flex items-center gap-1.5 transition active:scale-95 shadow-md shadow-amber-950/40 cursor-pointer">
+              <span>👁️ سېرۋېر باھالىرىنى كۆرۈپ بېقىش</span>
             </button>
           </div>
         </div>
@@ -338,20 +370,20 @@
               <p class="text-[11px] text-slate-300">سېتىۋېلىش ئۈچۈن 1-قەدەمدىن ئۆز كىملىكىڭىزنى كىرگۈزۈپ «ئىزدەش» نى بېسىڭ.</p>
             </div>
           </div>
-          <button onclick="document.getElementById('mlbbInput').focus()" class="px-2 py-1 rounded-lg bg-cyan-600 text-white font-bold text-xs shrink-0">
+          <button onclick="document.getElementById('mlbbInput').focus()" class="px-2.5 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shrink-0 cursor-pointer">
             ID كىرگۈزۈش
           </button>
         </div>
 
         <!-- 3 Server Tabs (گىلوبال ، تۈركىيە، فىلىپپىن) -->
-        <div id="serverTabs" class="hidden grid-cols-3 gap-1 bg-slate-900/90 p-1.5 rounded-xl border border-slate-800 text-xs">
-          <button id="tabGlobal" onclick="switchServer('global')" class="py-1.5 px-1 rounded-lg font-bold transition text-center flex items-center justify-center gap-1">
+        <div id="serverTabs" class="hidden grid-cols-3 gap-1.5 bg-[#0a101f] p-1.5 rounded-2xl border border-slate-800 text-xs shadow-lg">
+          <button id="tabGlobal" onclick="switchServer('global')" class="py-2 px-1 rounded-xl font-bold transition text-center flex items-center justify-center gap-1.5">
             <span>🌐</span><span>گىلوبال</span>
           </button>
-          <button id="tabTurkey" onclick="switchServer('turkey')" class="py-1.5 px-1 rounded-lg font-bold transition text-center flex items-center justify-center gap-1">
+          <button id="tabTurkey" onclick="switchServer('turkey')" class="py-2 px-1 rounded-xl font-bold transition text-center flex items-center justify-center gap-1.5">
             <span>🇹🇷</span><span>تۈركىيە</span>
           </button>
-          <button id="tabSpecial" onclick="switchServer('special')" class="py-1.5 px-1 rounded-lg font-bold transition text-center flex items-center justify-center gap-1">
+          <button id="tabSpecial" onclick="switchServer('special')" class="py-2 px-1 rounded-xl font-bold transition text-center flex items-center justify-center gap-1.5">
             <span>🇵🇭</span><span>فىلىپپىن</span>
           </button>
         </div>
@@ -363,43 +395,57 @@
       </div>
 
       <!-- ================= 3-قەدەم (STEP 3): ھەميان قالدۇقى ئارقىلىق تۆلەش ================= -->
-      <div class="glass-box rounded-2xl p-3 border border-slate-800 space-y-2">
+      <div class="glass-box rounded-2xl p-3.5 border border-slate-800 space-y-2.5">
         <div class="flex items-center justify-between">
-          <label class="text-xs font-black text-white flex items-center gap-1.5">
-            <span class="w-4 h-4 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs font-mono font-bold">3</span>
-            <span>تۆلەش شەكلى: ھەميان قالدۇقى</span>
+          <label class="text-xs font-black text-white flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-500 text-slate-950 flex items-center justify-center text-[11px] font-mono font-black shadow-md shadow-amber-500/40 shrink-0">3</span>
+            <span>تۆلەش ئۇسۇلى: ھەميان قالدۇقى</span>
           </label>
-          <button onclick="openDepositModal()" class="text-xs text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1">
-            <span>+</span> قالدۇق كىرگۈزۈش
+          <button onclick="openDepositModal()" type="button" class="text-xs px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black flex items-center gap-1 shadow-md shadow-amber-500/25 active:scale-95 transition cursor-pointer">
+            <span class="font-bold text-sm leading-none">+</span>
+            <span>قالدۇق كىرگۈزۈش</span>
           </button>
         </div>
 
-        <div class="bg-gradient-to-r from-slate-900 via-[#0d1627] to-slate-900 border border-amber-500/30 rounded-xl p-2.5 space-y-2">
+        <!-- VIP Gold Cyber Wallet Card -->
+        <div class="bg-gradient-to-br from-[#121824] via-[#1b190f] to-[#121824] border border-amber-500/40 hover:border-amber-400/60 rounded-2xl p-3 space-y-2.5 shadow-xl shadow-amber-950/30 transition-all">
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-sm shadow-sm">
-                💳
+            <div class="flex items-center gap-2.5">
+              <!-- 3D Gold Wallet Icon -->
+              <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-600 via-yellow-400 to-amber-200 p-[1.5px] shadow-lg shadow-amber-500/40 flex items-center justify-center shrink-0">
+                <div class="w-full h-full rounded-2xl bg-[#0b101d] flex items-center justify-center text-amber-300 text-lg shadow-inner">
+                  💰
+                </div>
               </div>
-              <div>
-                <p class="text-xs font-bold text-white">ھەميان قالدۇقىدىن تېز چىقىم</p>
-                <p class="text-xs text-emerald-400">سېكۇنتتا بىۋاسىتە تۇتۇلىدۇ • تېز قاچىلاش</p>
+              <div class="leading-tight">
+                <p class="text-xs font-black text-white flex items-center gap-1.5">
+                  <span>ھەميان قالدۇقىدىن تېز چىقىم</span>
+                  <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">VIP</span>
+                </p>
+                <p class="text-[11px] text-emerald-400 font-bold flex items-center gap-1 mt-0.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>سېكۇنتتا بىۋاسىتە تۇتۇلىدۇ • تېز قاچىلاش</span>
+                </p>
               </div>
             </div>
-            <span class="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-bold">ئاكتىپ ✓</span>
+            <span class="text-[10.5px] bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border border-emerald-400/40 px-2.5 py-0.5 rounded-full font-black flex items-center gap-1 shadow-sm">
+              <span>ئاكتىپ ✓</span>
+            </span>
           </div>
 
-          <div class="grid grid-cols-3 gap-1.5 pt-1.5 border-t border-slate-800 text-center font-mono">
-            <div class="bg-slate-950/80 rounded-xl p-2 border border-slate-800">
-              <span class="text-[11px] text-slate-400 block">ھازىرقى قالدۇق</span>
-              <span id="walletCurrent" class="text-xs font-bold text-slate-200">$ 0.00</span>
+          <!-- 3 Stats Badges: Amber (Current), Rose (Deduct), Emerald (Remaining) -->
+          <div class="grid grid-cols-3 gap-2 pt-1 border-t border-slate-800/80 text-center font-mono">
+            <div class="bg-gradient-to-b from-slate-900/95 to-[#161a24] rounded-xl p-2 border border-amber-500/40 shadow-sm">
+              <span class="text-[10px] text-amber-300 font-bold block mb-0.5">💵 ھازىرقى قالدۇق</span>
+              <span id="walletCurrent" class="text-xs sm:text-sm font-black text-amber-300">$ 0.00</span>
             </div>
-            <div class="bg-slate-950/80 rounded-xl p-2 border border-slate-800">
-              <span class="text-[11px] text-rose-400 block">كېمىيىدىغىنى</span>
-              <span id="walletDeduct" class="text-xs font-bold text-rose-400">-1.41 $</span>
+            <div class="bg-gradient-to-b from-slate-900/95 to-[#1c1214] rounded-xl p-2 border border-rose-500/40 shadow-sm">
+              <span class="text-[10px] text-rose-400 font-bold block mb-0.5">🔻 كېمىيىدىغىنى</span>
+              <span id="walletDeduct" class="text-xs sm:text-sm font-black text-rose-400">-1.41 $</span>
             </div>
-            <div class="bg-slate-950/80 rounded-xl p-2 border border-slate-800">
-              <span class="text-[11px] text-emerald-400 block">قالىدىغان قالدۇق</span>
-              <span id="walletRemaining" class="text-xs font-bold text-emerald-400">$ 0.00</span>
+            <div class="bg-gradient-to-b from-slate-900/95 to-[#0e1f18] rounded-xl p-2 border border-emerald-500/40 shadow-sm">
+              <span class="text-[10px] text-emerald-400 font-bold block mb-0.5">🛡️ قالىدىغان قالدۇق</span>
+              <span id="walletRemaining" class="text-xs sm:text-sm font-black text-emerald-400">$ 0.00</span>
             </div>
           </div>
         </div>
@@ -981,15 +1027,15 @@
         const sFlag = CATALOGS[s].flag;
 
         if (s === currentServer) {
-          btn.className = 'py-1.5 px-1 rounded-lg font-bold transition text-center bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow border border-cyan-400 flex items-center justify-center gap-1';
-          btn.innerHTML = '<span>' + sFlag + '</span><span>' + sTitle + '</span>' + (isVerified ? '<span class="text-[9px] bg-emerald-400 text-slate-950 px-1 rounded font-black font-mono">تەستىقلاندى</span>' : '');
+          btn.className = 'py-2 px-1 rounded-xl font-black transition-all text-center bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-500/30 border border-cyan-300 flex items-center justify-center gap-1.5 scale-[1.02] cursor-pointer';
+          btn.innerHTML = '<span>' + sFlag + '</span><span>' + sTitle + '</span>' + (isVerified ? '<span class="text-[8.5px] bg-emerald-400 text-slate-950 px-1 py-0.5 rounded font-black font-mono">تەستىقلاندى</span>' : '<span class="w-1.5 h-1.5 rounded-full bg-cyan-300 animate-ping"></span>');
         } else {
           if (isVerified) {
-            btn.className = 'py-1.5 px-1 rounded-lg font-bold transition text-center text-slate-500 bg-slate-950/70 border border-slate-800/80 cursor-not-allowed opacity-50 flex items-center justify-center gap-1';
+            btn.className = 'py-2 px-1 rounded-xl font-bold transition text-center text-slate-500 bg-slate-950/70 border border-slate-800/80 cursor-not-allowed opacity-40 flex items-center justify-center gap-1.5';
             btn.innerHTML = '<span>🔒</span><span class="line-through opacity-70">' + sTitle + '</span>';
             btn.title = 'خاتا سېتىۋېلىشتىن مۇداپىئەلىنىش ئۈچۈن قۇلۇپلاندى';
           } else {
-            btn.className = 'py-1.5 px-1 rounded-lg font-bold transition text-center text-slate-400 hover:text-white bg-slate-900 border border-slate-800 flex items-center justify-center gap-1';
+            btn.className = 'py-2 px-1 rounded-xl font-bold transition text-center text-slate-400 hover:text-white bg-slate-900/90 hover:bg-slate-800 border border-slate-800 flex items-center justify-center gap-1.5 cursor-pointer';
             btn.innerHTML = '<span>' + sFlag + '</span><span>' + sTitle + '</span>';
             btn.title = '';
           }
