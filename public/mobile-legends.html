@@ -138,47 +138,32 @@
       </div>
     </div>
 
-    <!-- APP NAVIGATION & ACCOUNT BAR (Ultra-Luxe, intuitive, self-explanatory) -->
-    <div class="px-3.5 py-2.5 bg-gradient-to-r from-slate-950 via-[#0d1627] to-slate-950 border-b border-slate-800/80 flex items-center justify-between z-10 shrink-0 select-none">
-      <!-- Right: Official Store Brand with Logo Badge -->
-      <a href="/" class="flex items-center gap-2.5 group cursor-pointer" title="AUTO CASH باش بەتكە قايتىش">
-        <div class="relative w-8 h-8 rounded-full overflow-hidden border-2 border-amber-400 shadow-md shadow-amber-500/30 group-hover:scale-105 transition shrink-0 ring-1 ring-cyan-400/50 bg-slate-950">
+    <!-- APP NAVIGATION & ACCOUNT BAR (Strictly compact, perfectly fits all mobile phones) -->
+    <div class="px-2.5 py-2 bg-gradient-to-r from-slate-950 via-[#0d1627] to-slate-950 border-b border-slate-800/80 flex items-center justify-between z-10 shrink-0 select-none gap-1">
+      <!-- Right: Official Brand Logo & Name (Compact ~80px) -->
+      <a href="/" class="flex items-center gap-1.5 group cursor-pointer shrink-0" title="AUTO CASH">
+        <div class="relative w-7 h-7 rounded-full overflow-hidden border border-amber-400 shadow shadow-amber-500/30 group-hover:scale-105 transition shrink-0 bg-slate-950">
           <img src="autocash_logo.jpg" alt="AUTO CASH" class="w-full h-full object-cover" onerror="this.src='https://auto-cash-sotre.vercel.app/autocash_logo.jpg'"/>
         </div>
-        <div class="text-right leading-none">
-          <span class="text-xs font-black tracking-wide bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-100 bg-clip-text text-transparent group-hover:from-white group-hover:to-cyan-200 transition block font-sans">AUTO CASH</span>
-          <span class="text-[9px] text-cyan-400 font-bold block mt-0.5 tracking-tight font-mono">OFFICIAL STORE</span>
-        </div>
+        <span class="text-xs font-black tracking-wide bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-100 bg-clip-text text-transparent block font-sans whitespace-nowrap">AUTO CASH</span>
       </a>
 
-      <!-- Left: Telegram User + Live Wallet + History (Always on one clean line) -->
-      <div class="flex items-center gap-1.5">
+      <!-- Left: Telegram User + Live Wallet + History (Fits within 190px cleanly) -->
+      <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
         <!-- Telegram Profile / Login State -->
-        <div id="tgHeaderArea"></div>
+        <div id="tgHeaderArea" class="shrink-0"></div>
 
-        <!-- Live Wallet Button (Ultra-Intuitive & High-End) -->
-        <button onclick="openDepositModal()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/25 via-amber-400/15 to-yellow-500/20 border border-amber-400/60 hover:border-amber-300 hover:shadow-lg hover:shadow-amber-500/25 transition shadow-sm whitespace-nowrap active:scale-95 cursor-pointer group" title="ھەميان قالدۇقى قاچىلاش (شامكەش تالونى ئارقىلىق دەرھال قاچىلاڭ)">
-          <div class="w-5 h-5 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-300 to-amber-400 flex items-center justify-center text-slate-950 font-black text-[11px] shadow-sm shadow-amber-500/50 shrink-0 border border-amber-200">
-            💰
-          </div>
-          <div class="flex items-baseline gap-1">
-            <span class="text-[10px] text-amber-300/90 font-bold hidden xs:inline">قالدۇق:</span>
-            <span class="font-mono font-black text-xs text-amber-100 tracking-tight whitespace-nowrap" id="headerWallet">45.00 $</span>
-          </div>
-          <span class="text-[10px] text-amber-950 font-black bg-gradient-to-r from-amber-400 to-yellow-300 px-1.5 py-0.5 rounded-md flex items-center justify-center shadow-sm group-hover:scale-105 transition" title="قالدۇق تولۇقلاش">
-            + قاچىلاش
-          </span>
+        <!-- Live Wallet Button (Compact & Never Wraps) -->
+        <button onclick="openDepositModal()" class="flex items-center gap-1 px-2 py-1 rounded-xl bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-amber-500/20 border border-amber-400/60 hover:border-amber-300 text-amber-200 transition shadow-sm whitespace-nowrap active:scale-95 cursor-pointer shrink-0" title="ھەميان قالدۇقى قاچىلاش">
+          <span class="text-xs">💰</span>
+          <span class="font-mono font-black text-xs text-amber-100 tracking-tight whitespace-nowrap" id="headerWallet">45.00 $</span>
+          <span class="w-3.5 h-3.5 rounded-full bg-amber-400/30 text-amber-300 text-[10px] font-black flex items-center justify-center ml-0.5" title="قالدۇق قاچىلاش">+</span>
         </button>
 
-        <!-- Order History Chip (Clear, noticeable, showing count) -->
-        <button onclick="openHistoryModal('products')" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900 border border-cyan-500/50 hover:border-cyan-400 hover:shadow-lg hover:shadow-cyan-500/20 text-slate-200 hover:text-white transition shadow-sm shrink-0 active:scale-95 cursor-pointer group" title="مېنىڭ زاكازلىرىم ۋە قالدۇق تارىخىنى كۆرۈش">
-          <div class="w-5 h-5 rounded-lg bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 text-[11px] shrink-0 group-hover:bg-cyan-500/40 transition">
-            🧾
-          </div>
-          <span class="text-xs font-bold text-cyan-200 hidden xs:inline">زاكاز:</span>
-          <span id="notifBadge" class="min-w-[18px] h-4 px-1 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 text-[10px] font-black flex items-center justify-center font-mono shadow-sm">
-            2
-          </span>
+        <!-- Order History Button (Fully visible with 100% room!) -->
+        <button onclick="openHistoryModal('products')" class="w-7 h-7 rounded-xl bg-slate-900 border border-cyan-500/50 hover:border-cyan-300 text-slate-200 hover:text-white flex items-center justify-center text-xs transition relative shadow-sm shrink-0 active:scale-95 cursor-pointer" title="مېنىڭ زاكازلىرىم ۋە تالونلار">
+          <span class="text-xs">🧾</span>
+          <span id="notifBadge" class="absolute -top-1 -right-1 min-w-[15px] h-3.5 px-0.5 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 text-[9px] font-black flex items-center justify-center font-mono shadow-sm">2</span>
         </button>
       </div>
     </div>
@@ -1326,21 +1311,18 @@ function updateTelegramHeader() {
 
   if (currentTgUser) {
     container.innerHTML = 
-      '<div onclick="openTelegramModal()" class="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-slate-900 border border-sky-500/60 hover:border-sky-300 hover:shadow-lg hover:shadow-sky-500/20 cursor-pointer transition shadow-sm select-none whitespace-nowrap active:scale-95" title="تېلېگرام ئارخىپىم: @' + (currentTgUser.username || currentTgUser.id) + '">' +
-        '<div class="relative shrink-0">' +
-          '<img src="' + currentTgUser.photo + '" class="w-6 h-6 rounded-full object-cover border border-sky-400" onerror="this.src=\'https://api.dicebear.com/7.x/bottts/svg?seed=user\'"/>' +
-          '<span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-slate-950 animate-pulse"></span>' +
+      '<div onclick="openTelegramModal()" class="flex items-center gap-1 px-1.5 py-1 rounded-xl bg-slate-900 border border-sky-500/50 hover:border-sky-300 cursor-pointer shrink-0 select-none whitespace-nowrap active:scale-95" title="تېلېگرام: @' + (currentTgUser.username || currentTgUser.id) + '">' +
+        '<div class="relative w-5 h-5 shrink-0">' +
+          '<img src="' + currentTgUser.photo + '" class="w-full h-full rounded-full object-cover border border-sky-400" onerror="this.src=\'https://api.dicebear.com/7.x/bottts/svg?seed=user\'"/>' +
+          '<span class="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400 border border-slate-950 animate-pulse"></span>' +
         '</div>' +
-        '<div class="text-right leading-none">' +
-          '<span class="text-[11px] font-black text-sky-100 block max-w-[65px] truncate whitespace-nowrap">' + (currentTgUser.name || currentTgUser.username) + '</span>' +
-          '<span class="text-[9px] text-emerald-400 font-bold block mt-0.5 whitespace-nowrap">ئۇلاندى ✓</span>' +
-        '</div>' +
+        '<span class="text-[10.5px] font-bold text-sky-100 max-w-[50px] truncate font-mono">' + (currentTgUser.name || currentTgUser.username) + '</span>' +
       '</div>';
   } else {
     container.innerHTML = 
-      '<button onclick="openTelegramModal()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-black transition shadow-md shadow-sky-500/25 active:scale-95 whitespace-nowrap cursor-pointer" title="تېلېگرام ئارقىلىق كىرىش">' +
-        '<svg class="w-3.5 h-3.5 fill-current shrink-0" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>' +
-        '<span>تېلېگرام كىرىش</span>' +
+      '<button onclick="openTelegramModal()" class="flex items-center gap-1 px-2 py-1 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-[11px] font-bold transition shadow-sm active:scale-95 whitespace-nowrap cursor-pointer shrink-0" title="تېلېگرام ئارقىلىق كىرىش">' +
+        '<svg class="w-3 h-3 fill-current shrink-0" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>' +
+        '<span>كىرىش</span>' +
       '</button>';
   }
 }
