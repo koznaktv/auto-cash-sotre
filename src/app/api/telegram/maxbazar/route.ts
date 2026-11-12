@@ -4,9 +4,24 @@ import { handleMaxBazarWebhook, callMaxBazarBotApi } from '@/lib/maxbazarBot';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
+const processedUpdateIds = new Map<number, number>();
+
 export async function POST(req: Request) {
   try {
     const update = await req.json();
+    if (update && typeof update.update_id === 'number') {
+      const lastSeen = processedUpdateIds.get(update.update_id);
+      if (lastSeen && Date.now() - lastSeen < 120000) {
+        return NextResponse.json({ ok: true, duplicate: true });
+      }
+      processedUpdateIds.set(update.update_id, Date.now());
+      if (processedUpdateIds.size > 500) {
+        const cutoff = Date.now() - 120000;
+        processedUpdateIds.forEach((time, id) => {
+          if (time < cutoff) processedUpdateIds.delete(id);
+        });
+      }
+    }
     await handleMaxBazarWebhook(update);
     return NextResponse.json({ ok: true });
   } catch (err: any) {

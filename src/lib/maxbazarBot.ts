@@ -15,6 +15,7 @@ import {
 } from './db';
 import { verifyShamcashTransaction, normalizeTxId, getTsaConfig } from './providers/tsaShamcash';
 import { extractImageBufferFromPdf } from './pdfImageExtractor';
+import { recognizeReceipt } from './receiptOcr';
 
 /**
  * AUTO CASH & MAX-BAZAR Interactive Telegram Shopping Engine
@@ -4417,7 +4418,6 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
             const fileInfoRes = await callBotApi('getFile', { file_id: fileId }, config.token);
             if (fileInfoRes && fileInfoRes.ok && fileInfoRes.result?.file_path) {
               const fileUrl = `https://api.telegram.org/file/bot${config.token}/${fileInfoRes.result.file_path}`;
-              let worker: any = null;
               try {
                 const fileRes = await fetch(fileUrl);
                 if (fileRes.ok) {
@@ -4446,34 +4446,21 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
                   }
 
                   if (imageBufToOcr && (!candidateTx || candidateTx.length < 5)) {
-                    const { createWorker } = await import('tesseract.js');
-                    worker = await createWorker('eng', 1, {
-                      errorHandler: (err) => console.warn('[Tesseract Worker Warn]:', err?.message || err),
-                    });
-
-                    const ocrPromise = worker.recognize(imageBufToOcr);
-                    const timeoutPromise = new Promise<never>((_, reject) =>
-                      setTimeout(() => reject(new Error('OCR Timeout (15s)')), 15000)
-                    );
-
-                    const ret: any = await Promise.race([ocrPromise, timeoutPromise]);
-                    const ocrText = ret?.data?.text || '';
-                    const digitMatch = ocrText.match(/\b([0-9]{7,15})\b/);
-                    if (digitMatch && digitMatch[1]) {
-                      candidateTx = digitMatch[1].trim();
-                    } else {
-                      candidateTx = normalizeTxId(ocrText);
+                    const ocrRes = await recognizeReceipt(imageBufToOcr);
+                    if (ocrRes.txId && ocrRes.txId.length >= 5) {
+                      candidateTx = ocrRes.txId;
+                    } else if (ocrRes.text) {
+                      const match = ocrRes.text.match(/\b([0-9]{7,15})\b/);
+                      if (match && match[1]) {
+                        candidateTx = match[1].trim();
+                      } else {
+                        candidateTx = normalizeTxId(ocrRes.text);
+                      }
                     }
                   }
                 }
               } catch (ocrErr: any) {
                 console.warn('[Store Bot Receipt OCR Warn]:', ocrErr?.message);
-              } finally {
-                if (worker) {
-                  try {
-                    await worker.terminate();
-                  } catch {}
-                }
               }
             }
           }

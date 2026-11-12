@@ -13,6 +13,7 @@ export const maxDuration = 60;
 
 let lastTgWebhookPollTime = 0;
 let lastReceivedUpdate: any = null;
+const processedUpdateIds = new Map<number, number>();
 
 /**
  * Telegram Webhook Handler (POST)
@@ -24,6 +25,21 @@ export async function POST(req: Request) {
       receivedAt: new Date().toISOString(),
       update,
     };
+
+    // Deduplicate Telegram retries (Telegram retries when webhook takes long)
+    if (update && typeof update.update_id === 'number') {
+      const lastSeen = processedUpdateIds.get(update.update_id);
+      if (lastSeen && Date.now() - lastSeen < 120000) {
+        return NextResponse.json({ ok: true, duplicate: true });
+      }
+      processedUpdateIds.set(update.update_id, Date.now());
+      if (processedUpdateIds.size > 500) {
+        const cutoff = Date.now() - 120000;
+        processedUpdateIds.forEach((time, id) => {
+          if (time < cutoff) processedUpdateIds.delete(id);
+        });
+      }
+    }
 
     // Opportunistic in-flight provider order poller triggered by any incoming Telegram bot activity
     // Throttled to 8s so webhook stays extremely snappy while keeping provider orders up-to-date
