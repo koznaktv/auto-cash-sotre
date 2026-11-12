@@ -26,11 +26,13 @@
 
     * {
       letter-spacing: normal !important;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     body, html, button, input, select, textarea, div, span, p, h1, h2, h3, h4, h5, h6 {
       font-family: 'UyghurModern', 'ALKATIP Basma', 'UKIJ Tuz', 'Alpida Unicode System', 'Noto Sans Arabic', 'Microsoft Uighur', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif;
-      text-rendering: optimizeLegibility;
+      text-rendering: optimizeSpeed;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       line-height: 1.6;
@@ -43,62 +45,44 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+    /* Ultra-Smooth 60/120fps Hardware-Accelerated Cards */
     .glass-box {
-      background: rgba(13, 21, 39, 0.88);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(56, 189, 248, 0.12);
+      background: rgba(13, 21, 39, 0.95);
+      border: 1px solid rgba(56, 189, 248, 0.14);
+      transform: translateZ(0);
+      backface-visibility: hidden;
     }
     .active-card {
-      background: linear-gradient(135deg, rgba(6, 182, 212, 0.25) 0%, rgba(30, 58, 138, 0.6) 100%) !important;
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.28) 0%, rgba(30, 58, 138, 0.65) 100%) !important;
       border: 2px solid #38bdf8 !important;
-      box-shadow: 0 0 22px rgba(56, 189, 248, 0.45);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+      transform: translateZ(0);
     }
     .active-vip {
-      background: linear-gradient(135deg, rgba(251, 191, 36, 0.25) 0%, rgba(180, 83, 9, 0.5) 100%) !important;
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.28) 0%, rgba(180, 83, 9, 0.55) 100%) !important;
       border: 2px solid #fbbf24 !important;
-      box-shadow: 0 0 24px rgba(251, 191, 36, 0.5);
+      box-shadow: 0 0 18px rgba(251, 191, 36, 0.45);
+      transform: translateZ(0);
     }
 
-    /* Game Fitting Keyframe Animations */
-    @keyframes mlbbDiamondGlow {
-      0%, 100% {
-        filter: drop-shadow(0 0 6px rgba(6, 182, 212, 0.7)) drop-shadow(0 0 12px rgba(56, 189, 248, 0.4));
-        transform: scale(1);
-      }
-      50% {
-        filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 24px rgba(6, 182, 212, 0.7));
-        transform: scale(1.08) translateY(-1.5px);
-      }
-    }
+    /* Fast, High-Performance GPU-Efficient Icons (Zero Jank) */
     .mlbb-gem-anim {
-      animation: mlbbDiamondGlow 2.4s infinite ease-in-out;
       display: inline-block;
-    }
-
-    @keyframes mythicPassShine {
-      0%, 100% {
-        filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.7)) drop-shadow(0 0 14px rgba(245, 158, 11, 0.4));
-        transform: rotate(0deg) scale(1);
-      }
-      25% { transform: rotate(-5deg) scale(1.08); }
-      75% { transform: rotate(5deg) scale(1.08); }
+      filter: drop-shadow(0 0 4px rgba(6, 182, 212, 0.7));
+      transform: translateZ(0);
     }
     .mythic-crown-anim {
-      animation: mythicPassShine 2.8s infinite ease-in-out;
       display: inline-block;
-    }
-
-    @keyframes cyberShieldPulse {
-      0%, 100% {
-        box-shadow: 0 0 10px rgba(16, 185, 129, 0.4), inset 0 0 8px rgba(16, 185, 129, 0.2);
-      }
-      50% {
-        box-shadow: 0 0 22px rgba(16, 185, 129, 0.8), inset 0 0 14px rgba(16, 185, 129, 0.5);
-      }
+      filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.7));
+      transform: translateZ(0);
     }
     .cyber-shield-anim {
-      animation: cyberShieldPulse 2s infinite ease-in-out;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.45);
+      transform: translateZ(0);
+    }
+    .gold-card-glow {
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+      transform: translateZ(0);
     }
 
     @keyframes shakeError {
@@ -108,14 +92,6 @@
     }
     .animate-shake {
       animation: shakeError 0.4s ease-in-out;
-    }
-
-    @keyframes goldGlow {
-      0%, 100% { box-shadow: 0 0 12px rgba(245, 158, 11, 0.3); }
-      50% { box-shadow: 0 0 24px rgba(245, 158, 11, 0.6); }
-    }
-    .gold-card-glow {
-      animation: goldGlow 3s infinite ease-in-out;
     }
   </style>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -495,6 +471,38 @@
         <button onclick="closeProcessingModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 rounded-xl text-xs transition">
           چۈشەندىم (ئارقا سەھنىگە قويۇش)
         </button>
+      </div>
+    </div>
+
+    <!-- ================= CUSTOM IN-APP ALERT & ACTION MODAL (Replaces all native browser popups) ================= -->
+    <div id="appAlertModal" onclick="if(event.target===this) closeAppModal()" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200">
+      <div id="appAlertCard" class="w-full max-w-[340px] bg-[#0c1424] border border-cyan-500/40 rounded-3xl p-5 shadow-2xl space-y-4 transform scale-95 transition-transform duration-200 text-center relative overflow-hidden select-none">
+        <!-- Glow accent -->
+        <div class="absolute -top-12 -right-12 w-28 h-28 bg-cyan-500/15 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -bottom-12 -left-12 w-28 h-28 bg-amber-500/15 rounded-full blur-2xl pointer-events-none"></div>
+
+        <!-- Icon Header -->
+        <div class="relative z-10 flex flex-col items-center">
+          <div id="appAlertIconBox" class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500/20 via-blue-500/10 to-amber-500/20 border border-cyan-400/50 flex items-center justify-center shadow-lg shadow-cyan-500/20 mb-2">
+            <span id="appAlertIcon" class="text-2xl">⚠️</span>
+          </div>
+          <h3 id="appAlertTitle" class="text-base font-black text-white tracking-wide">ئەسكەرتىش</h3>
+        </div>
+
+        <!-- Message Body -->
+        <p id="appAlertMsg" class="relative z-10 text-xs text-slate-300 leading-relaxed font-sans px-1">
+          مەزمۇن
+        </p>
+
+        <!-- Buttons Container -->
+        <div class="relative z-10 flex flex-col gap-2 pt-1">
+          <button id="appAlertConfirmBtn" type="button" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 via-cyan-500 to-indigo-600 hover:from-blue-500 hover:to-cyan-400 text-white font-black text-xs transition shadow-lg shadow-cyan-500/25 active:scale-95 cursor-pointer">
+            چۈشەندىم
+          </button>
+          <button id="appAlertCancelBtn" type="button" class="w-full py-2 px-4 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-400 hover:text-white font-bold text-xs transition border border-slate-800 active:scale-95 cursor-pointer hidden">
+            كېيىنرەك
+          </button>
+        </div>
       </div>
     </div>
 
@@ -972,11 +980,10 @@
         const cls = isSel ? (pkg.isVip ? 'active-vip' : 'active-card') : 'glass-box';
 
         const div = document.createElement('div');
-        div.className = cls + ' rounded-2xl p-2.5 cursor-pointer transition flex flex-col justify-between relative group hover:border-cyan-400/50';
+        div.setAttribute('data-pkg-id', pkg.id);
+        div.className = cls + ' rounded-2xl p-2.5 cursor-pointer transition flex flex-col justify-between relative group hover:border-cyan-400/50 select-none active:scale-[0.98]';
         div.onclick = () => {
-          selectedPkg = pkg;
-          renderPackages();
-          updateDisplays();
+          selectPackage(pkg);
         };
 
         const badgeHtml = pkg.badge ? 
@@ -995,6 +1002,20 @@
 
         container.appendChild(div);
       });
+    }
+
+    function selectPackage(pkg) {
+      selectedPkg = pkg;
+      const cards = document.querySelectorAll('#packagesContainer > div');
+      cards.forEach(card => {
+        const pid = parseInt(card.getAttribute('data-pkg-id'), 10);
+        if (pid === pkg.id) {
+          card.className = (pkg.isVip ? 'active-vip' : 'active-card') + ' rounded-2xl p-2.5 cursor-pointer transition flex flex-col justify-between relative group select-none active:scale-[0.98]';
+        } else {
+          card.className = 'glass-box rounded-2xl p-2.5 cursor-pointer transition flex flex-col justify-between relative group hover:border-cyan-400/50 select-none active:scale-[0.98]';
+        }
+      });
+      updateDisplays();
     }
 
     function updateDisplays() {
@@ -1033,15 +1054,116 @@
       input.focus();
     }
 
+    // ================= CUSTOM IN-APP ALERT MODAL SYSTEM =================
+    function showAppModal(opts) {
+      const modal = document.getElementById('appAlertModal');
+      const card = document.getElementById('appAlertCard');
+      const icon = document.getElementById('appAlertIcon');
+      const title = document.getElementById('appAlertTitle');
+      const msg = document.getElementById('appAlertMsg');
+      const confirmBtn = document.getElementById('appAlertConfirmBtn');
+      const cancelBtn = document.getElementById('appAlertCancelBtn');
+
+      if (!modal || !card) return;
+
+      icon.innerHTML = opts.icon || '⚠️';
+      title.textContent = opts.title || 'ئەسكەرتىش';
+      msg.textContent = opts.message || '';
+
+      confirmBtn.innerHTML = opts.confirmText || 'چۈشەندىم';
+      confirmBtn.onclick = function() {
+        closeAppModal();
+        if (typeof opts.confirmAction === 'function') {
+          setTimeout(opts.confirmAction, 120);
+        }
+      };
+
+      if (opts.cancelText) {
+        cancelBtn.classList.remove('hidden');
+        cancelBtn.textContent = opts.cancelText;
+        cancelBtn.onclick = function() {
+          closeAppModal();
+          if (typeof opts.cancelAction === 'function') {
+            setTimeout(opts.cancelAction, 120);
+          }
+        };
+      } else {
+        cancelBtn.classList.add('hidden');
+      }
+
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        card.classList.remove('scale-95');
+      }, 15);
+    }
+
+    function closeAppModal() {
+      const modal = document.getElementById('appAlertModal');
+      const card = document.getElementById('appAlertCard');
+      if (!modal || !card) return;
+      modal.classList.add('opacity-0');
+      card.classList.add('scale-95');
+      setTimeout(() => modal.classList.add('hidden'), 200);
+    }
+
+    // Override browser native alert to ensure 100% in-app experience
+    window.alert = function(msg) {
+      showAppModal({
+        title: 'ئەسكەرتىش',
+        message: String(msg || ''),
+        icon: '⚠️',
+        confirmText: 'چۈشەندىم'
+      });
+    };
+
     function executeTopup() {
-      if (!isVerified) {
-        alert('ئالدى بىلەن 1-قەدەمدىن ئۆزىڭىزنىڭ ئويۇن كىملىكى (ID ۋە رايون كودى) نى كىرگۈزۈپ «ئىزدەش» نى بېسىڭ!');
-        document.getElementById('mlbbInput').focus();
+      // 1. Must be logged in via Telegram!
+      if (!currentTgUser) {
+        showAppModal({
+          title: 'ئالدى بىلەن تىزىملاپ كىرىڭ',
+          message: 'زاكازلىرىڭىز ۋە ھەميان قالدۇقىڭىزنى بىخەتەر ساقلاش ھەم بوت بىلەن ئاپتوماتىك تەستىقلاش ئۈچۈن، ئالدى بىلەن تېلېگرامما ئارقىلىق تىزىملاپ كىرىڭ!',
+          icon: '✈️',
+          confirmText: '✈️ ھازىرلا تىزىملاپ كىرىش',
+          confirmAction: function() {
+            openTelegramModal();
+          },
+          cancelText: 'كېيىنرەك'
+        });
         return;
       }
+
+      // 2. Must verify Game ID and Zone
+      if (!isVerified) {
+        showAppModal({
+          title: 'ئويۇن كىملىكىڭىزنى كىرگۈزۈڭ',
+          message: 'ئالدى بىلەن 1-قەدەمدىن ئۆزىڭىزنىڭ ئويۇن كىملىكى (ID ۋە رايون كودى) نى كىرگۈزۈپ «ئىزدەش» نى بېسىڭ!',
+          icon: '🎮',
+          confirmText: '🔍 كىملىك كىرگۈزۈش',
+          confirmAction: function() {
+            const inp = document.getElementById('mlbbInput');
+            if (inp) {
+              inp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              setTimeout(() => inp.focus(), 350);
+            }
+          },
+          cancelText: 'يېپىش'
+        });
+        return;
+      }
+
+      // 3. Check wallet balance
       if (walletBalance < selectedPkg.price) {
-        alert('ھەميان قالدۇقى يەتمەيدۇ! ئالدى بىلەن قالدۇق كىرگۈزۈڭ.');
-        openDepositModal();
+        showAppModal({
+          title: 'ھەميان قالدۇقى يېتىشمىدى',
+          message: 'نۆۋەتتىكى قالدۇقىڭىز: $' + walletBalance.toFixed(2) + '، كېرەكلىك پۇل: $' + selectedPkg.price.toFixed(2) + '. ئالدى بىلەن شامكەش ئارقىلىق قالدۇق كىرگۈزۈڭ!',
+          icon: '💰',
+          confirmText: '⚡ قالدۇق قاچىلاش (ShamCash)',
+          confirmAction: function() {
+            openDepositModal();
+          },
+          cancelText: 'كېيىنرەك'
+        });
         return;
       }
 
@@ -1079,7 +1201,7 @@
       setTimeout(() => {
         bar.style.width = '100%';
         document.getElementById('procStatusBadge').innerHTML = '<span class="text-emerald-400 font-bold">100% رەسمىي ئويۇنغا قاچىلاندى ✓</span>';
-      }, 2000);
+      }, 1600);
     }
 
     function closeProcessingModal() {
@@ -1662,7 +1784,14 @@ async function refreshUserBalanceFromBot(silent) {
             walletBalance = data.balance;
             updateDisplays();
             renderTelegramModalContent();
-            if (!silent) alert('قالدۇق بوتتىن يېڭىلاندى: $' + walletBalance.toFixed(2) + ' USD ✓');
+            if (!silent) {
+              showAppModal({
+                title: 'قالدۇق يېڭىلاندى',
+                message: 'بوتتىكى ھەميان قالدۇقىڭىز مۇۋەپپەقىيەتلىك يېڭىلاندى: $' + walletBalance.toFixed(2) + ' USD ✓',
+                icon: '✅',
+                confirmText: 'ماقۇل'
+              });
+            }
             return;
           }
         }
@@ -1679,7 +1808,12 @@ function logoutTelegram() {
   localStorage.removeItem('autocash_tg_user');
   updateTelegramHeader();
   renderTelegramModalContent();
-  alert('تېلېگرام ھېساباتىدىن چىقتىڭىز.');
+  showAppModal({
+    title: 'ھېساباتتىن چىقتىڭىز',
+    message: 'تېلېگرام ھېساباتىدىن مۇۋەپپەقىيەتلىك چىقتىڭىز.',
+    icon: 'ℹ️',
+    confirmText: 'ماقۇل'
+  });
 }
 
 
