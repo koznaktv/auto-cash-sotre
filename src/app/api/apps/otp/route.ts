@@ -153,11 +153,12 @@ function hashAppPassword(password: string, salt: string): string {
   return crypto.pbkdf2Sync(password, salt, 1000, 32, 'sha256').toString('hex');
 }
 
-const MAXBAZAR_BOT_TOKEN =
-  process.env.MAXBAZAR_BOT_TOKEN || '9030046429:AAGgis0NFr7PPAZpsri7AJbvckZboj81J7c';
+const BOT_TOKEN =
+  process.env.TELEGRAM_BOT_TOKEN || process.env.MAXBAZAR_BOT_TOKEN || '8886426395:AAHTtOA5ilIoNUfmcfVf44mCK6gJo7gjhd0';
+const BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME || 'Autocash_24_bot';
 
 // Cryptographic Secret for Stateless Signed OTP (100% resilient across serverless lambdas)
-const OTP_SECRET = MAXBAZAR_BOT_TOKEN;
+const OTP_SECRET = BOT_TOKEN;
 
 function generateOtpSignature(identity: string, code: string, expiresAt: number): string {
   const clean = identity.trim().toLowerCase().replace(/@/g, '').trim();
@@ -280,21 +281,19 @@ async function sendTelegramOtpMessage(target: string, code: string, appName: str
     if (!chatId) {
       return {
         sent: false,
-        error: `بۇ تېلېگرامما ئىسمى بويىچە بوتتا خېرىدار تېپىلمىدى. ئالدى بىلەن @maxbazar_bot قا بىرنى كىرىپ /start نى بېسىڭ ياكى تېلېگراممىدا بىۋاسىتە ئېچىڭ.`,
+        error: `بۇ تېلېگرامما ئىسمى بويىچە بېكەتكە باغلانغان خېرىدار تېپىلمىدى. ئالدى بىلەن @${BOT_USERNAME} قا بىر قېتىم كىرىپ /start نى بېسىڭ ياكى تېلېگرام كىملىك نومۇرىڭىزنى كىرگۈزۈڭ.`,
       };
     }
 
     const text =
-      `🔐 *MAX-BAZAR كىرىش كودى*\n\n` +
+      `🔐 *AUTO CASH كىرىش كودى*\n\n` +
       `🎮 ئەپ: *${appName}*\n` +
       `🔑 دەلىللەش كودىڭىز:\n\n` +
       `👉 \`${code}\` 👈\n\n` +
       `⏱️ *بۇ كود 10 مىنۇت كۈچكە ئىگە.*\n` +
       `بىخەتەرلىكىڭىز ئۈچۈن كودنى ھېچكىمگە بەرمەڭ!`;
-      `⏱️ *بۇ كود پەقەت 1 مىنۇت (60 سېكۇنت) كۈچكە ئىگە.*\n` +
-      `بىخەتەرلىكىڭىز ئۈچۈن كودنى ھېچكىمگە بەرمەڭ!`;
 
-    const res = await fetch(`https://api.telegram.org/bot${MAXBAZAR_BOT_TOKEN}/sendMessage`, {
+    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -781,7 +780,7 @@ export async function POST(req: NextRequest) {
           `⚡ سىستېما تەرىپىدىن ئاپتوماتىك تەستىقلاندى.`;
 
         // Send to channel @autocashkirim
-        await fetch(`https://api.telegram.org/bot${MAXBAZAR_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

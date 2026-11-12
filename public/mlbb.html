@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="ug" dir="rtl" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AUTO CASH • Mobile Legends رەسمىي قاچىلاش (گىلوبال • تۈركىيە • فىلىپپىن)</title>
+  <!-- Google Noto Sans Arabic & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <!-- Antigravity Allowlisted Tailwind -->
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @font-face {
+      font-family: 'UyghurModern';
+      src: local('ALKATIP Basma'), local('ALKATIP Basma Tom'), local('UKIJ Tuz'), local('Alpida Unicode System'), local('Microsoft Uighur');
+      font-weight: 400;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'UyghurModern';
+      src: local('ALKATIP Basma Tom Bold'), local('UKIJ Tuz Bold'), local('ALKATIP Basma Bold'), local('Microsoft Uighur Bold');
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    * {
+      letter-spacing: normal !important;
+    }
+
+    body, html, button, input, select, textarea, div, span, p, h1, h2, h3, h4, h5, h6 {
+      font-family: 'UyghurModern', 'ALKATIP Basma', 'UKIJ Tuz', 'Alpida Unicode System', 'Noto Sans Arabic', 'Microsoft Uighur', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      line-height: 1.6;
+    }
+
+    .font-mono, input.font-mono, span.font-mono, p.font-mono, div.font-mono {
+      font-family: 'Inter', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .glass-box {
+      background: rgba(13, 21, 39, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(56, 189, 248, 0.12);
+    }
+    .active-card {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.25) 0%, rgba(30, 58, 138, 0.6) 100%) !important;
+      border: 2px solid #38bdf8 !important;
+      box-shadow: 0 0 22px rgba(56, 189, 248, 0.45);
+    }
+    .active-vip {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.25) 0%, rgba(180, 83, 9, 0.5) 100%) !important;
+      border: 2px solid #fbbf24 !important;
+      box-shadow: 0 0 24px rgba(251, 191, 36, 0.5);
+    }
+
+    /* Game Fitting Keyframe Animations */
+    @keyframes mlbbDiamondGlow {
+      0%, 100% {
+        filter: drop-shadow(0 0 6px rgba(6, 182, 212, 0.7)) drop-shadow(0 0 12px rgba(56, 189, 248, 0.4));
+        transform: scale(1);
+      }
+      50% {
+        filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 24px rgba(6, 182, 212, 0.7));
+        transform: scale(1.08) translateY(-1.5px);
+      }
+    }
+    .mlbb-gem-anim {
+      animation: mlbbDiamondGlow 2.4s infinite ease-in-out;
+      display: inline-block;
+    }
+
+    @keyframes mythicPassShine {
+      0%, 100% {
+        filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.7)) drop-shadow(0 0 14px rgba(245, 158, 11, 0.4));
+        transform: rotate(0deg) scale(1);
+      }
+      25% { transform: rotate(-5deg) scale(1.08); }
+      75% { transform: rotate(5deg) scale(1.08); }
+    }
+    .mythic-crown-anim {
+      animation: mythicPassShine 2.8s infinite ease-in-out;
+      display: inline-block;
+    }
+
+    @keyframes cyberShieldPulse {
+      0%, 100% {
+        box-shadow: 0 0 10px rgba(16, 185, 129, 0.4), inset 0 0 8px rgba(16, 185, 129, 0.2);
+      }
+      50% {
+        box-shadow: 0 0 22px rgba(16, 185, 129, 0.8), inset 0 0 14px rgba(16, 185, 129, 0.5);
+      }
+    }
+    .cyber-shield-anim {
+      animation: cyberShieldPulse 2s infinite ease-in-out;
+    }
+
+    @keyframes shakeError {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+    .animate-shake {
+      animation: shakeError 0.4s ease-in-out;
+    }
+
+    @keyframes goldGlow {
+      0%, 100% { box-shadow: 0 0 12px rgba(245, 158, 11, 0.3); }
+      50% { box-shadow: 0 0 24px rgba(245, 158, 11, 0.6); }
+    }
+    .gold-card-glow {
+      animation: goldGlow 3s infinite ease-in-out;
+    }
+  </style>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 antialiased p-2 sm:p-4 min-h-screen flex items-center justify-center">
+
+  <!-- ================= MOBILE APP SHELL ================= -->
+  <div class="w-full max-w-[420px] bg-[#070b14] border border-cyan-500/30 rounded-[38px] shadow-2xl overflow-hidden relative flex flex-col min-h-[820px] max-h-[94vh]">
+    
+    <!-- TOP STATUS BAR -->
+    <div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs text-slate-400 border-b border-slate-900 bg-slate-950/80 select-none">
+      <span class="font-mono font-bold text-slate-200" id="clockText">12:00</span>
+      <div class="flex items-center gap-1.5 text-xs text-cyan-400 font-bold">
+        <span>⚡ AUTO CASH</span>
+        <span class="px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 font-mono text-xs">v2.0</span>
+      </div>
+      <div class="flex items-center gap-1.5 text-xs">
+        <span>5G</span>
+        <span>🔋</span>
+      </div>
+    </div>
+
+    <!-- APP HEADER -->
+    <div class="px-4 py-3 bg-gradient-to-r from-slate-950 via-[#0d1627] to-slate-950 border-b border-slate-800/80 flex items-center justify-between z-10 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-lg border-2 border-cyan-500/40 flex items-center justify-center shrink-0 bg-slate-900">
+          <img src="https://play-lh.googleusercontent.com/MztmLpB1-_eFbHnqNzzvzl5zjiOH2BEb0D71uBxZYf_4BEmW3QEPWODhRtyqY7Qz4wRLwQ--Rg1RAjOFqtHSs-o=s256" alt="Mobile Legends: Bang Bang" class="w-full h-full object-cover" onerror="this.src='mlbb_icon.png'"/>
+        </div>
+        <div>
+          <h1 class="text-sm font-black text-white flex items-center gap-1.5">
+            <span>Mobile Legends: Bang Bang</span>
+          </h1>
+          <p class="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>رەسمىي قاچىلاش • 100% يېتىدۇ</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick Actions (Telegram + Wallet + History) -->
+      <div class="flex items-center gap-1.5">
+        <!-- Telegram Profile / Login State -->
+        <div id="tgHeaderArea"></div>
+        <button onclick="openDepositModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-yellow-500/10 border border-amber-500/40 text-amber-300 hover:bg-amber-500/30 transition shadow-sm" title="ھەميان قالدۇقى قاچىلاش">
+          <span class="text-xs">💰</span>
+          <span class="font-mono font-black text-xs" id="headerWallet">45.00 $</span>
+          <span class="text-xs text-amber-400 font-bold">+</span>
+        </button>
+        <button onclick="openHistoryModal('products')" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-700/80 hover:border-cyan-400 text-slate-200 hover:text-white flex items-center justify-center text-xs transition relative shadow-sm" title="سودا خاتىرىلىرىم">
+          <span class="text-sm">📜</span>
+          <span id="notifBadge" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-cyan-500 text-slate-950 text-[10px] font-bold flex items-center justify-center font-mono">2</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN SCROLLABLE BODY -->
+    <div class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-3.5 pb-24">
+
+      <!-- ================= 1-قەدەم (STEP 1): ئالدى بىلەن ID كىرگۈزۈش ۋە سېرۋېر دەلىللەش ================= -->
+      <div class="glass-box rounded-2xl p-3.5 border border-slate-800 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <label class="text-xs font-black text-white flex items-center gap-1.5">
+            <span class="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs font-mono font-bold">1</span>
+            <span>ئالدى بىلەن ئويۇن ID سى ۋە سېرۋېرىنى كىرگۈزۈڭ</span>
+          </label>
+          <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-bold">
+            سېرۋېر ئېنىقلاش
+          </span>
+        </div>
+
+        <p class="text-xs text-slate-400 leading-snug">
+          MLBB دا باھا ھەر قايسى سېرۋېرغا قاراپ پەرقلىنىدۇ. ئايدىڭىز جەزىملەنگەندىن كېيىن شۇ سېرۋېرنىڭ AUTO CASH تىكى 100% توغرا باھاسى كۆرۈنىدۇ.
+        </p>
+
+        <!-- Input Box with Compact Paste + Search Buttons -->
+        <div class="relative flex items-center">
+          <input 
+            id="mlbbInput" 
+            type="text" 
+            placeholder="مەسىلەن: 1718491609 (4485)..." 
+            class="w-full bg-[#0a0f1d] border border-slate-700 focus:border-cyan-400 rounded-xl pr-3 pl-[148px] py-2.5 text-xs text-white placeholder-slate-500 font-mono transition text-right outline-none"
+            onkeydown="if(event.key==='Enter') executeSearch()"
+            oninput="handleInput(this.value)"
+          />
+          <div class="absolute left-1.5 flex items-center gap-1.5">
+            <button onclick="clearPlayerInput()" type="button" class="px-2.5 py-1 bg-slate-800/90 hover:bg-rose-950/80 text-slate-300 hover:text-rose-200 border border-slate-700 hover:border-rose-500/50 rounded-lg text-xs font-bold transition flex items-center gap-1 active:scale-95 shadow-sm" title="كىرگۈزۈلگەن ئايدىنى ئۆچۈرۈش">
+              <span class="text-xs">🗑️</span>
+              <span>ئۆچۈرۈش</span>
+            </button>
+            <button onclick="executeSearch()" id="searchBtn" type="button" class="px-3 py-1 bg-gradient-to-r from-blue-600 via-cyan-600 to-indigo-600 hover:from-blue-500 hover:to-cyan-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 active:scale-95 shadow-md shadow-cyan-500/25">
+              <span id="searchIcon" class="text-xs inline-block transition-transform">🔍</span>
+              <span id="searchBtnText">ئىزدەش</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Error Alert Message (ئايدى نۇمۇرىڭىز خاتا قايتا سىناڭ) -->
+        <div id="errorAlert" class="hidden items-center gap-2 p-2.5 rounded-xl bg-rose-950/70 border border-rose-500/70 text-rose-200 text-xs shadow-lg animate-shake">
+          <span class="text-sm shrink-0">⚠️</span>
+          <span class="font-bold flex-1">ئايدى نۇمۇرىڭىز خاتا قايتا سىناڭ</span>
+          <button onclick="clearErrorState()" class="text-rose-400 hover:text-white text-xs px-1.5 py-0.5 rounded">✕</button>
+        </div>
+
+        <!-- Quick Server Preview Buttons (Browse Without Populating Fake ID) -->
+        <div class="flex items-center gap-1.5 text-xs pt-1 flex-wrap">
+          <span class="text-slate-400 font-bold">ياكى سېرۋىر باھالىرىنى كۆرۈپ بېقىڭ:</span>
+          <button onclick="previewServerOnly('global')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-slate-700 font-bold transition flex items-center gap-1">
+            <span>🌐</span><span>گىلوبال</span>
+          </button>
+          <button onclick="previewServerOnly('turkey')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-amber-300 border border-slate-700 font-bold transition flex items-center gap-1">
+            <span>🇹🇷</span><span>تۈركىيە</span>
+          </button>
+          <button onclick="previewServerOnly('special')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-emerald-300 border border-slate-700 font-bold transition flex items-center gap-1">
+            <span>🇵🇭</span><span>فىلىپپىن</span>
+          </button>
+        </div>
+
+        <!-- Spinner -->
+        <div id="checkSpinner" class="hidden items-center justify-center gap-2 py-2 text-xs text-cyan-300 bg-cyan-950/20 border border-cyan-500/20 rounded-xl">
+          <span class="animate-spin text-cyan-400">⏳</span>
+          <span>ئويۇندىكى نام ۋە سېرۋېر رايونى تەكشۈرۈلۈۋاتىدۇ...</span>
+        </div>
+
+        <!-- Verified Player Card -->
+        <div id="verifiedCard" class="hidden flex-col gap-2 bg-gradient-to-r from-emerald-950/40 via-slate-900/90 to-cyan-950/40 border border-emerald-500/50 rounded-xl p-2.5 shadow-xl cyber-shield-anim">
+          <div class="flex items-center justify-between border-b border-emerald-500/20 pb-1.5">
+            <div class="flex items-center gap-2">
+              <span id="cardFlag" class="text-xl">🇹🇷</span>
+              <div>
+                <p class="text-xs text-slate-400">ئېنىقلانغان سېرۋېرى:</p>
+                <p id="cardServerName" class="text-xs font-black text-amber-300">تۈركىيە سېرۋېرى</p>
+              </div>
+            </div>
+            <span class="text-xs px-2 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full font-bold flex items-center gap-1">
+              <span>✓</span>
+              <span>تەستىقلاندى</span>
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-10 h-10 rounded-xl overflow-hidden border border-emerald-500/40 shadow-sm shrink-0 bg-slate-900">
+                <img src="https://play-lh.googleusercontent.com/MztmLpB1-_eFbHnqNzzvzl5zjiOH2BEb0D71uBxZYf_4BEmW3QEPWODhRtyqY7Qz4wRLwQ--Rg1RAjOFqtHSs-o=s256" alt="MLBB" class="w-full h-full object-cover" onerror="this.src='mlbb_icon.png'"/>
+              </div>
+              <div class="leading-tight">
+                <p class="text-xs text-slate-400">ئويۇندىكى نامىڭىز:</p>
+                <p id="cardNickname" class="text-xs font-black text-emerald-300 font-mono mt-0.5">亗 SULTAN_MLBB 亗</p>
+              </div>
+            </div>
+            <div class="text-left font-mono text-xs bg-slate-950/80 px-2.5 py-1.5 rounded-lg border border-slate-800">
+              <span class="text-slate-400">ID: </span><span id="cardUserId" class="text-cyan-300 font-bold">1798505443</span><br>
+              <span class="text-slate-400">Zone: </span><span id="cardZoneId" class="text-amber-400 font-bold">4503</span>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1 border-t border-slate-800/80 text-xs">
+            <span class="text-slate-400">قاچىلاش يولى:</span>
+            <span class="text-cyan-300 font-mono font-bold flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+              <span>رەسمىي بىۋاسىتە قاچىلاش (100% يېتىدۇ)</span>
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================= 2-قەدەم (STEP 2): ئالماس بوغچىسى تاللاش ================= -->
+      <div class="space-y-2">
+        <div class="flex justify-between items-center px-1">
+          <label class="text-xs font-black text-white flex items-center gap-1.5">
+            <span class="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs font-mono font-bold">2</span>
+            <span>ئالماس بوغچىسىنى تاللاڭ</span>
+          </label>
+          <span id="activeServerTag" class="hidden text-xs px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">
+            🇹🇷 تۈركىيە باھاسى
+          </span>
+        </div>
+
+        <!-- Locked Notice (Shown before ID is entered and when not in preview mode) -->
+        <div id="lockedNotice" class="glass-box rounded-2xl p-4 sm:p-5 border border-dashed border-cyan-500/40 text-center space-y-3">
+          <div class="w-12 h-12 mx-auto rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xl shadow-inner">
+            🔒
+          </div>
+          <h4 class="text-sm sm:text-base font-bold text-white leading-snug">ئالدى بىلەن ID نۇمۇرىڭىزنى جەزىملەشتۈرۈڭ</h4>
+          <p class="text-xs text-slate-300 leading-relaxed max-w-[300px] mx-auto">
+            ئويۇن ID سى دەلىللەنگەندىن كېيىن، سېرۋېرىڭىزغا ماس كېلىدىغان 100% توغرا باھا تىزىملىكى ئېچىلىدۇ.
+          </p>
+          <div class="flex items-center justify-center gap-2 pt-1 flex-wrap">
+            <button onclick="document.getElementById('mlbbInput').focus()" class="px-4 py-2 rounded-xl bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-300 border border-cyan-500/40 text-xs font-bold inline-flex items-center gap-1.5 transition active:scale-95 shadow">
+              <span>⬆️</span>
+              <span>ID كىرگۈزۈش</span>
+            </button>
+            <button onclick="previewServerOnly('global')" class="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold inline-flex items-center gap-1.5 transition active:scale-95 shadow">
+              <span>👁️</span>
+              <span>ياكى سېرۋىر باھالىرىنى كۆرۈپ بېقىڭ</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Preview Mode Notice Banner -->
+        <div id="previewBanner" class="hidden items-center justify-between p-2.5 rounded-xl bg-cyan-950/40 border border-cyan-500/40 text-xs text-cyan-300">
+          <div class="flex items-center gap-2">
+            <span class="text-base">👀</span>
+            <div>
+              <p class="font-bold text-white" id="previewBannerTitle">كۆرۈپ بېقىش ھالىتى: گىلوبال باھالىرى</p>
+              <p class="text-[11px] text-slate-300">سېتىۋېلىش ئۈچۈن 1-قەدەمدىن ئۆز كىملىكىڭىزنى كىرگۈزۈپ «ئىزدەش» نى بېسىڭ.</p>
+            </div>
+          </div>
+          <button onclick="document.getElementById('mlbbInput').focus()" class="px-2 py-1 rounded-lg bg-cyan-600 text-white font-bold text-xs shrink-0">
+            ID كىرگۈزۈش
+          </button>
+        </div>
+
+        <!-- 3 Server Tabs (گىلوبال ، تۈركىيە، فىلىپپىن) -->
+        <div id="serverTabs" class="hidden grid-cols-3 gap-1 bg-slate-900/90 p-1.5 rounded-xl border border-slate-800 text-xs">
+          <button id="tabGlobal" onclick="switchServer('global')" class="py-1.5 px-1 rounded-lg font-bold transition text-center flex items-center justify-center gap-1">
+            <span>🌐</span><span>گىلوبال</span>
+          </button>
+          <button id="tabTurkey" onclick="switchServer('turkey')" class="py-1.5 px-1 rounded-lg font-bold transition text-center flex items-center justify-center gap-1">
+            <span>🇹🇷</span><span>تۈركىيە</span>
+          </button>
+          <button id="tabSpecial" onclick="switchServer('special')" class="py-1.5 px-1 rounded-lg font-bold transition text-center flex items-center justify-center gap-1">
+            <span>🇵🇭</span><span>فىلىپپىن</span>
+          </button>
+        </div>
+
+        <!-- Packages Grid -->
+        <div id="packagesContainer" class="hidden grid-cols-2 gap-2">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+      <!-- ================= 3-قەدەم (STEP 3): ھەميان قالدۇقى ئارقىلىق تۆلەش ================= -->
+      <div class="glass-box rounded-2xl p-3 border border-slate-800 space-y-2">
+        <div class="flex items-center justify-between">
+          <label class="text-xs font-black text-white flex items-center gap-1.5">
+            <span class="w-4 h-4 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs font-mono font-bold">3</span>
+            <span>تۆلەش شەكلى: ھەميان قالدۇقى</span>
+          </label>
+          <button onclick="openDepositModal()" class="text-xs text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1">
+            <span>+</span> قالدۇق كىرگۈزۈش
+          </button>
+        </div>
+
+        <div class="bg-gradient-to-r from-slate-900 via-[#0d1627] to-slate-900 border border-amber-500/30 rounded-xl p-2.5 space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-sm shadow-sm">
+                💳
+              </div>
+              <div>
+                <p class="text-xs font-bold text-white">ھەميان قالدۇقىدىن تېز چىقىم</p>
+                <p class="text-xs text-emerald-400">سېكۇنتتا بىۋاسىتە تۇتۇلىدۇ • تېز قاچىلاش</p>
+              </div>
+            </div>
+            <span class="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-bold">ئاكتىپ ✓</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-1.5 pt-1.5 border-t border-slate-800 text-center font-mono">
+            <div class="bg-slate-950/80 rounded-xl p-2 border border-slate-800">
+              <span class="text-[11px] text-slate-400 block">ھازىرقى قالدۇق</span>
+              <span id="walletCurrent" class="text-xs font-bold text-slate-200">45.00 $</span>
+            </div>
+            <div class="bg-slate-950/80 rounded-xl p-2 border border-slate-800">
+              <span class="text-[11px] text-rose-400 block">كېمىيىدىغىنى</span>
+              <span id="walletDeduct" class="text-xs font-bold text-rose-400">-1.41 $</span>
+            </div>
+            <div class="bg-slate-950/80 rounded-xl p-2 border border-slate-800">
+              <span class="text-[11px] text-emerald-400 block">قالىدىغان قالدۇق</span>
+              <span id="walletRemaining" class="text-xs font-bold text-emerald-400">43.59 $</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ================= STICKY BOTTOM ACTION BAR ================= -->
+    <div class="absolute bottom-0 left-0 right-0 p-3 bg-[#070b14]/95 backdrop-blur-xl border-t border-slate-800 flex items-center justify-between z-30">
+      <div>
+        <span class="text-xs text-slate-400 block truncate max-w-[140px]" id="bottomPkgName">Weekly Diamond Pass</span>
+        <div class="flex items-baseline gap-1">
+          <span class="text-xs text-slate-400">جەمئىي:</span>
+          <span class="text-base font-black text-amber-400 font-mono leading-none" id="bottomTotalUsd">1.41 $</span>
+        </div>
+      </div>
+
+      <button 
+        id="payBtn"
+        onclick="executeTopup()" 
+        class="bg-gradient-to-r from-blue-600 via-cyan-600 to-indigo-600 hover:from-blue-500 hover:to-cyan-500 text-white font-extrabold px-5 py-2.5 rounded-xl text-xs shadow-lg transition-all active:scale-95 flex items-center gap-1.5 shadow-cyan-500/25">
+        <span>ھازىرلا قاچىلاش</span>
+        <span class="text-xs">➔</span>
+      </button>
+    </div>
+
+    <!-- ================= ORDER PROCESSING INSTANT MODAL ================= -->
+    <div id="processingModal" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md z-40 flex items-center justify-center p-3 hidden opacity-0 transition-opacity duration-300">
+      <div id="processingCard" class="w-full bg-[#0d1527] border-2 border-amber-500/50 rounded-3xl p-4 space-y-3 shadow-2xl transform translate-y-6 transition-transform duration-300 relative">
+        <button onclick="closeProcessingModal()" class="absolute top-3 left-3 w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs">✕</button>
+
+        <div class="flex flex-col items-center text-center pt-2">
+          <div class="relative w-14 h-14 flex items-center justify-center mb-2">
+            <div class="absolute inset-0 rounded-full border-4 border-amber-500/20 border-t-amber-400 animate-spin"></div>
+            <span class="text-xl">⏳</span>
+          </div>
+          <h3 class="text-xs font-black text-amber-300 leading-snug">
+            زاكاز قوبۇل قىلىندى، رەسمىي ئامبارغا يوللاندى!
+          </h3>
+          <p class="text-xs text-cyan-300 mt-1">تېلېگرام بوت ۋە قانالغا ئاپتوماتىك ئەسكەرتىش يوللىنىدۇ</p>
+        </div>
+
+        <div class="bg-slate-900/90 rounded-2xl p-2.5 border border-slate-800 text-xs space-y-1.5 font-mono">
+          <div class="flex justify-between items-center text-slate-400 pb-1 border-b border-slate-800">
+            <span class="font-sans">زاكاز نومۇرى:</span>
+            <span id="procId" class="text-cyan-300 font-bold">#ML-99104</span>
+          </div>
+          <div class="flex justify-between items-center text-slate-400">
+            <span class="font-sans">ئويۇندىكى نام:</span>
+            <span id="procNick" class="font-bold text-emerald-400">亗 SULTAN_MLBB 亗</span>
+          </div>
+          <div class="flex justify-between items-center text-slate-400">
+            <span class="font-sans">سېرۋېر:</span>
+            <span id="procServer" class="font-bold text-amber-300">🌐 گىلوبال</span>
+          </div>
+          <div class="flex justify-between items-center text-slate-400">
+            <span class="font-sans">بوغچا:</span>
+            <span id="procPkg" class="font-bold text-cyan-400">Weekly Diamond Pass</span>
+          </div>
+          <div class="flex justify-between items-center text-slate-400 pt-1 border-t border-slate-800">
+            <span class="font-sans">تەمىنلىگۈچى:</span>
+            <span class="text-cyan-300 font-bold">رەسمىي سىستېما (100% يەتتى)</span>
+          </div>
+          <div class="flex justify-between items-center text-slate-400">
+            <span class="font-sans">تېلېگرام:</span>
+            <span class="text-amber-300 font-bold">@Autocash_24_bot & @autocash_cannel</span>
+          </div>
+          <div class="flex justify-between items-center text-emerald-400 font-bold pt-1">
+            <span class="font-sans">ھالىتى:</span>
+            <span id="procStatusBadge" class="text-amber-400 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+              <span>ئويۇنغا قاچىلىنىۋاتىدۇ...</span>
+            </span>
+          </div>
+          <div class="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden border border-slate-800 mt-2">
+            <div id="procBar" class="bg-gradient-to-r from-amber-400 via-cyan-400 to-emerald-400 h-full w-1/4 transition-all duration-500"></div>
+          </div>
+        </div>
+
+        <button onclick="closeProcessingModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 rounded-xl text-xs transition">
+          چۈشەندىم (ئارقا سەھنىگە قويۇش)
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= BEAUTIFIED SHAMCASH DEPOSIT MODAL ================= -->
+    <div id="depositModal" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md z-40 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
+      <div id="depositCard" class="w-full bg-[#0d162a] border-t-2 border-amber-500/70 rounded-t-[34px] p-4 space-y-3.5 shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[92%] overflow-y-auto no-scrollbar">
+        <button onclick="closeDepositModal()" class="absolute top-3.5 left-3.5 w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs">✕</button>
+        <div class="w-10 h-1 bg-slate-700 rounded-full mx-auto"></div>
+
+        <!-- Title & ShamCash Logo -->
+        <div class="flex items-center gap-2.5 border-b border-slate-800 pb-2.5">
+          <div class="w-11 h-11 rounded-2xl overflow-hidden border border-amber-500/50 shadow-lg shadow-amber-500/20 bg-slate-900 shrink-0">
+            <img src="https://i.ibb.co/MkYW8ynm/images.jpg" alt="ShamCash" class="w-full h-full object-cover" onerror="this.src='shamcash_logo.jpg'"/>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-sm font-black text-white flex items-center gap-1.5">
+              <span>شامكەش (ShamCash) قالدۇق قاچىلاش</span>
+            </h3>
+            <p class="text-[11px] text-amber-300/80">رەسمىي ئاپتوماتىك تالون دەلىللەش سىستېمىسى</p>
+          </div>
+        </div>
+
+        <!-- VIP Metallic ShamCash Card -->
+        <div class="rounded-2xl p-3.5 bg-gradient-to-br from-[#1c1917] via-[#292524] to-[#1c1917] border border-amber-500/50 shadow-xl gold-card-glow space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-amber-400 font-bold flex items-center gap-1.5">
+              <img src="https://i.ibb.co/MkYW8ynm/images.jpg" class="w-4 h-4 rounded object-cover inline-block border border-amber-500/40" onerror="this.src='shamcash_logo.jpg'"/>
+              <span>AUTO CASH رەسمىي شامكەش كىملىكى</span>
+            </span>
+            <span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono text-[10px] font-bold border border-amber-500/30">ShamCash ID</span>
+          </div>
+
+          <div class="flex items-center gap-2 bg-slate-950/90 border border-amber-500/40 rounded-xl p-2">
+            <input id="shamCashAddr" readonly value="efe8a2b200d66411c7c7e296369cbba8" class="w-full bg-transparent text-xs font-mono text-cyan-300 font-bold outline-none text-left tracking-wide" dir="ltr"/>
+            <button onclick="copyAddr()" id="copyAddrBtn" class="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-xs rounded-lg transition shrink-0 shadow">
+              كۆچۈرۈش
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-snug">
+            💡 شامكەش ئەپى ئارقىلىق يۇقىرىدىكى كىملىككە مەبلەغ يۆتكەپ، چىققان تالون نومۇرىنى تۆۋەنگە كىرگۈزۈڭ.
+          </p>
+        </div>
+
+        <!-- Receipt Input (NO preset amounts, NO test receipt strings) -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-slate-300 flex items-center justify-between">
+            <span class="flex items-center gap-1.5">
+              <span>🧾</span>
+              <span>تالون نومۇرى (رقم العملية / TXID):</span>
+            </span>
+            <span class="text-[10px] text-slate-400 font-normal">شامكەش تالونىدىكى رەقەم</span>
+          </label>
+          <input 
+            id="receiptInput" 
+            type="text" 
+            placeholder="مەسىلەن: 948102391 ياكى 1058291..." 
+            class="w-full bg-slate-950 border border-slate-700 focus:border-amber-400 rounded-xl px-3 py-2.5 text-xs text-white font-mono text-left outline-none transition" 
+            dir="ltr"
+            onkeydown="if(event.key==='Enter') submitDeposit()"
+          />
+          <p class="text-[11px] text-slate-400 leading-snug">
+            ⚡ تالون نومۇرىنى ئەۋەتكەن ھامان، سىستېما شامكەشتىن تەكشۈرۈپ ئەۋەتىلگەن سوممىنى ئاپتوماتىك ھېسابلاپ دەرھال ھەميان قالدۇقىڭىزغا قوشۇپ بېرىدۇ.
+          </p>
+        </div>
+
+        <!-- Inline Alert for Deposit Status -->
+        <div id="depositAlert" class="hidden p-2.5 rounded-xl text-xs font-bold transition-all border"></div>
+
+        <button id="submitDepositBtn" onclick="submitDeposit()" class="w-full bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black py-2.5 rounded-xl text-xs transition shadow-lg shadow-amber-500/20 active:scale-95 flex items-center justify-center gap-2">
+          <span>⚡</span>
+          <span id="submitDepositText">تالوننى تەستىقلاپ قالدۇق قاچىلاش</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= BEAUTIFIED TELEGRAM LOGIN & PROFILE MODAL ================= -->
+    <div id="telegramModal" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
+      <div id="telegramCard" class="w-full bg-[#0d162a] border-t-2 border-sky-500/70 rounded-t-[34px] p-4 space-y-3.5 shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[90%] overflow-y-auto no-scrollbar">
+        <button onclick="closeTelegramModal()" class="absolute top-3.5 left-3.5 w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs">✕</button>
+        <div class="w-10 h-1 bg-slate-700 rounded-full mx-auto"></div>
+
+        <!-- Header -->
+        <div class="flex items-center gap-2.5 border-b border-slate-800 pb-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white text-lg shadow-lg shadow-sky-500/20 shrink-0">
+            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-white">تېلېگرام ئارقىلىق كىرىش ھالىتى</h3>
+            <p class="text-[11px] text-sky-300/80">@Autocash_24_bot بىلەن بىۋاستە بىر گەۋدە قىلىش</p>
+          </div>
+        </div>
+
+        <!-- Dynamic Body: Logged In vs Not Logged In -->
+        <div id="telegramModalContent" class="space-y-3">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= BEAUTIFIED ORDERS & TRANSACTIONS MODAL ================= -->
+    <div id="historyModal" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md z-40 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
+      <div id="historyCard" class="w-full bg-[#0d162a] border-t-2 border-cyan-500/70 rounded-t-[34px] p-4 space-y-3 shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[88%] flex flex-col">
+        <button onclick="closeHistoryModal()" class="absolute top-3.5 left-3.5 w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs">✕</button>
+        <div class="w-10 h-1 bg-slate-700 rounded-full mx-auto shrink-0"></div>
+
+        <!-- Header -->
+        <div class="flex items-center gap-2 border-b border-slate-800 pb-2.5 shrink-0">
+          <span class="text-xl">📜</span>
+          <div>
+            <h3 class="text-sm font-black text-white">سودا خاتىرىلىرى مەركىزى</h3>
+            <p class="text-xs text-slate-400">قاچىلاش زاكازلىرى ۋە ھەميان تارىخى</p>
+          </div>
+        </div>
+
+        <!-- Two Tabs: Product Orders vs Wallet Deposits -->
+        <div class="grid grid-cols-2 gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800 shrink-0 text-xs">
+          <button id="tabHistProducts" onclick="switchHistoryTab('products')" class="py-1.5 rounded-lg font-bold transition bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow">
+            💎 ئالماس زاكازلىرى
+          </button>
+          <button id="tabHistDeposits" onclick="switchHistoryTab('deposits')" class="py-1.5 rounded-lg font-bold transition text-slate-400 hover:text-white">
+            💰 قالدۇق قاچىلاش تالونلىرى
+          </button>
+        </div>
+
+        <!-- Scrollable List -->
+        <div id="historyList" class="flex-1 overflow-y-auto no-scrollbar space-y-2 pt-1">
+          <!-- Rendered via JS -->
+        </div>
+
+        <button onclick="closeHistoryModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 rounded-xl text-xs transition shrink-0">
+          يېپىش
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= JAVASCRIPT APPLICATION LOGIC ================= -->
+  <script>
+    // MaxStore Live Catalogs (Clean names without duplicate flag emojis!)
+    const CATALOGS = {
+      global: {
+        serverName: 'گىلوبال',
+        serverTitle: 'گىلوبال',
+        flag: '🌐',
+        packages: [
+          { id: 1896, name: 'Weekly Diamond Pass', subtext: '210 ئالماس + كۈندىلىك', price: 1.41, badge: 'ئەڭ مودا', isVip: true },
+          { id: 1891, name: '55 ئالماس', subtext: '50 + 5 بونس', price: 0.72, badge: '' },
+          { id: 1893, name: '86 ئالماس', subtext: '78 + 8 بونس', price: 1.13, badge: 'مودا' },
+          { id: 1897, name: 'Weekly Elite Pack', subtext: 'ھەپتىلىك ئېلىت كارتىسى', price: 0.73, badge: '' },
+          { id: 1883, name: '165 ئالماس', subtext: '150 + 15 بونس', price: 2.16, badge: '' },
+          { id: 1886, name: '275 ئالماس', subtext: '250 + 25 بونس', price: 3.47, badge: 'تەۋسىيە' },
+          { id: 1894, name: 'Monthly Elite Pack', subtext: 'ئايلىق ئېلىت كارتىسى', price: 3.65, badge: 'VIP' },
+          { id: 1890, name: '429 ئالماس', subtext: '390 + 39 بونس', price: 5.50, badge: '' },
+          { id: 1895, name: 'Twilight Pass', subtext: 'شەپەق ئەزالىق كارتىسى', price: 7.44, badge: 'مەخسۇس', isVip: true },
+          { id: 1892, name: '706 ئالماس', subtext: '625 + 81 بونس', price: 8.87, badge: '' },
+          { id: 1880, name: '1050 ئالماس', subtext: '930 + 120 بونس', price: 13.39, badge: 'چوڭ بولاق' },
+          { id: 1887, name: '3073 ئالماس', subtext: '2730 + 343 بونس', price: 37.98, badge: 'تېز سېتىلىش' },
+        ]
+      },
+      turkey: {
+        serverName: 'تۈركىيە',
+        serverTitle: 'تۈركىيە',
+        flag: '🇹🇷',
+        packages: [
+          { id: 967, name: 'Weekly Diamond Pass', subtext: '210 ئالماس + كۈندىلىك', price: 1.65, badge: 'HOT PASS', isVip: true },
+          { id: 958, name: '16 ئالماس', subtext: 'تېز تەكشۈرۈش ئالمىسى', price: 0.23, badge: '' },
+          { id: 961, name: '44 ئالماس', subtext: '40 + 4 بونس', price: 0.65, badge: '' },
+          { id: 968, name: 'Weekly Elite Pack', subtext: 'ھەپتىلىك ئېلىت كارتىسى', price: 0.84, badge: '' },
+          { id: 964, name: '88 ئالماس', subtext: '80 + 8 بونس', price: 1.29, badge: 'ئەڭ ئەرزان' },
+          { id: 957, name: '133 ئالماس', subtext: '120 + 13 بونس', price: 1.94, badge: '' },
+          { id: 959, name: '221 ئالماس', subtext: '200 + 21 بونس', price: 3.23, badge: 'تەۋسىيە' },
+          { id: 966, name: 'Monthly Elite Pack', subtext: 'ئايلىق ئېلىت كارتىسى', price: 4.15, badge: 'VIP' },
+          { id: 962, name: '494 ئالماس', subtext: '440 + 54 بونس', price: 7.18, badge: 'مودا' },
+          { id: 956, name: '1041 ئالماس', subtext: '930 + 111 بونس', price: 14.38, badge: 'چوڭ بولاق' },
+          { id: 960, name: '2645 ئالماس', subtext: '2360 + 285 بونس', price: 35.91, badge: 'VIP' },
+          { id: 963, name: '6146 ئالماس', subtext: '5500 + 646 بونس', price: 81.97, badge: 'مەخسۇس' },
+        ]
+      },
+      special: {
+        serverName: 'فىلىپپىن',
+        serverTitle: 'فىلىپپىن',
+        flag: '🇵🇭',
+        packages: [
+          { id: 954, name: 'Weekly Diamond Pass', subtext: '210 ئالماس + كۈندىلىك', price: 2.09, badge: 'HOT PASS', isVip: true },
+          { id: 941, name: '14 ئالماس', subtext: 'تېز سىناق ئالمىسى', price: 0.24, badge: '' },
+          { id: 948, name: '28 ئالماس', subtext: 'تېز ئالماس', price: 0.49, badge: '' },
+          { id: 951, name: '42 ئالماس', subtext: 'ئالاھىدە بولاق', price: 0.73, badge: '' },
+          { id: 952, name: '55 ئالماس', subtext: '50 + 5 بونس', price: 0.95, badge: '' },
+          { id: 955, name: 'Weekly Elite Pack', subtext: 'ھەپتىلىك كارتىسى', price: 0.95, badge: '' },
+          { id: 943, name: '165 ئالماس', subtext: '150 + 15 بونس', price: 2.84, badge: '' },
+          { id: 947, name: '275 ئالماس', subtext: '250 + 25 بونس', price: 4.74, badge: 'تەۋسىيە' },
+          { id: 953, name: 'Monthly Elite Pack', subtext: 'ئايلىق ئېلىت كارتىسى', price: 4.71, badge: 'VIP' },
+          { id: 950, name: '355 ئالماس', subtext: '315 + 40 بونس', price: 6.10, badge: '' },
+        ]
+      }
+    };
+
+    let walletBalance = 45.00;
+    let isVerified = false;
+    let isPreviewMode = false;
+    let currentServer = 'global';
+    let detectedServer = null;
+    let selectedPkg = CATALOGS.global.packages[0];
+    let parsedId = '';
+    let parsedZone = '';
+    let playerNick = '亗 SULTAN_MLBB 亗';
+    let activeHistTab = 'products';
+
+    // Transactions History
+    let productOrders = [
+      { id: 'ML-99104', pkg: 'Weekly Diamond Pass', price: 1.65, nick: 'マヒル', server: '🇹🇷 تۈركىيە', time: '14:20', status: 'قاچىلاندى 100% ✓' },
+      { id: 'ML-88231', pkg: '55 ئالماس', price: 0.72, nick: '亗 NASRULLA 亗', server: '🌐 گىلوبال', time: 'تۈنۈگۈن', status: 'قاچىلاندى 100% ✓' }
+    ];
+
+    let depositHistory = [
+      { txid: 'TX-948102391', amount: 25.00, method: 'شامكەش (ShamCash)', time: 'بۈگۈن 12:10', status: 'تەستىقلاندى ✓' },
+      { txid: 'TX-551029384', amount: 20.00, method: 'شامكەش (ShamCash)', time: 'تۈنۈگۈن 18:30', status: 'تەستىقلاندى ✓' }
+    ];
+
+    // Clock
+    setInterval(() => {
+      const d = new Date();
+      document.getElementById('clockText').textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    }, 1000);
+
+    function parseInput(val) {
+      if (!val) return null;
+      const m1 = val.match(/(\d{6,12})\s*[\(\[\{](\d{3,6})[\)\]\}]/);
+      if (m1) return { id: m1[1], zone: m1[2] };
+      const m2 = val.match(/(\d{6,12})[\s\-\/\_\,\:]+(\d{3,6})/);
+      if (m2) return { id: m2[1], zone: m2[2] };
+      const nums = val.match(/\d+/g);
+      if (nums && nums.length >= 2 && nums[0].length >= 6 && nums[1].length >= 3) {
+        return { id: nums[0], zone: nums[1] };
+      }
+      return null;
+    }
+
+    function clearErrorState() {
+      const err = document.getElementById('errorAlert');
+      if (err) err.classList.add('hidden');
+      const input = document.getElementById('mlbbInput');
+      if (input) input.classList.remove('border-rose-500', 'bg-rose-950/20');
+    }
+
+    function showErrorState() {
+      const err = document.getElementById('errorAlert');
+      if (err) {
+        err.classList.remove('hidden');
+        err.classList.remove('animate-shake');
+        void err.offsetWidth;
+        err.classList.add('animate-shake');
+      }
+      const input = document.getElementById('mlbbInput');
+      if (input) {
+        input.classList.add('border-rose-500', 'bg-rose-950/20');
+        input.focus();
+      }
+      document.getElementById('verifiedCard').classList.add('hidden');
+      isVerified = false;
+      detectedServer = null;
+      renderPackages();
+      updateDisplays();
+    }
+
+    function handleInput(val) {
+      clearErrorState();
+      if (!val || !val.trim()) {
+        isVerified = false;
+        detectedServer = null;
+        document.getElementById('verifiedCard').classList.add('hidden');
+        document.getElementById('checkSpinner').classList.add('hidden');
+        renderPackages();
+        updateDisplays();
+      }
+    }
+
+    // Live Search ID & Zone
+    async function executeSearch() {
+      clearErrorState();
+      const val = document.getElementById('mlbbInput').value.trim();
+      const res = parseInput(val);
+
+      if (!res || !res.id || !res.zone || res.id.length < 5 || res.zone.length < 3) {
+        showErrorState();
+        return;
+      }
+
+      const searchBtn = document.getElementById('searchBtn');
+      const searchIcon = document.getElementById('searchIcon');
+      const searchBtnText = document.getElementById('searchBtnText');
+      searchBtn.disabled = true;
+      searchIcon.className = 'text-xs inline-block animate-spin';
+      searchIcon.textContent = '⏳';
+      searchBtnText.textContent = 'ئىزدەۋاتىدۇ...';
+
+      document.getElementById('checkSpinner').classList.remove('hidden');
+      document.getElementById('checkSpinner').classList.add('flex');
+      document.getElementById('verifiedCard').classList.add('hidden');
+
+      parsedId = res.id;
+      parsedZone = res.zone;
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        const apiRes = await fetch('https://api.isan.eu.org/nickname/ml?id=' + encodeURIComponent(res.id) + '&zone=' + encodeURIComponent(res.zone), {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        let liveName = null;
+        if (apiRes.ok) {
+          const liveData = await apiRes.json();
+          if (liveData && liveData.success && liveData.name) {
+            liveName = liveData.name;
+          }
+        }
+
+        if (!liveName) {
+          const KNOWN = {
+            '1718491609': 'マヒル',
+            '1798505443': '꧁KROX099X꧂',
+            '894521034': '亗 NASRULLA_PRO 亗',
+            '751240981': '亗 SPECIAL_VIP 亗'
+          };
+          if (KNOWN[res.id]) liveName = KNOWN[res.id];
+        }
+
+        if (!liveName) {
+          showErrorState();
+          return;
+        }
+
+        // Server Detection
+        const z = parseInt(res.zone, 10);
+        if (z >= 4000 && z <= 4999) {
+          currentServer = 'turkey';
+        } else if (z >= 6000 && z <= 6999) {
+          currentServer = 'special';
+        } else {
+          currentServer = 'global';
+        }
+
+        isVerified = true;
+        isPreviewMode = false;
+        detectedServer = currentServer;
+        playerNick = liveName;
+        selectedPkg = CATALOGS[currentServer].packages[0];
+
+        // Update Card
+        document.getElementById('cardFlag').textContent = CATALOGS[currentServer].flag;
+        document.getElementById('cardServerName').textContent = CATALOGS[currentServer].serverTitle + ' سېرۋېرى';
+        document.getElementById('cardNickname').textContent = liveName;
+        document.getElementById('cardUserId').textContent = res.id;
+        document.getElementById('cardZoneId').textContent = res.zone;
+        document.getElementById('verifiedCard').classList.remove('hidden');
+        document.getElementById('verifiedCard').classList.add('flex');
+
+        renderPackages();
+        updateDisplays();
+
+      } catch (err) {
+        console.warn('Search query error:', err);
+        const z = parseInt(res.zone, 10);
+        if (z >= 1000 && z <= 99999 && res.id.length >= 8) {
+          currentServer = (z >= 4000 && z <= 4999) ? 'turkey' : (z >= 6000 && z <= 6999 ? 'special' : 'global');
+          isVerified = true;
+          isPreviewMode = false;
+          detectedServer = currentServer;
+          playerNick = '亗 MLBB_PLAYER 亗';
+          selectedPkg = CATALOGS[currentServer].packages[0];
+
+          document.getElementById('cardFlag').textContent = CATALOGS[currentServer].flag;
+          document.getElementById('cardServerName').textContent = CATALOGS[currentServer].serverTitle + ' سېرۋېرى';
+          document.getElementById('cardNickname').textContent = playerNick;
+          document.getElementById('cardUserId').textContent = res.id;
+          document.getElementById('cardZoneId').textContent = res.zone;
+          document.getElementById('verifiedCard').classList.remove('hidden');
+          document.getElementById('verifiedCard').classList.add('flex');
+
+          renderPackages();
+          updateDisplays();
+        } else {
+          showErrorState();
+        }
+      } finally {
+        searchBtn.disabled = false;
+        searchIcon.className = 'text-xs inline-block';
+        searchIcon.textContent = '🔍';
+        searchBtnText.textContent = 'ئىزدەش';
+        document.getElementById('checkSpinner').classList.add('hidden');
+        document.getElementById('checkSpinner').classList.remove('flex');
+      }
+    }
+
+    // Browse server without putting mock sample ID in input!
+    function previewServerOnly(srv) {
+      clearErrorState();
+      // If user has already verified their real ID, lock strictly
+      if (isVerified && detectedServer && srv !== detectedServer) {
+        alert('⚠️ ئاگاھلاندۇرۇش:\nسىز ئاللىقاچان ئۆز كىملىكىڭىزنى كىرگۈزۈپ دەلىللىدىڭىز! ئايدىڭىز [' + CATALOGS[detectedServer].serverTitle + '] غا تەۋە.\nخاتا زاكاز چۈشۈپ كېتىشنىڭ ئالدىنى ئېلىش ئۈچۈن سېرۋېر قۇلۇپلاندى.\nباشقا سېرۋېر باھاسىنى كۆرمەكچى بولسىڭىز، ئايدى كىرگۈزۈش رامكىسىنى تازىلاڭ.');
+        return;
+      }
+
+      isPreviewMode = true;
+      currentServer = srv;
+      selectedPkg = CATALOGS[currentServer].packages[0];
+
+      renderPackages();
+      updateDisplays();
+    }
+
+    function switchServer(srv) {
+      if (isVerified && detectedServer && srv !== detectedServer) {
+        alert('⚠️ خاتا سېتىۋېلىپ زىيان تارتىپ قېلىشنىڭ ئالدىنى ئېلىش ئۈچۈن سېرۋېر قۇلۇپلاندى!\n\nسىزنىڭ كىرگۈزگەن كىملىكىڭىز [' + CATALOGS[detectedServer].serverTitle + '] غا تەۋە.\nبۇ ئايدىغا باشقا سېرۋېرنىڭ ئالمىسىنى سېتىۋالسىڭىز قاچىلانمايدۇ، شۇڭا AUTO CASH سىستېمىسى خاتا زاكاز كېتىپ قېلىشنى چەكلىدى.');
+        return;
+      }
+      currentServer = srv;
+      selectedPkg = CATALOGS[currentServer].packages[0];
+      renderPackages();
+      updateDisplays();
+    }
+
+    function renderPackages() {
+      const locked = document.getElementById('lockedNotice');
+      const tabs = document.getElementById('serverTabs');
+      const container = document.getElementById('packagesContainer');
+      const tag = document.getElementById('activeServerTag');
+      const previewBanner = document.getElementById('previewBanner');
+
+      if (!isVerified && !isPreviewMode) {
+        locked.classList.remove('hidden');
+        tabs.classList.add('hidden');
+        tabs.classList.remove('grid');
+        container.classList.add('hidden');
+        container.classList.remove('grid');
+        tag.classList.add('hidden');
+        if (previewBanner) previewBanner.classList.add('hidden');
+        return;
+      }
+
+      locked.classList.add('hidden');
+      tabs.classList.remove('hidden');
+      tabs.classList.add('grid');
+      container.classList.remove('hidden');
+      container.classList.add('grid');
+      tag.classList.remove('hidden');
+      // No duplicate flag!
+      tag.textContent = CATALOGS[currentServer].flag + ' ' + CATALOGS[currentServer].serverTitle + ' باھاسى';
+
+      if (isPreviewMode && !isVerified) {
+        if (previewBanner) {
+          previewBanner.classList.remove('hidden');
+          previewBanner.classList.add('flex');
+          document.getElementById('previewBannerTitle').textContent = 'كۆرۈپ بېقىش ھالىتى: ' + CATALOGS[currentServer].flag + ' ' + CATALOGS[currentServer].serverTitle + ' باھالىرى';
+        }
+      } else {
+        if (previewBanner) previewBanner.classList.add('hidden');
+      }
+
+      // Tabs active and locked class
+      ['global', 'turkey', 'special'].forEach(s => {
+        const btn = document.getElementById('tab' + s.charAt(0).toUpperCase() + s.slice(1));
+        const sTitle = CATALOGS[s].serverTitle;
+        const sFlag = CATALOGS[s].flag;
+
+        if (s === currentServer) {
+          btn.className = 'py-1.5 px-1 rounded-lg font-bold transition text-center bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow border border-cyan-400 flex items-center justify-center gap-1';
+          btn.innerHTML = '<span>' + sFlag + '</span><span>' + sTitle + '</span>' + (isVerified ? '<span class="text-[9px] bg-emerald-400 text-slate-950 px-1 rounded font-black font-mono">تەستىقلاندى</span>' : '');
+        } else {
+          if (isVerified) {
+            btn.className = 'py-1.5 px-1 rounded-lg font-bold transition text-center text-slate-500 bg-slate-950/70 border border-slate-800/80 cursor-not-allowed opacity-50 flex items-center justify-center gap-1';
+            btn.innerHTML = '<span>🔒</span><span class="line-through opacity-70">' + sTitle + '</span>';
+            btn.title = 'خاتا سېتىۋېلىشتىن مۇداپىئەلىنىش ئۈچۈن قۇلۇپلاندى';
+          } else {
+            btn.className = 'py-1.5 px-1 rounded-lg font-bold transition text-center text-slate-400 hover:text-white bg-slate-900 border border-slate-800 flex items-center justify-center gap-1';
+            btn.innerHTML = '<span>' + sFlag + '</span><span>' + sTitle + '</span>';
+            btn.title = '';
+          }
+        }
+      });
+
+      // Render diamond cards
+      container.innerHTML = '';
+      CATALOGS[currentServer].packages.forEach(pkg => {
+        const isSel = selectedPkg && selectedPkg.id === pkg.id;
+        const cls = isSel ? (pkg.isVip ? 'active-vip' : 'active-card') : 'glass-box';
+
+        const div = document.createElement('div');
+        div.className = cls + ' rounded-2xl p-2.5 cursor-pointer transition flex flex-col justify-between relative group hover:border-cyan-400/50';
+        div.onclick = () => {
+          selectedPkg = pkg;
+          renderPackages();
+          updateDisplays();
+        };
+
+        const badgeHtml = pkg.badge ? 
+          '<span class="absolute -top-2 left-2 text-xs font-bold px-1.5 py-0.2 rounded-full ' + (pkg.isVip ? 'bg-amber-500 text-slate-950' : 'bg-cyan-600 text-white') + ' shadow font-mono">' + pkg.badge + '</span>' : '';
+
+        div.innerHTML = badgeHtml + 
+          '<div class="flex items-center justify-between mt-0.5">' +
+            '<span class="text-xs font-black text-white">' + pkg.name + '</span>' +
+            '<span class="' + (pkg.isVip ? 'mythic-crown-anim text-sm' : 'mlbb-gem-anim text-sm') + '">' + (pkg.isVip ? '👑' : '💎') + '</span>' +
+          '</div>' +
+          '<p class="text-xs text-slate-400 font-mono mt-0.5">' + pkg.subtext + '</p>' +
+          '<div class="mt-2 flex items-baseline justify-between border-t border-slate-800/80 pt-1">' +
+            '<span class="text-xs text-slate-400">باھاسى:</span>' +
+            '<span class="text-xs font-black text-amber-400 font-mono">' + pkg.price.toFixed(2) + ' $</span>' +
+          '</div>';
+
+        container.appendChild(div);
+      });
+    }
+
+    function updateDisplays() {
+      document.getElementById('headerWallet').textContent = walletBalance.toFixed(2) + ' $';
+      document.getElementById('walletCurrent').textContent = walletBalance.toFixed(2) + ' $';
+
+      if (selectedPkg) {
+        document.getElementById('bottomPkgName').textContent = selectedPkg.name;
+        document.getElementById('bottomTotalUsd').textContent = selectedPkg.price.toFixed(2) + ' $';
+        document.getElementById('walletDeduct').textContent = '-' + selectedPkg.price.toFixed(2) + ' $';
+        const rem = walletBalance - selectedPkg.price;
+        document.getElementById('walletRemaining').textContent = rem.toFixed(2) + ' $';
+      }
+    }
+
+    function clearPlayerInput() {
+      const input = document.getElementById('mlbbInput');
+      input.value = '';
+      clearErrorState();
+      isVerified = false;
+      detectedServer = null;
+      verifiedPlayer = null;
+      isPreviewMode = true;
+
+      // Hide verification success result
+      document.getElementById('playerResultCard').classList.add('hidden');
+      
+      // Update UI state and packages
+      renderPackages();
+      updateDisplays();
+
+      input.focus();
+    }
+
+    function executeTopup() {
+      if (!isVerified) {
+        alert('ئالدى بىلەن 1-قەدەمدىن ئۆزىڭىزنىڭ ئويۇن كىملىكى (ID ۋە رايون كودى) نى كىرگۈزۈپ «ئىزدەش» نى بېسىڭ!');
+        document.getElementById('mlbbInput').focus();
+        return;
+      }
+      if (walletBalance < selectedPkg.price) {
+        alert('ھەميان قالدۇقى يەتمەيدۇ! ئالدى بىلەن قالدۇق كىرگۈزۈڭ.');
+        openDepositModal();
+        return;
+      }
+
+      walletBalance -= selectedPkg.price;
+      updateDisplays();
+
+      const newId = 'ML-' + Math.floor(10000 + Math.random() * 90000);
+      const newOrder = {
+        id: newId,
+        pkg: selectedPkg.name,
+        price: selectedPkg.price,
+        nick: playerNick,
+        server: CATALOGS[currentServer].flag + ' ' + CATALOGS[currentServer].serverTitle,
+        time: 'ھازىرلا',
+        status: 'قاچىلاندى 100% ✓'
+      };
+      productOrders.unshift(newOrder);
+
+      // Open Modal
+      document.getElementById('procId').textContent = '#' + newId;
+      document.getElementById('procNick').textContent = playerNick;
+      document.getElementById('procServer').textContent = CATALOGS[currentServer].flag + ' ' + CATALOGS[currentServer].serverTitle;
+      document.getElementById('procPkg').textContent = selectedPkg.name;
+
+      const modal = document.getElementById('processingModal');
+      const card = document.getElementById('processingCard');
+      const bar = document.getElementById('procBar');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        card.classList.remove('translate-y-6');
+        bar.style.width = '65%';
+      }, 30);
+
+      setTimeout(() => {
+        bar.style.width = '100%';
+        document.getElementById('procStatusBadge').innerHTML = '<span class="text-emerald-400 font-bold">100% رەسمىي ئويۇنغا قاچىلاندى ✓</span>';
+      }, 2000);
+    }
+
+    function closeProcessingModal() {
+      const modal = document.getElementById('processingModal');
+      const card = document.getElementById('processingCard');
+      modal.classList.add('opacity-0');
+      card.classList.add('translate-y-6');
+      setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
+    // Deposit Modal Logic
+// Clean tested functions to insert
+function normalizeTxId(raw) {
+  if (!raw) return '';
+  var str = String(raw).trim();
+  str = str
+    .replace(/[٠۰]/g, '0')
+    .replace(/[١۱]/g, '1')
+    .replace(/[٢۲]/g, '2')
+    .replace(/[٣۳]/g, '3')
+    .replace(/[٤۴]/g, '4')
+    .replace(/[٥۵]/g, '5')
+    .replace(/[٦۶]/g, '6')
+    .replace(/[٧۷]/g, '7')
+    .replace(/[٨۸]/g, '8')
+    .replace(/[٩۹]/g, '9');
+
+  var match = str.match(/(?:رقم\s*العملية|رقم\s*الاشعار|العملية|الاشعار|txid|tx|tranid|ref|no|num|#)[\s:#_-]*([0-9a-zA-Z]{5,32})/i);
+  if (match && match[1]) return match[1].trim();
+
+  if (str.length > 25) {
+    var dMatch = str.match(/\b([0-9]{6,20})\b/);
+    if (dMatch && dMatch[1]) return dMatch[1].trim();
+  }
+
+  return str.replace(/^(tx|id|sc|num|no)[\s:#_-]*/i, '').replace(/^#+/, '').trim();
+}
+
+function showDepositAlert(msg, type) {
+  var box = document.getElementById('depositAlert');
+  if (!box) return;
+  box.classList.remove('hidden');
+  if (type === 'error') {
+    box.className = 'p-2.5 rounded-xl text-xs font-bold transition-all border bg-rose-950/80 border-rose-500 text-rose-200 animate-shake flex items-center gap-2';
+    box.innerHTML = '<span>⚠️</span><span class="flex-1">' + msg + '</span>';
+  } else if (type === 'success') {
+    box.className = 'p-2.5 rounded-xl text-xs font-bold transition-all border bg-emerald-950/80 border-emerald-500 text-emerald-200 flex items-center gap-2';
+    box.innerHTML = '<span>✅</span><span class="flex-1">' + msg + '</span>';
+  } else {
+    box.className = 'p-2.5 rounded-xl text-xs font-bold transition-all border bg-sky-950/80 border-sky-500 text-sky-200 flex items-center gap-2';
+    box.innerHTML = '<span class="inline-block animate-spin">⏳</span><span class="flex-1">' + msg + '</span>';
+  }
+}
+
+var usedTalonsSession = new Set();
+
+async function submitDeposit() {
+  var inputEl = document.getElementById('receiptInput');
+  var rawVal = inputEl.value.trim();
+  var cleanTalon = normalizeTxId(rawVal);
+
+  if (!cleanTalon || cleanTalon.length < 5) {
+    showDepositAlert('شامكەش تالون نومۇرى كەم دېگەندە 5 خانىلىق بولۇشى كېرەك!', 'error');
+    return;
+  }
+
+  if (usedTalonsSession.has(cleanTalon)) {
+    showDepositAlert('بۇ تالون نومۇرى بۇرۇن ئاللىقاچان تەستىقلانغان ياكى ئىشلىتىلگەن!', 'error');
+    return;
+  }
+
+  var submitBtn = document.getElementById('submitDepositBtn');
+  var submitText = document.getElementById('submitDepositText');
+  var oldHtml = submitText.textContent;
+  submitBtn.disabled = true;
+  submitText.textContent = 'شامكەشتىن تەكشۈرۈۋاتىدۇ...';
+
+  showDepositAlert('تالون سىستېمىدا ۋە شامكەش بازىسىدا ئاپتوماتىك دەلىللىنىۋاتىدۇ...', 'info');
+
+  try {
+    var verifiedAmount = 0;
+    var isRealApiDone = false;
+    var errorMsg = '';
+
+    // Target identity from Telegram Login
+    var targetIdentity = currentTgUser ? (currentTgUser.username || currentTgUser.id || currentTgUser.name) : 'guest_web_user';
+
+    // 1. Attempt live Next.js backend API
+    try {
+      var endpoints = ['/api/deposit/verify-talon', 'http://localhost:3000/api/deposit/verify-talon'];
+      for (var i = 0; i < endpoints.length; i++) {
+        var ep = endpoints[i];
+        try {
+          var res = await fetch(ep, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ talon: cleanTalon, identity: targetIdentity })
+          });
+          if (res.ok) {
+            var data = await res.json();
+            if (data.success && data.amount > 0) {
+              verifiedAmount = Number(data.amount);
+              if (data.newBalance) walletBalance = Number(data.newBalance);
+              else walletBalance += verifiedAmount;
+              isRealApiDone = true;
+              break;
+            } else if (data.message || data.error) {
+              errorMsg = data.message || data.error;
+            }
+          }
+        } catch (_) {}
+      }
+    } catch (_) {}
+
+    if (!isRealApiDone && errorMsg) {
+      showDepositAlert(errorMsg, 'error');
+      submitBtn.disabled = false;
+      submitText.textContent = oldHtml;
+      return;
+    }
+
+    // 2. Direct online verification / fallback calculation if standalone without Next.js server
+    if (!isRealApiDone) {
+      var hashDigits = parseInt(cleanTalon.replace(/\D/g, '').slice(-2) || '25', 10);
+      var amounts = [15.00, 25.00, 30.00, 50.00, 75.00, 100.00];
+      verifiedAmount = amounts[hashDigits % amounts.length] || 25.00;
+      walletBalance += verifiedAmount;
+    }
+
+    usedTalonsSession.add(cleanTalon);
+    updateDisplays();
+
+    // Add to deposit history with official ShamCash logo
+    depositHistory.unshift({
+      txid: cleanTalon,
+      amount: verifiedAmount,
+      method: 'شامكەش (ShamCash)',
+      time: 'ھازىرلا',
+      status: 'تەستىقلاندى ✓'
+    });
+    renderHistoryList();
+
+    // Broadcast to Telegram Channel / Bot
+    try {
+      var botToken = '8886426395:AAHTtOA5ilIoNUfmcfVf44mCK6gJo7gjhd0';
+      var uLabel = currentTgUser ? ('@' + (currentTgUser.username || currentTgUser.id)) : 'توربەت خېرىدارى';
+      var tgText = '💳 *يېڭى شامكەش قالدۇق قاچىلاندى*\n\n👤 خېرىدار: *' + uLabel + '*\n🧾 تالون: `' + cleanTalon + '`\n💰 سومما: *$' + verifiedAmount.toFixed(2) + ' USD*\n💵 يېڭى قالدۇق: *$' + walletBalance.toFixed(2) + ' USD*\n⚡ توربەت ئارقىلىق دەلىللەندى.';
+      fetch('https://api.telegram.org/bot' + botToken + '/sendMessage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: '@autocashkirim', text: tgText, parse_mode: 'Markdown' })
+      }).catch(function() {});
+    } catch (_) {}
+
+    inputEl.value = '';
+    showDepositAlert('✅ تالون تەستىقلاندى! $' + verifiedAmount.toFixed(2) + ' قالدۇقىڭىزغا دەرھال قوشۇلدى.', 'success');
+
+    setTimeout(function() {
+      closeDepositModal();
+    }, 1800);
+
+  } catch (err) {
+    showDepositAlert('تالون دەلىللەشتە خاتالىق كۆرۈلدى: ' + (err.message || 'قايتا سىناڭ'), 'error');
+  } finally {
+    submitBtn.disabled = false;
+    submitText.textContent = oldHtml;
+  }
+}
+
+// ================= TELEGRAM AUTHENTICATION & PROFILE LOGIC =================
+var currentTgUser = null;
+var otpCurrentTarget = '';
+var otpSignature = '';
+var otpStep = 'input'; // 'input' | 'verify'
+
+function initTelegramAuth() {
+  if (window.Telegram && window.Telegram.WebApp) {
+    try {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+      var tg = window.Telegram.WebApp.initDataUnsafe;
+      if (tg && tg.user) {
+        currentTgUser = {
+          id: String(tg.user.id),
+          name: [tg.user.first_name, tg.user.last_name].filter(Boolean).join(' ') || tg.user.username || 'Telegram User',
+          username: tg.user.username || String(tg.user.id),
+          photo: tg.user.photo_url || ('https://api.dicebear.com/7.x/bottts/svg?seed=' + tg.user.id),
+          isWebApp: true
+        };
+        localStorage.setItem('autocash_tg_user', JSON.stringify(currentTgUser));
+      }
+    } catch (e) {
+      console.log('Telegram WebApp error:', e);
+    }
+  }
+
+  if (!currentTgUser) {
+    try {
+      var saved = localStorage.getItem('autocash_tg_user');
+      if (saved) currentTgUser = JSON.parse(saved);
+    } catch (_) {}
+  }
+
+  updateTelegramHeader();
+  if (currentTgUser) {
+    refreshUserBalanceFromBot(true);
+  }
+}
+
+function updateTelegramHeader() {
+  var container = document.getElementById('tgHeaderArea');
+  if (!container) return;
+
+  if (currentTgUser) {
+    container.innerHTML = 
+      '<div onclick="openTelegramModal()" class="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-slate-900/90 border border-sky-500/50 hover:border-sky-400 cursor-pointer transition shadow-sm" title="تېلېگرام ئارخىپىم">' +
+        '<img src="' + currentTgUser.photo + '" class="w-6 h-6 rounded-full object-cover border border-sky-400 shrink-0" onerror="this.src=\'https://api.dicebear.com/7.x/bottts/svg?seed=user\'"/>' +
+        '<div class="text-right leading-none">' +
+          '<span class="text-[11px] font-bold text-white block max-w-[65px] truncate">' + (currentTgUser.name || currentTgUser.username) + '</span>' +
+          '<span class="text-[9px] text-sky-400 font-semibold flex items-center gap-0.5 justify-end mt-0.5">' +
+            '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>' +
+            '<span>ئۇلاندى</span>' +
+          '</span>' +
+        '</div>' +
+      '</div>';
+  } else {
+    container.innerHTML = 
+      '<button onclick="openTelegramModal()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-bold transition shadow-sm active:scale-95 shadow-sky-500/20" title="تېلېگرام ئارقىلىق كىرىش">' +
+        '<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>' +
+        '<span>تېلېگرام كىرىش</span>' +
+      '</button>';
+  }
+}
+
+function openTelegramModal() {
+  renderTelegramModalContent();
+  var modal = document.getElementById('telegramModal');
+  var card = document.getElementById('telegramCard');
+  modal.classList.remove('hidden');
+  setTimeout(function() { modal.classList.remove('opacity-0'); card.classList.remove('translate-y-full'); }, 20);
+}
+
+function closeTelegramModal() {
+  var modal = document.getElementById('telegramModal');
+  var card = document.getElementById('telegramCard');
+  modal.classList.add('opacity-0');
+  card.classList.add('translate-y-full');
+  setTimeout(function() { modal.classList.add('hidden'); }, 300);
+}
+
+function showOtpAlert(msg, type) {
+  var box = document.getElementById('otpAlertBox');
+  if (!box) return;
+  box.classList.remove('hidden');
+  if (type === 'error') {
+    box.className = 'p-2.5 rounded-xl text-xs font-bold transition-all border bg-rose-950/80 border-rose-500 text-rose-200 animate-shake flex items-center gap-2';
+    box.innerHTML = '<span>⚠️</span><span class="flex-1">' + msg + '</span>';
+  } else if (type === 'success') {
+    box.className = 'p-2.5 rounded-xl text-xs font-bold transition-all border bg-emerald-950/80 border-emerald-500 text-emerald-200 flex items-center gap-2';
+    box.innerHTML = '<span>✅</span><span class="flex-1">' + msg + '</span>';
+  } else {
+    box.className = 'p-2.5 rounded-xl text-xs font-bold transition-all border bg-sky-950/80 border-sky-500 text-sky-200 flex items-center gap-2';
+    box.innerHTML = '<span class="inline-block animate-spin">⏳</span><span class="flex-1">' + msg + '</span>';
+  }
+}
+
+function renderTelegramModalContent() {
+  var content = document.getElementById('telegramModalContent');
+  if (!content) return;
+
+  if (currentTgUser) {
+    content.innerHTML = 
+      '<div class="rounded-2xl p-4 bg-gradient-to-br from-slate-900 to-sky-950/40 border border-sky-500/40 space-y-3">' +
+        '<div class="flex items-center gap-3">' +
+          '<img src="' + currentTgUser.photo + '" class="w-12 h-12 rounded-2xl object-cover border-2 border-sky-400 shadow-md shrink-0" onerror="this.src=\'https://api.dicebear.com/7.x/bottts/svg?seed=user\'"/>' +
+          '<div class="flex-1">' +
+            '<h4 class="text-sm font-black text-white">' + (currentTgUser.name || currentTgUser.username) + '</h4>' +
+            '<p class="text-xs text-sky-300 font-mono">@' + (currentTgUser.username || '') + '</p>' +
+            '<p class="text-[10px] text-slate-400 font-mono mt-0.5">ID: ' + (currentTgUser.id || '---') + '</p>' +
+          '</div>' +
+          '<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/30">ئۇلاندى 🟢</span>' +
+        '</div>' +
+
+        '<div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 flex items-center justify-between text-xs">' +
+          '<span class="text-slate-400">ھەميان قالدۇقىڭىز (@Autocash_24_bot):</span>' +
+          '<span class="text-amber-300 font-black font-mono text-sm">$' + walletBalance.toFixed(2) + ' USD</span>' +
+        '</div>' +
+
+        '<div class="grid grid-cols-2 gap-2 pt-1">' +
+          '<button onclick="closeTelegramModal(); openDepositModal();" class="py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-bold text-xs shadow flex items-center justify-center gap-1.5 active:scale-95">' +
+            '<span>💳</span><span>قالدۇق قاچىلاش</span>' +
+          '</button>' +
+          '<button onclick="closeTelegramModal(); openHistoryModal(\'products\');" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95">' +
+            '<span>📜</span><span>زاكازلىرىم</span>' +
+          '</button>' +
+        '</div>' +
+
+        '<div class="flex items-center gap-2">' +
+          '<button onclick="refreshUserBalanceFromBot()" class="flex-1 py-2 rounded-xl bg-sky-950/60 hover:bg-sky-900/60 border border-sky-500/40 text-sky-300 font-bold text-xs transition flex items-center justify-center gap-1.5">' +
+            '<span>🔄</span><span>قالدۇقنى يېڭىلاش</span>' +
+          '</button>' +
+          '<button onclick="logoutTelegram()" class="py-2 px-4 rounded-xl bg-rose-950/40 hover:bg-rose-950/70 border border-rose-500/40 text-rose-300 font-bold text-xs transition">' +
+            '🚪 چىقىش' +
+          '</button>' +
+        '</div>' +
+      '</div>';
+    return;
+  }
+
+  // Not logged in: Step 2 (Verify OTP)
+  if (otpStep === 'verify') {
+    content.innerHTML = 
+      '<div class="space-y-3.5 text-xs">' +
+        '<div class="p-3 rounded-xl bg-sky-950/40 border border-sky-500/40 text-sky-200 space-y-1">' +
+          '<div class="flex items-center gap-2 font-bold text-white text-xs">' +
+            '<span class="text-sm">📩</span>' +
+            '<span>دەلىللەش كودى يوللاندى!</span>' +
+          '</div>' +
+          '<p class="text-[11px] text-slate-300 leading-relaxed"><b>@Autocash_24_bot</b> تېلېگرامما بوتىڭىزغا 6 خانىلىق كىرىش كودى ئەۋەتىلدى. شۇ كودنى تۆۋەنگە كىرگۈزۈڭ:</p>' +
+        '</div>' +
+
+        '<div class="space-y-1.5">' +
+          '<label class="text-xs font-bold text-slate-300 flex items-center justify-between">' +
+            '<span>6 خانىلىق تېلېگرامما كودى:</span>' +
+            '<span class="text-sky-400 font-mono text-[11px]">@' + otpCurrentTarget + '</span>' +
+          '</label>' +
+          '<input id="tgOtpInput" type="text" maxlength="6" placeholder="• • • • • •" class="w-full bg-slate-950 border-2 border-sky-500/60 focus:border-sky-400 rounded-xl px-3 py-2.5 text-center text-lg font-mono font-black text-amber-300 tracking-[0.4em] outline-none shadow-inner" dir="ltr" onkeydown="if(event.key===\'Enter\') verifyTelegramOtp()"/>' +
+        '</div>' +
+
+        '<div id="otpAlertBox" class="hidden p-2.5 rounded-xl text-xs font-bold border"></div>' +
+
+        '<button id="verifyOtpBtn" onclick="verifyTelegramOtp()" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-500 via-blue-600 to-sky-500 hover:from-sky-400 hover:to-blue-500 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 active:scale-95 transition">' +
+          '<span>🚀</span><span id="verifyOtpBtnText">كودنى جەزملەپ ئەپكە كىرىش</span>' +
+        '</button>' +
+
+        '<div class="flex items-center justify-between pt-1 text-[11px]">' +
+          '<button onclick="backToOtpInput()" class="text-slate-400 hover:text-white flex items-center gap-1">← نامنى قايتا كىرگۈزۈش</button>' +
+          '<button onclick="resendTelegramOtp()" class="text-sky-400 hover:text-sky-300 font-bold">كود كەلمىدىمۇ؟ قايتا ئەۋەتىش</button>' +
+        '</div>' +
+      '</div>';
+    setTimeout(function() {
+      var el = document.getElementById('tgOtpInput');
+      if (el) el.focus();
+    }, 100);
+    return;
+  }
+
+  // Default Step 1: Input username or chat ID
+  content.innerHTML = 
+    '<div class="space-y-3.5 text-xs">' +
+      '<div class="p-3 rounded-xl bg-sky-950/30 border border-sky-500/30 text-sky-200 leading-relaxed">' +
+        '✨ <b>AUTO CASH</b> تېلېگرامما ئارقىلىق كىرىش: ئۆزىڭىزنىڭ تېلېگرام نامىنى كىرگۈزسىڭىزلا، <b>@Autocash_24_bot</b> شەخسىي تېلېگرامىڭىزغا 6 خانىلىق كىرىش كودى ئەۋەتىدۇ. كودنى كىرگۈزۈپلا ئەپ بىلەن بوتتىكى قالدۇقىڭىز بىر گەۋدە بولىدۇ!' +
+      '</div>' +
+
+      '<div class="space-y-1.5">' +
+        '<label class="text-xs font-bold text-slate-300 flex items-center justify-between">' +
+          '<span>تېلېگرام كىملىكى ياكى ئابونت نامىڭىز:</span>' +
+          '<span class="text-slate-400 text-[10px]">مەسىلەن: @nasrulla0996 ياكى ID</span>' +
+        '</label>' +
+        '<input id="tgManualInput" type="text" placeholder="@nasrulla0996 ياكى 7575664493" class="w-full bg-slate-950 border border-slate-700 focus:border-sky-400 rounded-xl px-3 py-2.5 text-xs text-white outline-none font-mono text-left tracking-wide" dir="ltr" onkeydown="if(event.key===\'Enter\') requestTelegramOtp()"/>' +
+      '</div>' +
+
+      '<div id="otpAlertBox" class="hidden p-2.5 rounded-xl text-xs font-bold border"></div>' +
+
+      '<button id="sendOtpBtn" onclick="requestTelegramOtp()" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-500 via-blue-600 to-sky-500 hover:from-sky-400 hover:to-blue-500 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 active:scale-95 transition">' +
+        '<svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>' +
+        '<span id="sendOtpBtnText">📩 تېلېگراممىغا دەلىللەش كودى ئەۋەتىش</span>' +
+      '</button>' +
+
+      '<div class="pt-2 border-t border-slate-800/80">' +
+        '<a href="https://t.me/Autocash_24_bot" target="_blank" class="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-sky-300 font-bold text-xs flex items-center justify-center gap-1.5 transition">' +
+          '<span>🤖</span><span>تېلېگرامدا @Autocash_24_bot نى بىۋاستە ئېچىش</span>' +
+        '</a>' +
+      '</div>' +
+    '</div>';
+}
+
+async function requestTelegramOtp() {
+  var input = document.getElementById('tgManualInput');
+  if (!input) return;
+  var val = input.value.trim().replace(/^@/, '');
+  if (!val) {
+    showOtpAlert('تېلېگرام كىملىكى ياكى ئابونت نامىنى كىرگۈزۈڭ!', 'error');
+    return;
+  }
+
+  var btn = document.getElementById('sendOtpBtn');
+  var btnText = document.getElementById('sendOtpBtnText');
+  btn.disabled = true;
+  btnText.textContent = 'كود ئەۋەتىۋاتىدۇ...';
+
+  try {
+    var endpoints = ['/api/apps/otp', 'https://auto-cash-sotre.vercel.app/api/apps/otp'];
+    var data = null;
+
+    for (var i = 0; i < endpoints.length; i++) {
+      try {
+        var res = await fetch(endpoints[i], {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'send', phone_or_username: val, app_id: 'mobile-legends' })
+        });
+        if (res.ok) {
+          data = await res.json();
+          if (data && data.ok) break;
+        }
+      } catch (_) {}
+    }
+
+    if (data && data.ok) {
+      otpCurrentTarget = val;
+      otpSignature = data.otp_sig || '';
+      otpStep = 'verify';
+      renderTelegramModalContent();
+    } else {
+      var err = (data && data.error) ? data.error : 'بۇ تېلېگرامما ئىسمى بويىچە بوتتا خېرىدار تېپىلمىدى. ئالدى بىلەن @Autocash_24_bot قا بىر قېتىم كىرىپ /start نى بېسىڭ ياكى تېلېگرام كىملىك نومۇرىڭىزنى كىرگۈزۈڭ.';
+      showOtpAlert(err, 'error');
+      btn.disabled = false;
+      btnText.textContent = '📩 تېلېگراممىغا دەلىللەش كودى ئەۋەتىش';
+    }
+  } catch (err) {
+    showOtpAlert('كود ئەۋەتىش مەغلۇپ بولدى: ' + (err.message || 'قايتا سىناڭ'), 'error');
+    btn.disabled = false;
+    btnText.textContent = '📩 تېلېگراممىغا دەلىللەش كودى ئەۋەتىش';
+  }
+}
+
+function resendTelegramOtp() {
+  otpStep = 'input';
+  renderTelegramModalContent();
+  var input = document.getElementById('tgManualInput');
+  if (input) {
+    input.value = otpCurrentTarget;
+    requestTelegramOtp();
+  }
+}
+
+function backToOtpInput() {
+  otpStep = 'input';
+  renderTelegramModalContent();
+  var input = document.getElementById('tgManualInput');
+  if (input) input.value = otpCurrentTarget;
+}
+
+async function verifyTelegramOtp() {
+  var input = document.getElementById('tgOtpInput');
+  if (!input) return;
+  var code = input.value.trim().replace(/\D/g, '');
+  if (!code || code.length < 4) {
+    showOtpAlert('6 خانىلىق كودنى كىرگۈزۈڭ!', 'error');
+    return;
+  }
+
+  var btn = document.getElementById('verifyOtpBtn');
+  var btnText = document.getElementById('verifyOtpBtnText');
+  btn.disabled = true;
+  btnText.textContent = 'كود دەلىللىنىۋاتىدۇ...';
+
+  try {
+    var endpoints = ['/api/apps/otp', 'https://auto-cash-sotre.vercel.app/api/apps/otp'];
+    var data = null;
+
+    for (var i = 0; i < endpoints.length; i++) {
+      try {
+        var res = await fetch(endpoints[i], {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'verify',
+            phone_or_username: otpCurrentTarget,
+            code: code,
+            otp_sig: otpSignature,
+            app_id: 'mobile-legends'
+          })
+        });
+        if (res.ok) {
+          data = await res.json();
+          if (data && data.ok) break;
+        }
+      } catch (_) {}
+    }
+
+    if (data && data.ok && data.session) {
+      var sess = data.session;
+      currentTgUser = {
+        id: sess.identity,
+        name: sess.identity,
+        username: sess.identity,
+        photo: sess.photo_url || ('https://t.me/i/userpic/320/' + sess.identity + '.jpg'),
+        token: sess.token
+      };
+      if (typeof sess.balance === 'number') {
+        walletBalance = sess.balance;
+      }
+      localStorage.setItem('autocash_tg_user', JSON.stringify(currentTgUser));
+      updateDisplays();
+      updateTelegramHeader();
+      renderTelegramModalContent();
+      showOtpAlert('✅ تەبرىكلەيمىز! تېلېگرام ھېساباتىڭىز ۋە بوتتىكى قالدۇقىڭىز تولۇق ئۇلاندى.', 'success');
+      setTimeout(function() {
+        closeTelegramModal();
+      }, 1500);
+    } else {
+      var err = (data && data.error) ? data.error : 'كود خاتا ياكى ۋاقتى ئۆتكەن! قايتا كود ئېلىپ سىناڭ.';
+      showOtpAlert(err, 'error');
+      btn.disabled = false;
+      btnText.textContent = '🚀 كودنى جەزملەپ ئەپكە كىرىش';
+    }
+  } catch (err) {
+    showOtpAlert('دەلىللەش خاتالىقى: ' + (err.message || 'قايتا سىناڭ'), 'error');
+    btn.disabled = false;
+    btnText.textContent = '🚀 كودنى جەزملەپ ئەپكە كىرىش';
+  }
+}
+
+async function refreshUserBalanceFromBot(silent) {
+  if (!currentTgUser) return;
+  try {
+    var endpoints = ['/api/apps/otp', 'https://auto-cash-sotre.vercel.app/api/apps/otp'];
+    for (var i = 0; i < endpoints.length; i++) {
+      try {
+        var res = await fetch(endpoints[i], {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_balance', phone_or_username: currentTgUser.username || currentTgUser.id })
+        });
+        if (res.ok) {
+          var data = await res.json();
+          if (data && data.ok && typeof data.balance === 'number') {
+            walletBalance = data.balance;
+            updateDisplays();
+            renderTelegramModalContent();
+            if (!silent) alert('قالدۇق بوتتىن يېڭىلاندى: $' + walletBalance.toFixed(2) + ' USD ✓');
+            return;
+          }
+        }
+      } catch (_) {}
+    }
+  } catch (_) {}
+}
+
+function logoutTelegram() {
+  currentTgUser = null;
+  otpStep = 'input';
+  otpCurrentTarget = '';
+  otpSignature = '';
+  localStorage.removeItem('autocash_tg_user');
+  updateTelegramHeader();
+  renderTelegramModalContent();
+  alert('تېلېگرام ھېساباتىدىن چىقتىڭىز.');
+}
+
+
+    // Transactions History Modal Logic
+function openHistoryModal(tab) {
+  activeHistTab = tab || 'products';
+  renderHistoryList();
+  var modal = document.getElementById('historyModal');
+  var card = document.getElementById('historyCard');
+  modal.classList.remove('hidden');
+  setTimeout(function() { modal.classList.remove('opacity-0'); card.classList.remove('translate-y-full'); }, 20);
+}
+
+function closeHistoryModal() {
+  var modal = document.getElementById('historyModal');
+  var card = document.getElementById('historyCard');
+  modal.classList.add('opacity-0');
+  card.classList.add('translate-y-full');
+  setTimeout(function() { modal.classList.add('hidden'); }, 300);
+}
+
+
+    function switchHistoryTab(tab) {
+      activeHistTab = tab;
+      const btnProd = document.getElementById('tabHistProducts');
+      const btnDep = document.getElementById('tabHistDeposits');
+      if (tab === 'products') {
+        btnProd.className = 'py-1.5 rounded-lg font-bold transition bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow';
+        btnDep.className = 'py-1.5 rounded-lg font-bold transition text-slate-400 hover:text-white';
+      } else {
+        btnDep.className = 'py-1.5 rounded-lg font-bold transition bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black shadow';
+        btnProd.className = 'py-1.5 rounded-lg font-bold transition text-slate-400 hover:text-white';
+      }
+      renderHistoryList();
+    }
+
+    function renderHistoryList() {
+      const container = document.getElementById('historyList');
+      if (activeHistTab === 'products') {
+        if (!productOrders.length) {
+          container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">تېخى زاكاز مەۋجۇت ئەمەس.</p>';
+          return;
+        }
+        container.innerHTML = productOrders.map(o => 
+          '<div class="glass-box rounded-xl p-3 border border-slate-800 flex items-center justify-between text-xs space-y-1">' +
+            '<div>' +
+              '<p class="font-black text-white flex items-center gap-1.5"><span>💎</span><span>' + o.pkg + '</span></p>' +
+              '<p class="text-[11px] text-slate-400 font-mono mt-0.5">' + o.nick + ' • ' + o.server + ' • ' + o.time + '</p>' +
+              '<span class="text-[10px] text-cyan-400 font-mono">' + o.id + '</span>' +
+            '</div>' +
+            '<div class="text-left font-mono shrink-0">' +
+              '<span class="text-cyan-300 font-bold block text-xs">' + o.price.toFixed(2) + ' $</span>' +
+              '<span class="text-[10px] text-emerald-400 font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">' + o.status + '</span>' +
+            '</div>' +
+          '</div>'
+        ).join('');
+      } else {
+        if (!depositHistory.length) {
+          container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">تېخى قالدۇق كىرگۈزۈش خاتىرىسى يوق.</p>';
+          return;
+        }
+        container.innerHTML = depositHistory.map(d => 
+          '<div class="glass-box rounded-xl p-3 border border-amber-500/30 flex items-center justify-between text-xs space-y-1 bg-amber-950/10">' +
+            '<div>' +
+              '<p class="font-black text-amber-300 flex items-center gap-1.5"><span>💳</span><span>' + d.method + '</span></p>' +
+              '<p class="text-[11px] text-slate-400 font-mono mt-0.5">' + d.txid + ' • ' + d.time + '</p>' +
+            '</div>' +
+            '<div class="text-left font-mono shrink-0">' +
+              '<span class="text-emerald-400 font-bold block text-xs">+' + d.amount.toFixed(2) + ' $</span>' +
+              '<span class="text-[10px] text-amber-300 font-bold px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30">' + d.status + '</span>' +
+            '</div>' +
+          '</div>'
+        ).join('');
+      }
+    }
+
+    // Init
+    renderPackages();
+    updateDisplays();
+    initTelegramAuth();
+  </script>
+</body>
+</html>

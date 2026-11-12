@@ -162,7 +162,7 @@ export const ACTIVE_CATALOG: ActiveApp[] = [
     speed: '3 سېكۇنت',
     badge: '⚔️ ئالماس ۋە كارتىلار',
     badgeColor: 'from-blue-500 to-indigo-600',
-    webUrl: '/apps/mobile-legends',
+    webUrl: '/mlbb.html',
     telegramAppUrl: 'https://t.me/maxbazar_bot/mlbb',
     priceNote: '$0.27 دىن باشلىنىدۇ (10 - 6,000 ئالماس)',
     features: ['رەسمىي سەرۋەرگە بىۋاسىتە ئالماس', 'ھەپتىلىك ئالماس كارتىسى (Pass)', 'شامكەش شحن فوري'],

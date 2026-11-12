@@ -203,9 +203,16 @@ export async function POST(req: NextRequest) {
 
         const orderParams: any = {
           player_id: targetPlayerId,
+          'ايدي اللاعب': targetPlayerId,
+          'Player ID': targetPlayerId,
+          'ID': targetPlayerId,
         };
         if (targetServerId) {
           orderParams.server_id = targetServerId;
+          orderParams.zone_id = targetServerId;
+          orderParams['رقم السيرفر'] = targetServerId;
+          orderParams['Server'] = targetServerId;
+          orderParams['Zone ID'] = targetServerId;
         }
 
         const maxstoreRes = await fetch('https://maxstore1.com/api/v2/order', {

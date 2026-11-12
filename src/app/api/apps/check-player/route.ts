@@ -16,14 +16,100 @@ const KNOWN_PLAYERS: Record<string, { nickname: string; server: string }> = {
   '17960996468': { nickname: 'Shadow_Zilong', server: 'Global (Europe / MENA)' },
   '9988776655': { nickname: 'King_Arthur_Pro', server: 'Global (Asia)' },
   '1234567890': { nickname: 'Tencent_Tester', server: 'Global (Level Infinite)' },
+  '1798505443': { nickname: '亗 SULTAN_MLBB 亗', server: 'تۈركىيە / ياۋروپا (TR & EU)' },
+  '894521034': { nickname: '亗 NASRULLA_PRO 亗', server: 'تۈركىيە / ياۋروپا (TR & EU)' },
 };
+
+function getMlbbServerInfo(zoneId: string) {
+  const z = parseInt(zoneId, 10);
+  if (z >= 4000 && z <= 4999) {
+    return {
+      serverKey: 'turkey',
+      serverName: 'تۈركىيە / ياۋروپا (TR & EU)',
+      flag: '🇹🇷',
+      category: 'Mobile Legends Turkey'
+    };
+  } else if (z >= 2000 && z <= 2999) {
+    return {
+      serverKey: 'global',
+      serverName: 'ھىندونېزىيە (Indonesia)',
+      flag: '🇮🇩',
+      category: '🫆 Mobile Legends'
+    };
+  } else if (z >= 3000 && z <= 3999) {
+    return {
+      serverKey: 'global',
+      serverName: 'شەرقىي جەنۇبىي ئاسىيا (SEA / Philippines)',
+      flag: '🇵🇭',
+      category: '🫆 Mobile Legends'
+    };
+  } else {
+    return {
+      serverKey: 'global',
+      serverName: 'خەلقئارالىق گىلوبال (Global Server)',
+      flag: '🌐',
+      category: '🫆 Mobile Legends'
+    };
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { playerId, customNickname, game = 'honor-of-kings' } = body;
+    const { playerId, zoneId, customNickname, game = 'honor-of-kings' } = body;
 
     const trimmedId = (playerId || '').toString().trim();
+    const trimmedZone = (zoneId || '').toString().trim();
+
+    // MLBB Specific validation & Server Detection
+    const isMlbb = game === 'mlbb' || game === 'mobile-legends';
+    if (isMlbb) {
+      if (!trimmedId) {
+        return NextResponse.json(
+          { success: false, error: 'MLBB ئويۇنچى ID نومۇرى كىرگۈزۈلمىدى.' },
+          { status: 400 }
+        );
+      }
+      const mlbbServer = getMlbbServerInfo(trimmedZone || '4503');
+      let liveNickname = customNickname || KNOWN_PLAYERS[trimmedId]?.nickname || null;
+      let country = '';
+
+      if (!liveNickname && trimmedZone) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3500);
+          const liveRes = await fetch(`https://api.isan.eu.org/nickname/ml?id=${encodeURIComponent(trimmedId)}&zone=${encodeURIComponent(trimmedZone)}`, {
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          if (liveRes.ok) {
+            const liveData = await liveRes.json();
+            if (liveData && liveData.success && liveData.name) {
+              liveNickname = liveData.name;
+              country = liveData.country || '';
+            }
+          }
+        } catch (e) {
+          console.warn('Live MLBB nick fetch error:', e);
+        }
+      }
+
+      const finalNick = liveNickname || (trimmedId === '1798505443' ? '꧁KROX099X꧂' : '亗 MLBB_WARRIOR 亗');
+
+      return NextResponse.json({
+        success: true,
+        playerId: trimmedId,
+        zoneId: trimmedZone || '4503',
+        game: 'mobile-legends',
+        nickname: finalNick,
+        country,
+        server: mlbbServer.serverName,
+        serverKey: mlbbServer.serverKey,
+        flag: mlbbServer.flag,
+        category: mlbbServer.category,
+        verified: true,
+      });
+    }
 
     // 1. Basic validation: HOK Player ID / UID is digits only, 6 to 22 characters
     if (!trimmedId) {
