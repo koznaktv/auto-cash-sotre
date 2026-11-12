@@ -125,7 +125,7 @@
             <svg class="w-3.5 h-3.5 text-cyan-400 group-hover:text-cyan-300 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
             </svg>
-            <span id="notifBadge" class="absolute -top-1.5 -right-2 min-w-[14px] h-3.5 px-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 text-[8.5px] font-black flex items-center justify-center font-mono shadow-sm border border-slate-900">0</span>
+            <span id="notifBadge" class="hidden absolute -top-1.5 -right-2 min-w-[14px] h-3.5 px-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 text-[8.5px] font-black flex items-center justify-center font-mono shadow-sm border border-slate-900">0</span>
           </div>
           <span class="text-xs font-black tracking-tight text-cyan-300 group-hover:text-cyan-200">زاكازلىرىم</span>
         </button>
@@ -769,16 +769,107 @@
     let playerNick = '亗 SULTAN_MLBB 亗';
     let activeHistTab = 'products';
 
-    // Transactions History
-    let productOrders = [
-      { id: 'ML-99104', pkg: 'ھەپتىلىك كارتا', price: 1.65, nick: 'マヒル', server: '🇹🇷 تۈركىيە', time: '14:20', status: 'قاچىلاندى 100% ✓' },
-      { id: 'ML-88231', pkg: '55 ئالماس', price: 0.72, nick: '亗 NASRULLA 亗', server: '🌐 گىلوبال', time: 'تۈنۈگۈن', status: 'قاچىلاندى 100% ✓' }
-    ];
+    // Transactions History (100% Genuine User Orders - Mock Data Eliminated)
+    let productOrders = [];
+    let depositHistory = [];
 
-    let depositHistory = [
-      { txid: 'TX-948102391', amount: 25.00, method: 'شامكەش (ShamCash)', time: 'بۈگۈن 12:10', status: 'تەستىقلاندى ✓' },
-      { txid: 'TX-551029384', amount: 20.00, method: 'شامكەش (ShamCash)', time: 'تۈنۈگۈن 18:30', status: 'تەستىقلاندى ✓' }
-    ];
+    function getUserStorageKey(type) {
+      var id = currentTgUser ? (currentTgUser.id || currentTgUser.username || 'guest') : 'guest';
+      return 'autocash_' + type + '_' + id;
+    }
+
+    function loadUserOrders() {
+      try {
+        var pKey = getUserStorageKey('product_orders');
+        var dKey = getUserStorageKey('deposit_history');
+        var savedP = localStorage.getItem(pKey);
+        var savedD = localStorage.getItem(dKey);
+        productOrders = savedP ? JSON.parse(savedP) : [];
+        depositHistory = savedD ? JSON.parse(savedD) : [];
+        if (!Array.isArray(productOrders)) productOrders = [];
+        if (!Array.isArray(depositHistory)) depositHistory = [];
+      } catch (e) {
+        productOrders = [];
+        depositHistory = [];
+      }
+      updateNotifBadge();
+      renderHistoryList();
+    }
+
+    function saveUserOrders() {
+      try {
+        var pKey = getUserStorageKey('product_orders');
+        var dKey = getUserStorageKey('deposit_history');
+        localStorage.setItem(pKey, JSON.stringify(productOrders));
+        localStorage.setItem(dKey, JSON.stringify(depositHistory));
+      } catch (e) {}
+      updateNotifBadge();
+    }
+
+    function updateNotifBadge() {
+      var badge = document.getElementById('notifBadge');
+      if (!badge) return;
+      var total = (productOrders && Array.isArray(productOrders)) ? productOrders.length : 0;
+      if (total > 0) {
+        badge.textContent = total > 99 ? '99+' : total;
+        badge.classList.remove('hidden');
+      } else {
+        badge.textContent = '0';
+        badge.classList.add('hidden');
+      }
+    }
+
+    async function fetchServerOrders() {
+      if (!currentTgUser) return;
+      var cleanIdent = (currentTgUser.username || currentTgUser.id || '').replace(/^@/, '');
+      if (!cleanIdent) return;
+      try {
+        var res = await fetch('/api/apps/order?identity=' + encodeURIComponent(cleanIdent) + '&app_id=mobile-legends');
+        if (res.ok) {
+          var data = await res.json();
+          if (data && data.ok && Array.isArray(data.orders)) {
+            var serverOrders = data.orders.map(function(o) {
+              var dateStr = 'بۈگۈن';
+              if (o.created_at) {
+                try {
+                  var d = new Date(o.created_at);
+                  dateStr = d.toLocaleDateString('ug-CN', { month: 'numeric', day: 'numeric' }) + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                } catch (_) {
+                  dateStr = String(o.created_at).substring(0, 16);
+                }
+              }
+              var statusText = 'قاچىلاندى 100% ✓';
+              if (o.status === 'processing' || o.status === 'wait' || o.status === 'in_progress') {
+                statusText = 'بىر تەرەپ قىلىنىۋاتىدۇ ⏳';
+              } else if (o.status === 'failed') {
+                statusText = 'مەغلۇپ بولدى ❌';
+              } else if (o.status === 'refunded') {
+                statusText = 'قايتۇرۇلدى ↩️';
+              }
+              return {
+                id: o.order_id || ('ORD-' + (o.id || Math.floor(Math.random() * 10000))),
+                pkg: o.package_name || 'ئالماس بوغچىسى',
+                price: Number(o.price || 0),
+                nick: o.player_id || playerNick,
+                server: '🎮 MLBB',
+                time: dateStr,
+                status: statusText
+              };
+            });
+
+            var existingIds = new Set(productOrders.map(function(x) { return x.id; }));
+            serverOrders.forEach(function(so) {
+              if (!existingIds.has(so.id)) {
+                productOrders.push(so);
+                existingIds.add(so.id);
+              }
+            });
+            saveUserOrders();
+            renderHistoryList();
+          }
+        }
+      } catch (_) {}
+    }
 
     function parseInput(val) {
       if (!val) return null;
@@ -1267,9 +1358,32 @@
         nick: playerNick,
         server: CATALOGS[currentServer].flag + ' ' + CATALOGS[currentServer].serverTitle,
         time: 'ھازىرلا',
-        status: 'قاچىلاندى 100% ✓'
+        status: 'قاچىلاندى 100% ✓',
+        gameId: parsedId,
+        zoneId: parsedZone,
+        date: new Date().toISOString()
       };
       productOrders.unshift(newOrder);
+      saveUserOrders();
+      renderHistoryList();
+
+      if (currentTgUser) {
+        var cleanIdent = (currentTgUser.username || currentTgUser.id || '').replace(/^@/, '');
+        fetch('/api/apps/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            app_id: 'mobile-legends',
+            package_id: String(selectedPkg.id || 'mlbb'),
+            package_name: selectedPkg.name,
+            price: selectedPkg.price,
+            player_id: (parsedId || '') + ' (' + (parsedZone || '') + ')',
+            identity: cleanIdent,
+            zone_id: parsedZone || '',
+            user_id: currentTgUser.id || ''
+          })
+        }).catch(function() {});
+      }
 
       // Open Modal
       document.getElementById('procId').textContent = '#' + newId;
@@ -1429,6 +1543,7 @@ async function submitDeposit() {
       time: 'ھازىرلا',
       status: 'تەستىقلاندى ✓'
     });
+    saveUserOrders();
     renderHistoryList();
 
     // Broadcast to Telegram Channel / Bot
@@ -1569,11 +1684,13 @@ function initTelegramAuth() {
     walletBalance = 0.00;
   }
 
+  loadUserOrders();
   updateTelegramHeader();
   updateDisplays();
 
   if (currentTgUser) {
     refreshUserBalanceFromBot(true);
+    fetchServerOrders();
   }
 }
 
@@ -1864,6 +1981,8 @@ async function verifyTelegramOtp() {
         walletBalance = sess.balance;
       }
       localStorage.setItem('autocash_tg_user', JSON.stringify(currentTgUser));
+      loadUserOrders();
+      fetchServerOrders();
       updateDisplays();
       updateTelegramHeader();
       renderTelegramModalContent();
@@ -1923,6 +2042,9 @@ function logoutTelegram() {
   otpCurrentTarget = '';
   otpSignature = '';
   localStorage.removeItem('autocash_tg_user');
+  walletBalance = 0.00;
+  loadUserOrders();
+  updateDisplays();
   updateTelegramHeader();
   renderTelegramModalContent();
   showAppModal({
@@ -1969,38 +2091,57 @@ function closeHistoryModal() {
 
     function renderHistoryList() {
       const container = document.getElementById('historyList');
+      if (!container) return;
       if (activeHistTab === 'products') {
         if (!productOrders.length) {
-          container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">تېخى زاكاز مەۋجۇت ئەمەس.</p>';
+          container.innerHTML = 
+            '<div class="py-12 px-4 text-center space-y-3.5">' +
+              '<div class="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-br from-cyan-950/70 to-slate-900 border border-cyan-500/30 flex items-center justify-center text-3xl shadow-lg shadow-cyan-950/40 text-cyan-400">' +
+                '📜' +
+              '</div>' +
+              '<div class="space-y-1">' +
+                '<p class="text-sm font-black text-white">تېخى ھېچقانداق زاكاز چۈشۈرمىدىڭىز</p>' +
+                '<p class="text-[11px] text-slate-400 max-w-xs mx-auto leading-relaxed">ئالماس ياكى كارتىلارنى تاللاپ زاكاز قىلسىڭىز، سېتىۋالغان بارلىق زاكازلىرىڭىز مۇشۇ يەردە كۆرۈنىدۇ.</p>' +
+              '</div>' +
+            '</div>';
           return;
         }
         container.innerHTML = productOrders.map(o => 
-          '<div class="glass-box rounded-xl p-3 border border-slate-800 flex items-center justify-between text-xs space-y-1">' +
-            '<div>' +
-              '<p class="font-black text-white flex items-center gap-1.5"><span>💎</span><span>' + o.pkg + '</span></p>' +
+          '<div class="glass-box rounded-xl p-3 border border-slate-800/90 flex items-center justify-between text-xs space-y-1 hover:border-cyan-500/30 transition">' +
+            '<div class="space-y-1">' +
+              '<p class="font-black text-white flex items-center gap-1.5"><span class="text-cyan-400">💎</span><span>' + o.pkg + '</span></p>' +
               '<p class="text-[11px] text-slate-400 font-mono mt-0.5">' + o.nick + ' • ' + o.server + ' • ' + o.time + '</p>' +
-              '<span class="text-[10px] text-cyan-400 font-mono">' + o.id + '</span>' +
+              '<span class="text-[10px] text-cyan-400 font-mono tracking-wider">#' + o.id + '</span>' +
             '</div>' +
-            '<div class="text-left font-mono shrink-0">' +
-              '<span class="text-cyan-300 font-bold block text-xs">' + o.price.toFixed(2) + ' $</span>' +
-              '<span class="text-[10px] text-emerald-400 font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">' + o.status + '</span>' +
+            '<div class="text-left font-mono shrink-0 space-y-1">' +
+              '<span class="text-cyan-300 font-black block text-xs">$ ' + o.price.toFixed(2) + '</span>' +
+              '<span class="text-[10px] text-emerald-400 font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 whitespace-nowrap inline-block">' + o.status + '</span>' +
             '</div>' +
           '</div>'
         ).join('');
       } else {
         if (!depositHistory.length) {
-          container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">تېخى قالدۇق كىرگۈزۈش خاتىرىسى يوق.</p>';
+          container.innerHTML = 
+            '<div class="py-12 px-4 text-center space-y-3.5">' +
+              '<div class="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-br from-amber-950/70 to-slate-900 border border-amber-500/30 flex items-center justify-center text-3xl shadow-lg shadow-amber-950/40 text-amber-400">' +
+                '💳' +
+              '</div>' +
+              '<div class="space-y-1">' +
+                '<p class="text-sm font-black text-white">تېخى قالدۇق قاچىلاش خاتىرىسى يوق</p>' +
+                '<p class="text-[11px] text-slate-400 max-w-xs mx-auto leading-relaxed">شامكەش (ShamCash) تالونى ئارقىلىق قاچىلىغان تالونلىرىڭىز ۋە پۇللىرىڭىز مۇشۇ يەردە رەتلىك ساقلىنىدۇ.</p>' +
+              '</div>' +
+            '</div>';
           return;
         }
         container.innerHTML = depositHistory.map(d => 
-          '<div class="glass-box rounded-xl p-3 border border-amber-500/30 flex items-center justify-between text-xs space-y-1 bg-amber-950/10">' +
-            '<div>' +
+          '<div class="glass-box rounded-xl p-3 border border-amber-500/30 flex items-center justify-between text-xs space-y-1 bg-amber-950/10 hover:border-amber-400/50 transition">' +
+            '<div class="space-y-1">' +
               '<p class="font-black text-amber-300 flex items-center gap-1.5"><span>💳</span><span>' + d.method + '</span></p>' +
-              '<p class="text-[11px] text-slate-400 font-mono mt-0.5">' + d.txid + ' • ' + d.time + '</p>' +
+              '<p class="text-[11px] text-slate-400 font-mono mt-0.5"><span class="text-amber-200 font-bold">' + d.txid + '</span> • ' + d.time + '</p>' +
             '</div>' +
-            '<div class="text-left font-mono shrink-0">' +
-              '<span class="text-emerald-400 font-bold block text-xs">+' + d.amount.toFixed(2) + ' $</span>' +
-              '<span class="text-[10px] text-amber-300 font-bold px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30">' + d.status + '</span>' +
+            '<div class="text-left font-mono shrink-0 space-y-1">' +
+              '<span class="text-emerald-400 font-black block text-xs">+$ ' + d.amount.toFixed(2) + '</span>' +
+              '<span class="text-[10px] text-amber-300 font-bold px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 whitespace-nowrap inline-block">' + d.status + '</span>' +
             '</div>' +
           '</div>'
         ).join('');
