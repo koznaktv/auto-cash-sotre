@@ -24,7 +24,7 @@ export async function recognizeReceipt(imageBuffer: Buffer): Promise<{
     formData.append('scale', 'true');
 
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 7000);
+    const timer = setTimeout(() => controller.abort(), 2500);
 
     const res = await fetch('https://api.ocr.space/parse/image', {
       method: 'POST',
@@ -71,7 +71,7 @@ export async function recognizeReceipt(imageBuffer: Buffer): Promise<{
     })();
 
     const timeoutPromise = new Promise<string>((_, reject) =>
-      setTimeout(() => reject(new Error('Tesseract timeout (6s)')), 6000)
+      setTimeout(() => reject(new Error('Tesseract timeout (2s)')), 2000)
     );
 
     const ocrText = await Promise.race([tesseractPromise, timeoutPromise]);

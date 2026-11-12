@@ -53,6 +53,8 @@ export const MAXBAZAR_PERSISTENT_KEYBOARD = {
 };
 export const STORE_PERSISTENT_KEYBOARD = MAXBAZAR_PERSISTENT_KEYBOARD;
 
+const processedReceiptFileIds = new Map<string, number>();
+
 // ==========================================
 // CUSTOM PREMIUM ANIMATED EMOJIS REGISTRY
 // ==========================================
@@ -4151,6 +4153,9 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
             ).toFixed(2)} USD</b>\n\n` +
             `⚡️ ھازىر ئەپ ياكى توربەتكە قايتسىڭىز، ھېساباتىڭىز ئۆزلۈكىدىن كىرىپ تەييار بولدى!`,
           parse_mode: 'HTML',
+          reply_markup: {
+            remove_keyboard: true,
+          },
         });
       } catch (err: any) {
         console.error('[Store Bot Auth Error]:', err?.message);
@@ -4662,6 +4667,19 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
         }
 
         if (fileId) {
+          const lastProcessedReceipt = processedReceiptFileIds.get(fileId);
+          if (lastProcessedReceipt && Date.now() - lastProcessedReceipt < 120000) {
+            console.log(`[Store Bot] Deduplicating receipt webhook retry for fileId: ${fileId}`);
+            return;
+          }
+          processedReceiptFileIds.set(fileId, Date.now());
+          if (processedReceiptFileIds.size > 200) {
+            const cutoff = Date.now() - 120000;
+            processedReceiptFileIds.forEach((time, id) => {
+              if (time < cutoff) processedReceiptFileIds.delete(id);
+            });
+          }
+
           let candidateTx = normalizeTxId(text);
           const attachedFile = {
             fileId,
