@@ -10,6 +10,7 @@ import {
   randomId,
   OrderRecord,
   ORDER_STATUSES,
+  deleteOrderAsync,
 } from '@/lib/db';
 import { getServicesList, autoAdjustPackagePriceForWholesaleCost } from '@/lib/servicesDb';
 import { verifyAdminToken, hasAdminBearer } from '@/lib/adminAuth';
@@ -698,6 +699,47 @@ export async function PATCH(req: Request) {
   } catch (err: any) {
     return NextResponse.json(
       { success: false, message: err?.message || 'ھالەتنى يېڭىلاش مەغلۇپ بولدى' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    if (!verifyAdminToken(req) && !hasAdminBearer(req)) {
+      return NextResponse.json({ success: false, message: 'رۇخسەت يوق (Unauthorized)' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    let orderId = searchParams.get('id');
+    let orderIds: string[] = [];
+
+    try {
+      const body = await req.json();
+      if (body.id) orderId = String(body.id);
+      if (Array.isArray(body.ids)) orderIds = body.ids.map(String);
+    } catch {}
+
+    if (orderId && !orderIds.includes(orderId)) {
+      orderIds.push(orderId);
+    }
+
+    if (orderIds.length === 0) {
+      return NextResponse.json({ success: false, message: 'زاكاز ID تېپىلمىدى' }, { status: 400 });
+    }
+
+    for (const id of orderIds) {
+      await deleteOrderAsync(id);
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `${orderIds.length} زاكاز مۇۋەپپەقىيەتلىك ئۆچۈرۈلدى`,
+      deletedIds: orderIds,
+    });
+  } catch (err: any) {
+    return NextResponse.json(
+      { success: false, message: err?.message || 'زاكازنى ئۆچۈرۈش مەغلۇپ بولدى' },
       { status: 500 }
     );
   }

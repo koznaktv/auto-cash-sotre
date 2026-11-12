@@ -943,6 +943,28 @@ export async function createOrderDirectAsync(orderData: OrderRecord): Promise<Or
   return orderData;
 }
 
+export async function deleteOrderAsync(id: string): Promise<boolean> {
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { error } = await sb.from('orders').delete().eq('id', id);
+      if (error) {
+        console.warn('[deleteOrderAsync Supabase warning]:', error.message);
+      }
+    } catch (e: any) {
+      console.warn('[deleteOrderAsync exception]:', e?.message);
+    }
+  }
+
+  const db = ensureDbFile();
+  const idx = db.orders.findIndex((o) => o.id === id);
+  if (idx !== -1) {
+    db.orders.splice(idx, 1);
+    saveDb(db);
+  }
+  return true;
+}
+
 export interface AtomicOrderResult {
   success: boolean;
   order?: OrderRecord;

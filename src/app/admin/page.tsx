@@ -1019,6 +1019,30 @@ export default function AdminPage() {
     }
   };
 
+  // Permanently delete an order from database
+  const handleDeleteOrder = async (order: Order) => {
+    if (!window.confirm(`${order.id} نومۇرلۇق زاكازنى سىستېمىدىن پۈتۈنلەي ئۆچۈرۈشنى جەزملەشتۈرەمسىز؟`)) return;
+    setActionLoading(order.id);
+    const token = sessionStorage.getItem('autocash_admin_token');
+    try {
+      const res = await fetch(`/api/orders?id=${encodeURIComponent(order.id)}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOrders((prev) => prev.filter((o) => o.id !== order.id));
+      } else {
+        alert(data.message || 'زاكازنى ئۆچۈرۈش مەغلۇپ بولدى');
+      }
+    } catch (e: any) {
+      console.error(e);
+      alert(e?.message || 'ئۆچۈرۈش مەغلۇپ بولدى');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   // Ask syria4game for the order's status now
   const handleRecheckOrder = async (order: Order) => {
     setActionLoading(order.id);
@@ -3986,6 +4010,13 @@ export default function AdminPage() {
                                   پۇل قايتۇرۇش
                                 </button>
                               )}
+                              <button
+                                onClick={() => handleDeleteOrder(order)}
+                                className="px-2 py-1 rounded-md bg-rose-950/80 hover:bg-rose-700 text-rose-300 text-[10px] font-bold transition cursor-pointer border border-rose-800/40"
+                                title="زاكازنى پۈتۈنلەي ئۆچۈرۈش"
+                              >
+                                يۇيۇش
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -4257,6 +4288,14 @@ export default function AdminPage() {
                                     پۇل قايتۇر
                                   </button>
                                 )}
+                                <button
+                                  disabled={actionLoading === order.id}
+                                  onClick={() => handleDeleteOrder(order)}
+                                  className="px-2.5 py-1 rounded-lg bg-red-950/80 hover:bg-red-700 text-red-300 border border-red-800/60 font-bold text-[10px] transition cursor-pointer"
+                                  title="بۇ زاكازنى سىستېمىدىن يۇيۇۋېتىش (ئۆچۈرۈش)"
+                                >
+                                  🗑️ ئۆچۈرۈش
+                                </button>
                               </div>
                             </td>
                           </tr>
