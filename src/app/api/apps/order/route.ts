@@ -123,9 +123,9 @@ export async function POST(req: NextRequest) {
       verifiedUser = await getSessionUser(req);
     } catch {}
 
-    let cleanIdentity = (identity || '').trim().replace(/^@/, '');
+    let cleanIdentity = (identity || body.user_id || '').trim().replace(/^@/, '');
     if (verifiedUser) {
-      cleanIdentity = verifiedUser.email || verifiedUser.telegramUsername || verifiedUser.phone || verifiedUser.name || cleanIdentity;
+      cleanIdentity = verifiedUser.telegramUsername || verifiedUser.telegramChatId || verifiedUser.email || verifiedUser.phone || verifiedUser.name || cleanIdentity;
     }
 
     if (!cleanIdentity || cleanIdentity.toLowerCase() === 'user') {
@@ -134,24 +134,6 @@ export async function POST(req: NextRequest) {
       } else {
         return NextResponse.json({ ok: false, error: 'ئالدى بىلەن ھېساباتىڭىزغا كىرىڭ' }, { status: 401 });
       }
-    }
-
-    // Maintenance guard: Only allowed admins can place orders via MAX-BAZAR web
-    const appBuyerEmail = (cleanIdentity || verifiedUser?.email || '').trim().toLowerCase();
-    const isAppAdmin =
-      appBuyerEmail === 'dronemax0996@gmail.com' ||
-      appBuyerEmail === 'dronemax520@gmail.com' ||
-      verifiedUser?.role === 'admin';
-
-    if (!isAppAdmin) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error:
-            'توربەت مۇلازىمىتى ۋاقتىنچە تاقالدى (تەھرىرلىنىۋاتىدۇ). زاكازلىرىڭىزنى رەسمىي تېلېگرامما بوتىمىز @Autocash_24_bot ئارقىلىق سېتىۋېلىڭ.',
-        },
-        { status: 503 }
-      );
     }
 
     if (!player_id || !player_id.trim()) {
@@ -165,6 +147,13 @@ export async function POST(req: NextRequest) {
 
     // Check unified MAX-BAZAR wallet balance / verified user balance
     let currentBalance = await getUnifiedWalletBalance(cleanIdentity);
+    if (body.user_id && String(body.user_id).trim() !== cleanIdentity) {
+      const altBalance = await getUnifiedWalletBalance(String(body.user_id).trim());
+      if (altBalance > currentBalance) {
+        currentBalance = altBalance;
+        cleanIdentity = String(body.user_id).trim();
+      }
+    }
     if (verifiedUser && typeof verifiedUser.balance === 'number' && verifiedUser.balance > currentBalance) {
       currentBalance = Number(verifiedUser.balance.toFixed(2));
     }
@@ -177,7 +166,8 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    const orderId = 'HOK_' + Date.now().toString(36).toUpperCase() + Math.floor(Math.random() * 1000);
+    const prefix = (cleanAppId === 'mobile-legends' || cleanAppId === 'mlbb') ? 'ML_' : (cleanAppId === 'pubg' ? 'PUBG_' : 'HOK_');
+    const orderId = prefix + Date.now().toString(36).toUpperCase() + Math.floor(100 + Math.random() * 900);
     let providerOrderId: string | null = null;
     let providerStatus = 'in_progress';
     let providerError: string | null = null;
@@ -201,18 +191,18 @@ export async function POST(req: NextRequest) {
           targetServerId = String(body.zone_id).trim();
         }
 
-        const orderParams: any = {
+        // Clean any extraneous brackets
+        targetPlayerId = targetPlayerId.replace(/[()]/g, '').trim();
+        targetServerId = targetServerId.replace(/[()]/g, '').trim();
+
+        // MaxStore strictly expects params according to params_meta:
+        // For MLBB: { player_id, server_id }
+        // For HOK / PUBG: { player_id }
+        const orderParams: Record<string, any> = {
           player_id: targetPlayerId,
-          'ايدي اللاعب': targetPlayerId,
-          'Player ID': targetPlayerId,
-          'ID': targetPlayerId,
         };
         if (targetServerId) {
           orderParams.server_id = targetServerId;
-          orderParams.zone_id = targetServerId;
-          orderParams['رقم السيرفر'] = targetServerId;
-          orderParams['Server'] = targetServerId;
-          orderParams['Zone ID'] = targetServerId;
         }
 
         const maxstoreRes = await fetch('https://maxstore1.com/api/v2/order', {
@@ -223,6 +213,7 @@ export async function POST(req: NextRequest) {
           },
           body: JSON.stringify({
             product_id: Number(package_id),
+            qty: 1, // CRITICAL: MaxStore strictly requires qty: 1, otherwise fails with code 106 "Missing required field"
             order_uuid: orderUuid,
             params: orderParams,
           }),
@@ -235,6 +226,7 @@ export async function POST(req: NextRequest) {
           const detailMsg = maxstoreData.detail?.message || 
             (typeof maxstoreData.detail === 'string' ? maxstoreData.detail : null) ||
             (Array.isArray(maxstoreData.detail) ? maxstoreData.detail[0]?.msg : null) ||
+            maxstoreData.error ||
             'تەمىنلىگۈچى تەرەپ زاكازنى رەت قىلدى';
           providerError = detailMsg;
         }
