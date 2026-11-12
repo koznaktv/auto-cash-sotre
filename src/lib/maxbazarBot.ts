@@ -3980,7 +3980,7 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
 
     const chatId = message.chat.id;
     const username = (message.from?.username || '').trim().replace(/^@/, '').toLowerCase();
-    const text = (message.text || '').trim();
+    const text = (message.text || message.caption || '').trim();
     const firstName = message.from?.first_name || 'خېرىدار';
 
     const isAdmin = String(chatId) === ADMIN_CHAT_ID || (Boolean(username) && username === ADMIN_USERNAME);
@@ -4369,6 +4369,67 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
         reply_markup: { inline_keyboard: menu.inline_keyboard },
       });
       return;
+    }
+
+    // B.4.9 Photo or PDF Document Receipt Handling (ShamCash Vision OCR)
+    if (message.photo || message.document) {
+      try {
+        let fileId = '';
+        if (Array.isArray(message.photo) && message.photo.length > 0) {
+          fileId = message.photo[message.photo.length - 1].file_id;
+        } else if (message.document) {
+          fileId = message.document.file_id;
+        }
+
+        if (fileId) {
+          let candidateTx = normalizeTxId(text);
+
+          if (!candidateTx || candidateTx.length < 5) {
+            await api('sendMessage', {
+              chat_id: chatId,
+              text: '🔍 <b>شامكەش تالون سۈرىتى تاپشۇرۇۋېلىندى! ئەقلىي سىستېما تالون نومۇرى ۋە تەپسىلاتىنى ئوقۇۋاتىدۇ...</b>',
+              parse_mode: 'HTML',
+            });
+
+            const fileInfoRes = await callBotApi('getFile', { file_id: fileId }, config.token);
+            if (fileInfoRes && fileInfoRes.ok && fileInfoRes.result?.file_path) {
+              const fileUrl = `https://api.telegram.org/file/bot${config.token}/${fileInfoRes.result.file_path}`;
+              try {
+                const { createWorker } = await import('tesseract.js');
+                const worker = await createWorker('eng');
+                const ret = await worker.recognize(fileUrl);
+                await worker.terminate();
+
+                const ocrText = ret?.data?.text || '';
+                const digitMatch = ocrText.match(/\b([0-9]{7,15})\b/);
+                if (digitMatch && digitMatch[1]) {
+                  candidateTx = digitMatch[1].trim();
+                } else {
+                  candidateTx = normalizeTxId(ocrText);
+                }
+              } catch (ocrErr: any) {
+                console.warn('[Store Bot Receipt OCR Warn]:', ocrErr?.message);
+              }
+            }
+          }
+
+          if (candidateTx && candidateTx.length >= 5) {
+            await handleShamCashTxVerify(chatId, candidateTx, user, config);
+            return;
+          } else {
+            await api('sendMessage', {
+              chat_id: chatId,
+              text:
+                '⚠️ <b>تالوندىكى رەقەم ئېنىق ئوقۇلمىدى.</b>\n\n' +
+                'ئەگەر تالون سۈرىتى غۇۋا بولسا، تالوندىكى <b>رقم العملية (مەشغۇلات نومۇرى)</b> نى خەت ھالىتىدە بىۋاسىتە ئەۋەتسىڭىزمۇ دەرھال دەلىللىنىدۇ!',
+              parse_mode: 'HTML',
+            });
+            return;
+          }
+        }
+      } catch (receiptErr: any) {
+        console.warn('[Receipt Handler Error]:', receiptErr?.message);
+      }
     }
 
     // B.5 ShamCash Transaction Verification (Customer sends transaction ID or receipt text)

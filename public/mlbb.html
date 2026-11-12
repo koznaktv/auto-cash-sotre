@@ -596,38 +596,47 @@
             </button>
           </div>
           <p class="text-[11px] text-slate-400 leading-snug">
-            💡 شامكەش ئەپى ئارقىلىق يۇقىرىدىكى كىملىككە مەبلەغ يۆتكەپ، چىققان تالون نومۇرىنى تۆۋەنگە كىرگۈزۈڭ.
+            💡 1-قەدەم: شامكەش ئەپى ئارقىلىق يۇقىرىدىكى كىملىككە مەبلەغ يۆتكەڭ.
           </p>
         </div>
 
-        <!-- Receipt Input (NO preset amounts, NO test receipt strings) -->
-        <div class="space-y-1.5">
-          <label class="text-xs font-bold text-slate-300 flex items-center justify-between">
-            <span class="flex items-center gap-1.5">
-              <span>🧾</span>
-              <span>تالون نومۇرى (رقم العملية / TXID):</span>
-            </span>
-            <span class="text-[10px] text-slate-400 font-normal">شامكەش تالونىدىكى رەقەم</span>
-          </label>
-          <input 
-            id="receiptInput" 
-            type="text" 
-            placeholder="مەسىلەن: 948102391 ياكى 1058291..." 
-            class="w-full bg-slate-950 border border-slate-700 focus:border-amber-400 rounded-xl px-3 py-2.5 text-xs text-white font-mono text-left outline-none transition" 
-            dir="ltr"
-            onkeydown="if(event.key==='Enter') submitDeposit()"
-          />
-          <p class="text-[11px] text-slate-400 leading-snug">
-            ⚡ تالون نومۇرىنى ئەۋەتكەن ھامان، سىستېما شامكەشتىن تەكشۈرۈپ ئەۋەتىلگەن سوممىنى ئاپتوماتىك ھېسابلاپ دەرھال ھەميان قالدۇقىڭىزغا قوشۇپ بېرىدۇ.
-          </p>
+        <!-- 3-Step Clear Visual Flow -->
+        <div class="space-y-2 pt-1">
+          <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs">
+            <span class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-300 font-bold flex items-center justify-center shrink-0 border border-amber-500/30">1</span>
+            <div class="space-y-0.5">
+              <p class="font-bold text-white">شامكەش كىملىك نومۇرىنى كۆچۈرۈڭ</p>
+              <p class="text-[11px] text-slate-400">يۇقىرىدىكى نۇمۇرنى كۆچۈرۈپ شامكەشتىن پۇل ئەۋەتىڭ.</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs">
+            <span class="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-300 font-bold flex items-center justify-center shrink-0 border border-sky-500/30">2</span>
+            <div class="space-y-0.5">
+              <p class="font-bold text-white">تالوننى @Autocash_24_bot قا يوللاڭ</p>
+              <p class="text-[11px] text-slate-400">پۇل ئەۋەتكەندىن كېيىن، تالوننى (سۈرەت ياكى نومۇرىنى) بوتقا تاشلاپ بەرسىڭىزلا بولىدۇ.</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs">
+            <span class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold flex items-center justify-center shrink-0 border border-emerald-500/30">3</span>
+            <div class="space-y-0.5">
+              <p class="font-bold text-white">قالدۇقىڭىز دەرھال ئاشىدۇ</p>
+              <p class="text-[11px] text-slate-400">بوت تالوننى 1 سېكۇنتتا دەلىللەيدۇ ھەم ھەميان قالدۇقىڭىز مۇشۇ توربەتتە ئاپتوماتىك كۆپىيىدۇ!</p>
+            </div>
+          </div>
         </div>
 
-        <!-- Inline Alert for Deposit Status -->
-        <div id="depositAlert" class="hidden p-2.5 rounded-xl text-xs font-bold transition-all border"></div>
+        <!-- Primary Action Button: Send Receipt to Bot -->
+        <a href="https://t.me/Autocash_24_bot" target="_blank" class="w-full bg-gradient-to-r from-sky-500 via-blue-600 to-sky-500 hover:from-sky-400 hover:to-blue-500 text-white font-black py-3 rounded-2xl text-xs transition shadow-lg shadow-sky-500/30 flex items-center justify-center gap-2 active:scale-95 cursor-pointer">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+          <span>🤖 تالوننى بوتقا يوللاش (@Autocash_24_bot)</span>
+        </a>
 
-        <button id="submitDepositBtn" onclick="submitDeposit()" class="w-full bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black py-2.5 rounded-xl text-xs transition shadow-lg shadow-amber-500/20 active:scale-95 flex items-center justify-center gap-2">
-          <span>⚡</span>
-          <span id="submitDepositText">تالوننى تەستىقلاپ قالدۇق قاچىلاش</span>
+        <!-- Secondary Action: Refresh Balance -->
+        <button onclick="refreshUserBalanceFromBot()" class="w-full py-2.5 px-3 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-amber-500/40 text-amber-300 font-bold text-xs flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
+          <span>🔄</span>
+          <span>پۇل قاچىلاپ بولدۇم، قالدۇقنى يېڭىلاش</span>
         </button>
       </div>
     </div>
@@ -1574,16 +1583,13 @@ function openDepositModal() {
   if (!currentTgUser) {
     showAppModal({
       icon: '🔐',
-      title: 'ئالدى بىلەن تىزىملاپ كىرىڭ',
-      message: 'قالدۇق قاچىلاش ئۈچۈن، ئالدى بىلەن تېلېگرام ھېساباتىڭىز ئارقىلىق كىرىڭ. شۇنداق بولغاندا قاچىلىغان قالدۇقىڭىز بىۋاسىتە ھېساباتىڭىزغا قوشۇلىدۇ!',
-      confirmText: 'تېلېگرام ئارقىلىق كىرىش ➔',
+      title: 'ئالدى بىلەن تېلېگرامما بوتنى ئۇلاڭ',
+      message: 'قالدۇق قاچىلاش ۋە تالون يوللاش ئۈچۈن، توربەت ھېساباتىڭىزنى ئالدى بىلەن @Autocash_24_bot قا ئۇلاڭ! شۇنداق قىلغاندىلا تالونىڭىز بوتتا 1 سېكۇنتتا دەلىللىنىپ، قاچىلانغان پۇل مۇشۇ توربەتتە، ئەپتە ۋە بوتتا بىرلا ۋاقىتتا دەرھال ئاشىدۇ.',
+      confirmText: '🤖 تېلېگراممىغا ئۇلاش ➔',
       confirmAction: function() {
         openTelegramModal();
       },
-      cancelText: 'شامكەش كۆرۈش',
-      cancelAction: function() {
-        proceedOpenDepositModal();
-      }
+      cancelText: 'كېيىنرەك'
     });
     return;
   }
