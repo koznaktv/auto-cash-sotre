@@ -4126,6 +4126,9 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
         const { approveTelegramLoginSessionAsync } = await import('./telegramAuthSessions');
         await approveTelegramLoginSessionAsync(authToken, user.id);
 
+        // Reset chat menu button to default so the overlapping "AUTO CASH ni echish" WebApp bar is completely removed
+        callBotApi('setChatMenuButton', { chat_id: chatId, menu_button: { type: 'default' } }, config.token).catch(() => {});
+
         // Fetch and persist Telegram avatar if not set
         if (!user.avatarUrl) {
           try {
@@ -4660,64 +4663,6 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
 
         if (fileId) {
           let candidateTx = normalizeTxId(text);
-
-          if (!candidateTx || candidateTx.length < 5) {
-            await api('sendMessage', {
-              chat_id: chatId,
-              text: '🔍 <b>شامكەش تالون سۈرىتى تاپشۇرۇۋېلىندى! ئەقلىي سىستېما تالون نومۇرى ۋە تەپسىلاتىنى ئوقۇۋاتىدۇ...</b>',
-              parse_mode: 'HTML',
-            });
-
-            const fileInfoRes = await callBotApi('getFile', { file_id: fileId }, config.token);
-            if (fileInfoRes && fileInfoRes.ok && fileInfoRes.result?.file_path) {
-              const fileUrl = `https://api.telegram.org/file/bot${config.token}/${fileInfoRes.result.file_path}`;
-              try {
-                const fileRes = await fetch(fileUrl);
-                if (fileRes.ok) {
-                  const arrayBuf = await fileRes.arrayBuffer();
-                  const rawBuf = Buffer.from(arrayBuf);
-                  let imageBufToOcr: Buffer | null = rawBuf;
-
-                  const filePathLower = (fileInfoRes.result.file_path || '').toLowerCase();
-                  const isPdf =
-                    filePathLower.endsWith('.pdf') ||
-                    rawBuf.slice(0, 5).toString('ascii').startsWith('%PDF');
-
-                  if (isPdf) {
-                    const extractedImg = extractImageBufferFromPdf(rawBuf);
-                    if (extractedImg) {
-                      imageBufToOcr = extractedImg;
-                    } else {
-                      imageBufToOcr = null;
-                      // Fallback: check if raw text contains any 7-15 digit string
-                      const latinText = rawBuf.toString('latin1');
-                      const directMatch = latinText.match(/\b([0-9]{7,15})\b/);
-                      if (directMatch && directMatch[1]) {
-                        candidateTx = directMatch[1].trim();
-                      }
-                    }
-                  }
-
-                  if (imageBufToOcr && (!candidateTx || candidateTx.length < 5)) {
-                    const ocrRes = await recognizeReceipt(imageBufToOcr);
-                    if (ocrRes.txId && ocrRes.txId.length >= 5) {
-                      candidateTx = ocrRes.txId;
-                    } else if (ocrRes.text) {
-                      const match = ocrRes.text.match(/\b([0-9]{7,15})\b/);
-                      if (match && match[1]) {
-                        candidateTx = match[1].trim();
-                      } else {
-                        candidateTx = normalizeTxId(ocrRes.text);
-                      }
-                    }
-                  }
-                }
-              } catch (ocrErr: any) {
-                console.warn('[Store Bot Receipt OCR Warn]:', ocrErr?.message);
-              }
-            }
-          }
-
           const attachedFile = {
             fileId,
             isPhoto: Boolean(message.photo),
@@ -4725,53 +4670,126 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
             fileName: message.document?.file_name || (message.photo ? 'receipt.jpg' : 'receipt.pdf'),
           };
 
+          // =========================================================================
+          // 1. INSTANTLY FORWARD FILE/PHOTO TO ADMIN RIGHT AWAY (ZERO DELAY)
+          // =========================================================================
+          const adminReceiptCaption =
+            `📥 <b>خېرىدار تاپشۇرغان شامكەش تالونى!</b>\n\n` +
+            `👤 <b>خېرىدار:</b> ${user.name} (ID: <code>${chatId}</code>)\n` +
+            `📱 <b>تېلېگرام:</b> ${user.telegramUsername ? '@' + user.telegramUsername : 'يوق'}\n` +
+            `📄 <b>ھۆججەت:</b> ${attachedFile.fileName}\n` +
+            (candidateTx ? `🧾 <b>تالون نومۇرى:</b> <code>${candidateTx}</code>\n` : '') +
+            `⏳ <i>سىستېما تەكشۈرۈۋاتىدۇ... كۆرۈپ دەلىللىسىڭىزمۇ بولىدۇ:</i>`;
+
+          const adminActionKeyboard = {
+            inline_keyboard: [
+              [
+                { text: '➕ $5 قوشۇش', callback_data: `admin:quick_add:${user.id}:5` },
+                { text: '➕ $10 قوشۇش', callback_data: `admin:quick_add:${user.id}:10` },
+                { text: '➕ $20 قوشۇش', callback_data: `admin:quick_add:${user.id}:20` },
+              ],
+              [
+                { text: '🔍 خېرىدارنى تەكشۈرۈش', callback_data: `admin:user_lookup:${chatId}` },
+              ],
+            ],
+          };
+
+          if (attachedFile.isPhoto) {
+            await callBotApi('sendPhoto', {
+              chat_id: ADMIN_CHAT_ID,
+              photo: attachedFile.fileId,
+              caption: adminReceiptCaption,
+              parse_mode: 'HTML',
+              reply_markup: adminActionKeyboard,
+            }, config.token).catch(() => {});
+          } else if (attachedFile.isDocument) {
+            await callBotApi('sendDocument', {
+              chat_id: ADMIN_CHAT_ID,
+              document: attachedFile.fileId,
+              caption: adminReceiptCaption,
+              parse_mode: 'HTML',
+              reply_markup: adminActionKeyboard,
+            }, config.token).catch(() => {});
+          }
+
+          // =========================================================================
+          // 2. OCR EXTRACTION WITH STRICT 4-SECOND TIMEOUT PROTECTION
+          // =========================================================================
+          if (!candidateTx || candidateTx.length < 5) {
+            await api('sendMessage', {
+              chat_id: chatId,
+              text: '🔍 <b>شامكەش تالون سۈرىتى تاپشۇرۇۋېلىندى! ئەقلىي سىستېما تالون نومۇرى ۋە تەپسىلاتىنى ئوقۇۋاتىدۇ...</b>',
+              parse_mode: 'HTML',
+            });
+
+            try {
+              const ocrTimeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000));
+              const ocrTask = (async () => {
+                const fileInfoRes = await callBotApi('getFile', { file_id: fileId }, config.token);
+                if (fileInfoRes && fileInfoRes.ok && fileInfoRes.result?.file_path) {
+                  const fileUrl = `https://api.telegram.org/file/bot${config.token}/${fileInfoRes.result.file_path}`;
+                  const fileRes = await fetch(fileUrl);
+                  if (fileRes.ok) {
+                    const arrayBuf = await fileRes.arrayBuffer();
+                    const rawBuf = Buffer.from(arrayBuf);
+                    let imageBufToOcr: Buffer | null = rawBuf;
+
+                    const filePathLower = (fileInfoRes.result.file_path || '').toLowerCase();
+                    const isPdf =
+                      filePathLower.endsWith('.pdf') ||
+                      rawBuf.slice(0, 5).toString('ascii').startsWith('%PDF');
+
+                    if (isPdf) {
+                      const extractedImg = extractImageBufferFromPdf(rawBuf);
+                      if (extractedImg) {
+                        imageBufToOcr = extractedImg;
+                      } else {
+                        imageBufToOcr = null;
+                        const latinText = rawBuf.toString('latin1');
+                        const directMatch = latinText.match(/\b([0-9]{7,15})\b/);
+                        if (directMatch && directMatch[1]) {
+                          return directMatch[1].trim();
+                        }
+                      }
+                    }
+
+                    if (imageBufToOcr) {
+                      const ocrRes = await recognizeReceipt(imageBufToOcr);
+                      if (ocrRes.txId && ocrRes.txId.length >= 5) {
+                        return ocrRes.txId;
+                      } else if (ocrRes.text) {
+                        const match = ocrRes.text.match(/\b([0-9]{7,15})\b/);
+                        if (match && match[1]) {
+                          return match[1].trim();
+                        } else {
+                          return normalizeTxId(ocrRes.text);
+                        }
+                      }
+                    }
+                  }
+                }
+                return null;
+              })();
+
+              const extracted = await Promise.race([ocrTask, ocrTimeout]);
+              if (extracted && extracted.length >= 5) {
+                candidateTx = extracted;
+              }
+            } catch (ocrErr: any) {
+              console.warn('[Store Bot Receipt OCR Warn]:', ocrErr?.message);
+            }
+          }
+
           if (candidateTx && candidateTx.length >= 5) {
             await handleShamCashTxVerify(chatId, candidateTx, user, config, attachedFile);
             return;
           } else {
-            // Deliver the file directly to Admin immediately so admin sees what the customer uploaded!
-            const adminNotifyText =
-              `📥 <b>يېڭى شامكەش تالونى تاپشۇرۇلدى:</b>\n\n` +
-              `👤 <b>خېرىدار:</b> ${user.name} (ID: <code>${chatId}</code>)\n` +
-              `📱 <b>تېلېگرام:</b> ${user.telegramUsername ? `@${user.telegramUsername}` : 'يوق'}\n\n` +
-              `💡 <i>خېرىدار ھۆججەت يوللىدى، ئەمما سۈرەتتىن مەشغۇلات نومۇرى تېپىلمىدى. تالوننى كۆرۈپ، تۆۋەندىكى كۇنۇپكىلاردىن دەلىللەپ پۇل قوشۇپ بەرسىڭىز بولىدۇ:</i>`;
-
-            const adminActionKeyboard = {
-              inline_keyboard: [
-                [
-                  { text: '➕ $5 قوشۇش', callback_data: `admin:quick_add:${user.id}:5` },
-                  { text: '➕ $10 قوشۇش', callback_data: `admin:quick_add:${user.id}:10` },
-                  { text: '➕ $20 قوشۇش', callback_data: `admin:quick_add:${user.id}:20` },
-                ],
-                [
-                  { text: '🔍 خېرىدارنى تەكشۈرۈش', callback_data: `admin:user_lookup:${chatId}` },
-                ],
-              ],
-            };
-
-            if (attachedFile.isPhoto) {
-              await callBotApi('sendPhoto', {
-                chat_id: ADMIN_CHAT_ID,
-                photo: attachedFile.fileId,
-                caption: adminNotifyText,
-                parse_mode: 'HTML',
-                reply_markup: adminActionKeyboard,
-              }, config.token).catch(() => {});
-            } else if (attachedFile.isDocument) {
-              await callBotApi('sendDocument', {
-                chat_id: ADMIN_CHAT_ID,
-                document: attachedFile.fileId,
-                caption: adminNotifyText,
-                parse_mode: 'HTML',
-                reply_markup: adminActionKeyboard,
-              }, config.token).catch(() => {});
-            }
-
             await api('sendMessage', {
               chat_id: chatId,
               text:
-                '⚠️ <b>تالوندىكى رەقەم ئاپتوماتىك ئوقۇلمىدى.</b>\n\n' +
-                'ئەنسىرىمەڭ! تالونىڭىز باشقۇرغۇچىغا تاپشۇرۇلدى. تالوندىكى <b>رقم العملية (مەشغۇلات نومۇرى)</b> نى (مەسىلەن: <code>590071277</code>) يېزىپلا ئەۋەتسىڭىزمۇ، سىستېما دەرھال دەلىللەپ ھېساباتىڭىزغا قاچىلاپ بېرىدۇ!',
+                '⚠️ <b>تالوندىكى مەشغۇلات نومۇرى (رقم العملية) ئاپتوماتىك ئوقۇلمىدى.</b>\n\n' +
+                'ئەنسىرىمەڭ! تالونىڭىز باشقۇرغۇچىغا تاپشۇرۇلدى.\n' +
+                'تالوندىكى <b>رقم العملية (مەشغۇلات نومۇرى)</b> نى (مەسىلەن: <code>590071277</code>) يېزىپلا ئەۋەتسىڭىزمۇ، سىستېما دەرھال دەلىللەپ ھېساباتىڭىزغا قاچىلاپ بېرىدۇ!',
               parse_mode: 'HTML',
             });
             return;

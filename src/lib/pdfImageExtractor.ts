@@ -22,24 +22,38 @@ function makePngChunk(type: string, data: Buffer): Buffer {
 }
 
 export function encodeRawRGBToPNG(width: number, height: number, rgbBuf: Buffer): Buffer {
-  const lineLength = width * 3;
-  const filteredLength = (lineLength + 1) * height;
+  // If resolution is high, downscale to keep Serverless memory & CPU low (<50KB PNG instead of 24MB)
+  let step = 1;
+  if (width > 1200 || height > 1600) {
+    step = 2;
+  }
+  if (width > 2200 || height > 3000) {
+    step = 3;
+  }
+
+  const targetWidth = Math.floor(width / step);
+  const targetHeight = Math.floor(height / step);
+  const lineLength = targetWidth * 3;
+  const filteredLength = (lineLength + 1) * targetHeight;
   const filtered = Buffer.alloc(filteredLength);
 
-  let srcOffset = 0;
   let dstOffset = 0;
-  for (let y = 0; y < height; y++) {
+  for (let y = 0; y < targetHeight; y++) {
     filtered[dstOffset++] = 0; // Filter: 0 (None)
-    rgbBuf.copy(filtered, dstOffset, srcOffset, srcOffset + lineLength);
-    dstOffset += lineLength;
-    srcOffset += lineLength;
+    const srcRowStart = y * step * width * 3;
+    for (let x = 0; x < targetWidth; x++) {
+      const srcIdx = srcRowStart + (x * step * 3);
+      filtered[dstOffset++] = rgbBuf[srcIdx];
+      filtered[dstOffset++] = rgbBuf[srcIdx + 1];
+      filtered[dstOffset++] = rgbBuf[srcIdx + 2];
+    }
   }
 
   const idatData = zlib.deflateSync(filtered);
 
   const ihdrData = Buffer.alloc(13);
-  ihdrData.writeUInt32BE(width, 0);
-  ihdrData.writeUInt32BE(height, 4);
+  ihdrData.writeUInt32BE(targetWidth, 0);
+  ihdrData.writeUInt32BE(targetHeight, 4);
   ihdrData[8] = 8; // 8 bits per channel
   ihdrData[9] = 2; // ColorType 2 = RGB
   ihdrData[10] = 0; // Deflate

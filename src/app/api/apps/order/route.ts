@@ -239,7 +239,7 @@ export async function POST(req: NextRequest) {
     if (providerError) {
       try {
         const { notifyOrderError } = await import('@/lib/telegram');
-        notifyOrderError({
+        await notifyOrderError({
           serviceName: `[MAX-BAZAR] ${getAppServiceName(app_id)} - ${package_name}`,
           amount: itemPrice,
           targetAccount: player_id.trim(),
@@ -318,10 +318,10 @@ export async function POST(req: NextRequest) {
       console.warn('[Central DB Order Sync Warning]:', dbOrderErr?.message);
     }
 
-    // Notify Admin immediately about the new micro-app order
+    // Notify Admin immediately about the new micro-app order (Guaranteed Await)
     try {
       const { notifyNewOrder } = await import('@/lib/telegram');
-      notifyNewOrder({
+      await notifyNewOrder({
         id: orderId,
         serviceName: `[MAX-BAZAR] ${getAppServiceName(app_id)}`,
         packageTitle: package_name,

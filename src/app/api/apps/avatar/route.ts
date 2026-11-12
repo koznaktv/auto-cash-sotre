@@ -51,12 +51,38 @@ async function resolveTelegramChatId(identifier: string): Promise<string | null>
   return null;
 }
 
+function generateFallbackAvatarSvg(label: string): string {
+  const initial = (label || 'A').trim().charAt(0).toUpperCase();
+  let hash = 0;
+  for (let i = 0; i < label.length; i++) hash = label.charCodeAt(i) + ((hash << 5) - hash);
+  const hues = [200, 220, 260, 280, 170, 35];
+  const hue = hues[Math.abs(hash) % hues.length];
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="hsl(${hue}, 85%, 55%)"/>
+      <stop offset="100%" stop-color="hsl(${(hue + 35) % 360}, 85%, 35%)"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="64" fill="url(#g)"/>
+  <text x="64" y="76" font-size="52" font-weight="900" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" fill="#ffffff" text-anchor="middle">${initial}</text>
+</svg>`.trim();
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const rawUser = searchParams.get('user') || searchParams.get('identity') || searchParams.get('id') || '';
     if (!rawUser) {
-      return NextResponse.redirect('https://api.dicebear.com/7.x/bottts/svg?seed=user');
+      const svg = generateFallbackAvatarSvg('User');
+      return new NextResponse(svg, {
+        status: 200,
+        headers: {
+          'Content-Type': 'image/svg+xml; charset=utf-8',
+          'Cache-Control': 'public, max-age=86400',
+        },
+      });
     }
 
     const clean = rawUser.trim().replace(/^@/, '');
@@ -73,7 +99,6 @@ export async function GET(req: NextRequest) {
           const photosData = await photosRes.json();
           if (photosData.ok && photosData.result?.total_count > 0) {
             const photoArray = photosData.result.photos[0];
-            // Take the highest resolution photo (usually last or second)
             const targetPhoto = photoArray[photoArray.length - 1] || photoArray[0];
             if (targetPhoto?.file_id) {
               const fileRes = await fetch(
@@ -103,20 +128,23 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Fallback 1: Telegram public username avatar
-    if (!/^\d+$/.test(clean)) {
-      try {
-        const publicUrl = `https://t.me/i/userpic/320/${clean}.jpg`;
-        const checkRes = await fetch(publicUrl, { method: 'HEAD' });
-        if (checkRes.ok && checkRes.headers.get('content-type')?.startsWith('image')) {
-          return NextResponse.redirect(publicUrl, 307);
-        }
-      } catch {}
-    }
-
-    // Fallback 2: Dicebear SVG avatar
-    return NextResponse.redirect(`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(clean)}`, 307);
+    // Direct inline SVG fallback (100% reliable, zero broken images in Android WebViews)
+    const svg = generateFallbackAvatarSvg(clean);
+    return new NextResponse(svg, {
+      status: 200,
+      headers: {
+        'Content-Type': 'image/svg+xml; charset=utf-8',
+        'Cache-Control': 'public, max-age=86400',
+      },
+    });
   } catch (err: any) {
-    return NextResponse.json({ ok: false, error: err?.message }, { status: 500 });
+    const fallbackSvg = generateFallbackAvatarSvg('User');
+    return new NextResponse(fallbackSvg, {
+      status: 200,
+      headers: {
+        'Content-Type': 'image/svg+xml; charset=utf-8',
+        'Cache-Control': 'public, max-age=86400',
+      },
+    });
   }
 }
