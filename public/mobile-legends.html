@@ -1836,13 +1836,57 @@ function renderTelegramModalContent() {
     return;
   }
 
-  // Default Step 1: Input username or chat ID
+  // One-Tap Telegram Login in Progress View
+  if (otpStep === 'one_tap') {
+    content.innerHTML =
+      '<div class="rounded-2xl p-4 bg-gradient-to-br from-slate-900 to-sky-950/70 border border-sky-400/40 text-center space-y-3.5 shadow-xl">' +
+        '<div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center text-white text-2xl mx-auto shadow-lg shadow-sky-500/30 animate-pulse">' +
+          '<svg class="w-7 h-7 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>' +
+        '</div>' +
+        '<div class="space-y-1">' +
+          '<h4 class="text-sm font-black text-white">تېلېگرام بوتتا «Start» نى بېسىڭ</h4>' +
+          '<p class="text-[11px] text-sky-300">ئىسىم-نومۇر يېزىپ ئاۋارە بولمايسىز، بوتتىن جەزملەنسىلا بۇ بەت دەرھال ئۆزلۈكىدىن كىرىپ تەييار بولىدۇ.</p>' +
+        '</div>' +
+        '<a id="oneTapBotLink" href="' + (oneTapBotUrl || 'https://t.me/Autocash_24_bot') + '" target="_blank" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-400 via-blue-600 to-sky-500 hover:from-sky-300 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 active:scale-95 transition">' +
+          '<span>🤖</span><span>تېلېگرامدا @Autocash_24_bot نى قوزغىتىش (Start) ➔</span>' +
+        '</a>' +
+        '<div class="flex items-center justify-center gap-2 text-[11px] text-amber-300 font-bold">' +
+          '<span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>' +
+          '<span>تېلېگرامدىن كىرىش كۈتۈلمەكتە...</span>' +
+        '</div>' +
+        '<button onclick="cancelOneTapLogin()" class="text-xs text-slate-400 hover:text-white underline pt-1">' +
+          '← ئابونت نامى بىلەن كىرىشكە قايتىش' +
+        '</button>' +
+      '</div>';
+    return;
+  }
+
+  // Default Step 1: Input username or 1-Tap Login
   content.innerHTML = 
-    '<div class="space-y-3.5 text-xs">' +
-      '<div class="p-3 rounded-xl bg-sky-950/30 border border-sky-500/30 text-sky-200 leading-relaxed">' +
-        '✨ <b>AUTO CASH</b> تېلېگرامما ئارقىلىق كىرىش: ئۆزىڭىزنىڭ تېلېگرام نامىنى كىرگۈزسىڭىزلا، <b>@Autocash_24_bot</b> شەخسىي تېلېگرامىڭىزغا 6 خانىلىق كىرىش كودى ئەۋەتىدۇ. كودنى كىرگۈزۈپلا ئەپ بىلەن بوتتىكى قالدۇقىڭىز بىر گەۋدە بولىدۇ!' +
+    '<div class="space-y-3 text-xs">' +
+      // 1-Click Telegram Direct Login Card
+      '<div class="p-3.5 rounded-2xl bg-gradient-to-br from-sky-950/70 via-blue-950/40 to-slate-900 border border-sky-400/40 shadow-lg text-center space-y-2.5">' +
+        '<div class="flex items-center justify-center gap-1.5 text-white font-black text-xs">' +
+          '<span class="text-sm">⚡️</span>' +
+          '<span>تېلېگرامما ئارقىلىق 1لا چېكىپ كىرىش</span>' +
+        '</div>' +
+        '<p class="text-[11px] text-sky-200/80 leading-relaxed">' +
+          'ئىسىم-نومۇر يېزىپ ئاۋارە بولمايسىز. كۇنۇپكىنى بېسىپ <b>@Autocash_24_bot</b> قا كىرسىڭىز، سېكۇنت ئىچىدە كىرىپ تەييار بولىدۇ!' +
+        '</p>' +
+        '<button onclick="startOneTapTelegramLogin()" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-400 via-blue-600 to-sky-500 hover:from-sky-300 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 active:scale-95 transition-all">' +
+          '<svg class="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>' +
+          '<span>🚀 1لا چېكىپ كىرىش (تەۋسىيە)</span>' +
+        '</button>' +
       '</div>' +
 
+      // Divider
+      '<div class="flex items-center gap-2 text-[10px] text-slate-500 font-bold justify-center pt-0.5">' +
+        '<div class="flex-1 h-[1px] bg-slate-800"></div>' +
+        '<span>ياكى ئابونت نامى / كود ئارقىلىق كىرىڭ</span>' +
+        '<div class="flex-1 h-[1px] bg-slate-800"></div>' +
+      '</div>' +
+
+      // Manual Input
       '<div class="space-y-1.5">' +
         '<label class="text-xs font-bold text-slate-300 flex items-center justify-between">' +
           '<span>تېلېگرام كىملىكى ياكى ئابونت نامىڭىز:</span>' +
@@ -1853,17 +1897,92 @@ function renderTelegramModalContent() {
 
       '<div id="otpAlertBox" class="hidden p-2.5 rounded-xl text-xs font-bold border"></div>' +
 
-      '<button id="sendOtpBtn" onclick="requestTelegramOtp()" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-500 via-blue-600 to-sky-500 hover:from-sky-400 hover:to-blue-500 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 active:scale-95 transition">' +
+      '<button id="sendOtpBtn" onclick="requestTelegramOtp()" class="w-full py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-bold text-xs flex items-center justify-center gap-2 active:scale-95 transition">' +
         '<svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>' +
-        '<span id="sendOtpBtnText">📩 تېلېگراممىغا دەلىللەش كودى ئەۋەتىش</span>' +
+        '<span id="sendOtpBtnText">📩 تېلېگراممىغا كىرىش كودى ئەۋەتىش</span>' +
       '</button>' +
-
-      '<div class="pt-2 border-t border-slate-800/80">' +
-        '<a href="https://t.me/Autocash_24_bot" target="_blank" class="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-sky-300 font-bold text-xs flex items-center justify-center gap-1.5 transition">' +
-          '<span>🤖</span><span>تېلېگرامدا @Autocash_24_bot نى بىۋاستە ئېچىش</span>' +
-        '</a>' +
-      '</div>' +
     '</div>';
+}
+
+var telegramAuthPollInterval = null;
+var oneTapBotUrl = '';
+
+async function startOneTapTelegramLogin() {
+  otpStep = 'one_tap';
+  renderTelegramModalContent();
+
+  try {
+    var res = await fetch('/api/auth/telegram-session', { method: 'POST' });
+    var data = await res.json();
+    if (!data.success || !data.token || !data.botUrl) {
+      showOtpAlert('تېلېگرام ئالاقىسى تەييارلانمىدى: ' + (data.message || 'قايتا سىناڭ'), 'error');
+      otpStep = 'input';
+      renderTelegramModalContent();
+      return;
+    }
+
+    oneTapBotUrl = data.botUrl;
+    var linkBtn = document.getElementById('oneTapBotLink');
+    if (linkBtn) linkBtn.href = data.botUrl;
+
+    try {
+      window.open(data.botUrl, '_blank');
+    } catch (_) {}
+
+    if (telegramAuthPollInterval) clearInterval(telegramAuthPollInterval);
+    var pollCount = 0;
+    telegramAuthPollInterval = setInterval(async function() {
+      pollCount++;
+      if (pollCount > 120) {
+        clearInterval(telegramAuthPollInterval);
+        otpStep = 'input';
+        renderTelegramModalContent();
+        showOtpAlert('ۋاقىت ئۆتۈپ كەتتى، قايتا سىناڭ.', 'error');
+        return;
+      }
+      try {
+        var pollRes = await fetch('/api/auth/telegram-session?token=' + encodeURIComponent(data.token));
+        var pollData = await pollRes.json();
+        if (pollData && pollData.approved && pollData.user) {
+          clearInterval(telegramAuthPollInterval);
+          var u = pollData.user;
+          currentTgUser = {
+            id: u.telegramChatId || u.id,
+            username: u.telegramUsername || u.name,
+            name: u.name,
+            photo: u.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(u.name || 'user'),
+            balance: u.balance || 0
+          };
+          localStorage.setItem('autocash_tg_user', JSON.stringify(currentTgUser));
+          walletBalance = Number(u.balance || 0);
+          otpStep = 'input';
+          updateDisplays();
+          updateTelegramHeader();
+          renderTelegramModalContent();
+          showAppModal({
+            title: 'مۇۋەپپەقىيەتلىك كىردىڭىز',
+            message: '🎉 تېلېگرامما ئارقىلىق 1 سېكۇنتتا مۇۋەپپەقىيەتلىك كىردىڭىز! ھەميان قالدۇقىڭىز: $' + walletBalance.toFixed(2) + ' USD',
+            icon: '✅',
+            confirmText: 'ماقۇل'
+          });
+        }
+      } catch (_) {}
+    }, 1500);
+
+  } catch (err) {
+    otpStep = 'input';
+    renderTelegramModalContent();
+    showOtpAlert('كاشىلا كۆرۈلدى: ' + (err.message || 'قايتا سىناڭ'), 'error');
+  }
+}
+
+function cancelOneTapLogin() {
+  if (telegramAuthPollInterval) {
+    clearInterval(telegramAuthPollInterval);
+    telegramAuthPollInterval = null;
+  }
+  otpStep = 'input';
+  renderTelegramModalContent();
 }
 
 async function requestTelegramOtp() {
@@ -1904,10 +2023,21 @@ async function requestTelegramOtp() {
       otpStep = 'verify';
       renderTelegramModalContent();
     } else {
-      var err = (data && data.error) ? data.error : 'بۇ تېلېگرامما ئىسمى بويىچە بوتتا خېرىدار تېپىلمىدى. ئالدى بىلەن @Autocash_24_bot قا بىر قېتىم كىرىپ /start نى بېسىڭ ياكى تېلېگرام كىملىك نومۇرىڭىزنى كىرگۈزۈڭ.';
-      showOtpAlert(err, 'error');
+      var err = (data && data.error) ? data.error : 'بۇ تېلېگرامما ئىسمى بويىچە بوتتا تېخى خېرىدار باغلانماپتۇ.';
+      var box = document.getElementById('otpAlertBox');
+      if (box) {
+        box.classList.remove('hidden');
+        box.className = 'p-3 rounded-xl text-xs font-bold transition-all border bg-amber-950/80 border-amber-500 text-amber-200 flex flex-col gap-2';
+        box.innerHTML = 
+          '<div class="flex items-center gap-1.5"><span>⚠️</span><span class="flex-1">' + err + '</span></div>' +
+          '<button onclick="startOneTapTelegramLogin()" class="w-full py-2 px-3 rounded-lg bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow active:scale-95 transition">' +
+            '<span>🤖</span><span>ھازىرلا 1لا چېكىپ بوتتا «Start» بېسىپ كىرىش</span>' +
+          '</button>';
+      } else {
+        showOtpAlert(err, 'error');
+      }
       btn.disabled = false;
-      btnText.textContent = '📩 تېلېگراممىغا دەلىللەش كودى ئەۋەتىش';
+      btnText.textContent = '📩 تېلېگراممىغا كىرىش كودى ئەۋەتىش';
     }
   } catch (err) {
     showOtpAlert('كود ئەۋەتىش مەغلۇپ بولدى: ' + (err.message || 'قايتا سىناڭ'), 'error');

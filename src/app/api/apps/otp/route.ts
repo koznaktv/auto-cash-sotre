@@ -223,7 +223,7 @@ function sanitizeCode(c: any): string {
     .trim();
 }
 
-function getTelegramUserChatId(identifier: string): string | null {
+async function getTelegramUserChatIdAsync(identifier: string): Promise<string | null> {
   const clean = identifier.trim().replace(/@/g, '').toLowerCase();
   if (/^\d+$/.test(clean)) return clean;
 
@@ -246,7 +246,46 @@ function getTelegramUserChatId(identifier: string): string | null {
     } catch {}
   }
 
+  // Check DB for registered telegram username
+  try {
+    const dbUser = await getUserByTelegramUsernameAsync(clean);
+    if (dbUser && dbUser.telegramChatId) {
+      return String(dbUser.telegramChatId);
+    }
+  } catch {}
+
   // Fallback check admin username from env
+  const adminUser = (process.env.TELEGRAM_ADMIN_USERNAME || 'nasrulla0996').toLowerCase();
+  const adminChat = process.env.TELEGRAM_ADMIN_CHAT_ID || '7575664493';
+  if (clean === adminUser && adminChat) {
+    return adminChat;
+  }
+
+  return null;
+}
+
+function getTelegramUserChatId(identifier: string): string | null {
+  const clean = identifier.trim().replace(/@/g, '').toLowerCase();
+  if (/^\d+$/.test(clean)) return clean;
+
+  const usersFile = path.join(SESSIONS_DIR, 'telegram_users.json');
+  try {
+    if (fs.existsSync(usersFile)) {
+      const mapping = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
+      if (mapping[clean]) return String(mapping[clean]);
+    }
+  } catch {}
+
+  if (IS_SERVERLESS) {
+    try {
+      const bundled = path.join(process.cwd(), 'data', 'micro_apps', 'telegram_users.json');
+      if (fs.existsSync(bundled)) {
+        const mapping = JSON.parse(fs.readFileSync(bundled, 'utf-8'));
+        if (mapping[clean]) return String(mapping[clean]);
+      }
+    } catch {}
+  }
+
   const adminUser = (process.env.TELEGRAM_ADMIN_USERNAME || 'nasrulla0996').toLowerCase();
   const adminChat = process.env.TELEGRAM_ADMIN_CHAT_ID || '7575664493';
   if (clean === adminUser && adminChat) {
@@ -275,13 +314,21 @@ function saveTelegramUserChatId(identifier: string, chatId: string | number) {
   } catch {}
 }
 
-async function sendTelegramOtpMessage(target: string, code: string, appName: string): Promise<{ sent: boolean; error?: string }> {
+async function sendTelegramOtpMessage(
+  target: string,
+  code: string,
+  appName: string
+): Promise<{ sent: boolean; error?: string; notRegistered?: boolean; botUrl?: string }> {
   try {
-    const chatId = getTelegramUserChatId(target);
+    const chatId = await getTelegramUserChatIdAsync(target);
     if (!chatId) {
+      const { createTelegramLoginSessionAsync } = await import('@/lib/telegramAuthSessions');
+      const session = await createTelegramLoginSessionAsync().catch(() => null);
       return {
         sent: false,
-        error: `بۇ تېلېگرامما ئىسمى بويىچە بېكەتكە باغلانغان خېرىدار تېپىلمىدى. ئالدى بىلەن @${BOT_USERNAME} قا بىر قېتىم كىرىپ /start نى بېسىڭ ياكى تېلېگرام كىملىك نومۇرىڭىزنى كىرگۈزۈڭ.`,
+        notRegistered: true,
+        botUrl: session?.botUrl || `https://t.me/${BOT_USERNAME}`,
+        error: `بۇ تېلېگرامما ئىسمى بويىچە بېكەتكە تېخى بوت باغلانماپتۇ. تۆۋەندىكى كۇنۇپكىنى 1لا بېسىپ @${BOT_USERNAME} دا «Start (باشلاش)» كۇنۇپكىسىنى بېسىڭ، ئاپتوماتىك بايلىنىپ كىرىدۇ!`,
       };
     }
 
@@ -303,7 +350,17 @@ async function sendTelegramOtpMessage(target: string, code: string, appName: str
       }),
     });
     const data = await res.json();
-    return { sent: Boolean(data?.ok), error: data?.description };
+    if (!data.ok) {
+      const { createTelegramLoginSessionAsync } = await import('@/lib/telegramAuthSessions');
+      const session = await createTelegramLoginSessionAsync().catch(() => null);
+      return {
+        sent: false,
+        notRegistered: true,
+        botUrl: session?.botUrl || `https://t.me/${BOT_USERNAME}`,
+        error: `تېلېگرام بوت سىزگە كود يوللىيالمىدى (سىز تېخى بوتنى قوزغاتماپسىز). ئاستىدىكى كۇنۇپكىنى بېسىپ @${BOT_USERNAME} دا «Start» نى بېسىپ بېرىڭ!`,
+      };
+    }
+    return { sent: true };
   } catch (err: any) {
     return { sent: false, error: err?.message };
   }
@@ -552,20 +609,22 @@ export async function POST(req: NextRequest) {
       otpStore.set(globalKey, entry);
       saveOtpStore(otpStore);
 
-      // Attempt Telegram dispatch directly to @maxbazar_bot
+      // Attempt Telegram dispatch directly to bot
       const dispatch = await sendTelegramOtpMessage(cleanIdentity, generatedCode, appName);
       if (!dispatch.sent && dispatch.error) {
         return NextResponse.json({
           ok: false,
+          not_registered: Boolean(dispatch.notRegistered),
+          bot_url: dispatch.botUrl,
           error: dispatch.error,
-        }, { status: 400 });
+        }, { status: 200 });
       }
 
       return NextResponse.json({
         ok: true,
         expires_in: 600,
         otp_sig: signature,
-        message: 'دەلىللەش كودى @maxbazar_bot تېلېگرامما بوتىڭىزغا ئەۋەتىلدى (10 مىنۇت كۈچكە ئىگە).',
+        message: `دەلىللەش كودى @${BOT_USERNAME} تېلېگرامما بوتىڭىزغا ئەۋەتىلدى (10 مىنۇت كۈچكە ئىگە).`,
       });
     }
 
