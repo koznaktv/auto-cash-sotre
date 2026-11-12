@@ -2831,9 +2831,29 @@ export const PROMOTIONAL_ADS: Record<string, PromotionalAdDef> = {
 // ==========================================
 // 6. MAIN WEBHOOK HANDLER (UNIFIED)
 // ==========================================
+const PROCESSED_UPDATES = new Map<number, number>();
+
+function isDuplicateUpdate(updateId?: number): boolean {
+  if (!updateId) return false;
+  const now = Date.now();
+  if (PROCESSED_UPDATES.has(updateId)) {
+    return true;
+  }
+  PROCESSED_UPDATES.set(updateId, now);
+  if (PROCESSED_UPDATES.size > 2000) {
+    PROCESSED_UPDATES.forEach((ts, id) => {
+      if (now - ts > 120000) PROCESSED_UPDATES.delete(id);
+    });
+  }
+  return false;
+}
+
 export async function handleStoreBotWebhook(update: any, configOverride?: Partial<BotConfig>) {
   try {
     if (!update) return;
+    if (update.update_id && isDuplicateUpdate(update.update_id)) {
+      return;
+    }
 
     const config: BotConfig = {
       ...DEFAULT_AUTOCASH_BOT_CONFIG,
@@ -3356,6 +3376,43 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
             await showMessage(chatId, messageId, errText, { inline_keyboard });
             return;
           }
+        }
+
+        if (action.startsWith('quick_add:')) {
+          const parts = action.split(':');
+          const targetUid = parts[1];
+          const addAmt = parseFloat(parts[2]);
+          if (targetUid && !isNaN(addAmt) && addAmt > 0) {
+            try {
+              const { creditUnifiedWalletBalance } = await import('@/lib/appWallets');
+              const res = await creditUnifiedWalletBalance(targetUid, addAmt);
+              if (res.success) {
+                await api('answerCallbackQuery', {
+                  callback_query_id: cqId,
+                  text: `✅ +$${addAmt} USD قوشۇلدى! يېڭى قالدۇق: $${res.newBalance.toFixed(2)}`,
+                  show_alert: true,
+                });
+                await api('sendMessage', {
+                  chat_id: chatId,
+                  text: `✅ <b>مۇۋەپپەقىيەتلىك پۇل قوشۇلدى!</b>\n\n👤 <b>خېرىدار ID / ئىسمى:</b> <code>${targetUid}</code>\n💰 <b>قوشۇلغان سومما:</b> <b>+$${addAmt.toFixed(2)} USD</b>\n💳 <b>يېڭى قالدۇقى:</b> <b>$${res.newBalance.toFixed(2)} USD</b>`,
+                  parse_mode: 'HTML',
+                });
+              } else {
+                await api('answerCallbackQuery', {
+                  callback_query_id: cqId,
+                  text: '⚠️ پۇل قوشۇش مەغلۇپ بولدى',
+                  show_alert: true,
+                });
+              }
+            } catch (qErr: any) {
+              await api('answerCallbackQuery', {
+                callback_query_id: cqId,
+                text: `⚠️ خاتالىق: ${qErr?.message || 'كاشىلا'}`,
+                show_alert: true,
+              });
+            }
+          }
+          return;
         }
       }
 
@@ -4020,20 +4077,28 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
         const { approveTelegramLoginSessionAsync } = await import('./telegramAuthSessions');
         await approveTelegramLoginSessionAsync(authToken, user.id);
 
-        const returnUrl = `${SITE_URL}/apps`;
+        // Fetch and persist Telegram avatar if not set
+        if (!user.avatarUrl) {
+          try {
+            const avatarUrl = `/api/apps/avatar?user=${chatId}`;
+            user.avatarUrl = avatarUrl;
+            const { updateUserAsync } = await import('./db');
+            await updateUserAsync(user.id, { avatarUrl } as any);
+          } catch {}
+        }
+
+        const customerId = user.telegramChatId || chatId;
         await api('sendMessage', {
           chat_id: chatId,
           text:
-            `🎉 <b>${config.brand} غا كىرىش مۇۋەپپەقىيەتلىك تەستىقلاندى!</b>\n\n` +
-            `<tg-emoji emoji-id="5201906965478930360">👤</tg-emoji> ھېساباتىڭىز: <b>${user.name}</b>\n` +
-            `<tg-emoji emoji-id="5204179389725568654">💰</tg-emoji> ئورتاق قالدۇقىڭىز: <b>$${Number(
+            `🎉 <b>«${config.brand}» سىستېمىسىغا كىرىش مۇۋەپپەقىيەتلىك تەستىقلاندى!</b>\n\n` +
+            `🆔 <b>خېرىدار ID نومۇرىڭىز:</b> <code>${customerId}</code>\n` +
+            `<tg-emoji emoji-id="5201906965478930360">👤</tg-emoji> <b>ھېساباتىڭىز:</b> <b>${user.name}</b>\n` +
+            `<tg-emoji emoji-id="5204179389725568654">💰</tg-emoji> <b>ئورتاق قالدۇقىڭىز:</b> <b>$${Number(
               user.balance || 0
             ).toFixed(2)} USD</b>\n\n` +
-            `⚡️ ھازىر توربەت ياكى ئەپكە قايتسىڭىز، ھېساباتىڭىز ئۆزلۈكىدىن كىرىپ تەييار بولدى!`,
+            `⚡️ ھازىر ئەپ ياكى توربەتكە قايتسىڭىز، ھېساباتىڭىز ئۆزلۈكىدىن كىرىپ تەييار بولدى!`,
           parse_mode: 'HTML',
-          reply_markup: {
-            inline_keyboard: [[{ text: `🛍️ ${config.brand} نى ئېچىش`, web_app: { url: returnUrl } }]],
-          },
         });
       } catch (err: any) {
         console.error('[Store Bot Auth Error]:', err?.message);
@@ -4131,6 +4196,145 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
         await api('sendMessage', {
           chat_id: chatId,
           text: `⚠️ <b>خاتالىق:</b> ${addErr?.message || 'ئىچكى خاتالىق'}`,
+          parse_mode: 'HTML',
+        });
+      }
+      return;
+    }
+
+    // B.3.9.0 Admin Customer Investigation & ID Lookup Command (/user <id>, /check <id>, or raw numeric ID)
+    const userLookupMatch =
+      text.match(/^\/(?:user|check|id|find|search|lookup)\s+(\S+)/i) ||
+      (isAdmin && /^\d{5,16}$/.test(text) ? [text, text] : null) ||
+      (isAdmin && /^@\w{3,32}$/.test(text) ? [text, text] : null);
+
+    if (userLookupMatch && isAdmin) {
+      const searchTarget = userLookupMatch[1].trim();
+      const cleanTarget = searchTarget.replace(/^@/, '');
+
+      try {
+        const {
+          getUserByTelegramChatIdAsync,
+          getUserByTelegramUsernameAsync,
+          getUserByIdAsync,
+          getUserByEmailAsync,
+          getOrdersByUserIdAsync,
+        } = await import('./db');
+
+        let targetUser = null;
+        if (/^\d+$/.test(cleanTarget)) {
+          targetUser = await getUserByTelegramChatIdAsync(cleanTarget);
+        }
+        if (!targetUser) {
+          targetUser = await getUserByTelegramUsernameAsync(cleanTarget);
+        }
+        if (!targetUser) {
+          targetUser = await getUserByIdAsync(searchTarget);
+        }
+        if (!targetUser) {
+          targetUser = await getUserByEmailAsync(searchTarget);
+        }
+
+        if (!targetUser) {
+          await api('sendMessage', {
+            chat_id: chatId,
+            text:
+              `🔍 <b>خېرىدار تېپىلمىدى!</b>\n\n` +
+              `كۆرسىتىلگەن ID ياكى ئىشلەتكۈچى (<code>${searchTarget}</code>) بويىچە سىستېمىدا ھېچقانداق خېرىدار ئۇچۇرى بايقالمىدى.\n\n` +
+              `💡 <i>ئەسكەرتىش: خېرىدارنىڭ Telegram ID نومۇرى ياكى @username نامىنى قايتا سىناڭ.</i>`,
+            parse_mode: 'HTML',
+          });
+          return;
+        }
+
+        // Fetch recent orders
+        const orders = (await getOrdersByUserIdAsync(targetUser.id, targetUser.email)) || [];
+        const recentOrders = orders.slice(0, 5);
+
+        let ordersSummary = '';
+        if (recentOrders.length === 0) {
+          ordersSummary = '<i>تېخى سېتىۋېلىش زاكاز خاتىرىسى يوق.</i>';
+        } else {
+          ordersSummary = recentOrders
+            .map((o: any, idx: number) => {
+              const dateStr = o.createdAt ? new Date(o.createdAt).toLocaleDateString() : '';
+              const statusEmoji = o.status === 'completed' ? '✅' : o.status === 'pending' ? '⏳' : '❌';
+              return (
+                `<b>${idx + 1}.</b> ${statusEmoji} <code>${o.serviceName || 'مەھسۇلات'}</code> - ${o.packageTitle || ''}\n` +
+                `   💰 $${Number(o.amount || 0).toFixed(2)} | 🎯 نىشان: <code>${o.targetAccount || '---'}</code> | 📅 ${dateStr}`
+              );
+            })
+            .join('\n');
+        }
+
+        // Fetch ShamCash deposits from DB if available
+        let depositsSummary = '';
+        try {
+          const { getSupabase } = await import('./supabase');
+          const sb = getSupabase();
+          if (sb && targetUser.telegramChatId) {
+            const { data: deposits } = await sb
+              .from('shamcash_deposits')
+              .select('*')
+              .eq('user_id', targetUser.id)
+              .order('created_at', { ascending: false })
+              .limit(3);
+
+            if (deposits && deposits.length > 0) {
+              depositsSummary = deposits
+                .map((d: any) => {
+                  const s = d.status === 'approved' ? '✅' : d.status === 'pending' ? '⏳' : '❌';
+                  return `• ${s} <b>$${Number(d.amount_usd || 0).toFixed(2)} USD</b> (تالون: <code>${d.bill_number || d.receipt_number || d.id?.slice(0, 8)}</code>)`;
+                })
+                .join('\n');
+            }
+          }
+        } catch {}
+
+        const customerId = targetUser.telegramChatId || targetUser.id;
+        const dossierText =
+          `🔍 <b>خېرىدار ئارخىپى & تولۇق تەكشۈرۈش دوكلاتى</b>\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n` +
+          `🆔 <b>خېرىدار ID:</b> <code>${customerId}</code>\n` +
+          `👤 <b>ئىسىم-فامىلىسى:</b> <b>${targetUser.name}</b>\n` +
+          `📱 <b>تېلېگرام:</b> ${targetUser.telegramUsername ? `@${targetUser.telegramUsername}` : 'يوق'}\n` +
+          `💰 <b>ھازىرقى قالدۇقى:</b> <b>$${Number(targetUser.balance || 0).toFixed(2)} USD</b>\n` +
+          `👑 <b>VIP دەرىجىسى:</b> <b>${(targetUser.vipTier || 'VIP1').toUpperCase()}</b>\n` +
+          `💳 <b>ئومۇمىي خەجلىگىنى:</b> $${Number(targetUser.totalSpent || 0).toFixed(2)} USD\n` +
+          `📅 <b>تىزىملاتقان ۋاقتى:</b> ${targetUser.createdAt ? new Date(targetUser.createdAt).toLocaleDateString() : 'نامەلۇم'}\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n` +
+          `📦 <b>ئاخىرقى زاكازلىرى (ئەڭ يېڭى ${recentOrders.length} زاكاز):</b>\n` +
+          ordersSummary +
+          (depositsSummary ? `\n━━━━━━━━━━━━━━━━━━━━\n💎 <b>شامكەش تالون كىرگۈزۈشلىرى:</b>\n${depositsSummary}` : '') +
+          `\n━━━━━━━━━━━━━━━━━━━━\n` +
+          `⚡ <i>قالدۇق تەڭشەش ئۈچۈن تۆۋەندىكى تۈگمىنى بېسىڭ ياكى <code>/add ${customerId} &lt;سومما&gt;</code> دەپ يېزىڭ.</i>`;
+
+        const actionKeyboard = {
+          inline_keyboard: [
+            [
+              { text: '➕ $5 قوشۇش', callback_data: `admin:quick_add:${targetUser.id}:5` },
+              { text: '➕ $10 قوشۇش', callback_data: `admin:quick_add:${targetUser.id}:10` },
+              { text: '➕ $20 قوشۇش', callback_data: `admin:quick_add:${targetUser.id}:20` },
+            ],
+            [
+              {
+                text: '🖥️ تور باشقۇرۇش مەركىزىدە ئېچىش',
+                url: `${SITE_URL}/admin?tab=users&search=${encodeURIComponent(customerId)}`,
+              },
+            ],
+          ],
+        };
+
+        await api('sendMessage', {
+          chat_id: chatId,
+          text: dossierText,
+          parse_mode: 'HTML',
+          reply_markup: actionKeyboard,
+        });
+      } catch (err: any) {
+        await api('sendMessage', {
+          chat_id: chatId,
+          text: `⚠️ <b>تەكشۈرۈش جەريانىدا كاشىلا كۆرۈلدى:</b> ${err?.message || 'ئىچكى خاتالىق'}`,
           parse_mode: 'HTML',
         });
       }

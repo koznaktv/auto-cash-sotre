@@ -88,6 +88,7 @@ interface SafeUser {
   image?: string;
   avatar?: string;
   telegramUsername?: string;
+  telegramChatId?: string | number;
   balance: number;
   totalSpent: number;
   vipTier: string;
@@ -3199,12 +3200,18 @@ export default function AdminPage() {
 
   // Filtered & Sorted Users (Default: Most Deposited first, then Highest Customer Profit)
   const filteredUsers = useMemo(() => {
-    const list = users.filter(
-      (u) =>
-        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (u.phone && u.phone.includes(searchQuery))
-    );
+    const q = searchQuery.toLowerCase().trim();
+    const list = users.filter((u) => {
+      if (!q) return true;
+      return (
+        u.name.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q) ||
+        (u.phone && u.phone.includes(q)) ||
+        (u.id && u.id.toLowerCase().includes(q)) ||
+        (u.telegramUsername && u.telegramUsername.toLowerCase().includes(q)) ||
+        (u.telegramChatId && String(u.telegramChatId).includes(q))
+      );
+    });
 
     return [...list].sort((a, b) => {
       const stA = userStatsMap.get(a.id) || { totalDeposited: 0, totalSpent: a.totalSpent || 0, customerProfit: 0, orderCount: 0 };
@@ -5276,7 +5283,9 @@ export default function AdminPage() {
                                   )}
                                 </div>
                                 <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono mt-0.5">
-                                  <span className="text-cyan-400">#{user.id.slice(0, 8)}</span>
+                                  <span className="text-cyan-400 font-bold bg-cyan-950/60 px-1.5 py-0.5 rounded border border-cyan-800/40" title="خېرىدار ID نومۇرى">
+                                    🆔 {user.telegramChatId || user.id.slice(0, 8)}
+                                  </span>
                                   {user.telegramUsername && (
                                     <span className="text-sky-400">@{user.telegramUsername}</span>
                                   )}

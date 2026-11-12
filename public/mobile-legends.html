@@ -1683,6 +1683,17 @@ function initTelegramAuth() {
     } catch (_) {}
   }
 
+  if (currentTgUser) {
+    // If photo is missing or dicebear fallback, upgrade to real Telegram avatar
+    if (!currentTgUser.photo || currentTgUser.photo.indexOf('dicebear') !== -1) {
+      var cid = currentTgUser.id || currentTgUser.username;
+      if (cid) {
+        currentTgUser.photo = '/api/apps/avatar?user=' + encodeURIComponent(cid);
+        try { localStorage.setItem('autocash_tg_user', JSON.stringify(currentTgUser)); } catch(_) {}
+      }
+    }
+  }
+
   if (!currentTgUser) {
     walletBalance = 0.00;
   }
@@ -1703,15 +1714,17 @@ function updateTelegramHeader() {
 
   if (currentTgUser) {
     var rawName = currentTgUser.name || currentTgUser.username || ('ID: ' + currentTgUser.id);
+    var custId = currentTgUser.id || '---';
+    var photoSrc = currentTgUser.photo || ('/api/apps/avatar?user=' + encodeURIComponent(custId));
     container.innerHTML = 
-      '<div onclick="openTelegramModal()" class="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-slate-900/90 border border-sky-500/50 hover:border-sky-300 cursor-pointer shrink-0 select-none whitespace-nowrap active:scale-95 shadow-sm" title="تېلېگرام: @' + (currentTgUser.username || currentTgUser.id) + '">' +
+      '<div onclick="openTelegramModal()" class="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-slate-900/90 border border-sky-500/50 hover:border-sky-300 cursor-pointer shrink-0 select-none whitespace-nowrap active:scale-95 shadow-sm" title="خېرىدار ID: ' + custId + '">' +
         '<div class="relative w-6 h-6 shrink-0">' +
-          '<img src="' + currentTgUser.photo + '" class="w-full h-full rounded-full object-cover border border-sky-400 shadow-sm" onerror="this.src=\'https://api.dicebear.com/7.x/bottts/svg?seed=user\'"/>' +
+          '<img src="' + photoSrc + '" class="w-full h-full rounded-full object-cover border border-sky-400 shadow-sm" onerror="this.src=\'https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(custId) + '\'"/>' +
           '<span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-slate-950 animate-pulse"></span>' +
         '</div>' +
         '<div class="flex flex-col text-right leading-none min-w-0">' +
           '<span dir="ltr" class="text-xs font-bold text-sky-100 max-w-[95px] sm:max-w-[130px] truncate font-mono text-left inline-block">' + rawName + '</span>' +
-          '<span class="text-[8.5px] text-emerald-400 font-bold mt-0.5">ئۇلاندى ✓</span>' +
+          '<span class="text-[8.5px] text-amber-300 font-mono font-bold mt-0.5">ID: ' + custId + '</span>' +
         '</div>' +
       '</div>';
   } else {
@@ -1760,14 +1773,20 @@ function renderTelegramModalContent() {
   if (!content) return;
 
   if (currentTgUser) {
+    var custId = currentTgUser.id || '---';
+    var photoSrc = currentTgUser.photo || ('/api/apps/avatar?user=' + encodeURIComponent(custId));
     content.innerHTML = 
       '<div class="rounded-2xl p-4 bg-gradient-to-br from-slate-900 to-sky-950/40 border border-sky-500/40 space-y-3">' +
         '<div class="flex items-center gap-3">' +
-          '<img src="' + currentTgUser.photo + '" class="w-12 h-12 rounded-2xl object-cover border-2 border-sky-400 shadow-md shrink-0" onerror="this.src=\'https://api.dicebear.com/7.x/bottts/svg?seed=user\'"/>' +
-          '<div class="flex-1">' +
-            '<h4 class="text-sm font-black text-white">' + (currentTgUser.name || currentTgUser.username) + '</h4>' +
-            '<p class="text-xs text-sky-300 font-mono">@' + (currentTgUser.username || '') + '</p>' +
-            '<p class="text-[10px] text-slate-400 font-mono mt-0.5">ID: ' + (currentTgUser.id || '---') + '</p>' +
+          '<img src="' + photoSrc + '" class="w-12 h-12 rounded-2xl object-cover border-2 border-sky-400 shadow-md shrink-0" onerror="this.src=\'https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(custId) + '\'"/>' +
+          '<div class="flex-1 min-w-0">' +
+            '<h4 class="text-sm font-black text-white truncate">' + (currentTgUser.name || currentTgUser.username) + '</h4>' +
+            '<p class="text-xs text-sky-300 font-mono truncate">@' + (currentTgUser.username || '') + '</p>' +
+            '<div class="mt-1 flex items-center gap-1.5 bg-slate-950/80 px-2 py-0.5 rounded-lg border border-slate-800 inline-flex">' +
+              '<span class="text-[10px] text-amber-300 font-bold">🆔 خېرىدار ID:</span>' +
+              '<span class="text-[10px] text-white font-mono font-bold">' + custId + '</span>' +
+              '<button type="button" onclick="navigator.clipboard.writeText(\'' + custId + '\'); showOtpAlert(\'خېرىدار ID كۆچۈرۈۋېلىندى! 📋\', \'success\');" class="text-[9px] text-sky-400 hover:text-sky-200 font-bold px-1.5 py-0.2 rounded bg-sky-950/90 border border-sky-800 active:scale-90 transition">📋 كۆچۈرۈش</button>' +
+            '</div>' +
           '</div>' +
           '<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/30">ئۇلاندى 🟢</span>' +
         '</div>' +
@@ -1946,11 +1965,13 @@ async function startOneTapTelegramLogin() {
         if (pollData && pollData.approved && pollData.user) {
           clearInterval(telegramAuthPollInterval);
           var u = pollData.user;
+          var custId = u.telegramChatId || u.id;
+          var photoUrl = u.avatarUrl || ('/api/apps/avatar?user=' + encodeURIComponent(custId));
           currentTgUser = {
-            id: u.telegramChatId || u.id,
+            id: custId,
             username: u.telegramUsername || u.name,
             name: u.name,
-            photo: u.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(u.name || 'user'),
+            photo: photoUrl,
             balance: u.balance || 0
           };
           localStorage.setItem('autocash_tg_user', JSON.stringify(currentTgUser));
@@ -2103,11 +2124,13 @@ async function verifyTelegramOtp() {
 
     if (data && data.ok && data.session) {
       var sess = data.session;
+      var custId = sess.identity;
+      var photoUrl = sess.photo_url || ('/api/apps/avatar?user=' + encodeURIComponent(custId));
       currentTgUser = {
-        id: sess.identity,
+        id: custId,
         name: sess.identity,
         username: sess.identity,
-        photo: sess.photo_url || ('https://t.me/i/userpic/320/' + sess.identity + '.jpg'),
+        photo: photoUrl,
         token: sess.token
       };
       if (typeof sess.balance === 'number') {

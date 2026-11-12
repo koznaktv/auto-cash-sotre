@@ -53,7 +53,9 @@ export function toSafeUser(user: UserRecord) {
     telegramUsername: user.telegramUsername || undefined,
     telegram_handle: user.telegramUsername || undefined,
     telegramChatId: user.telegramChatId || undefined,
-    avatarUrl: (user.avatarUrl && !user.avatarUrl.startsWith('data:')) ? user.avatarUrl : undefined,
+    avatarUrl: (user.avatarUrl && !user.avatarUrl.startsWith('data:'))
+      ? user.avatarUrl
+      : (user.telegramChatId ? `/api/apps/avatar?user=${user.telegramChatId}` : undefined),
     balance: user.balance,
     maxstoreBalance: (user as any).maxstoreBalance ?? (user as any).maxstore_balance ?? 0.0,
     totalSpent: user.totalSpent,
