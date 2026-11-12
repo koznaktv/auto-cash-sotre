@@ -4378,6 +4378,28 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
         if (Array.isArray(message.photo) && message.photo.length > 0) {
           fileId = message.photo[message.photo.length - 1].file_id;
         } else if (message.document) {
+          const mime = (message.document.mime_type || '').toLowerCase();
+          const fileName = (message.document.file_name || '').toLowerCase();
+          const isAllowed =
+            mime.startsWith('image/') ||
+            mime === 'application/pdf' ||
+            /\.(jpe?g|png|webp|pdf)$/i.test(fileName);
+          if (!isAllowed) {
+            await api('sendMessage', {
+              chat_id: chatId,
+              text: '🛡️ <b>بىخەتەرلىك قوغدىنىشى:</b> پەقەت رەسمىي شامكەش تالونىنىڭ سۈرىتى (JPG, PNG) ياكى PDF ھۆججىتىلا قوبۇل قىلىنىدۇ! باشقا ھۆججەتلەر بىخەتەرلىك تۈپەيلىدىن دەرھال رەت قىلىنىدۇ.',
+              parse_mode: 'HTML',
+            });
+            return;
+          }
+          if (message.document.file_size && message.document.file_size > 8 * 1024 * 1024) {
+            await api('sendMessage', {
+              chat_id: chatId,
+              text: '⚠️ <b>ھۆججەت سىغىمى بەك چوڭ:</b> تالون ھۆججىتى 8MB دىن ئاشماسلىقى كېرەك.',
+              parse_mode: 'HTML',
+            });
+            return;
+          }
           fileId = message.document.file_id;
         }
 
