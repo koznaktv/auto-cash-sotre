@@ -2225,7 +2225,8 @@ async function handleShamCashTxVerify(
   chatId: number | string,
   txId: string,
   user: any,
-  config: BotConfig
+  config: BotConfig,
+  attachedFile?: { fileId: string; isPhoto?: boolean; isDocument?: boolean; fileName?: string }
 ) {
   const cleanTxId = normalizeTxId(txId);
   const ADMIN_CHAT_ID = String(process.env.TELEGRAM_ADMIN_CHAT_ID || '7575664493').trim();
@@ -2348,6 +2349,37 @@ async function handleShamCashTxVerify(
             },
             config.token
           );
+
+          // Send file and notification to Admin immediately!
+          const autoAlertText =
+            `🎉 <b>شامكەش تالونى ئاپتوماتىك دەلىللەندى ھەم پۇل چۈشتى!</b>\n\n` +
+            `🧾 <b>تالون نومۇرى:</b> <code>${cleanTxId}</code>\n` +
+            `💵 <b>قوشۇلغان سومما:</b> <b>+$${creditedAmount.toFixed(2)} USD</b>\n` +
+            `👤 <b>خېرىدار:</b> ${user.name} (ID: <code>${chatId}</code>)\n` +
+            `💰 <b>يېڭى قالدۇقى:</b> $${updatedBalance.toFixed(2)} USD`;
+
+          if (attachedFile?.isPhoto) {
+            await callBotApi('sendPhoto', {
+              chat_id: ADMIN_CHAT_ID,
+              photo: attachedFile.fileId,
+              caption: autoAlertText,
+              parse_mode: 'HTML',
+            }, config.token).catch(() => {});
+          } else if (attachedFile?.isDocument) {
+            await callBotApi('sendDocument', {
+              chat_id: ADMIN_CHAT_ID,
+              document: attachedFile.fileId,
+              caption: autoAlertText,
+              parse_mode: 'HTML',
+            }, config.token).catch(() => {});
+          } else {
+            await callBotApi('sendMessage', {
+              chat_id: ADMIN_CHAT_ID,
+              text: autoAlertText,
+              parse_mode: 'HTML',
+            }, config.token).catch(() => {});
+          }
+
           return;
         }
       }
@@ -2386,6 +2418,23 @@ async function handleShamCashTxVerify(
     },
     config.token
   );
+
+  // Send original receipt file/photo to Admin immediately!
+  if (attachedFile?.isPhoto) {
+    await callBotApi('sendPhoto', {
+      chat_id: ADMIN_CHAT_ID,
+      photo: attachedFile.fileId,
+      caption: `📥 <b>خېرىدار تاپشۇرغان شامكەش تالون سۈرىتى</b>\n🧾 تالون (TxID): <code>${cleanTxId}</code>\n👤 خېرىدار: ${user.name} (ID: <code>${chatId}</code>)`,
+      parse_mode: 'HTML',
+    }, config.token).catch(() => {});
+  } else if (attachedFile?.isDocument) {
+    await callBotApi('sendDocument', {
+      chat_id: ADMIN_CHAT_ID,
+      document: attachedFile.fileId,
+      caption: `📥 <b>خېرىدار تاپشۇرغان شامكەش تالون ھۆججىتى (${attachedFile.fileName || 'PDF'})</b>\n🧾 تالون (TxID): <code>${cleanTxId}</code>\n👤 خېرىدار: ${user.name} (ID: <code>${chatId}</code>)`,
+      parse_mode: 'HTML',
+    }, config.token).catch(() => {});
+  }
 
   // Send 1-tap approval card to Admin
   const adminAlertText =
@@ -4669,15 +4718,60 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
             }
           }
 
+          const attachedFile = {
+            fileId,
+            isPhoto: Boolean(message.photo),
+            isDocument: Boolean(message.document),
+            fileName: message.document?.file_name || (message.photo ? 'receipt.jpg' : 'receipt.pdf'),
+          };
+
           if (candidateTx && candidateTx.length >= 5) {
-            await handleShamCashTxVerify(chatId, candidateTx, user, config);
+            await handleShamCashTxVerify(chatId, candidateTx, user, config, attachedFile);
             return;
           } else {
+            // Deliver the file directly to Admin immediately so admin sees what the customer uploaded!
+            const adminNotifyText =
+              `📥 <b>يېڭى شامكەش تالونى تاپشۇرۇلدى:</b>\n\n` +
+              `👤 <b>خېرىدار:</b> ${user.name} (ID: <code>${chatId}</code>)\n` +
+              `📱 <b>تېلېگرام:</b> ${user.telegramUsername ? `@${user.telegramUsername}` : 'يوق'}\n\n` +
+              `💡 <i>خېرىدار ھۆججەت يوللىدى، ئەمما سۈرەتتىن مەشغۇلات نومۇرى تېپىلمىدى. تالوننى كۆرۈپ، تۆۋەندىكى كۇنۇپكىلاردىن دەلىللەپ پۇل قوشۇپ بەرسىڭىز بولىدۇ:</i>`;
+
+            const adminActionKeyboard = {
+              inline_keyboard: [
+                [
+                  { text: '➕ $5 قوشۇش', callback_data: `admin:quick_add:${user.id}:5` },
+                  { text: '➕ $10 قوشۇش', callback_data: `admin:quick_add:${user.id}:10` },
+                  { text: '➕ $20 قوشۇش', callback_data: `admin:quick_add:${user.id}:20` },
+                ],
+                [
+                  { text: '🔍 خېرىدارنى تەكشۈرۈش', callback_data: `admin:user_lookup:${chatId}` },
+                ],
+              ],
+            };
+
+            if (attachedFile.isPhoto) {
+              await callBotApi('sendPhoto', {
+                chat_id: ADMIN_CHAT_ID,
+                photo: attachedFile.fileId,
+                caption: adminNotifyText,
+                parse_mode: 'HTML',
+                reply_markup: adminActionKeyboard,
+              }, config.token).catch(() => {});
+            } else if (attachedFile.isDocument) {
+              await callBotApi('sendDocument', {
+                chat_id: ADMIN_CHAT_ID,
+                document: attachedFile.fileId,
+                caption: adminNotifyText,
+                parse_mode: 'HTML',
+                reply_markup: adminActionKeyboard,
+              }, config.token).catch(() => {});
+            }
+
             await api('sendMessage', {
               chat_id: chatId,
               text:
                 '⚠️ <b>تالوندىكى رەقەم ئاپتوماتىك ئوقۇلمىدى.</b>\n\n' +
-                'ئەنسىرىمەڭ! تالوندىكى <b>رقم العملية (مەشغۇلات نومۇرى)</b> نى (مەسىلەن: <code>590071277</code>) يېزىپلا ئەۋەتسىڭىز، سىستېما دەرھال دەلىللەپ ھېساباتىڭىزغا قاچىلاپ بېرىدۇ!',
+                'ئەنسىرىمەڭ! تالونىڭىز باشقۇرغۇچىغا تاپشۇرۇلدى. تالوندىكى <b>رقم العملية (مەشغۇلات نومۇرى)</b> نى (مەسىلەن: <code>590071277</code>) يېزىپلا ئەۋەتسىڭىزمۇ، سىستېما دەرھال دەلىللەپ ھېساباتىڭىزغا قاچىلاپ بېرىدۇ!',
               parse_mode: 'HTML',
             });
             return;
