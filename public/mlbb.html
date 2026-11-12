@@ -286,7 +286,7 @@
       </div>
 
       <!-- ================= 2-قەدەم (STEP 2): ئالماس بوغچىسى تاللاش ================= -->
-      <div class="space-y-2">
+      <div id="step2Section" class="space-y-2">
         <div class="flex justify-between items-center px-1">
           <label class="text-xs font-black text-white flex items-center gap-1.5">
             <span class="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs font-mono font-bold">2</span>
@@ -399,7 +399,7 @@
     <!-- ================= STICKY BOTTOM ACTION BAR ================= -->
     <div class="absolute bottom-0 left-0 right-0 p-3 bg-[#070b14]/95 backdrop-blur-xl border-t border-slate-800 flex items-center justify-between z-30">
       <div>
-        <span class="text-xs text-slate-400 block truncate max-w-[140px]" id="bottomPkgName">Weekly Diamond Pass</span>
+        <span class="text-xs text-slate-400 block truncate max-w-[140px]" id="bottomPkgName">ھەپتىلىك كارتا</span>
         <div class="flex items-baseline gap-1">
           <span class="text-xs text-slate-400">جەمئىي:</span>
           <span class="text-base font-black text-amber-400 font-mono leading-none" id="bottomTotalUsd">1.41 $</span>
@@ -446,7 +446,7 @@
           </div>
           <div class="flex justify-between items-center text-slate-400">
             <span class="font-sans">بوغچا:</span>
-            <span id="procPkg" class="font-bold text-cyan-400">Weekly Diamond Pass</span>
+            <span id="procPkg" class="font-bold text-cyan-400">ھەپتىلىك كارتا</span>
           </div>
           <div class="flex justify-between items-center text-slate-400 pt-1 border-t border-slate-800">
             <span class="font-sans">تەمىنلىگۈچى:</span>
@@ -649,18 +649,18 @@
         serverTitle: 'گىلوبال',
         flag: '🌐',
         packages: [
-          { id: 1896, name: 'Weekly Diamond Pass', subtext: '210 ئالماس + كۈندىلىك', price: 1.41, badge: 'ئەڭ مودا', isVip: true },
-          { id: 1891, name: '55 ئالماس', subtext: '50 + 5 بونس', price: 0.72, badge: '' },
-          { id: 1893, name: '86 ئالماس', subtext: '78 + 8 بونس', price: 1.13, badge: 'مودا' },
-          { id: 1897, name: 'Weekly Elite Pack', subtext: 'ھەپتىلىك ئېلىت كارتىسى', price: 0.73, badge: '' },
-          { id: 1883, name: '165 ئالماس', subtext: '150 + 15 بونس', price: 2.16, badge: '' },
-          { id: 1886, name: '275 ئالماس', subtext: '250 + 25 بونس', price: 3.47, badge: 'تەۋسىيە' },
-          { id: 1894, name: 'Monthly Elite Pack', subtext: 'ئايلىق ئېلىت كارتىسى', price: 3.65, badge: 'VIP' },
-          { id: 1890, name: '429 ئالماس', subtext: '390 + 39 بونس', price: 5.50, badge: '' },
-          { id: 1895, name: 'Twilight Pass', subtext: 'شەپەق ئەزالىق كارتىسى', price: 7.44, badge: 'مەخسۇس', isVip: true },
-          { id: 1892, name: '706 ئالماس', subtext: '625 + 81 بونس', price: 8.87, badge: '' },
-          { id: 1880, name: '1050 ئالماس', subtext: '930 + 120 بونس', price: 13.39, badge: 'چوڭ بولاق' },
-          { id: 1887, name: '3073 ئالماس', subtext: '2730 + 343 بونس', price: 37.98, badge: 'تېز سېتىلىش' },
+          { id: 1896, name: 'ھەپتىلىك كارتا', subtext: '210 ئالماس', price: 1.41, isVip: true },
+          { id: 1891, name: '55 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 0.72 },
+          { id: 1893, name: '86 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 1.13 },
+          { id: 1897, name: 'ھەپتىلىك ئېلىت كارتا', subtext: 'ئېلىت كارتىسى', price: 0.73 },
+          { id: 1883, name: '165 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 2.16 },
+          { id: 1886, name: '275 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 3.47 },
+          { id: 1894, name: 'ئايلىق ئېلىت كارتا', subtext: 'ئېلىت كارتىسى', price: 3.65 },
+          { id: 1890, name: '429 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 5.50 },
+          { id: 1895, name: 'شەپەق كارتىسى', subtext: 'Twilight Pass', price: 7.44, isVip: true },
+          { id: 1892, name: '706 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 8.87 },
+          { id: 1880, name: '1050 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 13.39 },
+          { id: 1887, name: '3073 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 37.98 },
         ]
       },
       turkey: {
@@ -668,18 +668,18 @@
         serverTitle: 'تۈركىيە',
         flag: '🇹🇷',
         packages: [
-          { id: 967, name: 'Weekly Diamond Pass', subtext: '210 ئالماس + كۈندىلىك', price: 1.65, badge: 'HOT PASS', isVip: true },
-          { id: 958, name: '16 ئالماس', subtext: 'تېز تەكشۈرۈش ئالمىسى', price: 0.23, badge: '' },
-          { id: 961, name: '44 ئالماس', subtext: '40 + 4 بونس', price: 0.65, badge: '' },
-          { id: 968, name: 'Weekly Elite Pack', subtext: 'ھەپتىلىك ئېلىت كارتىسى', price: 0.84, badge: '' },
-          { id: 964, name: '88 ئالماس', subtext: '80 + 8 بونس', price: 1.29, badge: 'ئەڭ ئەرزان' },
-          { id: 957, name: '133 ئالماس', subtext: '120 + 13 بونس', price: 1.94, badge: '' },
-          { id: 959, name: '221 ئالماس', subtext: '200 + 21 بونس', price: 3.23, badge: 'تەۋسىيە' },
-          { id: 966, name: 'Monthly Elite Pack', subtext: 'ئايلىق ئېلىت كارتىسى', price: 4.15, badge: 'VIP' },
-          { id: 962, name: '494 ئالماس', subtext: '440 + 54 بونس', price: 7.18, badge: 'مودا' },
-          { id: 956, name: '1041 ئالماس', subtext: '930 + 111 بونس', price: 14.38, badge: 'چوڭ بولاق' },
-          { id: 960, name: '2645 ئالماس', subtext: '2360 + 285 بونس', price: 35.91, badge: 'VIP' },
-          { id: 963, name: '6146 ئالماس', subtext: '5500 + 646 بونس', price: 81.97, badge: 'مەخسۇس' },
+          { id: 967, name: 'ھەپتىلىك كارتا', subtext: '210 ئالماس', price: 1.65, isVip: true },
+          { id: 958, name: '16 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 0.23 },
+          { id: 961, name: '44 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 0.65 },
+          { id: 968, name: 'ھەپتىلىك ئېلىت كارتا', subtext: 'ئېلىت كارتىسى', price: 0.84 },
+          { id: 964, name: '88 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 1.29 },
+          { id: 957, name: '133 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 1.94 },
+          { id: 959, name: '221 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 3.23 },
+          { id: 966, name: 'ئايلىق ئېلىت كارتا', subtext: 'ئېلىت كارتىسى', price: 4.15 },
+          { id: 962, name: '494 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 7.18 },
+          { id: 956, name: '1041 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 14.38 },
+          { id: 960, name: '2645 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 35.91 },
+          { id: 963, name: '6146 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 81.97 },
         ]
       },
       special: {
@@ -687,16 +687,16 @@
         serverTitle: 'فىلىپپىن',
         flag: '🇵🇭',
         packages: [
-          { id: 954, name: 'Weekly Diamond Pass', subtext: '210 ئالماس + كۈندىلىك', price: 2.09, badge: 'HOT PASS', isVip: true },
-          { id: 941, name: '14 ئالماس', subtext: 'تېز سىناق ئالمىسى', price: 0.24, badge: '' },
-          { id: 948, name: '28 ئالماس', subtext: 'تېز ئالماس', price: 0.49, badge: '' },
-          { id: 951, name: '42 ئالماس', subtext: 'ئالاھىدە بولاق', price: 0.73, badge: '' },
-          { id: 952, name: '55 ئالماس', subtext: '50 + 5 بونس', price: 0.95, badge: '' },
-          { id: 955, name: 'Weekly Elite Pack', subtext: 'ھەپتىلىك كارتىسى', price: 0.95, badge: '' },
-          { id: 943, name: '165 ئالماس', subtext: '150 + 15 بونس', price: 2.84, badge: '' },
-          { id: 947, name: '275 ئالماس', subtext: '250 + 25 بونس', price: 4.74, badge: 'تەۋسىيە' },
-          { id: 953, name: 'Monthly Elite Pack', subtext: 'ئايلىق ئېلىت كارتىسى', price: 4.71, badge: 'VIP' },
-          { id: 950, name: '355 ئالماس', subtext: '315 + 40 بونس', price: 6.10, badge: '' },
+          { id: 954, name: 'ھەپتىلىك كارتا', subtext: '210 ئالماس', price: 2.09, isVip: true },
+          { id: 941, name: '14 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 0.24 },
+          { id: 948, name: '28 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 0.49 },
+          { id: 951, name: '42 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 0.73 },
+          { id: 952, name: '55 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 0.95 },
+          { id: 955, name: 'ھەپتىلىك ئېلىت كارتا', subtext: 'ئېلىت كارتىسى', price: 0.95 },
+          { id: 943, name: '165 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 2.84 },
+          { id: 947, name: '275 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 4.74 },
+          { id: 953, name: 'ئايلىق ئېلىت كارتا', subtext: 'ئېلىت كارتىسى', price: 4.71 },
+          { id: 950, name: '355 ئالماس', subtext: 'رەسمىي قاچىلاش', price: 6.10 },
         ]
       }
     };
@@ -714,7 +714,7 @@
 
     // Transactions History
     let productOrders = [
-      { id: 'ML-99104', pkg: 'Weekly Diamond Pass', price: 1.65, nick: 'マヒル', server: '🇹🇷 تۈركىيە', time: '14:20', status: 'قاچىلاندى 100% ✓' },
+      { id: 'ML-99104', pkg: 'ھەپتىلىك كارتا', price: 1.65, nick: 'マヒル', server: '🇹🇷 تۈركىيە', time: '14:20', status: 'قاچىلاندى 100% ✓' },
       { id: 'ML-88231', pkg: '55 ئالماس', price: 0.72, nick: '亗 NASRULLA 亗', server: '🌐 گىلوبال', time: 'تۈنۈگۈن', status: 'قاچىلاندى 100% ✓' }
     ];
 
@@ -860,6 +860,12 @@
         renderPackages();
         updateDisplays();
 
+        // As soon as ID is verified, smoothly scroll down to the packages section!
+        setTimeout(() => {
+          const step2 = document.getElementById('step2Section');
+          if (step2) step2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
+
       } catch (err) {
         console.warn('Search query error:', err);
         const z = parseInt(res.zone, 10);
@@ -881,6 +887,12 @@
 
           renderPackages();
           updateDisplays();
+
+          // Smoothly scroll down to packages section!
+          setTimeout(() => {
+            const step2 = document.getElementById('step2Section');
+            if (step2) step2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 300);
         } else {
           showErrorState();
         }
@@ -986,10 +998,8 @@
           selectPackage(pkg);
         };
 
-        const badgeHtml = pkg.badge ? 
-          '<span class="absolute -top-2 left-2 text-xs font-bold px-1.5 py-0.2 rounded-full ' + (pkg.isVip ? 'bg-amber-500 text-slate-950' : 'bg-cyan-600 text-white') + ' shadow font-mono">' + pkg.badge + '</span>' : '';
-
-        div.innerHTML = badgeHtml + 
+        // No badges on top of package cards per user request
+        div.innerHTML = 
           '<div class="flex items-center justify-between mt-0.5">' +
             '<span class="text-xs font-black text-white">' + pkg.name + '</span>' +
             '<span class="' + (pkg.isVip ? 'mythic-crown-anim text-sm' : 'mlbb-gem-anim text-sm') + '">' + (pkg.isVip ? '👑' : '💎') + '</span>' +
@@ -1016,6 +1026,22 @@
         }
       });
       updateDisplays();
+
+      // As soon as package is selected, smoothly scroll down to bottom "ھازىرلا قاچىلاش" section!
+      const mainContainer = document.querySelector('.overflow-y-auto');
+      if (mainContainer) {
+        mainContainer.scrollTo({
+          top: mainContainer.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+      const payBtn = document.getElementById('payBtn');
+      if (payBtn) {
+        payBtn.classList.add('ring-2', 'ring-amber-400', 'scale-[1.03]');
+        setTimeout(() => {
+          payBtn.classList.remove('ring-2', 'ring-amber-400', 'scale-[1.03]');
+        }, 800);
+      }
     }
 
     function updateDisplays() {
