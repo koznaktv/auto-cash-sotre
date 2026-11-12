@@ -14,6 +14,7 @@ import {
   getDepositByIdAsync,
 } from './db';
 import { verifyShamcashTransaction, normalizeTxId, getTsaConfig } from './providers/tsaShamcash';
+import { extractImageBufferFromPdf } from './pdfImageExtractor';
 
 /**
  * AUTO CASH & MAX-BAZAR Interactive Telegram Shopping Engine
@@ -4416,21 +4417,63 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
             const fileInfoRes = await callBotApi('getFile', { file_id: fileId }, config.token);
             if (fileInfoRes && fileInfoRes.ok && fileInfoRes.result?.file_path) {
               const fileUrl = `https://api.telegram.org/file/bot${config.token}/${fileInfoRes.result.file_path}`;
+              let worker: any = null;
               try {
-                const { createWorker } = await import('tesseract.js');
-                const worker = await createWorker('eng');
-                const ret = await worker.recognize(fileUrl);
-                await worker.terminate();
+                const fileRes = await fetch(fileUrl);
+                if (fileRes.ok) {
+                  const arrayBuf = await fileRes.arrayBuffer();
+                  const rawBuf = Buffer.from(arrayBuf);
+                  let imageBufToOcr: Buffer | null = rawBuf;
 
-                const ocrText = ret?.data?.text || '';
-                const digitMatch = ocrText.match(/\b([0-9]{7,15})\b/);
-                if (digitMatch && digitMatch[1]) {
-                  candidateTx = digitMatch[1].trim();
-                } else {
-                  candidateTx = normalizeTxId(ocrText);
+                  const filePathLower = (fileInfoRes.result.file_path || '').toLowerCase();
+                  const isPdf =
+                    filePathLower.endsWith('.pdf') ||
+                    rawBuf.slice(0, 5).toString('ascii').startsWith('%PDF');
+
+                  if (isPdf) {
+                    const extractedImg = extractImageBufferFromPdf(rawBuf);
+                    if (extractedImg) {
+                      imageBufToOcr = extractedImg;
+                    } else {
+                      imageBufToOcr = null;
+                      // Fallback: check if raw text contains any 7-15 digit string
+                      const latinText = rawBuf.toString('latin1');
+                      const directMatch = latinText.match(/\b([0-9]{7,15})\b/);
+                      if (directMatch && directMatch[1]) {
+                        candidateTx = directMatch[1].trim();
+                      }
+                    }
+                  }
+
+                  if (imageBufToOcr && (!candidateTx || candidateTx.length < 5)) {
+                    const { createWorker } = await import('tesseract.js');
+                    worker = await createWorker('eng', 1, {
+                      errorHandler: (err) => console.warn('[Tesseract Worker Warn]:', err?.message || err),
+                    });
+
+                    const ocrPromise = worker.recognize(imageBufToOcr);
+                    const timeoutPromise = new Promise<never>((_, reject) =>
+                      setTimeout(() => reject(new Error('OCR Timeout (15s)')), 15000)
+                    );
+
+                    const ret: any = await Promise.race([ocrPromise, timeoutPromise]);
+                    const ocrText = ret?.data?.text || '';
+                    const digitMatch = ocrText.match(/\b([0-9]{7,15})\b/);
+                    if (digitMatch && digitMatch[1]) {
+                      candidateTx = digitMatch[1].trim();
+                    } else {
+                      candidateTx = normalizeTxId(ocrText);
+                    }
+                  }
                 }
               } catch (ocrErr: any) {
                 console.warn('[Store Bot Receipt OCR Warn]:', ocrErr?.message);
+              } finally {
+                if (worker) {
+                  try {
+                    await worker.terminate();
+                  } catch {}
+                }
               }
             }
           }
@@ -4442,8 +4485,8 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
             await api('sendMessage', {
               chat_id: chatId,
               text:
-                '⚠️ <b>تالوندىكى رەقەم ئېنىق ئوقۇلمىدى.</b>\n\n' +
-                'ئەگەر تالون سۈرىتى غۇۋا بولسا، تالوندىكى <b>رقم العملية (مەشغۇلات نومۇرى)</b> نى خەت ھالىتىدە بىۋاسىتە ئەۋەتسىڭىزمۇ دەرھال دەلىللىنىدۇ!',
+                '⚠️ <b>تالوندىكى رەقەم ئاپتوماتىك ئوقۇلمىدى.</b>\n\n' +
+                'ئەنسىرىمەڭ! تالوندىكى <b>رقم العملية (مەشغۇلات نومۇرى)</b> نى (مەسىلەن: <code>590071277</code>) يېزىپلا ئەۋەتسىڭىز، سىستېما دەرھال دەلىللەپ ھېساباتىڭىزغا قاچىلاپ بېرىدۇ!',
               parse_mode: 'HTML',
             });
             return;

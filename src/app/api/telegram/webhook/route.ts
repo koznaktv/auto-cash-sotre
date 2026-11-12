@@ -9,6 +9,7 @@ import {
 } from '@/lib/telegram';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 let lastTgWebhookPollTime = 0;
 let lastReceivedUpdate: any = null;
