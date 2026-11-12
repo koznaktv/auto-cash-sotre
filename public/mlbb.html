@@ -1330,48 +1330,46 @@ async function submitDeposit() {
     var errorMsg = '';
 
     // Target identity from Telegram Login
-    var targetIdentity = currentTgUser ? (currentTgUser.username || currentTgUser.id || currentTgUser.name) : 'guest_web_user';
-
-    // 1. Attempt live Next.js backend API
-    try {
-      var endpoints = ['/api/deposit/verify-talon', 'http://localhost:3000/api/deposit/verify-talon'];
-      for (var i = 0; i < endpoints.length; i++) {
-        var ep = endpoints[i];
-        try {
-          var res = await fetch(ep, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ talon: cleanTalon, identity: targetIdentity })
-          });
-          if (res.ok) {
-            var data = await res.json();
-            if (data.success && data.amount > 0) {
-              verifiedAmount = Number(data.amount);
-              if (data.newBalance) walletBalance = Number(data.newBalance);
-              else walletBalance += verifiedAmount;
-              isRealApiDone = true;
-              break;
-            } else if (data.message || data.error) {
-              errorMsg = data.message || data.error;
-            }
-          }
-        } catch (_) {}
-      }
-    } catch (_) {}
-
-    if (!isRealApiDone && errorMsg) {
-      showDepositAlert(errorMsg, 'error');
+    var targetIdentity = currentTgUser ? (currentTgUser.username || currentTgUser.id || currentTgUser.name) : '';
+    if (!targetIdentity) {
+      showDepositAlert('قالدۇق قاچىلاش ئۈچۈن ئالدى بىلەن تېلېگرام ھېساباتىڭىز ئارقىلىق كىرىڭ!', 'error');
       submitBtn.disabled = false;
       submitText.textContent = oldHtml;
       return;
     }
 
-    // 2. Direct online verification / fallback calculation if standalone without Next.js server
+    // Call live Next.js backend API (TSA ShamCash Gateway)
+    try {
+      var res = await fetch('/api/deposit/verify-talon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ talon: cleanTalon, identity: targetIdentity })
+      });
+      var data = await res.json().catch(function() { return null; });
+      if (res.ok && data && data.success && Number(data.amount) > 0) {
+        verifiedAmount = Number(data.amount);
+        if (data.newBalance !== undefined && data.newBalance !== null) {
+          walletBalance = Number(data.newBalance);
+        } else {
+          walletBalance += verifiedAmount;
+        }
+        isRealApiDone = true;
+      } else if (data && (data.message || data.error)) {
+        errorMsg = data.message || data.error;
+      } else {
+        errorMsg = 'خاتا تالون نومۇرى! مەزكۇر تالون شامكەش تورىدا تېپىلمىدى.';
+      }
+    } catch (fetchErr) {
+      console.warn('API error:', fetchErr);
+      errorMsg = 'مۇلازىمېتىرغا ئۇلىنىش مەغلۇپ بولدى، تورنى تەكشۈرۈپ قايتا سىناڭ!';
+    }
+
+    // STRICT REJECTION: If NOT verified by real ShamCash API, credit ZERO and reject!
     if (!isRealApiDone) {
-      var hashDigits = parseInt(cleanTalon.replace(/\D/g, '').slice(-2) || '25', 10);
-      var amounts = [15.00, 25.00, 30.00, 50.00, 75.00, 100.00];
-      verifiedAmount = amounts[hashDigits % amounts.length] || 25.00;
-      walletBalance += verifiedAmount;
+      showDepositAlert(errorMsg || 'خاتا تالون نومۇرى! مەزكۇر تالون شامكەش سىستېمىسىدا تېپىلمىدى ياكى كۈچكە ئىگە ئەمەس.', 'error');
+      submitBtn.disabled = false;
+      submitText.textContent = oldHtml;
+      return;
     }
 
     usedTalonsSession.add(cleanTalon);

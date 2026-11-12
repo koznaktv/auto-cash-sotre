@@ -96,36 +96,71 @@ export async function POST(req: Request) {
       );
     }
 
-    // 2. Check with TSA API if configured
+    // 2. Strict Real ShamCash Verification via TSA API
     const tsaConfig = await getTsaConfig().catch(() => null);
-    let topupAmount = 25.00; // Default verified amount
+    let topupAmount = 0;
     let isRealTsaVerified = false;
 
-    if (tsaConfig?.autoDepositEnabled && tsaConfig.apiKey && tsaConfig.shamcashAddress) {
-      const verifyRes = await verifyShamcashTransaction(cleanTalon, {
-        apiKey: tsaConfig.apiKey,
-        accountAddress: tsaConfig.shamcashAddress,
-        exchangeRate: tsaConfig.exchangeRate,
-      }).catch(() => null);
+    if (!tsaConfig?.apiKey || !tsaConfig?.shamcashAddress) {
+      return NextResponse.json(
+        {
+          success: false,
+          ok: false,
+          error: 'شامكەش ئاپتوماتىك دەلىللەش قاچىلانمىغان. تالونىڭىزنى تېلېگرام بوتقا ئەۋەتىپ دەلىللىتىڭ.',
+          message: 'شامكەش ئاپتوماتىك دەلىللەش قاچىلانمىغان. تالونىڭىزنى تېلېگرام بوتقا ئەۋەتىپ دەلىللىتىڭ.',
+        },
+        { status: 503 }
+      );
+    }
 
-      if (verifyRes?.expired) {
-        return NextResponse.json(
-          {
-            success: false,
-            ok: false,
-            error: 'بۇ تالوننىڭ مۇددىتى ئۆتۈپ كەتكەن (كونا تالون)!',
-            message: 'بۇ تالوننىڭ مۇددىتى ئۆتۈپ كەتكەن (كونا تالون)!',
-          },
-          { status: 400 }
-        );
-      }
+    const verifyRes = await verifyShamcashTransaction(cleanTalon, {
+      apiKey: tsaConfig.apiKey,
+      accountAddress: tsaConfig.shamcashAddress,
+      exchangeRate: tsaConfig.exchangeRate,
+    }).catch(() => null);
 
-      if (verifyRes?.success && verifyRes.found && verifyRes.transaction) {
-        isRealTsaVerified = true;
-        if (verifyRes.transaction.usdAmount > 0) {
-          topupAmount = Number(verifyRes.transaction.usdAmount.toFixed(2));
-        }
+    if (verifyRes?.expired) {
+      return NextResponse.json(
+        {
+          success: false,
+          ok: false,
+          error: 'بۇ تالوننىڭ مۇددىتى ئۆتۈپ كەتكەن (كونا تالون)!',
+          message: 'بۇ تالوننىڭ مۇددىتى ئۆتۈپ كەتكەن (كونا تالون)!',
+        },
+        { status: 400 }
+      );
+    }
+
+    if (verifyRes?.success && verifyRes.found && verifyRes.transaction) {
+      isRealTsaVerified = true;
+      if (verifyRes.transaction.usdAmount > 0) {
+        topupAmount = Number(verifyRes.transaction.usdAmount.toFixed(2));
+      } else if (verifyRes.transaction.amount > 0 && tsaConfig.exchangeRate > 0) {
+        topupAmount = Number((verifyRes.transaction.amount / tsaConfig.exchangeRate).toFixed(2));
       }
+    } else {
+      // STRICT: Talon is invalid, not found, or not arrived yet!
+      return NextResponse.json(
+        {
+          success: false,
+          ok: false,
+          error: verifyRes?.message || verifyRes?.error || 'خاتا ياكى مەۋجۇت بولمىغان شامكەش تالونى! پۇل يۆتكەش تالون نومۇرى شامكەش سىستېمىسىدا تېپىلمىدى.',
+          message: verifyRes?.message || verifyRes?.error || 'خاتا ياكى مەۋجۇت بولمىغان شامكەش تالونى! پۇل يۆتكەش تالون نومۇرى شامكەش سىستېمىسىدا تېپىلمىدى.',
+        },
+        { status: 400 }
+      );
+    }
+
+    if (topupAmount <= 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          ok: false,
+          error: 'تالوندىكى پۇل سوممىسى نۆل ياكى ئېنىق ئەمەس!',
+          message: 'تالوندىكى پۇل سوممىسى نۆل ياكى ئېنىق ئەمەس!',
+        },
+        { status: 400 }
+      );
     }
 
     // Mark talon as used
