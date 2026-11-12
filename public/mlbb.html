@@ -138,16 +138,16 @@
       </div>
     </div>
 
-    <!-- APP NAVIGATION & ACCOUNT BAR (Clean, spacious, zero-wrapping) -->
+    <!-- APP NAVIGATION & ACCOUNT BAR (Ultra-Luxe, intuitive, self-explanatory) -->
     <div class="px-3.5 py-2.5 bg-gradient-to-r from-slate-950 via-[#0d1627] to-slate-950 border-b border-slate-800/80 flex items-center justify-between z-10 shrink-0 select-none">
-      <!-- Right: Official Store Brand -->
-      <a href="/" class="flex items-center gap-2 group cursor-pointer" title="باش بەتكە قايتىش">
-        <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-slate-950 font-black text-xs shadow-md shadow-cyan-500/25 group-hover:scale-105 transition shrink-0">
-          ⚡
+      <!-- Right: Official Store Brand with Logo Badge -->
+      <a href="/" class="flex items-center gap-2.5 group cursor-pointer" title="AUTO CASH باش بەتكە قايتىش">
+        <div class="relative w-8 h-8 rounded-full overflow-hidden border-2 border-amber-400 shadow-md shadow-amber-500/30 group-hover:scale-105 transition shrink-0 ring-1 ring-cyan-400/50 bg-slate-950">
+          <img src="autocash_logo.jpg" alt="AUTO CASH" class="w-full h-full object-cover" onerror="this.src='https://auto-cash-sotre.vercel.app/autocash_logo.jpg'"/>
         </div>
         <div class="text-right leading-none">
-          <span class="text-xs font-black text-white tracking-wide group-hover:text-cyan-300 transition block">AUTO CASH</span>
-          <span class="text-[9px] text-cyan-400 font-bold font-mono block mt-0.5">OFFICIAL STORE</span>
+          <span class="text-xs font-black tracking-wide bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-100 bg-clip-text text-transparent group-hover:from-white group-hover:to-cyan-200 transition block font-sans">AUTO CASH</span>
+          <span class="text-[9px] text-cyan-400 font-bold block mt-0.5 tracking-tight font-mono">OFFICIAL STORE</span>
         </div>
       </a>
 
@@ -156,17 +156,29 @@
         <!-- Telegram Profile / Login State -->
         <div id="tgHeaderArea"></div>
 
-        <!-- Live Wallet Button (Never wraps!) -->
-        <button onclick="openDepositModal()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-amber-500/20 border border-amber-500/40 text-amber-300 hover:border-amber-400 hover:bg-amber-500/25 transition shadow-sm whitespace-nowrap active:scale-95 cursor-pointer" title="ھەميان قالدۇقى قاچىلاش">
-          <span class="text-xs">💰</span>
-          <span class="font-mono font-black text-xs text-amber-200 tracking-tight whitespace-nowrap" id="headerWallet">45.00 $</span>
-          <span class="text-[11px] text-amber-300 font-bold bg-amber-400/25 w-4 h-4 rounded-full flex items-center justify-center ml-0.5">+</span>
+        <!-- Live Wallet Button (Ultra-Intuitive & High-End) -->
+        <button onclick="openDepositModal()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/25 via-amber-400/15 to-yellow-500/20 border border-amber-400/60 hover:border-amber-300 hover:shadow-lg hover:shadow-amber-500/25 transition shadow-sm whitespace-nowrap active:scale-95 cursor-pointer group" title="ھەميان قالدۇقى قاچىلاش (شامكەش تالونى ئارقىلىق دەرھال قاچىلاڭ)">
+          <div class="w-5 h-5 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-300 to-amber-400 flex items-center justify-center text-slate-950 font-black text-[11px] shadow-sm shadow-amber-500/50 shrink-0 border border-amber-200">
+            💰
+          </div>
+          <div class="flex items-baseline gap-1">
+            <span class="text-[10px] text-amber-300/90 font-bold hidden xs:inline">قالدۇق:</span>
+            <span class="font-mono font-black text-xs text-amber-100 tracking-tight whitespace-nowrap" id="headerWallet">45.00 $</span>
+          </div>
+          <span class="text-[10px] text-amber-950 font-black bg-gradient-to-r from-amber-400 to-yellow-300 px-1.5 py-0.5 rounded-md flex items-center justify-center shadow-sm group-hover:scale-105 transition" title="قالدۇق تولۇقلاش">
+            + قاچىلاش
+          </span>
         </button>
 
-        <!-- History Modal Button with Badge -->
-        <button onclick="openHistoryModal('products')" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-700/80 hover:border-cyan-400 text-slate-200 hover:text-white flex items-center justify-center text-xs transition relative shadow-sm shrink-0 active:scale-95 cursor-pointer" title="سودا خاتىرىلىرىم">
-          <span class="text-xs">📜</span>
-          <span id="notifBadge" class="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-cyan-500 text-slate-950 text-[9px] font-black flex items-center justify-center font-mono shadow-sm">2</span>
+        <!-- Order History Chip (Clear, noticeable, showing count) -->
+        <button onclick="openHistoryModal('products')" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900 border border-cyan-500/50 hover:border-cyan-400 hover:shadow-lg hover:shadow-cyan-500/20 text-slate-200 hover:text-white transition shadow-sm shrink-0 active:scale-95 cursor-pointer group" title="مېنىڭ زاكازلىرىم ۋە قالدۇق تارىخىنى كۆرۈش">
+          <div class="w-5 h-5 rounded-lg bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 text-[11px] shrink-0 group-hover:bg-cyan-500/40 transition">
+            🧾
+          </div>
+          <span class="text-xs font-bold text-cyan-200 hidden xs:inline">زاكاز:</span>
+          <span id="notifBadge" class="min-w-[18px] h-4 px-1 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 text-[10px] font-black flex items-center justify-center font-mono shadow-sm">
+            2
+          </span>
         </button>
       </div>
     </div>
@@ -188,12 +200,12 @@
               <span>Mobile Legends: Bang Bang</span>
             </h1>
             <div class="flex items-center gap-2 mt-1 flex-wrap">
-              <span class="text-[11px] text-emerald-400 font-bold flex items-center gap-1 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 whitespace-nowrap">
+              <span class="text-[11px] text-emerald-300 font-bold flex items-center gap-1 bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-400/40 whitespace-nowrap shadow-sm shadow-emerald-500/20">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>رەسمىي قاچىلاش</span>
+                <span>🛡️ رەسمىي بىۋاسىتە قاچىلاش</span>
               </span>
-              <span class="text-[10px] text-cyan-300 font-bold bg-cyan-500/10 px-1.5 py-0.5 rounded-md border border-cyan-500/20 font-mono whitespace-nowrap">
-                ⚡ 100% يېتىدۇ
+              <span class="text-[10px] text-cyan-300 font-bold bg-cyan-500/15 px-2 py-0.5 rounded-md border border-cyan-400/40 font-mono whitespace-nowrap shadow-sm shadow-cyan-500/20">
+                ⚡ 3 سېكۇنتتا يېتىدۇ
               </span>
             </div>
           </div>
@@ -202,9 +214,9 @@
         <div class="flex flex-col items-end gap-1 relative z-10 shrink-0">
           <span class="text-[9.5px] text-slate-400 font-mono">سېرۋېرلار:</span>
           <div class="flex items-center gap-1 text-[10px] font-mono">
-            <span class="px-1.5 py-0.5 rounded bg-slate-800/90 text-cyan-300 border border-slate-700/80 font-bold" title="گىلوبال سېرۋېرى">🌐</span>
-            <span class="px-1.5 py-0.5 rounded bg-slate-800/90 text-amber-300 border border-slate-700/80 font-bold" title="تۈركىيە سېرۋېرى">🇹🇷</span>
-            <span class="px-1.5 py-0.5 rounded bg-slate-800/90 text-emerald-300 border border-slate-700/80 font-bold" title="فىلىپپىن سېرۋېرى">🇵🇭</span>
+            <span class="px-2 py-0.5 rounded-lg bg-slate-800/90 text-cyan-300 border border-slate-700/80 font-bold shadow-sm" title="گىلوبال سېرۋېرى">🌐 Global</span>
+            <span class="px-2 py-0.5 rounded-lg bg-slate-800/90 text-amber-300 border border-slate-700/80 font-bold shadow-sm" title="تۈركىيە سېرۋېرى">🇹🇷 TR</span>
+            <span class="px-2 py-0.5 rounded-lg bg-slate-800/90 text-emerald-300 border border-slate-700/80 font-bold shadow-sm" title="فىلىپپىن سېرۋېرى">🇵🇭 PH</span>
           </div>
         </div>
       </div>
@@ -216,8 +228,9 @@
             <span class="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs font-mono font-bold">1</span>
             <span>ئالدى بىلەن ئويۇن ID سى ۋە سېرۋېرىنى كىرگۈزۈڭ</span>
           </label>
-          <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-bold">
-            سېرۋېر ئېنىقلاش
+          <span class="text-xs px-2.5 py-0.5 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 border border-cyan-400/40 font-bold flex items-center gap-1 shadow-sm">
+            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+            <span>سېرۋېر ئېنىقلاش</span>
           </span>
         </div>
 
@@ -236,11 +249,11 @@
             oninput="handleInput(this.value)"
           />
           <div class="absolute left-1.5 flex items-center gap-1.5">
-            <button onclick="clearPlayerInput()" type="button" class="px-2.5 py-1 bg-slate-800/90 hover:bg-rose-950/80 text-slate-300 hover:text-rose-200 border border-slate-700 hover:border-rose-500/50 rounded-lg text-xs font-bold transition flex items-center gap-1 active:scale-95 shadow-sm" title="كىرگۈزۈلگەن ئايدىنى ئۆچۈرۈش">
+            <button onclick="clearPlayerInput()" type="button" class="px-2.5 py-1.5 bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 hover:text-white border border-rose-500/40 hover:border-rose-400 rounded-xl text-xs font-bold transition flex items-center gap-1 active:scale-95 shadow-sm" title="كىرگۈزۈلگەن ئايدىنى ئۆچۈرۈش">
               <span class="text-xs">🗑️</span>
               <span>ئۆچۈرۈش</span>
             </button>
-            <button onclick="executeSearch()" id="searchBtn" type="button" class="px-3 py-1 bg-gradient-to-r from-blue-600 via-cyan-600 to-indigo-600 hover:from-blue-500 hover:to-cyan-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 active:scale-95 shadow-md shadow-cyan-500/25">
+            <button onclick="executeSearch()" id="searchBtn" type="button" class="px-3.5 py-1.5 bg-gradient-to-r from-blue-600 via-cyan-500 to-indigo-600 hover:from-blue-500 hover:to-cyan-400 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 active:scale-95 shadow-lg shadow-cyan-500/30">
               <span id="searchIcon" class="text-xs inline-block transition-transform">🔍</span>
               <span id="searchBtnText">ئىزدەش</span>
             </button>
@@ -257,13 +270,13 @@
         <!-- Quick Server Preview Buttons (Browse Without Populating Fake ID) -->
         <div class="flex items-center gap-1.5 text-xs pt-1 flex-wrap">
           <span class="text-slate-400 font-bold">ياكى سېرۋىر باھالىرىنى كۆرۈپ بېقىڭ:</span>
-          <button onclick="previewServerOnly('global')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-slate-700 font-bold transition flex items-center gap-1">
+          <button onclick="previewServerOnly('global')" class="px-2.5 py-1 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 hover:border-cyan-400 font-black transition flex items-center gap-1 shadow-sm hover:shadow-cyan-500/20 active:scale-95">
             <span>🌐</span><span>گىلوبال</span>
           </button>
-          <button onclick="previewServerOnly('turkey')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-amber-300 border border-slate-700 font-bold transition flex items-center gap-1">
+          <button onclick="previewServerOnly('turkey')" class="px-2.5 py-1 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/40 hover:border-amber-400 font-black transition flex items-center gap-1 shadow-sm hover:shadow-amber-500/20 active:scale-95">
             <span>🇹🇷</span><span>تۈركىيە</span>
           </button>
-          <button onclick="previewServerOnly('special')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-emerald-300 border border-slate-700 font-bold transition flex items-center gap-1">
+          <button onclick="previewServerOnly('special')" class="px-2.5 py-1 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-emerald-300 border border-emerald-500/40 hover:border-emerald-400 font-black transition flex items-center gap-1 shadow-sm hover:shadow-emerald-500/20 active:scale-95">
             <span>🇵🇭</span><span>فىلىپپىن</span>
           </button>
         </div>
@@ -1313,19 +1326,19 @@ function updateTelegramHeader() {
 
   if (currentTgUser) {
     container.innerHTML = 
-      '<div onclick="openTelegramModal()" class="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-slate-900/90 border border-sky-500/50 hover:border-sky-400 cursor-pointer transition shadow-sm select-none whitespace-nowrap active:scale-95" title="تېلېگرام ئارخىپىم: ' + (currentTgUser.name || currentTgUser.username) + '">' +
-        '<img src="' + currentTgUser.photo + '" class="w-6 h-6 rounded-full object-cover border border-sky-400 shrink-0" onerror="this.src=\'https://api.dicebear.com/7.x/bottts/svg?seed=user\'"/>' +
+      '<div onclick="openTelegramModal()" class="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-slate-900 border border-sky-500/60 hover:border-sky-300 hover:shadow-lg hover:shadow-sky-500/20 cursor-pointer transition shadow-sm select-none whitespace-nowrap active:scale-95" title="تېلېگرام ئارخىپىم: @' + (currentTgUser.username || currentTgUser.id) + '">' +
+        '<div class="relative shrink-0">' +
+          '<img src="' + currentTgUser.photo + '" class="w-6 h-6 rounded-full object-cover border border-sky-400" onerror="this.src=\'https://api.dicebear.com/7.x/bottts/svg?seed=user\'"/>' +
+          '<span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-slate-950 animate-pulse"></span>' +
+        '</div>' +
         '<div class="text-right leading-none">' +
-          '<span class="text-[11px] font-bold text-white block max-w-[70px] truncate whitespace-nowrap">' + (currentTgUser.name || currentTgUser.username) + '</span>' +
-          '<span class="text-[9px] text-sky-400 font-semibold flex items-center gap-0.5 justify-end mt-0.5 whitespace-nowrap">' +
-            '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>' +
-            '<span>ئۇلاندى</span>' +
-          '</span>' +
+          '<span class="text-[11px] font-black text-sky-100 block max-w-[65px] truncate whitespace-nowrap">' + (currentTgUser.name || currentTgUser.username) + '</span>' +
+          '<span class="text-[9px] text-emerald-400 font-bold block mt-0.5 whitespace-nowrap">ئۇلاندى ✓</span>' +
         '</div>' +
       '</div>';
   } else {
     container.innerHTML = 
-      '<button onclick="openTelegramModal()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-bold transition shadow-sm active:scale-95 whitespace-nowrap cursor-pointer shadow-sky-500/20" title="تېلېگرام ئارقىلىق كىرىش">' +
+      '<button onclick="openTelegramModal()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-black transition shadow-md shadow-sky-500/25 active:scale-95 whitespace-nowrap cursor-pointer" title="تېلېگرام ئارقىلىق كىرىش">' +
         '<svg class="w-3.5 h-3.5 fill-current shrink-0" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>' +
         '<span>تېلېگرام كىرىش</span>' +
       '</button>';
