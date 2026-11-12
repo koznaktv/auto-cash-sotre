@@ -122,48 +122,38 @@
 </head>
 <body class="bg-slate-950 text-slate-100 antialiased p-2 sm:p-4 min-h-screen flex items-center justify-center">
 
-  <!-- ================= MOBILE APP SHELL ================= -->
-  <div class="w-full max-w-[430px] sm:max-w-[450px] bg-[#070b14] border border-cyan-500/30 rounded-[38px] shadow-2xl overflow-hidden relative flex flex-col min-h-[820px] max-h-[94vh]">
+  <!-- ================= MOBILE APP SHELL (Native App View) ================= -->
+  <div class="w-full max-w-[430px] sm:max-w-[450px] bg-[#070b14] border border-cyan-500/30 rounded-2xl sm:rounded-[36px] shadow-2xl overflow-hidden relative flex flex-col min-h-screen sm:min-h-[820px] max-h-screen sm:max-h-[94vh]">
     
-    <!-- TOP STATUS BAR -->
-    <div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs text-slate-400 border-b border-slate-900 bg-slate-950/80 select-none">
-      <span class="font-mono font-bold text-slate-200" id="clockText">12:00</span>
-      <div class="flex items-center gap-1.5 text-xs text-cyan-400 font-bold">
-        <span>⚡ AUTO CASH</span>
-        <span class="px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 font-mono text-xs">v2.0</span>
-      </div>
-      <div class="flex items-center gap-1.5 text-xs">
-        <span>5G</span>
-        <span>🔋</span>
-      </div>
-    </div>
-
     <!-- APP NAVIGATION & ACCOUNT BAR (Strictly compact, perfectly fits all mobile phones) -->
-    <div class="px-2.5 py-2 bg-gradient-to-r from-slate-950 via-[#0d1627] to-slate-950 border-b border-slate-800/80 flex items-center justify-between z-10 shrink-0 select-none gap-1">
-      <!-- Right: Official Brand Logo & Name (Compact ~80px) -->
+    <div class="px-2.5 py-2 bg-gradient-to-r from-slate-950 via-[#0d1627] to-slate-950 border-b border-slate-800/80 flex items-center justify-between z-10 shrink-0 select-none">
+      <!-- Right: Official Brand Logo & Name (Compact & High-end) -->
       <a href="/" class="flex items-center gap-1.5 group cursor-pointer shrink-0" title="AUTO CASH">
-        <div class="relative w-7 h-7 rounded-full overflow-hidden border border-amber-400 shadow shadow-amber-500/30 group-hover:scale-105 transition shrink-0 bg-slate-950">
+        <div class="relative w-8 h-8 rounded-full overflow-hidden border border-amber-400 shadow shadow-amber-500/30 group-hover:scale-105 transition shrink-0 bg-slate-950">
           <img src="autocash_logo.jpg" alt="AUTO CASH" class="w-full h-full object-cover" onerror="this.src='https://auto-cash-sotre.vercel.app/autocash_logo.jpg'"/>
         </div>
-        <span class="text-xs font-black tracking-wide bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-100 bg-clip-text text-transparent block font-sans whitespace-nowrap">AUTO CASH</span>
+        <div class="flex flex-col text-right leading-tight">
+          <span class="text-xs font-black tracking-wide bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-100 bg-clip-text text-transparent block font-sans whitespace-nowrap">AUTO CASH</span>
+          <span class="text-[8px] font-bold text-cyan-400 font-mono tracking-tighter">OFFICIAL STORE</span>
+        </div>
       </a>
 
-      <!-- Left: Telegram User + Live Wallet + History (Fits within 190px cleanly) -->
-      <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
+      <!-- Left: Telegram User + Live Wallet + History Button -->
+      <div class="flex items-center gap-1.5 shrink-0">
         <!-- Telegram Profile / Login State -->
         <div id="tgHeaderArea" class="shrink-0"></div>
 
-        <!-- Live Wallet Button (Compact & Never Wraps) -->
-        <button onclick="openDepositModal()" class="flex items-center gap-1 px-2 py-1 rounded-xl bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-amber-500/20 border border-amber-400/60 hover:border-amber-300 text-amber-200 transition shadow-sm whitespace-nowrap active:scale-95 cursor-pointer shrink-0" title="ھەميان قالدۇقى قاچىلاش">
+        <!-- Live Wallet Button (Exact mockup: + in dark circle, amount, 💰) -->
+        <button onclick="openDepositModal()" type="button" class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#1b1509] hover:bg-[#261d0d] border border-amber-500/70 hover:border-amber-400 text-amber-200 transition shadow-sm whitespace-nowrap active:scale-95 cursor-pointer shrink-0" title="ھەميان قالدۇقى قاچىلاش">
+          <span class="w-4 h-4 rounded-full bg-amber-500/30 text-amber-300 text-[11px] font-black flex items-center justify-center">+</span>
+          <span class="font-mono font-black text-xs text-amber-300 tracking-tight whitespace-nowrap" id="headerWallet">45.00 $</span>
           <span class="text-xs">💰</span>
-          <span class="font-mono font-black text-xs text-amber-100 tracking-tight whitespace-nowrap" id="headerWallet">45.00 $</span>
-          <span class="w-3.5 h-3.5 rounded-full bg-amber-400/30 text-amber-300 text-[10px] font-black flex items-center justify-center ml-0.5" title="قالدۇق قاچىلاش">+</span>
         </button>
 
-        <!-- Order History Button (Fully visible with 100% room!) -->
-        <button onclick="openHistoryModal('products')" class="w-7 h-7 rounded-xl bg-slate-900 border border-cyan-500/50 hover:border-cyan-300 text-slate-200 hover:text-white flex items-center justify-center text-xs transition relative shadow-sm shrink-0 active:scale-95 cursor-pointer" title="مېنىڭ زاكازلىرىم ۋە تالونلار">
-          <span class="text-xs">🧾</span>
-          <span id="notifBadge" class="absolute -top-1 -right-1 min-w-[15px] h-3.5 px-0.5 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 text-[9px] font-black flex items-center justify-center font-mono shadow-sm">2</span>
+        <!-- Order History Button (Parchment 📜 + cyan badge 2) -->
+        <button onclick="openHistoryModal('products')" type="button" class="relative w-8 h-8 rounded-xl bg-slate-900 border border-slate-700/80 hover:border-cyan-400 text-slate-200 hover:text-white flex items-center justify-center text-sm transition shadow-sm shrink-0 active:scale-95 cursor-pointer" title="مېنىڭ زاكازلىرىم ۋە تالونلار">
+          <span>📜</span>
+          <span id="notifBadge" class="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 text-[9px] font-black flex items-center justify-center font-mono shadow-sm">2</span>
         </button>
       </div>
     </div>
@@ -229,17 +219,17 @@
             id="mlbbInput" 
             type="text" 
             placeholder="مەسىلەن: 1718491609 (4485)..." 
-            class="w-full bg-[#0a0f1d] border border-slate-700 focus:border-cyan-400 rounded-xl pr-3 pl-[148px] py-2.5 text-xs text-white placeholder-slate-500 font-mono transition text-right outline-none"
+            class="w-full bg-[#0a0f1d] border border-slate-700 focus:border-cyan-400 rounded-xl pr-3 pl-[95px] py-2.5 text-xs text-white placeholder-slate-500 font-mono transition text-right outline-none"
             onkeydown="if(event.key==='Enter') executeSearch()"
             oninput="handleInput(this.value)"
           />
           <div class="absolute left-1.5 flex items-center gap-1.5">
-            <button onclick="clearPlayerInput()" type="button" class="px-2.5 py-1.5 bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 hover:text-white border border-rose-500/40 hover:border-rose-400 rounded-xl text-xs font-bold transition flex items-center gap-1 active:scale-95 shadow-sm" title="كىرگۈزۈلگەن ئايدىنى ئۆچۈرۈش">
-              <span class="text-xs">🗑️</span>
-              <span>ئۆچۈرۈش</span>
+            <!-- Small, sleek circular clear '✕' button as requested! -->
+            <button onclick="clearPlayerInput()" id="clearInputBtn" type="button" class="w-6 h-6 rounded-full bg-slate-800/90 hover:bg-rose-950/90 text-slate-400 hover:text-rose-300 border border-slate-700 hover:border-rose-500/50 text-[11px] font-black flex items-center justify-center transition active:scale-90 shadow-sm" title="ئۆچۈرۈش">
+              ✕
             </button>
-            <button onclick="executeSearch()" id="searchBtn" type="button" class="px-3.5 py-1.5 bg-gradient-to-r from-blue-600 via-cyan-500 to-indigo-600 hover:from-blue-500 hover:to-cyan-400 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 active:scale-95 shadow-lg shadow-cyan-500/30">
-              <span id="searchIcon" class="text-xs inline-block transition-transform">🔍</span>
+            <button onclick="executeSearch()" id="searchBtn" type="button" class="px-3 py-1.5 bg-gradient-to-r from-blue-600 via-cyan-500 to-indigo-600 hover:from-blue-500 hover:to-cyan-400 text-white rounded-xl text-xs font-black transition flex items-center gap-1 active:scale-95 shadow-md shadow-cyan-500/25">
+              <span id="searchIcon" class="text-xs">🔍</span>
               <span id="searchBtnText">ئىزدەش</span>
             </button>
           </div>
@@ -252,18 +242,22 @@
           <button onclick="clearErrorState()" class="text-rose-400 hover:text-white text-xs px-1.5 py-0.5 rounded">✕</button>
         </div>
 
-        <!-- Quick Server Preview Buttons (Browse Without Populating Fake ID) -->
-        <div class="flex items-center gap-1.5 text-xs pt-1 flex-wrap">
-          <span class="text-slate-400 font-bold">ياكى سېرۋىر باھالىرىنى كۆرۈپ بېقىڭ:</span>
-          <button onclick="previewServerOnly('global')" class="px-2.5 py-1 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 hover:border-cyan-400 font-black transition flex items-center gap-1 shadow-sm hover:shadow-cyan-500/20 active:scale-95">
-            <span>🌐</span><span>گىلوبال</span>
-          </button>
-          <button onclick="previewServerOnly('turkey')" class="px-2.5 py-1 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/40 hover:border-amber-400 font-black transition flex items-center gap-1 shadow-sm hover:shadow-amber-500/20 active:scale-95">
-            <span>🇹🇷</span><span>تۈركىيە</span>
-          </button>
-          <button onclick="previewServerOnly('special')" class="px-2.5 py-1 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-emerald-300 border border-emerald-500/40 hover:border-emerald-400 font-black transition flex items-center gap-1 shadow-sm hover:shadow-emerald-500/20 active:scale-95">
-            <span>🇵🇭</span><span>فىلىپپىن</span>
-          </button>
+        <!-- Quick Server Preview Section (Strictly 1 Row of Buttons!) -->
+        <div class="space-y-1.5 pt-1">
+          <div class="text-xs text-slate-400 font-bold px-0.5">
+            ياكى سېرۋىر باھالىرىنى كۆرۈپ بېقىڭ:
+          </div>
+          <div class="grid grid-cols-3 gap-1.5 w-full">
+            <button onclick="previewServerOnly('global')" type="button" class="py-2 px-1 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 hover:border-cyan-400 font-black text-xs transition flex items-center justify-center gap-1 shadow-sm active:scale-95">
+              <span>🌐</span><span class="whitespace-nowrap">گىلوبال</span>
+            </button>
+            <button onclick="previewServerOnly('turkey')" type="button" class="py-2 px-1 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/40 hover:border-amber-400 font-black text-xs transition flex items-center justify-center gap-1 shadow-sm active:scale-95">
+              <span>🇹🇷</span><span class="whitespace-nowrap">تۈركىيە</span>
+            </button>
+            <button onclick="previewServerOnly('special')" type="button" class="py-2 px-1 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-emerald-300 border border-emerald-500/40 hover:border-emerald-400 font-black text-xs transition flex items-center justify-center gap-1 shadow-sm active:scale-95">
+              <span>🇵🇭</span><span class="whitespace-nowrap">فىلىپپىن</span>
+            </button>
+          </div>
         </div>
 
         <!-- Spinner -->
@@ -505,7 +499,7 @@
     </div>
 
     <!-- ================= BEAUTIFIED SHAMCASH DEPOSIT MODAL ================= -->
-    <div id="depositModal" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md z-40 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
+    <div id="depositModal" onclick="if(event.target===this) closeDepositModal()" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md z-40 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
       <div id="depositCard" class="w-full bg-[#0d162a] border-t-2 border-amber-500/70 rounded-t-[34px] p-4 space-y-3.5 shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[92%] overflow-y-auto no-scrollbar">
         <button onclick="closeDepositModal()" class="absolute top-3.5 left-3.5 w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs">✕</button>
         <div class="w-10 h-1 bg-slate-700 rounded-full mx-auto"></div>
@@ -577,7 +571,7 @@
     </div>
 
     <!-- ================= BEAUTIFIED TELEGRAM LOGIN & PROFILE MODAL ================= -->
-    <div id="telegramModal" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
+    <div id="telegramModal" onclick="if(event.target===this) closeTelegramModal()" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
       <div id="telegramCard" class="w-full bg-[#0d162a] border-t-2 border-sky-500/70 rounded-t-[34px] p-4 space-y-3.5 shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[90%] overflow-y-auto no-scrollbar">
         <button onclick="closeTelegramModal()" class="absolute top-3.5 left-3.5 w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs">✕</button>
         <div class="w-10 h-1 bg-slate-700 rounded-full mx-auto"></div>
@@ -601,7 +595,7 @@
     </div>
 
     <!-- ================= BEAUTIFIED ORDERS & TRANSACTIONS MODAL ================= -->
-    <div id="historyModal" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md z-40 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
+    <div id="historyModal" onclick="if(event.target===this) closeHistoryModal()" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md z-40 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
       <div id="historyCard" class="w-full bg-[#0d162a] border-t-2 border-cyan-500/70 rounded-t-[34px] p-4 space-y-3 shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[88%] flex flex-col">
         <button onclick="closeHistoryModal()" class="absolute top-3.5 left-3.5 w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs">✕</button>
         <div class="w-10 h-1 bg-slate-700 rounded-full mx-auto shrink-0"></div>
@@ -720,12 +714,6 @@
       { txid: 'TX-948102391', amount: 25.00, method: 'شامكەش (ShamCash)', time: 'بۈگۈن 12:10', status: 'تەستىقلاندى ✓' },
       { txid: 'TX-551029384', amount: 20.00, method: 'شامكەش (ShamCash)', time: 'تۈنۈگۈن 18:30', status: 'تەستىقلاندى ✓' }
     ];
-
-    // Clock
-    setInterval(() => {
-      const d = new Date();
-      document.getElementById('clockText').textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-    }, 1000);
 
     function parseInput(val) {
       if (!val) return null;
@@ -901,14 +889,9 @@
     // Browse server without putting mock sample ID in input!
     function previewServerOnly(srv) {
       clearErrorState();
-      // If user has already verified their real ID, lock strictly
-      if (isVerified && detectedServer && srv !== detectedServer) {
-        alert('⚠️ ئاگاھلاندۇرۇش:\nسىز ئاللىقاچان ئۆز كىملىكىڭىزنى كىرگۈزۈپ دەلىللىدىڭىز! ئايدىڭىز [' + CATALOGS[detectedServer].serverTitle + '] غا تەۋە.\nخاتا زاكاز چۈشۈپ كېتىشنىڭ ئالدىنى ئېلىش ئۈچۈن سېرۋېر قۇلۇپلاندى.\nباشقا سېرۋېر باھاسىنى كۆرمەكچى بولسىڭىز، ئايدى كىرگۈزۈش رامكىسىنى تازىلاڭ.');
-        return;
-      }
-
       isPreviewMode = true;
       currentServer = srv;
+      if (!CATALOGS[currentServer]) currentServer = 'global';
       selectedPkg = CATALOGS[currentServer].packages[0];
 
       renderPackages();
@@ -916,11 +899,8 @@
     }
 
     function switchServer(srv) {
-      if (isVerified && detectedServer && srv !== detectedServer) {
-        alert('⚠️ خاتا سېتىۋېلىپ زىيان تارتىپ قېلىشنىڭ ئالدىنى ئېلىش ئۈچۈن سېرۋېر قۇلۇپلاندى!\n\nسىزنىڭ كىرگۈزگەن كىملىكىڭىز [' + CATALOGS[detectedServer].serverTitle + '] غا تەۋە.\nبۇ ئايدىغا باشقا سېرۋېرنىڭ ئالمىسىنى سېتىۋالسىڭىز قاچىلانمايدۇ، شۇڭا AUTO CASH سىستېمىسى خاتا زاكاز كېتىپ قېلىشنى چەكلىدى.');
-        return;
-      }
       currentServer = srv;
+      if (!CATALOGS[currentServer]) currentServer = 'global';
       selectedPkg = CATALOGS[currentServer].packages[0];
       renderPackages();
       updateDisplays();
@@ -1040,7 +1020,11 @@
       isPreviewMode = true;
 
       // Hide verification success result
-      document.getElementById('playerResultCard').classList.add('hidden');
+      var vCard = document.getElementById('verifiedCard');
+      if (vCard) {
+        vCard.classList.add('hidden');
+        vCard.classList.remove('flex');
+      }
       
       // Update UI state and packages
       renderPackages();
@@ -1263,6 +1247,59 @@ async function submitDeposit() {
     submitBtn.disabled = false;
     submitText.textContent = oldHtml;
   }
+}
+
+function openDepositModal() {
+  var modal = document.getElementById('depositModal');
+  var card = document.getElementById('depositCard');
+  if (!modal || !card) return;
+  modal.classList.remove('hidden');
+  setTimeout(function() {
+    modal.classList.remove('opacity-0');
+    card.classList.remove('translate-y-full');
+  }, 20);
+  var inp = document.getElementById('receiptInput');
+  if (inp) {
+    setTimeout(function() { inp.focus(); }, 300);
+  }
+}
+
+function closeDepositModal() {
+  var modal = document.getElementById('depositModal');
+  var card = document.getElementById('depositCard');
+  if (!modal || !card) return;
+  modal.classList.add('opacity-0');
+  card.classList.add('translate-y-full');
+  setTimeout(function() {
+    modal.classList.add('hidden');
+  }, 300);
+}
+
+function copyAddr() {
+  var addr = document.getElementById('shamCashAddr');
+  if (!addr) return;
+  var text = addr.value || addr.innerText;
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.getElementById('copyAddrBtn');
+    if (btn) {
+      var orig = btn.textContent;
+      btn.textContent = 'كۆچۈرۈلدى ✓';
+      btn.classList.add('bg-emerald-500', 'text-white');
+      setTimeout(function() {
+        btn.textContent = orig;
+        btn.classList.remove('bg-emerald-500', 'text-white');
+      }, 1500);
+    }
+  }).catch(function() {
+    addr.select();
+    document.execCommand('copy');
+    var btn = document.getElementById('copyAddrBtn');
+    if (btn) {
+      var orig = btn.textContent;
+      btn.textContent = 'كۆچۈرۈلدى ✓';
+      setTimeout(function() { btn.textContent = orig; }, 1500);
+    }
+  });
 }
 
 // ================= TELEGRAM AUTHENTICATION & PROFILE LOGIC =================
