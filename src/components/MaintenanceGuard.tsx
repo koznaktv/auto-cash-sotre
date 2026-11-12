@@ -27,7 +27,7 @@ export default function MaintenanceGuard({ children }: { children: React.ReactNo
       if (typeof window === 'undefined') return;
 
       // 1. Direct admin panel paths are handled by admin auth
-      if (pathname && (pathname.startsWith('/admin') || pathname.startsWith('/api'))) {
+      if (pathname && (pathname.startsWith('/admin') || pathname.startsWith('/api') || pathname.startsWith('/mlbb'))) {
         setIsAdmin(true);
         setChecked(true);
         return;
@@ -210,6 +210,23 @@ export default function MaintenanceGuard({ children }: { children: React.ReactNo
               </p>
             </div>
           </div>
+        </div>
+
+        {/* MLBB Game Store Access Button */}
+        <div className="w-full mb-3">
+          <a
+            href="/mlbb.html"
+            className="w-full bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black text-sm sm:text-base py-3.5 px-6 rounded-xl shadow-xl shadow-cyan-500/25 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-between group border border-cyan-400/40"
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="text-2xl">🎮</span>
+              <div className="text-right">
+                <span className="block font-black text-sm">Mobile Legends رەسمىي قاچىلاش كىرىش</span>
+                <span className="block text-[11px] text-cyan-200 font-normal">گىلوبال • تۈركىيە • فىلىپپىن (تولۇق ئوچۇق)</span>
+              </div>
+            </div>
+            <span className="text-white text-lg font-bold group-hover:translate-x-[-4px] transition-transform">←</span>
+          </a>
         </div>
 
         {/* Action Buttons */}
