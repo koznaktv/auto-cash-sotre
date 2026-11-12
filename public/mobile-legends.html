@@ -102,30 +102,30 @@
   <div class="w-full max-w-[430px] sm:max-w-[450px] bg-[#070b14] border border-cyan-500/30 rounded-2xl sm:rounded-[36px] shadow-2xl overflow-hidden relative flex flex-col min-h-screen sm:min-h-[820px] max-h-screen sm:max-h-[94vh]">
     
     <!-- APP NAVIGATION & ACCOUNT BAR (Spacious, high-end, zero clutter) -->
-    <div class="px-3 py-2.5 sm:py-3 bg-gradient-to-r from-slate-950 via-[#0d1627] to-slate-950 border-b border-slate-800/90 flex items-center justify-between z-10 shrink-0 select-none min-h-[58px]">
-      <!-- Right: Official Brand Logo & Name (Spacious, Glowing) -->
-      <a href="/" class="flex items-center gap-2 group cursor-pointer shrink-0" title="AUTO CASH">
-        <div class="relative w-9 h-9 rounded-full overflow-hidden border-2 border-amber-400 shadow-md shadow-amber-500/30 group-hover:scale-105 transition shrink-0 bg-slate-950">
+    <div class="px-2.5 py-2 sm:py-2.5 bg-gradient-to-r from-slate-950 via-[#0d1627] to-slate-950 border-b border-slate-800/90 flex items-center justify-between z-10 shrink-0 select-none min-h-[52px]">
+      <!-- Right: Official Brand Logo & Name (Compact, Glowing) -->
+      <a href="/" class="flex items-center gap-1.5 group cursor-pointer shrink-0" title="AUTO CASH">
+        <div class="relative w-8 h-8 rounded-full overflow-hidden border-2 border-amber-400 shadow-md shadow-amber-500/30 group-hover:scale-105 transition shrink-0 bg-slate-950">
           <img src="autocash_logo.jpg" alt="AUTO CASH" class="w-full h-full object-cover" onerror="this.src='https://auto-cash-sotre.vercel.app/autocash_logo.jpg'"/>
         </div>
-        <div class="flex flex-col text-right leading-tight">
-          <span class="text-xs sm:text-sm font-black tracking-wide bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-100 bg-clip-text text-transparent block font-sans whitespace-nowrap">AUTO CASH</span>
-          <span class="text-[8.5px] font-bold text-cyan-400 font-mono tracking-tight">OFFICIAL STORE</span>
+        <div class="flex flex-col text-right leading-none">
+          <span class="text-xs font-black tracking-wide bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-100 bg-clip-text text-transparent block font-sans whitespace-nowrap">AUTO CASH</span>
+          <span class="text-[7.5px] font-bold text-cyan-400 font-mono tracking-tight">STORE</span>
         </div>
       </a>
 
       <!-- Left: Telegram User Profile + Redesigned Modern Orders Button -->
-      <div class="flex items-center gap-2 shrink-0">
+      <div class="flex items-center gap-1.5 shrink-0">
         <!-- Telegram Profile / Login State -->
         <div id="tgHeaderArea" class="shrink-0"></div>
 
         <!-- Redesigned Modern "زاكازلىرىم" Button (High-End Badge) -->
-        <button onclick="openHistoryModal('products')" type="button" class="group relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-slate-900 to-[#121c2e] hover:from-slate-800 hover:to-[#172338] border border-cyan-500/40 hover:border-cyan-400 text-cyan-200 hover:text-white transition shadow-md shadow-cyan-950/40 active:scale-95 cursor-pointer shrink-0" title="مېنىڭ بارلىق زاكازلىرىم">
+        <button onclick="openHistoryModal('products')" type="button" class="group relative flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-slate-900 to-[#121c2e] hover:from-slate-800 hover:to-[#172338] border border-cyan-500/40 hover:border-cyan-400 text-cyan-200 hover:text-white transition shadow-sm active:scale-95 cursor-pointer shrink-0" title="مېنىڭ بارلىق زاكازلىرىم">
           <div class="relative flex items-center justify-center">
-            <svg class="w-4 h-4 text-cyan-400 group-hover:text-cyan-300 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-3.5 h-3.5 text-cyan-400 group-hover:text-cyan-300 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
             </svg>
-            <span id="notifBadge" class="absolute -top-1.5 -right-2 min-w-[15px] h-3.5 px-1 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 text-[9px] font-black flex items-center justify-center font-mono shadow-sm border border-slate-900">0</span>
+            <span id="notifBadge" class="absolute -top-1.5 -right-2 min-w-[14px] h-3.5 px-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 text-[8.5px] font-black flex items-center justify-center font-mono shadow-sm border border-slate-900">0</span>
           </div>
           <span class="text-xs font-black tracking-tight text-cyan-300 group-hover:text-cyan-200">زاكازلىرىم</span>
         </button>
@@ -133,49 +133,53 @@
     </div>
 
     <!-- MAIN SCROLLABLE BODY -->
-    <div class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-3.5 pb-24">
+    <div class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-3 pb-24">
 
-      <!-- ================= GAME HERO BANNER (With VIP Dollar Wallet, Server Badges Removed) ================= -->
-      <div class="glass-box rounded-2xl p-3 border border-slate-800/90 bg-gradient-to-r from-slate-900/95 via-[#0d162a]/95 to-slate-900/95 shadow-xl relative overflow-hidden flex items-center justify-between gap-2">
+      <!-- ================= GAME HERO BANNER (2-Tier Layout: Full Width Title + Full Width VIP Dollar Wallet) ================= -->
+      <div class="glass-box rounded-2xl p-3 border border-slate-800/90 bg-gradient-to-br from-slate-900/95 via-[#0d162a]/95 to-slate-900/95 shadow-xl relative overflow-hidden flex flex-col gap-2.5">
         <!-- Ambient decorative glow -->
         <div class="absolute -right-6 -top-6 w-24 h-24 bg-cyan-500/10 rounded-full blur-xl pointer-events-none"></div>
 
-        <div class="flex items-center gap-2.5 relative z-10 min-w-0">
+        <!-- Tier 1: Full-Width Game Identity (Zero Truncation!) -->
+        <div class="flex items-center gap-2.5 relative z-10 w-full">
           <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-lg border-2 border-cyan-400/50 flex items-center justify-center shrink-0 bg-slate-950">
             <img src="https://play-lh.googleusercontent.com/MztmLpB1-_eFbHnqNzzvzl5zjiOH2BEb0D71uBxZYf_4BEmW3QEPWODhRtyqY7Qz4wRLwQ--Rg1RAjOFqtHSs-o=s256" alt="Mobile Legends: Bang Bang" class="w-full h-full object-cover" onerror="this.src='mlbb_icon.png'"/>
           </div>
-          <div class="text-right min-w-0">
-            <h1 class="text-xs sm:text-sm font-black text-white tracking-wide truncate">
+          <div class="flex-1 text-right min-w-0">
+            <h1 class="text-sm font-black text-white tracking-wide leading-tight whitespace-nowrap overflow-visible">
               Mobile Legends: Bang Bang
             </h1>
-            <div class="flex items-center gap-1.5 mt-0.5">
+            <div class="flex items-center gap-1.5 mt-1">
               <span class="text-[10px] text-emerald-300 font-bold flex items-center gap-1 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-400/30 whitespace-nowrap">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>رەسمىي قاچىلاش</span>
+                <span>رەسمىي بىۋاسىتە قاچىلاش</span>
+              </span>
+              <span class="text-[10px] text-cyan-300 font-bold flex items-center gap-1 bg-cyan-500/15 px-2 py-0.5 rounded-full border border-cyan-400/30 whitespace-nowrap font-mono">
+                <span>⚡ 3 سېكۇنت</span>
               </span>
             </div>
           </div>
         </div>
 
-        <!-- Left Side: VIP Dollar Wallet Card (Replaced server badges as requested!) -->
-        <div class="relative z-10 flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-[#171e2e]/90 via-[#201908]/90 to-[#171e2e]/90 border border-amber-500/50 hover:border-amber-400 rounded-xl px-2 sm:px-2.5 py-1.5 shadow-md shadow-amber-950/40 shrink-0 backdrop-blur-md transition-all">
-          <!-- 3D Metallic Golden Dollar Coin ($) Medallion -->
-          <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-600 via-yellow-400 to-amber-200 p-[1.5px] shadow-sm shadow-amber-500/40 shrink-0 flex items-center justify-center">
-            <div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-black text-amber-300 text-xs font-mono shadow-inner">
-              $
+        <!-- Tier 2: VIP Dollar Wallet Bar (Spacious, Metallic Gold, Zero Collision) -->
+        <div class="relative z-10 flex items-center justify-between gap-2 bg-gradient-to-r from-[#171e2e]/90 via-[#201908]/90 to-[#171e2e]/90 border border-amber-500/50 hover:border-amber-400 rounded-xl px-2.5 py-1.5 shadow-md shadow-amber-950/40 backdrop-blur-md transition-all">
+          <!-- Right: 3D Metallic Golden Dollar Coin ($) Medallion & Balance -->
+          <div class="flex items-center gap-2 min-w-0">
+            <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-600 via-yellow-400 to-amber-200 p-[1.5px] shadow-sm shadow-amber-500/40 shrink-0 flex items-center justify-center">
+              <div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-black text-amber-300 text-xs font-mono shadow-inner">
+                $
+              </div>
+            </div>
+            <div class="flex flex-col text-right leading-none min-w-0">
+              <span class="text-[8.5px] text-slate-400 font-bold mb-0.5">ھەميان قالدۇقى</span>
+              <span class="font-mono font-black text-sm text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 whitespace-nowrap" id="headerWallet">$ 0.00</span>
             </div>
           </div>
 
-          <!-- Balance info -->
-          <div class="flex flex-col text-right leading-tight">
-            <span class="text-[8.5px] text-slate-400 font-bold">قالدۇق</span>
-            <span class="font-mono font-black text-xs sm:text-sm text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 whitespace-nowrap" id="headerWallet">$ 45.00</span>
-          </div>
-
-          <!-- + قاچىلاش Deposit Button -->
-          <button onclick="openDepositModal()" type="button" class="flex items-center gap-0.5 px-2 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 text-[10.5px] font-black shadow-sm shadow-amber-500/25 active:scale-95 transition-all cursor-pointer whitespace-nowrap mr-0.5" title="قالدۇق قاچىلاش">
-            <span>+</span>
-            <span>قاچىلاش</span>
+          <!-- Left: + قاچىلاش Prominent Deposit Button -->
+          <button onclick="openDepositModal()" type="button" class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 text-xs font-black shadow-md shadow-amber-500/25 active:scale-95 transition-all cursor-pointer whitespace-nowrap shrink-0" title="قالدۇق قاچىلاش">
+            <span class="text-xs font-bold leading-none">+</span>
+            <span>قالدۇق قاچىلاش</span>
           </button>
         </div>
       </div>
@@ -387,7 +391,7 @@
           <div class="grid grid-cols-3 gap-1.5 pt-1.5 border-t border-slate-800 text-center font-mono">
             <div class="bg-slate-950/80 rounded-xl p-2 border border-slate-800">
               <span class="text-[11px] text-slate-400 block">ھازىرقى قالدۇق</span>
-              <span id="walletCurrent" class="text-xs font-bold text-slate-200">45.00 $</span>
+              <span id="walletCurrent" class="text-xs font-bold text-slate-200">$ 0.00</span>
             </div>
             <div class="bg-slate-950/80 rounded-xl p-2 border border-slate-800">
               <span class="text-[11px] text-rose-400 block">كېمىيىدىغىنى</span>
@@ -395,7 +399,7 @@
             </div>
             <div class="bg-slate-950/80 rounded-xl p-2 border border-slate-800">
               <span class="text-[11px] text-emerald-400 block">قالىدىغان قالدۇق</span>
-              <span id="walletRemaining" class="text-xs font-bold text-emerald-400">43.59 $</span>
+              <span id="walletRemaining" class="text-xs font-bold text-emerald-400">$ 0.00</span>
             </div>
           </div>
         </div>
@@ -708,7 +712,7 @@
       }
     };
 
-    let walletBalance = 45.00;
+    let walletBalance = 0.00;
     let isVerified = false;
     let isPreviewMode = false;
     let currentServer = 'global';
@@ -1065,7 +1069,7 @@
         document.getElementById('bottomPkgName').textContent = selectedPkg.name;
         document.getElementById('bottomTotalUsd').textContent = '$ ' + selectedPkg.price.toFixed(2);
         document.getElementById('walletDeduct').textContent = '-$ ' + selectedPkg.price.toFixed(2);
-        const rem = walletBalance - selectedPkg.price;
+        const rem = Math.max(0, walletBalance - selectedPkg.price);
         document.getElementById('walletRemaining').textContent = '$ ' + rem.toFixed(2);
       }
     }
@@ -1411,6 +1415,26 @@ async function submitDeposit() {
 }
 
 function openDepositModal() {
+  if (!currentTgUser) {
+    showAppModal({
+      icon: '🔐',
+      title: 'ئالدى بىلەن تىزىملاپ كىرىڭ',
+      message: 'قالدۇق قاچىلاش ئۈچۈن، ئالدى بىلەن تېلېگرام ھېساباتىڭىز ئارقىلىق كىرىڭ. شۇنداق بولغاندا قاچىلىغان قالدۇقىڭىز بىۋاسىتە ھېساباتىڭىزغا قوشۇلىدۇ!',
+      confirmText: 'تېلېگرام ئارقىلىق كىرىش ➔',
+      confirmAction: function() {
+        openTelegramModal();
+      },
+      cancelText: 'شامكەش كۆرۈش',
+      cancelAction: function() {
+        proceedOpenDepositModal();
+      }
+    });
+    return;
+  }
+  proceedOpenDepositModal();
+}
+
+function proceedOpenDepositModal() {
   var modal = document.getElementById('depositModal');
   var card = document.getElementById('depositCard');
   if (!modal || !card) return;
@@ -1497,7 +1521,13 @@ function initTelegramAuth() {
     } catch (_) {}
   }
 
+  if (!currentTgUser) {
+    walletBalance = 0.00;
+  }
+
   updateTelegramHeader();
+  updateDisplays();
+
   if (currentTgUser) {
     refreshUserBalanceFromBot(true);
   }
@@ -1508,20 +1538,21 @@ function updateTelegramHeader() {
   if (!container) return;
 
   if (currentTgUser) {
+    var rawName = currentTgUser.name || currentTgUser.username || ('ID: ' + currentTgUser.id);
     container.innerHTML = 
       '<div onclick="openTelegramModal()" class="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-slate-900/90 border border-sky-500/50 hover:border-sky-300 cursor-pointer shrink-0 select-none whitespace-nowrap active:scale-95 shadow-sm" title="تېلېگرام: @' + (currentTgUser.username || currentTgUser.id) + '">' +
         '<div class="relative w-6 h-6 shrink-0">' +
           '<img src="' + currentTgUser.photo + '" class="w-full h-full rounded-full object-cover border border-sky-400 shadow-sm" onerror="this.src=\'https://api.dicebear.com/7.x/bottts/svg?seed=user\'"/>' +
           '<span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-slate-950 animate-pulse"></span>' +
         '</div>' +
-        '<div class="flex flex-col text-right leading-none">' +
-          '<span class="text-xs font-bold text-sky-100 max-w-[85px] sm:max-w-[120px] truncate font-mono">' + (currentTgUser.name || currentTgUser.username) + '</span>' +
-          '<span class="text-[8.5px] text-emerald-400 font-bold mt-0.5">ئۇلاندى</span>' +
+        '<div class="flex flex-col text-right leading-none min-w-0">' +
+          '<span dir="ltr" class="text-xs font-bold text-sky-100 max-w-[95px] sm:max-w-[130px] truncate font-mono text-left inline-block">' + rawName + '</span>' +
+          '<span class="text-[8.5px] text-emerald-400 font-bold mt-0.5">ئۇلاندى ✓</span>' +
         '</div>' +
       '</div>';
   } else {
     container.innerHTML = 
-      '<button onclick="openTelegramModal()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-bold transition shadow-sm active:scale-95 whitespace-nowrap cursor-pointer shrink-0" title="تېلېگرام ئارقىلىق كىرىش">' +
+      '<button onclick="openTelegramModal()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-bold transition shadow-sm active:scale-95 whitespace-nowrap cursor-pointer shrink-0" title="تېلېگرام ئارقىلىق كىرىش">' +
         '<svg class="w-3.5 h-3.5 fill-current shrink-0" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>' +
         '<span>كىرىش</span>' +
       '</button>';
