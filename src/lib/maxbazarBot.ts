@@ -1113,20 +1113,20 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
       { title: '💎 7740 ئالماس — $128.04', code: 'mlbb_g:422:ac', price: 128.04 },
     ],
     maxbazar: [
-      { title: '💎 55 ئالماس — $0.84', code: 'mlbb_g:1891:mb', price: 0.84 },
-      { title: '💎 86 ئالماس — $1.33', code: 'mlbb_g:1893:mb', price: 1.33 },
-      { title: '💎 165 ئالماس — $2.52', code: 'mlbb_g:1883:mb', price: 2.52 },
-      { title: '💎 275 ئالماس — $4.04', code: 'mlbb_g:1886:mb', price: 4.04 },
-      { title: '💎 429 ئالماس — $6.39', code: 'mlbb_g:1890:mb', price: 6.39 },
-      { title: '💎 706 ئالماس — $10.35', code: 'mlbb_g:1892:mb', price: 10.35 },
-      { title: '💎 1050 ئالماس — $15.60', code: 'mlbb_g:1880:mb', price: 15.6 },
-      { title: '💎 1308 ئالماس — $19.56', code: 'mlbb_g:1881:mb', price: 19.56 },
-      { title: '💎 1498 ئالماس — $22.01', code: 'mlbb_g:1882:mb', price: 22.01 },
-      { title: '💎 1756 ئالماس — $25.94', code: 'mlbb_g:1884:mb', price: 25.94 },
-      { title: '💎 2195 ئالماس — $31.29', code: 'mlbb_g:1885:mb', price: 31.29 },
-      { title: '💎 3073 ئالماس — $44.27', code: 'mlbb_g:1887:mb', price: 44.27 },
-      { title: '💎 3774 ئالماس — $53.54', code: 'mlbb_g:1888:mb', price: 53.54 },
-      { title: '💎 4204 ئالماس — $60.09', code: 'mlbb_g:1889:mb', price: 60.09 },
+      { title: '💎 55 ئالماس — $0.82', code: 'mlbb_g:1891:mb', price: 0.82 },
+      { title: '💎 86 ئالماس — $1.24', code: 'mlbb_g:1893:mb', price: 1.24 },
+      { title: '💎 165 ئالماس — $2.32', code: 'mlbb_g:1883:mb', price: 2.32 },
+      { title: '💎 275 ئالماس — $3.73', code: 'mlbb_g:1886:mb', price: 3.73 },
+      { title: '💎 429 ئالماس — $5.87', code: 'mlbb_g:1890:mb', price: 5.87 },
+      { title: '💎 706 ئالماس — $9.37', code: 'mlbb_g:1892:mb', price: 9.37 },
+      { title: '💎 1050 ئالماس — $14.10', code: 'mlbb_g:1880:mb', price: 14.10 },
+      { title: '💎 1308 ئالماس — $17.60', code: 'mlbb_g:1881:mb', price: 17.60 },
+      { title: '💎 1498 ئالماس — $19.71', code: 'mlbb_g:1882:mb', price: 19.71 },
+      { title: '💎 1756 ئالماس — $23.24', code: 'mlbb_g:1884:mb', price: 23.24 },
+      { title: '💎 2195 ئالماس — $28.03', code: 'mlbb_g:1885:mb', price: 28.03 },
+      { title: '💎 3073 ئالماس — $39.66', code: 'mlbb_g:1887:mb', price: 39.66 },
+      { title: '💎 3774 ئالماس — $47.97', code: 'mlbb_g:1888:mb', price: 47.97 },
+      { title: '💎 4204 ئالماس — $53.84', code: 'mlbb_g:1889:mb', price: 53.84 },
     ],
   },
   'games:mlbb_turkey': {
@@ -1140,15 +1140,15 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
       { title: '💎 2645 ئالماس (TR) — $41.01', code: 'mlbb_tr:433:ac', price: 41.01 },
     ],
     maxbazar: [
-      { title: '💎 16 ئالماس (TR) — $0.27', code: 'mlbb_tr:958:mb', price: 0.27 },
+      { title: '💎 16 ئالماس (TR) — $0.29', code: 'mlbb_tr:958:mb', price: 0.29 },
       { title: '💎 44 ئالماس (TR) — $0.74', code: 'mlbb_tr:961:mb', price: 0.74 },
-      { title: '💎 88 ئالماس (TR) — $1.48', code: 'mlbb_tr:964:mb', price: 1.48 },
-      { title: '💎 133 ئالماس (TR) — $2.23', code: 'mlbb_tr:957:mb', price: 2.23 },
-      { title: '💎 221 ئالماس (TR) — $3.71', code: 'mlbb_tr:959:mb', price: 3.71 },
-      { title: '💎 494 ئالماس (TR) — $8.26', code: 'mlbb_tr:962:mb', price: 8.26 },
-      { title: '💎 1041 ئالماس (TR) — $16.54', code: 'mlbb_tr:956:mb', price: 16.54 },
-      { title: '💎 2645 ئالماس (TR) — $41.29', code: 'mlbb_tr:960:mb', price: 41.29 },
-      { title: '💎 6146 ئالماس (TR) — $94.26', code: 'mlbb_tr:963:mb', price: 94.26 },
+      { title: '💎 88 ئالماس (TR) — $1.40', code: 'mlbb_tr:964:mb', price: 1.40 },
+      { title: '💎 133 ئالماس (TR) — $2.12', code: 'mlbb_tr:957:mb', price: 2.12 },
+      { title: '💎 221 ئالماس (TR) — $3.53', code: 'mlbb_tr:959:mb', price: 3.53 },
+      { title: '💎 494 ئالماس (TR) — $7.76', code: 'mlbb_tr:962:mb', price: 7.76 },
+      { title: '💎 1041 ئالماس (TR) — $15.29', code: 'mlbb_tr:956:mb', price: 15.29 },
+      { title: '💎 2645 ئالماس (TR) — $37.79', code: 'mlbb_tr:960:mb', price: 37.79 },
+      { title: '💎 6146 ئالماس (TR) — $86.26', code: 'mlbb_tr:963:mb', price: 86.26 },
     ],
   },
   'games:mlbb_special': {
@@ -1178,12 +1178,12 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
   'games:mlbb_passes': {
     name: '🎟️ MLBB — ھەپتىلىك كارتىلار',
     autocash: [
-      { title: '🎟️ ھەپتىلىك (گىلوبال) — $1.61', code: 'mlbb_pass:425:ac', price: 1.61 },
-      { title: '🎟️ ھەپتىلىك (تۈركىيە) — $2.21', code: 'mlbb_pass:438:ac', price: 2.21 },
+      { title: '🎟️ ھەپتىلىك (گىلوبال) — $1.52', code: 'mlbb_pass:425:ac', price: 1.52 },
+      { title: '🎟️ ھەپتىلىك (تۈركىيە) — $1.76', code: 'mlbb_pass:438:ac', price: 1.76 },
     ],
     maxbazar: [
-      { title: '🎟️ ھەپتىلىك (گىلوبال) — $1.63', code: 'mlbb_pass:1896:mb', price: 1.63 },
-      { title: '🎟️ ھەپتىلىك (تۈركىيە) — $1.90', code: 'mlbb_pass:967:mb', price: 1.9 },
+      { title: '🎟️ ھەپتىلىك (گىلوبال) — $1.52', code: 'mlbb_pass:1896:mb', price: 1.52 },
+      { title: '🎟️ ھەپتىلىك (تۈركىيە) — $1.76', code: 'mlbb_pass:967:mb', price: 1.76 },
     ],
   },
   'games:pubg_uc': {
@@ -2796,10 +2796,10 @@ export const PROMOTIONAL_ADS: Record<string, PromotionalAdDef> = {
       `• 🛡 <b>100% رەسمىي كاپالەتلىك</b>\n` +
       `• 💰 <b>تۆۋەن باھا، ئەڭ يۇقىرى سۈپەت</b>\n\n` +
       `📦 <b>قىزىق بولاقلار:</b>\n` +
-      `  🔹 55 ئالماس — <b>$0.84</b>\n` +
-      `  🔹 86 ئالماس — <b>$1.33</b>\n` +
-      `  🔹 165 ئالماس — <b>$2.52</b>\n` +
-      `  🔹 🎟️ ھەپتىلىك ئالماس پاسسى — <b>$2.05</b>\n\n` +
+      `  🔹 55 ئالماس — <b>$0.82</b>\n` +
+      `  🔹 86 ئالماس — <b>$1.24</b>\n` +
+      `  🔹 165 ئالماس — <b>$2.32</b>\n` +
+      `  🔹 🎟️ ھەپتىلىك ئالماس پاسسى — <b>$1.52</b>\n\n` +
       `👇 <i>تۆۋەندىكى كۇنۇپكىنى بېسىپ ھازىرلا سېتىۋېلىڭ:</i>`,
   },
   syriatel: {
