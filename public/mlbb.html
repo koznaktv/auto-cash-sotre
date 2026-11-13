@@ -320,7 +320,7 @@
         </div>
 
         <!-- Locked Notice (High-End Cyber Padlock Box with 3D Glowing Medallion) -->
-        <div id="lockedNotice" class="glass-box rounded-3xl p-5 border border-cyan-500/30 text-center space-y-3.5 relative overflow-hidden bg-gradient-to-b from-[#0a1224] via-[#090f1d] to-[#070b14] shadow-2xl">
+        <div id="lockedNotice" class="hidden glass-box rounded-3xl p-5 border border-cyan-500/30 text-center space-y-3.5 relative overflow-hidden bg-gradient-to-b from-[#0a1224] via-[#090f1d] to-[#070b14] shadow-2xl">
           <!-- Ambient decorative cyber glow -->
           <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-44 h-24 bg-cyan-500/15 rounded-full blur-2xl pointer-events-none"></div>
 
@@ -376,7 +376,7 @@
         </div>
 
         <!-- 3 Server Tabs (گىلوبال ، تۈركىيە، فىلىپپىن) -->
-        <div id="serverTabs" class="hidden grid-cols-3 gap-1.5 bg-[#0a101f] p-1.5 rounded-2xl border border-slate-800 text-xs shadow-lg">
+        <div id="serverTabs" class="grid grid-cols-3 gap-1.5 bg-[#0a101f] p-1.5 rounded-2xl border border-slate-800 text-xs shadow-lg">
           <button id="tabGlobal" onclick="switchServer('global')" class="py-2 px-1 rounded-xl font-bold transition text-center flex items-center justify-center gap-1.5">
             <span>🌐</span><span>گىلوبال</span>
           </button>
@@ -389,7 +389,7 @@
         </div>
 
         <!-- Packages Grid -->
-        <div id="packagesContainer" class="hidden grid-cols-2 gap-2">
+        <div id="packagesContainer" class="grid grid-cols-2 gap-2">
           <!-- Rendered via JS -->
         </div>
       </div>
@@ -433,7 +433,7 @@
             </span>
           </div>
 
-          <!-- 3 Stats Badges: Amber (Current), Rose (Deduct), Emerald (Remaining) -->
+          <!-- 3 Stats Badges: Amber (Current), Rose (Deduct), Emerald (Remaining) / Rose (Deficit) -->
           <div class="grid grid-cols-3 gap-2 pt-1 border-t border-slate-800/80 text-center font-mono">
             <div class="bg-gradient-to-b from-slate-900/95 to-[#161a24] rounded-xl p-2 border border-amber-500/40 shadow-sm">
               <span class="text-[10px] text-amber-300 font-bold block mb-0.5">💵 ھازىرقى قالدۇق</span>
@@ -443,8 +443,8 @@
               <span class="text-[10px] text-rose-400 font-bold block mb-0.5">🔻 كېمىيىدىغىنى</span>
               <span id="walletDeduct" class="text-xs sm:text-sm font-black text-rose-400">-1.52 $</span>
             </div>
-            <div class="bg-gradient-to-b from-slate-900/95 to-[#0e1f18] rounded-xl p-2 border border-emerald-500/40 shadow-sm">
-              <span class="text-[10px] text-emerald-400 font-bold block mb-0.5">🛡️ قالىدىغان قالدۇق</span>
+            <div id="walletRemainingBox" class="bg-gradient-to-b from-slate-900/95 to-[#0e1f18] rounded-xl p-2 border border-emerald-500/40 shadow-sm transition-all duration-300">
+              <span id="walletRemainingLabel" class="text-[10px] text-emerald-400 font-bold block mb-0.5">🛡️ قالىدىغان قالدۇق</span>
               <span id="walletRemaining" class="text-xs sm:text-sm font-black text-emerald-400">$ 0.00</span>
             </div>
           </div>
@@ -1120,6 +1120,15 @@
     }
 
     function switchServer(srv) {
+      if (isVerified && detectedServer && srv !== detectedServer) {
+        showAppModal({
+          title: 'سېرۋېر مۇقىملاندى',
+          message: 'سىز كىرگۈزگەن ئويۇن كىملىكى «' + (CATALOGS[detectedServer]?.flag || '') + ' ' + (CATALOGS[detectedServer]?.serverTitle || '') + '» سېرۋېرىغا تەۋە. خاتا سېتىۋېلىپ زىيان تارتىپ قېلىشنىڭ ئالدىنى ئېلىش ئۈچۈن، پەقەت مۇشۇ سېرۋېرنىڭ باھاسى بىلەن سېتىۋالالايسىز.',
+          icon: '🛡️',
+          confirmText: 'چۈشەندىم'
+        });
+        return;
+      }
       currentServer = srv;
       if (!CATALOGS[currentServer]) currentServer = 'global';
       selectedPkg = CATALOGS[currentServer].packages[0];
@@ -1134,52 +1143,41 @@
       const tag = document.getElementById('activeServerTag');
       const previewBanner = document.getElementById('previewBanner');
 
-      if (!isVerified && !isPreviewMode) {
-        locked.classList.remove('hidden');
-        tabs.classList.add('hidden');
-        tabs.classList.remove('grid');
-        container.classList.add('hidden');
-        container.classList.remove('grid');
-        tag.classList.add('hidden');
-        if (previewBanner) previewBanner.classList.add('hidden');
-        return;
+      if (locked) locked.classList.add('hidden');
+      if (tabs) {
+        tabs.classList.remove('hidden');
+        tabs.classList.add('grid');
       }
-
-      locked.classList.add('hidden');
-      tabs.classList.remove('hidden');
-      tabs.classList.add('grid');
-      container.classList.remove('hidden');
-      container.classList.add('grid');
-      tag.classList.remove('hidden');
-      // No duplicate flag!
-      tag.textContent = CATALOGS[currentServer].flag + ' ' + CATALOGS[currentServer].serverTitle + ' باھاسى';
-
-      if (isPreviewMode && !isVerified) {
-        if (previewBanner) {
-          previewBanner.classList.remove('hidden');
-          previewBanner.classList.add('flex');
-          document.getElementById('previewBannerTitle').textContent = 'كۆرۈپ بېقىش ھالىتى: ' + CATALOGS[currentServer].flag + ' ' + CATALOGS[currentServer].serverTitle + ' باھالىرى';
-        }
-      } else {
-        if (previewBanner) previewBanner.classList.add('hidden');
+      if (container) {
+        container.classList.remove('hidden');
+        container.classList.add('grid');
+      }
+      if (tag) {
+        tag.classList.remove('hidden');
+        tag.textContent = CATALOGS[currentServer].flag + ' ' + CATALOGS[currentServer].serverTitle + ' باھاسى';
+      }
+      if (previewBanner) {
+        previewBanner.classList.add('hidden');
       }
 
       // Tabs active and locked class
       ['global', 'turkey', 'special'].forEach(s => {
         const btn = document.getElementById('tab' + s.charAt(0).toUpperCase() + s.slice(1));
+        if (!btn) return;
         const sTitle = CATALOGS[s].serverTitle;
         const sFlag = CATALOGS[s].flag;
 
         if (s === currentServer) {
           btn.className = 'py-2 px-1 rounded-xl font-black transition-all text-center bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-500/30 border border-cyan-300 flex items-center justify-center gap-1.5 scale-[1.02] cursor-pointer';
           btn.innerHTML = '<span>' + sFlag + '</span><span>' + sTitle + '</span>' + (isVerified ? '<span class="text-[8.5px] bg-emerald-400 text-slate-950 px-1 py-0.5 rounded font-black font-mono">تەستىقلاندى</span>' : '<span class="w-1.5 h-1.5 rounded-full bg-cyan-300 animate-ping"></span>');
+          btn.title = '';
         } else {
-          if (isVerified) {
+          if (isVerified && detectedServer && s !== detectedServer) {
             btn.className = 'py-2 px-1 rounded-xl font-bold transition text-center text-slate-500 bg-slate-950/70 border border-slate-800/80 cursor-not-allowed opacity-40 flex items-center justify-center gap-1.5';
             btn.innerHTML = '<span>🔒</span><span class="line-through opacity-70">' + sTitle + '</span>';
             btn.title = 'خاتا سېتىۋېلىشتىن مۇداپىئەلىنىش ئۈچۈن قۇلۇپلاندى';
           } else {
-            btn.className = 'py-2 px-1 rounded-xl font-bold transition text-center text-slate-400 hover:text-white bg-slate-900/90 hover:bg-slate-800 border border-slate-800 flex items-center justify-center gap-1.5 cursor-pointer';
+            btn.className = 'py-2 px-1 rounded-xl font-bold transition text-center text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent cursor-pointer flex items-center justify-center gap-1.5';
             btn.innerHTML = '<span>' + sFlag + '</span><span>' + sTitle + '</span>';
             btn.title = '';
           }
@@ -1255,12 +1253,53 @@
         walletCurElem.textContent = '$ ' + walletBalance.toFixed(2);
       }
 
+      if (!selectedPkg && CATALOGS[currentServer]?.packages?.length > 0) {
+        selectedPkg = CATALOGS[currentServer].packages[0];
+      }
+
       if (selectedPkg) {
-        document.getElementById('bottomPkgName').textContent = selectedPkg.name;
-        document.getElementById('bottomTotalUsd').textContent = '$ ' + selectedPkg.price.toFixed(2);
-        document.getElementById('walletDeduct').textContent = '-$ ' + selectedPkg.price.toFixed(2);
-        const rem = Math.max(0, walletBalance - selectedPkg.price);
-        document.getElementById('walletRemaining').textContent = '$ ' + rem.toFixed(2);
+        const bottomPkgName = document.getElementById('bottomPkgName');
+        if (bottomPkgName) bottomPkgName.textContent = selectedPkg.name;
+
+        const bottomTotalUsd = document.getElementById('bottomTotalUsd');
+        if (bottomTotalUsd) bottomTotalUsd.textContent = '$ ' + selectedPkg.price.toFixed(2);
+
+        const walletDeduct = document.getElementById('walletDeduct');
+        if (walletDeduct) walletDeduct.textContent = '-$ ' + selectedPkg.price.toFixed(2);
+
+        const remBox = document.getElementById('walletRemainingBox');
+        const remLabel = document.getElementById('walletRemainingLabel');
+        const remElem = document.getElementById('walletRemaining');
+
+        if (walletBalance >= selectedPkg.price) {
+          // قالدۇق يېتەرلىك: قالىدىغان پۇلنى يېشىل قالقان ھالىتىدە كۆرسىتىش
+          const rem = walletBalance - selectedPkg.price;
+          if (remBox) {
+            remBox.className = "bg-gradient-to-b from-slate-900/95 to-[#0e1f18] rounded-xl p-2 border border-emerald-500/40 shadow-sm transition-all duration-300";
+          }
+          if (remLabel) {
+            remLabel.className = "text-[10px] text-emerald-400 font-bold block mb-0.5";
+            remLabel.textContent = "🛡️ قالىدىغان قالدۇق";
+          }
+          if (remElem) {
+            remElem.className = "text-xs sm:text-sm font-black text-emerald-400";
+            remElem.textContent = "$ " + rem.toFixed(2);
+          }
+        } else {
+          // قالدۇق پۇلى ئاز قىممەتنى تاللىۋالغان بولسا: كەملىگەن قالدۇق پۇلى دەپ قانچىلىك كاملىغانلىقىنى ئېنىق ھېسابلاپ قىزىل ئاگاھلاندۇرۇشتا كۆرسىتىش
+          const missing = selectedPkg.price - walletBalance;
+          if (remBox) {
+            remBox.className = "bg-gradient-to-b from-slate-900/95 to-[#241014] rounded-xl p-2 border border-rose-500/70 shadow-md shadow-rose-950/40 transition-all duration-300";
+          }
+          if (remLabel) {
+            remLabel.className = "text-[10px] text-rose-400 font-bold block mb-0.5";
+            remLabel.textContent = "⚠️ كەملىگەن قالدۇق پۇلى";
+          }
+          if (remElem) {
+            remElem.className = "text-xs sm:text-sm font-black text-rose-400";
+            remElem.textContent = "-$ " + missing.toFixed(2);
+          }
+        }
       }
     }
 
@@ -1385,11 +1424,26 @@
         return;
       }
 
-      // 3. Check wallet balance
+      // 2.5 Server lock check: prevent buying at another server's price
+      if (detectedServer && currentServer !== detectedServer) {
+        currentServer = detectedServer;
+        renderPackages();
+        updateDisplays();
+        showAppModal({
+          title: 'سېرۋېر رايونى قوغدالدى',
+          message: 'سىز كىرگۈزگەن كىملىك «' + (CATALOGS[detectedServer]?.flag || '') + ' ' + (CATALOGS[detectedServer]?.serverTitle || '') + '» سېرۋېرىغا تەۋە. پۇل كېتىپ زىيان تارتىپ قالماسلىقىڭىز ئۈچۈن، سىستېما ئۆز سېرۋېرىڭىزغا ماسلاشتۇردى.',
+          icon: '🛡️',
+          confirmText: 'چۈشەندىم'
+        });
+        return;
+      }
+
+      // 3. Check wallet balance & calculate deficit
       if (walletBalance < selectedPkg.price) {
+        const missing = selectedPkg.price - walletBalance;
         showAppModal({
           title: 'ھەميان قالدۇقى يېتىشمىدى',
-          message: 'نۆۋەتتىكى قالدۇقىڭىز: $' + walletBalance.toFixed(2) + '، كېرەكلىك پۇل: $' + selectedPkg.price.toFixed(2) + '. ئالدى بىلەن شامكەش ئارقىلىق قالدۇق كىرگۈزۈڭ!',
+          message: 'نۆۋەتتىكى قالدۇقىڭىز: $' + walletBalance.toFixed(2) + '، بۇ بوغچىنى سېتىۋېلىشقا يەنە $' + missing.toFixed(2) + ' كەملىدى (جەمئىي باھاسى: $' + selectedPkg.price.toFixed(2) + '). ئالدى بىلەن شامكەش ئارقىلىق قالدۇق كىرگۈزۈڭ!',
           icon: '💰',
           confirmText: '⚡ قالدۇق قاچىلاش (ShamCash)',
           confirmAction: function() {

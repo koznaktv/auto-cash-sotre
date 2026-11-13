@@ -120,18 +120,37 @@ export async function GET(req: NextRequest) {
           if (displayName.toLowerCase() === 'weekly') displayName = 'Weekly Diamond Pass';
           if (displayName.toLowerCase().includes('weekly elite')) displayName = 'Weekly Elite Pack';
 
-          passesList.push({
+          const passItem: CatalogProduct = {
             id: p.id,
-            name: displayName,
+            name: displayName === 'Weekly Diamond Pass' ? 'ھەپتىلىك كارتا' : displayName,
             amount: displayName,
             price: sellPrice,
             cost,
             available: isAvailable,
-            popular: displayName.includes('Weekly Diamond Pass'),
+            popular: true,
             category: catName,
             type: 'pass',
             days,
-          });
+          };
+          passesList.push(passItem);
+
+          if (catName.includes('Turkey')) {
+            turkeyList.push({
+              ...passItem,
+              name: 'ھەپتىلىك كارتا (تۈركىيە)',
+            });
+          } else if (catName.includes('Special')) {
+            specialList.push({
+              ...passItem,
+              name: 'ھەپتىلىك كارتا (ئالاھىدە)',
+            });
+          } else {
+            // Global
+            globalList.push({
+              ...passItem,
+              name: 'ھەپتىلىك كارتا',
+            });
+          }
         } else if (catName.includes('Turkey')) {
           turkeyList.push({
             id: p.id,
@@ -172,21 +191,26 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      // Sort lists by price ascending
-      const sortByPrice = (a: CatalogProduct, b: CatalogProduct) => a.price - b.price;
-      globalList.sort(sortByPrice);
-      turkeyList.sort(sortByPrice);
-      specialList.sort(sortByPrice);
-      passesList.sort(sortByPrice);
+      // Sort lists: keep Passes at the very top (index 0), then sort diamonds by price ascending
+      const sortListWithPassFirst = (list: CatalogProduct[]) => {
+        const passes = list.filter((p) => p.type === 'pass').sort((a, b) => a.price - b.price);
+        const diamonds = list.filter((p) => p.type !== 'pass').sort((a, b) => a.price - b.price);
+        return [...passes, ...diamonds];
+      };
+
+      const finalGlobal = sortListWithPassFirst(globalList);
+      const finalTurkey = sortListWithPassFirst(turkeyList);
+      const finalSpecial = sortListWithPassFirst(specialList);
+      passesList.sort((a, b) => a.price - b.price);
 
       return NextResponse.json({
         ok: true,
         app: 'mobile-legends',
         updated_at: new Date().toISOString(),
         catalogs: {
-          global: globalList,
-          turkey: turkeyList,
-          special: specialList,
+          global: finalGlobal,
+          turkey: finalTurkey,
+          special: finalSpecial,
           passes: passesList,
         },
       });
