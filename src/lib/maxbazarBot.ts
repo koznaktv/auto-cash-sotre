@@ -1113,6 +1113,8 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
       { title: '💎 7740 ئالماس — $128.04', code: 'mlbb_g:422:ac', price: 128.04 },
     ],
     maxbazar: [
+      { title: '🎟️ ھەپتىلىك ئالماس كارتىسى — $1.51', code: 'mlbb_g:1896:mb', price: 1.51 },
+      { title: '📦 ھەپتىلىك ئېلىت بوغچىسى — $0.83', code: 'mlbb_g:1897:mb', price: 0.83 },
       { title: '💎 55 ئالماس — $0.82', code: 'mlbb_g:1891:mb', price: 0.82 },
       { title: '💎 86 ئالماس — $1.24', code: 'mlbb_g:1893:mb', price: 1.24 },
       { title: '💎 165 ئالماس — $2.32', code: 'mlbb_g:1883:mb', price: 2.32 },
@@ -1140,6 +1142,7 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
       { title: '💎 2645 ئالماس (TR) — $41.01', code: 'mlbb_tr:433:ac', price: 41.01 },
     ],
     maxbazar: [
+      { title: '🎟️ ھەپتىلىك ئالماس كارتىسى (TR) — $1.76', code: 'mlbb_tr:967:mb', price: 1.76 },
       { title: '💎 16 ئالماس (TR) — $0.29', code: 'mlbb_tr:958:mb', price: 0.29 },
       { title: '💎 44 ئالماس (TR) — $0.74', code: 'mlbb_tr:961:mb', price: 0.74 },
       { title: '💎 88 ئالماس (TR) — $1.40', code: 'mlbb_tr:964:mb', price: 1.40 },
@@ -1156,6 +1159,7 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
     autocash: [
     ],
     maxbazar: [
+      { title: '🎟️ ھەپتىلىك ئالماس كارتىسى (ئالاھىدە) — $2.25', code: 'mlbb_sp:954:mb', price: 2.25 },
       { title: '💎 14 ئالماس (ئاسىيا فىلىپپىن) — $0.28', code: 'mlbb_sp:941:mb', price: 0.28 },
       { title: '💎 28 ئالماس (ئاسىيا فىلىپپىن) — $0.57', code: 'mlbb_sp:948:mb', price: 0.57 },
       { title: '💎 42 ئالماس (ئاسىيا فىلىپپىن) — $0.85', code: 'mlbb_sp:951:mb', price: 0.85 },

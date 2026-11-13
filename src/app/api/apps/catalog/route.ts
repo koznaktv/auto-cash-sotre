@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 interface CatalogProduct {
   id: number;
   name: string;
+  subtext?: string;
   amount: number | string;
   bonus?: number | string;
   price: number;
@@ -14,6 +15,7 @@ interface CatalogProduct {
   category: string;
   type?: 'diamonds' | 'pass';
   days?: number;
+  priority?: number;
 }
 
 // In-memory cache for MaxStore products
@@ -96,112 +98,151 @@ export async function GET(req: NextRequest) {
       const passesList: CatalogProduct[] = [];
 
       for (const p of mlbbProds) {
+        // Exclude products that are not available at wholesale provider
+        if (p.available === false) continue;
+
         const catName = p.category_name || '';
         const prodName = p.name || '';
         const cost = Number(p.price || 0);
         const sellPrice = calculateDynamicSellingPrice(cost);
-        const isAvailable = p.available !== false;
+        const lowerName = prodName.toLowerCase();
 
-        const isPass =
-          prodName.toLowerCase().includes('weekly') ||
-          prodName.toLowerCase().includes('monthly') ||
-          prodName.toLowerCase().includes('twilight');
+        // 1. Weekly Diamond Pass (The authentic 210 Diamond Weekly Card)
+        const isWeeklyDiamondPass =
+          lowerName.startsWith('weekly -') ||
+          lowerName === 'weekly' ||
+          lowerName.includes('weekly diamond');
+        // 2. Weekly Elite Pack (Emblem / magic dust chest pack)
+        const isWeeklyElite = lowerName.includes('weekly elite');
+        // 3. Monthly Elite Pack (30-day resources)
+        const isMonthlyElite = lowerName.includes('monthly elite');
+        // 4. Twilight Pass (Skin & Pass)
+        const isTwilight = lowerName.includes('twilight');
+
+        const isPass = isWeeklyDiamondPass || isWeeklyElite || isMonthlyElite || isTwilight;
 
         // Extract diamond count (e.g. "14 - Mobile Legends Special" -> 14)
         const numMatch = prodName.match(/^(\d+)/);
         const amount = numMatch ? parseInt(numMatch[1], 10) : prodName.replace(/ - .*/, '');
 
         if (isPass) {
-          let displayName = prodName.replace(/ - .*/, '').trim();
-          let days = 7;
-          if (displayName.toLowerCase().includes('monthly')) days = 30;
-          if (displayName.toLowerCase().includes('twilight')) days = 30;
+          let passTitle = '';
+          let passSubtext = '';
+          let priority = 99;
 
-          if (displayName.toLowerCase() === 'weekly') displayName = 'Weekly Diamond Pass';
-          if (displayName.toLowerCase().includes('weekly elite')) displayName = 'Weekly Elite Pack';
+          if (isWeeklyDiamondPass) {
+            passTitle = 'ھەپتىلىك ئالماس كارتىسى';
+            passSubtext = 'Weekly Diamond Pass (210💎)';
+            priority = 1; // TOP PRIORITY: INDEX 0
+          } else if (isWeeklyElite) {
+            passTitle = 'ھەپتىلىك ئېلىت بوغچىسى';
+            passSubtext = 'Weekly Elite Pack';
+            priority = 2;
+          } else if (isMonthlyElite) {
+            passTitle = 'ئايلىق ئېلىت بوغچىسى';
+            passSubtext = 'Monthly Elite Pack (30 كۈن)';
+            priority = 3;
+          } else if (isTwilight) {
+            passTitle = 'Twilight Pass ئالىي كارتىسى';
+            passSubtext = 'Twilight Pass • مەخسۇس Skin';
+            priority = 4;
+          }
 
-          const passItem: CatalogProduct = {
+          const basePassItem: CatalogProduct = {
             id: p.id,
-            name: displayName === 'Weekly Diamond Pass' ? 'ھەپتىلىك كارتا' : displayName,
-            amount: displayName,
+            name: passTitle,
+            subtext: passSubtext,
+            amount: passTitle,
             price: sellPrice,
             cost,
-            available: isAvailable,
-            popular: true,
+            available: true,
+            popular: priority === 1,
             category: catName,
             type: 'pass',
-            days,
+            priority,
+            days: isMonthlyElite || isTwilight ? 30 : 7,
           };
-          passesList.push(passItem);
+
+          passesList.push(basePassItem);
 
           if (catName.includes('Turkey')) {
             turkeyList.push({
-              ...passItem,
-              name: 'ھەپتىلىك كارتا (تۈركىيە)',
+              ...basePassItem,
+              name: `${passTitle} (تۈركىيە)`,
             });
           } else if (catName.includes('Special')) {
             specialList.push({
-              ...passItem,
-              name: 'ھەپتىلىك كارتا (ئالاھىدە)',
+              ...basePassItem,
+              name: `${passTitle} (ئالاھىدە)`,
             });
           } else {
             // Global
             globalList.push({
-              ...passItem,
-              name: 'ھەپتىلىك كارتا',
+              ...basePassItem,
+              name: passTitle,
             });
           }
         } else if (catName.includes('Turkey')) {
           turkeyList.push({
             id: p.id,
             name: `${amount} ئالماس (تۈركىيە)`,
+            subtext: 'رەسمىي قاچىلاش',
             amount,
             price: sellPrice,
             cost,
-            available: isAvailable,
+            available: true,
             popular: amount === 88 || amount === 221,
             category: catName,
             type: 'diamonds',
+            priority: 100,
           });
         } else if (catName.includes('Special')) {
           specialList.push({
             id: p.id,
             name: `${amount} ئالماس (ئالاھىدە)`,
+            subtext: 'رەسمىي قاچىلاش',
             amount,
             price: sellPrice,
             cost,
-            available: isAvailable,
+            available: true,
             popular: amount === 55 || amount === 275,
             category: catName,
             type: 'diamonds',
+            priority: 100,
           });
         } else {
           // Global
           globalList.push({
             id: p.id,
-            name: `${amount} ئالماس (دۇنيا)`,
+            name: `${amount} ئالماس (گىلوبال)`,
+            subtext: 'رەسمىي قاچىلاش',
             amount,
             price: sellPrice,
             cost,
-            available: isAvailable,
+            available: true,
             popular: amount === 55 || amount === 275 || amount === 706,
             category: catName,
             type: 'diamonds',
+            priority: 100,
           });
         }
       }
 
-      // Sort lists: keep Passes at the very top (index 0), then sort diamonds by price ascending
+      // Sort lists: keep Passes at the very top sorted by priority (Weekly Diamond Pass #1), then sort diamonds by price ascending
       const sortListWithPassFirst = (list: CatalogProduct[]) => {
-        const passes = list.filter((p) => p.type === 'pass').sort((a, b) => a.price - b.price);
-        const diamonds = list.filter((p) => p.type !== 'pass').sort((a, b) => a.price - b.price);
+        const passes = list
+          .filter((p) => p.type === 'pass')
+          .sort((a, b) => (a.priority || 99) - (b.priority || 99));
+        const diamonds = list
+          .filter((p) => p.type !== 'pass')
+          .sort((a, b) => a.price - b.price);
         return [...passes, ...diamonds];
       };
 
       const finalGlobal = sortListWithPassFirst(globalList);
       const finalTurkey = sortListWithPassFirst(turkeyList);
       const finalSpecial = sortListWithPassFirst(specialList);
-      passesList.sort((a, b) => a.price - b.price);
+      passesList.sort((a, b) => (a.priority || 99) - (b.priority || 99));
 
       return NextResponse.json({
         ok: true,
