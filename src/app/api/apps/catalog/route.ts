@@ -257,6 +257,162 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    if (app === 'pubg' || app === 'pubg-mobile') {
+      const pubgProds = allProducts.filter((p) => {
+        const cat = (p.category_name || '').toLowerCase();
+        const name = (p.name || '').toLowerCase();
+        return (
+          (cat.includes('pubg') || name.includes('pubg')) &&
+          !cat.includes('new state') &&
+          !name.includes('new state')
+        );
+      });
+
+      const ucList: CatalogProduct[] = [];
+      const passesList: CatalogProduct[] = [];
+      const vouchersList: CatalogProduct[] = [];
+
+      for (const p of pubgProds) {
+        if (p.available === false) continue;
+        const catName = p.category_name || '';
+        const prodName = p.name || '';
+        const cost = Number(p.price || 0);
+        const sellPrice = calculateDynamicSellingPrice(cost);
+        const lowerName = prodName.toLowerCase();
+        const lowerCat = catName.toLowerCase();
+
+        // 1. Digital Vouchers (Pin Codes)
+        if (lowerCat.includes('voucher') || lowerName.includes('voucher')) {
+          const numMatch = prodName.match(/^(\d+)/);
+          const amount = numMatch ? parseInt(numMatch[1], 10) : 60;
+          vouchersList.push({
+            id: p.id,
+            name: `${amount} UC كود (PIN)`,
+            subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر',
+            amount,
+            price: sellPrice,
+            cost,
+            available: true,
+            category: catName,
+            type: 'diamonds',
+          });
+          continue;
+        }
+
+        // 2. Subscriptions & Passes (Royale Pass, Prime, etc.)
+        if (
+          lowerCat.includes('حزم') ||
+          lowerName.includes('elite pass') ||
+          lowerName.includes('برايم') ||
+          lowerName.includes('prime')
+        ) {
+          let passTitle = prodName;
+          let passSubtext = 'Royale Pass & تەمىنات';
+          let priority = 99;
+
+          if (lowerName.includes('elite pass lv1-50') || lowerName.includes('lv1-50')) {
+            passTitle = 'Royale Pass Elite (LV 1-50)';
+            passSubtext = 'رەسمىي RP پاس كارتىسى';
+            priority = 1;
+          } else if (lowerName.includes('elite pass lv1-100') || lowerName.includes('lv1-100')) {
+            passTitle = 'Royale Pass Elite Plus (LV 1-100)';
+            passSubtext = 'تولۇق RP پاس + قوشۇمچە تەمىنات';
+            priority = 2;
+          } else if (lowerName.includes('برايم بلس') || lowerName.includes('prime plus')) {
+            passTitle = 'Prime Plus ئايلىق كارتىسى';
+            passSubtext = 'كۈندىلىك UC + نۇرغۇن ئېتىبارلار';
+            priority = 3;
+          } else if (lowerName.includes('برايم') || lowerName.includes('prime')) {
+            passTitle = 'Prime ئەزالىق كارتىسى';
+            passSubtext = 'ئەرزان باھالىق كۈندىلىك تەڭگە';
+            priority = 4;
+          }
+
+          passesList.push({
+            id: p.id,
+            name: passTitle,
+            subtext: passSubtext,
+            amount: passTitle,
+            price: sellPrice,
+            cost,
+            available: true,
+            popular: priority === 1,
+            category: catName,
+            type: 'pass',
+            priority,
+          });
+          continue;
+        }
+
+        // 3. Direct UC Top-up (PUBG Mobile عالمي)
+        if (lowerName.includes('wow coins') || lowerName.includes('(تخفيض)')) {
+          continue;
+        }
+
+        const numMatch = prodName.match(/^(\d+)/);
+        const amount = numMatch ? parseInt(numMatch[1], 10) : 60;
+
+        ucList.push({
+          id: p.id,
+          name: `${amount} PUBG UC`,
+          subtext: amount === 660 ? '🔥 Royale Pass ئېچىشقا ماس' : 'بىۋاسىتە كىملىككە (UID)',
+          amount,
+          price: sellPrice,
+          cost,
+          available: true,
+          popular: amount === 60 || amount === 325 || amount === 660 || amount === 1800,
+          category: catName,
+          type: 'diamonds',
+        });
+      }
+
+      // Sort UC by amount ascending
+      ucList.sort((a, b) => Number(a.amount) - Number(b.amount));
+      // Sort Passes by priority
+      passesList.sort((a, b) => (a.priority || 99) - (b.priority || 99));
+      // Sort vouchers by amount ascending
+      vouchersList.sort((a, b) => Number(a.amount) - Number(b.amount));
+
+      // Reliable fallbacks if provider API is temporarily unreachable or empty
+      if (ucList.length === 0) {
+        ucList.push(
+          { id: 60, name: '60 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', amount: 60, price: 1.15, cost: 0.94, available: true, popular: true, category: 'PUBG Mobile عالمي', type: 'diamonds' },
+          { id: 54, name: '325 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', amount: 325, price: 5.25, cost: 4.68, available: true, popular: true, category: 'PUBG Mobile عالمي', type: 'diamonds' },
+          { id: 62, name: '660 PUBG UC', subtext: '🔥 Royale Pass ئېچىشقا ماس', amount: 660, price: 10.35, cost: 9.36, available: true, popular: true, category: 'PUBG Mobile عالمي', type: 'diamonds' },
+          { id: 55, name: '1800 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', amount: 1800, price: 25.50, cost: 23.40, available: true, popular: true, category: 'PUBG Mobile عالمي', type: 'diamonds' },
+          { id: 56, name: '3850 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', amount: 3850, price: 50.80, cost: 46.80, available: true, popular: false, category: 'PUBG Mobile عالمي', type: 'diamonds' },
+          { id: 57, name: '8100 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', amount: 8100, price: 99.90, cost: 93.60, available: true, popular: false, category: 'PUBG Mobile عالمي', type: 'diamonds' },
+          { id: 59, name: '16200 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', amount: 16200, price: 198.00, cost: 187.20, available: true, popular: false, category: 'PUBG Mobile عالمي', type: 'diamonds' }
+        );
+      }
+      if (passesList.length === 0) {
+        passesList.push(
+          { id: 343, name: 'Royale Pass Elite (LV 1-50)', subtext: 'رەسمىي RP پاس كارتىسى', amount: 'Royale Pass Elite', price: 10.35, cost: 9.40, available: true, popular: true, category: 'PUBG Mobile', type: 'pass', priority: 1 },
+          { id: 344, name: 'Royale Pass Elite Plus (LV 1-100)', subtext: 'تولۇق RP پاس + قوشۇمچە تەمىنات', amount: 'Royale Pass Elite Plus', price: 25.50, cost: 23.50, available: true, popular: false, category: 'PUBG Mobile', type: 'pass', priority: 2 },
+          { id: 341, name: 'Prime Plus ئايلىق كارتىسى', subtext: 'كۈندىلىك UC + نۇرغۇن ئېتىبارلار', amount: 'Prime Plus', price: 9.80, cost: 8.90, available: true, popular: false, category: 'PUBG Mobile', type: 'pass', priority: 3 },
+          { id: 340, name: 'Prime ئەزالىق كارتىسى', subtext: 'ئەرزان باھالىق كۈندىلىك تەڭگە', amount: 'Prime', price: 1.25, cost: 0.99, available: true, popular: false, category: 'PUBG Mobile', type: 'pass', priority: 4 }
+        );
+      }
+      if (vouchersList.length === 0) {
+        vouchersList.push(
+          { id: 444, name: '60 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', amount: 60, price: 1.15, cost: 0.93, available: true, popular: false, category: 'PUBG MOBILE UC Vouchers', type: 'diamonds' },
+          { id: 445, name: '660 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', amount: 660, price: 10.30, cost: 9.26, available: true, popular: true, category: 'PUBG MOBILE UC Vouchers', type: 'diamonds' },
+          { id: 446, name: '1800 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', amount: 1800, price: 25.30, cost: 23.20, available: true, popular: false, category: 'PUBG MOBILE UC Vouchers', type: 'diamonds' }
+        );
+      }
+
+      return NextResponse.json({
+        ok: true,
+        app: 'pubg-mobile',
+        updated_at: new Date().toISOString(),
+        catalogs: {
+          uc: ucList,
+          passes: passesList,
+          vouchers: vouchersList,
+        },
+      });
+    }
+
     return NextResponse.json({ ok: false, error: 'نامەلۇم ئەپ كىملىكى' }, { status: 400 });
   } catch (err: any) {
     return NextResponse.json({ ok: false, error: err?.message || 'Server Error' }, { status: 500 });

@@ -197,12 +197,14 @@ export async function POST(req: NextRequest) {
 
         // MaxStore strictly expects params according to params_meta:
         // For MLBB: { player_id, server_id }
-        // For HOK / PUBG: { player_id }
+        // For PUBG Mobile: { Player_ID } or { player_id }
         const orderParams: Record<string, any> = {
           player_id: targetPlayerId,
+          Player_ID: targetPlayerId,
         };
         if (targetServerId) {
           orderParams.server_id = targetServerId;
+          orderParams.Server_ID = targetServerId;
         }
 
         // Server-region guard: prevent cross-server exploitation / wrong server purchases

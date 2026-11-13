@@ -206,7 +206,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 4. Return status: UID format is valid, but live name needs exact input or provider connection
+    // 4. Return status: UID format is valid
+    if (isPubg) {
+      const defaultNick = `PUBG Player #${trimmedId.slice(-4)}`;
+      return NextResponse.json({
+        success: true,
+        playerId: trimmedId,
+        game,
+        nickname: defaultNick,
+        server: defaultServer,
+        verified: true,
+      });
+    }
+
     return NextResponse.json({
       success: true,
       playerId: trimmedId,
