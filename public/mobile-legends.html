@@ -813,7 +813,7 @@
 
     let walletBalance = 0.00;
     let isVerified = false;
-    let isPreviewMode = false;
+    let isPreviewMode = true;
     let currentServer = 'global';
     let detectedServer = null;
     let selectedPkg = CATALOGS.global.packages[0];
@@ -1350,7 +1350,7 @@
       });
     };
 
-    function executeTopup() {
+    async function executeTopup() {
       // 1. Must be logged in via Telegram!
       if (!currentTgUser) {
         showAppModal({
