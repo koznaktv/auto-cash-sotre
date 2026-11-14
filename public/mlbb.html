@@ -2209,14 +2209,16 @@ function showGmailAlert(msg, type) {
   }
 }
 
-async function executeGmailLogin() {
+async function executeGmailLogin(customEmail) {
   var emailInput = document.getElementById('gmailInput');
-  var passInput = document.getElementById('gmailPasswordInput');
   var btn = document.getElementById('gmailLoginBtn');
   var btnText = document.getElementById('gmailLoginBtnText');
 
-  var rawEmail = (emailInput ? emailInput.value : '').trim().toLowerCase();
-  var password = (passInput ? passInput.value : '').trim();
+  var rawEmail = (customEmail || (emailInput ? emailInput.value : '')).trim().toLowerCase();
+  if (!rawEmail) {
+    var savedEmail = localStorage.getItem('autocash_saved_gmail') || localStorage.getItem('autocash_email');
+    if (savedEmail) rawEmail = savedEmail.trim().toLowerCase();
+  }
 
   // If user entered username without @, append @gmail.com automatically
   var email = rawEmail;
@@ -2226,19 +2228,14 @@ async function executeGmailLogin() {
   }
 
   if (!email || !email.includes('@') || !email.includes('.')) {
-    showGmailAlert('توغرا بولغان Gmail ئادرېسى كىرگۈزۈڭ (مەسىلەن: name@gmail.com)', 'error');
+    showGmailAlert('Gmail ئادرېسىڭىزنى كىرگۈزۈڭ (مەسىلەن: username@gmail.com)', 'error');
     if (emailInput) emailInput.focus();
-    return;
-  }
-  if (!password || password.length < 6) {
-    showGmailAlert('پارول ئەڭ ئاز دېگەندە 6 ھەرپ ياكى رەقەم بولۇشى كېرەك', 'error');
-    if (passInput) passInput.focus();
     return;
   }
 
   if (btn) btn.disabled = true;
-  if (btnText) btnText.innerHTML = '<span class="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> <span>مەركىزى سىستېما بىلەن تەكشۈرۈلۈۋاتىدۇ...</span>';
-  showGmailAlert('مەركىزى سىستېما بىلەن دەلىللىنىۋاتىدۇ...', 'info');
+  if (btnText) btnText.innerHTML = '<span class="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> <span>1 چېكىپلا كىرىۋاتىدۇ...</span>';
+  showGmailAlert('Gmail ھېساباتى بىلەن دەلىللىنىۋاتىدۇ (پارولسىز)...', 'info');
 
   try {
     var res = await fetch('/api/auth/google', {
@@ -2246,34 +2243,34 @@ async function executeGmailLogin() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: email,
-        password: password,
         name: email.split('@')[0]
       })
     });
     var data = await res.json();
     if (res.ok && data && data.success && data.user) {
+      try { localStorage.setItem('autocash_saved_gmail', email); } catch(_) {}
       syncLocalAuthWithMainSite(data.user, 'gmail');
       fetchServerOrders();
 
-      showGmailAlert(data.message || 'Gmail ئارقىلىق مۇۋەپپەقىيەتلىك كىردىڭىز! ✅', 'success');
+      showGmailAlert(data.message || 'Gmail ئارقىلىق 1 چېكىپلا مۇۋەپپەقىيەتلىك كىردىڭىز! ✅', 'success');
       showAppModal({
         title: 'مۇۋەپپەقىيەتلىك كىردىڭىز',
-        message: '🎉 AUTO CASH ئاساسىي ھېساباتىڭىزغا مۇۋەپپەقىيەتلىك كىردىڭىز!\nھەميان قالدۇقىڭىز: $' + walletBalance.toFixed(2) + ' USD',
+        message: '🎉 Gmail بىلەن 1 چېكىپلا مۇۋەپپەقىيەتلىك كىردىڭىز!\nھەميان قالدۇقىڭىز: $' + walletBalance.toFixed(2) + ' USD',
         icon: '✅',
         confirmText: 'ماقۇل'
       });
       setTimeout(function() {
         closeTelegramModal();
-      }, 1200);
+      }, 1000);
     } else {
-      var errMsg = data?.message || 'كىرىش مەغلۇپ بولدى، پارولىڭىزنى قايتا تەكشۈرۈڭ.';
+      var errMsg = data?.message || 'كىرىش مەغلۇپ بولدى، قايتا سىناڭ.';
       showGmailAlert(errMsg, 'error');
     }
   } catch (err) {
     showGmailAlert('تور باغلىنىش خاتالىقى: ' + (err.message || 'قايتا سىناڭ'), 'error');
   } finally {
     if (btn) btn.disabled = false;
-    if (btnText) btnText.innerHTML = '<svg class="w-4 h-4 fill-white inline-block ml-1" viewBox="0 0 24 24"><path d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/><path d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg> <span>🔴 Gmail ئارقىلىق كىرىش / تىزىملىتىش</span>';
+    if (btnText) btnText.innerHTML = '<svg class="w-4 h-4 fill-white inline-block ml-1" viewBox="0 0 24 24"><path d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/><path d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg> <span>🔴 Gmail بىلەن 1 چېكىپلا كىرىش</span>';
   }
 }
 
@@ -2493,36 +2490,28 @@ function renderTelegramModalContent() {
             '</div>' +
           '</div>' +
 
-          // Status Badge: 100% Central Connected
+          // Status Badge: 100% Central Connected (Passwordless)
           '<div class="flex items-center justify-center gap-1.5 text-[10.5px] text-emerald-400 bg-emerald-950/50 border border-emerald-500/40 rounded-xl py-1.5 px-2.5 shadow-sm">' +
             '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>' +
-            '<span class="font-bold">ئاساسىي توربەت AUTO CASH سىستېمىسى بىلەن 100% بىۋاسىتە ئۇلانغان</span>' +
+            '<span class="font-bold">مەركىزى سىستېما بىلەن 100% بىۋاسىتە ئۇلانغان (مەخپىي نومۇرسىز)</span>' +
           '</div>' +
 
-          // Gmail Input
+          // Gmail Input Box
           '<div class="space-y-1">' +
-            '<label class="text-xs font-bold text-slate-300 block">📧 Gmail ئادرېسىڭىز:</label>' +
-            '<input id="gmailInput" type="email" placeholder="مەسىلەن: username@gmail.com" class="w-full bg-slate-950 border border-slate-700 focus:border-rose-400 rounded-xl px-3 py-2.5 text-xs text-white outline-none font-mono text-left tracking-wide" dir="ltr" onkeydown="if(event.key===\'Enter\') executeGmailLogin()"/>' +
+            '<label class="text-xs font-bold text-slate-300 block">📧 Gmail ئادرېسىڭىزنى كىرگۈزۈڭ:</label>' +
+            '<input id="gmailInput" type="text" value="' + (localStorage.getItem('autocash_saved_gmail') || localStorage.getItem('autocash_email') || '') + '" placeholder="مەسىلەن: username@gmail.com" class="w-full bg-slate-950 border-2 border-slate-700 focus:border-rose-400 rounded-xl px-3 py-2.5 text-xs text-white outline-none font-mono text-left tracking-wide" dir="ltr" onkeydown="if(event.key===\'Enter\') executeGmailLogin()"/>' +
           '</div>' +
 
-          // Password Input with Eye Toggle
-          '<div class="space-y-1">' +
-            '<label class="text-xs font-bold text-slate-300 block">🔑 مەخپىي نومۇر (پارول):</label>' +
-            '<div class="relative flex items-center">' +
-              '<input id="gmailPasswordInput" type="password" placeholder="ئەڭ ئاز 6 ھەرپ ياكى رەقەم..." class="w-full bg-slate-950 border border-slate-700 focus:border-rose-400 rounded-xl pr-3 pl-10 py-2.5 text-xs text-white outline-none font-mono text-left tracking-wider" dir="ltr" onkeydown="if(event.key===\'Enter\') executeGmailLogin()"/>' +
-              '<button type="button" onclick="togglePasswordVisibility()" class="absolute left-2.5 text-slate-400 hover:text-white p-1 text-sm cursor-pointer" title="پارولنى كۆرسىتىش">👁️</button>' +
-            '</div>' +
-          '</div>' +
-
-          '<p class="text-[10.5px] text-slate-400 leading-relaxed bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">' +
-            '💡 <b>تۇنجى قېتىم كىرىۋاتامسىز؟</b> ئەگەر ھېساباتىڭىز بولمىسا سىستېما سىزگە ئۆزلۈكىدىن يېڭى ھېسابات ئېچىپ بېرىدۇ. ئەگەر ئاساسىي توربەتتە ئاللىقاچان تىزىملاتقان بولسىڭىز، شۇ ھېساباتىڭىزنىڭ پارولى بىلەن بىۋاسىتە كىرەلەيسىز.' +
+          '<p class="text-[11px] text-slate-400 leading-relaxed bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">' +
+            '⚡ <b>مەخپىي نومۇر يېزىشنىڭ ھاجىتى يوق!</b> پەقەت Gmail ئادرېسىڭىزنى كىرگۈزۈپ «1 چېكىپلا كىرىش» نى باسسىڭىزلا دەرھال ھېساباتىڭىزغا كىرىدۇ.' +
           '</p>' +
 
           '<div id="gmailAlertBox" class="hidden p-2.5 rounded-xl text-xs font-bold border"></div>' +
 
-          '<button id="gmailLoginBtn" onclick="executeGmailLogin()" class="w-full py-3 px-3 rounded-xl bg-gradient-to-r from-rose-500 via-red-600 to-amber-600 hover:from-rose-400 hover:to-red-500 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-rose-500/25 active:scale-95 transition-all cursor-pointer">' +
-            '<svg class="w-4 h-4 fill-white" viewBox="0 0 24 24"><path d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/><path d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg>' +
-            '<span id="gmailLoginBtnText">🔴 Gmail ئارقىلىق كىرىش / تىزىملىتىش</span>' +
+          // Big 1-Click Button
+          '<button id="gmailLoginBtn" onclick="executeGmailLogin()" class="w-full py-3.5 px-3 rounded-2xl bg-gradient-to-r from-rose-500 via-red-600 to-amber-600 hover:from-rose-400 hover:to-red-500 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-rose-500/30 active:scale-95 transition-all cursor-pointer">' +
+            '<svg class="w-5 h-5 fill-white shrink-0" viewBox="0 0 24 24"><path d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/><path d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg>' +
+            '<span id="gmailLoginBtnText">🔴 Gmail بىلەن 1 چېكىپلا كىرىش</span>' +
           '</button>' +
 
           // Main Website & Deposit Direct Links
@@ -2535,7 +2524,7 @@ function renderTelegramModalContent() {
               '<span>💳 پۇل كىرگۈزۈش</span>' +
               '<span class="text-[9px]">↗</span>' +
             '</a>' +
-          '</div>' + +
+          '</div>' +
         '</div>' +
       '</div></div>';
     setTimeout(function() {

@@ -178,11 +178,6 @@ export default function AuthModal({
       return;
     }
 
-    if (!gmailPassword || gmailPassword.length < 6) {
-      showToast('پارول ئەڭ ئاز دېگەندە 6 خانىلىق بولۇشى كېرەك!', 'error');
-      return;
-    }
-
     setGmailLoading(true);
     try {
       const res = await fetch('/api/auth/google', {
@@ -190,7 +185,6 @@ export default function AuthModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: finalMail,
-          password: gmailPassword,
         }),
       });
 
@@ -566,42 +560,8 @@ export default function AuthModal({
                   )}
                 </div>
 
-                {/* پارول */}
-                <div className="input-group">
-                  <div className={`input-box ${gmailPassword ? 'has-value' : ''}`}>
-                    <span className="input-icon">
-                      <Lock className="w-4 h-4 text-emerald-500" />
-                    </span>
-                    <input
-                      type={showGmailPass ? 'text' : 'password'}
-                      id="modalGmailPassword"
-                      placeholder=" "
-                      value={gmailPassword}
-                      onChange={(e) => setGmailPassword(e.target.value)}
-                      autoComplete="current-password"
-                      required
-                    />
-                    <label className="floating-label" htmlFor="modalGmailPassword">
-                      ھېسابات پارولى (ئەڭ ئاز 6 خانىلىق)
-                    </label>
-                    <button
-                      type="button"
-                      className="toggle-pwd-btn"
-                      onClick={() => setShowGmailPass(!showGmailPass)}
-                      tabIndex={-1}
-                      aria-label="پارولنى كۆرسىتىش ياكى يوشۇرۇش"
-                    >
-                      {showGmailPass ? (
-                        <EyeOff className="w-4 h-4 text-slate-400" />
-                      ) : (
-                        <Eye className="w-4 h-4 text-slate-400" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
                 <div className="text-[11px] text-slate-500 dark:text-slate-400 mb-3 px-1 leading-relaxed text-right">
-                  💡 ئەسكەرتىش: ئەگەر تۇنجى قېتىم كىرىشىڭىز بولسا، يېڭى ھېساباتىڭىز شۇ ھامان ئاپتوماتىك قۇرۇلىدۇ.
+                  ⚡ <b>مەخپىي نومۇر يېزىشنىڭ ھاجىتى يوق!</b> پەقەت ئېلخەت ئادرېسىڭىز بىلەنلا 1 سېكۇنتتا بىۋاسىتە كىرەلەيسىز.
                 </div>
 
                 {/* Submit button */}
@@ -611,7 +571,7 @@ export default function AuthModal({
                   disabled={gmailLoading}
                 >
                   <span className="btn-text">
-                    {gmailLoading ? 'دەلىللىنىۋاتىدۇ...' : '⚡ Gmail بىلەن كىرىش / تىزىملىتىش'}
+                    {gmailLoading ? 'دەلىللىنىۋاتىدۇ...' : '🔴 Gmail بىلەن 1 چېكىپلا كىرىش'}
                   </span>
                   <ArrowRight className="w-4 h-4 btn-arrow" />
                 </button>

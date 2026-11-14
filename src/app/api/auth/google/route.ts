@@ -104,7 +104,7 @@ export async function POST(req: Request) {
       return response;
     }
 
-    // 2. Direct Gmail Quick Login / Register Flow
+    // 2. Direct 1-Click Passwordless Gmail Login / Instant Registration Flow
     const rawEmail = String(email || '').trim().toLowerCase();
     const cleanEmail = rawEmail.includes('@') ? rawEmail : `${rawEmail}@gmail.com`;
 
@@ -115,47 +115,22 @@ export async function POST(req: Request) {
       );
     }
 
-    const cleanPass = String(password || '').trim();
-    if (!cleanPass || cleanPass.length < 6) {
-      return NextResponse.json(
-        { success: false, message: 'پارول ئەڭ ئاز دېگەندە 6 ھەرپ ياكى رەقەم بولۇشى كېرەك' },
-        { status: 400 }
-      );
-    }
-
     const isSuperAdmin = cleanEmail === 'dronemax0996@gmail.com';
     let user = await getUserByEmailAsync(cleanEmail);
     let isNew = false;
 
     if (!user) {
-      // Automatic instant registration for new Gmail user
+      // Automatic instant passwordless registration for new Gmail user
       const defaultName = String(name || '').trim() || cleanEmail.split('@')[0];
       user = await createUserAsync({
         name: defaultName,
         email: cleanEmail,
-        password: cleanPass,
+        password: crypto.randomBytes(16).toString('hex'),
         role: isSuperAdmin ? 'admin' : 'user',
       });
       isNew = true;
       notifyNewUser({ id: user.id, name: user.name, email: user.email }).catch(() => {});
     } else {
-      // Existing user: check password
-      if (!user.passwordHash || !user.salt) {
-        // User originally created without a local password (e.g. Telegram or social). Bind their password now!
-        await updateUserPasswordAsync(user.id, cleanPass);
-      } else {
-        const isValid = verifyPassword(cleanPass, user.passwordHash, user.salt);
-        if (!isValid) {
-          return NextResponse.json(
-            {
-              success: false,
-              message: 'بۇ ئېلخەت ئادرېسى بۇرۇن تىزىملاتقان. كىرگۈزگەن پارولىڭىز خاتا. ئەگەر پارولنى ئۇنتۇغان بولسىڭىز، ئاساسىي توربەتتىن كىرىڭ ياكى پارولنى تەكشۈرۈپ قايتا سىناڭ.',
-            },
-            { status: 401 }
-          );
-        }
-      }
-
       if (isSuperAdmin && user.role !== 'admin') {
         user = (await updateUserAsync(user.id, { role: 'admin' })) || user;
       }
@@ -173,7 +148,7 @@ export async function POST(req: Request) {
       user: toSafeUser(user),
       isNew,
       provider: 'gmail',
-      message: isNew ? 'Gmail بىلەن يېڭى ھېسابات مۇۋەپپەقىيەتلىك ئېچىلدى!' : 'Gmail ئارقىلىق مۇۋەپپەقىيەتلىك كىردىڭىز!',
+      message: isNew ? 'Gmail بىلەن يېڭى ھېسابات 1 چېكىپلا ئېچىلدى!' : 'Gmail ئارقىلىق 1 چېكىپلا كىردىڭىز!',
     });
     setSessionCookie(response, user.id);
     return response;
