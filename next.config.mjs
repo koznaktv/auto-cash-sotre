@@ -24,60 +24,69 @@ const nextConfig = {
     ],
   },
   async rewrites() {
-    return [
-      {
-        source: '/apps/honor-of-kings',
-        destination: '/honor-of-kings.html',
-      },
-      {
-        source: '/honor-of-kings',
-        destination: '/honor-of-kings.html',
-      },
-      {
-        source: '/hok',
-        destination: '/honor-of-kings.html',
-      },
-      {
-        source: '/app/honor-of-kings',
-        destination: '/honor-of-kings.html',
-      },
-      {
-        source: '/apps/pubg',
-        destination: '/pubg.html',
-      },
-      {
-        source: '/pubg',
-        destination: '/pubg.html',
-      },
-      {
-        source: '/pubg-mobile',
-        destination: '/pubg.html',
-      },
-      {
-        source: '/apps/pubg-mobile',
-        destination: '/pubg.html',
-      },
-      {
-        source: '/apps/mobile-legends',
-        destination: '/mlbb.html',
-      },
-      {
-        source: '/apps/mlbb',
-        destination: '/mlbb.html',
-      },
-      {
-        source: '/app-store',
-        destination: '/apps',
-      },
-      {
-        source: '/apps-store',
-        destination: '/apps',
-      },
-      {
-        source: '/hub',
-        destination: '/apps',
-      },
-    ];
+    return {
+      beforeFiles: [
+        {
+          source: '/apps/honor-of-kings',
+          destination: '/honor-of-kings.html',
+        },
+        {
+          source: '/honor-of-kings',
+          destination: '/honor-of-kings.html',
+        },
+        {
+          source: '/hok',
+          destination: '/honor-of-kings.html',
+        },
+        {
+          source: '/app/honor-of-kings',
+          destination: '/honor-of-kings.html',
+        },
+        {
+          source: '/apps/pubg',
+          destination: '/pubg.html',
+        },
+        {
+          source: '/pubg',
+          destination: '/pubg.html',
+        },
+        {
+          source: '/pubg-mobile',
+          destination: '/pubg.html',
+        },
+        {
+          source: '/apps/pubg-mobile',
+          destination: '/pubg.html',
+        },
+        {
+          source: '/apps/mobile-legends',
+          destination: '/mlbb.html',
+        },
+        {
+          source: '/apps/mlbb',
+          destination: '/mlbb.html',
+        },
+        {
+          source: '/mobile-legends',
+          destination: '/mlbb.html',
+        },
+      ],
+      afterFiles: [
+        {
+          source: '/app-store',
+          destination: '/apps',
+        },
+        {
+          source: '/apps-store',
+          destination: '/apps',
+        },
+        {
+          source: '/hub',
+          destination: '/apps',
+        },
+      ],
+      fallback: [],
+    };
   },
   async headers() {
     return [

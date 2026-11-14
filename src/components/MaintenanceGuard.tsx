@@ -26,8 +26,18 @@ export default function MaintenanceGuard({ children }: { children: React.ReactNo
     try {
       if (typeof window === 'undefined') return;
 
-      // 1. Direct admin panel paths are handled by admin auth
-      if (pathname && (pathname.startsWith('/admin') || pathname.startsWith('/api') || pathname.startsWith('/mlbb'))) {
+      // 1. Direct admin panel and storefront game paths are allowed
+      if (
+        pathname &&
+        (pathname.startsWith('/admin') ||
+          pathname.startsWith('/api') ||
+          pathname.startsWith('/mlbb') ||
+          pathname.startsWith('/mobile-legends') ||
+          pathname.startsWith('/pubg') ||
+          pathname.startsWith('/hok') ||
+          pathname.startsWith('/honor-of-kings') ||
+          pathname.startsWith('/apps'))
+      ) {
         setIsAdmin(true);
         setChecked(true);
         return;
