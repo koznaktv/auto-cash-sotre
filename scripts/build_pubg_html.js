@@ -13,7 +13,7 @@ content = content.replace(
   '<title>AUTO CASH • PUBG Mobile رەسمىي قاچىلاش (UC • Royale Pass • ۋاۋچېر)</title>'
 );
 
-// 2. Adapt 3-Tier Hero Section for PUBG Mobile (Zero Collision)
+// 2. Adapt 3-Tier Hero Section for PUBG Mobile (Zero Collision) & User Logo
 const mlbbTier0And1 = `        <!-- Tier 0: Quick App Switcher Header (Dedicated Row: 100% Zero Collision!) -->
         <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2 relative z-10">
           <div class="flex items-center gap-1.5 min-w-0">
@@ -63,7 +63,7 @@ const pubgTier0And1 = `        <!-- Tier 0: Quick App Switcher Header (Dedicated
         <!-- Tier 1: Full-Width Game Identity (Uncramped, Beautiful Title & Status Badge) -->
         <div class="flex items-center gap-2.5 relative z-10 w-full">
           <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-lg border-2 border-amber-400/60 flex items-center justify-center shrink-0 bg-slate-950 p-0.5">
-            <img src="/images/apps/pubg/icon-192.png" alt="PUBG Mobile" class="w-full h-full object-cover rounded-xl" onerror="this.src='https://play-lh.googleusercontent.com/j1_81w71x9m9mN6L4Ld4b7Z2C4Yj9G_8x_N7'"/>
+            <img src="pubg_logo.jpg" alt="PUBG Mobile" class="w-full h-full object-cover rounded-xl" onerror="this.src='https://i.ibb.co/KpMvj9fw/3235269bedcbf914ba3e316af4169a3b.jpg'"/>
           </div>
           <div class="flex-1 text-right min-w-0">
             <h1 class="text-sm sm:text-base font-black text-white tracking-wide leading-tight truncate flex items-center gap-1.5">
@@ -79,205 +79,116 @@ const pubgTier0And1 = `        <!-- Tier 0: Quick App Switcher Header (Dedicated
           </div>
         </div>`;
 
-content = content.replace(mlbbTier0And1, pubgTier0And1);
+if (content.includes(mlbbTier0And1)) {
+  content = content.replace(mlbbTier0And1, pubgTier0And1);
+} else {
+  console.warn('Warning: mlbbTier0And1 not found directly');
+}
 
-// 3. Step 1: Replace ID & Zone input with Single PUBG UID (Player ID)
-const mlbbStep1Old = `      <!-- ================= 1-قەدەم (STEP 1): ئالدى بىلەن ID كىرگۈزۈش ۋە سېرۋېر دەلىللەش ================= -->
-      <div class="glass-box rounded-2xl p-3 sm:p-3.5 border border-cyan-500/30 space-y-3 relative overflow-hidden bg-gradient-to-b from-[#0b1222] to-[#070b14] shadow-xl">
-        <!-- Ambient decorative cyber glow -->
-        <div class="absolute -right-8 -top-8 w-28 h-28 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none"></div>
+// 3. Step 1: Clean PUBG UID Step 1 (NO server buttons whatsoever)
+const s1Start = content.indexOf('<!-- ================= 1-قەدەم (STEP 1):');
+const s2Start = content.indexOf('<!-- ================= 2-قەدەم (STEP 2):');
 
-        <div class="flex items-center justify-between relative z-10">
-          <label class="text-xs font-black text-white flex items-center gap-2">
-            <span class="w-5 h-5 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 text-slate-950 flex items-center justify-center text-[11px] font-mono font-black shadow-md shadow-cyan-500/40 shrink-0">1</span>
-            <span class="text-sm font-black text-white tracking-wide">ئالدى بىلەن ئويۇن ID سى ۋە سېرۋېرىنى كىرگۈزۈڭ</span>
-          </label>
-          <span class="text-[10px] text-cyan-300 font-bold bg-cyan-950/60 px-2.5 py-0.5 rounded-full border border-cyan-500/30 font-mono shadow-sm flex items-center gap-1">
-            <span>سېرۋېر</span>
-            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
-            <span>ئېنىقلاش</span>
-          </span>
-        </div>
-
-        <p class="text-[11.5px] text-slate-300 leading-relaxed relative z-10">
-          MLBB دا باھا ھەر قايسى سېرۋېرغا قاراپ پەرقلىنىدۇ. ئايدىڭىز جەزملەنگەندىن كېيىن شۇ سېرۋېرنىڭ AUTO CASH تىكى 100% توغرا باھاسى كۆرۈنىدۇ.
-        </p>
-
-        <!-- Modern Unified Input Container with Integrated Clear Button -->
-        <div class="relative z-10">
-          <div class="relative flex items-center">
-            <input 
-              id="mlbbInput"
-              type="text" 
-              inputmode="numeric"
-              placeholder="مەسىلەن : 1718491609 (4485)..."
-              dir="ltr"
-              oninput="handleInput(this.value)"
-              onkeydown="if(event.key === 'Enter') executeSearch();"
-              autocomplete="off"
-              spellcheck="false"
-              class="w-full bg-[#0a101f] border border-cyan-500/40 focus:border-cyan-400 rounded-2xl py-3 pl-3 pr-10 text-white placeholder-slate-500 text-xs sm:text-sm font-mono tracking-wider focus:outline-none transition shadow-inner"
-            />
-            <!-- Unified Integrated Clear Button inside Input -->
-            <button 
-              type="button" 
-              onclick="clearPlayerInput()" 
-              class="absolute right-2.5 w-6 h-6 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-xs transition active:scale-90 cursor-pointer"
-              title="تازىلاش"
-            >
-              ✕
-            </button>
-          </div>
-          <p id="inputErrorMsg" class="hidden text-[11px] text-rose-400 font-bold mt-1 text-right flex items-center justify-end gap-1">
-            <span>ئويۇن ID ۋە رايون كودىنى توغرا كىرگۈزۈڭ (مەسىلەن: 1718491609 4485)</span>
-            <span class="text-xs">⚠️</span>
-          </p>
-        </div>
-
-        <!-- Action Button -->
-        <div class="flex items-center gap-2 pt-0.5 relative z-10">
-          <button 
-            id="searchBtn"
-            type="button"
-            onclick="executeSearch()"
-            class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-600 hover:from-blue-500 hover:to-cyan-500 text-white font-black text-xs transition active:scale-[0.98] shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-1.5 cursor-pointer"
-          >
-            <span id="checkSpinner" class="hidden w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd"/></svg>
-            <span>تېزدە تەكشۈرۈش</span>
-          </button>
-        </div>
-
-        <!-- Verified Player Card (Shown dynamically after verification) -->
-        <div id="verifiedCard" class="hidden glass-box rounded-xl p-2.5 border border-emerald-500/40 bg-emerald-950/20 flex items-center justify-between text-xs space-y-1 relative z-10">
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-sm font-bold text-emerald-300 font-mono">
-              ✓
-            </div>
-            <div>
-              <p class="font-bold text-white flex items-center gap-1">
-                <span id="cardNickname">Player</span>
-                <span class="text-[9.5px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-mono font-bold border border-emerald-500/30">تەستىقلاندى</span>
-              </p>
-              <p class="text-[11px] text-slate-400 font-mono mt-0.5">
-                <span id="cardFlag">🌐</span> <span id="cardServerName">گىلوبال</span>
-              </p>
-            </div>
-          </div>
-          <div class="text-left font-mono text-xs bg-slate-950/80 px-2.5 py-1.5 rounded-lg border border-slate-800">
-            <span class="text-slate-400">ID: </span><span id="cardUserId" class="text-cyan-300 font-bold">1798505443</span><br>
-            <span class="text-slate-400">Zone: </span><span id="cardZoneId" class="text-amber-400 font-bold">4503</span>
-          </div>
-        </div>
-
-        <div class="flex items-center justify-between pt-1 border-t border-slate-800/80 text-xs">
-          <span class="text-slate-400">قاچىلاش يولى:</span>
-          <span class="text-cyan-300 font-mono font-bold flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>رەسمىي بىۋاسىتە قاچىلاش (100% يېتىدۇ)</span>
-          </span>
-        </div>
-      </div>`;
-
-const pubgStep1Replacement = `      <!-- ================= 1-قەدەم (STEP 1): ئالدى بىلەن كىملىك (UID) كىرگۈزۈش ۋە دەلىللەش ================= -->
-      <div class="glass-box rounded-2xl p-3 sm:p-3.5 border border-cyan-500/30 space-y-3 relative overflow-hidden bg-gradient-to-b from-[#0b1222] to-[#070b14] shadow-xl">
-        <!-- Ambient decorative cyber glow -->
-        <div class="absolute -right-8 -top-8 w-28 h-28 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
-
-        <div class="flex items-center justify-between relative z-10">
+if (s1Start !== -1 && s2Start !== -1) {
+  const pubgStep1Replacement = `<!-- ================= 1-قەدەم (STEP 1): ئالدى بىلەن ئويۇن كىملىكى (UID) كىرگۈزۈش ================= -->
+      <div class="glass-box rounded-2xl p-3.5 border border-slate-800 space-y-2.5">
+        <div class="flex items-center justify-between">
           <label class="text-xs font-black text-white flex items-center gap-2">
             <span class="w-5 h-5 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-600 text-slate-950 flex items-center justify-center text-[11px] font-mono font-black shadow-md shadow-amber-500/40 shrink-0">1</span>
-            <span class="text-sm font-black text-white tracking-wide">ئالدى بىلەن ئويۇن كىملىكى (Player ID) كىرگۈزۈڭ</span>
+            <span>ئالدى بىلەن ئويۇن كىملىكى (Player ID) كىرگۈزۈڭ</span>
           </label>
-          <span class="text-[10px] text-amber-300 font-bold bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-500/30 font-mono shadow-sm flex items-center gap-1">
-            <span>PUBG UID</span>
+          <span class="text-xs px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 border border-amber-400/40 font-bold flex items-center gap-1 shadow-sm">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>تەكشۈرۈش</span>
+            <span>PUBG UID تەكشۈرۈش</span>
           </span>
         </div>
 
-        <p class="text-[11.5px] text-slate-300 leading-relaxed relative z-10">
-          PUBG Mobile ئىچىدىكى 8 تىن 11 خانىغىچە نۇمۇرلۇق ئويۇن كىملىكىڭىز (UID) نى كىرگۈزۈپ «تېزدە تەكشۈرۈش» نى بېسىڭ.
+        <p class="text-xs text-slate-400 leading-snug">
+          PUBG Mobile ئىچىدىكى 8 تىن 11 خانىغىچە نۇمۇرلۇق ئويۇن كىملىكىڭىز (UID) نى كىرگۈزۈپ «ئىزدەش» نى بېسىڭ.
         </p>
 
-        <!-- Modern Unified Input Container with Integrated Clear Button -->
-        <div class="relative z-10">
-          <div class="relative flex items-center">
-            <input 
-              id="pubgInput"
-              type="text" 
-              inputmode="numeric"
-              placeholder="مەسىلەن : 5123456789 (ئويۇن كىملىكى UID)..."
-              dir="ltr"
-              oninput="handleInput(this.value)"
-              onkeydown="if(event.key === 'Enter') executeSearch();"
-              autocomplete="off"
-              spellcheck="false"
-              class="w-full bg-[#0a101f] border border-cyan-500/40 focus:border-amber-400 rounded-2xl py-3 pl-3 pr-10 text-white placeholder-slate-500 text-xs sm:text-sm font-mono tracking-wider focus:outline-none transition shadow-inner"
-            />
-            <!-- Unified Integrated Clear Button inside Input -->
-            <button 
-              type="button" 
-              onclick="clearPlayerInput()" 
-              class="absolute right-2.5 w-6 h-6 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-xs transition active:scale-90 cursor-pointer"
-              title="تازىلاش"
-            >
+        <!-- Input Box with Compact Clear + Search Buttons -->
+        <div class="relative flex items-center">
+          <input 
+            id="pubgInput" 
+            type="text" 
+            inputmode="numeric"
+            placeholder="مەسىلەن: 5123456789..." 
+            class="w-full bg-[#0a0f1d] border border-slate-700 focus:border-amber-400 rounded-xl pr-3 pl-[95px] py-2.5 text-xs text-white placeholder-slate-500 font-mono transition text-right outline-none"
+            onkeydown="if(event.key==='Enter') executeSearch()"
+            oninput="handleInput(this.value)"
+          />
+          <div class="absolute left-1.5 flex items-center gap-1.5">
+            <button onclick="clearPlayerInput()" id="clearInputBtn" type="button" class="w-6 h-6 rounded-full bg-slate-800/90 hover:bg-rose-950/90 text-slate-400 hover:text-rose-300 border border-slate-700 hover:border-rose-500/50 text-[11px] font-black flex items-center justify-center transition active:scale-90 shadow-sm cursor-pointer" title="ئۆچۈرۈش">
               ✕
             </button>
+            <button onclick="executeSearch()" id="searchBtn" type="button" class="px-3 py-1.5 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-400 text-slate-950 rounded-xl text-xs font-black transition flex items-center gap-1 active:scale-95 shadow-md shadow-amber-500/25 cursor-pointer">
+              <span id="searchIcon" class="text-xs">🔍</span>
+              <span id="searchBtnText">ئىزدەش</span>
+            </button>
           </div>
-          <p id="inputErrorMsg" class="hidden text-[11px] text-rose-400 font-bold mt-1 text-right flex items-center justify-end gap-1">
-            <span>ئويۇن كىملىكى (UID) نى توغرا كىرگۈزۈڭ (مەسىلەن: 5123456789)</span>
-            <span class="text-xs">⚠️</span>
-          </p>
         </div>
 
-        <!-- Action Button -->
-        <div class="flex items-center gap-2 pt-0.5 relative z-10">
-          <button 
-            id="searchBtn"
-            type="button"
-            onclick="executeSearch()"
-            class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-xs transition active:scale-[0.98] shadow-lg shadow-amber-500/25 flex items-center justify-center gap-1.5 cursor-pointer"
-          >
-            <span id="checkSpinner" class="hidden w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
-            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd"/></svg>
-            <span>تېزدە تەكشۈرۈش</span>
-          </button>
+        <!-- Error Alert Message -->
+        <div id="errorAlert" class="hidden items-center gap-2 p-2.5 rounded-xl bg-rose-950/70 border border-rose-500/70 text-rose-200 text-xs shadow-lg animate-shake">
+          <span class="text-sm shrink-0">⚠️</span>
+          <span class="font-bold flex-1">ئايدى نۇمۇرىڭىز خاتا قايتا سىناڭ</span>
+          <button onclick="clearErrorState()" class="text-rose-400 hover:text-white text-xs px-1.5 py-0.5 rounded cursor-pointer">✕</button>
         </div>
 
-        <!-- Verified Player Card (Shown dynamically after verification) -->
-        <div id="verifiedCard" class="hidden glass-box rounded-xl p-2.5 border border-emerald-500/40 bg-emerald-950/20 flex items-center justify-between text-xs space-y-1 relative z-10">
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-sm font-bold text-emerald-300 font-mono">
-              ✓
+        <!-- Spinner -->
+        <div id="checkSpinner" class="hidden items-center justify-center gap-2 py-2 text-xs text-amber-300 bg-amber-950/20 border border-amber-500/20 rounded-xl">
+          <span class="animate-spin text-amber-400">⏳</span>
+          <span>ئويۇنچى كىملىكى (UID) تەكشۈرۈلۈۋاتىدۇ...</span>
+        </div>
+
+        <!-- Verified Player Card -->
+        <div id="verifiedCard" class="hidden flex-col gap-2 bg-gradient-to-r from-emerald-950/40 via-slate-900/90 to-amber-950/40 border border-emerald-500/50 rounded-xl p-2.5 shadow-xl cyber-shield-anim">
+          <div class="flex items-center justify-between border-b border-emerald-500/20 pb-1.5">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">🎖️</span>
+              <div>
+                <p class="text-xs text-slate-400">ئويۇن سالاھىيىتى:</p>
+                <p class="text-xs font-black text-amber-300">PUBG Mobile (رەسمىي سەرۋەر)</p>
+              </div>
             </div>
-            <div>
-              <p class="font-bold text-white flex items-center gap-1">
-                <span id="cardNickname">PUBG Player</span>
-                <span class="text-[9.5px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-mono font-bold border border-emerald-500/30">تەستىقلاندى</span>
-              </p>
-              <p class="text-[11px] text-slate-400 font-mono mt-0.5">
-                <span>🌐</span> <span id="cardServerName">Global (PUBG Mobile)</span>
-              </p>
+            <span class="text-xs px-2 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full font-bold flex items-center gap-1">
+              <span>✓</span>
+              <span>تەستىقلاندى</span>
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-10 h-10 rounded-xl overflow-hidden border border-emerald-500/40 shadow-sm shrink-0 bg-slate-900 p-0.5">
+                <img src="pubg_logo.jpg" alt="PUBG" class="w-full h-full object-cover rounded-lg" onerror="this.src='https://i.ibb.co/KpMvj9fw/3235269bedcbf914ba3e316af4169a3b.jpg'"/>
+              </div>
+              <div class="leading-tight">
+                <p class="text-xs text-slate-400">ئويۇندىكى نامىڭىز:</p>
+                <p id="cardNickname" class="text-xs font-black text-emerald-300 font-mono mt-0.5">PUBG Player</p>
+              </div>
+            </div>
+            <div class="text-left font-mono text-xs bg-slate-950/80 px-2.5 py-1.5 rounded-lg border border-slate-800">
+              <span class="text-slate-400">UID: </span><span id="cardUserId" class="text-amber-300 font-bold">5123456789</span>
             </div>
           </div>
-          <div class="text-left font-mono text-xs bg-slate-950/80 px-2.5 py-1.5 rounded-lg border border-slate-800">
-            <span class="text-slate-400">UID: </span><span id="cardUserId" class="text-amber-300 font-bold">5123456789</span>
+
+          <div class="flex items-center justify-between pt-1 border-t border-slate-800/80 text-xs">
+            <span class="text-slate-400">قاچىلاش يولى:</span>
+            <span class="text-amber-300 font-mono font-bold flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+              <span>رەسمىي بىۋاسىتە كىملىككە (100% يېتىدۇ)</span>
+            </span>
           </div>
         </div>
 
-        <div class="flex items-center justify-between pt-1 border-t border-slate-800/80 text-xs">
-          <span class="text-slate-400">قاچىلاش ئۇسۇلى:</span>
-          <span class="text-amber-300 font-mono font-bold flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>بىۋاسىتە كىملىككە (UID) سېكۇنتتا يېتىدۇ</span>
-          </span>
-        </div>
-      </div>`;
+      </div>
 
-content = content.replace(mlbbStep1Old, pubgStep1Replacement);
+      `;
+  content = content.substring(0, s1Start) + pubgStep1Replacement + content.substring(s2Start);
+}
 
-// 4. Step 2: Replace Server Tabs with PUBG Category Tabs (Direct UC, Royale Pass, Vouchers)
+// 4. Step 2: Clean Category Tabs (Direct UC, Royale Pass, Vouchers)
 const mlbbStep2TabsOld = `        <!-- 3 Server Tabs (گىلوبال ، تۈركىيە، فىلىپپىن) -->
         <div id="serverTabs" class="grid grid-cols-3 gap-1.5 bg-[#0a101f] p-1.5 rounded-2xl border border-slate-800 text-xs shadow-lg">
           <button id="tabGlobal" onclick="switchServer('global')" class="py-2 px-1 rounded-xl font-bold transition text-center flex items-center justify-center gap-1.5">
@@ -306,67 +217,61 @@ const pubgStep2TabsReplacement = `        <!-- 3 PUBG Category Tabs (بىۋاس�
 
 content = content.replace(mlbbStep2TabsOld, pubgStep2TabsReplacement);
 
-// 5. Update Step 2 Label
+// 5. Update Step 2 Label and Active Server Tag
 content = content.replace(
   '<span class="text-sm font-black text-white tracking-wide">ئالماس بوغچىسىنى تاللاڭ</span>',
   '<span class="text-sm font-black text-white tracking-wide">UC ياكى كارتىلارنى تاللاڭ</span>'
 );
 
-// 6. Update step 2 locked box text
-content = content.replace('خاتا سېرۋېرغا پۇل سېلىۋېلىشتىن ساقلىنىش ئۈچۈن، 1-قەدەمدىن ID ۋە رايون كودى كىرگۈزۈلگەندە سىستېما باھالارنى تولۇق ئاچىدۇ.',
-                          'خاتا كىملىككە پۇل سېلىۋېلىشتىن ساقلىنىش ئۈچۈن، 1-قەدەمدىن PUBG UID كىرگۈزۈلگەندە سىستېما باھالارنى تولۇق ئاچىدۇ.');
+content = content.replace(
+  '<span id="activeServerTag" class="hidden text-xs px-2.5 py-0.5 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 border border-cyan-500/40 font-black shadow-sm">\n            🇹🇷 تۈركىيە باھاسى\n          </span>',
+  '<span id="activeServerTag" class="hidden text-xs px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 border border-amber-500/40 font-black shadow-sm">\n            🔥 PUBG Mobile رەسمىي باھاسى\n          </span>'
+);
 
-// 7. Update bottom button & receipt texts for PUBG
-content = content.replace("MLBB ئالماس", "PUBG UC");
-content = content.replace("Mobile Legends", "PUBG Mobile");
+// 6. Update Locked Notice text & buttons for PUBG (NO regional server text)
+content = content.replace(
+  '<span>سېرۋېرغا ماس ئەڭ ئەرزان باھالار ئېچىلىدۇ</span>',
+  '<span>بىۋاسىتە ۋە ئەڭ ئەرزان UC باھالىرى</span>'
+);
+content = content.replace(
+  'خاتا سېرۋېرغا پۇل سېلىۋېلىشتىن ساقلىنىش ئۈچۈن، 1-قەدەمدىن ID ۋە رايون كودى كىرگۈزۈلگەندە سىستېما باھالارنى تولۇق ئاچىدۇ.',
+  'خاتا كىملىككە پۇل سېلىۋېلىشتىن ساقلىنىش ئۈچۈن، 1-قەدەمدىن PUBG UID كىرگۈزۈلگەندە سىستېما باھالارنى تولۇق ئاچىدۇ.'
+);
+content = content.replace(
+  `<button onclick="previewServerOnly('global')" class="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-slate-900 to-[#192233] hover:from-slate-800 hover:to-[#222e44] text-amber-300 border border-amber-500/50 hover:border-amber-400 text-xs font-black inline-flex items-center gap-1.5 transition active:scale-95 shadow-md shadow-amber-950/40 cursor-pointer">
+              <span>سېرۋېر باھالىرىنى كۆرۈپ بېقىش</span>
+            </button>`,
+  `<button onclick="previewServerOnly('direct')" class="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-slate-900 to-[#192233] hover:from-slate-800 hover:to-[#222e44] text-amber-300 border border-amber-500/50 hover:border-amber-400 text-xs font-black inline-flex items-center gap-1.5 transition active:scale-95 shadow-md shadow-amber-950/40 cursor-pointer">
+              <span>باھالارنى كۆرۈپ بېقىش</span>
+            </button>`
+);
+content = content.replace(
+  '<p class="font-bold text-white" id="previewBannerTitle">كۆرۈپ بېقىش ھالىتى: گىلوبال باھالىرى</p>',
+  '<p class="font-bold text-white" id="previewBannerTitle">كۆرۈپ بېقىش ھالىتى: PUBG UC باھالىرى</p>'
+);
 
-// 8. Update App Switcher Modal active item (Mark PUBG as active, MLBB as switchable)
-const oldModalApp1 = `          <!-- App 1: Mobile Legends: Bang Bang -->
-          <a href="mlbb.html" class="glass-box rounded-2xl p-3 border border-cyan-500/50 bg-gradient-to-r from-blue-950/60 via-slate-900/90 to-[#0e192e] flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block relative overflow-hidden">
-            <span class="absolute top-0 right-0 w-2 h-full bg-cyan-400"></span>
-            <div class="flex items-center gap-2.5 min-w-0 pr-1">
-              <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-cyan-400/50 flex items-center justify-center shrink-0 bg-slate-950">
-                <img src="https://play-lh.googleusercontent.com/MztmLpB1-_eFbHnqNzzvzl5zjiOH2BEb0D71uBxZYf_4BEmW3QEPWODhRtyqY7Qz4wRLwQ--Rg1RAjOFqtHSs-o=s256" alt="Mobile Legends" class="w-full h-full object-cover" onerror="this.src='mlbb_icon.png'"/>
-              </div>
-              <div class="text-right min-w-0">
-                <p class="text-xs sm:text-sm font-black text-white group-hover:text-cyan-300 transition flex items-center gap-1.5">
-                  <span>Mobile Legends: Bang Bang</span>
-                </p>
-                <p class="text-[11px] text-cyan-300/90 font-mono mt-0.5">⚔️ ئالماس ۋە كارتىلار • 3 سېكۇنتتا يېتىدۇ</p>
-                <p class="text-[10px] text-slate-400">گىلوبال • تۈركىيە • فىلىپپىن سەرۋېرلىرى</p>
-              </div>
-            </div>
-            <div class="shrink-0 flex flex-col items-end gap-1">
-              <span class="px-2.5 py-1 rounded-xl bg-cyan-400 text-slate-950 font-black text-[10px] flex items-center gap-1 shadow-sm">
-                <span>نۆۋەتتىكى</span>
-                <span class="font-mono">✓</span>
-              </span>
-            </div>
-          </a>
+// 7. Update bottom action bar texts and generic MLBB terms
+content = content.replace(/MLBB ئالماس/g, 'PUBG UC');
+content = content.replace(/Mobile Legends/g, 'PUBG Mobile');
+content = content.replace('<!-- ================= 2-قەدەم (STEP 2): ئالماس بوغچىسى تاللاش ================= -->', '<!-- ================= 2-قەدەم (STEP 2): PUBG UC تاللاش ================= -->');
+content = content.replace('<span id="procId" class="text-cyan-300 font-bold">#ML-.....</span>', '<span id="procId" class="text-amber-300 font-bold">#PUBG-.....</span>');
+content = content.replace('<span class="font-sans">سېرۋېر:</span>\n            <span id="procServer" class="font-bold text-amber-300">🌐 گىلوبال</span>', '<span class="font-sans">ئويۇن:</span>\n            <span id="procServer" class="font-bold text-amber-300">PUBG Mobile</span>');
+content = content.replace("let playerNick = '亗 SULTAN_MLBB 亗';", "let playerNick = '亗 PUBG_PLAYER 亗';");
+content = content.replace("server: '🎮 MLBB',", "server: '🔫 PUBG Mobile',");
+content = content.replace("pkg: o.package_name || 'ئالماس بوغچىسى',", "pkg: o.package_name || 'PUBG UC',");
+content = content.replace('💎 ئالماس زاكازلىرى', '🪙 PUBG UC زاكازلىرى');
+content = content.replace('ئالماس ياكى كارتىلارنى تاللاپ زاكاز قىلسىڭىز', 'UC ياكى كارتىلارنى تاللاپ زاكاز قىلسىڭىز');
 
-          <!-- App 2: PUBG Mobile -->
-          <a href="pubg.html" class="glass-box rounded-2xl p-3 border border-amber-500/30 hover:border-amber-400 bg-gradient-to-r from-amber-950/30 via-slate-900/80 to-[#1e1708]/60 flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block">
-            <div class="flex items-center gap-2.5 min-w-0">
-              <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-amber-400/60 flex items-center justify-center shrink-0 bg-slate-950 p-0.5">
-                <img src="/images/apps/pubg/icon-192.png" alt="PUBG Mobile" class="w-full h-full object-cover rounded-xl" onerror="this.src='https://play-lh.googleusercontent.com/j1_81w71x9m9mN6L4Ld4b7Z2C4Yj9G_8x_N7'"/>
-              </div>
-              <div class="text-right min-w-0">
-                <p class="text-xs sm:text-sm font-black text-white group-hover:text-amber-300 transition flex items-center gap-1.5">
-                  <span>PUBG Mobile (پابجى)</span>
-                </p>
-                <p class="text-[11px] text-amber-300/90 font-mono mt-0.5">🔥 بىۋاسىتە UC • Royale Pass • كودلار</p>
-                <p class="text-[10px] text-slate-400">UID ئارقىلىق 3 سېكۇنتتا بىۋاسىتە كىملىككە كىرىدۇ</p>
-              </div>
-            </div>
-            <div class="shrink-0 flex flex-col items-end gap-1">
-              <span class="px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/40 text-[10.5px] font-black group-hover:bg-amber-400 group-hover:text-slate-950 transition flex items-center gap-1 shadow-sm">
-                <span>كىرىش</span>
-                <span class="font-mono">➔</span>
-              </span>
-            </div>
-          </a>`;
+// 8. Update App Switcher Modal (PUBG is active, MLBB is switchable, with user's PUBG logo)
+const modalAppGridStart = content.indexOf('<!-- App List Grid -->');
+const modalAppGridEnd = content.indexOf('<!-- App 4: AUTO CASH Full Store -->');
 
-const pubgModalApp1 = `          <!-- App 1: Mobile Legends: Bang Bang -->
+if (modalAppGridStart !== -1 && modalAppGridEnd !== -1) {
+  const currentAppSection = content.substring(modalAppGridStart, modalAppGridEnd);
+  const newAppSection = `<!-- App List Grid -->
+        <div class="flex-1 overflow-y-auto no-scrollbar space-y-2.5 pt-1 relative z-10">
+          
+          <!-- App 1: Mobile Legends: Bang Bang -->
           <a href="mlbb.html" class="glass-box rounded-2xl p-3 border border-cyan-500/30 hover:border-cyan-400 bg-gradient-to-r from-blue-950/40 via-slate-900/80 to-[#0e192e] flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block">
             <div class="flex items-center gap-2.5 min-w-0">
               <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-cyan-400/50 flex items-center justify-center shrink-0 bg-slate-950">
@@ -388,12 +293,12 @@ const pubgModalApp1 = `          <!-- App 1: Mobile Legends: Bang Bang -->
             </div>
           </a>
 
-          <!-- App 2: PUBG Mobile -->
+          <!-- App 2: PUBG Mobile (ACTIVE) -->
           <a href="pubg.html" class="glass-box rounded-2xl p-3 border border-amber-500/50 bg-gradient-to-r from-amber-950/60 via-slate-900/90 to-[#1e1708]/80 flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block relative overflow-hidden">
             <span class="absolute top-0 right-0 w-2 h-full bg-amber-400"></span>
             <div class="flex items-center gap-2.5 min-w-0 pr-1">
               <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-amber-400/60 flex items-center justify-center shrink-0 bg-slate-950 p-0.5">
-                <img src="/images/apps/pubg/icon-192.png" alt="PUBG Mobile" class="w-full h-full object-cover rounded-xl" onerror="this.src='https://play-lh.googleusercontent.com/j1_81w71x9m9mN6L4Ld4b7Z2C4Yj9G_8x_N7'"/>
+                <img src="pubg_logo.jpg" alt="PUBG Mobile" class="w-full h-full object-cover rounded-xl" onerror="this.src='https://i.ibb.co/KpMvj9fw/3235269bedcbf914ba3e316af4169a3b.jpg'"/>
               </div>
               <div class="text-right min-w-0">
                 <p class="text-xs sm:text-sm font-black text-white group-hover:text-amber-300 transition flex items-center gap-1.5">
@@ -409,11 +314,35 @@ const pubgModalApp1 = `          <!-- App 1: Mobile Legends: Bang Bang -->
                 <span class="font-mono">✓</span>
               </span>
             </div>
-          </a>`;
+          </a>
 
-content = content.replace(oldModalApp1, pubgModalApp1);
+          <!-- App 3: Honor of Kings (HOK) -->
+          <a href="/apps/honor-of-kings" class="glass-box rounded-2xl p-3 border border-purple-500/30 hover:border-purple-400 bg-gradient-to-r from-purple-950/30 via-slate-900/80 to-[#190e29]/60 flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-purple-400/60 flex items-center justify-center shrink-0 bg-slate-950 p-0.5">
+                <img src="/images/apps/honor-of-kings/icon-512.png" alt="Honor of Kings" class="w-full h-full object-cover rounded-xl" onerror="this.src='https://play-lh.googleusercontent.com/4h_8'"/>
+              </div>
+              <div class="text-right min-w-0">
+                <p class="text-xs sm:text-sm font-black text-white group-hover:text-purple-300 transition flex items-center gap-1.5">
+                  <span>Honor of Kings (HOK)</span>
+                </p>
+                <p class="text-[11px] text-purple-300/90 font-mono mt-0.5">👑 رەسمىي توكېن بازىرى • لاقىم دەلىللەش</p>
+                <p class="text-[10px] text-slate-400">Player ID ئارقىلىق 5 سېكۇنتتا كىرىدۇ</p>
+              </div>
+            </div>
+            <div class="shrink-0 flex flex-col items-end gap-1">
+              <span class="px-2.5 py-1 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-400/40 text-[10.5px] font-black group-hover:bg-purple-500 group-hover:text-slate-950 transition flex items-center gap-1 shadow-sm">
+                <span>كىرىش</span>
+                <span class="font-mono">➔</span>
+              </span>
+            </div>
+          </a>
 
-// 9. Update JavaScript Logic: Replace CATALOGS
+          `;
+  content = content.substring(0, modalAppGridStart) + newAppSection + content.substring(modalAppGridEnd);
+}
+
+// 9. Update JavaScript Logic: Replace CATALOGS for PUBG Mobile
 const oldCatalogsLogic = `    // MaxStore Live Catalogs with Guaranteed Dynamic Profit Margins
     let CATALOGS = {
       global: {
@@ -481,7 +410,7 @@ const pubgCatalogsReplacement = `    // MaxStore Live Catalogs for PUBG Mobile (
         serverTitle: 'بىۋاسىتە UC',
         flag: '🔥',
         packages: [
-          { id: 60, name: '60 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 1.07, isVip: true },
+          { id: 60, name: '60 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 1.15, isVip: true },
           { id: 54, name: '325 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 5.25, isVip: true },
           { id: 62, name: '660 PUBG UC', subtext: '🔥 Royale Pass ئېچىشقا ماس', price: 10.35, isVip: true },
           { id: 55, name: '1800 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 25.50, isVip: true },
@@ -495,7 +424,7 @@ const pubgCatalogsReplacement = `    // MaxStore Live Catalogs for PUBG Mobile (
         serverTitle: 'Royale Pass & كارتىلار',
         flag: '👑',
         packages: [
-          { id: 343, name: 'Royale Pass Elite (LV 1-50)', subtext: 'رەسمىي RP پاس كارتىسى', price: 5.95, isVip: true },
+          { id: 343, name: 'Royale Pass Elite (LV 1-50)', subtext: 'رەسمىي RP پاس كارتىسى', price: 10.35, isVip: true },
           { id: 344, name: 'Royale Pass Elite Plus (LV 1-100)', subtext: 'تولۇق RP پاس + قوشۇمچە تەمىنات', price: 25.50, isVip: true },
           { id: 341, name: 'Prime Plus ئايلىق كارتىسى', subtext: 'كۈندىلىك UC + نۇرغۇن ئېتىبارلار', price: 9.80, isVip: true },
           { id: 340, name: 'Prime ئەزالىق كارتىسى', subtext: 'ئەرزان باھالىق كۈندىلىك تەڭگە', price: 1.25, isVip: true },
@@ -506,10 +435,9 @@ const pubgCatalogsReplacement = `    // MaxStore Live Catalogs for PUBG Mobile (
         serverTitle: 'UC كود (PIN)',
         flag: '🎟️',
         packages: [
-          { id: 444, name: '60 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', price: 1.07, isVip: false },
+          { id: 444, name: '60 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', price: 1.15, isVip: false },
           { id: 445, name: '660 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', price: 10.30, isVip: true },
           { id: 446, name: '1800 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', price: 25.30, isVip: false },
-          { id: 447, name: '3850 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', price: 50.50, isVip: false },
         ]
       }
     };`;
@@ -605,122 +533,37 @@ const pubgLoadDynamicCatalog = `    async function loadDynamicCatalog() {
 
 content = content.replace(oldLoadDynamicCatalog, pubgLoadDynamicCatalog);
 
-// 11. Update state variables: currentServer defaults to 'direct'
+// 11. State variables defaults: currentServer = 'direct'
 content = content.replace("let currentServer = 'global';", "let currentServer = 'direct';");
 content = content.replace("let selectedPkg = CATALOGS.global.packages[0];", "let selectedPkg = CATALOGS.direct.packages[0];");
 
-// 12. Update parseInput: In PUBG, only numeric UID (8-16 digits) is required, no Zone ID!
-const oldParseInput = `    function parseInput(val) {
-      if (!val) return null;
-      let clean = val.replace(/\\s+/g, ' ').trim();
-      let match = clean.match(/^(\\d{5,14})\\s*[\\(\\[\\{]?\\s*(\\d{3,6})\\s*[\\)\\]\\}]?$/);
-      if (match) {
-        return { id: match[1], zone: match[2] };
-      }
-      let parts = clean.split(/[^0-9]+/).filter(Boolean);
-      if (parts.length >= 2) {
-        return { id: parts[0], zone: parts[1] };
-      }
-      return null;
-    }`;
+// 12. Update parseInput: In PUBG Mobile, only numeric UID (6-16 digits), NO Zone ID!
+const parseInputStart = content.indexOf('    function parseInput(val) {');
+const parseInputEnd = content.indexOf('    function clearErrorState() {');
 
-const pubgParseInput = `    function parseInput(val) {
+if (parseInputStart !== -1 && parseInputEnd !== -1) {
+  const pubgParseInput = `    function parseInput(val) {
       if (!val) return null;
-      let clean = val.replace(/[^0-9]/g, '').trim();
+      let clean = String(val).replace(/[^0-9]/g, '').trim();
       if (clean.length >= 6 && clean.length <= 16) {
         return { id: clean, zone: '' };
       }
       return null;
-    }`;
+    }
 
-content = content.replace(oldParseInput, pubgParseInput);
+`;
+  content = content.substring(0, parseInputStart) + pubgParseInput + content.substring(parseInputEnd);
+}
 
-// 13. Update executeSearch: call check-player with game: 'pubg-mobile'
-const oldExecuteSearch = `    async function executeSearch() {
+// 13. Update executeSearch: call check-player with game: 'pubg-mobile' (NO zoneId, NO server detection)
+const execSearchStart = content.indexOf('    // Live Search ID & Zone');
+const renderPkgStart = content.indexOf('    function renderPackages() {');
+
+if (execSearchStart !== -1 && renderPkgStart !== -1) {
+  const pubgFunctionsReplacement = `    // Live Search PUBG UID (No servers needed!)
+    async function executeSearch() {
       clearErrorState();
-      const val = document.getElementById('mlbbInput').value.trim();
-      const res = parseInput(val);
-
-      if (!res || !res.id || !res.zone || res.id.length < 5 || res.zone.length < 3) {
-        showErrorState();
-        return;
-      }
-
-      const searchBtn = document.getElementById('searchBtn');
-      const spinner = document.getElementById('checkSpinner');
-      searchBtn.disabled = true;
-      spinner.classList.remove('hidden');
-
-      try {
-        const response = await fetch('/api/apps/check-player', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            game: 'mobile-legends',
-            playerId: res.id,
-            zoneId: res.zone
-          })
-        });
-
-        const data = await response.json();
-
-        if (!data || !data.success || !data.verified) {
-          showErrorState();
-          return;
-        }
-
-        // Successfully verified player
-        isVerified = true;
-        verifiedPlayer = {
-          nickname: data.nickname || 'Unknown Hero',
-          playerId: res.id,
-          zoneId: res.zone,
-          server: data.server || 'Global'
-        };
-
-        // Auto-detect server region from response
-        const s = (data.server || '').toLowerCase();
-        if (s.includes('turk') || s.includes('تۈركىيە') || s.includes('tr')) {
-          detectedServer = 'turkey';
-        } else if (s.includes('phil') || s.includes('فىلىپپىن') || s.includes('ph') || s.includes('special')) {
-          detectedServer = 'special';
-        } else {
-          detectedServer = 'global';
-        }
-
-        currentServer = detectedServer;
-        isPreviewMode = false;
-
-        // Populate verified player card
-        document.getElementById('cardNickname').textContent = verifiedPlayer.nickname;
-        document.getElementById('cardUserId').textContent = verifiedPlayer.playerId;
-        document.getElementById('cardZoneId').textContent = verifiedPlayer.zoneId;
-        selectedPkg = CATALOGS[currentServer].packages[0];
-
-        document.getElementById('cardFlag').textContent = CATALOGS[currentServer].flag;
-        document.getElementById('cardServerName').textContent = CATALOGS[currentServer].serverTitle + ' سېرۋېرى';
-
-        const vCard = document.getElementById('verifiedCard');
-        vCard.classList.remove('hidden');
-        vCard.classList.add('flex');
-
-        // Render diamond packages and unlock
-        renderPackages();
-        updateDisplays();
-
-      } catch (err) {
-        console.error('Check player error:', err);
-        showErrorState();
-      } finally {
-        searchBtn.disabled = false;
-        spinner.classList.add('hidden');
-      }
-    }`;
-
-const pubgExecuteSearch = `    async function executeSearch() {
-      clearErrorState();
-      const inputElem = document.getElementById('pubgInput');
-      const val = inputElem ? inputElem.value.trim() : '';
+      const val = document.getElementById('pubgInput').value.trim();
       const res = parseInput(val);
 
       if (!res || !res.id || res.id.length < 6) {
@@ -729,119 +572,162 @@ const pubgExecuteSearch = `    async function executeSearch() {
       }
 
       const searchBtn = document.getElementById('searchBtn');
-      const spinner = document.getElementById('checkSpinner');
+      const searchIcon = document.getElementById('searchIcon');
+      const searchBtnText = document.getElementById('searchBtnText');
       if (searchBtn) searchBtn.disabled = true;
-      if (spinner) spinner.classList.remove('hidden');
+      if (searchIcon) {
+        searchIcon.className = 'text-xs inline-block animate-spin';
+        searchIcon.textContent = '⏳';
+      }
+      if (searchBtnText) searchBtnText.textContent = 'ئىزدەۋاتىدۇ...';
+
+      const spinner = document.getElementById('checkSpinner');
+      if (spinner) {
+        spinner.classList.remove('hidden');
+        spinner.classList.add('flex');
+      }
+      const vCard = document.getElementById('verifiedCard');
+      if (vCard) vCard.classList.add('hidden');
+
+      parsedId = res.id;
+      parsedZone = '';
 
       try {
-        const response = await fetch('/api/apps/check-player', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            game: 'pubg-mobile',
-            playerId: res.id
-          })
-        });
+        let liveName = null;
 
-        const data = await response.json();
+        // 1. Try public Isan API for PUBG Mobile nickname
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3500);
+          const apiRes = await fetch('https://api.isan.eu.org/nickname/pubg?id=' + encodeURIComponent(res.id), {
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          if (apiRes.ok) {
+            const liveData = await apiRes.json();
+            if (liveData && liveData.success && liveData.name) {
+              liveName = liveData.name;
+            }
+          }
+        } catch (_) {}
 
-        if (!data || !data.success) {
-          showErrorState();
-          return;
+        // 2. Try internal /api/apps/check-player route
+        if (!liveName) {
+          try {
+            const checkRes = await fetch('/api/apps/check-player', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ game: 'pubg-mobile', playerId: res.id })
+            });
+            if (checkRes.ok) {
+              const checkData = await checkRes.json();
+              if (checkData && checkData.success && checkData.nickname) {
+                liveName = checkData.nickname;
+              }
+            }
+          } catch (_) {}
         }
 
-        // Successfully verified player
-        isVerified = true;
-        verifiedPlayer = {
-          nickname: data.nickname || ('PUBG Player #' + res.id.slice(-4)),
-          playerId: res.id,
-          server: data.server || 'Global (PUBG Mobile)'
-        };
+        if (!liveName) {
+          liveName = 'PUBG Player #' + res.id.slice(-4);
+        }
 
+        isVerified = true;
         isPreviewMode = false;
+        playerNick = liveName;
+        selectedPkg = CATALOGS[currentServer].packages[0];
 
         // Populate verified player card
         const cardNick = document.getElementById('cardNickname');
-        if (cardNick) cardNick.textContent = verifiedPlayer.nickname;
+        if (cardNick) cardNick.textContent = liveName;
         const cardUser = document.getElementById('cardUserId');
-        if (cardUser) cardUser.textContent = verifiedPlayer.playerId;
+        if (cardUser) cardUser.textContent = res.id;
 
-        const vCard = document.getElementById('verifiedCard');
         if (vCard) {
           vCard.classList.remove('hidden');
           vCard.classList.add('flex');
         }
 
-        // Render packages and unlock
         renderPackages();
         updateDisplays();
 
+        setTimeout(() => {
+          const step2 = document.getElementById('step2Section');
+          if (step2) step2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
+
       } catch (err) {
-        console.error('Check player error:', err);
+        console.warn('Search query error:', err);
         showErrorState();
       } finally {
         if (searchBtn) searchBtn.disabled = false;
-        if (spinner) spinner.classList.add('hidden');
+        if (searchIcon) {
+          searchIcon.className = 'text-xs inline-block';
+          searchIcon.textContent = '🔍';
+        }
+        if (searchBtnText) searchBtnText.textContent = 'ئىزدەش';
+        if (spinner) {
+          spinner.classList.add('hidden');
+          spinner.classList.remove('flex');
+        }
       }
-    }`;
+    }
 
-content = content.replace(oldExecuteSearch, pubgExecuteSearch);
-
-// 14. Update switchServer for PUBG tabs ['direct', 'pass', 'voucher']
-const oldSwitchServer = `    function switchServer(srv) {
-      if (isVerified && detectedServer && srv !== detectedServer) {
-        showAppModal({
-          title: 'سېرۋېر قۇلۇپلانغان',
-          message: 'سىز كىرگۈزگەن كىملىك «' + (CATALOGS[detectedServer]?.flag || '') + ' ' + (CATALOGS[detectedServer]?.serverTitle || '') + '» سېرۋېرىغا تەۋە بولغانلىقى ئۈچۈن، خاتا باھادا سېتىۋېلىشتىن مۇداپىئەلىنىش مەقسىتىدە باشقا سېرۋېر باھالىرى قۇلۇپلاندى.',
-          icon: '🔒',
-          confirmText: 'چۈشەندىم'
-        });
-        return;
-      }
-
+    // Browse category directly without UID
+    function previewServerOnly(srv) {
+      clearErrorState();
+      isPreviewMode = true;
       currentServer = srv;
-      if (!CATALOGS[currentServer]) currentServer = 'global';
+      if (!CATALOGS[currentServer]) currentServer = 'direct';
       selectedPkg = CATALOGS[currentServer].packages[0];
+
       renderPackages();
       updateDisplays();
-    }`;
+    }
 
-const pubgSwitchServer = `    function switchServer(srv) {
+    // Pure category switcher (Direct UC, Royale Pass, Voucher PIN) - NO SERVER RESTRICTIONS!
+    function switchServer(srv) {
       currentServer = srv;
       if (!CATALOGS[currentServer]) currentServer = 'direct';
       selectedPkg = CATALOGS[currentServer].packages[0];
       renderPackages();
       updateDisplays();
-    }`;
+    }
 
-content = content.replace(oldSwitchServer, pubgSwitchServer);
+`;
+  content = content.substring(0, execSearchStart) + pubgFunctionsReplacement + content.substring(renderPkgStart);
+}
 
-// 15. Update renderPackages tabs logic for ['direct', 'pass', 'voucher']
-const oldTabsLoop = `      // Tabs active and locked class
-      ['global', 'turkey', 'special'].forEach(s => {
-        const btn = document.getElementById('tab' + s.charAt(0).toUpperCase() + s.slice(1));
-        if (!btn) return;
-        const sTitle = CATALOGS[s].serverTitle;
-        const sFlag = CATALOGS[s].flag;
+// 14. Update renderPackages() inside JS: use ['direct', 'pass', 'voucher'], activeServerTag text, no server lock logic
+const renderPkgBodyStart = content.indexOf('    function renderPackages() {');
+const selectPkgStart = content.indexOf('    function selectPackage(pkg) {');
 
-        if (s === currentServer) {
-          btn.className = 'py-2 px-1 rounded-xl font-black transition-all text-center bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-500/30 border border-cyan-300 flex items-center justify-center gap-1.5 scale-[1.02] cursor-pointer';
-          btn.innerHTML = '<span>' + sFlag + '</span><span>' + sTitle + '</span>' + (isVerified ? '<span class=\"text-[8.5px] bg-emerald-400 text-slate-950 px-1 py-0.5 rounded font-black font-mono\">تەستىقلاندى</span>' : '<span class=\"w-1.5 h-1.5 rounded-full bg-cyan-300 animate-ping\"></span>');
-          btn.title = '';
-        } else {
-          if (isVerified && detectedServer && s !== detectedServer) {
-            btn.className = 'py-2 px-1 rounded-xl font-bold transition text-center text-slate-500 bg-slate-950/70 border border-slate-800/80 cursor-not-allowed opacity-40 flex items-center justify-center gap-1.5';
-            btn.innerHTML = '<span>🔒</span><span class=\"line-through opacity-70\">' + sTitle + '</span>';
-            btn.title = 'خاتا سېتىۋېلىشتىن مۇداپىئەلىنىش ئۈچۈن قۇلۇپلاندى';
-          } else {
-            btn.className = 'py-2 px-1 rounded-xl font-bold transition text-center text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent cursor-pointer flex items-center justify-center gap-1.5';
-            btn.innerHTML = '<span>' + sFlag + '</span><span>' + sTitle + '</span>';
-            btn.title = '';
-          }
-        }
-      });`;
+if (renderPkgBodyStart !== -1 && selectPkgStart !== -1) {
+  const pubgRenderPackagesReplacement = `    function renderPackages() {
+      const locked = document.getElementById('lockedNotice');
+      const tabs = document.getElementById('serverTabs');
+      const container = document.getElementById('packagesContainer');
+      const tag = document.getElementById('activeServerTag');
+      const previewBanner = document.getElementById('previewBanner');
 
-const pubgTabsLoop = `      // Category Tabs active class
+      if (locked) locked.classList.add('hidden');
+      if (tabs) {
+        tabs.classList.remove('hidden');
+        tabs.classList.add('grid');
+      }
+      if (container) {
+        container.classList.remove('hidden');
+        container.classList.add('grid');
+      }
+      if (tag) {
+        tag.classList.remove('hidden');
+        tag.textContent = CATALOGS[currentServer].flag + ' ' + CATALOGS[currentServer].serverTitle;
+      }
+      if (previewBanner) {
+        previewBanner.classList.add('hidden');
+      }
+
+      // Category Tabs active class (Direct UC, Royale Pass, Voucher PIN)
       ['direct', 'pass', 'voucher'].forEach(s => {
         const btn = document.getElementById('tab' + s.charAt(0).toUpperCase() + s.slice(1));
         if (!btn) return;
@@ -855,55 +741,219 @@ const pubgTabsLoop = `      // Category Tabs active class
           btn.className = 'py-2 px-1 rounded-xl font-bold transition text-center text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent cursor-pointer flex items-center justify-center gap-1.5';
           btn.innerHTML = '<span>' + sFlag + '</span><span>' + sTitle + '</span>';
         }
-      });`;
+      });
 
-content = content.replace(oldTabsLoop, pubgTabsLoop);
+      // Render PUBG UC / Card items
+      container.innerHTML = '';
+      CATALOGS[currentServer].packages.forEach(pkg => {
+        const isSel = selectedPkg && selectedPkg.id === pkg.id;
+        const cls = isSel ? (pkg.isVip ? 'active-vip' : 'active-card') : 'glass-box';
 
-// 16. Update coin icon in renderPackages: 🪙 for UC, 👑 for Royale Pass, 🎟️ for voucher
-content = content.replace(
-  "'<span class=\"' + (pkg.isVip ? 'mythic-crown-anim text-sm' : 'mlbb-gem-anim text-sm') + '\">' + (pkg.isVip ? '👑' : '💎') + '</span>' +",
-  "'<span class=\"' + (pkg.isVip ? 'mythic-crown-anim text-sm' : 'mlbb-gem-anim text-sm') + '\">' + (currentServer === 'pass' ? '👑' : (currentServer === 'voucher' ? '🎟️' : '🪙')) + '</span>' +"
-);
+        const div = document.createElement('div');
+        div.setAttribute('data-pkg-id', pkg.id);
+        div.className = cls + ' rounded-2xl p-2.5 cursor-pointer transition flex flex-col justify-between relative group hover:border-amber-400/50 select-none active:scale-[0.98]';
+        div.onclick = () => {
+          selectPackage(pkg);
+        };
 
-// 17. Update input references: mlbbInput -> pubgInput
+        const iconSymbol = (currentServer === 'pass' ? '👑' : (currentServer === 'voucher' ? '🎟️' : '🪙'));
+
+        div.innerHTML = 
+          '<div class="flex items-center justify-between mt-0.5">' +
+            '<span class="text-xs font-black text-white">' + pkg.name + '</span>' +
+            '<span class="' + (pkg.isVip ? 'mythic-crown-anim text-sm' : 'text-sm') + '">' + iconSymbol + '</span>' +
+          '</div>' +
+          '<div class="text-[10px] text-slate-400 mt-1 mb-2 leading-tight">' + pkg.subtext + '</div>' +
+          '<div class="flex items-center justify-between pt-1 border-t border-slate-800/80">' +
+            '<span class="text-[10px] text-slate-400 font-bold">باھاسى:</span>' +
+            '<span class="text-xs font-black font-mono text-amber-300">$ ' + pkg.price.toFixed(2) + '</span>' +
+          '</div>';
+
+        container.appendChild(div);
+      });
+    }
+
+`;
+  content = content.substring(0, renderPkgBodyStart) + pubgRenderPackagesReplacement + content.substring(selectPkgStart);
+}
+
+// 15. Update input ID references: mlbbInput -> pubgInput everywhere
 content = content.replace(/mlbbInput/g, 'pubgInput');
 
-// 18. Update executeTopup: send app_id: 'pubg'
-const oldExecuteTopupPayload = `        const payload = {
-          telegram_user_id: user ? user.id : 0,
-          telegram_username: user ? user.username : '',
-          first_name: user ? user.first_name : '',
-          app_id: 'mobile-legends',
-          service_name: 'Mobile Legends ' + selectedPkg.name,
-          player_id: verifiedPlayer.playerId,
-          zone_id: verifiedPlayer.zoneId,
-          package_id: selectedPkg.id,
-          unit_price: selectedPkg.price,
-          total_price: selectedPkg.price,
-          currency: 'USD',
-          server: CATALOGS[currentServer].flag + ' ' + CATALOGS[currentServer].serverTitle
-        };`;
+// 16. Update executeTopup() to send app_id: 'pubg', remove server lock check, and use clean PUBG params
+const topupStart = content.indexOf('    async function executeTopup() {');
+const historyStart = content.indexOf('    function renderHistoryList() {');
 
-const pubgExecuteTopupPayload = `        const payload = {
-          telegram_user_id: user ? user.id : 0,
-          telegram_username: user ? user.username : '',
-          first_name: user ? user.first_name : '',
-          app_id: 'pubg',
-          service_name: 'PUBG Mobile ' + selectedPkg.name,
-          player_id: verifiedPlayer.playerId,
-          zone_id: '',
-          package_id: selectedPkg.id,
-          unit_price: selectedPkg.price,
-          total_price: selectedPkg.price,
-          currency: 'USD',
-          server: 'Global (PUBG Mobile)'
-        };`;
+if (topupStart !== -1 && historyStart !== -1) {
+  const pubgTopupReplacement = `    async function executeTopup() {
+      // 1. Must be logged in via Telegram!
+      if (!currentTgUser) {
+        showAppModal({
+          title: 'ئالدى بىلەن تىزىملاپ كىرىڭ',
+          message: 'زاكازلىرىڭىز ۋە ھەميان قالدۇقىڭىزنى بىخەتەر ساقلاش ھەم بوت بىلەن ئاپتوماتىك تەستىقلاش ئۈچۈن، ئالدى بىلەن تېلېگرامما ئارقىلىق تىزىملاپ كىرىڭ!',
+          icon: '✈️',
+          confirmText: '✈️ ھازىرلا تىزىملاپ كىرىش',
+          confirmAction: function() {
+            openTelegramModal();
+          },
+          cancelText: 'كېيىنرەك'
+        });
+        return;
+      }
 
-content = content.replace(oldExecuteTopupPayload, pubgExecuteTopupPayload);
+      // 2. Must verify Game ID
+      if (!isVerified) {
+        showAppModal({
+          title: 'ئويۇن كىملىكىڭىزنى كىرگۈزۈڭ',
+          message: 'ئالدى بىلەن 1-قەدەمدىن ئۆزىڭىزنىڭ PUBG UID كىملىكىنى كىرگۈزۈپ «ئىزدەش» نى بېسىڭ!',
+          icon: '🎮',
+          confirmText: '🔍 كىملىك كىرگۈزۈش',
+          confirmAction: function() {
+            const inp = document.getElementById('pubgInput');
+            if (inp) {
+              inp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              setTimeout(() => inp.focus(), 350);
+            }
+          },
+          cancelText: 'يېپىش'
+        });
+        return;
+      }
 
-// 19. Update clearPlayerInput
-const oldClearPlayerInput = `    function clearPlayerInput() {
-      const input = document.getElementById('mlbbInput');
+      // 3. Check wallet balance & calculate deficit
+      if (walletBalance < selectedPkg.price) {
+        const missing = selectedPkg.price - walletBalance;
+        showAppModal({
+          title: 'ھەميان قالدۇقى يېتىشمىدى',
+          message: 'نۆۋەتتىكى قالدۇقىڭىز: $' + walletBalance.toFixed(2) + '، بۇ بوغچىنى سېتىۋېلىشقا يەنە $' + missing.toFixed(2) + ' كەملىدى (جەمئىي باھاسى: $' + selectedPkg.price.toFixed(2) + '). ئالدى بىلەن شامكەش ئارقىلىق قالدۇق كىرگۈزۈڭ!',
+          icon: '💰',
+          confirmText: '⚡ قالدۇق قاچىلاش (ShamCash)',
+          confirmAction: function() {
+            openDepositModal();
+          },
+          cancelText: 'كېيىنرەك'
+        });
+        return;
+      }
+
+      var payBtn = document.getElementById('payBtn');
+      if (payBtn) {
+        payBtn.disabled = true;
+        payBtn.dataset.origText = payBtn.innerHTML;
+        payBtn.innerHTML = '<span class="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> <span>زاكاز بېجىرىلىۋاتىدۇ...</span>';
+      }
+
+      // Open Modal in connecting state
+      var tempId = 'PUBG-' + Math.floor(10000 + Math.random() * 90000);
+      document.getElementById('procId').textContent = '#' + tempId;
+      document.getElementById('procNick').textContent = playerNick;
+      document.getElementById('procServer').textContent = 'PUBG Mobile (Global)';
+      document.getElementById('procPkg').textContent = selectedPkg.name;
+      document.getElementById('procStatusBadge').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span><span>تەمىنلىگۈچىگە تاپشۇرۇلۇۋاتىدۇ...</span>';
+
+      const modal = document.getElementById('processingModal');
+      const card = document.getElementById('processingCard');
+      const bar = document.getElementById('procBar');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        card.classList.remove('translate-y-6');
+        bar.style.width = '45%';
+      }, 30);
+
+      var cleanIdent = (currentTgUser.username || currentTgUser.id || '').replace(/^@/, '');
+      var orderResult = null;
+      var fetchError = null;
+
+      try {
+        var res = await fetch('/api/apps/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            app_id: 'pubg',
+            package_id: String(selectedPkg.id || 'pubg-uc'),
+            package_name: selectedPkg.name,
+            price: selectedPkg.price,
+            player_id: parsedId || '',
+            identity: cleanIdent,
+            zone_id: '',
+            user_id: currentTgUser.id || ''
+          })
+        });
+        orderResult = await res.json();
+        if (!res.ok || !orderResult.ok) {
+          fetchError = orderResult?.error || ('مۇلازىمىتېر خاتالىقى (' + res.status + ')');
+        }
+      } catch (err) {
+        fetchError = err.message || 'تور باغلىنىش خاتالىقى كۆرۈلدى';
+      }
+
+      if (fetchError || !orderResult || !orderResult.ok) {
+        if (payBtn && payBtn.dataset.origText) {
+          payBtn.disabled = false;
+          payBtn.innerHTML = payBtn.dataset.origText;
+        }
+        bar.style.width = '100%';
+        bar.className = 'h-full bg-rose-500 transition-all duration-300';
+        document.getElementById('procStatusBadge').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span><span class="text-rose-400 font-bold">مەغلۇپ بولدى</span>';
+        
+        setTimeout(() => {
+          modal.classList.add('opacity-0');
+          card.classList.add('translate-y-6');
+          setTimeout(() => {
+            modal.classList.add('hidden');
+            bar.className = 'h-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 transition-all duration-700';
+            showAppModal({
+              title: 'زاكاز مەغلۇپ بولدى',
+              message: fetchError || 'قاچىلاش مەغلۇپ بولدى، ھەميان قالدۇقىڭىزدىن پۇل تۇتۇلمىدى. قايتا سىناپ بېقىڭ.',
+              icon: '❌',
+              confirmText: 'چۈشەندىم'
+            });
+          }, 300);
+        }, 1200);
+        return;
+      }
+
+      // Order Success
+      bar.style.width = '100%';
+      document.getElementById('procId').textContent = '#' + (orderResult.order_id || tempId);
+      document.getElementById('procStatusBadge').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span><span class="text-emerald-300 font-black">مۇۋەپپەقىيەتلىك تامام Rome! ✓</span>';
+
+      if (typeof orderResult.remaining_balance === 'number') {
+        walletBalance = orderResult.remaining_balance;
+      } else {
+        walletBalance = Math.max(0, walletBalance - selectedPkg.price);
+      }
+      updateWalletDisplay();
+
+      setTimeout(() => {
+        modal.classList.add('opacity-0');
+        card.classList.add('translate-y-6');
+        setTimeout(() => {
+          modal.classList.add('hidden');
+          if (payBtn && payBtn.dataset.origText) {
+            payBtn.disabled = false;
+            payBtn.innerHTML = payBtn.dataset.origText;
+          }
+          openSuccessModal({
+            orderId: orderResult.order_id || tempId,
+            serviceName: 'PUBG Mobile ' + selectedPkg.name,
+            playerId: parsedId,
+            amount: selectedPkg.name,
+            price: '$' + selectedPkg.price.toFixed(2),
+            time: new Date().toLocaleTimeString('ug-CN', { hour: '2-digit', minute: '2-digit' })
+          });
+        }, 300);
+      }, 900);
+    }
+
+`;
+  content = content.substring(0, topupStart) + pubgTopupReplacement + content.substring(historyStart);
+}
+
+// 17. Update clearPlayerInput for PUBG
+const clearPlayerInputOld = `    function clearPlayerInput() {
+      const input = document.getElementById('pubgInput');
       input.value = '';
       clearErrorState();
       isVerified = false;
@@ -925,7 +975,7 @@ const oldClearPlayerInput = `    function clearPlayerInput() {
       input.focus();
     }`;
 
-const pubgClearPlayerInput = `    function clearPlayerInput() {
+const clearPlayerInputNew = `    function clearPlayerInput() {
       const input = document.getElementById('pubgInput');
       if (input) input.value = '';
       clearErrorState();
@@ -946,9 +996,9 @@ const pubgClearPlayerInput = `    function clearPlayerInput() {
       if (input) input.focus();
     }`;
 
-content = content.replace(oldClearPlayerInput, pubgClearPlayerInput);
+content = content.replace(clearPlayerInputOld, clearPlayerInputNew);
 
 // Write to pubg.html and pubg-mobile.html
 fs.writeFileSync(pubgHtmlPath, content, 'utf8');
 fs.writeFileSync(pubgMobileHtmlPath, content, 'utf8');
-console.log('Successfully generated public/pubg.html and public/pubg-mobile.html with App Switcher Modal!');
+console.log('Successfully generated public/pubg.html and public/pubg-mobile.html with ZERO server buttons, clean PUBG logic, and user logo!');
