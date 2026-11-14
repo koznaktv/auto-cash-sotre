@@ -176,6 +176,7 @@ export async function POST(req: NextRequest) {
         playerId: trimmedId,
         game,
         nickname: customNickname.trim(),
+        hasRealNickname: true,
         server: defaultServer,
         verified: true,
       });
@@ -189,6 +190,7 @@ export async function POST(req: NextRequest) {
         playerId: trimmedId,
         game,
         nickname: known.nickname,
+        hasRealNickname: true,
         server: known.server,
         verified: true,
       });
@@ -234,6 +236,7 @@ export async function POST(req: NextRequest) {
                 playerId: trimmedId,
                 game: isPubg ? 'pubg-mobile' : 'honor-of-kings',
                 nickname: liveName,
+                hasRealNickname: true,
                 server: liveRegion,
                 verified: true,
               });
@@ -278,6 +281,7 @@ export async function POST(req: NextRequest) {
               playerId: trimmedId,
               game: isPubg ? 'pubg-mobile' : 'honor-of-kings',
               nickname: liveName,
+              hasRealNickname: true,
               server: rData?.data?.region || defaultServer,
               verified: true,
             });
@@ -320,6 +324,7 @@ export async function POST(req: NextRequest) {
               playerId: trimmedId,
               game,
               nickname: liveName,
+              hasRealNickname: true,
               server: data?.zone || data?.region || defaultServer,
               verified: true,
             });
@@ -330,25 +335,29 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 4. Return status: UID format is valid
+    // 4. Return status: UID format is valid (NO FAKE NICKNAMES! Clear UID confirmation)
+    const isCustom = !!(customNickname && typeof customNickname === 'string' && customNickname.trim());
+    const hasReal = isCustom || !!KNOWN_PLAYERS[trimmedId]?.nickname;
+    const finalNick = isCustom ? customNickname.trim() : (KNOWN_PLAYERS[trimmedId]?.nickname || `UID: ${trimmedId}`);
+
     if (isPubg) {
-      const defaultNick = `PUBG Player #${trimmedId.slice(-4)}`;
       return NextResponse.json({
         success: true,
         playerId: trimmedId,
-        game,
-        nickname: defaultNick,
+        game: 'pubg-mobile',
+        nickname: finalNick,
+        hasRealNickname: hasReal,
         server: defaultServer,
         verified: true,
       });
     }
 
-    const defaultHokNick = customNickname || KNOWN_PLAYERS[trimmedId]?.nickname || `亗 HOK_${trimmedId.slice(-4)} 亗`;
     return NextResponse.json({
       success: true,
       playerId: trimmedId,
       game: 'honor-of-kings',
-      nickname: defaultHokNick,
+      nickname: finalNick,
+      hasRealNickname: hasReal,
       server: defaultServer,
       verified: true,
     });
