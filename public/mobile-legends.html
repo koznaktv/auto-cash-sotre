@@ -465,8 +465,8 @@
             <div class="flex items-center gap-2.5">
               <!-- 3D Gold Wallet Icon -->
               <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-600 via-yellow-400 to-amber-200 p-[1.5px] shadow-lg shadow-amber-500/40 flex items-center justify-center shrink-0">
-                <div class="w-full h-full rounded-2xl bg-[#0b101d] flex items-center justify-center text-amber-300 text-lg shadow-inner">
-                  💰
+                <div class="w-full h-full rounded-2xl bg-[#0b101d] flex items-center justify-center text-amber-300 text-lg shadow-inner overflow-hidden p-1">
+                  <img src="tg_wallet_dollar_anim.webp" alt="$" class="w-7 h-7 object-contain drop-shadow" onerror="this.onerror=null;this.src='tg_wallet_dollar.gif'"/>
                 </div>
               </div>
               <div class="leading-tight">
@@ -488,7 +488,10 @@
           <!-- 3 Stats Badges: Amber (Current), Rose (Deduct), Emerald (Remaining) / Rose (Deficit) -->
           <div class="grid grid-cols-3 gap-2 pt-1 border-t border-slate-800/80 text-center font-mono">
             <div class="bg-gradient-to-b from-slate-900/95 to-[#161a24] rounded-xl p-2 border border-amber-500/40 shadow-sm">
-              <span class="text-[10px] text-amber-300 font-bold block mb-0.5">💵 ھازىرقى قالدۇق</span>
+              <span class="text-[10px] text-amber-300 font-bold block mb-0.5 flex items-center justify-center gap-1">
+                <img src="tg_wallet_dollar_anim.webp" alt="$" class="w-3.5 h-3.5 object-contain inline-block shrink-0" onerror="this.onerror=null;this.src='tg_wallet_dollar.gif'"/>
+                <span>ھازىرقى قالدۇق</span>
+              </span>
               <span id="walletCurrent" class="text-xs sm:text-sm font-black text-amber-300">$ 0.00</span>
             </div>
             <div class="bg-gradient-to-b from-slate-900/95 to-[#1c1214] rounded-xl p-2 border border-rose-500/40 shadow-sm">
@@ -730,11 +733,13 @@
 
         <!-- Two Tabs: Product Orders vs Wallet Deposits -->
         <div class="grid grid-cols-2 gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800 shrink-0 text-xs">
-          <button id="tabHistProducts" onclick="switchHistoryTab('products')" class="py-1.5 rounded-lg font-bold transition bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow">
-            💎 ئالماس زاكازلىرى
+          <button id="tabHistProducts" onclick="switchHistoryTab('products')" class="py-1.5 rounded-lg font-bold transition bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow flex items-center justify-center gap-1.5">
+            <img src="tg_mlbb_diamond_anim.webp" alt="💎" class="w-3.5 h-3.5 object-contain inline-block shrink-0" onerror="this.onerror=null;this.src='tg_mlbb_diamond.gif'"/>
+            <span>ئالماس زاكازلىرى</span>
           </button>
-          <button id="tabHistDeposits" onclick="switchHistoryTab('deposits')" class="py-1.5 rounded-lg font-bold transition text-slate-400 hover:text-white">
-            💰 قالدۇق قاچىلاش تالونلىرى
+          <button id="tabHistDeposits" onclick="switchHistoryTab('deposits')" class="py-1.5 rounded-lg font-bold transition text-slate-400 hover:text-white flex items-center justify-center gap-1.5">
+            <img src="tg_wallet_dollar_anim.webp" alt="$" class="w-3.5 h-3.5 object-contain inline-block shrink-0" onerror="this.onerror=null;this.src='tg_wallet_dollar.gif'"/>
+            <span>قالدۇق قاچىلاش تالونلىرى</span>
           </button>
         </div>
 
@@ -1632,7 +1637,7 @@
         showAppModal({
           title: 'ھەميان قالدۇقى يېتىشمىدى',
           message: 'نۆۋەتتىكى قالدۇقىڭىز: $' + walletBalance.toFixed(2) + '، بۇ بوغچىنى سېتىۋېلىشقا يەنە $' + missing.toFixed(2) + ' كەملىدى (جەمئىي باھاسى: $' + selectedPkg.price.toFixed(2) + '). ئالدى بىلەن شامكەش ئارقىلىق قالدۇق كىرگۈزۈڭ!',
-          icon: '💰',
+          icon: '<img src="tg_wallet_dollar_anim.webp" alt="$" class="w-10 h-10 object-contain mx-auto" onerror="this.onerror=null;this.src=\'tg_wallet_dollar.gif\'"/>',
           confirmText: '⚡ قالدۇق قاچىلاش (ShamCash)',
           confirmAction: function() {
             openDepositModal();

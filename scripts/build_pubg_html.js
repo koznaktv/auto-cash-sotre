@@ -258,7 +258,8 @@ content = content.replace('<span class="font-sans">سېرۋېر:</span>\n       
 content = content.replace("let playerNick = '亗 SULTAN_MLBB 亗';", "let playerNick = '亗 PUBG_PLAYER 亗';");
 content = content.replace("server: '🎮 MLBB',", "server: '🔫 PUBG Mobile',");
 content = content.replace("pkg: o.package_name || 'ئالماس بوغچىسى',", "pkg: o.package_name || 'PUBG UC',");
-content = content.replace('💎 ئالماس زاكازلىرى', '🪙 PUBG UC زاكازلىرى');
+content = content.replace(/<span>ئالماس زاكازلىرى<\/span>/g, '<span>PUBG UC زاكازلىرى</span>');
+content = content.replace(/alt="💎"/g, 'alt="UC"');
 content = content.replace('ئالماس ياكى كارتىلارنى تاللاپ زاكاز قىلسىڭىز', 'UC ياكى كارتىلارنى تاللاپ زاكاز قىلسىڭىز');
 
 // 7. Update App Switcher Modal (PUBG active, MLBB switchable)
@@ -910,7 +911,7 @@ if (topupStart !== -1 && topupEnd !== -1) {
         showAppModal({
           title: 'ھەميان قالدۇقى يېتىشمىدى',
           message: 'نۆۋەتتىكى قالدۇقىڭىز: $' + walletBalance.toFixed(2) + '، بۇ بوغچىنى سېتىۋېلىشقا يەنە $' + missing.toFixed(2) + ' كەملىدى (جەمئىي باھاسى: $' + selectedPkg.price.toFixed(2) + '). ئالدى بىلەن شامكەش ئارقىلىق قالدۇق كىرگۈزۈڭ!',
-          icon: '💰',
+          icon: '<img src="tg_wallet_dollar_anim.webp" alt="$" class="w-10 h-10 object-contain mx-auto" onerror="this.onerror=null;this.src=\\\'tg_wallet_dollar.gif\\\'"/>',
           confirmText: '⚡ قالدۇق قاچىلاش (ShamCash)',
           confirmAction: function() {
             openDepositModal();
