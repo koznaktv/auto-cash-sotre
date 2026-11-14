@@ -26,28 +26,44 @@ const nextConfig = {
   async rewrites() {
     return [
       {
+        source: '/apps/honor-of-kings',
+        destination: '/honor-of-kings.html',
+      },
+      {
         source: '/honor-of-kings',
-        destination: '/apps/honor-of-kings',
+        destination: '/honor-of-kings.html',
       },
       {
         source: '/hok',
-        destination: '/apps/honor-of-kings',
+        destination: '/honor-of-kings.html',
       },
       {
         source: '/app/honor-of-kings',
-        destination: '/apps/honor-of-kings',
+        destination: '/honor-of-kings.html',
+      },
+      {
+        source: '/apps/pubg',
+        destination: '/pubg.html',
       },
       {
         source: '/pubg',
-        destination: '/apps/pubg',
+        destination: '/pubg.html',
       },
       {
         source: '/pubg-mobile',
-        destination: '/apps/pubg',
+        destination: '/pubg.html',
       },
       {
         source: '/apps/pubg-mobile',
-        destination: '/apps/pubg',
+        destination: '/pubg.html',
+      },
+      {
+        source: '/apps/mobile-legends',
+        destination: '/mlbb.html',
+      },
+      {
+        source: '/apps/mlbb',
+        destination: '/mlbb.html',
       },
       {
         source: '/app-store',

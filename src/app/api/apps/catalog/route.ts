@@ -413,6 +413,117 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    if (app === 'honor-of-kings' || app === 'hok') {
+      const hokProds = allProducts.filter((p) => {
+        const cat = (p.category_name || '').toLowerCase();
+        const name = (p.name || '').toLowerCase();
+        return cat.includes('honor of kings') || name.includes('honor of kings') || name.includes('hok');
+      });
+
+      const tokensList: CatalogProduct[] = [];
+      const bundlesList: CatalogProduct[] = [];
+
+      for (const p of hokProds) {
+        if (p.available === false) continue;
+        const catName = p.category_name || '';
+        const prodName = p.name || '';
+        const cost = Number(p.price || 0);
+        const sellPrice = calculateDynamicSellingPrice(cost);
+        const lowerName = prodName.toLowerCase();
+
+        const isBundle =
+          lowerName.includes('weekly') ||
+          lowerName.includes('bag') ||
+          lowerName.includes('pack') ||
+          lowerName.includes('zilong') ||
+          lowerName.includes('rebate') ||
+          lowerName.includes('card');
+
+        if (isBundle) {
+          let title = prodName.replace(/ - .*/, '').trim();
+          let sub = 'رەسمىي ئالاھىدە تەمىنات';
+          if (lowerName.includes('weekly card plus')) {
+            title = 'Weekly Card Plus';
+            sub = 'ھەپتىلىك پىلۇس (280 Token)';
+          } else if (lowerName.includes('weekly card')) {
+            title = 'Weekly Card';
+            sub = 'ھەپتىلىك كارتىسى (100 Token)';
+          } else if (lowerName.includes('lucky bag')) {
+            title = 'Double Token Lucky Bag';
+            sub = 'تەلىي بوغچىسى (60+20)';
+          } else if (lowerName.includes('zilong')) {
+            title = 'Infernal Shadow Zilong Pack';
+            sub = 'زىلوڭ تېرىسى بوغچىسى';
+          }
+
+          bundlesList.push({
+            id: p.id,
+            name: title,
+            subtext: sub,
+            amount: title,
+            price: sellPrice,
+            cost,
+            available: true,
+            popular: lowerName.includes('weekly'),
+            category: catName,
+            type: 'pass',
+          });
+          continue;
+        }
+
+        const numMatch = prodName.match(/^(\d+)/);
+        const amount = numMatch ? parseInt(numMatch[1], 10) : 80;
+
+        tokensList.push({
+          id: p.id,
+          name: `${amount} Tokens`,
+          subtext: 'بىۋاسىتە كىملىككە (UID)',
+          amount,
+          price: sellPrice,
+          cost,
+          available: true,
+          popular: amount === 80 || amount === 240 || amount === 830,
+          category: catName,
+          type: 'diamonds',
+        });
+      }
+
+      tokensList.sort((a, b) => Number(a.amount) - Number(b.amount));
+
+      if (tokensList.length === 0) {
+        tokensList.push(
+          { id: 758, name: '16 Tokens', subtext: 'بىۋاسىتە كىملىككە (UID)', amount: 16, price: 0.25, cost: 0.18, available: true, category: 'Honor of Kings', type: 'diamonds' },
+          { id: 764, name: '80 Tokens', subtext: 'بىۋاسىتە كىملىككە (UID)', amount: 80, price: 1.05, cost: 0.88, available: true, popular: true, category: 'Honor of Kings', type: 'diamonds' },
+          { id: 759, name: '240 Tokens', subtext: 'بىۋاسىتە كىملىككە (UID)', amount: 240, price: 2.95, cost: 2.66, available: true, popular: true, category: 'Honor of Kings', type: 'diamonds' },
+          { id: 761, name: '400 Tokens', subtext: 'بىۋاسىتە كىملىككە (UID)', amount: 400, price: 4.85, cost: 4.44, available: true, category: 'Honor of Kings', type: 'diamonds' },
+          { id: 763, name: '560 Tokens', subtext: 'بىۋاسىتە كىملىككە (UID)', amount: 560, price: 6.75, cost: 6.21, available: true, category: 'Honor of Kings', type: 'diamonds' },
+          { id: 765, name: '830 Tokens', subtext: 'بىۋاسىتە كىملىككە (UID)', amount: 830, price: 9.65, cost: 8.88, available: true, popular: true, category: 'Honor of Kings', type: 'diamonds' },
+          { id: 757, name: '1245 Tokens', subtext: 'بىۋاسىتە كىملىككە (UID)', amount: 1245, price: 14.35, cost: 13.32, available: true, category: 'Honor of Kings', type: 'diamonds' },
+          { id: 760, name: '2508 Tokens', subtext: 'بىۋاسىتە كىملىككە (UID)', amount: 2508, price: 28.50, cost: 26.66, available: true, category: 'Honor of Kings', type: 'diamonds' },
+          { id: 762, name: '4180 Tokens', subtext: 'بىۋاسىتە كىملىككە (UID)', amount: 4180, price: 47.50, cost: 44.45, available: true, category: 'Honor of Kings', type: 'diamonds' },
+          { id: 766, name: '8360 Tokens', subtext: 'بىۋاسىتە كىملىككە (UID)', amount: 8360, price: 94.90, cost: 88.91, available: true, category: 'Honor of Kings', type: 'diamonds' }
+        );
+      }
+      if (bundlesList.length === 0) {
+        bundlesList.push(
+          { id: 772, name: 'Weekly Card', subtext: 'ھەپتىلىك كارتىسى (100 Token)', amount: 'Weekly Card', price: 1.15, cost: 0.98, available: true, popular: true, category: 'Honor of Kings', type: 'pass' },
+          { id: 773, name: 'Weekly Card Plus', subtext: 'ھەپتىلىك پىلۇس (280 Token)', amount: 'Weekly Card Plus', price: 3.15, cost: 2.80, available: true, category: 'Honor of Kings', type: 'pass' },
+          { id: 767, name: 'Double Token Lucky Bag', subtext: 'تەلىي بوغچىسى (60+20)', amount: 'Lucky Bag', price: 0.35, cost: 0.28, available: true, category: 'Honor of Kings', type: 'pass' },
+          { id: 769, name: 'Infernal Shadow Zilong Pack', subtext: 'زىلوڭ تېرىسى بوغچىسى', amount: 'Zilong Pack', price: 0.58, cost: 0.49, available: true, category: 'Honor of Kings', type: 'pass' }
+        );
+      }
+
+      return NextResponse.json({
+        ok: true,
+        app: 'honor-of-kings',
+        updated_at: new Date().toISOString(),
+        catalogs: {
+          tokens: tokensList,
+          bundles: bundlesList,
+        },
+      });
+    }
+
     return NextResponse.json({ ok: false, error: 'نامەلۇم ئەپ كىملىكى' }, { status: 400 });
   } catch (err: any) {
     return NextResponse.json({ ok: false, error: err?.message || 'Server Error' }, { status: 500 });

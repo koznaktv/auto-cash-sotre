@@ -4,7 +4,9 @@ const files = [
   'public/mlbb.html',
   'public/mobile-legends.html',
   'public/pubg.html',
-  'public/pubg-mobile.html'
+  'public/pubg-mobile.html',
+  'public/honor-of-kings.html',
+  'public/hok.html'
 ];
 
 let allPassed = true;
@@ -13,6 +15,7 @@ files.forEach(f => {
   const html = fs.readFileSync(f, 'utf8');
   console.log(`\n================ Checking ${f} ================`);
   const isPubg = f.includes('pubg');
+  const isHok = f.includes('honor') || f.includes('hok');
   
   const commonChecks = {
     openAppSwitcherModal: html.includes('openAppSwitcherModal'),
@@ -66,6 +69,25 @@ files.forEach(f => {
         allPassed = false;
       } else {
         console.log(`  PASS PUBG Check [${k}]`);
+      }
+    }
+  }
+
+  if (isHok) {
+    const hokChecks = {
+      hokLogoHero: html.includes('hok_logo'),
+      noServerButtons: !html.includes('سېرۋېر باھالىرىنى كۆرۈپ بېقىش'),
+      noMlbbInput: !html.includes('mlbbInput'),
+      hasHokTabs: html.includes('tabTokens') && html.includes('tabBundles'),
+      hasHokInput: html.includes('hokInput')
+    };
+
+    for (const [k, v] of Object.entries(hokChecks)) {
+      if (!v) {
+        console.error(`  FAIL HOK Check [${k}] in ${f}`);
+        allPassed = false;
+      } else {
+        console.log(`  PASS HOK Check [${k}]`);
       }
     }
   }
