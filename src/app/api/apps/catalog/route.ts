@@ -443,14 +443,23 @@ export async function GET(req: NextRequest) {
           let title = prodName.replace(/ - .*/, '').trim();
           let sub = 'رەسمىي ئالاھىدە تەمىنات';
           if (lowerName.includes('weekly card plus')) {
-            title = 'Weekly Card Plus';
-            sub = 'ھەپتىلىك پىلۇس (280 Token)';
+            title = 'Weekly Card Plus (ھەپتىلىك پىلۇس)';
+            sub = '280 توكېن + ئالىي تەمىنات';
           } else if (lowerName.includes('weekly card')) {
-            title = 'Weekly Card';
-            sub = 'ھەپتىلىك كارتىسى (100 Token)';
+            title = 'Weekly Card (ھەپتىلىك كارتىسى)';
+            sub = '100 توكېن + كۈندىلىك مۇكاپات';
           } else if (lowerName.includes('lucky bag')) {
             title = 'Double Token Lucky Bag';
-            sub = 'تەلىي بوغچىسى (60+20)';
+            sub = 'قوش ھەسسە تەلىي بوغچىسى (60+20)';
+          } else if (lowerName.includes('premium purchase rebate')) {
+            title = 'Premium Purchase Rebate Pack';
+            sub = 'ئالىي قايتۇرما بوغچىسى';
+          } else if (lowerName.includes('standard purchase rebate')) {
+            title = 'Standard Purchase Rebate Pack';
+            sub = 'ئۆلچەملىك قايتۇرما بوغچىسى';
+          } else if (lowerName.includes('honor point')) {
+            title = 'Honor Point Value Pack';
+            sub = 'شان-شەرەپ نومۇرى قىممەت بوغچىسى';
           } else if (lowerName.includes('zilong')) {
             title = 'Infernal Shadow Zilong Pack';
             sub = 'زىلوڭ تېرىسى بوغچىسى';
@@ -506,10 +515,12 @@ export async function GET(req: NextRequest) {
       }
       if (bundlesList.length === 0) {
         bundlesList.push(
-          { id: 772, name: 'Weekly Card', subtext: 'ھەپتىلىك كارتىسى (100 Token)', amount: 'Weekly Card', price: 1.15, cost: 0.98, available: true, popular: true, category: 'Honor of Kings', type: 'pass' },
-          { id: 773, name: 'Weekly Card Plus', subtext: 'ھەپتىلىك پىلۇس (280 Token)', amount: 'Weekly Card Plus', price: 3.15, cost: 2.80, available: true, category: 'Honor of Kings', type: 'pass' },
-          { id: 767, name: 'Double Token Lucky Bag', subtext: 'تەلىي بوغچىسى (60+20)', amount: 'Lucky Bag', price: 0.35, cost: 0.28, available: true, category: 'Honor of Kings', type: 'pass' },
-          { id: 769, name: 'Infernal Shadow Zilong Pack', subtext: 'زىلوڭ تېرىسى بوغچىسى', amount: 'Zilong Pack', price: 0.58, cost: 0.49, available: true, category: 'Honor of Kings', type: 'pass' }
+          { id: 772, name: 'Weekly Card (ھەپتىلىك كارتىسى)', subtext: '100 توكېن + كۈندىلىك مۇكاپات', amount: 'Weekly Card', price: 1.15, cost: 0.98, available: true, popular: true, category: 'Honor of Kings', type: 'pass' },
+          { id: 773, name: 'Weekly Card Plus (ھەپتىلىك پىلۇس)', subtext: '280 توكېن + ئالىي تەمىنات', amount: 'Weekly Card Plus', price: 3.15, cost: 2.80, available: true, category: 'Honor of Kings', type: 'pass' },
+          { id: 770, name: 'Premium Purchase Rebate Pack', subtext: 'ئالىي قايتۇرما بوغچىسى', amount: 'Premium Rebate', price: 1.25, cost: 1.10, available: true, category: 'Honor of Kings', type: 'pass' },
+          { id: 767, name: 'Double Token Lucky Bag', subtext: 'قوش ھەسسە تەلىي بوغچىسى (60+20)', amount: 'Lucky Bag', price: 0.35, cost: 0.28, available: true, category: 'Honor of Kings', type: 'pass' },
+          { id: 768, name: 'Honor Point Value Pack', subtext: 'شان-شەرەپ نومۇرى قىممەت بوغچىسى', amount: 'Honor Point', price: 0.35, cost: 0.28, available: true, category: 'Honor of Kings', type: 'pass' },
+          { id: 771, name: 'Standard Purchase Rebate Pack', subtext: 'ئۆلچەملىك قايتۇرما بوغچىسى', amount: 'Standard Rebate', price: 0.35, cost: 0.28, available: true, category: 'Honor of Kings', type: 'pass' }
         );
       }
 

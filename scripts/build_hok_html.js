@@ -367,10 +367,12 @@ if (catStart !== -1 && loadDynStart !== -1) {
         serverTitle: 'ھەپتىلىك كارتىلار',
         flag: '<img src="/tg_star_badge.webp" alt="Card" class="w-4 h-4 object-contain inline-block shrink-0 drop-shadow pass-glow-anim" onerror="this.src=\\'/tg_star_badge.png\\'"/>',
         packages: [
-          { id: 772, name: 'Weekly Card', subtext: 'ھەپتىلىك كارتىسى (100 Token)', price: 1.15, isVip: true },
-          { id: 773, name: 'Weekly Card Plus', subtext: 'ھەپتىلىك پىلۇس (280 Token)', price: 3.15, isVip: true },
-          { id: 767, name: 'Double Token Lucky Bag', subtext: 'تەلىي بوغچىسى (60+20)', price: 0.35, isVip: true },
-          { id: 769, name: 'Infernal Shadow Zilong Pack', subtext: 'زىلوڭ تېرىسى بوغچىسى', price: 0.58, isVip: true },
+          { id: 772, name: 'Weekly Card (ھەپتىلىك كارتىسى)', subtext: '100 توكېن + كۈندىلىك مۇكاپات', price: 1.15, isVip: true },
+          { id: 773, name: 'Weekly Card Plus (ھەپتىلىك پىلۇس)', subtext: '280 توكېن + ئالىي تەمىنات', price: 3.15, isVip: true },
+          { id: 770, name: 'Premium Purchase Rebate Pack', subtext: 'ئالىي قايتۇرما بوغچىسى', price: 1.25, isVip: true },
+          { id: 767, name: 'Double Token Lucky Bag', subtext: 'قوش ھەسسە تەلىي بوغچىسى (60+20)', price: 0.35, isVip: true },
+          { id: 768, name: 'Honor Point Value Pack', subtext: 'شان-شەرەپ نومۇرى قىممەت بوغچىسى', price: 0.35, isVip: false },
+          { id: 771, name: 'Standard Purchase Rebate Pack', subtext: 'ئۆلچەملىك قايتۇرما بوغچىسى', price: 0.35, isVip: false },
         ]
       }
     };
