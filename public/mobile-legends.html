@@ -335,12 +335,21 @@
 
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <div class="w-10 h-10 rounded-xl overflow-hidden border border-emerald-500/40 shadow-sm shrink-0 bg-slate-900">
-                <img src="https://play-lh.googleusercontent.com/MztmLpB1-_eFbHnqNzzvzl5zjiOH2BEb0D71uBxZYf_4BEmW3QEPWODhRtyqY7Qz4wRLwQ--Rg1RAjOFqtHSs-o=s256" alt="MLBB" class="w-full h-full object-cover" onerror="this.src='mlbb_icon.png'"/>
+              <div class="w-10 h-10 rounded-xl overflow-hidden border border-emerald-500/40 shadow-sm shrink-0 bg-slate-900 p-0.5">
+                <img src="https://play-lh.googleusercontent.com/MztmLpB1-_eFbHnqNzzvzl5zjiOH2BEb0D71uBxZYf_4BEmW3QEPWODhRtyqY7Qz4wRLwQ--Rg1RAjOFqtHSs-o=s256" alt="MLBB" class="w-full h-full object-cover rounded-lg" onerror="this.src='mlbb_icon.png'"/>
               </div>
               <div class="leading-tight">
-                <p class="text-xs text-slate-400">ئويۇندىكى نامىڭىز:</p>
-                <p id="cardNickname" class="text-xs font-black text-emerald-300 font-mono mt-0.5">亗 SULTAN_MLBB 亗</p>
+                <p id="cardNicknameLabel" class="text-xs text-slate-400">قوبۇل قىلغۇچى كىملىك (UID):</p>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <p id="cardNickname" class="text-xs font-black text-emerald-300 font-mono">UID: 1798505443</p>
+                  <button id="cardEditBtn" onclick="editPlayerNickname(event)" type="button" class="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 px-1.5 py-0.5 rounded transition active:scale-95 cursor-pointer flex items-center gap-0.5" title="ئويۇندىكى نامنى قوشۇش ياكى تەھرىرلەش">
+                    <span>✏️</span>
+                    <span id="cardEditBtnText">نام قوشۇش (ئىختىيارىي)</span>
+                  </button>
+                </div>
+                <p id="cardSubtext" class="text-[10px] text-cyan-300/80 mt-0.5 flex items-center gap-1">
+                  <span>⚡</span><span>بىۋاسىتە مەزكۇر كىملىك ۋە سېرۋېرىغا قاچىلىنىدۇ</span>
+                </p>
               </div>
             </div>
             <div class="text-left font-mono text-xs bg-slate-950/80 px-2.5 py-1.5 rounded-lg border border-slate-800">
@@ -1153,6 +1162,66 @@
       }
     }
 
+    let hasRealNick = false;
+
+    function saveAccount(id, zone, nick) {
+      if (!id || !zone) return;
+      try {
+        const raw = localStorage.getItem('maxbazar_mlbb_saved_accounts');
+        let list = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(list)) list = [];
+        list = list.filter(a => (a.uid || a.id) !== id);
+        list.unshift({ id: id, uid: id, zone: zone, nickname: nick || '', label: nick || ('UID: ' + id), updatedAt: Date.now() });
+        localStorage.setItem('maxbazar_mlbb_saved_accounts', JSON.stringify(list.slice(0, 10)));
+      } catch (_) {}
+    }
+
+    function editPlayerNickname(e) {
+      if (e && e.stopPropagation) e.stopPropagation();
+      if (!parsedId) return;
+      const currentName = hasRealNick ? (playerNick || '') : '';
+      showAppModal({
+        icon: '✏️',
+        title: 'ئويۇندىكى نامنى كىرگۈزۈش',
+        message: 'ئەگەر كۆڭلىڭىز خاتىرجەم بولسۇن ئۈچۈن ئۆز ئويۇن نامىڭىزنى يېزىپ قويۇشنى خالىسىڭىز كىرگۈزۈڭ (مەھسۇلات ئاساسلىقى ID ۋە سېرۋېر رايونىغا قاراپ %100 توغرا قاچىلىنىدۇ):',
+        showInput: true,
+        inputValue: currentName,
+        inputPlaceholder: 'مەسىلەن: ئويۇندىكى نامىم',
+        confirmText: '💾 ساقلاش ۋە دەلىللەش',
+        cancelText: 'بىكار قىلىش',
+        confirmAction: async function(val) {
+          const newName = (val || '').trim();
+          if (!newName) return;
+          playerNick = newName;
+          hasRealNick = true;
+          const cardNick = document.getElementById('cardNickname');
+          const cardLabel = document.getElementById('cardNicknameLabel');
+          const editBtnText = document.getElementById('cardEditBtnText');
+          const cardSub = document.getElementById('cardSubtext');
+
+          if (cardNick) cardNick.textContent = newName;
+          if (cardLabel) cardLabel.textContent = 'ئويۇندىكى نامىڭىز:';
+          if (editBtnText) editBtnText.textContent = 'نامنى ئۆزگەرتىش';
+          if (cardSub) cardSub.innerHTML = '<span>✓</span><span>ئويۇن سالاھىيىتى مۇۋەپپەقىيەتلىك دەلىللەندى</span>';
+
+          saveAccount(parsedId, parsedZone, newName);
+
+          try {
+            await fetch('/api/apps/check-player', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                game: 'mobile-legends',
+                playerId: parsedId,
+                zoneId: parsedZone,
+                customNickname: newName
+              })
+            });
+          } catch(_) {}
+        }
+      });
+    }
+
     // Live Search ID & Zone
     async function executeSearch() {
       clearErrorState();
@@ -1190,6 +1259,7 @@
       }
 
       try {
+        hasRealNick = false;
         let liveName = null;
 
         // Check local saved accounts
@@ -1200,7 +1270,10 @@
             const f = list.find(a => (a.uid || a.id) === res.id);
             if (f && (f.nickname || f.label)) {
               const sn = f.nickname || f.label;
-              if (sn && !sn.startsWith('UID:')) liveName = sn;
+              if (sn && !sn.startsWith('UID:')) {
+                liveName = sn;
+                hasRealNick = true;
+              }
             }
           }
         } catch(_) {}
@@ -1210,10 +1283,13 @@
           const KNOWN = {
             '1718491609': 'マヒル',
             '1798505443': '꧁KROX099X꧂',
-            '894521034': '亗 WARRIOR_PRO 亗',
-            '751240981': '亗 SPECIAL_VIP 亗'
+            '1524395025': 'S U L T A N',
+            '894521034': '亗 NASRULLA 亗'
           };
-          if (KNOWN[res.id]) liveName = KNOWN[res.id];
+          if (KNOWN[res.id]) {
+            liveName = KNOWN[res.id];
+            hasRealNick = true;
+          }
         }
 
         // Call our internal backend /api/apps/check-player
@@ -1227,8 +1303,9 @@
             if (checkRes.ok) {
               const d = await checkRes.json();
               if (d && d.success) {
-                if (d.nickname && !d.nickname.startsWith('UID:') && d.nickname !== '亗 MLBB_WARRIOR 亗') {
+                if (d.hasRealNickname && d.nickname && !d.nickname.startsWith('UID:')) {
                   liveName = d.nickname;
+                  hasRealNick = true;
                 }
                 if (d.serverKey) currentServer = d.serverKey;
               }
@@ -1247,31 +1324,46 @@
               const liveData = await apiRes.json();
               if (liveData && liveData.success && liveData.name) {
                 liveName = liveData.name;
+                hasRealNick = true;
               }
             }
           } catch(_) {}
         }
 
-        if (!liveName) {
-          liveName = res.id === '1798505443' ? '꧁KROX099X꧂' : ('亗 MLBB Player #' + res.id.slice(-4) + ' 亗');
-        }
-
+        const displayName = hasRealNick ? liveName : ('UID: ' + res.id);
+        playerNick = displayName;
         isVerified = true;
         isPreviewMode = false;
         detectedServer = currentServer;
-        playerNick = liveName;
         selectedPkg = CATALOGS[currentServer].packages[0];
 
         // Update Card
-        document.getElementById('cardFlag').textContent = CATALOGS[currentServer].flag;
-        document.getElementById('cardServerName').textContent = CATALOGS[currentServer].serverTitle + ' سېرۋېرى';
-        document.getElementById('cardNickname').textContent = liveName;
-        document.getElementById('cardUserId').textContent = res.id;
-        document.getElementById('cardZoneId').textContent = res.zone;
+        const cardFlag = document.getElementById('cardFlag');
+        const cardServerName = document.getElementById('cardServerName');
+        const cardNick = document.getElementById('cardNickname');
+        const cardLabel = document.getElementById('cardNicknameLabel');
+        const editBtnText = document.getElementById('cardEditBtnText');
+        const cardSub = document.getElementById('cardSubtext');
+        const cardUserId = document.getElementById('cardUserId');
+        const cardZoneId = document.getElementById('cardZoneId');
+
+        if (cardFlag) cardFlag.textContent = CATALOGS[currentServer].flag;
+        if (cardServerName) cardServerName.textContent = CATALOGS[currentServer].serverTitle + ' سېرۋېرى';
+        if (cardNick) cardNick.textContent = displayName;
+        if (cardLabel) cardLabel.textContent = hasRealNick ? 'ئويۇندىكى نامىڭىز:' : 'قوبۇل قىلغۇچى كىملىك (UID):';
+        if (editBtnText) editBtnText.textContent = hasRealNick ? 'نامنى ئۆزگەرتىش' : 'نام قوشۇش (ئىختىيارىي)';
+        if (cardSub) {
+          cardSub.innerHTML = hasRealNick
+            ? '<span>✓</span><span>ئويۇن سالاھىيىتى مۇۋەپپەقىيەتلىك دەلىللەندى</span>'
+            : '<span>⚡</span><span>بىۋاسىتە مەزكۇر كىملىك ۋە سېرۋېرىغا قاچىلىنىدۇ</span>';
+        }
+        if (cardUserId) cardUserId.textContent = res.id;
+        if (cardZoneId) cardZoneId.textContent = res.zone;
+
         document.getElementById('verifiedCard').classList.remove('hidden');
         document.getElementById('verifiedCard').classList.add('flex');
 
-        saveAccount(res.id, res.zone, liveName);
+        saveAccount(res.id, res.zone, hasRealNick ? liveName : '');
         renderPackages();
         updateDisplays();
 
@@ -1287,15 +1379,29 @@
         currentServer = (z >= 4000 && z <= 4999) ? 'turkey' : (z >= 6000 && z <= 6999 ? 'special' : 'global');
         isVerified = true;
         isPreviewMode = false;
+        hasRealNick = false;
         detectedServer = currentServer;
-        playerNick = res.id === '1798505443' ? '꧁KROX099X꧂' : ('亗 MLBB Player #' + res.id.slice(-4) + ' 亗');
+        playerNick = 'UID: ' + res.id;
         selectedPkg = CATALOGS[currentServer].packages[0];
 
-        document.getElementById('cardFlag').textContent = CATALOGS[currentServer].flag;
-        document.getElementById('cardServerName').textContent = CATALOGS[currentServer].serverTitle + ' سېرۋېرى';
-        document.getElementById('cardNickname').textContent = playerNick;
-        document.getElementById('cardUserId').textContent = res.id;
-        document.getElementById('cardZoneId').textContent = res.zone;
+        const cardFlag = document.getElementById('cardFlag');
+        const cardServerName = document.getElementById('cardServerName');
+        const cardNick = document.getElementById('cardNickname');
+        const cardLabel = document.getElementById('cardNicknameLabel');
+        const editBtnText = document.getElementById('cardEditBtnText');
+        const cardSub = document.getElementById('cardSubtext');
+        const cardUserId = document.getElementById('cardUserId');
+        const cardZoneId = document.getElementById('cardZoneId');
+
+        if (cardFlag) cardFlag.textContent = CATALOGS[currentServer].flag;
+        if (cardServerName) cardServerName.textContent = CATALOGS[currentServer].serverTitle + ' سېرۋېرى';
+        if (cardNick) cardNick.textContent = 'UID: ' + res.id;
+        if (cardLabel) cardLabel.textContent = 'قوبۇل قىلغۇچى كىملىك (UID):';
+        if (editBtnText) editBtnText.textContent = 'نام قوشۇش (ئىختىيارىي)';
+        if (cardSub) cardSub.innerHTML = '<span>⚡</span><span>بىۋاسىتە مەزكۇر كىملىك ۋە سېرۋېرىغا قاچىلىنىدۇ</span>';
+        if (cardUserId) cardUserId.textContent = res.id;
+        if (cardZoneId) cardZoneId.textContent = res.zone;
+
         document.getElementById('verifiedCard').classList.remove('hidden');
         document.getElementById('verifiedCard').classList.add('flex');
 

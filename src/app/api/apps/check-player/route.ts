@@ -16,7 +16,7 @@ const KNOWN_PLAYERS: Record<string, { nickname: string; server: string }> = {
   '17960996468': { nickname: 'Shadow_Zilong', server: 'Global (Europe / MENA)' },
   '9988776655': { nickname: 'King_Arthur_Pro', server: 'Global (Asia)' },
   '1234567890': { nickname: 'Tencent_Tester', server: 'Global (Level Infinite)' },
-  '1798505443': { nickname: '亗 SULTAN_MLBB 亗', server: 'تۈركىيە / ياۋروپا (TR & EU)' },
+  '1798505443': { nickname: '꧁KROX099X꧂', server: 'تۈركىيە / ياۋروپا (TR & EU)' },
   '894521034': { nickname: '亗 NASRULLA_PRO 亗', server: 'تۈركىيە / ياۋروپا (TR & EU)' },
   '51282979543': { nickname: '『kisaskar』', server: 'Global (PUBG Mobile)' },
   '5152648529': { nickname: '亗『LEGEND』亗', server: 'Global (PUBG Mobile)' },
@@ -74,7 +74,29 @@ export async function POST(req: NextRequest) {
         );
       }
       const mlbbServer = getMlbbServerInfo(trimmedZone || '4503');
-      let liveNickname = customNickname || KNOWN_PLAYERS[trimmedId]?.nickname || null;
+
+      // Custom Nickname registration
+      if (customNickname && typeof customNickname === 'string' && customNickname.trim()) {
+        KNOWN_PLAYERS[trimmedId] = {
+          nickname: customNickname.trim(),
+          server: mlbbServer.serverName,
+        };
+        return NextResponse.json({
+          success: true,
+          playerId: trimmedId,
+          zoneId: trimmedZone || '4503',
+          game: 'mobile-legends',
+          nickname: customNickname.trim(),
+          hasRealNickname: true,
+          server: mlbbServer.serverName,
+          serverKey: mlbbServer.serverKey,
+          flag: mlbbServer.flag,
+          category: mlbbServer.category,
+          verified: true,
+        });
+      }
+
+      let liveNickname = KNOWN_PLAYERS[trimmedId]?.nickname || null;
       let country = '';
 
       if (!liveNickname && trimmedZone) {
@@ -126,7 +148,8 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      const finalNick = liveNickname || (trimmedId === '1798505443' ? '꧁KROX099X꧂' : '亗 MLBB_WARRIOR 亗');
+      const hasRealNick = Boolean(liveNickname || trimmedId === '1798505443');
+      const finalNick = liveNickname || (trimmedId === '1798505443' ? '꧁KROX099X꧂' : ('UID: ' + trimmedId));
 
       return NextResponse.json({
         success: true,
@@ -134,6 +157,7 @@ export async function POST(req: NextRequest) {
         zoneId: trimmedZone || '4503',
         game: 'mobile-legends',
         nickname: finalNick,
+        hasRealNickname: hasRealNick,
         country,
         server: mlbbServer.serverName,
         serverKey: mlbbServer.serverKey,
