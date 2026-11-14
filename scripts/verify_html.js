@@ -102,6 +102,41 @@ files.forEach(f => {
     console.error('  FAIL [Script syntax error]:', err);
     allPassed = false;
   }
+
+  // Runtime mock execution check to prevent undefined catalog / runtime initialization crashes
+  try {
+    const vm = require('vm');
+    const mockWindow = { addEventListener: () => {}, dispatchEvent: () => {}, location: { href: '' } };
+    const elements = {};
+    const mockDocument = {
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      getElementById: (id) => {
+        if (!elements[id]) {
+          elements[id] = { id, classList: { add: () => {}, remove: () => {}, toggle: () => {} }, appendChild: () => {}, innerHTML: '', textContent: '', style: {} };
+        }
+        return elements[id];
+      },
+      createElement: (tag) => ({ tag, setAttribute: () => {}, classList: { add: () => {}, remove: () => {} }, innerHTML: '', appendChild: () => {} }),
+      querySelectorAll: () => []
+    };
+    const context = vm.createContext({
+      window: mockWindow,
+      document: mockDocument,
+      localStorage: { getItem: () => null, setItem: () => {}, removeItem: () => {} },
+      console: console,
+      fetch: () => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }),
+      setTimeout: () => {},
+      setInterval: () => {},
+      Date: Date,
+      Math: Math
+    });
+    vm.runInContext(script, context);
+    console.log('  PASS [Script runtime initialization valid]');
+  } catch (err) {
+    console.error('  FAIL [Script runtime initialization error]:', err.message);
+    allPassed = false;
+  }
 });
 
 if (allPassed) {

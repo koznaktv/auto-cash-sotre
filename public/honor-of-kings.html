@@ -885,44 +885,34 @@
 
     async function loadDynamicCatalog() {
       try {
-        const res = await fetch('/api/apps/catalog?app=mobile-legends');
+        const res = await fetch('/api/apps/catalog?app=honor-of-kings');
         if (!res.ok) return;
         const data = await res.json();
-        if (data && data.ok && data.catalogs) {
-          if (Array.isArray(data.catalogs.global) && data.catalogs.global.length > 0) {
-            CATALOGS.global.packages = data.catalogs.global.map(p => ({
-              id: p.id,
-              name: p.name,
-              subtext: p.subtext || (p.type === 'pass' ? 'ئالاھىدە كارتا' : 'رەسمىي قاچىلاش'),
-              price: p.price,
-              isVip: p.type === 'pass' || Boolean(p.popular)
-            }));
-          }
-          if (Array.isArray(data.catalogs.turkey) && data.catalogs.turkey.length > 0) {
-            CATALOGS.turkey.packages = data.catalogs.turkey.map(p => ({
-              id: p.id,
-              name: p.name,
-              subtext: p.subtext || (p.type === 'pass' ? 'تۈركىيە كارتىسى' : 'رەسمىي قاچىلاش'),
-              price: p.price,
-              isVip: p.type === 'pass' || Boolean(p.popular)
-            }));
-          }
-          if (Array.isArray(data.catalogs.special) && data.catalogs.special.length > 0) {
-            CATALOGS.special.packages = data.catalogs.special.map(p => ({
-              id: p.id,
-              name: p.name,
-              subtext: p.subtext || (p.type === 'pass' ? 'ئالاھىدە كارتا' : 'رەسمىي قاچىلاش'),
-              price: p.price,
-              isVip: p.type === 'pass' || Boolean(p.popular)
-            }));
-          }
-          if (isVerified || isPreviewMode) {
-            renderPackages();
-            updateDisplays();
-          }
+        if (!data || !data.ok || !data.catalogs) return;
+
+        if (Array.isArray(data.catalogs.tokens) && data.catalogs.tokens.length > 0) {
+          CATALOGS.tokens.packages = data.catalogs.tokens.map(p => ({
+            id: p.id,
+            name: p.name,
+            subtext: p.subtext || 'بىۋاسىتە كىملىككە (UID)',
+            price: Number(p.price),
+            isVip: !!p.popular
+          }));
         }
+        if (Array.isArray(data.catalogs.bundles) && data.catalogs.bundles.length > 0) {
+          CATALOGS.bundles.packages = data.catalogs.bundles.map(p => ({
+            id: p.id,
+            name: p.name,
+            subtext: p.subtext || 'رەسمىي ئالاھىدە تەمىنات',
+            price: Number(p.price),
+            isVip: !!p.popular
+          }));
+        }
+
+        renderPackages();
+        updateDisplays();
       } catch (err) {
-        console.warn('[Dynamic Catalog Warning]:', err);
+        console.warn('Failed to load dynamic MaxStore catalogs, keeping ultra-fast fallback defaults:', err);
       }
     }
 
@@ -931,7 +921,7 @@
     let isPreviewMode = true;
     let currentServer = 'tokens';
     let detectedServer = null;
-    let selectedPkg = CATALOGS.global.packages[0];
+    let selectedPkg = CATALOGS.tokens.packages[0];
     let parsedId = '';
     let parsedZone = '';
     let playerNick = '亗 HOK_PLAYER 亗';
@@ -992,7 +982,7 @@
       var cleanIdent = (currentTgUser.username || currentTgUser.id || '').replace(/^@/, '');
       if (!cleanIdent) return;
       try {
-        var res = await fetch('/api/apps/order?identity=' + encodeURIComponent(cleanIdent) + '&app_id=mobile-legends');
+        var res = await fetch('/api/apps/order?identity=' + encodeURIComponent(cleanIdent) + '&app_id=honor-of-kings');
         if (res.ok) {
           var data = await res.json();
           if (data && data.ok && Array.isArray(data.orders)) {
@@ -2805,7 +2795,7 @@ async function requestTelegramOtp() {
         var res = await fetch(endpoints[i], {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'send', phone_or_username: val, app_id: 'mobile-legends' })
+          body: JSON.stringify({ action: 'send', phone_or_username: val, app_id: 'honor-of-kings' })
         });
         if (res.ok) {
           data = await res.json();
@@ -2888,7 +2878,7 @@ async function verifyTelegramOtp() {
             phone_or_username: otpCurrentTarget,
             code: code,
             otp_sig: otpSignature,
-            app_id: 'mobile-legends'
+            app_id: 'honor-of-kings'
           })
         });
         if (res.ok) {

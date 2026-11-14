@@ -382,8 +382,9 @@ if (catStart !== -1 && loadDynStart !== -1) {
 }
 
 // 9. Replace loadDynamicCatalog()
-const loadDynEnd = content.indexOf('    // State Management');
-if (loadDynStart !== -1 && loadDynEnd !== -1) {
+const actualDynStart = content.indexOf('    async function loadDynamicCatalog() {');
+const loadDynEnd = content.indexOf('    let walletBalance = 0.00;');
+if (actualDynStart !== -1 && loadDynEnd !== -1) {
   const hokLoadDynamicCatalog = `    async function loadDynamicCatalog() {
       try {
         const res = await fetch('/api/apps/catalog?app=honor-of-kings');
@@ -418,12 +419,15 @@ if (loadDynStart !== -1 && loadDynEnd !== -1) {
     }
 
 `;
-  const actualDynStart = content.indexOf('    async function loadDynamicCatalog() {');
   content = content.substring(0, actualDynStart) + hokLoadDynamicCatalog + content.substring(loadDynEnd);
 }
 
 // 10. Update state variables
 content = content.replace("let currentServer = 'global';", "let currentServer = 'tokens';");
+content = content.replace("let selectedPkg = CATALOGS.global.packages[0];", "let selectedPkg = CATALOGS.tokens.packages[0];");
+content = content.replace("let playerNick = '亗 SULTAN_MLBB 亗';", "let playerNick = '亗 HOK_PLAYER 亗';");
+content = content.replace(/&app_id=mobile-legends/g, '&app_id=honor-of-kings');
+content = content.replace(/app_id: 'mobile-legends'/g, "app_id: 'honor-of-kings'");
 
 // 11. Update parseInput
 const parseInputStart = content.indexOf('    function parseInput(val) {');
