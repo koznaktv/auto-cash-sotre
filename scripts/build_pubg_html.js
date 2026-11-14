@@ -52,7 +52,7 @@ if (tier0Start !== -1 && tier2Start !== -1) {
             <div class="flex items-center gap-1.5 mt-1">
               <span class="text-[10px] text-emerald-300 font-bold flex items-center gap-1 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-400/30 whitespace-nowrap">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="w-3.5 h-3.5 flex items-center justify-center shrink-0"><img src="tg_pubg_uc.webp" alt="UC" class="w-3.5 h-3.5 object-contain" onerror="this.src='tg_pubg_uc.webp'"/></span>
+                <span class="w-4 h-4 flex items-center justify-center shrink-0"><img src="tg_pubg_uc_coin_anim.webp" alt="UC" class="w-4 h-4 object-contain" onerror="this.onerror=null;this.src=\'tg_pubg_uc_coin.gif\'"/></span>
                 <span>رەسمىي بىۋاسىتە قاچىلاش (UC)</span>
               </span>
             </div>
@@ -245,9 +245,9 @@ if (tabsStart !== -1 && tabsEnd !== -1) {
 // 6. Generic Text Replacements
 content = content.replace(/MLBB ئالماس/g, 'PUBG UC');
 content = content.replace(/Mobile Legends/g, 'PUBG Mobile');
-content = content.replace(/tg_mlbb_diamond_anim\.webp/g, 'tg_pubg_uc.webp');
-content = content.replace(/tg_mlbb_diamond\.gif/g, 'tg_pubg_uc.webp');
-content = content.replace(/tg_mlbb_diamond\.webp/g, 'tg_pubg_uc.webp');
+content = content.replace(/tg_mlbb_diamond_anim\.webp/g, 'tg_pubg_uc_coin_anim.webp');
+content = content.replace(/tg_mlbb_diamond\.gif/g, 'tg_pubg_uc_coin.gif');
+content = content.replace(/tg_mlbb_diamond\.webp/g, 'tg_pubg_uc_coin_anim.webp');
 content = content.replace(/ئالماس بوغچىسىنى تاللاڭ/g, 'UC بوغچىسىنى تاللاڭ');
 content = content.replace('<!-- ================= 2-قەدەم (STEP 2): ئالماس بوغچىسى تاللاش ================= -->', '<!-- ================= 2-قەدەم (STEP 2): PUBG UC تاللاش ================= -->');
 content = content.replace('<span id="procId" class="text-cyan-300 font-bold">#ML-.....</span>', '<span id="procId" class="text-amber-300 font-bold">#PUBG-.....</span>');
@@ -801,7 +801,10 @@ if (renderPkgBodyStart !== -1 && selectPkgStart !== -1) {
           selectPackage(pkg);
         };
 
-        const isPass = currentServer === 'pass' || Boolean(pkg.name && (pkg.name.includes('Pass') || pkg.name.includes('پاس') || pkg.name.includes('Prime')));
+        const isPass = currentServer === 'pass' || Boolean(
+          (pkg.name && (pkg.name.includes('Pass') || pkg.name.includes('پاس') || pkg.name.includes('Prime') || pkg.name.includes('كارت'))) ||
+          (pkg.subtext && (pkg.subtext.includes('Pass') || pkg.subtext.includes('پاس') || pkg.subtext.includes('Prime') || pkg.subtext.includes('كارت')))
+        );
         const isVoucher = currentServer === 'voucher' || Boolean(pkg.name && pkg.name.includes('كود'));
         
         let iconHtml;
@@ -816,14 +819,11 @@ if (renderPkgBodyStart !== -1 && selectPkgStart !== -1) {
         const showSub = pkg.subtext && pkg.subtext.trim() && pkg.subtext !== 'رەسمىي قاچىلاش' && pkg.subtext !== 'بىۋاسىتە كىملىككە (UID)' && pkg.subtext !== 'بىۋاستە كىملىككە (UID)';
 
         div.innerHTML = 
-          '<div class="flex items-center justify-between gap-1.5 mt-0.5">' +
-            '<div class="flex items-center gap-1.5 min-w-0">' +
-              iconHtml +
-              '<span class="text-xs font-black text-white font-mono leading-none truncate">' + pkg.name + '</span>' +
-            '</div>' +
-            (pkg.isVip ? '<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-bold shrink-0">VIP</span>' : '') +
+          '<div class="flex items-center gap-1.5 min-w-0 mt-0.5">' +
+            iconHtml +
+            '<span class="text-[11px] sm:text-xs font-black text-white font-mono leading-tight break-words">' + pkg.name + '</span>' +
           '</div>' +
-          (showSub ? '<div class="text-[10px] text-slate-400 mt-1 mb-1 leading-tight">' + pkg.subtext + '</div>' : '') +
+          (showSub ? '<div class="text-[10px] text-slate-400 mt-1 mb-1 leading-tight font-mono">' + pkg.subtext + '</div>' : '') +
           '<div class="flex items-center justify-between pt-1 border-t border-slate-800/80 mt-2">' +
             '<span class="text-[10px] text-slate-400 font-bold">باھاسى:</span>' +
             '<span class="text-xs font-black font-mono text-amber-300">$ ' + pkg.price.toFixed(2) + '</span>' +
