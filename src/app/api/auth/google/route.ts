@@ -4,12 +4,26 @@ import {
   getUserByEmailAsync,
   createUserAsync,
   updateUserAsync,
+  updateUserPasswordAsync,
   verifyPassword,
 } from '@/lib/db';
-import { setSessionCookie, toSafeUser } from '@/lib/session';
+import { setSessionCookie, toSafeUser, getSessionUser, unauthorizedResponse } from '@/lib/session';
 import { notifyNewUser } from '@/lib/telegram';
 
 export const dynamic = 'force-dynamic';
+
+export async function GET(req: Request) {
+  try {
+    const user = await getSessionUser(req);
+    if (!user) return unauthorizedResponse();
+    return NextResponse.json({ success: true, user: toSafeUser(user) });
+  } catch (err: any) {
+    return NextResponse.json(
+      { success: false, message: err?.message || 'ئىشلەتكۈچى ئۇچۇرىنى ئېلىش مەغلۇپ بولدى' },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -126,15 +140,20 @@ export async function POST(req: Request) {
       notifyNewUser({ id: user.id, name: user.name, email: user.email }).catch(() => {});
     } else {
       // Existing user: check password
-      const isValid = verifyPassword(cleanPass, user.passwordHash, user.salt);
-      if (!isValid) {
-        return NextResponse.json(
-          {
-            success: false,
-            message: 'بۇ Gmail ئادرېسى بۇرۇن تىزىملاتقان. پارولىڭىزنى خاتا كىرگۈزدۇڭىز، پارولنى قايتا تەكشۈرۈپ كىرگۈزۈڭ.',
-          },
-          { status: 401 }
-        );
+      if (!user.passwordHash || !user.salt) {
+        // User originally created without a local password (e.g. Telegram or social). Bind their password now!
+        await updateUserPasswordAsync(user.id, cleanPass);
+      } else {
+        const isValid = verifyPassword(cleanPass, user.passwordHash, user.salt);
+        if (!isValid) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: 'بۇ ئېلخەت ئادرېسى بۇرۇن تىزىملاتقان. كىرگۈزگەن پارولىڭىز خاتا. ئەگەر پارولنى ئۇنتۇغان بولسىڭىز، ئاساسىي توربەتتىن كىرىڭ ياكى پارولنى تەكشۈرۈپ قايتا سىناڭ.',
+            },
+            { status: 401 }
+          );
+        }
       }
 
       if (isSuperAdmin && user.role !== 'admin') {

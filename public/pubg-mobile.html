@@ -1905,11 +1905,93 @@ function copyAddr() {
   });
 }
 
-// ================= TELEGRAM AUTHENTICATION & PROFILE LOGIC =================
+// ================= TELEGRAM & CENTRAL MAIN SITE AUTHENTICATION LOGIC =================
 var currentTgUser = null;
 var otpCurrentTarget = '';
 var otpSignature = '';
 var otpStep = 'input'; // 'input' | 'verify'
+
+function syncLocalAuthWithMainSite(u, provider) {
+  if (!u) return;
+  var email = (u.email || '').trim().toLowerCase();
+  var name = u.name || (email ? email.split('@')[0] : ('User #' + String(u.id || '').slice(-4)));
+  var uid = u.id || ('USR-' + Date.now());
+  var bal = Number(u.balance !== undefined ? u.balance : ((u.maxstoreBalance !== undefined) ? u.maxstoreBalance : 0));
+  if (isNaN(bal)) bal = 0.00;
+  var isGmail = (provider === 'gmail') || (email && !u.telegramChatId && !u.telegramUsername);
+  var photo = u.avatarUrl || u.photo || (isGmail 
+    ? ('https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(email || uid))
+    : (u.telegramChatId ? ('/api/apps/avatar?user=' + encodeURIComponent(u.telegramChatId)) : ('https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(uid))));
+
+  currentTgUser = {
+    id: uid,
+    name: name,
+    username: u.telegramUsername || email || name,
+    email: email,
+    phone: u.phone || '',
+    telegramChatId: u.telegramChatId,
+    telegramUsername: u.telegramUsername,
+    provider: isGmail ? 'gmail' : (provider || 'main_site'),
+    photo: photo,
+    balance: bal
+  };
+
+  walletBalance = bal;
+
+  // 1. Store storefront session
+  try { localStorage.setItem('autocash_tg_user', JSON.stringify(currentTgUser)); } catch(_) {}
+
+  // 2. Store ALL main website session keys (100% matched with src/lib/clientAuth.ts)
+  try {
+    localStorage.setItem('autocash_is_logged_in', 'true');
+    localStorage.setItem('autocash_user', JSON.stringify({
+      id: uid,
+      name: name,
+      email: email,
+      phone: u.phone,
+      telegramUsername: u.telegramUsername,
+      telegramChatId: u.telegramChatId,
+      avatarUrl: photo,
+      balance: bal,
+      maxstoreBalance: bal,
+      vipTier: u.vipTier || 'vip1',
+      totalSpent: Number(u.totalSpent || 0),
+      role: u.role || 'user'
+    }));
+    localStorage.setItem('autocash_username', name);
+    if (email) localStorage.setItem('autocash_email', email);
+    localStorage.setItem('autocash_userId', uid);
+    if (photo && !photo.startsWith('data:')) localStorage.setItem('autocash_avatar', photo);
+    localStorage.setItem('autocash_balance', String(bal));
+    localStorage.setItem('maxstore_balance', String(bal));
+    if (u.vipTier) localStorage.setItem('autocash_vipTier', u.vipTier);
+    if (u.role) localStorage.setItem('autocash_role', u.role);
+
+    // Sync with MAX-BAZAR unified sessions
+    var maxbazarSession = {
+      token: 'token_' + uid,
+      identity: email || name,
+      balance: bal,
+      photo_url: photo,
+      user: u,
+      loginTime: new Date().toISOString()
+    };
+    localStorage.setItem('maxbazar_unified_session', JSON.stringify(maxbazarSession));
+    localStorage.setItem('maxbazar_pubg_session', JSON.stringify(maxbazarSession));
+    localStorage.setItem('maxbazar_hok_session', JSON.stringify(maxbazarSession));
+
+    window.dispatchEvent(new CustomEvent('maxbazar-auth-changed', { detail: maxbazarSession }));
+    window.dispatchEvent(new Event('autocash-auth-changed'));
+    window.dispatchEvent(new Event('autocash_auth_changed'));
+  } catch(e) {
+    console.warn('Sync storage error:', e);
+  }
+
+  loadUserOrders();
+  updateDisplays();
+  updateTelegramHeader();
+  renderTelegramModalContent();
+}
 
 function initTelegramAuth() {
   if (window.Telegram && window.Telegram.WebApp) {
@@ -1932,6 +2014,42 @@ function initTelegramAuth() {
     }
   }
 
+  // 1. If not in Telegram WebApp, check main website session
+  if (!currentTgUser) {
+    try {
+      var isLoggedIn = localStorage.getItem('autocash_is_logged_in');
+      var mainUserStr = localStorage.getItem('autocash_user');
+      var mainEmail = localStorage.getItem('autocash_email');
+      var mainBal = localStorage.getItem('autocash_balance') ?? localStorage.getItem('maxstore_balance');
+      if (isLoggedIn === 'true' && (mainUserStr || mainEmail)) {
+        var parsedUser = null;
+        if (mainUserStr) {
+          try { parsedUser = JSON.parse(mainUserStr); } catch(_) {}
+        }
+        var email = (parsedUser && parsedUser.email) || mainEmail || '';
+        var name = (parsedUser && parsedUser.name) || localStorage.getItem('autocash_username') || (email ? email.split('@')[0] : 'User');
+        var uid = (parsedUser && parsedUser.id) || localStorage.getItem('autocash_userId') || 'USR-MAIN';
+        var bal = mainBal !== null && !isNaN(Number(mainBal)) ? Number(mainBal) : (parsedUser ? Number(parsedUser.balance || 0) : 0);
+        var isGm = email.includes('@') && !parsedUser?.telegramChatId;
+        var photo = (parsedUser && parsedUser.avatarUrl) || localStorage.getItem('autocash_avatar') || (isGm ? ('https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(email || uid)) : ('https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(uid)));
+
+        currentTgUser = {
+          id: uid,
+          name: name,
+          username: email || name,
+          email: email,
+          provider: isGm ? 'gmail' : 'main_site',
+          photo: photo,
+          balance: bal
+        };
+        walletBalance = bal;
+      }
+    } catch(e) {
+      console.warn('Error restoring main site session:', e);
+    }
+  }
+
+  // 2. Check existing autocash_tg_user
   if (!currentTgUser) {
     try {
       var saved = localStorage.getItem('autocash_tg_user');
@@ -1940,17 +2058,14 @@ function initTelegramAuth() {
   }
 
   if (currentTgUser) {
-    // If photo is missing or dicebear fallback, upgrade to real Telegram avatar
     if (!currentTgUser.photo || currentTgUser.photo.indexOf('dicebear') !== -1) {
       var cid = currentTgUser.id || currentTgUser.username;
-      if (cid) {
+      if (cid && !currentTgUser.email) {
         currentTgUser.photo = '/api/apps/avatar?user=' + encodeURIComponent(cid);
         try { localStorage.setItem('autocash_tg_user', JSON.stringify(currentTgUser)); } catch(_) {}
       }
     }
-  }
-
-  if (!currentTgUser) {
+  } else {
     walletBalance = 0.00;
   }
 
@@ -1962,6 +2077,45 @@ function initTelegramAuth() {
     refreshUserBalanceFromBot(true);
     fetchServerOrders();
   }
+
+  // 3. In background: check server session cookie (/api/auth/me) to sync fresh balance and login
+  try {
+    fetch('/api/auth/me')
+      .then(function(res) { return res.ok ? res.json() : null; })
+      .then(function(data) {
+        if (data && data.success && data.user) {
+          syncLocalAuthWithMainSite(data.user, data.user.email ? 'gmail' : 'main_site');
+        }
+      })
+      .catch(function() {});
+  } catch(_) {}
+
+  // 4. Listen for auth changes from other tabs or main website
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'autocash_balance' || e.key === 'autocash_user' || e.key === 'autocash_is_logged_in') {
+      try {
+        var updated = localStorage.getItem('autocash_user');
+        if (updated && localStorage.getItem('autocash_is_logged_in') === 'true') {
+          syncLocalAuthWithMainSite(JSON.parse(updated));
+        } else if (localStorage.getItem('autocash_is_logged_in') === 'false') {
+          currentTgUser = null;
+          walletBalance = 0.00;
+          updateDisplays();
+          updateTelegramHeader();
+          renderTelegramModalContent();
+        }
+      } catch(_) {}
+    }
+  });
+
+  window.addEventListener('autocash-auth-changed', function() {
+    try {
+      var updated = localStorage.getItem('autocash_user');
+      if (updated && localStorage.getItem('autocash_is_logged_in') === 'true') {
+        syncLocalAuthWithMainSite(JSON.parse(updated));
+      }
+    } catch(_) {}
+  });
 
   // Auto-listen for app resume / focus to instantly finish Telegram 1-click login
   window.addEventListener('autocash-app-resumed', function() {
@@ -2012,8 +2166,15 @@ async function executeGmailLogin() {
   var btn = document.getElementById('gmailLoginBtn');
   var btnText = document.getElementById('gmailLoginBtnText');
 
-  var email = (emailInput ? emailInput.value : '').trim().toLowerCase();
+  var rawEmail = (emailInput ? emailInput.value : '').trim().toLowerCase();
   var password = (passInput ? passInput.value : '').trim();
+
+  // If user entered username without @, append @gmail.com automatically
+  var email = rawEmail;
+  if (email && !email.includes('@')) {
+    email += '@gmail.com';
+    if (emailInput) emailInput.value = email;
+  }
 
   if (!email || !email.includes('@') || !email.includes('.')) {
     showGmailAlert('توغرا بولغان Gmail ئادرېسى كىرگۈزۈڭ (مەسىلەن: name@gmail.com)', 'error');
@@ -2027,8 +2188,8 @@ async function executeGmailLogin() {
   }
 
   if (btn) btn.disabled = true;
-  if (btnText) btnText.innerHTML = '<span class="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> <span>تەكشۈرۈلۈۋاتىدۇ...</span>';
-  showGmailAlert('Gmail ھېساباتى تەكشۈرۈلۈۋاتىدۇ...', 'info');
+  if (btnText) btnText.innerHTML = '<span class="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> <span>مەركىزى سىستېما بىلەن تەكشۈرۈلۈۋاتىدۇ...</span>';
+  showGmailAlert('مەركىزى سىستېما بىلەن دەلىللىنىۋاتىدۇ...', 'info');
 
   try {
     var res = await fetch('/api/auth/google', {
@@ -2042,29 +2203,13 @@ async function executeGmailLogin() {
     });
     var data = await res.json();
     if (res.ok && data && data.success && data.user) {
-      var u = data.user;
-      currentTgUser = {
-        id: u.id,
-        name: u.name || email.split('@')[0],
-        username: email,
-        email: email,
-        provider: 'gmail',
-        photo: u.avatarUrl || ('https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(email)),
-        balance: Number(u.balance || 0)
-      };
-      localStorage.setItem('autocash_tg_user', JSON.stringify(currentTgUser));
-      walletBalance = Number(u.balance || 0);
-
-      loadUserOrders();
+      syncLocalAuthWithMainSite(data.user, 'gmail');
       fetchServerOrders();
-      updateDisplays();
-      updateTelegramHeader();
-      renderTelegramModalContent();
 
       showGmailAlert(data.message || 'Gmail ئارقىلىق مۇۋەپپەقىيەتلىك كىردىڭىز! ✅', 'success');
       showAppModal({
         title: 'مۇۋەپپەقىيەتلىك كىردىڭىز',
-        message: '🎉 Gmail بىلەن مۇۋەپپەقىيەتلىك كىردىڭىز! ھەميان قالدۇقىڭىز: $' + walletBalance.toFixed(2) + ' USD',
+        message: '🎉 AUTO CASH ئاساسىي ھېساباتىڭىزغا مۇۋەپپەقىيەتلىك كىردىڭىز!\nھەميان قالدۇقىڭىز: $' + walletBalance.toFixed(2) + ' USD',
         icon: '✅',
         confirmText: 'ماقۇل'
       });
@@ -2072,13 +2217,14 @@ async function executeGmailLogin() {
         closeTelegramModal();
       }, 1200);
     } else {
-      showGmailAlert(data?.message || 'كىرىش مەغلۇپ بولدى، پارولىڭىزنى قايتا تەكشۈرۈڭ.', 'error');
+      var errMsg = data?.message || 'كىرىش مەغلۇپ بولدى، پارولىڭىزنى قايتا تەكشۈرۈڭ.';
+      showGmailAlert(errMsg, 'error');
     }
   } catch (err) {
     showGmailAlert('تور باغلىنىش خاتالىقى: ' + (err.message || 'قايتا سىناڭ'), 'error');
   } finally {
     if (btn) btn.disabled = false;
-    if (btnText) btnText.textContent = '🔴 Gmail ئارقىلىق كىرىش / تىزىملىتىش';
+    if (btnText) btnText.innerHTML = '<svg class="w-4 h-4 fill-white inline-block ml-1" viewBox="0 0 24 24"><path d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/><path d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg> <span>🔴 Gmail ئارقىلىق كىرىش / تىزىملىتىش</span>';
   }
 }
 
@@ -2298,6 +2444,12 @@ function renderTelegramModalContent() {
             '</div>' +
           '</div>' +
 
+          // Status Badge: 100% Central Connected
+          '<div class="flex items-center justify-center gap-1.5 text-[10.5px] text-emerald-400 bg-emerald-950/50 border border-emerald-500/40 rounded-xl py-1.5 px-2.5 shadow-sm">' +
+            '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>' +
+            '<span class="font-bold">ئاساسىي توربەت AUTO CASH سىستېمىسى بىلەن 100% بىۋاسىتە ئۇلانغان</span>' +
+          '</div>' +
+
           // Gmail Input
           '<div class="space-y-1">' +
             '<label class="text-xs font-bold text-slate-300 block">📧 Gmail ئادرېسىڭىز:</label>' +
@@ -2314,7 +2466,7 @@ function renderTelegramModalContent() {
           '</div>' +
 
           '<p class="text-[10.5px] text-slate-400 leading-relaxed bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">' +
-            '💡 <b>تۇنجى قېتىم كىرىۋاتامسىز؟</b> تۇنجى قېتىم ئېلخەت بىلەن كىرگۈزگەندە سىستېما سىزگە ئۆزلۈكىدىن يېڭى ھېسابات ئېچىپ بېرىدۇ.' +
+            '💡 <b>تۇنجى قېتىم كىرىۋاتامسىز؟</b> ئەگەر ھېساباتىڭىز بولمىسا سىستېما سىزگە ئۆزلۈكىدىن يېڭى ھېسابات ئېچىپ بېرىدۇ. ئەگەر ئاساسىي توربەتتە ئاللىقاچان تىزىملاتقان بولسىڭىز، شۇ ھېساباتىڭىزنىڭ پارولى بىلەن بىۋاسىتە كىرەلەيسىز.' +
           '</p>' +
 
           '<div id="gmailAlertBox" class="hidden p-2.5 rounded-xl text-xs font-bold border"></div>' +
@@ -2323,6 +2475,18 @@ function renderTelegramModalContent() {
             '<svg class="w-4 h-4 fill-white" viewBox="0 0 24 24"><path d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/><path d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg>' +
             '<span id="gmailLoginBtnText">🔴 Gmail ئارقىلىق كىرىش / تىزىملىتىش</span>' +
           '</button>' +
+
+          // Main Website & Deposit Direct Links
+          '<div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">' +
+            '<a href="/login?next=' + encodeURIComponent(window.location.pathname) + '" class="text-sky-400 hover:text-sky-300 font-bold flex items-center gap-1 transition">' +
+              '<span>🌐 ئاساسىي توربەتتىن كىرىش</span>' +
+              '<span class="text-[9px]">↗</span>' +
+            '</a>' +
+            '<a href="/deposit" class="text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 transition">' +
+              '<span>💳 پۇل كىرگۈزۈش</span>' +
+              '<span class="text-[9px]">↗</span>' +
+            '</a>' +
+          '</div>' + +
         '</div>' +
       '</div></div>';
     setTimeout(function() {
@@ -2453,17 +2617,7 @@ async function checkCurrentTelegramSessionNow() {
       activeLoginSessionToken = null;
       preloadedTelegramSession = null;
       var u = pollData.user;
-      var custId = u.telegramChatId || u.id;
-      var photoUrl = u.avatarUrl || ('/api/apps/avatar?user=' + encodeURIComponent(custId));
-      currentTgUser = {
-        id: custId,
-        username: u.telegramUsername || u.name,
-        name: u.name,
-        photo: photoUrl,
-        balance: u.balance || 0
-      };
-      localStorage.setItem('autocash_tg_user', JSON.stringify(currentTgUser));
-      walletBalance = Number(u.balance || 0);
+      syncLocalAuthWithMainSite(u, 'telegram');
       otpStep = 'input';
       updateDisplays();
       updateTelegramHeader();
@@ -2682,23 +2836,17 @@ async function verifyTelegramOtp() {
       var sess = data.session;
       var custId = sess.identity;
       var photoUrl = sess.photo_url || ('/api/apps/avatar?user=' + encodeURIComponent(custId));
-      currentTgUser = {
+      var otpUser = sess.user || {
         id: custId,
         name: sess.identity,
-        username: sess.identity,
-        photo: photoUrl,
-        token: sess.token
+        email: sess.identity && sess.identity.includes('@') ? sess.identity : '',
+        telegramUsername: sess.identity,
+        avatarUrl: photoUrl,
+        balance: Number(sess.balance || 0)
       };
-      if (typeof sess.balance === 'number') {
-        walletBalance = sess.balance;
-      }
-      localStorage.setItem('autocash_tg_user', JSON.stringify(currentTgUser));
-      loadUserOrders();
+      syncLocalAuthWithMainSite(otpUser, 'telegram_otp');
       fetchServerOrders();
-      updateDisplays();
-      updateTelegramHeader();
-      renderTelegramModalContent();
-      showOtpAlert('✅ تەبرىكلەيمىز! تېلېگرام ھېساباتىڭىز ۋە بوتتىكى قالدۇقىڭىز تولۇق ئۇلاندى.', 'success');
+      showOtpAlert('✅ تەبرىكلەيمىز! تېلېگرام ھېساباتىڭىز ۋە مەركىزىي قالدۇقىڭىز تولۇق ئۇلاندى.', 'success');
       setTimeout(function() {
         closeTelegramModal();
       }, 1500);
@@ -2718,6 +2866,25 @@ async function verifyTelegramOtp() {
 async function refreshUserBalanceFromBot(silent) {
   if (!currentTgUser) return;
   try {
+    // 1. If user has session cookie or is Gmail/Main site user, query /api/auth/me first!
+    var meRes = await fetch('/api/auth/me').catch(function() { return null; });
+    if (meRes && meRes.ok) {
+      var meData = await meRes.json().catch(function() { return null; });
+      if (meData && meData.success && meData.user) {
+        syncLocalAuthWithMainSite(meData.user, meData.user.email ? 'gmail' : 'main_site');
+        if (!silent) {
+          showAppModal({
+            title: 'قالدۇق يېڭىلاندى',
+            message: 'مەركىزى ھېسابات قالدۇقىڭىز مۇۋەپپەقىيەتلىك يېڭىلاندى: $' + walletBalance.toFixed(2) + ' USD ✓',
+            icon: '✅',
+            confirmText: 'ماقۇل'
+          });
+        }
+        return;
+      }
+    }
+
+    // 2. Telegram Bot OTP / Balance endpoint fallback
     var endpoints = ['/api/apps/otp', 'https://auto-cash-sotre.vercel.app/api/apps/otp'];
     for (var i = 0; i < endpoints.length; i++) {
       try {
@@ -2730,6 +2897,10 @@ async function refreshUserBalanceFromBot(silent) {
           var data = await res.json();
           if (data && data.ok && typeof data.balance === 'number') {
             walletBalance = data.balance;
+            try {
+              localStorage.setItem('autocash_balance', String(walletBalance));
+              localStorage.setItem('maxstore_balance', String(walletBalance));
+            } catch (_) {}
             updateDisplays();
             renderTelegramModalContent();
             if (!silent) {
@@ -2753,15 +2924,43 @@ function logoutTelegram() {
   otpStep = 'input';
   otpCurrentTarget = '';
   otpSignature = '';
-  localStorage.removeItem('autocash_tg_user');
   walletBalance = 0.00;
+
+  try {
+    localStorage.removeItem('autocash_tg_user');
+    localStorage.setItem('autocash_is_logged_in', 'false');
+    localStorage.removeItem('autocash_username');
+    localStorage.removeItem('autocash_email');
+    localStorage.removeItem('autocash_userId');
+    localStorage.removeItem('autocash_avatar');
+    localStorage.removeItem('autocash_balance');
+    localStorage.removeItem('maxstore_balance');
+    localStorage.removeItem('autocash_vipTier');
+    localStorage.removeItem('autocash_totalSpent');
+    localStorage.removeItem('autocash_role');
+    localStorage.removeItem('autocash_user');
+    localStorage.removeItem('maxbazar_unified_session');
+    localStorage.removeItem('maxbazar_pubg_session');
+    localStorage.removeItem('maxbazar_hok_session');
+  } catch (_) {}
+
+  try {
+    fetch('/api/auth/logout', { method: 'POST' }).catch(function() {});
+  } catch (_) {}
+
+  try {
+    window.dispatchEvent(new Event('autocash-auth-changed'));
+    window.dispatchEvent(new Event('autocash_auth_changed'));
+    window.dispatchEvent(new CustomEvent('maxbazar-auth-changed', { detail: null }));
+  } catch (_) {}
+
   loadUserOrders();
   updateDisplays();
   updateTelegramHeader();
   renderTelegramModalContent();
   showAppModal({
     title: 'ھېساباتتىن چىقتىڭىز',
-    message: 'تېلېگرام ھېساباتىدىن مۇۋەپپەقىيەتلىك چىقتىڭىز.',
+    message: 'ھېساباتىڭىزدىن مۇۋەپپەقىيەتلىك چىقتىڭىز.',
     icon: 'ℹ️',
     confirmText: 'ماقۇل'
   });
