@@ -166,9 +166,53 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Attempt live query to public/commercial game check API if API KEY configured
-    const apiKey = process.env.HOK_CHECK_API_KEY || process.env.GAME_CHECKER_API_KEY;
+    const apiKey = process.env.RAPIDAPI_KEY || process.env.HOK_CHECK_API_KEY || process.env.GAME_CHECKER_API_KEY;
 
     if (apiKey) {
+      // 3A. RapidAPI Game ID Checker (Supports 'hok' and 'pubgm')
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4500);
+
+        const rapidRes = await fetch('https://game-id-checker-api.p.rapidapi.com/check', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-RapidAPI-Key': apiKey,
+            'X-RapidAPI-Host': 'game-id-checker-api.p.rapidapi.com',
+            'User-Agent': 'AUTO-CASH-Store/1.0',
+          },
+          body: JSON.stringify({
+            game: isPubg ? 'pubgm' : 'hok',
+            player_id: trimmedId,
+          }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (rapidRes.ok) {
+          const rData = await rapidRes.json();
+          const liveName = rData?.data?.username || rData?.username || rData?.data?.name;
+          if (liveName) {
+            KNOWN_PLAYERS[trimmedId] = {
+              nickname: liveName,
+              server: rData?.data?.region || defaultServer,
+            };
+            return NextResponse.json({
+              success: true,
+              playerId: trimmedId,
+              game: isPubg ? 'pubg-mobile' : 'honor-of-kings',
+              nickname: liveName,
+              server: rData?.data?.region || defaultServer,
+              verified: true,
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('RapidAPI Game ID Checker error:', e);
+      }
+
+      // 3B. Neferbyte Game ID Checker
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 4000);
