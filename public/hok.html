@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ug" dir="rtl" class="dark">
 <head>
+  <base href="/">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -127,7 +128,7 @@
   </style>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
-  <script src="tg_emoji_plane.js"></script>
+  <script src="/tg_emoji_plane.js"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 antialiased p-2 sm:p-4 min-h-screen flex items-center justify-center">
 
@@ -139,7 +140,7 @@
       <!-- Right: Official Brand Logo & Name (Compact, Glowing) -->
       <a href="/" class="flex items-center gap-1.5 group cursor-pointer shrink-0" title="AUTO CASH">
         <div class="relative w-8 h-8 rounded-full overflow-hidden border-2 border-amber-400 shadow-md shadow-amber-500/30 group-hover:scale-105 transition shrink-0 bg-slate-950">
-          <img src="autocash_logo.jpg" alt="AUTO CASH" class="w-full h-full object-cover" onerror="this.src='https://auto-cash-sotre.vercel.app/autocash_logo.jpg'"/>
+          <img src="/autocash_logo.jpg" alt="AUTO CASH" class="w-full h-full object-cover" onerror="this.src='https://auto-cash-sotre.vercel.app/autocash_logo.jpg'"/>
         </div>
         <div class="flex flex-col text-right leading-none">
           <span class="text-xs font-black tracking-wide bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-100 bg-clip-text text-transparent block font-sans whitespace-nowrap">AUTO CASH</span>
@@ -198,7 +199,7 @@
         <!-- Tier 1: Full-Width Game Identity (Uncramped, Beautiful Title & Status Badge) -->
         <div class="flex items-center gap-2.5 relative z-10 w-full">
           <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-lg border-2 border-purple-400/60 flex items-center justify-center shrink-0 bg-slate-950 p-0.5">
-            <img src="hok_logo.webp" alt="Honor of Kings" class="w-full h-full object-cover rounded-xl" onerror="this.src='hok_logo.png'"/>
+            <img src="/hok_logo.webp" alt="Honor of Kings" class="w-full h-full object-cover rounded-xl" onerror="this.src='/hok_logo.png'"/>
           </div>
           <div class="flex-1 text-right min-w-0">
             <h1 class="text-sm sm:text-base font-black text-white tracking-wide leading-tight truncate">
@@ -207,7 +208,7 @@
             <div class="flex items-center gap-1.5 mt-1">
               <span class="text-[10px] text-purple-300 font-bold flex items-center gap-1 bg-purple-500/15 px-2 py-0.5 rounded-full border border-purple-400/30 whitespace-nowrap">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="w-4 h-4 flex items-center justify-center shrink-0"><img src="hok_token.webp" alt="Token" class="w-4 h-4 object-contain" onerror="this.onerror=null;this.src='hok_token.png'"/></span>
+                <span class="w-4 h-4 flex items-center justify-center shrink-0"><img src="/hok_token.webp" alt="Token" class="w-4 h-4 object-contain" onerror="this.onerror=null;this.src='/hok_token.png'"/></span>
                 <span>رەسمىي بىۋاسىتە قاچىلاش (Tokens)</span>
               </span>
             </div>
@@ -220,7 +221,7 @@
           <div class="flex items-center gap-2.5 min-w-0">
             <div class="relative w-8 h-8 rounded-full bg-gradient-to-tr from-amber-600 via-yellow-300 to-amber-500 p-[1.5px] shadow-md shadow-amber-500/50 shrink-0 flex items-center justify-center">
               <div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center shadow-inner overflow-hidden p-0.5">
-                <img src="tg_wallet_dollar_anim.webp" alt="$" class="w-6 h-6 object-contain drop-shadow" onerror="this.onerror=null;this.src='tg_wallet_dollar.gif'"/>
+                <img src="/tg_wallet_dollar_anim.webp" alt="$" class="w-6 h-6 object-contain drop-shadow" onerror="this.onerror=null;this.src='/tg_wallet_dollar.gif'"/>
               </div>
               <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-yellow-300 border border-slate-950 animate-ping"></span>
             </div>
@@ -274,7 +275,7 @@
               ✕
             </button>
             <button onclick="executeSearch()" id="searchBtn" type="button" class="px-3 py-1.5 bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-600 hover:from-purple-400 hover:to-indigo-400 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 active:scale-95 shadow-md shadow-purple-500/25 cursor-pointer">
-              <span id="searchIcon" class="w-4 h-4 flex items-center justify-center shrink-0"><img src="tg_search_anim.webp" alt="🔎" class="w-4 h-4 object-contain drop-shadow" onerror="this.onerror=null;this.src='tg_search.gif'"/></span>
+              <span id="searchIcon" class="w-4 h-4 flex items-center justify-center shrink-0"><img src="/tg_search_anim.webp" alt="🔎" class="w-4 h-4 object-contain drop-shadow" onerror="this.onerror=null;this.src='/tg_search.gif'"/></span>
               <span id="searchBtnText">ئىزدەش</span>
             </button>
           </div>
@@ -312,7 +313,7 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <div class="w-10 h-10 rounded-xl overflow-hidden border border-emerald-500/40 shadow-sm shrink-0 bg-slate-900 p-0.5">
-                <img src="hok_logo.webp" alt="HOK" class="w-full h-full object-cover rounded-lg" onerror="this.src='hok_logo.png'"/>
+                <img src="/hok_logo.webp" alt="HOK" class="w-full h-full object-cover rounded-lg" onerror="this.src='/hok_logo.png'"/>
               </div>
               <div class="leading-tight">
                 <p class="text-xs text-slate-400">ئويۇندىكى نامىڭىز:</p>
@@ -336,7 +337,7 @@
         <div class="flex justify-between items-center px-1">
           <label class="text-xs font-black text-white flex items-center gap-2">
             <span class="w-5 h-5 rounded-full bg-gradient-to-tr from-purple-400 to-indigo-600 text-slate-950 flex items-center justify-center text-[11px] font-mono font-black shadow-md shadow-purple-500/40 shrink-0">2</span>
-            <span class="flex items-center gap-1.5"><img src="hok_token.webp" alt="Token" class="w-5 h-5 object-contain inline-block drop-shadow" onerror="this.onerror=null;this.src='hok_token.png'"/><span class="text-sm font-black text-white tracking-wide">توكېن ياكى كارتىلارنى تاللاڭ</span></span>
+            <span class="flex items-center gap-1.5"><img src="/hok_token.webp" alt="Token" class="w-5 h-5 object-contain inline-block drop-shadow" onerror="this.onerror=null;this.src='/hok_token.png'"/><span class="text-sm font-black text-white tracking-wide">توكېن ياكى كارتىلارنى تاللاڭ</span></span>
           </label>
         </div>
 
@@ -399,11 +400,11 @@
         <!-- 3 Server Tabs (گىلوبال ، تۈركىيە، فىلىپپىن) -->
         <div id="serverTabs" class="grid grid-cols-2 gap-2 bg-[#0a101f] p-1.5 rounded-2xl border border-slate-800 text-xs shadow-lg">
           <button id="tabTokens" onclick="switchServer('tokens')" class="py-2 px-1 rounded-xl font-bold transition text-center flex items-center justify-center gap-1.5 cursor-pointer">
-            <span class="w-4 h-4 flex items-center justify-center shrink-0"><img src="hok_token.webp" alt="Token" class="w-4 h-4 object-contain" onerror="this.onerror=null;this.src='hok_token.png'"/></span>
+            <span class="w-4 h-4 flex items-center justify-center shrink-0"><img src="/hok_token.webp" alt="Token" class="w-4 h-4 object-contain" onerror="this.onerror=null;this.src='/hok_token.png'"/></span>
             <span class="text-[10.5px] sm:text-xs font-bold leading-tight">بىۋاسىتە توكېن</span>
           </button>
           <button id="tabBundles" onclick="switchServer('bundles')" class="py-2 px-1 rounded-xl font-bold transition text-center flex items-center justify-center gap-1.5 cursor-pointer">
-            <span class="w-4 h-4 flex items-center justify-center shrink-0"><img src="tg_star_badge.webp" alt="Card" class="w-4 h-4 object-contain pass-glow-anim" onerror="this.src='tg_star_badge.png'"/></span>
+            <span class="w-4 h-4 flex items-center justify-center shrink-0"><img src="/tg_star_badge.webp" alt="Card" class="w-4 h-4 object-contain pass-glow-anim" onerror="this.src='/tg_star_badge.png'"/></span>
             <span class="text-[10.5px] sm:text-xs font-bold leading-tight">ھەپتىلىك كارتىلار</span>
           </button>
         </div>
@@ -433,7 +434,7 @@
               <!-- 3D Gold Wallet Icon -->
               <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-600 via-yellow-400 to-amber-200 p-[1.5px] shadow-lg shadow-amber-500/40 flex items-center justify-center shrink-0">
                 <div class="w-full h-full rounded-2xl bg-[#0b101d] flex items-center justify-center text-amber-300 text-lg shadow-inner overflow-hidden p-1">
-                  <img src="tg_wallet_dollar_anim.webp" alt="$" class="w-7 h-7 object-contain drop-shadow" onerror="this.onerror=null;this.src='tg_wallet_dollar.gif'"/>
+                  <img src="/tg_wallet_dollar_anim.webp" alt="$" class="w-7 h-7 object-contain drop-shadow" onerror="this.onerror=null;this.src='/tg_wallet_dollar.gif'"/>
                 </div>
               </div>
               <div class="leading-tight">
@@ -456,7 +457,7 @@
           <div class="grid grid-cols-3 gap-2 pt-1 border-t border-slate-800/80 text-center font-mono">
             <div class="bg-gradient-to-b from-slate-900/95 to-[#161a24] rounded-xl p-2 border border-amber-500/40 shadow-sm">
               <span class="text-[10px] text-amber-300 font-bold block mb-0.5 flex items-center justify-center gap-1">
-                <img src="tg_star_badge.webp" alt="*" class="w-3.5 h-3.5 object-contain inline-block shrink-0 pass-glow-anim" onerror="this.src='tg_star_badge.png'"/>
+                <img src="/tg_star_badge.webp" alt="*" class="w-3.5 h-3.5 object-contain inline-block shrink-0 pass-glow-anim" onerror="this.src='/tg_star_badge.png'"/>
                 <span>ھازىرقى قالدۇق</span>
               </span>
               <span id="walletCurrent" class="text-xs sm:text-sm font-black text-amber-300">$ 0.00</span>
@@ -705,7 +706,7 @@
             <span>توكېن زاكازلىرى</span>
           </button>
           <button id="tabHistDeposits" onclick="switchHistoryTab('deposits')" class="py-1.5 rounded-lg font-bold transition text-slate-400 hover:text-white flex items-center justify-center gap-1.5">
-            <img src="tg_wallet_dollar_anim.webp" alt="$" class="w-3.5 h-3.5 object-contain inline-block shrink-0" onerror="this.onerror=null;this.src='tg_wallet_dollar.gif'"/>
+            <img src="/tg_wallet_dollar_anim.webp" alt="$" class="w-3.5 h-3.5 object-contain inline-block shrink-0" onerror="this.onerror=null;this.src='/tg_wallet_dollar.gif'"/>
             <span>قالدۇق قاچىلاش تالونلىرى</span>
           </button>
         </div>
@@ -748,10 +749,10 @@
         <div class="flex-1 overflow-y-auto no-scrollbar space-y-2.5 pt-1 relative z-10">
           
           <!-- App 1: Mobile Legends: Bang Bang -->
-          <a href="mlbb.html" class="glass-box rounded-2xl p-3 border border-cyan-500/30 hover:border-cyan-400 bg-gradient-to-r from-blue-950/40 via-slate-900/80 to-[#0e192e] flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block">
+          <a href="/mlbb.html" class="glass-box rounded-2xl p-3 border border-cyan-500/30 hover:border-cyan-400 bg-gradient-to-r from-blue-950/40 via-slate-900/80 to-[#0e192e] flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block">
             <div class="flex items-center gap-2.5 min-w-0">
               <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-cyan-400/50 flex items-center justify-center shrink-0 bg-slate-950">
-                <img src="https://play-lh.googleusercontent.com/MztmLpB1-_eFbHnqNzzvzl5zjiOH2BEb0D71uBxZYf_4BEmW3QEPWODhRtyqY7Qz4wRLwQ--Rg1RAjOFqtHSs-o=s256" alt="Mobile Legends" class="w-full h-full object-cover" onerror="this.src='mlbb_icon.png'"/>
+                <img src="https://play-lh.googleusercontent.com/MztmLpB1-_eFbHnqNzzvzl5zjiOH2BEb0D71uBxZYf_4BEmW3QEPWODhRtyqY7Qz4wRLwQ--Rg1RAjOFqtHSs-o=s256" alt="Mobile Legends" class="w-full h-full object-cover" onerror="this.src='/mlbb_icon.png'"/>
               </div>
               <div class="text-right min-w-0">
                 <p class="text-xs sm:text-sm font-black text-white group-hover:text-cyan-300 transition flex items-center gap-1.5">
@@ -770,10 +771,10 @@
           </a>
 
           <!-- App 2: PUBG Mobile -->
-          <a href="pubg.html" class="glass-box rounded-2xl p-3 border border-amber-500/30 hover:border-amber-400 bg-gradient-to-r from-amber-950/30 via-slate-900/80 to-[#1e1708]/60 flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block">
+          <a href="/pubg.html" class="glass-box rounded-2xl p-3 border border-amber-500/30 hover:border-amber-400 bg-gradient-to-r from-amber-950/30 via-slate-900/80 to-[#1e1708]/60 flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block">
             <div class="flex items-center gap-2.5 min-w-0">
               <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-amber-400/60 flex items-center justify-center shrink-0 bg-slate-950 p-0.5">
-                <img src="pubg_logo.jpg" alt="PUBG Mobile" class="w-full h-full object-cover rounded-xl" onerror="this.src='https://i.ibb.co/KpMvj9fw/3235269bedcbf914ba3e316af4169a3b.jpg'"/>
+                <img src="/pubg_logo.jpg" alt="PUBG Mobile" class="w-full h-full object-cover rounded-xl" onerror="this.src='https://i.ibb.co/KpMvj9fw/3235269bedcbf914ba3e316af4169a3b.jpg'"/>
               </div>
               <div class="text-right min-w-0">
                 <p class="text-xs sm:text-sm font-black text-white group-hover:text-amber-300 transition flex items-center gap-1.5">
@@ -792,11 +793,11 @@
           </a>
 
           <!-- App 3: Honor of Kings (ACTIVE) -->
-          <a href="honor-of-kings.html" class="glass-box rounded-2xl p-3 border border-purple-500/50 bg-gradient-to-r from-purple-950/60 via-slate-900/90 to-[#190e29]/80 flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block relative overflow-hidden">
+          <a href="/honor-of-kings.html" class="glass-box rounded-2xl p-3 border border-purple-500/50 bg-gradient-to-r from-purple-950/60 via-slate-900/90 to-[#190e29]/80 flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block relative overflow-hidden">
             <span class="absolute top-0 right-0 w-2 h-full bg-purple-400"></span>
             <div class="flex items-center gap-2.5 min-w-0 pr-1">
               <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-purple-400/60 flex items-center justify-center shrink-0 bg-slate-950 p-0.5">
-                <img src="hok_logo.webp" alt="Honor of Kings" class="w-full h-full object-cover rounded-xl" onerror="this.src='hok_logo.png'"/>
+                <img src="/hok_logo.webp" alt="Honor of Kings" class="w-full h-full object-cover rounded-xl" onerror="this.src='/hok_logo.png'"/>
               </div>
               <div class="text-right min-w-0">
                 <p class="text-xs sm:text-sm font-black text-white group-hover:text-purple-300 transition flex items-center gap-1.5">
@@ -818,7 +819,7 @@
           <a href="/" class="glass-box rounded-2xl p-3 border border-slate-700 hover:border-slate-500 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950 flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block">
             <div class="flex items-center gap-2.5 min-w-0">
               <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-amber-400/60 flex items-center justify-center shrink-0 bg-slate-950">
-                <img src="autocash_logo.jpg" alt="AUTO CASH STORE" class="w-full h-full object-cover" onerror="this.src='https://auto-cash-sotre.vercel.app/autocash_logo.jpg'"/>
+                <img src="/autocash_logo.jpg" alt="AUTO CASH STORE" class="w-full h-full object-cover" onerror="this.src='https://auto-cash-sotre.vercel.app/autocash_logo.jpg'"/>
               </div>
               <div class="text-right min-w-0">
                 <p class="text-xs sm:text-sm font-black text-white group-hover:text-amber-300 transition flex items-center gap-1.5">
@@ -853,7 +854,7 @@
       tokens: {
         serverName: 'بىۋاسىتە توكېن',
         serverTitle: 'بىۋاسىتە توكېن',
-        flag: '<img src="hok_token.webp" alt="Token" class="w-4 h-4 object-contain inline-block shrink-0 drop-shadow" onerror="this.onerror=null;this.src=\'hok_token.png\'"/>',
+        flag: '<img src="/hok_token.webp" alt="Token" class="w-4 h-4 object-contain inline-block shrink-0 drop-shadow" onerror="this.onerror=null;this.src=\'/hok_token.png\'"/>',
         packages: [
           { id: 758, name: '16 Tokens', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 0.25, isVip: false },
           { id: 764, name: '80 Tokens', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 1.05, isVip: true },
@@ -870,7 +871,7 @@
       bundles: {
         serverName: 'ھەپتىلىك كارتىلار & تەمىنات',
         serverTitle: 'ھەپتىلىك كارتىلار',
-        flag: '<img src="tg_star_badge.webp" alt="Card" class="w-4 h-4 object-contain inline-block shrink-0 drop-shadow pass-glow-anim" onerror="this.src=\'tg_star_badge.png\'"/>',
+        flag: '<img src="/tg_star_badge.webp" alt="Card" class="w-4 h-4 object-contain inline-block shrink-0 drop-shadow pass-glow-anim" onerror="this.src=\'/tg_star_badge.png\'"/>',
         packages: [
           { id: 772, name: 'Weekly Card', subtext: 'ھەپتىلىك كارتىسى (100 Token)', price: 1.15, isVip: true },
           { id: 773, name: 'Weekly Card Plus', subtext: 'ھەپتىلىك پىلۇس (280 Token)', price: 3.15, isVip: true },
@@ -1038,63 +1039,79 @@
 
     function parseInput(val) {
       if (!val) return null;
-      const m1 = val.match(/(\d{6,12})\s*[\(\[\{](\d{3,6})[\)\]\}]/);
-      if (m1) return { id: m1[1], zone: m1[2] };
-      const m2 = val.match(/(\d{6,12})[\s\-\/\_\,\:]+(\d{3,6})/);
-      if (m2) return { id: m2[1], zone: m2[2] };
-      const nums = val.match(/\d+/g);
-      if (nums && nums.length >= 2 && nums[0].length >= 6 && nums[1].length >= 3) {
-        return { id: nums[0], zone: nums[1] };
+      const clean = val.replace(/[^0-9]/g, '').trim();
+      if (clean.length >= 6 && clean.length <= 15) {
+        return { id: clean, zone: '' };
       }
       return null;
     }
 
-    function clearErrorState() {
-      const err = document.getElementById('errorAlert');
-      if (err) err.classList.add('hidden');
-      const input = document.getElementById('hokInput');
-      if (input) input.classList.remove('border-rose-500', 'bg-rose-950/20');
+    // ================= HOK ACCOUNT STORAGE & NICKNAME EDIT =================
+    function saveHokAccount(uid, nickname) {
+      if (!uid || !nickname) return;
+      try {
+        const raw = localStorage.getItem('maxbazar_hok_saved_accounts');
+        let list = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(list)) list = [];
+        const idx = list.findIndex(a => (a.uid || a.id) === uid);
+        if (idx !== -1) {
+          list[idx].label = nickname;
+          list[idx].nickname = nickname;
+        } else {
+          list.unshift({ uid, label: nickname, nickname });
+        }
+        if (list.length > 15) list = list.slice(0, 15);
+        localStorage.setItem('maxbazar_hok_saved_accounts', JSON.stringify(list));
+      } catch (_) {}
     }
 
-    function showErrorState() {
-      const err = document.getElementById('errorAlert');
-      if (err) {
-        err.classList.remove('hidden');
-        err.classList.remove('animate-shake');
-        void err.offsetWidth;
-        err.classList.add('animate-shake');
-      }
-      const input = document.getElementById('hokInput');
-      if (input) {
-        input.classList.add('border-rose-500', 'bg-rose-950/20');
-        input.focus();
-      }
-      document.getElementById('verifiedCard').classList.add('hidden');
-      isVerified = false;
-      detectedServer = null;
-      renderPackages();
-      updateDisplays();
+    function editPlayerNickname(e) {
+      if (e && e.stopPropagation) e.stopPropagation();
+      if (!parsedId) return;
+      const currentName = playerNick || '';
+      showAppModal({
+        icon: '✏️',
+        title: 'ئويۇندىكى نامنى تەھرىرلەش',
+        message: 'Honor of Kings ئويۇنىدىكى توغرا نامىڭىزنى كىرگۈزۈڭ ياكى دەلىللەڭ:',
+        showInput: true,
+        inputValue: currentName,
+        inputPlaceholder: 'مەسىلەن: HOK Player',
+        confirmText: '💾 ساقلاش ۋە دەلىللەش',
+        cancelText: 'بىكار قىلىش',
+        confirmAction: async function(val) {
+          const newName = (val || '').trim();
+          if (!newName) return;
+          playerNick = newName;
+          const cardNick = document.getElementById('cardNickname');
+          if (cardNick) cardNick.textContent = newName;
+
+          saveHokAccount(parsedId, newName);
+
+          try {
+            await fetch('/api/apps/check-player', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                game: 'honor-of-kings',
+                playerId: parsedId,
+                customNickname: newName
+              })
+            });
+          } catch (_) {}
+
+          showAppToast('✅ ئويۇندىكى نامىڭىز مۇۋەپپەقىيەتلىك دەلىللەندى!');
+        }
+      });
     }
 
-    function handleInput(val) {
-      clearErrorState();
-      if (!val || !val.trim()) {
-        isVerified = false;
-        detectedServer = null;
-        document.getElementById('verifiedCard').classList.add('hidden');
-        document.getElementById('checkSpinner').classList.add('hidden');
-        renderPackages();
-        updateDisplays();
-      }
-    }
-
-    // Live Search ID & Zone
+    // Live Search HOK UID
     async function executeSearch() {
       clearErrorState();
-      const val = document.getElementById('hokInput').value.trim();
+      const inputElem = document.getElementById('hokInput');
+      const val = (inputElem ? inputElem.value : '').trim();
       const res = parseInput(val);
 
-      if (!res || !res.id || !res.zone || res.id.length < 5 || res.zone.length < 3) {
+      if (!res || !res.id || res.id.length < 6) {
         showErrorState();
         return;
       }
@@ -1102,78 +1119,78 @@
       const searchBtn = document.getElementById('searchBtn');
       const searchIcon = document.getElementById('searchIcon');
       const searchBtnText = document.getElementById('searchBtnText');
-      searchBtn.disabled = true;
-      searchIcon.className = 'text-xs inline-block animate-spin';
-      searchIcon.textContent = '⏳';
-      searchBtnText.textContent = 'ئىزدەۋاتىدۇ...';
+      if (searchBtn) searchBtn.disabled = true;
+      if (searchIcon) {
+        searchIcon.className = 'text-xs inline-block animate-spin';
+        searchIcon.textContent = '⏳';
+      }
+      if (searchBtnText) searchBtnText.textContent = 'ئىزدەۋاتىدۇ...';
 
-      document.getElementById('checkSpinner').classList.remove('hidden');
-      document.getElementById('checkSpinner').classList.add('flex');
-      document.getElementById('verifiedCard').classList.add('hidden');
+      const spinner = document.getElementById('checkSpinner');
+      if (spinner) {
+        spinner.classList.remove('hidden');
+        spinner.classList.add('flex');
+      }
+      const vCard = document.getElementById('verifiedCard');
+      if (vCard) vCard.classList.add('hidden');
 
       parsedId = res.id;
-      parsedZone = res.zone;
+      parsedZone = '';
 
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000);
-        const apiRes = await fetch('https://api.isan.eu.org/nickname/ml?id=' + encodeURIComponent(res.id) + '&zone=' + encodeURIComponent(res.zone), {
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-
         let liveName = null;
-        if (apiRes.ok) {
-          const liveData = await apiRes.json();
-          if (liveData && liveData.success && liveData.name) {
-            liveName = liveData.name;
+
+        // 1. Check local saved accounts first
+        try {
+          const rawSaved = localStorage.getItem('maxbazar_hok_saved_accounts');
+          if (rawSaved) {
+            const savedList = JSON.parse(rawSaved);
+            const found = savedList.find(a => (a.uid || a.id) === res.id);
+            if (found && (found.label || found.nickname)) {
+              liveName = found.label || found.nickname;
+            }
           }
+        } catch (_) {}
+
+        // 2. Query /api/apps/check-player route
+        if (!liveName) {
+          try {
+            const checkRes = await fetch('/api/apps/check-player', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ game: 'honor-of-kings', playerId: res.id })
+            });
+            if (checkRes.ok) {
+              const checkData = await checkRes.json();
+              if (checkData && checkData.success && checkData.nickname) {
+                liveName = checkData.nickname;
+              }
+            }
+          } catch (_) {}
         }
 
         if (!liveName) {
-          const KNOWN = {
-            '1718491609': 'マヒル',
-            '1798505443': '꧁KROX099X꧂',
-            '894521034': '亗 WARRIOR_PRO 亗',
-            '751240981': '亗 SPECIAL_VIP 亗'
-          };
-          if (KNOWN[res.id]) liveName = KNOWN[res.id];
-        }
-
-        if (!liveName) {
-          showErrorState();
-          return;
-        }
-
-        // Server Detection
-        const z = parseInt(res.zone, 10);
-        if (z >= 4000 && z <= 4999) {
-          currentServer = 'turkey';
-        } else if (z >= 6000 && z <= 6999) {
-          currentServer = 'special';
-        } else {
-          currentServer = 'global';
+          liveName = 'HOK Player #' + res.id.slice(-4);
         }
 
         isVerified = true;
         isPreviewMode = false;
-        detectedServer = currentServer;
         playerNick = liveName;
         selectedPkg = CATALOGS[currentServer].packages[0];
 
-        // Update Card
-        document.getElementById('cardFlag').textContent = CATALOGS[currentServer].flag;
-        document.getElementById('cardServerName').textContent = CATALOGS[currentServer].serverTitle + ' سېرۋېرى';
-        document.getElementById('cardNickname').textContent = liveName;
-        document.getElementById('cardUserId').textContent = res.id;
-        document.getElementById('cardZoneId').textContent = res.zone;
-        document.getElementById('verifiedCard').classList.remove('hidden');
-        document.getElementById('verifiedCard').classList.add('flex');
+        const cardNick = document.getElementById('cardNickname');
+        if (cardNick) cardNick.textContent = liveName;
+
+        saveHokAccount(res.id, liveName);
+
+        if (vCard) {
+          vCard.classList.remove('hidden');
+          vCard.classList.add('flex');
+        }
 
         renderPackages();
         updateDisplays();
 
-        // As soon as ID is verified, smoothly scroll down to the packages section!
         setTimeout(() => {
           const step2 = document.getElementById('step2Section');
           if (step2) step2.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1181,68 +1198,37 @@
 
       } catch (err) {
         console.warn('Search query error:', err);
-        const z = parseInt(res.zone, 10);
-        if (z >= 1000 && z <= 99999 && res.id.length >= 8) {
-          currentServer = (z >= 4000 && z <= 4999) ? 'turkey' : (z >= 6000 && z <= 6999 ? 'special' : 'global');
-          isVerified = true;
-          isPreviewMode = false;
-          detectedServer = currentServer;
-          playerNick = '亗 MLBB_PLAYER 亗';
-          selectedPkg = CATALOGS[currentServer].packages[0];
-
-          document.getElementById('cardFlag').textContent = CATALOGS[currentServer].flag;
-          document.getElementById('cardServerName').textContent = CATALOGS[currentServer].serverTitle + ' سېرۋېرى';
-          document.getElementById('cardNickname').textContent = playerNick;
-          document.getElementById('cardUserId').textContent = res.id;
-          document.getElementById('cardZoneId').textContent = res.zone;
-          document.getElementById('verifiedCard').classList.remove('hidden');
-          document.getElementById('verifiedCard').classList.add('flex');
-
-          renderPackages();
-          updateDisplays();
-
-          // Smoothly scroll down to packages section!
-          setTimeout(() => {
-            const step2 = document.getElementById('step2Section');
-            if (step2) step2.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 300);
-        } else {
-          showErrorState();
-        }
+        showErrorState();
       } finally {
-        searchBtn.disabled = false;
-        searchIcon.className = 'text-xs inline-block';
-        searchIcon.textContent = '🔍';
-        searchBtnText.textContent = 'ئىزدەش';
-        document.getElementById('checkSpinner').classList.add('hidden');
-        document.getElementById('checkSpinner').classList.remove('flex');
+        if (searchBtn) searchBtn.disabled = false;
+        if (searchIcon) {
+          searchIcon.className = 'w-4 h-4 flex items-center justify-center shrink-0';
+          searchIcon.innerHTML = '<img src="/tg_search_anim.webp" alt="🔎" class="w-4 h-4 object-contain drop-shadow" onerror="this.onerror=null;this.src=\'/tg_search.gif\'"/>';
+        }
+        if (searchBtnText) searchBtnText.textContent = 'ئىزدەش';
+        if (spinner) {
+          spinner.classList.add('hidden');
+          spinner.classList.remove('flex');
+        }
       }
     }
 
-    // Browse server without putting mock sample ID in input!
+    // Browse category directly without UID
     function previewServerOnly(srv) {
       clearErrorState();
       isPreviewMode = true;
       currentServer = srv;
-      if (!CATALOGS[currentServer]) currentServer = 'global';
+      if (!CATALOGS[currentServer]) currentServer = 'tokens';
       selectedPkg = CATALOGS[currentServer].packages[0];
 
       renderPackages();
       updateDisplays();
     }
 
+    // Category switcher (Tokens, Bundles)
     function switchServer(srv) {
-      if (isVerified && detectedServer && srv !== detectedServer) {
-        showAppModal({
-          title: 'سېرۋېر مۇقىملاندى',
-          message: 'سىز كىرگۈزگەن ئويۇن كىملىكى «' + (CATALOGS[detectedServer]?.flag || '') + ' ' + (CATALOGS[detectedServer]?.serverTitle || '') + '» سېرۋېرىغا تەۋە. خاتا سېتىۋېلىپ زىيان تارتىپ قېلىشنىڭ ئالدىنى ئېلىش ئۈچۈن، پەقەت مۇشۇ سېرۋېرنىڭ باھاسى بىلەن سېتىۋالالايسىز.',
-          icon: '🛡️',
-          confirmText: 'چۈشەندىم'
-        });
-        return;
-      }
       currentServer = srv;
-      if (!CATALOGS[currentServer]) currentServer = 'global';
+      if (!CATALOGS[currentServer]) currentServer = 'tokens';
       selectedPkg = CATALOGS[currentServer].packages[0];
       renderPackages();
       updateDisplays();
@@ -1252,7 +1238,6 @@
       const locked = document.getElementById('lockedNotice');
       const tabs = document.getElementById('serverTabs');
       const container = document.getElementById('packagesContainer');
-      const tag = document.getElementById('activeServerTag');
       const previewBanner = document.getElementById('previewBanner');
 
       if (locked) locked.classList.add('hidden');
@@ -1264,69 +1249,59 @@
         container.classList.remove('hidden');
         container.classList.add('grid');
       }
-      if (tag) {
-        tag.classList.remove('hidden');
-        tag.textContent = CATALOGS[currentServer].flag + ' ' + CATALOGS[currentServer].serverTitle + ' باھاسى';
-      }
       if (previewBanner) {
         previewBanner.classList.add('hidden');
       }
 
-      // Tabs active and locked class
-      ['global', 'turkey', 'special'].forEach(s => {
-        const btn = document.getElementById('tab' + s.charAt(0).toUpperCase() + s.slice(1));
+      // Category Tabs active class (Tokens, Bundles)
+      ['tokens', 'bundles'].forEach(s => {
+        const tabId = s === 'tokens' ? 'tabTokens' : 'tabBundles';
+        const btn = document.getElementById(tabId);
         if (!btn) return;
-        const sTitle = CATALOGS[s].serverTitle;
-        const sFlag = CATALOGS[s].flag;
+        const sTitle = CATALOGS[s] ? CATALOGS[s].serverTitle : s;
+        const sFlag = CATALOGS[s] ? CATALOGS[s].flag : '';
 
         if (s === currentServer) {
-          btn.className = 'py-2 px-1 rounded-xl font-black transition-all text-center bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-500/30 border border-cyan-300 flex items-center justify-center gap-1.5 scale-[1.02] cursor-pointer';
-          btn.innerHTML = '<span>' + sFlag + '</span><span>' + sTitle + '</span>' + (isVerified ? '<span class="text-[8.5px] bg-emerald-400 text-slate-950 px-1 py-0.5 rounded font-black font-mono">تەستىقلاندى</span>' : '<span class="w-1.5 h-1.5 rounded-full bg-cyan-300 animate-ping"></span>');
-          btn.title = '';
+          btn.className = 'py-2 px-1 rounded-xl font-black transition-all text-center bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-600 text-white shadow-lg shadow-purple-500/30 border border-purple-300 flex items-center justify-center gap-1.5 scale-[1.02] cursor-pointer';
+          btn.innerHTML = '<span class="w-4 h-4 flex items-center justify-center shrink-0">' + sFlag + '</span><span class="text-[10.5px] sm:text-xs leading-tight">' + sTitle + '</span>';
         } else {
-          if (isVerified && detectedServer && s !== detectedServer) {
-            btn.className = 'py-2 px-1 rounded-xl font-bold transition text-center text-slate-500 bg-slate-950/70 border border-slate-800/80 cursor-not-allowed opacity-40 flex items-center justify-center gap-1.5';
-            btn.innerHTML = '<span>🔒</span><span class="line-through opacity-70">' + sTitle + '</span>';
-            btn.title = 'خاتا سېتىۋېلىشتىن مۇداپىئەلىنىش ئۈچۈن قۇلۇپلاندى';
-          } else {
-            btn.className = 'py-2 px-1 rounded-xl font-bold transition text-center text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent cursor-pointer flex items-center justify-center gap-1.5';
-            btn.innerHTML = '<span>' + sFlag + '</span><span>' + sTitle + '</span>';
-            btn.title = '';
-          }
+          btn.className = 'py-2 px-1 rounded-xl font-bold transition text-center text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent cursor-pointer flex items-center justify-center gap-1.5';
+          btn.innerHTML = '<span class="w-4 h-4 flex items-center justify-center shrink-0">' + sFlag + '</span><span class="text-[10.5px] sm:text-xs leading-tight">' + sTitle + '</span>';
         }
       });
 
-      // Render diamond cards
+      // Render HOK Token / Card items
       container.innerHTML = '';
+      if (!CATALOGS[currentServer]) currentServer = 'tokens';
       CATALOGS[currentServer].packages.forEach(pkg => {
         const isSel = selectedPkg && selectedPkg.id === pkg.id;
         const cls = isSel ? (pkg.isVip ? 'active-vip' : 'active-card') : 'glass-box';
 
         const div = document.createElement('div');
         div.setAttribute('data-pkg-id', pkg.id);
-        div.className = cls + ' rounded-2xl p-2.5 cursor-pointer transition flex flex-col justify-between relative group hover:border-cyan-400/50 select-none active:scale-[0.98]';
+        div.className = cls + ' rounded-2xl p-2.5 cursor-pointer transition flex flex-col justify-between relative group hover:border-purple-400/50 select-none active:scale-[0.98]';
         div.onclick = () => {
           selectPackage(pkg);
         };
 
-        // Clean, compact card with custom telegram diamond & weekly pass badges
-        const isPass = Boolean(
-          (pkg.name && (pkg.name.includes('كارت') || pkg.name.includes('Pass') || pkg.name.includes('بوغچ') || pkg.name.includes('پاس'))) ||
-          pkg.id === 1896 || pkg.id === 967 || pkg.id === 954
-        );
-        const iconSrc = isPass ? 'tg_mlbb_weekly_pass.webp' : 'tg_mlbb_diamond_v2.webp';
-        const iconAnimCls = isPass ? 'pass-glow-anim' : 'gem-shine-anim';
+        let iconHtml;
+        if (currentServer === 'tokens' || (pkg.name && pkg.name.toLowerCase().includes('token'))) {
+          iconHtml = '<img src="/hok_token.webp" alt="Token" class="w-5 h-5 object-contain shrink-0 drop-shadow" onerror="this.onerror=null;this.src=\'/hok_token.png\'"/>';
+        } else {
+          iconHtml = '<img src="/tg_star_badge.webp" alt="Pass" class="w-5 h-5 object-contain shrink-0 pass-glow-anim" onerror="this.src=\'/tg_star_badge.png\'"/>';
+        }
+
         const showSub = pkg.subtext && pkg.subtext.trim() && pkg.subtext !== 'رەسمىي قاچىلاش' && pkg.subtext !== 'بىۋاسىتە كىملىككە (UID)' && pkg.subtext !== 'بىۋاستە كىملىككە (UID)';
 
         div.innerHTML = 
           '<div class="flex items-center gap-1.5 min-w-0 mt-0.5">' +
-            '<img src="' + iconSrc + '" alt="" class="w-5 h-5 object-contain inline-block shrink-0 ' + iconAnimCls + '" onerror="this.src=\'hok_token.webp\'"/>' +
-            '<span class="text-[11px] sm:text-xs font-black text-white leading-tight break-words">' + pkg.name + '</span>' +
+            iconHtml +
+            '<span class="text-[11px] sm:text-xs font-black text-white font-mono leading-tight break-words">' + pkg.name + '</span>' +
           '</div>' +
-          (showSub ? '<p class="text-[10px] text-slate-400 font-mono mt-1 mb-1 leading-tight">' + pkg.subtext + '</p>' : '') +
-          '<div class="mt-2 flex items-baseline justify-between border-t border-slate-800/80 pt-1">' +
-            '<span class="text-xs text-slate-400">باھاسى:</span>' +
-            '<span class="text-xs font-black text-amber-400 font-mono">' + pkg.price.toFixed(2) + ' $</span>' +
+          (showSub ? '<div class="text-[10px] text-slate-400 mt-1 mb-1 leading-tight font-mono">' + pkg.subtext + '</div>' : '') +
+          '<div class="flex items-center justify-between pt-1 border-t border-slate-800/80 mt-2">' +
+            '<span class="text-[10px] text-slate-400 font-bold">باھاسى:</span>' +
+            '<span class="text-xs font-black font-mono text-amber-300">$ ' + pkg.price.toFixed(2) + '</span>' +
           '</div>';
 
         container.appendChild(div);
@@ -1425,25 +1400,39 @@
 
     function clearPlayerInput() {
       const input = document.getElementById('hokInput');
-      input.value = '';
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
       clearErrorState();
       isVerified = false;
-      detectedServer = null;
-      verifiedPlayer = null;
-      isPreviewMode = true;
+      isPreviewMode = false;
+      parsedId = '';
+      parsedZone = '';
+      playerNick = '';
 
-      // Hide verification success result
-      var vCard = document.getElementById('verifiedCard');
-      if (vCard) {
-        vCard.classList.add('hidden');
-        vCard.classList.remove('flex');
-      }
-      
-      // Update UI state and packages
+      const vCard = document.getElementById('verifiedCard');
+      if (vCard) vCard.classList.add('hidden');
+      const clearBtn = document.getElementById('clearInputBtn');
+      if (clearBtn) clearBtn.classList.add('hidden');
+
       renderPackages();
       updateDisplays();
+    }
 
-      input.focus();
+    function clearErrorState() {
+      const errBox = document.getElementById('errorAlert');
+      if (errBox) errBox.classList.add('hidden');
+    }
+
+    function showErrorState() {
+      const errBox = document.getElementById('errorAlert');
+      if (errBox) errBox.classList.remove('hidden');
+    }
+
+    function handleInput(val) {
+      const clearBtn = document.getElementById('clearInputBtn');
+      if (clearBtn) clearBtn.classList.toggle('hidden', !val || val.length === 0);
     }
 
     // ================= CUSTOM IN-APP ALERT MODAL SYSTEM =================
@@ -1536,7 +1525,7 @@
       const input = document.getElementById('hokInput');
       const val = (input ? input.value : '').trim();
       const parsed = parseInput(val);
-      if (!parsed || !parsed.uid) {
+      if (!parsed || !parsed.id) {
         showAppModal({
           title: 'ئويۇن كىملىكى تولۇق ئەمەس',
           message: '1-قەدەمدىن Honor of Kings ئويۇن كىملىكىڭىز (Player ID) نى تولۇق كىرگۈزۈڭ.',
@@ -1561,7 +1550,7 @@
         showAppModal({
           title: 'ھەميان قالدۇقى يېتىشمىدى',
           message: 'نۆۋەتتىكى قالدۇقىڭىز: $' + walletBalance.toFixed(2) + '، بۇ بوغچىنى سېتىۋېلىشقا يەنە $' + missing.toFixed(2) + ' كەملىدى (جەمئىي باھاسى: $' + selectedPkg.price.toFixed(2) + '). ئالدى بىلەن شامكەش ئارقىلىق قالدۇق كىرگۈزۈڭ!',
-          icon: '<img src="tg_wallet_dollar_anim.webp" alt="$" class="w-10 h-10 object-contain mx-auto" onerror="this.onerror=null;this.src=\'tg_wallet_dollar.gif\'"/>',
+          icon: '<img src="/tg_wallet_dollar_anim.webp" alt="$" class="w-10 h-10 object-contain mx-auto" onerror="this.onerror=null;this.src=\'/tg_wallet_dollar.gif\'"/>',
           confirmText: '⚡ قالدۇق قاچىلاش (ShamCash)',
           confirmAction: function() {
             openDepositModal();
@@ -1575,7 +1564,7 @@
       openProcessingModal();
 
       try {
-        const targetPlayerId = parsed.uid;
+        const targetPlayerId = parsed.id;
 
         var res = await fetch('/api/apps/order', {
           method: 'POST',
@@ -2282,7 +2271,7 @@ function updateTelegramHeader() {
   } else {
     container.innerHTML = 
       '<button onclick="openTelegramModal()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 text-xs font-black transition shadow-md shadow-amber-500/25 active:scale-95 whitespace-nowrap cursor-pointer shrink-0" title="ھېساباتقا كىرىش">' +
-        '<img src="autocash_logo.jpg" alt="AUTO CASH" class="w-3.5 h-3.5 rounded-full object-cover shrink-0 border border-slate-900" onerror="this.src=\'https://auto-cash-sotre.vercel.app/brand_logo.png\'"/>' +
+        '<img src="/autocash_logo.jpg" alt="AUTO CASH" class="w-3.5 h-3.5 rounded-full object-cover shrink-0 border border-slate-900" onerror="this.src=\'https://auto-cash-sotre.vercel.app/brand_logo.png\'"/>' +
         '<span>كىرىش</span>' +
       '</button>';
   }
@@ -2424,7 +2413,7 @@ function renderTelegramModalContent() {
       '<div class="flex items-center gap-2.5 border-b border-slate-800 pb-3 relative z-10">' +
         '<div class="relative w-11 h-11 rounded-2xl p-0.5 bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-500 shadow-xl shadow-amber-500/30 shrink-0 flex items-center justify-center">' +
           '<div class="w-full h-full rounded-[14px] overflow-hidden bg-slate-950 flex items-center justify-center border border-amber-300/60 shadow-inner">' +
-            '<img src="autocash_logo.jpg" alt="AUTO CASH" class="w-full h-full object-cover" onerror="this.src=\'https://auto-cash-sotre.vercel.app/brand_logo.png\'"/>' +
+            '<img src="/autocash_logo.jpg" alt="AUTO CASH" class="w-full h-full object-cover" onerror="this.src=\'https://auto-cash-sotre.vercel.app/brand_logo.png\'"/>' +
           '</div>' +
           '<span class="absolute -bottom-1 -left-1 w-3 h-3 rounded-full bg-emerald-500 border-2 border-slate-950 flex items-center justify-center shadow" title="AUTO CASH تورى ئوچۇق">' +
             '<span class="w-1 h-1 rounded-full bg-white animate-ping"></span>' +
@@ -2442,15 +2431,15 @@ function renderTelegramModalContent() {
       // 3 Authentication Mode Switcher Tabs
       '<div class="grid grid-cols-3 gap-1.5 bg-[#090f1d] p-1.5 rounded-2xl border border-slate-800 text-[10.5px] sm:text-xs shadow-lg font-bold select-none">' +
         '<button type="button" onclick="switchAuthTab(\'onetap\')" class="py-2 px-1 rounded-xl transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer ' + (authTab === 'onetap' ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white font-black shadow-md border border-sky-400/50 scale-[1.02]' : 'text-slate-400 hover:text-white hover:bg-slate-800/80') + '">' +
-          '<div id="tab1AnimatedPlane" class="flex items-center justify-center w-7 h-7 pointer-events-none drop-shadow"><img src="tg_plane_anim.webp" alt="Telegram" class="w-6 h-6 object-contain drop-shadow" onerror="this.onerror=null;this.src=\'tg_plane.gif\'"/></div>' +
+          '<div id="tab1AnimatedPlane" class="flex items-center justify-center w-7 h-7 pointer-events-none drop-shadow"><img src="/tg_plane_anim.webp" alt="Telegram" class="w-6 h-6 object-contain drop-shadow" onerror="this.onerror=null;this.src=\'tg_plane.gif\'"/></div>' +
           '<span class="text-[10px] sm:text-[11px] leading-tight text-center">1- تىلگىرام ئارقىلىق كىرىش</span>' +
         '</button>' +
         '<button type="button" onclick="switchAuthTab(\'gmail\')" class="py-2 px-1 rounded-xl transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer ' + (authTab === 'gmail' ? 'bg-gradient-to-r from-rose-500 to-red-600 text-white font-black shadow-md border border-rose-400/50 scale-[1.02]' : 'text-slate-400 hover:text-white hover:bg-slate-800/80') + '">' +
-          '<div class="flex items-center justify-center w-7 h-7 pointer-events-none drop-shadow"><img src="tg_gmail_anim.webp" alt="Gmail" class="w-6 h-6 object-contain pointer-events-none drop-shadow" onerror="this.onerror=null;this.src=\'tg_gmail.gif\'"/></div>' +
+          '<div class="flex items-center justify-center w-7 h-7 pointer-events-none drop-shadow"><img src="/tg_gmail_anim.webp" alt="Gmail" class="w-6 h-6 object-contain pointer-events-none drop-shadow" onerror="this.onerror=null;this.src=\'tg_gmail.gif\'"/></div>' +
           '<span class="text-[10px] sm:text-[11px] leading-tight text-center">2- گىمائىل ئارقىلىق كىرىش</span>' +
         '</button>' +
         '<button type="button" onclick="switchAuthTab(\'otp\')" class="py-2 px-1 rounded-xl transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer ' + (authTab === 'otp' ? 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-950 font-black shadow-md border border-amber-300 scale-[1.02]' : 'text-slate-400 hover:text-white hover:bg-slate-800/80') + '">' +
-          '<div id="tab3AnimatedBot" class="flex items-center justify-center w-7 h-7 pointer-events-none drop-shadow"><img src="tg_bot_anim.webp" alt="Bot" class="w-6 h-6 object-contain drop-shadow" onerror="this.onerror=null;this.src=\'tg_bot.gif\'"/></div>' +
+          '<div id="tab3AnimatedBot" class="flex items-center justify-center w-7 h-7 pointer-events-none drop-shadow"><img src="/tg_bot_anim.webp" alt="Bot" class="w-6 h-6 object-contain drop-shadow" onerror="this.onerror=null;this.src=\'tg_bot.gif\'"/></div>' +
           '<span class="text-[10px] sm:text-[11px] leading-tight text-center">3- بوتقا كود ئەۋەتىپ كىرىش</span>' +
         '</button>' +
       '</div>';
