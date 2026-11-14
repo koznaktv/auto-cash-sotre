@@ -143,27 +143,37 @@
         <!-- Ambient decorative glow -->
         <div class="absolute -right-6 -top-6 w-24 h-24 bg-cyan-500/10 rounded-full blur-xl pointer-events-none"></div>
 
-        <!-- Tier 1: Full-Width Game Identity (Zero Truncation!) -->
-        <div class="flex items-center justify-between relative z-10 w-full">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-lg border-2 border-cyan-400/50 flex items-center justify-center shrink-0 bg-slate-950">
-              <img src="https://play-lh.googleusercontent.com/MztmLpB1-_eFbHnqNzzvzl5zjiOH2BEb0D71uBxZYf_4BEmW3QEPWODhRtyqY7Qz4wRLwQ--Rg1RAjOFqtHSs-o=s256" alt="PUBG Mobile: Bang Bang" class="w-full h-full object-cover" onerror="this.src='mlbb_icon.png'"/>
-            </div>
-            <div class="flex-1 text-right min-w-0">
-              <h1 class="text-sm font-black text-white tracking-wide leading-tight whitespace-nowrap overflow-visible">
-                Mobile Legends: Bang Bang
-              </h1>
-              <div class="flex items-center gap-1.5 mt-1">
-                <span class="text-[10px] text-emerald-300 font-bold flex items-center gap-1 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-400/30 whitespace-nowrap">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span>رەسمىي بىۋاسىتە قاچىلاش</span>
-                </span>
-              </div>
+        <!-- Tier 0: Quick App Switcher Header (Dedicated Row: 100% Zero Collision!) -->
+        <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2 relative z-10">
+          <div class="flex items-center gap-1.5 min-w-0">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+            <span class="text-[11px] font-bold text-slate-400 shrink-0">نۆۋەتتىكى ئويۇن:</span>
+            <span class="text-xs font-black text-amber-300 font-mono truncate">PUBG Mobile</span>
+          </div>
+          <button onclick="openAppSwitcherModal()" type="button" class="px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 hover:from-amber-500/30 hover:to-yellow-500/30 border border-amber-400/50 hover:border-amber-300 text-amber-300 text-xs font-black inline-flex items-center gap-1.5 transition active:scale-95 shadow-sm shadow-amber-950/40 cursor-pointer shrink-0">
+            <span>✨</span>
+            <span>باشقا ئەپلەرگە ئۆتۈش</span>
+            <span class="text-[9px] text-amber-400 font-mono">▼</span>
+          </button>
+        </div>
+
+        <!-- Tier 1: Full-Width Game Identity (Uncramped, Beautiful Title & Status Badge) -->
+        <div class="flex items-center gap-2.5 relative z-10 w-full">
+          <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-lg border-2 border-amber-400/60 flex items-center justify-center shrink-0 bg-slate-950 p-0.5">
+            <img src="/images/apps/pubg/icon-192.png" alt="PUBG Mobile" class="w-full h-full object-cover rounded-xl" onerror="this.src='https://play-lh.googleusercontent.com/j1_81w71x9m9mN6L4Ld4b7Z2C4Yj9G_8x_N7'"/>
+          </div>
+          <div class="flex-1 text-right min-w-0">
+            <h1 class="text-sm sm:text-base font-black text-white tracking-wide leading-tight truncate flex items-center gap-1.5">
+              <span>PUBG Mobile</span>
+              <span class="text-[10.5px] text-amber-300 font-normal font-sans">(پابجى كۆچمە نۇسخىسى)</span>
+            </h1>
+            <div class="flex items-center gap-1.5 mt-1">
+              <span class="text-[10px] text-emerald-300 font-bold flex items-center gap-1 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-400/30 whitespace-nowrap">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>رەسمىي بىۋاسىتە قاچىلاش (UC)</span>
+              </span>
             </div>
           </div>
-          <a href="pubg.html" class="px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-300 text-[10px] font-bold inline-flex items-center gap-1 transition shrink-0 shadow-sm">
-            <span>🔫</span><span>PUBG Mobile غا ئۆتۈش</span>
-          </a>
         </div>
 
         <!-- Tier 2: VIP Dollar Wallet Bar (Spacious, Metallic Gold, Zero Collision) -->
@@ -709,6 +719,129 @@
       </div>
     </div>
 
+    <!-- ================= BEAUTIFIED APP SWITCHER MODAL (باشقا ئەپلەرگە ئۆتۈش) ================= -->
+    <div id="appSwitcherModal" onclick="if(event.target===this) closeAppSwitcherModal()" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
+      <div id="appSwitcherCard" class="w-full bg-gradient-to-b from-[#0f172a] via-[#0b1324] to-[#070b14] border-t-2 border-amber-400/80 rounded-t-[34px] p-4 sm:p-5 space-y-3.5 shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[90%] flex flex-col relative overflow-hidden">
+        <!-- Ambient decorative glow -->
+        <div class="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-24 bg-amber-500/15 rounded-full blur-2xl pointer-events-none"></div>
+
+        <button onclick="closeAppSwitcherModal()" class="absolute top-3.5 left-3.5 w-7 h-7 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-xs transition cursor-pointer z-10">✕</button>
+        <div class="w-10 h-1 bg-slate-700 rounded-full mx-auto shrink-0"></div>
+
+        <!-- Header -->
+        <div class="flex items-center gap-2.5 border-b border-slate-800/90 pb-3 shrink-0 relative z-10">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center text-xl shadow-lg shadow-amber-500/30 shrink-0 text-slate-950 font-black">
+            🎮
+          </div>
+          <div class="flex-1 text-right min-w-0">
+            <h3 class="text-sm sm:text-base font-black text-white flex items-center gap-1.5">
+              <span>باشقا ئەپلەر ۋە ئويۇنلار</span>
+              <span class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-bold">AUTO CASH</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">قاچىلىماقچى بولغان ئويۇن ياكى رەقەملىك ئەپنى تاللاڭ</p>
+          </div>
+        </div>
+
+        <!-- App List Grid -->
+        <div class="flex-1 overflow-y-auto no-scrollbar space-y-2.5 pt-1 relative z-10">
+          
+          <!-- App 1: PUBG Mobile: Bang Bang -->
+          <a href="mlbb.html" class="glass-box rounded-2xl p-3 border border-cyan-500/50 bg-gradient-to-r from-blue-950/60 via-slate-900/90 to-[#0e192e] flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block relative overflow-hidden">
+            <span class="absolute top-0 right-0 w-2 h-full bg-cyan-400"></span>
+            <div class="flex items-center gap-2.5 min-w-0 pr-1">
+              <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-cyan-400/50 flex items-center justify-center shrink-0 bg-slate-950">
+                <img src="https://play-lh.googleusercontent.com/MztmLpB1-_eFbHnqNzzvzl5zjiOH2BEb0D71uBxZYf_4BEmW3QEPWODhRtyqY7Qz4wRLwQ--Rg1RAjOFqtHSs-o=s256" alt="Mobile Legends" class="w-full h-full object-cover" onerror="this.src='mlbb_icon.png'"/>
+              </div>
+              <div class="text-right min-w-0">
+                <p class="text-xs sm:text-sm font-black text-white group-hover:text-cyan-300 transition flex items-center gap-1.5">
+                  <span>Mobile Legends: Bang Bang</span>
+                </p>
+                <p class="text-[11px] text-cyan-300/90 font-mono mt-0.5">⚔️ ئالماس ۋە كارتىلار • 3 سېكۇنتتا يېتىدۇ</p>
+                <p class="text-[10px] text-slate-400">گىلوبال • تۈركىيە • فىلىپپىن سەرۋېرلىرى</p>
+              </div>
+            </div>
+            <div class="shrink-0 flex flex-col items-end gap-1">
+              <span class="px-2.5 py-1 rounded-xl bg-cyan-400 text-slate-950 font-black text-[10px] flex items-center gap-1 shadow-sm">
+                <span>نۆۋەتتىكى</span>
+                <span class="font-mono">✓</span>
+              </span>
+            </div>
+          </a>
+
+          <!-- App 2: PUBG Mobile -->
+          <a href="pubg.html" class="glass-box rounded-2xl p-3 border border-amber-500/30 hover:border-amber-400 bg-gradient-to-r from-amber-950/30 via-slate-900/80 to-[#1e1708]/60 flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-amber-400/60 flex items-center justify-center shrink-0 bg-slate-950 p-0.5">
+                <img src="/images/apps/pubg/icon-192.png" alt="PUBG Mobile" class="w-full h-full object-cover rounded-xl" onerror="this.src='https://play-lh.googleusercontent.com/j1_81w71x9m9mN6L4Ld4b7Z2C4Yj9G_8x_N7'"/>
+              </div>
+              <div class="text-right min-w-0">
+                <p class="text-xs sm:text-sm font-black text-white group-hover:text-amber-300 transition flex items-center gap-1.5">
+                  <span>PUBG Mobile (پابجى)</span>
+                </p>
+                <p class="text-[11px] text-amber-300/90 font-mono mt-0.5">🔥 بىۋاسىتە UC • Royale Pass • كودلار</p>
+                <p class="text-[10px] text-slate-400">UID ئارقىلىق 3 سېكۇنتتا بىۋاسىتە كىملىككە كىرىدۇ</p>
+              </div>
+            </div>
+            <div class="shrink-0 flex flex-col items-end gap-1">
+              <span class="px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/40 text-[10.5px] font-black group-hover:bg-amber-400 group-hover:text-slate-950 transition flex items-center gap-1 shadow-sm">
+                <span>كىرىش</span>
+                <span class="font-mono">➔</span>
+              </span>
+            </div>
+          </a>
+
+          <!-- App 3: Honor of Kings (HOK) -->
+          <a href="/apps/honor-of-kings" class="glass-box rounded-2xl p-3 border border-purple-500/30 hover:border-purple-400 bg-gradient-to-r from-purple-950/30 via-slate-900/80 to-[#190e29]/60 flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-purple-400/60 flex items-center justify-center shrink-0 bg-slate-950 p-0.5">
+                <img src="/images/apps/honor-of-kings/icon-512.png" alt="Honor of Kings" class="w-full h-full object-cover rounded-xl" onerror="this.src='https://play-lh.googleusercontent.com/4h_8'"/>
+              </div>
+              <div class="text-right min-w-0">
+                <p class="text-xs sm:text-sm font-black text-white group-hover:text-purple-300 transition flex items-center gap-1.5">
+                  <span>Honor of Kings (HOK)</span>
+                </p>
+                <p class="text-[11px] text-purple-300/90 font-mono mt-0.5">👑 رەسمىي توكېن بازىرى • لاقىم دەلىللەش</p>
+                <p class="text-[10px] text-slate-400">Player ID ئارقىلىق 5 سېكۇنتتا كىرىدۇ</p>
+              </div>
+            </div>
+            <div class="shrink-0 flex flex-col items-end gap-1">
+              <span class="px-2.5 py-1 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-400/40 text-[10.5px] font-black group-hover:bg-purple-500 group-hover:text-slate-950 transition flex items-center gap-1 shadow-sm">
+                <span>كىرىش</span>
+                <span class="font-mono">➔</span>
+              </span>
+            </div>
+          </a>
+
+          <!-- App 4: AUTO CASH Full Store -->
+          <a href="/" class="glass-box rounded-2xl p-3 border border-slate-700 hover:border-slate-500 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950 flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-amber-400/60 flex items-center justify-center shrink-0 bg-slate-950">
+                <img src="autocash_logo.jpg" alt="AUTO CASH STORE" class="w-full h-full object-cover" onerror="this.src='https://auto-cash-sotre.vercel.app/autocash_logo.jpg'"/>
+              </div>
+              <div class="text-right min-w-0">
+                <p class="text-xs sm:text-sm font-black text-white group-hover:text-amber-300 transition flex items-center gap-1.5">
+                  <span>AUTO CASH باش دۇكىنى</span>
+                </p>
+                <p class="text-[11px] text-slate-300 font-mono mt-0.5">🏪 بارلىق مۇلازىمەتلەر ۋە تولۇق سەھىپىلەر</p>
+                <p class="text-[10px] text-slate-400">تور كارتىلىرى، تېلېفون پۇلى ۋە ئويۇنلار</p>
+              </div>
+            </div>
+            <div class="shrink-0 flex flex-col items-end gap-1">
+              <span class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 text-[10.5px] font-black group-hover:bg-slate-700 group-hover:text-white transition flex items-center gap-1 shadow-sm">
+                <span>باش بەت</span>
+                <span class="font-mono">➔</span>
+              </span>
+            </div>
+          </a>
+
+        </div>
+
+        <button onclick="closeAppSwitcherModal()" class="w-full bg-slate-800/80 hover:bg-slate-700 text-white font-bold py-2.5 rounded-xl text-xs transition shrink-0 relative z-10 cursor-pointer">
+          يېپىش
+        </button>
+      </div>
+    </div>
+
   </div>
 
   <!-- ================= JAVASCRIPT APPLICATION LOGIC ================= -->
@@ -720,7 +853,7 @@
         serverTitle: 'بىۋاسىتە UC',
         flag: '🔥',
         packages: [
-          { id: 60, name: '60 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 1.15, isVip: true },
+          { id: 60, name: '60 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 1.07, isVip: true },
           { id: 54, name: '325 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 5.25, isVip: true },
           { id: 62, name: '660 PUBG UC', subtext: '🔥 Royale Pass ئېچىشقا ماس', price: 10.35, isVip: true },
           { id: 55, name: '1800 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 25.50, isVip: true },
@@ -734,7 +867,7 @@
         serverTitle: 'Royale Pass & كارتىلار',
         flag: '👑',
         packages: [
-          { id: 343, name: 'Royale Pass Elite (LV 1-50)', subtext: 'رەسمىي RP پاس كارتىسى', price: 10.35, isVip: true },
+          { id: 343, name: 'Royale Pass Elite (LV 1-50)', subtext: 'رەسمىي RP پاس كارتىسى', price: 5.95, isVip: true },
           { id: 344, name: 'Royale Pass Elite Plus (LV 1-100)', subtext: 'تولۇق RP پاس + قوشۇمچە تەمىنات', price: 25.50, isVip: true },
           { id: 341, name: 'Prime Plus ئايلىق كارتىسى', subtext: 'كۈندىلىك UC + نۇرغۇن ئېتىبارلار', price: 9.80, isVip: true },
           { id: 340, name: 'Prime ئەزالىق كارتىسى', subtext: 'ئەرزان باھالىق كۈندىلىك تەڭگە', price: 1.25, isVip: true },
@@ -745,7 +878,7 @@
         serverTitle: 'UC كود (PIN)',
         flag: '🎟️',
         packages: [
-          { id: 444, name: '60 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', price: 1.15, isVip: false },
+          { id: 444, name: '60 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', price: 1.07, isVip: false },
           { id: 445, name: '660 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', price: 10.30, isVip: true },
           { id: 446, name: '1800 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', price: 25.30, isVip: false },
           { id: 447, name: '3850 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', price: 50.50, isVip: false },
@@ -2513,6 +2646,29 @@ function closeHistoryModal() {
           '</div>'
         ).join('');
       }
+    }
+
+    // ================= APP SWITCHER MODAL =================
+    function openAppSwitcherModal() {
+      const modal = document.getElementById('appSwitcherModal');
+      const card = document.getElementById('appSwitcherCard');
+      if (!modal || !card) return;
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        card.classList.remove('translate-y-full');
+      }, 15);
+    }
+
+    function closeAppSwitcherModal() {
+      const modal = document.getElementById('appSwitcherModal');
+      const card = document.getElementById('appSwitcherCard');
+      if (!modal || !card) return;
+      card.classList.add('translate-y-full');
+      modal.classList.add('opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 300);
     }
 
     // Init

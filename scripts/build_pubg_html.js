@@ -13,13 +13,28 @@ content = content.replace(
   '<title>AUTO CASH • PUBG Mobile رەسمىي قاچىلاش (UC • Royale Pass • ۋاۋچېر)</title>'
 );
 
-// 2. Add switch button in MLBB hero section and adapt Hero Section for PUBG
-const mlbbHeroTarget = `<div class="flex items-center gap-2.5 relative z-10 w-full">
+// 2. Adapt 3-Tier Hero Section for PUBG Mobile (Zero Collision)
+const mlbbTier0And1 = `        <!-- Tier 0: Quick App Switcher Header (Dedicated Row: 100% Zero Collision!) -->
+        <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2 relative z-10">
+          <div class="flex items-center gap-1.5 min-w-0">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+            <span class="text-[11px] font-bold text-slate-400 shrink-0">نۆۋەتتىكى ئويۇن:</span>
+            <span class="text-xs font-black text-cyan-300 font-mono truncate">Mobile Legends</span>
+          </div>
+          <button onclick="openAppSwitcherModal()" type="button" class="px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 hover:from-amber-500/30 hover:to-yellow-500/30 border border-amber-400/50 hover:border-amber-300 text-amber-300 text-xs font-black inline-flex items-center gap-1.5 transition active:scale-95 shadow-sm shadow-amber-950/40 cursor-pointer shrink-0">
+            <span>✨</span>
+            <span>باشقا ئەپلەرگە ئۆتۈش</span>
+            <span class="text-[9px] text-amber-400 font-mono">▼</span>
+          </button>
+        </div>
+
+        <!-- Tier 1: Full-Width Game Identity (Uncramped, Beautiful Title & Status Badge) -->
+        <div class="flex items-center gap-2.5 relative z-10 w-full">
           <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-lg border-2 border-cyan-400/50 flex items-center justify-center shrink-0 bg-slate-950">
             <img src="https://play-lh.googleusercontent.com/MztmLpB1-_eFbHnqNzzvzl5zjiOH2BEb0D71uBxZYf_4BEmW3QEPWODhRtyqY7Qz4wRLwQ--Rg1RAjOFqtHSs-o=s256" alt="Mobile Legends: Bang Bang" class="w-full h-full object-cover" onerror="this.src='mlbb_icon.png'"/>
           </div>
           <div class="flex-1 text-right min-w-0">
-            <h1 class="text-sm font-black text-white tracking-wide leading-tight whitespace-nowrap overflow-visible">
+            <h1 class="text-sm sm:text-base font-black text-white tracking-wide leading-tight truncate">
               Mobile Legends: Bang Bang
             </h1>
             <div class="flex items-center gap-1.5 mt-1">
@@ -31,30 +46,40 @@ const mlbbHeroTarget = `<div class="flex items-center gap-2.5 relative z-10 w-fu
           </div>
         </div>`;
 
-const pubgHeroReplacement = `<div class="flex items-center justify-between relative z-10 w-full">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-lg border-2 border-amber-400/60 flex items-center justify-center shrink-0 bg-slate-950 p-0.5">
-              <img src="/images/apps/pubg/icon-192.png" alt="PUBG Mobile" class="w-full h-full object-cover rounded-xl" onerror="this.src='https://play-lh.googleusercontent.com/j1_81w71x9m9mN6L4Ld4b7Z2C4Yj9G_8x_N7'"/>
-            </div>
-            <div class="flex-1 text-right min-w-0">
-              <h1 class="text-sm font-black text-white tracking-wide leading-tight whitespace-nowrap overflow-visible flex items-center gap-1.5">
-                <span>PUBG Mobile</span>
-                <span class="text-[10.5px] text-amber-300 font-normal font-sans">(پابجى كۆچمە نۇسخىسى)</span>
-              </h1>
-              <div class="flex items-center gap-1.5 mt-1">
-                <span class="text-[10px] text-emerald-300 font-bold flex items-center gap-1 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-400/30 whitespace-nowrap">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span>رەسمىي بىۋاسىتە قاچىلاش (UC)</span>
-                </span>
-              </div>
+const pubgTier0And1 = `        <!-- Tier 0: Quick App Switcher Header (Dedicated Row: 100% Zero Collision!) -->
+        <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2 relative z-10">
+          <div class="flex items-center gap-1.5 min-w-0">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+            <span class="text-[11px] font-bold text-slate-400 shrink-0">نۆۋەتتىكى ئويۇن:</span>
+            <span class="text-xs font-black text-amber-300 font-mono truncate">PUBG Mobile</span>
+          </div>
+          <button onclick="openAppSwitcherModal()" type="button" class="px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 hover:from-amber-500/30 hover:to-yellow-500/30 border border-amber-400/50 hover:border-amber-300 text-amber-300 text-xs font-black inline-flex items-center gap-1.5 transition active:scale-95 shadow-sm shadow-amber-950/40 cursor-pointer shrink-0">
+            <span>✨</span>
+            <span>باشقا ئەپلەرگە ئۆتۈش</span>
+            <span class="text-[9px] text-amber-400 font-mono">▼</span>
+          </button>
+        </div>
+
+        <!-- Tier 1: Full-Width Game Identity (Uncramped, Beautiful Title & Status Badge) -->
+        <div class="flex items-center gap-2.5 relative z-10 w-full">
+          <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-lg border-2 border-amber-400/60 flex items-center justify-center shrink-0 bg-slate-950 p-0.5">
+            <img src="/images/apps/pubg/icon-192.png" alt="PUBG Mobile" class="w-full h-full object-cover rounded-xl" onerror="this.src='https://play-lh.googleusercontent.com/j1_81w71x9m9mN6L4Ld4b7Z2C4Yj9G_8x_N7'"/>
+          </div>
+          <div class="flex-1 text-right min-w-0">
+            <h1 class="text-sm sm:text-base font-black text-white tracking-wide leading-tight truncate flex items-center gap-1.5">
+              <span>PUBG Mobile</span>
+              <span class="text-[10.5px] text-amber-300 font-normal font-sans">(پابجى كۆچمە نۇسخىسى)</span>
+            </h1>
+            <div class="flex items-center gap-1.5 mt-1">
+              <span class="text-[10px] text-emerald-300 font-bold flex items-center gap-1 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-400/30 whitespace-nowrap">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>رەسمىي بىۋاسىتە قاچىلاش (UC)</span>
+              </span>
             </div>
           </div>
-          <a href="mlbb.html" class="px-2.5 py-1 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-cyan-400/40 text-cyan-300 text-[10px] font-bold inline-flex items-center gap-1 transition shrink-0 shadow-sm">
-            <span>🎮</span><span>MLBB غا ئۆتۈش</span>
-          </a>
         </div>`;
 
-content = content.replace(mlbbHeroTarget, pubgHeroReplacement);
+content = content.replace(mlbbTier0And1, pubgTier0And1);
 
 // 3. Step 1: Replace ID & Zone input with Single PUBG UID (Player ID)
 const mlbbStep1Old = `      <!-- ================= 1-قەدەم (STEP 1): ئالدى بىلەن ID كىرگۈزۈش ۋە سېرۋېر دەلىللەش ================= -->
@@ -295,8 +320,100 @@ content = content.replace('خاتا سېرۋېرغا پۇل سېلىۋېلىشت
 content = content.replace("MLBB ئالماس", "PUBG UC");
 content = content.replace("Mobile Legends", "PUBG Mobile");
 
-// 8. Update JavaScript Logic
-// Find where CATALOGS is declared and replace with PUBG catalogs
+// 8. Update App Switcher Modal active item (Mark PUBG as active, MLBB as switchable)
+const oldModalApp1 = `          <!-- App 1: Mobile Legends: Bang Bang -->
+          <a href="mlbb.html" class="glass-box rounded-2xl p-3 border border-cyan-500/50 bg-gradient-to-r from-blue-950/60 via-slate-900/90 to-[#0e192e] flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block relative overflow-hidden">
+            <span class="absolute top-0 right-0 w-2 h-full bg-cyan-400"></span>
+            <div class="flex items-center gap-2.5 min-w-0 pr-1">
+              <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-cyan-400/50 flex items-center justify-center shrink-0 bg-slate-950">
+                <img src="https://play-lh.googleusercontent.com/MztmLpB1-_eFbHnqNzzvzl5zjiOH2BEb0D71uBxZYf_4BEmW3QEPWODhRtyqY7Qz4wRLwQ--Rg1RAjOFqtHSs-o=s256" alt="Mobile Legends" class="w-full h-full object-cover" onerror="this.src='mlbb_icon.png'"/>
+              </div>
+              <div class="text-right min-w-0">
+                <p class="text-xs sm:text-sm font-black text-white group-hover:text-cyan-300 transition flex items-center gap-1.5">
+                  <span>Mobile Legends: Bang Bang</span>
+                </p>
+                <p class="text-[11px] text-cyan-300/90 font-mono mt-0.5">⚔️ ئالماس ۋە كارتىلار • 3 سېكۇنتتا يېتىدۇ</p>
+                <p class="text-[10px] text-slate-400">گىلوبال • تۈركىيە • فىلىپپىن سەرۋېرلىرى</p>
+              </div>
+            </div>
+            <div class="shrink-0 flex flex-col items-end gap-1">
+              <span class="px-2.5 py-1 rounded-xl bg-cyan-400 text-slate-950 font-black text-[10px] flex items-center gap-1 shadow-sm">
+                <span>نۆۋەتتىكى</span>
+                <span class="font-mono">✓</span>
+              </span>
+            </div>
+          </a>
+
+          <!-- App 2: PUBG Mobile -->
+          <a href="pubg.html" class="glass-box rounded-2xl p-3 border border-amber-500/30 hover:border-amber-400 bg-gradient-to-r from-amber-950/30 via-slate-900/80 to-[#1e1708]/60 flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-amber-400/60 flex items-center justify-center shrink-0 bg-slate-950 p-0.5">
+                <img src="/images/apps/pubg/icon-192.png" alt="PUBG Mobile" class="w-full h-full object-cover rounded-xl" onerror="this.src='https://play-lh.googleusercontent.com/j1_81w71x9m9mN6L4Ld4b7Z2C4Yj9G_8x_N7'"/>
+              </div>
+              <div class="text-right min-w-0">
+                <p class="text-xs sm:text-sm font-black text-white group-hover:text-amber-300 transition flex items-center gap-1.5">
+                  <span>PUBG Mobile (پابجى)</span>
+                </p>
+                <p class="text-[11px] text-amber-300/90 font-mono mt-0.5">🔥 بىۋاسىتە UC • Royale Pass • كودلار</p>
+                <p class="text-[10px] text-slate-400">UID ئارقىلىق 3 سېكۇنتتا بىۋاسىتە كىملىككە كىرىدۇ</p>
+              </div>
+            </div>
+            <div class="shrink-0 flex flex-col items-end gap-1">
+              <span class="px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/40 text-[10.5px] font-black group-hover:bg-amber-400 group-hover:text-slate-950 transition flex items-center gap-1 shadow-sm">
+                <span>كىرىش</span>
+                <span class="font-mono">➔</span>
+              </span>
+            </div>
+          </a>`;
+
+const pubgModalApp1 = `          <!-- App 1: Mobile Legends: Bang Bang -->
+          <a href="mlbb.html" class="glass-box rounded-2xl p-3 border border-cyan-500/30 hover:border-cyan-400 bg-gradient-to-r from-blue-950/40 via-slate-900/80 to-[#0e192e] flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-cyan-400/50 flex items-center justify-center shrink-0 bg-slate-950">
+                <img src="https://play-lh.googleusercontent.com/MztmLpB1-_eFbHnqNzzvzl5zjiOH2BEb0D71uBxZYf_4BEmW3QEPWODhRtyqY7Qz4wRLwQ--Rg1RAjOFqtHSs-o=s256" alt="Mobile Legends" class="w-full h-full object-cover" onerror="this.src='mlbb_icon.png'"/>
+              </div>
+              <div class="text-right min-w-0">
+                <p class="text-xs sm:text-sm font-black text-white group-hover:text-cyan-300 transition flex items-center gap-1.5">
+                  <span>Mobile Legends: Bang Bang</span>
+                </p>
+                <p class="text-[11px] text-cyan-300/90 font-mono mt-0.5">⚔️ ئالماس ۋە كارتىلار • 3 سېكۇنتتا يېتىدۇ</p>
+                <p class="text-[10px] text-slate-400">گىلوبال • تۈركىيە • فىلىپپىن سەرۋېرلىرى</p>
+              </div>
+            </div>
+            <div class="shrink-0 flex flex-col items-end gap-1">
+              <span class="px-2.5 py-1 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 text-[10.5px] font-black group-hover:bg-cyan-500 group-hover:text-slate-950 transition flex items-center gap-1 shadow-sm">
+                <span>كىرىش</span>
+                <span class="font-mono">➔</span>
+              </span>
+            </div>
+          </a>
+
+          <!-- App 2: PUBG Mobile -->
+          <a href="pubg.html" class="glass-box rounded-2xl p-3 border border-amber-500/50 bg-gradient-to-r from-amber-950/60 via-slate-900/90 to-[#1e1708]/80 flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block relative overflow-hidden">
+            <span class="absolute top-0 right-0 w-2 h-full bg-amber-400"></span>
+            <div class="flex items-center gap-2.5 min-w-0 pr-1">
+              <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-amber-400/60 flex items-center justify-center shrink-0 bg-slate-950 p-0.5">
+                <img src="/images/apps/pubg/icon-192.png" alt="PUBG Mobile" class="w-full h-full object-cover rounded-xl" onerror="this.src='https://play-lh.googleusercontent.com/j1_81w71x9m9mN6L4Ld4b7Z2C4Yj9G_8x_N7'"/>
+              </div>
+              <div class="text-right min-w-0">
+                <p class="text-xs sm:text-sm font-black text-white group-hover:text-amber-300 transition flex items-center gap-1.5">
+                  <span>PUBG Mobile (پابجى)</span>
+                </p>
+                <p class="text-[11px] text-amber-300/90 font-mono mt-0.5">🔥 بىۋاسىتە UC • Royale Pass • كودلار</p>
+                <p class="text-[10px] text-slate-400">UID ئارقىلىق 3 سېكۇنتتا بىۋاسىتە كىملىككە كىرىدۇ</p>
+              </div>
+            </div>
+            <div class="shrink-0 flex flex-col items-end gap-1">
+              <span class="px-2.5 py-1 rounded-xl bg-amber-400 text-slate-950 font-black text-[10px] flex items-center gap-1 shadow-sm">
+                <span>نۆۋەتتىكى</span>
+                <span class="font-mono">✓</span>
+              </span>
+            </div>
+          </a>`;
+
+content = content.replace(oldModalApp1, pubgModalApp1);
+
+// 9. Update JavaScript Logic: Replace CATALOGS
 const oldCatalogsLogic = `    // MaxStore Live Catalogs with Guaranteed Dynamic Profit Margins
     let CATALOGS = {
       global: {
@@ -364,7 +481,7 @@ const pubgCatalogsReplacement = `    // MaxStore Live Catalogs for PUBG Mobile (
         serverTitle: 'بىۋاسىتە UC',
         flag: '🔥',
         packages: [
-          { id: 60, name: '60 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 1.15, isVip: true },
+          { id: 60, name: '60 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 1.07, isVip: true },
           { id: 54, name: '325 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 5.25, isVip: true },
           { id: 62, name: '660 PUBG UC', subtext: '🔥 Royale Pass ئېچىشقا ماس', price: 10.35, isVip: true },
           { id: 55, name: '1800 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 25.50, isVip: true },
@@ -378,7 +495,7 @@ const pubgCatalogsReplacement = `    // MaxStore Live Catalogs for PUBG Mobile (
         serverTitle: 'Royale Pass & كارتىلار',
         flag: '👑',
         packages: [
-          { id: 343, name: 'Royale Pass Elite (LV 1-50)', subtext: 'رەسمىي RP پاس كارتىسى', price: 10.35, isVip: true },
+          { id: 343, name: 'Royale Pass Elite (LV 1-50)', subtext: 'رەسمىي RP پاس كارتىسى', price: 5.95, isVip: true },
           { id: 344, name: 'Royale Pass Elite Plus (LV 1-100)', subtext: 'تولۇق RP پاس + قوشۇمچە تەمىنات', price: 25.50, isVip: true },
           { id: 341, name: 'Prime Plus ئايلىق كارتىسى', subtext: 'كۈندىلىك UC + نۇرغۇن ئېتىبارلار', price: 9.80, isVip: true },
           { id: 340, name: 'Prime ئەزالىق كارتىسى', subtext: 'ئەرزان باھالىق كۈندىلىك تەڭگە', price: 1.25, isVip: true },
@@ -389,7 +506,7 @@ const pubgCatalogsReplacement = `    // MaxStore Live Catalogs for PUBG Mobile (
         serverTitle: 'UC كود (PIN)',
         flag: '🎟️',
         packages: [
-          { id: 444, name: '60 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', price: 1.15, isVip: false },
+          { id: 444, name: '60 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', price: 1.07, isVip: false },
           { id: 445, name: '660 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', price: 10.30, isVip: true },
           { id: 446, name: '1800 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', price: 25.30, isVip: false },
           { id: 447, name: '3850 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', price: 50.50, isVip: false },
@@ -399,7 +516,7 @@ const pubgCatalogsReplacement = `    // MaxStore Live Catalogs for PUBG Mobile (
 
 content = content.replace(oldCatalogsLogic, pubgCatalogsReplacement);
 
-// 9. Update loadDynamicCatalog()
+// 10. Update loadDynamicCatalog()
 const oldLoadDynamicCatalog = `    async function loadDynamicCatalog() {
       try {
         const res = await fetch('/api/apps/catalog?app=mobile-legends');
@@ -488,11 +605,11 @@ const pubgLoadDynamicCatalog = `    async function loadDynamicCatalog() {
 
 content = content.replace(oldLoadDynamicCatalog, pubgLoadDynamicCatalog);
 
-// 10. Update state variables: currentServer defaults to 'direct'
+// 11. Update state variables: currentServer defaults to 'direct'
 content = content.replace("let currentServer = 'global';", "let currentServer = 'direct';");
 content = content.replace("let selectedPkg = CATALOGS.global.packages[0];", "let selectedPkg = CATALOGS.direct.packages[0];");
 
-// 11. Update parseInput: In PUBG, only numeric UID (8-12 digits) is required, no Zone ID!
+// 12. Update parseInput: In PUBG, only numeric UID (8-16 digits) is required, no Zone ID!
 const oldParseInput = `    function parseInput(val) {
       if (!val) return null;
       let clean = val.replace(/\\s+/g, ' ').trim();
@@ -518,7 +635,7 @@ const pubgParseInput = `    function parseInput(val) {
 
 content = content.replace(oldParseInput, pubgParseInput);
 
-// 12. Update executeSearch: call check-player with game: 'pubg'
+// 13. Update executeSearch: call check-player with game: 'pubg-mobile'
 const oldExecuteSearch = `    async function executeSearch() {
       clearErrorState();
       const val = document.getElementById('mlbbInput').value.trim();
@@ -670,7 +787,7 @@ const pubgExecuteSearch = `    async function executeSearch() {
 
 content = content.replace(oldExecuteSearch, pubgExecuteSearch);
 
-// 13. Update switchServer for PUBG tabs ['direct', 'pass', 'voucher']
+// 14. Update switchServer for PUBG tabs ['direct', 'pass', 'voucher']
 const oldSwitchServer = `    function switchServer(srv) {
       if (isVerified && detectedServer && srv !== detectedServer) {
         showAppModal({
@@ -699,7 +816,7 @@ const pubgSwitchServer = `    function switchServer(srv) {
 
 content = content.replace(oldSwitchServer, pubgSwitchServer);
 
-// 14. Update renderPackages tabs logic for ['direct', 'pass', 'voucher']
+// 15. Update renderPackages tabs logic for ['direct', 'pass', 'voucher']
 const oldTabsLoop = `      // Tabs active and locked class
       ['global', 'turkey', 'special'].forEach(s => {
         const btn = document.getElementById('tab' + s.charAt(0).toUpperCase() + s.slice(1));
@@ -742,16 +859,16 @@ const pubgTabsLoop = `      // Category Tabs active class
 
 content = content.replace(oldTabsLoop, pubgTabsLoop);
 
-// 15. Update coin icon in renderPackages: 🪙 for UC, 👑 for Royale Pass, 🎟️ for voucher
+// 16. Update coin icon in renderPackages: 🪙 for UC, 👑 for Royale Pass, 🎟️ for voucher
 content = content.replace(
   "'<span class=\"' + (pkg.isVip ? 'mythic-crown-anim text-sm' : 'mlbb-gem-anim text-sm') + '\">' + (pkg.isVip ? '👑' : '💎') + '</span>' +",
   "'<span class=\"' + (pkg.isVip ? 'mythic-crown-anim text-sm' : 'mlbb-gem-anim text-sm') + '\">' + (currentServer === 'pass' ? '👑' : (currentServer === 'voucher' ? '🎟️' : '🪙')) + '</span>' +"
 );
 
-// 16. Update input references: mlbbInput -> pubgInput
+// 17. Update input references: mlbbInput -> pubgInput
 content = content.replace(/mlbbInput/g, 'pubgInput');
 
-// 17. Update executeTopup: send app_id: 'pubg'
+// 18. Update executeTopup: send app_id: 'pubg'
 const oldExecuteTopupPayload = `        const payload = {
           telegram_user_id: user ? user.id : 0,
           telegram_username: user ? user.username : '',
@@ -784,7 +901,7 @@ const pubgExecuteTopupPayload = `        const payload = {
 
 content = content.replace(oldExecuteTopupPayload, pubgExecuteTopupPayload);
 
-// 18. Update clearPlayerInput
+// 19. Update clearPlayerInput
 const oldClearPlayerInput = `    function clearPlayerInput() {
       const input = document.getElementById('mlbbInput');
       input.value = '';
@@ -834,4 +951,4 @@ content = content.replace(oldClearPlayerInput, pubgClearPlayerInput);
 // Write to pubg.html and pubg-mobile.html
 fs.writeFileSync(pubgHtmlPath, content, 'utf8');
 fs.writeFileSync(pubgMobileHtmlPath, content, 'utf8');
-console.log('Successfully generated public/pubg.html and public/pubg-mobile.html!');
+console.log('Successfully generated public/pubg.html and public/pubg-mobile.html with App Switcher Modal!');
