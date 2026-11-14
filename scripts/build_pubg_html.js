@@ -52,6 +52,7 @@ if (tier0Start !== -1 && tier2Start !== -1) {
             <div class="flex items-center gap-1.5 mt-1">
               <span class="text-[10px] text-emerald-300 font-bold flex items-center gap-1 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-400/30 whitespace-nowrap">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="w-3.5 h-3.5 flex items-center justify-center shrink-0"><img src="tg_pubg_uc.webp" alt="UC" class="w-3.5 h-3.5 object-contain" onerror="this.src='tg_pubg_uc.webp'"/></span>
                 <span>رەسمىي بىۋاسىتە قاچىلاش (UC)</span>
               </span>
             </div>
@@ -101,8 +102,8 @@ if (s1Start !== -1 && s2Start !== -1) {
             <button onclick="clearPlayerInput()" id="clearInputBtn" type="button" class="w-6 h-6 rounded-full bg-slate-800/90 hover:bg-rose-950/90 text-slate-400 hover:text-rose-300 border border-slate-700 hover:border-rose-500/50 text-[11px] font-black flex items-center justify-center transition active:scale-90 shadow-sm cursor-pointer" title="ئۆچۈرۈش">
               ✕
             </button>
-            <button onclick="executeSearch()" id="searchBtn" type="button" class="px-3 py-1.5 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-400 text-slate-950 rounded-xl text-xs font-black transition flex items-center gap-1 active:scale-95 shadow-md shadow-amber-500/25 cursor-pointer">
-              <span id="searchIcon" class="text-xs">🔍</span>
+            <button onclick="executeSearch()" id="searchBtn" type="button" class="px-3 py-1.5 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-400 text-slate-950 rounded-xl text-xs font-black transition flex items-center gap-1.5 active:scale-95 shadow-md shadow-amber-500/25 cursor-pointer">
+              <span id="searchIcon" class="w-4 h-4 flex items-center justify-center shrink-0"><img src="tg_search.webp" alt="🔎" class="w-4 h-4 object-contain drop-shadow" onerror="this.src='tg_search.webp'"/></span>
               <span id="searchBtnText">ئىزدەش</span>
             </button>
           </div>
@@ -244,6 +245,8 @@ if (tabsStart !== -1 && tabsEnd !== -1) {
 // 6. Generic Text Replacements
 content = content.replace(/MLBB ئالماس/g, 'PUBG UC');
 content = content.replace(/Mobile Legends/g, 'PUBG Mobile');
+content = content.replace(/tg_mlbb_diamond\.webp/g, 'tg_pubg_uc.webp');
+content = content.replace(/ئالماس بوغچىسىنى تاللاڭ/g, 'UC بوغچىسىنى تاللاڭ');
 content = content.replace('<!-- ================= 2-قەدەم (STEP 2): ئالماس بوغچىسى تاللاش ================= -->', '<!-- ================= 2-قەدەم (STEP 2): PUBG UC تاللاش ================= -->');
 content = content.replace('<span id="procId" class="text-cyan-300 font-bold">#ML-.....</span>', '<span id="procId" class="text-amber-300 font-bold">#PUBG-.....</span>');
 content = content.replace('<span class="font-sans">سېرۋېر:</span>\n            <span id="procServer" class="font-bold text-amber-300">🌐 گىلوبال</span>', '<span class="font-sans">ئويۇن:</span>\n            <span id="procServer" class="font-bold text-amber-300">PUBG Mobile</span>');
