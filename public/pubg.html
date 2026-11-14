@@ -2252,7 +2252,7 @@ function updateTelegramHeader() {
   } else {
     container.innerHTML = 
       '<button onclick="openTelegramModal()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 text-xs font-black transition shadow-md shadow-amber-500/25 active:scale-95 whitespace-nowrap cursor-pointer shrink-0" title="ھېساباتقا كىرىش">' +
-        '<span class="text-xs">🔐</span>' +
+        '<img src="autocash_logo.jpg" alt="AUTO CASH" class="w-3.5 h-3.5 rounded-full object-cover shrink-0 border border-slate-900" onerror="this.src=\'https://auto-cash-sotre.vercel.app/brand_logo.png\'"/>' +
         '<span>كىرىش</span>' +
       '</button>';
   }
@@ -2353,8 +2353,13 @@ function renderTelegramModalContent() {
   var headerHtml = 
     '<div class="space-y-3">' +
       '<div class="flex items-center gap-2.5 border-b border-slate-800 pb-3 relative z-10">' +
-        '<div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-500 flex items-center justify-center text-slate-950 text-xl font-black shadow-lg shadow-amber-500/30 shrink-0">' +
-          '🔐' +
+        '<div class="relative w-11 h-11 rounded-2xl p-0.5 bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-500 shadow-xl shadow-amber-500/30 shrink-0 flex items-center justify-center">' +
+          '<div class="w-full h-full rounded-[14px] overflow-hidden bg-slate-950 flex items-center justify-center border border-amber-300/60 shadow-inner">' +
+            '<img src="autocash_logo.jpg" alt="AUTO CASH" class="w-full h-full object-cover" onerror="this.src=\'https://auto-cash-sotre.vercel.app/brand_logo.png\'"/>' +
+          '</div>' +
+          '<span class="absolute -bottom-1 -left-1 w-3 h-3 rounded-full bg-emerald-500 border-2 border-slate-950 flex items-center justify-center shadow" title="AUTO CASH تورى ئوچۇق">' +
+            '<span class="w-1 h-1 rounded-full bg-white animate-ping"></span>' +
+          '</span>' +
         '</div>' +
         '<div class="flex-1 min-w-0 text-right">' +
           '<h3 class="text-sm sm:text-base font-black text-white flex items-center gap-1.5">' +
