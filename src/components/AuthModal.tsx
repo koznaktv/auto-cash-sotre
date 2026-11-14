@@ -139,10 +139,48 @@ export default function AuthModal({
     }, 650);
   };
 
-  // Google OAuth / Gmail Fast Auth
+  // Google OAuth / Gmail Fast Auth (Official Google One-Tap + Identity Services)
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     try {
+      if (typeof window !== 'undefined' && (window as any).google?.accounts?.id) {
+        const google = (window as any).google;
+        const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '52186498509-dgp17p4mnjkchps38od50hsm289k0eu8.apps.googleusercontent.com';
+        google.accounts.id.initialize({
+          client_id: clientId,
+          callback: async (response: any) => {
+            if (!response?.credential) return;
+            try {
+              const res = await fetch('/api/auth/google', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mode: 'google_credential', credential: response.credential }),
+              });
+              const data = await res.json();
+              if (data.success && data.user) {
+                storeLocalAuth(data.user);
+                showToast(data.message || 'Google ئارقىلىق 1 چېكىپلا كىردىڭىز!', 'success');
+                if (onSuccess) onSuccess(data.user);
+                onClose();
+              } else {
+                showToast(data.message || 'Google دەلىللەش مەغلۇپ بولدى', 'error');
+              }
+            } catch {
+              showToast('Google كىرىش ئۇلىنىشىدا خاتالىق كۆرۈلدى', 'error');
+            }
+          },
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
+        google.accounts.id.prompt((notification: any) => {
+          if (notification?.isNotDisplayed?.() || notification?.isSkippedMoment?.()) {
+            setAuthView('gmail');
+          }
+        });
+        setGoogleLoading(false);
+        return;
+      }
+
       const supabase = getBrowserSupabase();
       if (supabase) {
         const origin = typeof window !== 'undefined' ? window.location.origin : '';
@@ -157,7 +195,6 @@ export default function AuthModal({
         if (error) throw error;
         return;
       }
-      // If Supabase OAuth is not active, seamlessly switch to native Gmail login
       setAuthView('gmail');
     } catch (err: any) {
       console.warn('Google OAuth not active, switching to Gmail direct login:', err?.message);

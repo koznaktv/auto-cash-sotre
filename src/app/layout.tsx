@@ -65,6 +65,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://telegram.org" />
         <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
         <Script src="https://telegram.org/js/telegram-web-app.js" strategy="afterInteractive" />
+        <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

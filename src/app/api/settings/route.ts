@@ -3,6 +3,8 @@ import { getSystemSettingsAsync } from '@/lib/db';
 import { APP_VERSION_CONFIG } from '@/lib/appVersion';
 import { recordSiteVisit } from '@/lib/telegram';
 
+const DEFAULT_GOOGLE_CLIENT_ID = '52186498509-dgp17p4mnjkchps38od50hsm289k0eu8.apps.googleusercontent.com';
+
 export async function GET() {
   try {
     recordSiteVisit();
@@ -17,7 +19,7 @@ export async function GET() {
         siteLogo: (settings.siteLogo && settings.siteLogo !== '/logo.png') ? settings.siteLogo : '/brand_logo.png?v=2.1.0',
         telegramUsername: settings.telegramUsername || 'autocash_UYGHUR',
         whatsappNumber: settings.whatsappNumber || '+963 984 373 459',
-        googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '',
+        googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || DEFAULT_GOOGLE_CLIENT_ID,
         appDownloadUrl: (settings as any).appDownloadUrl || '/download/autocash.apk',
         appVersion,
         minRequiredVersion,
@@ -38,7 +40,7 @@ export async function GET() {
         siteLogo: '/brand_logo.png?v=2.1.0',
         telegramUsername: 'autocash_UYGHUR',
         whatsappNumber: '+963 984 373 459',
-        googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '',
+        googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || DEFAULT_GOOGLE_CLIENT_ID,
         appDownloadUrl: '/download/autocash.apk',
         appVersion: APP_VERSION_CONFIG.version,
         appVersionConfig: APP_VERSION_CONFIG,

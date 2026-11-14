@@ -2212,19 +2212,7 @@ function initGoogleIdentityServices() {
     setTimeout(initGoogleIdentityServices, 500);
     return;
   }
-  var clientId = window.__GOOGLE_CLIENT_ID__ || '';
-  if (!clientId) {
-    fetch('/api/settings')
-      .then(function(r) { return r.json(); })
-      .then(function(d) {
-        if (d && d.settings && d.settings.googleClientId) {
-          window.__GOOGLE_CLIENT_ID__ = d.settings.googleClientId;
-          initGoogleIdentityServices();
-        }
-      })
-      .catch(function() {});
-    return;
-  }
+  var clientId = window.__GOOGLE_CLIENT_ID__ || '52186498509-dgp17p4mnjkchps38od50hsm289k0eu8.apps.googleusercontent.com';
 
   try {
     google.accounts.id.initialize({
@@ -2532,6 +2520,14 @@ function renderTelegramModalContent() {
             '<span class="font-bold">مەركىزى سىستېما بىلەن 100% بىۋاسىتە ئۇلانغان (مەخپىي نومۇرسىز)</span>' +
           '</div>' +
 
+          // Official Google Cloud Sign-In Button Container
+          '<div id="googleOfficialBtnContainer" class="flex items-center justify-center my-1.5 min-h-[44px]"></div>' +
+          '<div class="relative flex items-center justify-center my-2 text-[10px] text-slate-500 font-bold select-none">' +
+            '<span class="flex-grow border-t border-slate-800"></span>' +
+            '<span class="px-2">ياكى ئېلخەت ئارقىلىق</span>' +
+            '<span class="flex-grow border-t border-slate-800"></span>' +
+          '</div>' +
+
           // Gmail Input Box
           '<div class="space-y-1">' +
             '<label class="text-xs font-bold text-slate-300 block">📧 Gmail ئادرېسىڭىزنى كىرگۈزۈڭ:</label>' +
@@ -2566,7 +2562,19 @@ function renderTelegramModalContent() {
     setTimeout(function() {
       var el = document.getElementById('gmailInput');
       if (el) el.focus();
-    }, 100);
+      var gContainer = document.getElementById('googleOfficialBtnContainer');
+      if (gContainer && typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+        try {
+          google.accounts.id.renderButton(gContainer, {
+            theme: 'filled_blue',
+            size: 'large',
+            text: 'continue_with',
+            shape: 'pill',
+            width: Math.min(gContainer.offsetWidth || 280, 320)
+          });
+        } catch(e) {}
+      }
+    }, 120);
     return;
   }
 
