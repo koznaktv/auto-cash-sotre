@@ -2490,7 +2490,7 @@ function renderTelegramModalContent() {
       // 3 Authentication Mode Switcher Tabs
       '<div class="grid grid-cols-3 gap-1.5 bg-[#090f1d] p-1.5 rounded-2xl border border-slate-800 text-[10.5px] sm:text-xs shadow-lg font-bold select-none">' +
         '<button type="button" onclick="switchAuthTab(\'onetap\')" class="py-2 px-1 rounded-xl transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer ' + (authTab === 'onetap' ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white font-black shadow-md border border-sky-400/50 scale-[1.02]' : 'text-slate-400 hover:text-white hover:bg-slate-800/80') + '">' +
-          '<div class="flex items-center gap-1"><span class="text-xs">✈️</span></div>' +
+          '<div class="flex items-center justify-center w-5 h-5"><img src="tg_custom_plane.webp" alt="Telegram" class="w-5 h-5 object-contain drop-shadow" onerror="this.onerror=null;this.src=\'https://auto-cash-sotre.vercel.app/tg_custom_plane.webp\'"/></div>' +
           '<span class="text-[10px] sm:text-[11px] leading-tight text-center">1- تىلگىرام ئارقىلىق كىرىش</span>' +
         '</button>' +
         '<button type="button" onclick="switchAuthTab(\'gmail\')" class="py-2 px-1 rounded-xl transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer ' + (authTab === 'gmail' ? 'bg-gradient-to-r from-rose-500 to-red-600 text-white font-black shadow-md border border-rose-400/50 scale-[1.02]' : 'text-slate-400 hover:text-white hover:bg-slate-800/80') + '">' +
