@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
 
         // Secondary fallback to RapidAPI Check ID Game
         if (!liveNickname) {
-          const apiKey = process.env.RAPIDAPI_KEY || process.env.HOK_CHECK_API_KEY;
+          const apiKey = process.env.RAPIDAPI_KEY || process.env.HOK_CHECK_API_KEY || 'cb10e41a74msh87d70838b4df0c6p10815fjsn97930a76434f';
           if (apiKey) {
             try {
               const controller = new AbortController();
@@ -195,7 +195,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Attempt live query to public/commercial game check API if API KEY configured
-    const apiKey = process.env.RAPIDAPI_KEY || process.env.HOK_CHECK_API_KEY || process.env.GAME_CHECKER_API_KEY;
+    const apiKey = process.env.RAPIDAPI_KEY || process.env.HOK_CHECK_API_KEY || process.env.GAME_CHECKER_API_KEY || 'cb10e41a74msh87d70838b4df0c6p10815fjsn97930a76434f';
 
     if (apiKey) {
       // 3A. RapidAPI Check ID Game (YagamiCell) - Verified Working Live!
