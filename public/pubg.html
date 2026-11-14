@@ -1015,7 +1015,7 @@
       var cleanIdent = (currentTgUser.username || currentTgUser.id || '').replace(/^@/, '');
       if (!cleanIdent) return;
       try {
-        var res = await fetch('/api/apps/order?identity=' + encodeURIComponent(cleanIdent) + '&app_id=mobile-legends');
+        var res = await fetch('/api/apps/order?identity=' + encodeURIComponent(cleanIdent) + '&app_id=pubg');
         if (res.ok) {
           var data = await res.json();
           if (data && data.ok && Array.isArray(data.orders)) {
