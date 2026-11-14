@@ -183,7 +183,7 @@ if (s2HeaderStart !== -1 && s2LockedNoticeStart !== -1) {
   const pubgStep2Header = `<div class="flex justify-between items-center px-1">
           <label class="text-xs font-black text-white flex items-center gap-2">
             <span class="w-5 h-5 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-600 text-slate-950 flex items-center justify-center text-[11px] font-mono font-black shadow-md shadow-amber-500/40 shrink-0">2</span>
-            <span class="text-sm font-black text-white tracking-wide">UC ياكى كارتىلارنى تاللاڭ</span>
+            <span class="flex items-center gap-1.5"><img src="tg_pubg_uc_coin_anim.webp" alt="UC" class="w-5 h-5 object-contain inline-block drop-shadow" onerror="this.onerror=null;this.src=\\'tg_pubg_uc_coin.gif\\'"/><span class="text-sm font-black text-white tracking-wide">UC ياكى كارتىلارنى تاللاڭ</span></span>
           </label>
         </div>
 
@@ -227,14 +227,17 @@ const tabsEnd = content.indexOf('<div id="packagesContainer"');
 
 if (tabsStart !== -1 && tabsEnd !== -1) {
   const pubgTabs = `<div id="serverTabs" class="grid grid-cols-3 gap-1.5 bg-[#0a101f] p-1.5 rounded-2xl border border-slate-800 text-xs shadow-lg">
-          <button id="tabDirect" onclick="switchServer('direct')" class="py-2 px-1 rounded-xl font-bold transition text-center flex items-center justify-center gap-1 cursor-pointer">
-            <span>🔥</span><span>بىۋاسىتە UC</span>
+          <button id="tabDirect" onclick="switchServer('direct')" class="py-2 px-1 rounded-xl font-bold transition text-center flex items-center justify-center gap-1.5 cursor-pointer">
+            <span class="w-4 h-4 flex items-center justify-center shrink-0"><img src="tg_pubg_uc_coin_anim.webp" alt="UC" class="w-4 h-4 object-contain" onerror="this.onerror=null;this.src=\\'tg_pubg_uc_coin.gif\\'"/></span>
+            <span class="text-[10.5px] sm:text-xs font-bold leading-tight">بىۋاسىتە UC</span>
           </button>
-          <button id="tabPass" onclick="switchServer('pass')" class="py-2 px-1 rounded-xl font-bold transition text-center flex items-center justify-center gap-1 cursor-pointer">
-            <span>👑</span><span>Royale Pass</span>
+          <button id="tabPass" onclick="switchServer('pass')" class="py-2 px-1 rounded-xl font-bold transition text-center flex items-center justify-center gap-1.5 cursor-pointer">
+            <span class="w-4 h-4 flex items-center justify-center shrink-0"><img src="tg_star_badge.webp" alt="Pass" class="w-4 h-4 object-contain pass-glow-anim" onerror="this.src=\\'tg_star_badge.png\\'"/></span>
+            <span class="text-[10.5px] sm:text-xs font-bold leading-tight">Royale Pass</span>
           </button>
-          <button id="tabVoucher" onclick="switchServer('voucher')" class="py-2 px-1 rounded-xl font-bold transition text-center flex items-center justify-center gap-1 cursor-pointer">
-            <span>🎟️</span><span>UC كود (PIN)</span>
+          <button id="tabVoucher" onclick="switchServer('voucher')" class="py-2 px-1 rounded-xl font-bold transition text-center flex items-center justify-center gap-1.5 cursor-pointer">
+            <span class="w-4 h-4 flex items-center justify-center shrink-0"><img src="tg_star_badge.webp" alt="PIN" class="w-4 h-4 object-contain pass-glow-anim" onerror="this.src=\\'tg_star_badge.png\\'"/></span>
+            <span class="text-[10.5px] sm:text-xs font-bold leading-tight">UC كود (PIN)</span>
           </button>
         </div>
 
@@ -403,11 +406,11 @@ const pubgCatalogsReplacement = `    // MaxStore Live Catalogs for PUBG Mobile (
       direct: {
         serverName: 'بىۋاسىتە UC',
         serverTitle: 'بىۋاسىتە UC',
-        flag: '🔥',
+        flag: '<img src="tg_pubg_uc_coin_anim.webp" alt="UC" class="w-4 h-4 object-contain inline-block shrink-0 drop-shadow" onerror="this.onerror=null;this.src=\\\'tg_pubg_uc_coin.gif\\\'"/>',
         packages: [
           { id: 60, name: '60 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 1.15, isVip: true },
           { id: 54, name: '325 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 5.25, isVip: true },
-          { id: 62, name: '660 PUBG UC', subtext: '🔥 Royale Pass ئېچىشقا ماس', price: 10.35, isVip: true },
+          { id: 62, name: '660 PUBG UC', subtext: 'Royale Pass ئېچىشقا ماس', price: 10.35, isVip: true },
           { id: 55, name: '1800 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 25.50, isVip: true },
           { id: 56, name: '3850 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 50.80 },
           { id: 57, name: '8100 PUBG UC', subtext: 'بىۋاسىتە كىملىككە (UID)', price: 99.90 },
@@ -416,8 +419,8 @@ const pubgCatalogsReplacement = `    // MaxStore Live Catalogs for PUBG Mobile (
       },
       pass: {
         serverName: 'Royale Pass & كارتىلار',
-        serverTitle: 'Royale Pass & كارتىلار',
-        flag: '👑',
+        serverTitle: 'Royale Pass',
+        flag: '<img src="tg_star_badge.webp" alt="Pass" class="w-4 h-4 object-contain inline-block shrink-0 drop-shadow pass-glow-anim" onerror="this.src=\\\'tg_star_badge.png\\\'"/>',
         packages: [
           { id: 343, name: 'Royale Pass Elite (LV 1-50)', subtext: 'رەسمىي RP پاس كارتىسى', price: 10.35, isVip: true },
           { id: 344, name: 'Royale Pass Elite Plus (LV 1-100)', subtext: 'تولۇق RP پاس + قوشۇمچە تەمىنات', price: 25.50, isVip: true },
@@ -428,7 +431,7 @@ const pubgCatalogsReplacement = `    // MaxStore Live Catalogs for PUBG Mobile (
       voucher: {
         serverName: 'UC كود (PIN)',
         serverTitle: 'UC كود (PIN)',
-        flag: '🎟️',
+        flag: '<img src="tg_star_badge.webp" alt="PIN" class="w-4 h-4 object-contain inline-block shrink-0 drop-shadow pass-glow-anim" onerror="this.src=\\\'tg_star_badge.png\\\'"/>',
         packages: [
           { id: 444, name: '60 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', price: 1.15, isVip: false },
           { id: 445, name: '660 UC كود (PIN)', subtext: 'رەسمىي ئېلېكترونلۇق ۋاۋچېر', price: 10.30, isVip: true },
@@ -781,10 +784,10 @@ if (renderPkgBodyStart !== -1 && selectPkgStart !== -1) {
 
         if (s === currentServer) {
           btn.className = 'py-2 px-1 rounded-xl font-black transition-all text-center bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-300 flex items-center justify-center gap-1.5 scale-[1.02] cursor-pointer';
-          btn.innerHTML = '<span>' + sFlag + '</span><span>' + sTitle + '</span>';
+          btn.innerHTML = '<span class="w-4 h-4 flex items-center justify-center shrink-0">' + sFlag + '</span><span class="text-[10.5px] sm:text-xs leading-tight">' + sTitle + '</span>';
         } else {
           btn.className = 'py-2 px-1 rounded-xl font-bold transition text-center text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent cursor-pointer flex items-center justify-center gap-1.5';
-          btn.innerHTML = '<span>' + sFlag + '</span><span>' + sTitle + '</span>';
+          btn.innerHTML = '<span class="w-4 h-4 flex items-center justify-center shrink-0">' + sFlag + '</span><span class="text-[10.5px] sm:text-xs leading-tight">' + sTitle + '</span>';
         }
       });
 
@@ -809,9 +812,9 @@ if (renderPkgBodyStart !== -1 && selectPkgStart !== -1) {
         
         let iconHtml;
         if (isPass) {
-          iconHtml = '<img src="tg_mlbb_weekly_pass.webp" alt="Pass" class="w-5 h-5 object-contain shrink-0 pass-glow-anim" onerror="this.src=\\\'tg_pubg_uc_coin_anim.webp\\\'"/>';
+          iconHtml = '<img src="tg_star_badge.webp" alt="Pass" class="w-5 h-5 object-contain shrink-0 pass-glow-anim" onerror="this.src=\\\'tg_star_badge.png\\\'"/>';
         } else if (isVoucher) {
-          iconHtml = '<span class="text-sm shrink-0">🎟️</span>';
+          iconHtml = '<img src="tg_star_badge.webp" alt="PIN" class="w-5 h-5 object-contain shrink-0 pass-glow-anim" onerror="this.src=\\\'tg_star_badge.png\\\'"/>';
         } else {
           iconHtml = '<img src="tg_pubg_uc_coin_anim.webp" alt="UC" class="w-5 h-5 object-contain shrink-0 drop-shadow" onerror="this.onerror=null;this.src=\\\'tg_pubg_uc_coin.gif\\\'"/>';
         }
