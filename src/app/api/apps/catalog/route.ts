@@ -1,4 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import {
+  calculateDynamicSellingPrice,
+  getMaxStoreCatalogCached,
+  saveMaxStoreCatalogCache,
+} from '@/lib/providers/maxstoreProvider';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,30 +28,6 @@ let cachedProducts: any[] | null = null;
 let lastCacheTime = 0;
 const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
-/**
- * Dynamic Profit Margin Calculator
- * Guarantees that selling price is ALWAYS above wholesale cost with guaranteed profit.
- */
-function calculateDynamicSellingPrice(cost: number): number {
-  if (cost <= 0) return 0;
-  let margin = 0;
-  if (cost < 0.35) {
-    margin = Math.max(0.045, cost * 0.18);
-  } else if (cost < 1.00) {
-    margin = Math.max(0.08, cost * 0.14);
-  } else if (cost < 2.50) {
-    margin = Math.max(0.12, cost * 0.09);
-  } else if (cost < 6.00) {
-    margin = Math.max(0.30, cost * 0.08);
-  } else if (cost < 15.00) {
-    margin = Math.max(0.60, cost * 0.065);
-  } else {
-    margin = Math.max(1.00, cost * 0.055);
-  }
-  const sellPrice = cost + margin;
-  return Number(sellPrice.toFixed(2));
-}
-
 async function fetchMaxStoreProducts(): Promise<any[]> {
   const now = Date.now();
   if (cachedProducts && now - lastCacheTime < CACHE_TTL_MS) {
@@ -68,11 +49,18 @@ async function fetchMaxStoreProducts(): Promise<any[]> {
       if (list.length > 0) {
         cachedProducts = list;
         lastCacheTime = now;
+        saveMaxStoreCatalogCache(list);
         return list;
       }
     }
   } catch (err: any) {
     console.warn('[MaxStore Products Fetch Error]:', err?.message);
+  }
+
+  const fallbackDisk = getMaxStoreCatalogCached();
+  if (fallbackDisk && fallbackDisk.length > 0) {
+    cachedProducts = fallbackDisk;
+    return fallbackDisk;
   }
 
   return cachedProducts || [];

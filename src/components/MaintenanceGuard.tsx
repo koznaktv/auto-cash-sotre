@@ -10,6 +10,10 @@ const ALLOWED_ADMIN_EMAILS = new Set([
   'dronemax520@gmail.com',
 ]);
 
+// Main website public maintenance lock. 
+// Set to false: The entire website is 100% open and live for all public visitors.
+const MAINTENANCE_ACTIVE = false;
+
 export default function MaintenanceGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
@@ -117,6 +121,24 @@ export default function MaintenanceGuard({ children }: { children: React.ReactNo
       setIsSubmitting(false);
     }
   };
+
+  // 1. If maintenance mode is deactivated, render website normally for ALL public visitors
+  if (!MAINTENANCE_ACTIVE) {
+    return (
+      <>
+        {isAdmin && (
+          <div
+            dir="rtl"
+            className="fixed top-2 left-1/2 -translate-x-1/2 z-[9999] bg-amber-500/90 hover:bg-amber-500 text-black text-xs font-bold px-4 py-1.5 rounded-full shadow-2xl backdrop-blur-md flex items-center gap-2 border border-amber-300 transition-all select-none"
+          >
+            <span className="inline-block w-2 h-2 rounded-full bg-emerald-700 animate-pulse"></span>
+            <span>👑 باشقۇرغۇچى ھالىتى | توربەت نورمال ئوچۇق</span>
+          </div>
+        )}
+        {children}
+      </>
+    );
+  }
 
   // If on admin routes, allow through without interruption
   if (pathname && (pathname.startsWith('/admin') || pathname.startsWith('/api'))) {

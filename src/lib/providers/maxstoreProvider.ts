@@ -1,10 +1,65 @@
+import fs from 'fs';
+import path from 'path';
+
 /**
- * MAXSTORE1 Wholesale Provider Client
- * Documentation: https://maxstore1.com/api-docs
- * 
- * Headers: api-token: YOUR_API_TOKEN
- * Base URL: https://maxstore1.com
+ * Dynamic Profit Margin Calculator for MaxStore products
+ * Guarantees that selling price is ALWAYS above wholesale cost with guaranteed profit.
  */
+export function calculateDynamicSellingPrice(cost: number): number {
+  if (cost <= 0) return 0;
+  let margin = 0;
+  if (cost < 0.35) {
+    margin = Math.max(0.045, cost * 0.18);
+  } else if (cost < 1.00) {
+    margin = Math.max(0.08, cost * 0.14);
+  } else if (cost < 2.50) {
+    margin = Math.max(0.12, cost * 0.09);
+  } else if (cost < 6.00) {
+    margin = Math.max(0.30, cost * 0.08);
+  } else if (cost < 15.00) {
+    margin = Math.max(0.60, cost * 0.065);
+  } else {
+    margin = Math.max(1.00, cost * 0.055);
+  }
+  const sellPrice = cost + margin;
+  return Number(sellPrice.toFixed(2));
+}
+
+let cachedMaxStoreList: any[] | null = null;
+let lastMaxStoreCacheRead = 0;
+
+export function getMaxStoreCatalogCached(): any[] {
+  const now = Date.now();
+  if (cachedMaxStoreList && cachedMaxStoreList.length > 0 && now - lastMaxStoreCacheRead < 60_000) {
+    return cachedMaxStoreList;
+  }
+  try {
+    const file = path.join(process.cwd(), 'data', 'maxstore_catalog_cache.json');
+    if (fs.existsSync(file)) {
+      const data = JSON.parse(fs.readFileSync(file, 'utf-8'));
+      if (Array.isArray(data)) {
+        cachedMaxStoreList = data;
+        lastMaxStoreCacheRead = now;
+        return data;
+      }
+    }
+  } catch {}
+  return cachedMaxStoreList || [];
+}
+
+export function saveMaxStoreCatalogCache(products: any[]): void {
+  if (!Array.isArray(products) || products.length === 0) return;
+  cachedMaxStoreList = products;
+  lastMaxStoreCacheRead = Date.now();
+  try {
+    const dataDir = path.join(process.cwd(), 'data');
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+    const file = path.join(dataDir, 'maxstore_catalog_cache.json');
+    fs.writeFileSync(file, JSON.stringify(products, null, 2), 'utf-8');
+  } catch (err: any) {
+    console.warn('[saveMaxStoreCatalogCache error]:', err?.message);
+  }
+}
 
 export interface MaxStoreProfile {
   balance: string;

@@ -16,6 +16,11 @@ import {
 import { verifyShamcashTransaction, normalizeTxId, getTsaConfig } from './providers/tsaShamcash';
 import { extractImageBufferFromPdf } from './pdfImageExtractor';
 import { recognizeReceipt } from './receiptOcr';
+import { getServicesList } from './servicesDb';
+import {
+  calculateDynamicSellingPrice,
+  getMaxStoreCatalogCached,
+} from './providers/maxstoreProvider';
 
 /**
  * AUTO CASH & MAX-BAZAR Interactive Telegram Shopping Engine
@@ -1344,6 +1349,180 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
   },
 };
 
+// Wi-Fi service ID mapping for AUTO CASH
+const WIFI_CODE_TO_SERVICE_ID: Record<string, string> = {
+  fursan_kf: 'fursan_kafraya',
+  fursan_kj: 'fursan_kafer_jalis',
+  azez: 'azez_net',
+  mujahid: 'almujahid_net',
+};
+
+function updatePackagePrice(p: ProductPackage, newPrice: number): ProductPackage {
+  if (Math.abs(p.price - newPrice) < 0.001) return p;
+  const priceStr = newPrice < 0.05 ? `$${newPrice.toFixed(3)}` : `$${newPrice.toFixed(2)}`;
+  let newTitle = p.title;
+  if (/—\s*[\$0-9.]+\$?/i.test(newTitle)) {
+    newTitle = newTitle.replace(/—\s*[\$0-9.]+\$?/i, `— ${priceStr}`);
+  } else {
+    newTitle = `${newTitle} — ${priceStr}`;
+  }
+  return {
+    ...p,
+    price: newPrice,
+    title: newTitle,
+  };
+}
+
+/**
+ * Resolves live synchronized price and title for any product package
+ * Single Source of Truth:
+ * - 'autocash' packages -> reads live from servicesDb.ts (updated by Othman Store scanner)
+ * - 'maxbazar' packages -> reads live from MaxStore catalog cache (updated with calculateDynamicSellingPrice)
+ * Guarantees 100% price synchronization between Website and Telegram Bot!
+ */
+export function getLivePackage(
+  p: ProductPackage,
+  provider: 'autocash' | 'maxbazar',
+  menuId?: string
+): ProductPackage {
+  if (!p || !p.code) return p;
+  const code = p.code;
+  const isAutocash = provider === 'autocash' || code.endsWith(':ac');
+  const isMaxbazar = provider === 'maxbazar' || code.endsWith(':mb');
+
+  try {
+    // 1. Wi-Fi Cards
+    if (code.startsWith('wifi:')) {
+      const parts = code.split(':');
+      const netKey = parts[1];
+      const size = (parts[2] || '').toLowerCase();
+      if (isAutocash) {
+        const sId = WIFI_CODE_TO_SERVICE_ID[netKey];
+        if (sId) {
+          const services = getServicesList();
+          const s = services.find((x) => x.id === sId);
+          if (s && s.packages) {
+            const matched = s.packages.find(
+              (x) => x.id.toLowerCase().includes(size) || x.title.toLowerCase().includes(size)
+            );
+            if (matched && matched.price) {
+              return updatePackagePrice(p, Number(matched.price));
+            }
+          }
+        }
+      }
+      return p;
+    }
+
+    // 2. AUTO CASH (Othman Store) Packages
+    if (isAutocash) {
+      const services = getServicesList();
+
+      // A. Check mapped Othman Store Product ID
+      const mappedId = OTHMAN_STORE_PRODUCT_MAP[code];
+
+      // B. Check Syriatel units with quantity
+      const syrMatch = code.match(/syr:(\d+)(?:_(\d+))?:ac/);
+      if (syrMatch) {
+        const qty = syrMatch[2] ? parseFloat(`${syrMatch[1]}.${syrMatch[2]}`) : parseFloat(syrMatch[1]);
+        const s = services.find((x) => x.id === 'othman_syriatel');
+        if (s && s.packages) {
+          const matched = s.packages.find(
+            (x: any) => x.providerQty !== undefined && Math.abs(x.providerQty - qty) < 0.005
+          );
+          if (matched && matched.price) {
+            return updatePackagePrice(p, Number(matched.price));
+          }
+        }
+      }
+
+      // C. Check MTN units with quantity
+      const mtnMatch = code.match(/mtn:(\d+):ac/);
+      if (mtnMatch) {
+        const qty = parseFloat(mtnMatch[1]);
+        const s = services.find((x) => x.id === 'othman_mtn');
+        if (s && s.packages) {
+          const matched = s.packages.find(
+            (x: any) => x.providerQty !== undefined && Math.abs(x.providerQty - qty) < 0.005
+          );
+          if (matched && matched.price) {
+            return updatePackagePrice(p, Number(matched.price));
+          }
+        }
+      }
+
+      // D. Check direct ID in code or mapped ID
+      const directIdMatch = code.match(/:(\d+):ac/);
+      const targetId = mappedId || (directIdMatch ? parseInt(directIdMatch[1], 10) : undefined);
+      if (targetId) {
+        for (const s of services) {
+          if (!s.packages) continue;
+          const matched = s.packages.find((x) => x.providerProductId === targetId);
+          if (matched && matched.price) {
+            return updatePackagePrice(p, Number(matched.price));
+          }
+        }
+      }
+    }
+
+    // 3. MAX-BAZAR (MaxStore) Packages
+    if (isMaxbazar) {
+      const maxstoreCatalog = getMaxStoreCatalogCached();
+      if (maxstoreCatalog && maxstoreCatalog.length > 0) {
+        // A. Check mapped MaxStore Product ID
+        const mappedId = MAXSTORE_PRODUCT_MAP[code];
+
+        // B. Check Syriatel units in MaxStore
+        const syrMatch = code.match(/syr:(\d+)(?:_(\d+))?:mb/);
+        if (syrMatch) {
+          const qty = syrMatch[2] ? parseFloat(`${syrMatch[1]}.${syrMatch[2]}`) : parseFloat(syrMatch[1]);
+          const matched = maxstoreCatalog.find(
+            (x: any) =>
+              x.category_name &&
+              x.category_name.includes('SyriaTel') &&
+              (x.name.includes(`${qty} ليرة`) || x.name.startsWith(`${qty} `))
+          );
+          if (matched && matched.price) {
+            const sellPrice = calculateDynamicSellingPrice(Number(matched.price));
+            return updatePackagePrice(p, sellPrice);
+          }
+        }
+
+        // C. Check MTN units in MaxStore
+        const mtnMatch = code.match(/mtn:(\d+):mb/);
+        if (mtnMatch) {
+          const qty = parseFloat(mtnMatch[1]);
+          const matched = maxstoreCatalog.find(
+            (x: any) =>
+              x.category_name &&
+              x.category_name.includes('MTN') &&
+              (x.name.includes(`${qty} ليرة`) || x.name.startsWith(`${qty} `))
+          );
+          if (matched && matched.price) {
+            const sellPrice = calculateDynamicSellingPrice(Number(matched.price));
+            return updatePackagePrice(p, sellPrice);
+          }
+        }
+
+        // D. Check direct ID in code or mapped ID
+        const directIdMatch = code.match(/:(\d+):mb/);
+        const targetId = mappedId || (directIdMatch ? parseInt(directIdMatch[1], 10) : undefined);
+        if (targetId) {
+          const matched = maxstoreCatalog.find((x: any) => x.id === targetId);
+          if (matched && matched.price) {
+            const sellPrice = calculateDynamicSellingPrice(Number(matched.price));
+            return updatePackagePrice(p, sellPrice);
+          }
+        }
+      }
+    }
+  } catch (err: any) {
+    console.warn('[getLivePackage error]:', err?.message);
+  }
+
+  return p;
+}
+
 function findPackageByCode(code: string, provider: 'maxbazar' | 'autocash'): { title: string; price: number } | null {
   for (const cat in PROVIDER_DATA) {
     const item = PROVIDER_DATA[cat];
@@ -1351,12 +1530,14 @@ function findPackageByCode(code: string, provider: 'maxbazar' | 'autocash'): { t
     const secondary = provider === 'maxbazar' ? item.autocash : item.maxbazar;
     for (const p of primary) {
       if (p.code === code) {
-        return { title: p.title, price: p.price };
+        const live = getLivePackage(p, provider, cat);
+        return { title: live.title, price: live.price };
       }
     }
     for (const p of secondary) {
       if (p.code === code) {
-        return { title: p.title, price: p.price };
+        const live = getLivePackage(p, provider === 'maxbazar' ? 'autocash' : 'maxbazar', cat);
+        return { title: live.title, price: live.price };
       }
     }
   }
@@ -1805,10 +1986,11 @@ export function getMenuContent(
 
 // Helper: Format compact dual-provider button label (Short & Clean)
 function formatDualButtonLabel(
-  p: ProductPackage,
+  rawPkg: ProductPackage,
   provider: 'autocash' | 'maxbazar',
   menuId: string
 ): string {
+  const p = getLivePackage(rawPkg, provider, menuId);
   const icon = provider === 'autocash' ? '⚡️' : '🟢';
   const priceStr = `$${Number(p.price || 0).toFixed(2)}`;
 
@@ -1882,8 +2064,10 @@ function formatDualButtonLabel(
   // 8. Specific Product Package Page
   if (PROVIDER_DATA[menuId]) {
     const item = PROVIDER_DATA[menuId];
+    const liveAutocash = item.autocash.map((p) => getLivePackage(p, 'autocash', menuId));
+    const liveMaxbazar = item.maxbazar.map((p) => getLivePackage(p, 'maxbazar', menuId));
     const isWifi = menuId.startsWith('wifi:');
-    const hasBothProviders = !isWifi && item.autocash.length > 0 && item.maxbazar.length > 0;
+    const hasBothProviders = !isWifi && liveAutocash.length > 0 && liveMaxbazar.length > 0;
 
     let text =
       `${item.name}\n\n` +
@@ -1901,10 +2085,10 @@ function formatDualButtonLabel(
     const inline_keyboard: any[][] = [];
 
     if (hasBothProviders) {
-      const maxLen = Math.max(item.autocash.length, item.maxbazar.length);
+      const maxLen = Math.max(liveAutocash.length, liveMaxbazar.length);
       for (let i = 0; i < maxLen; i++) {
-        const acPkg = item.autocash[i];
-        const mbPkg = item.maxbazar[i];
+        const acPkg = liveAutocash[i];
+        const mbPkg = liveMaxbazar[i];
 
         if (acPkg && mbPkg) {
           const acLabel = formatDualButtonLabel(acPkg, 'autocash', menuId);
@@ -1928,7 +2112,7 @@ function formatDualButtonLabel(
         }
       }
     } else {
-      const pkgs = item.autocash.length > 0 ? item.autocash : item.maxbazar;
+      const pkgs = liveAutocash.length > 0 ? liveAutocash : liveMaxbazar;
       for (const p of pkgs) {
         inline_keyboard.push([
           {
