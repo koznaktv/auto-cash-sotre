@@ -95,6 +95,35 @@ export async function POST(req: NextRequest) {
         } catch (e) {
           console.warn('Live MLBB nick fetch error:', e);
         }
+
+        // Secondary fallback to RapidAPI Check ID Game
+        if (!liveNickname) {
+          const apiKey = process.env.RAPIDAPI_KEY || process.env.HOK_CHECK_API_KEY;
+          if (apiKey) {
+            try {
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 4000);
+              const rRes = await fetch(`https://check-id-game.p.rapidapi.com/api/rapid_api/cek_game_ml/${encodeURIComponent(trimmedId)}/${encodeURIComponent(trimmedZone)}`, {
+                method: 'GET',
+                headers: {
+                  'x-rapidapi-key': apiKey,
+                  'x-rapidapi-host': 'check-id-game.p.rapidapi.com',
+                },
+                signal: controller.signal
+              });
+              clearTimeout(timeoutId);
+              if (rRes.ok) {
+                const rData = await rRes.json();
+                if (rData?.success && rData?.data?.username) {
+                  liveNickname = rData.data.username;
+                  country = rData.data.country || '';
+                }
+              }
+            } catch (e) {
+              console.warn('RapidAPI MLBB check error:', e);
+            }
+          }
+        }
       }
 
       const finalNick = liveNickname || (trimmedId === '1798505443' ? '꧁KROX099X꧂' : '亗 MLBB_WARRIOR 亗');
@@ -169,10 +198,56 @@ export async function POST(req: NextRequest) {
     const apiKey = process.env.RAPIDAPI_KEY || process.env.HOK_CHECK_API_KEY || process.env.GAME_CHECKER_API_KEY;
 
     if (apiKey) {
-      // 3A. RapidAPI Game ID Checker (Supports 'hok' and 'pubgm')
+      // 3A. RapidAPI Check ID Game (YagamiCell) - Verified Working Live!
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4500);
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        const endpoint = isPubg
+          ? `/api/rapid_api/cekpubgmobile/${encodeURIComponent(trimmedId)}`
+          : `/api/rapid-api/hokid/${encodeURIComponent(trimmedId)}`;
+
+        const checkGameRes = await fetch(`https://check-id-game.p.rapidapi.com${endpoint}`, {
+          method: 'GET',
+          headers: {
+            'x-rapidapi-key': apiKey,
+            'x-rapidapi-host': 'check-id-game.p.rapidapi.com',
+            'User-Agent': 'AUTO-CASH-Store/1.0',
+          },
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (checkGameRes.ok) {
+          const cData = await checkGameRes.json();
+          // Valid responses have cData.success: true and cData.data.username
+          if (cData && !cData.error) {
+            const liveName = cData?.data?.username || cData?.data?.userName || cData?.username;
+            if (liveName && liveName !== 'NOT FOUND') {
+              const liveRegion = cData?.data?.region || defaultServer;
+              KNOWN_PLAYERS[trimmedId] = {
+                nickname: liveName,
+                server: liveRegion,
+              };
+              return NextResponse.json({
+                success: true,
+                playerId: trimmedId,
+                game: isPubg ? 'pubg-mobile' : 'honor-of-kings',
+                nickname: liveName,
+                server: liveRegion,
+                verified: true,
+              });
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Check ID Game (YagamiCell) API error:', e);
+      }
+
+      // 3B. Secondary Fallback: RapidAPI Game ID Checker
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
 
         const rapidRes = await fetch('https://game-id-checker-api.p.rapidapi.com/check', {
           method: 'POST',
@@ -193,7 +268,7 @@ export async function POST(req: NextRequest) {
         if (rapidRes.ok) {
           const rData = await rapidRes.json();
           const liveName = rData?.data?.username || rData?.username || rData?.data?.name;
-          if (liveName) {
+          if (liveName && liveName !== 'NOT FOUND') {
             KNOWN_PLAYERS[trimmedId] = {
               nickname: liveName,
               server: rData?.data?.region || defaultServer,
@@ -209,45 +284,7 @@ export async function POST(req: NextRequest) {
           }
         }
       } catch (e) {
-        console.warn('RapidAPI Game ID Checker error:', e);
-      }
-
-      // 3B. RapidAPI Check ID Game (YagamiCell)
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4500);
-
-        const checkGameRes = await fetch(`https://check-id-game.p.rapidapi.com/api/v1/${isPubg ? 'pubg' : 'hok'}?id=${encodeURIComponent(trimmedId)}`, {
-          method: 'GET',
-          headers: {
-            'X-RapidAPI-Key': apiKey,
-            'X-RapidAPI-Host': 'check-id-game.p.rapidapi.com',
-            'User-Agent': 'AUTO-CASH-Store/1.0',
-          },
-          signal: controller.signal,
-        });
-        clearTimeout(timeoutId);
-
-        if (checkGameRes.ok) {
-          const cData = await checkGameRes.json();
-          const liveName = cData?.data?.username || cData?.data?.userName || cData?.username || cData?.name || cData?.data?.name;
-          if (liveName) {
-            KNOWN_PLAYERS[trimmedId] = {
-              nickname: liveName,
-              server: defaultServer,
-            };
-            return NextResponse.json({
-              success: true,
-              playerId: trimmedId,
-              game: isPubg ? 'pubg-mobile' : 'honor-of-kings',
-              nickname: liveName,
-              server: defaultServer,
-              verified: true,
-            });
-          }
-        }
-      } catch (e) {
-        console.warn('Check ID Game API error:', e);
+        console.warn('Secondary Game ID Checker error:', e);
       }
 
       // 3C. Neferbyte Game ID Checker
