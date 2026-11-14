@@ -1337,19 +1337,13 @@
           selectPackage(pkg);
         };
 
-        const isPass = currentServer === 'pass' || Boolean(
-          (pkg.name && (pkg.name.includes('Pass') || pkg.name.includes('پاس') || pkg.name.includes('Prime') || pkg.name.includes('كارت'))) ||
-          (pkg.subtext && (pkg.subtext.includes('Pass') || pkg.subtext.includes('پاس') || pkg.subtext.includes('Prime') || pkg.subtext.includes('كارت')))
-        );
-        const isVoucher = currentServer === 'voucher' || Boolean(pkg.name && pkg.name.includes('كود'));
-        
         let iconHtml;
-        if (isPass) {
-          iconHtml = '<img src="tg_star_badge.webp" alt="Pass" class="w-5 h-5 object-contain shrink-0 pass-glow-anim" onerror="this.src=\'tg_star_badge.png\'"/>';
-        } else if (isVoucher) {
+        if (currentServer === 'direct' || (pkg.name && pkg.name.toUpperCase().includes('UC'))) {
+          iconHtml = '<img src="tg_pubg_uc_coin_anim.webp" alt="UC" class="w-5 h-5 object-contain shrink-0 drop-shadow" onerror="this.onerror=null;this.src=\'tg_pubg_uc_coin.gif\'"/>';
+        } else if (currentServer === 'voucher' || (pkg.name && pkg.name.includes('كود'))) {
           iconHtml = '<img src="tg_star_badge.webp" alt="PIN" class="w-5 h-5 object-contain shrink-0 pass-glow-anim" onerror="this.src=\'tg_star_badge.png\'"/>';
         } else {
-          iconHtml = '<img src="tg_pubg_uc_coin_anim.webp" alt="UC" class="w-5 h-5 object-contain shrink-0 drop-shadow" onerror="this.onerror=null;this.src=\'tg_pubg_uc_coin.gif\'"/>';
+          iconHtml = '<img src="tg_star_badge.webp" alt="Pass" class="w-5 h-5 object-contain shrink-0 pass-glow-anim" onerror="this.src=\'tg_star_badge.png\'"/>';
         }
 
         const showSub = pkg.subtext && pkg.subtext.trim() && pkg.subtext !== 'رەسمىي قاچىلاش' && pkg.subtext !== 'بىۋاسىتە كىملىككە (UID)' && pkg.subtext !== 'بىۋاستە كىملىككە (UID)';

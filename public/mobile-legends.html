@@ -1368,7 +1368,6 @@
         // Clean, compact card with custom telegram diamond & weekly pass badges
         const isPass = Boolean(
           (pkg.name && (pkg.name.includes('كارت') || pkg.name.includes('Pass') || pkg.name.includes('بوغچ') || pkg.name.includes('پاس'))) ||
-          (pkg.subtext && (pkg.subtext.includes('Pass') || pkg.subtext.includes('كارت') || pkg.subtext.includes('پاس'))) ||
           pkg.id === 1896 || pkg.id === 967 || pkg.id === 954
         );
         const iconSrc = isPass ? 'tg_mlbb_weekly_pass.webp' : 'tg_mlbb_diamond_v2.webp';
