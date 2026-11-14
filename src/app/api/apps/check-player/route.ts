@@ -212,7 +212,45 @@ export async function POST(req: NextRequest) {
         console.warn('RapidAPI Game ID Checker error:', e);
       }
 
-      // 3B. Neferbyte Game ID Checker
+      // 3B. RapidAPI Check ID Game (YagamiCell)
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4500);
+
+        const checkGameRes = await fetch(`https://check-id-game.p.rapidapi.com/api/v1/${isPubg ? 'pubg' : 'hok'}?id=${encodeURIComponent(trimmedId)}`, {
+          method: 'GET',
+          headers: {
+            'X-RapidAPI-Key': apiKey,
+            'X-RapidAPI-Host': 'check-id-game.p.rapidapi.com',
+            'User-Agent': 'AUTO-CASH-Store/1.0',
+          },
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (checkGameRes.ok) {
+          const cData = await checkGameRes.json();
+          const liveName = cData?.data?.username || cData?.data?.userName || cData?.username || cData?.name || cData?.data?.name;
+          if (liveName) {
+            KNOWN_PLAYERS[trimmedId] = {
+              nickname: liveName,
+              server: defaultServer,
+            };
+            return NextResponse.json({
+              success: true,
+              playerId: trimmedId,
+              game: isPubg ? 'pubg-mobile' : 'honor-of-kings',
+              nickname: liveName,
+              server: defaultServer,
+              verified: true,
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('Check ID Game API error:', e);
+      }
+
+      // 3C. Neferbyte Game ID Checker
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 4000);
