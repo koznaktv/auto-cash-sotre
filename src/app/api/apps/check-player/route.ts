@@ -18,6 +18,9 @@ const KNOWN_PLAYERS: Record<string, { nickname: string; server: string }> = {
   '1234567890': { nickname: 'Tencent_Tester', server: 'Global (Level Infinite)' },
   '1798505443': { nickname: '亗 SULTAN_MLBB 亗', server: 'تۈركىيە / ياۋروپا (TR & EU)' },
   '894521034': { nickname: '亗 NASRULLA_PRO 亗', server: 'تۈركىيە / ياۋروپا (TR & EU)' },
+  '51282979543': { nickname: '『kisaskar』', server: 'Global (PUBG Mobile)' },
+  '5152648529': { nickname: '亗『LEGEND』亗', server: 'Global (PUBG Mobile)' },
+  '5251441860': { nickname: '๛SOUL・Mortal', server: 'Global (PUBG Mobile)' },
 };
 
 function getMlbbServerInfo(zoneId: string) {
@@ -129,18 +132,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const isPubg = game === 'pubg' || game === 'pubg-mobile';
+    const defaultServer = isPubg ? 'Global (PUBG Mobile)' : 'Global (Level Infinite)';
+
     // If client provided a custom nickname to register/verify
     if (customNickname && typeof customNickname === 'string' && customNickname.trim()) {
       KNOWN_PLAYERS[trimmedId] = {
         nickname: customNickname.trim(),
-        server: 'Global (Level Infinite)',
+        server: defaultServer,
       };
       return NextResponse.json({
         success: true,
         playerId: trimmedId,
         game,
         nickname: customNickname.trim(),
-        server: 'Global (Level Infinite)',
+        server: defaultServer,
         verified: true,
       });
     }
@@ -160,8 +166,6 @@ export async function POST(req: NextRequest) {
 
     // 3. Attempt live query to public/commercial game check API if API KEY configured
     const apiKey = process.env.HOK_CHECK_API_KEY || process.env.GAME_CHECKER_API_KEY;
-    const isPubg = game === 'pubg' || game === 'pubg-mobile';
-    const defaultServer = isPubg ? 'Global (PUBG Mobile)' : 'Global (Level Infinite)';
 
     if (apiKey) {
       try {

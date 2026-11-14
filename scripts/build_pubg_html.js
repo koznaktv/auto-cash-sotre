@@ -144,7 +144,13 @@ if (s1Start !== -1 && s2Start !== -1) {
               </div>
               <div class="leading-tight">
                 <p class="text-xs text-slate-400">ئويۇندىكى نامىڭىز:</p>
-                <p id="cardNickname" class="text-xs font-black text-emerald-300 font-mono mt-0.5">PUBG Player</p>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <p id="cardNickname" class="text-xs font-black text-emerald-300 font-mono">PUBG Player</p>
+                  <button onclick="editPlayerNickname(event)" type="button" class="text-[10px] font-bold text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-1.5 py-0.5 rounded transition active:scale-95 cursor-pointer flex items-center gap-0.5" title="ئويۇندىكى نامنى تەھرىرلەش ياكى دەلىللەش">
+                    <span>✏️</span>
+                    <span>نامنى تەھرىرلەش</span>
+                  </button>
+                </div>
               </div>
             </div>
             <div class="text-left font-mono text-xs bg-slate-950/80 px-2.5 py-1.5 rounded-lg border border-slate-800">
@@ -544,7 +550,65 @@ const execSearchStart = content.indexOf('    // Live Search ID & Zone');
 const renderPkgStart = content.indexOf('    function renderPackages() {');
 
 if (execSearchStart !== -1 && renderPkgStart !== -1) {
-  const pubgFunctionsReplacement = `    // Live Search PUBG UID (No servers needed!)
+  const pubgFunctionsReplacement = `    // ================= PUBG ACCOUNT STORAGE & NICKNAME EDIT =================
+    function savePubgAccount(uid, nickname) {
+      if (!uid || !nickname) return;
+      try {
+        const raw = localStorage.getItem('maxbazar_pubg_saved_accounts');
+        let list = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(list)) list = [];
+        const idx = list.findIndex(a => (a.uid || a.id) === uid);
+        if (idx !== -1) {
+          list[idx].label = nickname;
+          list[idx].nickname = nickname;
+        } else {
+          list.unshift({ uid, label: nickname, nickname });
+        }
+        if (list.length > 15) list = list.slice(0, 15);
+        localStorage.setItem('maxbazar_pubg_saved_accounts', JSON.stringify(list));
+      } catch (_) {}
+    }
+
+    function editPlayerNickname(e) {
+      if (e && e.stopPropagation) e.stopPropagation();
+      if (!parsedId) return;
+      const currentName = playerNick || '';
+      showAppModal({
+        icon: '✏️',
+        title: 'ئويۇندىكى نامنى تەھرىرلەش',
+        message: 'PUBG Mobile ئويۇنىدىكى توغرا نامىڭىزنى كىرگۈزۈڭ ياكى دەلىللەڭ:',
+        showInput: true,
+        inputValue: currentName,
+        inputPlaceholder: 'مەسىلەن: 『kisaskar』 ياكى سىزنىڭ نامىڭىز',
+        confirmText: '💾 ساقلاش ۋە دەلىللەش',
+        cancelText: 'بىكار قىلىش',
+        confirmAction: async function(val) {
+          const newName = (val || '').trim();
+          if (!newName) return;
+          playerNick = newName;
+          const cardNick = document.getElementById('cardNickname');
+          if (cardNick) cardNick.textContent = newName;
+
+          savePubgAccount(parsedId, newName);
+
+          try {
+            await fetch('/api/apps/check-player', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                game: 'pubg-mobile',
+                playerId: parsedId,
+                customNickname: newName
+              })
+            });
+          } catch (_) {}
+
+          showAppToast('✅ ئويۇندىكى نامىڭىز مۇۋەپپەقىيەتلىك دەلىللەندى!');
+        }
+      });
+    }
+
+    // Live Search PUBG UID (No servers needed!)
     async function executeSearch() {
       clearErrorState();
       const val = document.getElementById('pubgInput').value.trim();
@@ -579,23 +643,19 @@ if (execSearchStart !== -1 && renderPkgStart !== -1) {
       try {
         let liveName = null;
 
-        // 1. Try public Isan API for PUBG Mobile nickname
+        // 1. Check local saved accounts first
         try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3500);
-          const apiRes = await fetch('https://api.isan.eu.org/nickname/pubg?id=' + encodeURIComponent(res.id), {
-            signal: controller.signal
-          });
-          clearTimeout(timeoutId);
-          if (apiRes.ok) {
-            const liveData = await apiRes.json();
-            if (liveData && liveData.success && liveData.name) {
-              liveName = liveData.name;
+          const rawSaved = localStorage.getItem('maxbazar_pubg_saved_accounts');
+          if (rawSaved) {
+            const savedList = JSON.parse(rawSaved);
+            const found = savedList.find(a => (a.uid || a.id) === res.id);
+            if (found && (found.label || found.nickname)) {
+              liveName = found.label || found.nickname;
             }
           }
         } catch (_) {}
 
-        // 2. Try internal /api/apps/check-player route
+        // 2. Query /api/apps/check-player route
         if (!liveName) {
           try {
             const checkRes = await fetch('/api/apps/check-player', {
@@ -625,6 +685,8 @@ if (execSearchStart !== -1 && renderPkgStart !== -1) {
         if (cardNick) cardNick.textContent = liveName;
         const cardUser = document.getElementById('cardUserId');
         if (cardUser) cardUser.textContent = res.id;
+
+        savePubgAccount(res.id, liveName);
 
         if (vCard) {
           vCard.classList.remove('hidden');

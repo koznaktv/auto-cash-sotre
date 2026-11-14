@@ -581,6 +581,10 @@
           مەزمۇن
         </p>
 
+        <div id="appAlertInputWrap" class="relative z-10 hidden mt-2">
+          <input id="appAlertInput" type="text" class="w-full bg-[#070b14] border border-cyan-400/50 focus:border-cyan-300 rounded-xl px-3 py-2 text-xs text-cyan-300 font-bold outline-none text-right font-mono transition" placeholder="نامىڭىزنى كىرگۈزۈڭ..." />
+        </div>
+
         <!-- Buttons Container -->
         <div class="relative z-10 flex flex-col gap-2 pt-1">
           <button id="appAlertConfirmBtn" type="button" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 via-cyan-500 to-indigo-600 hover:from-blue-500 hover:to-cyan-400 text-white font-black text-xs transition shadow-lg shadow-cyan-500/25 active:scale-95 cursor-pointer">
@@ -1475,6 +1479,8 @@
       const icon = document.getElementById('appAlertIcon');
       const title = document.getElementById('appAlertTitle');
       const msg = document.getElementById('appAlertMsg');
+      const inputWrap = document.getElementById('appAlertInputWrap');
+      const inputElem = document.getElementById('appAlertInput');
       const confirmBtn = document.getElementById('appAlertConfirmBtn');
       const cancelBtn = document.getElementById('appAlertCancelBtn');
 
@@ -1484,11 +1490,21 @@
       title.textContent = opts.title || 'ئەسكەرتىش';
       msg.textContent = opts.message || '';
 
+      if (opts.showInput && inputWrap && inputElem) {
+        inputWrap.classList.remove('hidden');
+        inputElem.value = opts.inputValue || '';
+        inputElem.placeholder = opts.inputPlaceholder || 'نامىڭىزنى كىرگۈزۈڭ...';
+        setTimeout(() => inputElem.focus(), 100);
+      } else if (inputWrap) {
+        inputWrap.classList.add('hidden');
+      }
+
       confirmBtn.innerHTML = opts.confirmText || 'چۈشەندىم';
       confirmBtn.onclick = function() {
+        const val = inputElem ? inputElem.value : '';
         closeAppModal();
         if (typeof opts.confirmAction === 'function') {
-          setTimeout(opts.confirmAction, 120);
+          setTimeout(() => opts.confirmAction(val), 120);
         }
       };
 
