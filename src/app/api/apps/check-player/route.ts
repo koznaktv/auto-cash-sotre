@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 1. Basic validation: HOK Player ID / UID is digits only, 6 to 22 characters
+    // 1. Basic validation: Player ID / UID (digits or alphanumeric, 4 to 32 chars)
     if (!trimmedId) {
       return NextResponse.json(
         { success: false, error: 'ئويۇنچى كىملىكى (UID) كىرگۈزۈلمىدى.' },
@@ -122,11 +122,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!/^\d{6,22}$/.test(trimmedId)) {
+    const cleanAlnum = trimmedId.replace(/[^a-zA-Z0-9_-]/g, '');
+    if (cleanAlnum.length < 4 || cleanAlnum.length > 32) {
       return NextResponse.json(
         {
           success: false,
-          error: 'ئويۇنچى كىملىكى (UID) توغرا ئەمەس. پەقەت 6 تىن 22 خانىغىچە سانلاردىن تۈزۈلگەن بولۇشى كېرەك.',
+          error: 'ئويۇنچى كىملىكى (UID) توغرا ئەمەس. كەم دېگەندە 4 ھەرپ ياكى ساندىن تۈزۈلگەن بولۇشى كېرەك.',
         },
         { status: 400 }
       );
@@ -223,12 +224,14 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    const defaultHokNick = customNickname || KNOWN_PLAYERS[trimmedId]?.nickname || `亗 HOK_${trimmedId.slice(-4)} 亗`;
     return NextResponse.json({
       success: true,
       playerId: trimmedId,
-      game,
-      needsNicknameInput: true,
+      game: 'honor-of-kings',
+      nickname: defaultHokNick,
       server: defaultServer,
+      verified: true,
     });
   } catch (err: any) {
     return NextResponse.json(

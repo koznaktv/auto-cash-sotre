@@ -434,12 +434,29 @@ const parseInputStart = content.indexOf('    function parseInput(val) {');
 const parseInputEnd = content.indexOf('    // Live Search ID & Zone');
 
 if (parseInputStart !== -1 && parseInputEnd !== -1) {
-  const hokParseInput = `    function parseInput(val) {
+  const hokParseInput = `    function normalizeDigits(str) {
+      return String(str || '')
+        .replace(/[٠-٩]/g, function(d) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); })
+        .replace(/[۰-۹]/g, function(d) { return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d); });
+    }
+
+    function parseInput(val) {
       if (!val) return null;
-      const clean = val.replace(/[^0-9]/g, '').trim();
-      if (clean.length >= 6 && clean.length <= 15) {
-        return { id: clean, zone: '' };
+      var raw = normalizeDigits(val).trim();
+      var clean = raw.replace(/^(uid|id|player\\s*id|playerid)\\s*[:：#]?\\s*/i, '').trim();
+
+      // 1. Numeric UID (4 to 25 digits)
+      var numOnly = clean.replace(/[^0-9]/g, '');
+      if (numOnly.length >= 4 && numOnly.length <= 25) {
+        return { id: numOnly, zone: '', isNumeric: true };
       }
+
+      // 2. Alphanumeric Character ID / Username (3 to 32 chars)
+      var alnumOnly = clean.replace(/[^a-zA-Z0-9_\\-\\.\\s]/g, '').trim();
+      if (alnumOnly.length >= 3 && alnumOnly.length <= 32) {
+        return { id: alnumOnly, zone: '', isNumeric: false };
+      }
+
       return null;
     }
 
@@ -517,8 +534,8 @@ if (execSearchStart !== -1 && renderPkgStart !== -1) {
       const val = (inputElem ? inputElem.value : '').trim();
       const res = parseInput(val);
 
-      if (!res || !res.id || res.id.length < 6) {
-        showErrorState();
+      if (!res || !res.id || res.id.length < 3) {
+        showErrorState('ئويۇن كىملىكى (UID) كىرگۈزۈلمىدى ياكى بەك قىسقا.');
         return;
       }
 
@@ -576,13 +593,15 @@ if (execSearchStart !== -1 && renderPkgStart !== -1) {
         }
 
         if (!liveName) {
-          liveName = 'HOK Player #' + res.id.slice(-4);
+          liveName = res.isNumeric ? ('HOK Player #' + res.id.slice(-4)) : res.id;
         }
 
         isVerified = true;
         isPreviewMode = false;
         playerNick = liveName;
-        selectedPkg = CATALOGS[currentServer].packages[0];
+        if (!selectedPkg && CATALOGS[currentServer]?.packages?.length > 0) {
+          selectedPkg = CATALOGS[currentServer].packages[0];
+        }
 
         const cardNick = document.getElementById('cardNickname');
         if (cardNick) cardNick.textContent = liveName;
@@ -604,7 +623,17 @@ if (execSearchStart !== -1 && renderPkgStart !== -1) {
 
       } catch (err) {
         console.warn('Search query error:', err);
-        showErrorState();
+        isVerified = true;
+        isPreviewMode = false;
+        playerNick = res.isNumeric ? ('HOK Player #' + res.id.slice(-4)) : res.id;
+        const cardNick = document.getElementById('cardNickname');
+        if (cardNick) cardNick.textContent = playerNick;
+        if (vCard) {
+          vCard.classList.remove('hidden');
+          vCard.classList.add('flex');
+        }
+        renderPackages();
+        updateDisplays();
       } finally {
         if (searchBtn) searchBtn.disabled = false;
         if (searchIcon) {
@@ -757,16 +786,45 @@ if (clearPlayerInputStart !== -1 && clearPlayerInputEnd !== -1) {
     function clearErrorState() {
       const errBox = document.getElementById('errorAlert');
       if (errBox) errBox.classList.add('hidden');
+      const input = document.getElementById('hokInput');
+      if (input) input.classList.remove('border-rose-500', 'bg-rose-950/20');
     }
 
-    function showErrorState() {
+    function showErrorState(msg) {
       const errBox = document.getElementById('errorAlert');
-      if (errBox) errBox.classList.remove('hidden');
+      if (errBox) {
+        if (msg) {
+          const textSpan = errBox.querySelector('span.font-bold');
+          if (textSpan) textSpan.textContent = msg;
+        }
+        errBox.classList.remove('hidden');
+        errBox.classList.remove('animate-shake');
+        void errBox.offsetWidth;
+        errBox.classList.add('animate-shake');
+      }
+      const input = document.getElementById('hokInput');
+      if (input) {
+        input.classList.add('border-rose-500', 'bg-rose-950/20');
+        input.focus();
+      }
+      const vCard = document.getElementById('verifiedCard');
+      if (vCard) vCard.classList.add('hidden');
+      isVerified = false;
+      renderPackages();
+      updateDisplays();
     }
 
     function handleInput(val) {
+      clearErrorState();
       const clearBtn = document.getElementById('clearInputBtn');
       if (clearBtn) clearBtn.classList.toggle('hidden', !val || val.length === 0);
+      if (!val || !val.trim()) {
+        isVerified = false;
+        const vCard = document.getElementById('verifiedCard');
+        if (vCard) vCard.classList.add('hidden');
+        renderPackages();
+        updateDisplays();
+      }
     }
 
 `;
