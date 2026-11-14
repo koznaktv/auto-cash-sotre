@@ -89,6 +89,24 @@
       box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
       transform: translateZ(0);
     }
+    @keyframes gemShine {
+      0%, 100% { transform: scale(1) translateY(0); filter: drop-shadow(0 0 3px rgba(6,182,212,0.6)); }
+      50% { transform: scale(1.08) translateY(-1px); filter: drop-shadow(0 0 7px rgba(6,182,212,0.95)); }
+    }
+    .gem-shine-anim {
+      display: inline-block;
+      animation: gemShine 2.5s ease-in-out infinite;
+      transform: translateZ(0);
+    }
+    @keyframes passGlow {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 3px rgba(251,191,36,0.6)); }
+      50% { transform: scale(1.06); filter: drop-shadow(0 0 7px rgba(251,191,36,0.95)); }
+    }
+    .pass-glow-anim {
+      display: inline-block;
+      animation: passGlow 2.5s ease-in-out infinite;
+      transform: translateZ(0);
+    }
 
     @keyframes spinSlow {
       0%, 100% { transform: scale(1) rotate(0deg); }
@@ -1347,14 +1365,21 @@
           selectPackage(pkg);
         };
 
-        // No badges on top of package cards per user request
-        const showSub = pkg.subtext && pkg.subtext.trim() && pkg.subtext !== 'رەسمىي قاچىلاش';
+        // Clean, compact card with custom telegram diamond & weekly pass badges
+        const isPass = Boolean(pkg.name && (pkg.name.includes('كارتا') || pkg.name.includes('Pass') || pkg.name.includes('بوغچىسى') || pkg.name.includes('پاس')));
+        const iconSrc = isPass ? 'tg_mlbb_weekly_pass.webp' : 'tg_mlbb_diamond_v2.webp';
+        const iconAnimCls = isPass ? 'pass-glow-anim' : 'gem-shine-anim';
+        const showSub = pkg.subtext && pkg.subtext.trim() && pkg.subtext !== 'رەسمىي قاچىلاش' && pkg.subtext !== 'بىۋاسىتە كىملىككە (UID)' && pkg.subtext !== 'بىۋاستە كىملىككە (UID)';
+
         div.innerHTML = 
-          '<div class="flex items-center justify-between mt-0.5">' +
-            '<span class="text-xs font-black text-white">' + pkg.name + '</span>' +
-            '<span class="' + (pkg.isVip ? 'mythic-crown-anim text-sm' : 'mlbb-gem-anim text-sm') + '">' + (pkg.isVip ? '👑' : '💎') + '</span>' +
+          '<div class="flex items-center justify-between gap-1.5 mt-0.5">' +
+            '<div class="flex items-center gap-1.5 min-w-0">' +
+              '<img src="' + iconSrc + '" alt="" class="w-5 h-5 object-contain inline-block shrink-0 ' + iconAnimCls + '" onerror="this.src=\'tg_mlbb_diamond_anim.webp\'"/>' +
+              '<span class="text-xs font-black text-white truncate">' + pkg.name + '</span>' +
+            '</div>' +
+            (pkg.isVip ? '<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-bold shrink-0">VIP</span>' : '') +
           '</div>' +
-          (showSub ? '<p class="text-xs text-slate-400 font-mono mt-0.5">' + pkg.subtext + '</p>' : '') +
+          (showSub ? '<p class="text-[10px] text-slate-400 font-mono mt-1 mb-1 leading-tight">' + pkg.subtext + '</p>' : '') +
           '<div class="mt-2 flex items-baseline justify-between border-t border-slate-800/80 pt-1">' +
             '<span class="text-xs text-slate-400">باھاسى:</span>' +
             '<span class="text-xs font-black text-amber-400 font-mono">' + pkg.price.toFixed(2) + ' $</span>' +

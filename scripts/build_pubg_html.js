@@ -801,16 +801,30 @@ if (renderPkgBodyStart !== -1 && selectPkgStart !== -1) {
           selectPackage(pkg);
         };
 
-        const iconSymbol = (currentServer === 'pass' ? '👑' : (currentServer === 'voucher' ? '🎟️' : '🪙'));
-        const showSub = pkg.subtext && pkg.subtext.trim() && pkg.subtext !== 'رەسمىي قاچىلاش';
+        const isPass = currentServer === 'pass' || Boolean(pkg.name && (pkg.name.includes('Pass') || pkg.name.includes('پاس') || pkg.name.includes('Prime')));
+        const isVoucher = currentServer === 'voucher' || Boolean(pkg.name && pkg.name.includes('كود'));
+        
+        let iconHtml;
+        if (isPass) {
+          iconHtml = '<img src="tg_mlbb_weekly_pass.webp" alt="Pass" class="w-5 h-5 object-contain shrink-0 pass-glow-anim" onerror="this.src=\\\'tg_pubg_uc_coin_anim.webp\\\'"/>';
+        } else if (isVoucher) {
+          iconHtml = '<span class="text-sm shrink-0">🎟️</span>';
+        } else {
+          iconHtml = '<img src="tg_pubg_uc_coin_anim.webp" alt="UC" class="w-5 h-5 object-contain shrink-0 drop-shadow" onerror="this.onerror=null;this.src=\\\'tg_pubg_uc_coin.gif\\\'"/>';
+        }
+
+        const showSub = pkg.subtext && pkg.subtext.trim() && pkg.subtext !== 'رەسمىي قاچىلاش' && pkg.subtext !== 'بىۋاسىتە كىملىككە (UID)' && pkg.subtext !== 'بىۋاستە كىملىككە (UID)';
 
         div.innerHTML = 
-          '<div class="flex items-center justify-between mt-0.5">' +
-            '<span class="text-xs font-black text-white">' + pkg.name + '</span>' +
-            '<span class="' + (pkg.isVip ? 'mythic-crown-anim text-sm' : 'text-sm') + '">' + iconSymbol + '</span>' +
+          '<div class="flex items-center justify-between gap-1.5 mt-0.5">' +
+            '<div class="flex items-center gap-1.5 min-w-0">' +
+              iconHtml +
+              '<span class="text-xs font-black text-white font-mono leading-none truncate">' + pkg.name + '</span>' +
+            '</div>' +
+            (pkg.isVip ? '<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-bold shrink-0">VIP</span>' : '') +
           '</div>' +
-          (showSub ? '<div class="text-[10px] text-slate-400 mt-1 mb-2 leading-tight">' + pkg.subtext + '</div>' : '') +
-          '<div class="flex items-center justify-between pt-1 border-t border-slate-800/80' + (showSub ? '' : ' mt-2') + '">' +
+          (showSub ? '<div class="text-[10px] text-slate-400 mt-1 mb-1 leading-tight">' + pkg.subtext + '</div>' : '') +
+          '<div class="flex items-center justify-between pt-1 border-t border-slate-800/80 mt-2">' +
             '<span class="text-[10px] text-slate-400 font-bold">باھاسى:</span>' +
             '<span class="text-xs font-black font-mono text-amber-300">$ ' + pkg.price.toFixed(2) + '</span>' +
           '</div>';
