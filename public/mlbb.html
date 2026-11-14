@@ -108,6 +108,8 @@
     }
   </style>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+  <script src="tg_emoji_plane.js"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 antialiased p-2 sm:p-4 min-h-screen flex items-center justify-center">
 
@@ -2412,9 +2414,35 @@ function showOtpAlert(msg, type) {
   }
 }
 
+function initTab1LottieAnim(tries) {
+  tries = tries || 0;
+  var c = document.getElementById('tab1AnimatedPlane');
+  if (!c) return;
+  if (typeof lottie !== 'undefined' && window.__TG_EMOJI_PLANE__) {
+    try {
+      c.innerHTML = '';
+      if (window.__planeAnim) {
+        try { window.__planeAnim.destroy(); } catch(_) {}
+      }
+      window.__planeAnim = lottie.loadAnimation({
+        container: c,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        animationData: window.__TG_EMOJI_PLANE__
+      });
+    } catch(e) {
+      console.warn('Lottie render err:', e);
+    }
+  } else if (tries < 15) {
+    setTimeout(function() { initTab1LottieAnim(tries + 1); }, 120);
+  }
+}
+
 function renderTelegramModalContent() {
   var content = document.getElementById('telegramModalContent');
   if (!content) return;
+  setTimeout(function() { initTab1LottieAnim(0); }, 30);
 
   // 1. LOGGED IN STATE
   if (currentTgUser) {
@@ -2490,15 +2518,15 @@ function renderTelegramModalContent() {
       // 3 Authentication Mode Switcher Tabs
       '<div class="grid grid-cols-3 gap-1.5 bg-[#090f1d] p-1.5 rounded-2xl border border-slate-800 text-[10.5px] sm:text-xs shadow-lg font-bold select-none">' +
         '<button type="button" onclick="switchAuthTab(\'onetap\')" class="py-2 px-1 rounded-xl transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer ' + (authTab === 'onetap' ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white font-black shadow-md border border-sky-400/50 scale-[1.02]' : 'text-slate-400 hover:text-white hover:bg-slate-800/80') + '">' +
-          '<div class="flex items-center justify-center w-5 h-5"><img src="tg_custom_plane.webp" alt="Telegram" class="w-5 h-5 object-contain drop-shadow" onerror="this.onerror=null;this.src=\'https://auto-cash-sotre.vercel.app/tg_custom_plane.webp\'"/></div>' +
+          '<div id="tab1AnimatedPlane" class="flex items-center justify-center w-7 h-7 pointer-events-none drop-shadow"><img src="tg_custom_plane.webp" alt="Telegram" class="w-6 h-6 object-contain drop-shadow" onerror="this.onerror=null;this.src=\'https://auto-cash-sotre.vercel.app/tg_custom_plane.webp\'"/></div>' +
           '<span class="text-[10px] sm:text-[11px] leading-tight text-center">1- تىلگىرام ئارقىلىق كىرىش</span>' +
         '</button>' +
         '<button type="button" onclick="switchAuthTab(\'gmail\')" class="py-2 px-1 rounded-xl transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer ' + (authTab === 'gmail' ? 'bg-gradient-to-r from-rose-500 to-red-600 text-white font-black shadow-md border border-rose-400/50 scale-[1.02]' : 'text-slate-400 hover:text-white hover:bg-slate-800/80') + '">' +
-          '<div class="flex items-center gap-1"><svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg></div>' +
+          '<div class="flex items-center justify-center w-7 h-7"><svg class="w-5 h-5 shrink-0 drop-shadow" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg></div>' +
           '<span class="text-[10px] sm:text-[11px] leading-tight text-center">2- گىمائىل ئارقىلىق كىرىش</span>' +
         '</button>' +
         '<button type="button" onclick="switchAuthTab(\'otp\')" class="py-2 px-1 rounded-xl transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer ' + (authTab === 'otp' ? 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-950 font-black shadow-md border border-amber-300 scale-[1.02]' : 'text-slate-400 hover:text-white hover:bg-slate-800/80') + '">' +
-          '<div class="flex items-center gap-1"><span class="text-xs">📩</span></div>' +
+          '<div class="flex items-center justify-center w-7 h-7"><svg class="w-5 h-5 ' + (authTab === 'otp' ? 'text-slate-950' : 'text-amber-400') + ' drop-shadow shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>' +
           '<span class="text-[10px] sm:text-[11px] leading-tight text-center">3- بوتقا كود ئەۋەتىپ كىرىش</span>' +
         '</button>' +
       '</div>';
