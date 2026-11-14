@@ -802,14 +802,15 @@ if (renderPkgBodyStart !== -1 && selectPkgStart !== -1) {
         };
 
         const iconSymbol = (currentServer === 'pass' ? '👑' : (currentServer === 'voucher' ? '🎟️' : '🪙'));
+        const showSub = pkg.subtext && pkg.subtext.trim() && pkg.subtext !== 'رەسمىي قاچىلاش';
 
         div.innerHTML = 
           '<div class="flex items-center justify-between mt-0.5">' +
             '<span class="text-xs font-black text-white">' + pkg.name + '</span>' +
             '<span class="' + (pkg.isVip ? 'mythic-crown-anim text-sm' : 'text-sm') + '">' + iconSymbol + '</span>' +
           '</div>' +
-          '<div class="text-[10px] text-slate-400 mt-1 mb-2 leading-tight">' + pkg.subtext + '</div>' +
-          '<div class="flex items-center justify-between pt-1 border-t border-slate-800/80">' +
+          (showSub ? '<div class="text-[10px] text-slate-400 mt-1 mb-2 leading-tight">' + pkg.subtext + '</div>' : '') +
+          '<div class="flex items-center justify-between pt-1 border-t border-slate-800/80' + (showSub ? '' : ' mt-2') + '">' +
             '<span class="text-[10px] text-slate-400 font-bold">باھاسى:</span>' +
             '<span class="text-xs font-black font-mono text-amber-300">$ ' + pkg.price.toFixed(2) + '</span>' +
           '</div>';

@@ -1348,12 +1348,13 @@
         };
 
         // No badges on top of package cards per user request
+        const showSub = pkg.subtext && pkg.subtext.trim() && pkg.subtext !== 'رەسمىي قاچىلاش';
         div.innerHTML = 
           '<div class="flex items-center justify-between mt-0.5">' +
             '<span class="text-xs font-black text-white">' + pkg.name + '</span>' +
             '<span class="' + (pkg.isVip ? 'mythic-crown-anim text-sm' : 'mlbb-gem-anim text-sm') + '">' + (pkg.isVip ? '👑' : '💎') + '</span>' +
           '</div>' +
-          '<p class="text-xs text-slate-400 font-mono mt-0.5">' + pkg.subtext + '</p>' +
+          (showSub ? '<p class="text-xs text-slate-400 font-mono mt-0.5">' + pkg.subtext + '</p>' : '') +
           '<div class="mt-2 flex items-baseline justify-between border-t border-slate-800/80 pt-1">' +
             '<span class="text-xs text-slate-400">باھاسى:</span>' +
             '<span class="text-xs font-black text-amber-400 font-mono">' + pkg.price.toFixed(2) + ' $</span>' +
