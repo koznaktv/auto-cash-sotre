@@ -103,7 +103,7 @@ if (s1Start !== -1 && s2Start !== -1) {
               ✕
             </button>
             <button onclick="executeSearch()" id="searchBtn" type="button" class="px-3 py-1.5 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-400 text-slate-950 rounded-xl text-xs font-black transition flex items-center gap-1.5 active:scale-95 shadow-md shadow-amber-500/25 cursor-pointer">
-              <span id="searchIcon" class="w-4 h-4 flex items-center justify-center shrink-0"><img src="tg_search.webp" alt="🔎" class="w-4 h-4 object-contain drop-shadow" onerror="this.src='tg_search.webp'"/></span>
+              <span id="searchIcon" class="w-4 h-4 flex items-center justify-center shrink-0"><img src="tg_search_anim.webp" alt="🔎" class="w-4 h-4 object-contain drop-shadow" onerror="this.onerror=null;this.src='tg_search.gif'"/></span>
               <span id="searchBtnText">ئىزدەش</span>
             </button>
           </div>
@@ -245,6 +245,8 @@ if (tabsStart !== -1 && tabsEnd !== -1) {
 // 6. Generic Text Replacements
 content = content.replace(/MLBB ئالماس/g, 'PUBG UC');
 content = content.replace(/Mobile Legends/g, 'PUBG Mobile');
+content = content.replace(/tg_mlbb_diamond_anim\.webp/g, 'tg_pubg_uc.webp');
+content = content.replace(/tg_mlbb_diamond\.gif/g, 'tg_pubg_uc.webp');
 content = content.replace(/tg_mlbb_diamond\.webp/g, 'tg_pubg_uc.webp');
 content = content.replace(/ئالماس بوغچىسىنى تاللاڭ/g, 'UC بوغچىسىنى تاللاڭ');
 content = content.replace('<!-- ================= 2-قەدەم (STEP 2): ئالماس بوغچىسى تاللاش ================= -->', '<!-- ================= 2-قەدەم (STEP 2): PUBG UC تاللاش ================= -->');
