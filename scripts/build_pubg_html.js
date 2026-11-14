@@ -5,7 +5,7 @@ const mlbbHtmlPath = path.join(__dirname, '../public/mlbb.html');
 const pubgHtmlPath = path.join(__dirname, '../public/pubg.html');
 const pubgMobileHtmlPath = path.join(__dirname, '../public/pubg-mobile.html');
 
-let content = fs.readFileSync(mlbbHtmlPath, 'utf8');
+let content = fs.readFileSync(mlbbHtmlPath, 'utf8').replace(/\r\n/g, '\n');
 
 // 1. Update Title & Meta
 content = content.replace(

@@ -13,6 +13,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
   <!-- Antigravity Allowlisted Tailwind -->
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <!-- Google Identity Services (One-Tap & Official Sign-in) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     @font-face {
       font-family: 'UyghurModern';
@@ -2160,6 +2162,84 @@ function showGmailAlert(msg, type) {
   }
 }
 
+// Google Official Identity Services (Google Cloud OAuth / One-Tap & Popup callback)
+async function handleGoogleCredentialResponse(response) {
+  if (!response || !response.credential) return;
+  var btn = document.getElementById('gmailLoginBtn');
+  var btnText = document.getElementById('gmailLoginBtnText');
+  if (btn) btn.disabled = true;
+  if (btnText) btnText.innerHTML = '<span class="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> <span>Google دەلىللەۋاتىدۇ...</span>';
+  showGmailAlert('Google رەسمىي دەلىللىمەكتە (1 چېكىپلا كىرىش)...', 'info');
+
+  try {
+    var res = await fetch('/api/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        mode: 'google_credential',
+        credential: response.credential
+      })
+    });
+    var data = await res.json();
+    if (res.ok && data && data.success && data.user) {
+      if (data.user.email) {
+        try { localStorage.setItem('autocash_saved_gmail', data.user.email); } catch(_) {}
+      }
+      syncLocalAuthWithMainSite(data.user, 'google');
+      fetchServerOrders();
+
+      showGmailAlert(data.message || 'Google ئارقىلىق 1 چېكىپلا مۇۋەپپەقىيەتلىك كىردىڭىز! ✅', 'success');
+      showAppModal({
+        title: 'مۇۋەپپەقىيەتلىك كىردىڭىز',
+        message: '🎉 Google ئارقىلىق 1 چېكىپلا مۇۋەپپەقىيەتلىك كىردىڭىز!\nھەميان قالدۇقىڭىز: $' + walletBalance.toFixed(2) + ' USD',
+        confirmText: 'باشلاش ➔',
+        confirmAction: function() { closeTelegramModal(); }
+      });
+      setTimeout(function() { closeTelegramModal(); }, 1200);
+    } else {
+      showGmailAlert(data?.message || 'Google دەلىللەش مەغلۇپ بولدى', 'error');
+    }
+  } catch(err) {
+    showGmailAlert('دەلىللەشتە تور ياكى مۇلازىمېتىر خاتالىقى كۆرۈلدى', 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+    if (btnText) btnText.innerHTML = '🔴 Google بىلەن 1 چېكىپلا كىرىش';
+  }
+}
+
+function initGoogleIdentityServices() {
+  if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
+    setTimeout(initGoogleIdentityServices, 500);
+    return;
+  }
+  var clientId = window.__GOOGLE_CLIENT_ID__ || '';
+  if (!clientId) {
+    fetch('/api/settings')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (d && d.settings && d.settings.googleClientId) {
+          window.__GOOGLE_CLIENT_ID__ = d.settings.googleClientId;
+          initGoogleIdentityServices();
+        }
+      })
+      .catch(function() {});
+    return;
+  }
+
+  try {
+    google.accounts.id.initialize({
+      client_id: clientId,
+      callback: handleGoogleCredentialResponse,
+      auto_select: false,
+      cancel_on_tap_outside: true
+    });
+    // Trigger prompt
+    google.accounts.id.prompt();
+  } catch(e) {
+    console.warn('Google Identity initialize warning:', e);
+  }
+}
+
 async function executeGmailLogin(customEmail) {
   var emailInput = document.getElementById('gmailInput');
   var btn = document.getElementById('gmailLoginBtn');
@@ -3080,6 +3160,7 @@ function closeHistoryModal() {
     renderPackages();
     updateDisplays();
     initTelegramAuth();
+    initGoogleIdentityServices();
     loadDynamicCatalog();
   </script>
 </body>
