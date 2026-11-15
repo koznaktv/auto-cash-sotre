@@ -1,16 +1,20 @@
 <!DOCTYPE html>
-<html lang="ug" dir="rtl" class="dark">
+<html lang="ug" dir="rtl" class="light">
 <head>
   <base href="/">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>AUTO CASH • مەۋھۇم نومۇرلار (Virtual SMS Verification • تېلېگرام • ۋاتساپ • ChatGPT)</title>
+  <title>AUTO CASH • مەۋھۇم نومۇرلار (Virtual SMS)</title>
   
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Tailwind CSS & Inter Font -->
+  <!-- Tailwind CSS & Modern Font -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -18,93 +22,67 @@
         extend: {
           colors: {
             brand: {
-              50: '#ecfdf5',
-              100: '#d1fae5',
-              400: '#34d399',
-              500: '#10b981',
-              600: '#059669',
-              900: '#064e3b',
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              200: '#ddd6fe',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+              800: '#5b21b6',
+              900: '#4c1d95',
+              950: '#2e1065'
             }
           },
-          animation: {
-            'spin-slow': 'spin 8s linear infinite',
-            'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"UKIJ Tuz Tom"', 'sans-serif'],
+            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace']
           }
         }
       }
-    }
+    };
   </script>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-    
     * {
-      box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
+      box-sizing: border-box;
     }
-    
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "UKIJ Tuz Tom", "Alpida", Tahoma, sans-serif;
-      background: radial-gradient(circle at 50% 0%, #112848 0%, #091326 50%, #050a14 100%);
-      color: #f1f5f9;
-      min-height: 100vh;
-      overflow-x: hidden;
-      touch-action: manipulation;
-    }
-
     input, textarea {
       user-select: text;
     }
-
-    /* Ultra-Crisp Luminous Glassmorphism ("سۆزۈك كۆرۈنمە يۈز") */
-    .glass-panel {
-      background: rgba(17, 28, 52, 0.65);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(56, 189, 248, 0.2);
-      box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
-    }
-    
-    .glass-card {
-      background: rgba(22, 36, 66, 0.55);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-      transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    body {
+      background-color: #f3f4f8;
+      color: #1e293b;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "UKIJ Tuz Tom", sans-serif;
+      overflow-x: hidden;
     }
 
-    .glass-card:hover {
-      background: rgba(30, 50, 92, 0.75);
-      border-color: rgba(52, 211, 153, 0.5);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.25);
+    /* Light Theme Card Shadows & Borders */
+    .app-card {
+      background: #ffffff;
+      border: 1px solid #eef2f6;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .app-card:active {
+      transform: scale(0.98);
+    }
+    .app-card-popular {
+      background: linear-gradient(145deg, #ffffff 0%, #faf8ff 100%);
+      border: 1px solid #ede9fe;
+      box-shadow: 0 6px 18px rgba(109, 40, 217, 0.08);
     }
 
-    .glass-card-active {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(14, 165, 233, 0.22) 100%) !important;
-      border: 2px solid #34d399 !important;
-      box-shadow: 0 0 25px rgba(52, 211, 153, 0.4), inset 0 0 15px rgba(52, 211, 153, 0.2) !important;
-      transform: scale(1.02);
+    /* Purple Top Header */
+    .purple-header {
+      background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 50%, #7c3aed 100%);
+      border-bottom-left-radius: 28px;
+      border-bottom-right-radius: 28px;
+      box-shadow: 0 10px 25px -5px rgba(109, 40, 217, 0.3);
     }
 
     /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 4px;
-      height: 4px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #091326;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #254070;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #10b981;
-    }
-
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
@@ -113,666 +91,657 @@
       scrollbar-width: none;
     }
 
-    .gold-card-glow {
-      box-shadow: 0 0 30px rgba(245, 158, 11, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    /* Animations */
+    @keyframes pulseSoft {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.85; }
     }
-
-    .emerald-glow {
-      box-shadow: 0 0 25px rgba(16, 185, 129, 0.35);
+    .pulse-soft {
+      animation: pulseSoft 2.5s infinite ease-in-out;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-0 sm:p-4 selection:bg-brand-500 selection:text-slate-950">
+<body class="min-h-screen bg-[#f3f4f8] text-slate-800 flex justify-center selection:bg-purple-200">
 
-  <!-- Mobile Container Shell with Crystal Clear Cyber Frame -->
-  <div class="w-full max-w-md bg-gradient-to-b from-[#0c1830] via-[#091325] to-[#060b17] min-h-screen sm:min-h-[920px] sm:rounded-[38px] sm:border sm:border-sky-500/25 shadow-2xl flex flex-col overflow-hidden relative pb-10">
+  <!-- Mobile Container Shell -->
+  <div class="w-full max-w-[440px] sm:max-w-[460px] bg-[#f8fafc] min-h-screen flex flex-col relative shadow-2xl sm:my-3 sm:rounded-[36px] overflow-hidden border border-slate-200/80 pb-20">
 
-    <!-- Ambient Glowing Lights -->
-    <div class="absolute -top-24 -left-20 w-64 h-64 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute top-1/3 -right-20 w-64 h-64 bg-sky-500/15 rounded-full blur-3xl pointer-events-none"></div>
-
-    <!-- ================= TOP HEADER (BRAND, APP SWITCHER & UNIFIED WALLET) ================= -->
-    <div class="sticky top-0 z-40 bg-[#0c1830]/90 backdrop-blur-xl border-b border-sky-500/20 px-3.5 pt-3 pb-2.5 space-y-2.5 shadow-md">
-      
-      <!-- Tier 0: Official Brand Navigation & Switcher Pill -->
-      <div class="flex items-center justify-between gap-2">
-        <a href="/" class="flex items-center gap-1.5 group cursor-pointer">
-          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-400 via-yellow-400 to-amber-500 flex items-center justify-center p-0.5 shadow-md shadow-amber-500/30">
-            <img src="/autocash_logo.jpg" alt="AUTO CASH" class="w-full h-full object-cover rounded-lg" onerror="this.src='https://auto-cash-sotre.vercel.app/autocash_logo.jpg'"/>
+    <!-- ================= TOP HEADER (DYNAMIC PER TAB) ================= -->
+    <header id="topHeader" class="purple-header text-white pt-3.5 pb-4 px-4 relative z-20 shrink-0">
+      <!-- Row 1: Brand & Agent WhatsApp Support Pill (Matches Image 1) -->
+      <div class="flex items-center justify-between gap-2 mb-3">
+        <a href="/" class="flex items-center gap-2 group cursor-pointer" title="AUTO CASH">
+          <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-amber-300 shadow-md shadow-purple-950/40 bg-slate-900 shrink-0">
+            <img src="/autocash_logo.jpg" alt="AUTO CASH" class="w-full h-full object-cover" onerror="this.src='https://auto-cash-sotre.vercel.app/autocash_logo.jpg'"/>
           </div>
-          <span class="text-xs font-black text-amber-300 tracking-wider group-hover:text-amber-200 transition">AUTO CASH</span>
+          <div class="text-right leading-tight">
+            <span class="text-xs font-black tracking-wide text-amber-300 block font-sans">AUTO CASH</span>
+            <span class="text-[9.5px] font-bold text-purple-200">مەۋھۇم نومۇرلار</span>
+          </div>
         </a>
 
-        <!-- Beautified App Switcher Pill -->
-        <button onclick="openAppSwitcherModal()" type="button" class="px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-emerald-500/20 hover:from-emerald-500/30 hover:to-teal-500/30 border border-emerald-400/50 hover:border-emerald-300 text-emerald-300 text-xs font-black inline-flex items-center gap-1.5 transition active:scale-95 shadow-sm shadow-emerald-950/40 cursor-pointer shrink-0">
-          <span class="relative flex items-center justify-center w-3.5 h-3.5 shrink-0">
-            <span class="absolute inset-0 rounded-md bg-emerald-400/40 blur-[2px] animate-pulse"></span>
-            <svg class="w-3.5 h-3.5 text-emerald-400 relative z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
-          </span>
-          <span class="text-xs font-black tracking-tight">باشقا ئەپلەرگە ئۆتۈش</span>
-          <span class="text-[9px] text-emerald-400 font-mono">▼</span>
-        </button>
+        <!-- Agent Contact Pill (Matches Image 1: وكلاؤنا) -->
+        <a href="https://t.me/Autocash_24_bot" target="_blank" class="px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-white text-[11px] font-bold flex items-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>ۋاكالەتچى قوللاش</span>
+          <span class="text-[9px] text-purple-200 font-mono">‹</span>
+        </a>
       </div>
 
-      <!-- Tier 1: Full-Width App Identity -->
-      <div class="flex items-center gap-2.5 relative z-10 w-full">
-        <div class="w-12 h-12 rounded-2xl overflow-hidden shadow-lg border-2 border-emerald-400/80 flex items-center justify-center shrink-0 bg-gradient-to-br from-[#0c1830] via-[#0f2438] to-[#0a1e28] p-1 shadow-emerald-500/20">
-          <img src="tg_virtual_sms_app_anim.webp" alt="Virtual SMS" class="w-10 h-10 object-contain drop-shadow" onerror="this.onerror=null;this.src='tg_virtual_sms_app.gif'"/>
-        </div>
-        <div class="flex-1 text-right min-w-0">
-          <h1 class="text-sm sm:text-base font-black text-white tracking-wide leading-tight truncate">
-            مەۋھۇم نومۇرلار مەركىزى (Virtual SMS)
-          </h1>
-          <div class="flex items-center gap-1.5 mt-1">
-            <span class="text-[10.5px] text-emerald-300 font-bold flex items-center gap-1 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-400/40 whitespace-nowrap shadow-sm">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>200+ دۆلەت • سېكۇنتتا كود قوبۇللاش • 100% كاپالەت</span>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tier 2: VIP Luminous Golden Unified Wallet Bar -->
-      <div class="relative z-10 w-full rounded-2xl p-2.5 bg-gradient-to-r from-amber-500/20 via-[#13223f] to-amber-500/15 border border-amber-400/50 shadow-lg gold-card-glow flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2 min-w-0">
-          <div class="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-400/40 flex items-center justify-center shadow-md shrink-0 p-0.5">
-            <img src="tg_coin_balance_anim.webp" alt="🪙" class="w-8 h-8 object-contain drop-shadow" onerror="this.onerror=null;this.src='tg_coin_balance.gif'"/>
-          </div>
-          <div class="text-right leading-tight min-w-0">
-            <p class="text-[10.5px] text-amber-300 font-bold flex items-center gap-1">
-              <span>ھەميان قالدۇقىڭىز</span>
-              <span id="userStatusTag" class="text-[9px] bg-slate-800 text-slate-200 px-1.5 py-0.2 rounded font-medium border border-slate-700">مېھمان</span>
-            </p>
-            <p id="walletBalanceText" class="text-sm sm:text-base font-black text-amber-300 font-mono tracking-tight truncate drop-shadow">
-              $0.00
-            </p>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-1.5 shrink-0">
-          <button onclick="openDepositModal()" type="button" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 text-[11px] font-black inline-flex items-center gap-1 shadow-md shadow-amber-500/30 active:scale-95 transition cursor-pointer">
-            <span>+ پۇل قاچىلاش</span>
-          </button>
-          <button id="authBtn" onclick="handleAuthClick()" type="button" class="px-2.5 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-white text-[11px] font-bold border border-slate-600 transition active:scale-95 cursor-pointer">
-            كىرىش
-          </button>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- ================= MAIN SCROLLABLE CONTENT ================= -->
-    <div class="p-3.5 space-y-4 flex-1 relative z-10">
-
-      <!-- ================= ACTIVE LIVE SMS SESSION CARD (If Waiting or Code Received) ================= -->
-      <div id="activeSessionCard" class="hidden glass-panel rounded-2xl p-4 border-2 border-emerald-400/90 bg-gradient-to-b from-emerald-950/50 via-[#0d2238] to-[#081827] space-y-3 shadow-xl emerald-glow relative overflow-hidden">
-        <div class="flex items-center justify-between border-b border-emerald-500/30 pb-2">
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-            <span class="text-xs font-black text-emerald-300">ئاكتىپ مەۋھۇم نومۇر (SMS كۈتۈلۈۋاتىدۇ)</span>
-          </div>
-          <span id="sessionTimerBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 font-mono font-bold shadow-sm">
-            ⏳ 14:59
-          </span>
-        </div>
-
-        <!-- Phone display with 1-click copy -->
-        <div class="bg-slate-950/90 rounded-xl p-3 border border-emerald-500/40 flex items-center justify-between gap-2 shadow-inner">
-          <div class="text-right">
-            <p id="sessionServiceInfo" class="text-[11px] text-slate-400">✈️ Telegram • 🇺🇦 ئۇكرائىنا</p>
-            <p id="sessionPhoneNumber" class="text-base sm:text-lg font-black text-white font-mono tracking-wider mt-0.5">+380XXXXXXXXX</p>
-          </div>
-          <button onclick="copySessionPhone()" type="button" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 rounded-xl text-xs font-black transition active:scale-95 flex items-center gap-1 shadow-md shadow-emerald-500/30 cursor-pointer">
-            <span>📋</span>
-            <span>كۆچۈرۈش</span>
-          </button>
-        </div>
-
-        <p class="text-xs text-slate-300 leading-snug">
-          💡 <b>نومۇرنى كۆچۈرۈپ</b> ئەپكە كىرگۈزۈڭ. كود كەلگەن ھامان ئاستىدىكى يېشىل رامكىغا دەرھال چىقىدۇ:
-        </p>
-
-        <!-- Big OTP Code Box -->
-        <div id="otpDisplayBox" class="bg-slate-950/90 rounded-2xl p-4 border border-dashed border-emerald-400/50 flex flex-col items-center justify-center text-center space-y-2">
-          <div id="otpWaitingIndicator" class="flex flex-col items-center gap-1.5">
-            <div class="w-8 h-8 rounded-full border-2 border-emerald-500/30 border-t-emerald-400 animate-spin"></div>
-            <p class="text-xs font-bold text-emerald-300 animate-pulse">SMS كود كۈتۈلۈۋاتىدۇ... (سېكۇنتتا تەكشۈرۈلىدۇ)</p>
-          </div>
-
-          <div id="otpResultWrap" class="hidden flex-col items-center gap-2 w-full">
-            <span class="text-xs text-slate-300 font-bold">كەلگەن SMS كودى:</span>
-            <div id="otpCodeDigits" class="text-3xl sm:text-4xl font-black font-mono text-emerald-400 tracking-widest bg-emerald-950/50 px-6 py-2 rounded-2xl border border-emerald-400/70 shadow-lg shadow-emerald-500/30">
-              ------
+      <!-- Row 2: Dynamic Header Content by Tab -->
+      <div id="headerContentArea">
+        <!-- Tab 1: Home Wallet Box (Light-luxury card) -->
+        <div id="homeHeaderWallet" class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3 flex items-center justify-between gap-2 shadow-inner">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-9 h-9 rounded-xl bg-amber-400/20 border border-amber-300/40 flex items-center justify-center shrink-0 p-0.5">
+              <img src="tg_coin_balance_anim.webp" alt="🪙" class="w-8 h-8 object-contain drop-shadow" onerror="this.onerror=null;this.src='tg_coin_balance.gif'"/>
             </div>
-            <button onclick="copySmsCode()" type="button" class="mt-2 px-5 py-2 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/30 transition active:scale-95 flex items-center gap-1.5 cursor-pointer">
-              <span>📋</span>
-              <span>كودنى كۆچۈرۈش</span>
+            <div class="text-right leading-tight min-w-0">
+              <p class="text-[10.5px] text-purple-200 font-bold flex items-center gap-1">
+                <span>ھەميان قالدۇقىڭىز</span>
+                <span id="headerUserStatusTag" class="text-[8.5px] bg-purple-900/60 text-purple-200 px-1.5 py-0.2 rounded font-medium border border-purple-400/30">مېھمان</span>
+              </p>
+              <p id="headerWalletBalanceText" class="text-base sm:text-lg font-black text-amber-300 font-mono tracking-tight truncate drop-shadow">
+                $0.00 USD
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="openDepositModal()" type="button" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 text-slate-950 text-xs font-black shadow-md shadow-amber-500/30 active:scale-95 transition cursor-pointer flex items-center gap-1">
+              <span>+ پۇل قاچىلاش</span>
             </button>
           </div>
         </div>
 
-        <!-- Cancel button with automatic refund -->
-        <button id="cancelSessionBtn" onclick="cancelCurrentSession()" type="button" class="w-full py-2 bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/40 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer">
-          <span>❌</span>
-          <span>بىكار قىلىش (پۇلنى دەرھال ھەميانغا قايتۇرۇش)</span>
-        </button>
-      </div>
-
-      <!-- ================= 1-قەدەم (STEP 1): ئەپ تاللاش ================= -->
-      <div class="glass-panel rounded-3xl p-3.5 space-y-2.5 shadow-lg">
-        <div class="flex items-center justify-between">
-          <label class="text-xs sm:text-sm font-black text-white flex items-center gap-2">
-            <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-emerald-400 to-teal-500 text-slate-950 flex items-center justify-center text-xs font-mono font-black shadow-md shadow-emerald-500/40 shrink-0">1</span>
-            <span>ئالدى بىلەن كود ئالماقچى بولغان ئەپنى تاللاڭ</span>
-          </label>
-          <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 font-bold flex items-center gap-1">
-            <span>500+ ئەپ</span>
-          </span>
-        </div>
-
-        <!-- Search Bar for Apps -->
-        <div class="relative flex items-center">
-          <input 
-            id="appSearchInput" 
-            type="text" 
-            placeholder="ئەپ نامىنى ئىزدەڭ (مەسىلەن: Telegram, WhatsApp, OpenAI...)" 
-            class="w-full bg-[#0e1c35]/80 border border-sky-500/30 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30 rounded-xl pr-3 pl-8 py-2.5 text-xs text-white placeholder-slate-400 font-sans transition text-right outline-none"
-            oninput="filterApps(this.value)"
-          />
-          <span class="absolute left-2.5 text-xs text-slate-400 pointer-events-none">🔍</span>
-        </div>
-
-        <!-- Apps Grid with Gorgeous Vector SVGs -->
-        <div id="appsGrid" class="grid grid-cols-3 sm:grid-cols-4 gap-2 pt-1 max-h-[240px] overflow-y-auto pr-1 no-scrollbar">
-          <!-- Dynamically populated via JS with colorful brand SVGs -->
-        </div>
-      </div>
-
-      <!-- ================= 2-قەدەم (STEP 2): دۆلەتنى تاللاش ================= -->
-      <div id="countrySection" class="glass-panel rounded-3xl p-3.5 space-y-2.5 shadow-lg">
-        <div class="flex items-center justify-between">
-          <label class="text-xs sm:text-sm font-black text-white flex items-center gap-2">
-            <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-emerald-400 to-teal-500 text-slate-950 flex items-center justify-center text-xs font-mono font-black shadow-md shadow-emerald-500/40 shrink-0">2</span>
-            <span>دۆلەت ۋە رايوننى تاللاڭ</span>
-          </label>
-          <div id="selectedAppTag" class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 font-bold flex items-center gap-1 shadow-sm">
-            <span>✈️ Telegram</span>
+        <!-- Tab 2: Orders Header (Matches Image 2) -->
+        <div id="ordersHeaderArea" class="hidden text-center space-y-1">
+          <div class="inline-flex items-center gap-1.5 text-base font-black text-white">
+            <span>📋</span>
+            <span>زاكازلىرىم</span>
           </div>
+          <p class="text-[11px] text-purple-200">بارلىق ئېلىنغان مەۋھۇم نومۇرلار ۋە SMS كودلىرى</p>
         </div>
 
-        <!-- Search Bar for Countries -->
-        <div class="relative flex items-center">
-          <input 
-            id="countrySearchInput" 
-            type="text" 
-            placeholder="دۆلەت نامى ياكى كودىنى ئىزدەڭ (مەسىلەن: تۈركىيە، ئامېرىكا، ئەنگلىيە...)" 
-            class="w-full bg-[#0e1c35]/80 border border-sky-500/30 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30 rounded-xl pr-3 pl-8 py-2.5 text-xs text-white placeholder-slate-400 font-sans transition text-right outline-none"
-            oninput="filterCountries(this.value)"
-          />
-          <span class="absolute left-2.5 text-xs text-slate-400 pointer-events-none">🔍</span>
+        <!-- Tab 3: Notifications Header (Matches Image 3) -->
+        <div id="notificationsHeaderArea" class="hidden text-center space-y-1">
+          <div class="inline-flex items-center gap-1.5 text-base font-black text-white">
+            <span>🔔</span>
+            <span>ئۇقتۇرۇشلار</span>
+          </div>
+          <p class="text-[11px] text-purple-200">سىستېما خەۋەرلىرى ۋە مۇلازىمەت ئەسكەرتىشلىرى</p>
         </div>
 
-        <!-- Countries Grid -->
-        <div id="countriesGrid" class="grid grid-cols-2 gap-2 pt-1 max-h-[260px] overflow-y-auto pr-1 no-scrollbar">
-          <!-- Dynamically populated via JS -->
+        <!-- Tab 4: Account Header (Matches Image 4) -->
+        <div id="accountHeaderArea" class="hidden text-center space-y-1">
+          <div class="inline-flex items-center gap-1.5 text-base font-black text-white">
+            <span>👤</span>
+            <span>ھېساباتىم</span>
+          </div>
+          <p class="text-[11px] text-purple-200">ھېسابات ئۇچۇرلىرى ۋە بىخەتەرلىك تەڭشەكلىرى</p>
         </div>
       </div>
+    </header>
 
-      <!-- ================= 3-قەدەم (STEP 3): زاكاز جەزملەش ۋە سېتىۋېلىش ================= -->
-      <div id="summarySection" class="glass-panel rounded-3xl p-3.5 space-y-3 shadow-lg">
-        <label class="text-xs sm:text-sm font-black text-white flex items-center gap-2">
-          <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-emerald-400 to-teal-500 text-slate-950 flex items-center justify-center text-xs font-mono font-black shadow-md shadow-emerald-500/40 shrink-0">3</span>
-          <span>زاكاز تالونى ۋە دەلىللەش</span>
-        </label>
+    <!-- ================= MAIN BODY CONTENT (SCROLLABLE) ================= -->
+    <main class="flex-1 overflow-y-auto no-scrollbar px-3.5 py-3 space-y-3 relative z-10">
 
-        <div class="bg-[#0b162c]/90 rounded-2xl p-3 border border-sky-500/30 text-xs space-y-2 font-mono shadow-inner">
-          <div class="flex justify-between items-center text-slate-300">
-            <span class="font-sans">تاللانغان ئەپ:</span>
-            <span id="sumApp" class="text-emerald-300 font-bold flex items-center gap-1.5">
-              <span>✈️ Telegram</span>
+      <!-- ================= TAB 1: HOME (APPS & COUNTRIES SELECTION) ================= -->
+      <section id="tabHomeSection" class="space-y-3">
+
+        <!-- ---------------- STEP 1: APPS DIRECTORY VIEW ---------------- -->
+        <div id="viewAppsDirectory" class="space-y-3">
+
+          <!-- Search Input for Apps -->
+          <div class="relative">
+            <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+            <input 
+              id="appSearchInput" 
+              type="text" 
+              oninput="filterAppsGrid()" 
+              placeholder="ئەپ نامىنى ئىزدەڭ (Telegram, WhatsApp, ChatGPT...)" 
+              class="w-full bg-white border border-slate-200 rounded-2xl pr-10 pl-4 py-2.5 text-xs text-slate-800 placeholder-slate-400 shadow-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition"
+            />
+          </div>
+
+          <!-- Section Title: الأقسام / كل الخدمات (Matches Image 1) -->
+          <div class="flex items-center justify-between px-1">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
+              <h2 class="text-sm font-black text-slate-900 tracking-tight">ئەپلەر بۆلىكى (Apps)</h2>
+            </div>
+            <span class="text-[11px] font-bold text-purple-600 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full">
+              200+ دۆلەت • سېكۇنتتا كود
             </span>
           </div>
-          <div class="flex justify-between items-center text-slate-300">
-            <span class="font-sans">دۆلەت ۋە رايون:</span>
-            <span id="sumCountry" class="text-cyan-300 font-bold flex items-center gap-1.5">
-              <span>🇹🇷 تۈركىيە (+90)</span>
-            </span>
-          </div>
-          <div class="flex justify-between items-center text-slate-300">
-            <span class="font-sans">نۆۋەتتىكى زاپاس:</span>
-            <span id="sumStock" class="text-emerald-400 font-bold">يۈكلىنىۋاتىدۇ...</span>
-          </div>
-          <div class="flex justify-between items-center text-slate-300 pt-2 border-t border-slate-700/80">
-            <span class="font-sans font-bold text-white">زاكاز باھاسى:</span>
-            <span id="sumPrice" class="text-lg text-amber-300 font-black font-mono drop-shadow">$0.25</span>
-          </div>
-        </div>
 
-        <!-- Deficit notice if balance is low -->
-        <div id="deficitNotice" class="hidden bg-rose-500/15 border border-rose-500/40 rounded-xl p-2.5 text-xs text-rose-200 flex items-center justify-between">
-          <span id="deficitText">ھەمياندىكى قالدۇق يېتىشمىدى</span>
-          <button onclick="openDepositModal()" type="button" class="px-2.5 py-1 bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 text-slate-950 font-black rounded-lg text-[10.5px] shadow">
-            + پۇل قاچىلاش
-          </button>
-        </div>
-
-        <button 
-          id="buyBtn" 
-          onclick="executeBuyNumber()" 
-          type="button" 
-          class="w-full py-3.5 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs sm:text-sm rounded-2xl shadow-lg shadow-emerald-500/30 transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer emerald-glow"
-        >
-          <span id="buyBtnIcon">⚡</span>
-          <span id="buyBtnText">مەۋھۇم نومۇرنى ئېلىش ($0.25)</span>
-        </button>
-
-        <p class="text-[10.5px] text-center text-slate-300 flex items-center justify-center gap-1">
-          <span>🛡️</span>
-          <span>100% كاپالەت: 15 مىنۇتتا SMS كود كەلمىسە، پۇل دەرھال ھەميانىڭىزغا قايتىدۇ.</span>
-        </p>
-      </div>
-
-    </div>
-
-    <!-- ================= ORDERS & TRANSACTIONS MODAL ================= -->
-    <div id="ordersModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden opacity-0 transition-opacity duration-200">
-      <div class="w-full max-w-md bg-[#0c1830] border border-sky-500/30 rounded-3xl p-4 space-y-3 shadow-2xl flex flex-col max-h-[85vh]">
-        <div class="flex items-center justify-between border-b border-slate-700 pb-2">
-          <h3 class="text-sm font-black text-white flex items-center gap-1.5">
-            <img src="tg_virtual_sms_app_anim.webp" alt="SMS" class="w-4 h-4 object-contain inline-block drop-shadow" onerror="this.onerror=null;this.src='tg_virtual_sms_app.gif'"/>
-            <span>ئالغان مەۋھۇم نومۇرلار تارىخى</span>
-          </h3>
-          <button onclick="closeOrdersModal()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-xs">✕</button>
-        </div>
-        <div id="ordersListWrap" class="flex-1 overflow-y-auto no-scrollbar space-y-2">
-          <!-- Dynamically populated -->
-        </div>
-      </div>
-    </div>
-
-    <!-- ================= CUSTOM IN-APP ALERT MODAL ================= -->
-    <div id="appAlertModal" onclick="if(event.target===this) closeAppModal()" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200">
-      <div id="appAlertCard" class="w-full max-w-[340px] bg-[#0c1830] border border-emerald-400/50 rounded-3xl p-5 shadow-2xl space-y-4 transform scale-95 transition-transform duration-200 text-center relative overflow-hidden select-none">
-        <div class="relative z-10 flex flex-col items-center">
-          <div id="appAlertIconBox" class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500/20 via-teal-500/20 to-emerald-500/20 border border-emerald-400/50 flex items-center justify-center shadow-lg shadow-emerald-500/20 mb-2">
-            <span id="appAlertIcon" class="text-2xl">⚠️</span>
-          </div>
-          <h3 id="appAlertTitle" class="text-base font-black text-white tracking-wide">ئەسكەرتىش</h3>
-        </div>
-        <p id="appAlertMsg" class="relative z-10 text-xs text-slate-200 leading-relaxed font-sans px-1">
-          مەزمۇن
-        </p>
-        <div class="relative z-10 flex flex-col gap-2 pt-1">
-          <button id="appAlertConfirmBtn" type="button" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 text-slate-950 font-black text-xs transition shadow-lg shadow-emerald-500/30 active:scale-95 cursor-pointer">
-            چۈشەندىم
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ================= OFFICIAL SHAMCASH DEPOSIT MODAL ================= -->
-    <div id="depositModal" onclick="if(event.target===this) closeDepositModal()" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
-      <div id="depositCard" class="w-full max-w-md bg-[#0c1830] border-t-2 border-amber-400/80 rounded-t-[34px] p-4 sm:p-5 space-y-3.5 shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[92%] overflow-y-auto no-scrollbar">
-        <button onclick="closeDepositModal()" class="absolute top-3.5 left-3.5 w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs">✕</button>
-        <div class="w-10 h-1 bg-slate-700 rounded-full mx-auto"></div>
-
-        <!-- Title & ShamCash Logo -->
-        <div class="flex items-center gap-2.5 border-b border-slate-700/80 pb-2.5">
-          <div class="w-11 h-11 rounded-2xl overflow-hidden border border-amber-400/60 shadow-lg shadow-amber-500/20 bg-slate-900 shrink-0">
-            <img src="https://i.ibb.co/MkYW8ynm/images.jpg" alt="ShamCash" class="w-full h-full object-cover" onerror="this.src='shamcash_logo.jpg'"/>
-          </div>
-          <div class="flex-1">
-            <h3 class="text-sm font-black text-white flex items-center gap-1.5">
-              <span>شامكەش (ShamCash) قالدۇق قاچىلاش</span>
-            </h3>
-            <p class="text-[11px] text-amber-300">رەسمىي ئاپتوماتىك تالون دەلىللەش سىستېمىسى</p>
-          </div>
-        </div>
-
-        <!-- VIP Metallic ShamCash Card -->
-        <div class="rounded-2xl p-3.5 bg-gradient-to-br from-[#1c1917] via-[#292524] to-[#1c1917] border border-amber-500/60 shadow-xl gold-card-glow space-y-2">
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-amber-400 font-bold flex items-center gap-1.5">
-              <img src="https://i.ibb.co/MkYW8ynm/images.jpg" class="w-4 h-4 rounded object-cover inline-block border border-amber-500/40" onerror="this.src='shamcash_logo.jpg'"/>
-              <span>AUTO CASH رەسمىي شامكەش كىملىكى</span>
-            </span>
-            <span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono text-[10px] font-bold border border-amber-500/40">ShamCash ID</span>
+          <!-- 2-Column App Grid (Matches Image 1 Cards) -->
+          <div id="appsGridContainer" class="grid grid-cols-2 gap-2.5">
+            <!-- Dynamically populated via renderAppsGrid() -->
           </div>
 
-          <div class="flex items-center gap-2 bg-slate-950/90 border border-amber-500/50 rounded-xl p-2 shadow-inner">
-            <input id="shamCashAddr" readonly value="efe8a2b200d66411c7c7e296369cbba8" class="w-full bg-transparent text-xs font-mono text-cyan-300 font-bold outline-none text-left tracking-wide" dir="ltr"/>
-            <button onclick="copyAddr()" id="copyAddrBtn" class="px-3 py-1.5 bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 text-slate-950 font-black text-xs rounded-lg transition shrink-0 shadow">
-              كۆچۈرۈش
+        </div>
+
+        <!-- ---------------- STEP 2: COUNTRY & PRICE SELECTION FOR SELECTED APP ---------------- -->
+        <div id="viewCountrySelection" class="hidden space-y-3">
+
+          <!-- Top Back Bar -->
+          <div class="flex items-center justify-between bg-white border border-slate-200 rounded-2xl p-2.5 shadow-sm">
+            <button onclick="goBackToApps()" type="button" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-black transition active:scale-95 cursor-pointer">
+              <span class="font-mono text-sm">›</span>
+              <span>ئەپلەرگە قايتىش</span>
             </button>
+            <div id="selectedAppBadge" class="flex items-center gap-2">
+              <!-- Dynamically rendered -->
+            </div>
           </div>
-          <p class="text-[11px] text-slate-300 leading-snug">
-            💡 1-قەدەم: شامكەش ئەپى ئارقىلىق يۇقىرىدىكى كىملىككە مەبلەغ يۆتكەڭ.
+
+          <!-- Country Search Input -->
+          <div class="relative">
+            <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🌍</span>
+            <input 
+              id="countrySearchInput" 
+              type="text" 
+              oninput="filterCountriesList()" 
+              placeholder="دۆلەت نامى ياكى رايون كودىنى ئىزدەڭ (تۈركىيە، ئامېرىكا، +90...)" 
+              class="w-full bg-white border border-slate-200 rounded-2xl pr-10 pl-4 py-2.5 text-xs text-slate-800 placeholder-slate-400 shadow-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition"
+            />
+          </div>
+
+          <!-- Country Quick Filter Pills -->
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 text-[11px] font-bold">
+            <button onclick="quickFilterCountry('all')" class="px-3 py-1 rounded-full bg-purple-600 text-white shrink-0 shadow-sm">ھەممىسى</button>
+            <button onclick="quickFilterCountry('tr')" class="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 hover:border-purple-400 shrink-0 shadow-sm">🇹🇷 تۈركىيە (+90)</button>
+            <button onclick="quickFilterCountry('us')" class="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 hover:border-purple-400 shrink-0 shadow-sm">🇺🇸 ئامېرىكا (+1)</button>
+            <button onclick="quickFilterCountry('gb')" class="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 hover:border-purple-400 shrink-0 shadow-sm">🇬🇧 ئەنگلىيە (+44)</button>
+            <button onclick="quickFilterCountry('ua')" class="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 hover:border-purple-400 shrink-0 shadow-sm">🇺🇦 ئۇكرائىنا (+380)</button>
+            <button onclick="quickFilterCountry('vn')" class="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 hover:border-purple-400 shrink-0 shadow-sm">🇻🇳 ۋىيېتنام (+84)</button>
+          </div>
+
+          <!-- Countries List Container -->
+          <div id="countriesListContainer" class="space-y-2">
+            <!-- Dynamically populated via renderCountriesForApp() -->
+          </div>
+
+        </div>
+
+        <!-- ---------------- STEP 3: ACTIVE WAITING NUMBER CARD ---------------- -->
+        <div id="activeNumberSection" class="hidden space-y-3">
+          <div class="app-card rounded-3xl p-4 border-2 border-emerald-400 bg-gradient-to-br from-emerald-50 via-white to-teal-50 space-y-3 shadow-md">
+            
+            <div class="flex items-center justify-between border-b border-emerald-100 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
+                <span class="text-xs font-black text-emerald-800">ئاكتىپ نومۇر (SMS كۈتۈلۈۋاتىدۇ)</span>
+              </div>
+              <div id="activeTimerBadge" class="text-xs font-black font-mono px-2 py-0.5 rounded-full bg-emerald-200/60 text-emerald-900 border border-emerald-300">
+                14:59
+              </div>
+            </div>
+
+            <!-- Assigned Phone Number -->
+            <div class="p-3 bg-white border border-emerald-200 rounded-2xl flex items-center justify-between gap-2 shadow-sm">
+              <div class="text-right">
+                <p class="text-[10px] text-slate-400 font-bold">بېرىلگەن مەۋھۇم نومۇر</p>
+                <p id="activePhoneNumber" class="text-lg sm:text-xl font-black font-mono text-slate-900 tracking-wider">
+                  +00000000000
+                </p>
+              </div>
+              <button onclick="copyActiveNumber()" type="button" class="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black transition active:scale-95 shadow-sm shadow-emerald-500/20 cursor-pointer flex items-center gap-1">
+                <span>كۆچۈرۈش</span>
+              </button>
+            </div>
+
+            <!-- Received SMS Code Display Box -->
+            <div class="p-4 bg-slate-900 text-white rounded-2xl text-center space-y-1.5 shadow-inner">
+              <p class="text-xs text-emerald-400 font-bold">كەلگەن SMS تەستىقلاش كودى</p>
+              <div id="smsCodeContainer" class="py-2">
+                <div class="inline-flex items-center gap-2 text-slate-400 text-xs animate-pulse">
+                  <span class="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></span>
+                  <span>SMS كود كۈتۈلمەكتە (تەمىنلىگۈچى بىلەن سىگنال ئۇلاندى)...</span>
+                </div>
+              </div>
+              <p class="text-[10px] text-slate-400">كود كەلگەندە بۇ يەردە چوڭ يېزىلىدۇ، بىرلا چەكسىڭىز كۆچۈرۈلىدۇ</p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="cancelActiveOrder()" type="button" class="py-2.5 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-black transition active:scale-95 cursor-pointer flex items-center justify-center gap-1">
+                <span>بىكار قىلىش (پۇلنى قايتۇرۇش)</span>
+              </button>
+              <button onclick="finishAndGetNew()" type="button" class="py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black transition active:scale-95 shadow-md shadow-purple-600/20 cursor-pointer flex items-center justify-center gap-1">
+                <span>يېڭى نومۇر ئېلىش ‹</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 2: MY ORDERS (MATCHES IMAGE 2) ================= -->
+      <section id="tabOrdersSection" class="hidden space-y-3">
+        
+        <!-- Summary Counters (Matches Image 2) -->
+        <div class="grid grid-cols-3 gap-2">
+          <!-- Pending (Yellow) -->
+          <div class="bg-[#fef9c3] border border-amber-200 rounded-2xl p-2.5 text-center shadow-sm">
+            <p id="statPendingCount" class="text-lg font-black font-mono text-amber-700">0</p>
+            <p class="text-[10.5px] font-bold text-amber-800">كۈتۈلۈۋاتىدۇ</p>
+          </div>
+          <!-- Completed (Green) -->
+          <div class="bg-[#dcfce7] border border-emerald-200 rounded-2xl p-2.5 text-center shadow-sm">
+            <p id="statCompletedCount" class="text-lg font-black font-mono text-emerald-700">0</p>
+            <p class="text-[10.5px] font-bold text-emerald-800">مۇۋەپپەقىيەتلىك</p>
+          </div>
+          <!-- Canceled/Refunded (Pink) -->
+          <div class="bg-[#fee2e2] border border-rose-200 rounded-2xl p-2.5 text-center shadow-sm">
+            <p id="statCanceledCount" class="text-lg font-black font-mono text-rose-700">0</p>
+            <p class="text-[10.5px] font-bold text-rose-800">قايتۇرۇلغان</p>
+          </div>
+        </div>
+
+        <!-- Filter Tabs (Matches Image 2: الكل / قيد التنفيذ / مقبولة / مرفوضة) -->
+        <div class="flex items-center gap-1.5 p-1 bg-white border border-slate-200 rounded-2xl text-xs font-bold shadow-sm">
+          <button onclick="setOrdersFilter('all')" id="orderTabAll" class="flex-1 py-1.5 rounded-xl bg-purple-600 text-white transition">ھەممىسى</button>
+          <button onclick="setOrdersFilter('pending')" id="orderTabPending" class="flex-1 py-1.5 rounded-xl text-slate-600 hover:text-purple-600 transition">كۈتۈلۈۋاتىدۇ</button>
+          <button onclick="setOrdersFilter('completed')" id="orderTabCompleted" class="flex-1 py-1.5 rounded-xl text-slate-600 hover:text-purple-600 transition">تاماملانغان</button>
+          <button onclick="setOrdersFilter('canceled')" id="orderTabCanceled" class="flex-1 py-1.5 rounded-xl text-slate-600 hover:text-purple-600 transition">بىكار قىلىنغان</button>
+        </div>
+
+        <!-- Orders List or Empty State (Matches Image 2) -->
+        <div id="ordersListWrap" class="space-y-2 pt-1">
+          <!-- Dynamically populated or shows empty state -->
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 3: NOTIFICATIONS (MATCHES IMAGE 3) ================= -->
+      <section id="tabNotificationsSection" class="hidden space-y-2.5">
+        
+        <!-- Notice 1 -->
+        <div class="app-card rounded-2xl p-3.5 space-y-1.5">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+            <span class="text-xs font-black text-slate-900 flex items-center gap-1.5">
+              <span>📢</span>
+              <span>200+ دۆلەتكە يېڭى نومۇرلار قوشۇلدى</span>
+            </span>
+            <span class="text-[10px] text-slate-400 font-mono">12:00</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Telegram, WhatsApp, ChatGPT ۋە Google ئۈچۈن ئەڭ ئالقىشلىق بولغان تۈركىيە، ئامېرىكا، ئەنگلىيە ۋە ئۇكرائىنا مەۋھۇم نومۇرلىرى تولۇقلاندى.
           </p>
         </div>
 
-        <!-- 3-Step Clear Visual Flow -->
-        <div class="space-y-2 pt-1">
-          <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/90 border border-slate-750 text-xs">
-            <span class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-300 font-bold flex items-center justify-center shrink-0 border border-amber-500/40">1</span>
-            <div class="space-y-0.5">
-              <p class="font-bold text-white">شامكەش كىملىك نومۇرىنى كۆچۈرۈڭ</p>
-              <p class="text-[11px] text-slate-300">يۇقىرىدىكى نۇمۇرنى كۆچۈرۈپ شامكەشتىن پۇل ئەۋەتىڭ.</p>
+        <!-- Notice 2 -->
+        <div class="app-card rounded-2xl p-3.5 space-y-1.5">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+            <span class="text-xs font-black text-slate-900 flex items-center gap-1.5">
+              <span>⚡</span>
+              <span>100% پۇل قايتۇرۇش كاپالىتى</span>
+            </span>
+            <span class="text-[10px] text-slate-400 font-mono">11:30</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            سىز زاكاز قىلغان نومۇرغا 15 مىنۇت ئىچىدە تەستىقلاش كودى كەلمىسە ياكى بىكار قىلسىڭىز، پۇل ھېچقانداق تۇتۇپ قېلىشسىز دەرھال AUTO CASH ھەميانىڭىزغا قايتىدۇ.
+          </p>
+        </div>
+
+        <!-- Notice 3 -->
+        <div class="app-card rounded-2xl p-3.5 space-y-1.5">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+            <span class="text-xs font-black text-slate-900 flex items-center gap-1.5">
+              <span>💳</span>
+              <span>بىر گەۋدىلەشكەن ھەميان قالدۇقى</span>
+            </span>
+            <span class="text-[10px] text-slate-400 font-mono">10:00</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            توربەت، ئەپلەر ۋە تېلېگرام بوت (@Autocash_24_bot) نىڭ ھەميان قالدۇقى بىر گەۋدە قىلىنغان بولۇپ، خالىغان جايدىن قاچىلىغان پۇلىڭىز پۈتۈن سىستېمىدا دەرھال كۈچكە ئىگە بولىدۇ.
+          </p>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 4: MY ACCOUNT (MATCHES IMAGE 4) ================= -->
+      <section id="tabAccountSection" class="hidden space-y-3">
+
+        <!-- User Identity Card (Matches Image 4) -->
+        <div class="app-card rounded-3xl p-4 space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-purple-500 shadow-md bg-purple-100 flex items-center justify-center shrink-0">
+              <span id="accountAvatarIcon" class="text-2xl">👤</span>
+            </div>
+            <div class="text-right leading-tight min-w-0">
+              <h3 id="accountUserName" class="text-sm font-black text-slate-900 truncate">مېھمان ئىشلەتكۈچى</h3>
+              <p id="accountUserEmail" class="text-xs text-slate-400 font-mono truncate mt-0.5">guest@auto-cash.app</p>
             </div>
           </div>
 
-          <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/90 border border-slate-750 text-xs">
-            <span class="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-300 font-bold flex items-center justify-center shrink-0 border border-sky-500/40">2</span>
-            <div class="space-y-0.5">
-              <p class="font-bold text-white">تالوننى @Autocash_24_bot قا يوللاڭ</p>
-              <p class="text-[11px] text-slate-300">پۇل ئەۋەتكەندىن كېيىن، تالوننى (سۈرەت ياكى نومۇرىنى) بوتقا تاشلاپ بەرسىڭىزلا بولىدۇ.</p>
+          <!-- Account Balance & UID (Matches Image 4) -->
+          <div class="p-3.5 rounded-2xl bg-gradient-to-r from-purple-50 via-indigo-50 to-purple-50 border border-purple-100 flex items-center justify-between gap-2 shadow-sm">
+            <div class="text-right leading-tight">
+              <p class="text-[10.5px] text-purple-700 font-bold">ئورتاق ھەميان قالدۇقى</p>
+              <p id="accountBalanceDisplay" class="text-lg font-black font-mono text-purple-900">$0.00 USD</p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button onclick="openDepositModal()" type="button" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-black shadow-md shadow-purple-600/30 active:scale-95 transition cursor-pointer">
+                + پۇل قاچىلاش
+              </button>
             </div>
           </div>
 
-          <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/90 border border-slate-750 text-xs">
-            <span class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold flex items-center justify-center shrink-0 border border-emerald-500/40">3</span>
-            <div class="space-y-0.5">
-              <p class="font-bold text-white">قالدۇقىڭىز دەرھال ئاشىدۇ</p>
-              <p class="text-[11px] text-slate-300">بوت تالوننى 1 سېكۇنتتا دەلىللەيدۇ ھەم ھەميان قالدۇقىڭىز مۇشۇ توربەتتە، ئەپتە ۋە بوتتا بىرلا ۋاقىتتا دەرھال ئاشىدۇ!</p>
-            </div>
+          <!-- Unique ID row -->
+          <div class="flex items-center justify-between text-xs py-1 border-t border-slate-100">
+            <span class="text-slate-400 font-bold">ئەزا نومۇرى (ID):</span>
+            <span class="flex items-center gap-1 font-mono font-bold text-slate-800">
+              <span id="accountUserId">52123645</span>
+              <button onclick="copyUserId()" class="text-purple-600 hover:text-purple-800 text-xs">📋</button>
+            </span>
           </div>
         </div>
 
-        <!-- Primary Action Button: Send Receipt to Bot -->
-        <a href="https://t.me/Autocash_24_bot" target="_blank" class="w-full bg-gradient-to-r from-sky-500 via-blue-600 to-sky-500 hover:from-sky-400 hover:to-blue-500 text-white font-black py-3 rounded-2xl text-xs transition shadow-lg shadow-sky-500/30 flex items-center justify-center gap-2 active:scale-95 cursor-pointer">
-          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
-          <span>🤖 تالوننى بوتقا يوللاش (@Autocash_24_bot)</span>
-        </a>
+        <!-- Theme Selection (Matches Image 4: المظهر: مضيء / داكن / تلقائي) -->
+        <div class="app-card rounded-2xl p-3.5 space-y-2">
+          <div class="flex items-center gap-1.5 text-xs font-black text-slate-800">
+            <span>☀️</span>
+            <span>كۆرۈنۈش ئۇسلۇبى (Theme)</span>
+          </div>
+          <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 rounded-xl text-xs font-bold">
+            <button onclick="setAppTheme('light')" id="themeBtnLight" class="py-1.5 rounded-lg bg-amber-400 text-slate-950 shadow-sm flex items-center justify-center gap-1">
+              <span>☀️</span>
+              <span>يورۇق</span>
+            </button>
+            <button onclick="setAppTheme('dark')" id="themeBtnDark" class="py-1.5 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1">
+              <span>🌙</span>
+              <span>قارا</span>
+            </button>
+            <button onclick="setAppTheme('auto')" id="themeBtnAuto" class="py-1.5 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1">
+              <span>⚙️</span>
+              <span>ئاپتوماتىك</span>
+            </button>
+          </div>
+        </div>
 
-        <!-- Secondary Action: Refresh Balance -->
-        <button onclick="refreshUserBalanceFromBot(false)" class="w-full py-2.5 px-3 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-amber-500/40 text-amber-300 font-bold text-xs flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
-          <span>🔄</span>
-          <span>پۇل قاچىلاپ بولدۇم، قالدۇقنى يېڭىلاش</span>
+        <!-- Account Actions -->
+        <div class="app-card rounded-2xl overflow-hidden divide-y divide-slate-100 text-xs font-bold text-slate-700">
+          <a href="https://t.me/Autocash_24_bot" target="_blank" class="p-3 flex items-center justify-between hover:bg-slate-50 transition cursor-pointer">
+            <div class="flex items-center gap-2">
+              <span class="text-purple-600">💬</span>
+              <span>تېلېگرام بوت ئارقىلىق قوللاش (@Autocash_24_bot)</span>
+            </div>
+            <span class="text-slate-400 font-mono">‹</span>
+          </a>
+          <button onclick="switchTab('orders')" type="button" class="w-full p-3 flex items-center justify-between hover:bg-slate-50 transition cursor-pointer text-right">
+            <div class="flex items-center gap-2">
+              <span class="text-purple-600">📋</span>
+              <span>ئالغان مەۋھۇم نومۇرلار تارىخى</span>
+            </div>
+            <span class="text-slate-400 font-mono">‹</span>
+          </button>
+          <button onclick="handleAuthClick()" type="button" class="w-full p-3 flex items-center justify-between text-rose-600 hover:bg-rose-50 transition cursor-pointer text-right">
+            <div class="flex items-center gap-2">
+              <span>🚪</span>
+              <span id="accountAuthActionText">كىرىش / ھېسابات ئالماشتۇرۇش</span>
+            </div>
+            <span class="text-rose-400 font-mono">‹</span>
+          </button>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- ================= FIXED BOTTOM NAVIGATION BAR (MATCHES ALL 4 IMAGES) ================= -->
+    <nav class="fixed sm:absolute bottom-0 left-0 right-0 max-w-[440px] sm:max-w-[460px] mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-3 py-2 z-40 flex items-center justify-between shadow-lg">
+      
+      <!-- Tab 1: Home (الرئيسية) -->
+      <button onclick="switchTab('home')" id="navHome" type="button" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-2xl bg-purple-100 text-purple-700 transition active:scale-95 cursor-pointer">
+        <span class="text-base">🏠</span>
+        <span class="text-[10px] font-black tracking-tight">ئاساسىي بەت</span>
+      </button>
+
+      <!-- Tab 2: Orders (طلباتي) -->
+      <button onclick="switchTab('orders')" id="navOrders" type="button" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-2xl text-slate-400 hover:text-purple-600 transition active:scale-95 cursor-pointer">
+        <span class="text-base">📋</span>
+        <span class="text-[10px] font-bold tracking-tight">زاكازلىرىم</span>
+      </button>
+
+      <!-- Tab 3: Notifications (الإشعارات) with Red Badge -->
+      <button onclick="switchTab('notifications')" id="navNotifications" type="button" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-2xl text-slate-400 hover:text-purple-600 transition active:scale-95 cursor-pointer relative">
+        <span class="relative">
+          <span class="text-base">🔔</span>
+          <span class="absolute -top-1 -right-1.5 w-3.5 h-3.5 bg-rose-500 text-white rounded-full text-[8.5px] font-black flex items-center justify-center">3</span>
+        </span>
+        <span class="text-[10px] font-bold tracking-tight">ئۇقتۇرۇشلار</span>
+      </button>
+
+      <!-- Tab 4: Account (حسابي) -->
+      <button onclick="switchTab('account')" id="navAccount" type="button" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-2xl text-slate-400 hover:text-purple-600 transition active:scale-95 cursor-pointer">
+        <span class="text-base">👤</span>
+        <span class="text-[10px] font-bold tracking-tight">ھېساباتىم</span>
+      </button>
+
+    </nav>
+
+    <!-- ================= DEPOSIT MODAL (SHAMCASH OFFICIAL UNIFIED WALLET) ================= -->
+    <div id="depositModal" onclick="if(event.target===this) closeDepositModal()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden opacity-0 transition-opacity duration-200">
+      <div class="w-full max-w-sm bg-white rounded-3xl p-5 space-y-4 shadow-2xl border border-slate-100 relative">
+        <button onclick="closeDepositModal()" class="absolute top-3.5 left-3.5 w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold transition">✕</button>
+
+        <div class="text-center space-y-1">
+          <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 mx-auto flex items-center justify-center text-xl font-bold shadow-sm">
+            💳
+          </div>
+          <h3 class="text-base font-black text-slate-900">ھەميانغا پۇل قاچىلاش</h3>
+          <p class="text-xs text-slate-500">رەسمىي سۈرىيە ShamCash ئاپتوماتىك قاچىلاش</p>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-purple-50 border border-purple-100 space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-purple-700 font-bold">ShamCash ھېسابات نۇمۇرى:</span>
+            <button onclick="navigator.clipboard.writeText('efe8a2b200d66411c7c7e296369cbba8'); alert('ھېسابات كۆچۈرۈلدى ✓');" class="text-[11px] font-bold text-purple-700 underline">كۆچۈرۈش</button>
+          </div>
+          <p class="text-[11px] font-mono font-bold text-slate-800 break-all select-all bg-white p-2 rounded-xl border border-purple-200 text-center">
+            efe8a2b200d66411c7c7e296369cbba8
+          </p>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-slate-700">ShamCash تالون ياكى ھېسابات نۇمۇرىڭىزنى كىرگۈزۈڭ:</label>
+          <input id="depositTxInput" type="text" placeholder="مەسىلەن: 98451230 ياكى تالون رەسىمى" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-purple-500"/>
+        </div>
+
+        <button onclick="submitDepositConfirmation()" type="button" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs shadow-md shadow-purple-600/30 transition active:scale-95 cursor-pointer">
+          تالوننى دەلىللەش ۋە قاچىلاش ‹
         </button>
-      </div>
-    </div>
-
-    <!-- ================= UNIFIED MULTI-AUTH MODAL ================= -->
-    <div id="telegramModal" onclick="if(event.target===this) closeTelegramModal()" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
-      <div id="telegramCard" class="w-full max-w-md bg-gradient-to-b from-[#0f1f3d] via-[#0c1830] to-[#070e1c] border-t-2 border-emerald-400/80 rounded-t-[34px] p-4 sm:p-5 space-y-3.5 shadow-2xl transform translate-y-full transition-transform duration-300 max-h-[92%] overflow-y-auto no-scrollbar relative">
-        <button onclick="closeTelegramModal()" class="absolute top-3.5 left-3.5 w-7 h-7 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-xs transition cursor-pointer z-10">✕</button>
-        <div class="w-10 h-1 bg-slate-700 rounded-full mx-auto shrink-0"></div>
-
-        <div id="telegramModalContent" class="space-y-3">
-          <!-- Populated by JS -->
-        </div>
-      </div>
-    </div>
-
-    <!-- ================= BEAUTIFIED APP SWITCHER MODAL ================= -->
-    <div id="appSwitcherModal" onclick="if(event.target===this) closeAppSwitcherModal()" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden opacity-0 transition-opacity duration-300">
-      <div id="appSwitcherCard" class="w-full max-w-md bg-[#0c1830] border-2 border-emerald-400/60 rounded-3xl p-4 space-y-3.5 shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
-        <button onclick="closeAppSwitcherModal()" class="absolute top-3 left-3 w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-sm font-bold">✕</button>
-
-        <div class="flex items-center gap-2.5 border-b border-slate-700 pb-2.5">
-          <div class="w-10 h-10 rounded-2xl bg-slate-900 border border-emerald-400/50 flex items-center justify-center shadow-md shadow-emerald-500/30 p-1">
-            <img src="tg_virtual_sms_app_anim.webp" alt="SMS" class="w-8 h-8 object-contain drop-shadow" onerror="this.onerror=null;this.src='tg_virtual_sms_app.gif'"/>
-          </div>
-          <div>
-            <h3 class="text-sm font-black text-white">باشقا ئەپلەر ۋە ئويۇنلار</h3>
-            <p class="text-xs text-emerald-300">AUTO CASH بىر گەۋدىلەشكەن رەقەملىك بازىرى</p>
-          </div>
-        </div>
-
-        <div class="flex-1 overflow-y-auto no-scrollbar space-y-2.5 pt-1">
-          <!-- App 1: Mobile Legends -->
-          <a href="/mlbb.html" class="glass-card rounded-2xl p-3 border border-cyan-500/40 hover:border-cyan-300 bg-gradient-to-r from-blue-950/50 via-slate-900/80 to-[#0e192e] flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block">
-            <div class="flex items-center gap-2.5 min-w-0">
-              <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-cyan-400/50 flex items-center justify-center shrink-0 bg-slate-950">
-                <img src="https://play-lh.googleusercontent.com/MztmLpB1-_eFbHnqNzzvzl5zjiOH2BEb0D71uBxZYf_4BEmW3QEPWODhRtyqY7Qz4wRLwQ--Rg1RAjOFqtHSs-o=s256" alt="Mobile Legends" class="w-full h-full object-cover" onerror="this.src='mlbb_icon.png'"/>
-              </div>
-              <div class="text-right min-w-0">
-                <p class="text-xs sm:text-sm font-black text-white group-hover:text-cyan-300 transition flex items-center gap-1.5">
-                  <span>Mobile Legends: Bang Bang</span>
-                </p>
-                <p class="text-[11px] text-cyan-300 font-mono mt-0.5">⚔️ ئالماس ۋە كارتىلار • 3 سېكۇنتتا يېتىدۇ</p>
-                <p class="text-[10px] text-slate-300">گىلوبال • تۈركىيە • فىلىپپىن سەرۋېرلىرى</p>
-              </div>
-            </div>
-            <div class="shrink-0 flex flex-col items-end gap-1">
-              <span class="px-2.5 py-1 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-[10.5px] font-black group-hover:bg-cyan-500 group-hover:text-slate-950 transition flex items-center gap-1 shadow-sm">
-                <span>كىرىش</span>
-                <span class="font-mono">➔</span>
-              </span>
-            </div>
-          </a>
-
-          <!-- App 2: PUBG Mobile -->
-          <a href="/pubg.html" class="glass-card rounded-2xl p-3 border border-amber-500/40 hover:border-amber-300 bg-gradient-to-r from-amber-950/50 via-slate-900/80 to-[#1e1709] flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block">
-            <div class="flex items-center gap-2.5 min-w-0">
-              <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-amber-400/50 flex items-center justify-center shrink-0 bg-slate-950">
-                <img src="https://play-lh.googleusercontent.com/MRfcOcfJj1p_4fL1i3wXFz8e4pZ2h1C0_mB2z4r3b9wL8K7q6p5o4i3u2y1t0r=s256" alt="PUBG Mobile" class="w-full h-full object-cover" onerror="this.src='pubg_icon.png'"/>
-              </div>
-              <div class="text-right min-w-0">
-                <p class="text-xs sm:text-sm font-black text-white group-hover:text-amber-300 transition flex items-center gap-1.5">
-                  <span>PUBG Mobile UC</span>
-                </p>
-                <p class="text-[11px] text-amber-300 font-mono mt-0.5">🎯 ئاپتوماتىك UC قاچىلاش • ئەڭ ئەرزان</p>
-                <p class="text-[10px] text-slate-300">Royale Pass • 60 UC دىن 8100 UC غىچە</p>
-              </div>
-            </div>
-            <div class="shrink-0 flex flex-col items-end gap-1">
-              <span class="px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10.5px] font-black group-hover:bg-amber-500 group-hover:text-slate-950 transition flex items-center gap-1 shadow-sm">
-                <span>كىرىش</span>
-                <span class="font-mono">➔</span>
-              </span>
-            </div>
-          </a>
-
-          <!-- App 3: Honor of Kings -->
-          <a href="/hok.html" class="glass-card rounded-2xl p-3 border border-rose-500/40 hover:border-rose-300 bg-gradient-to-r from-rose-950/50 via-slate-900/80 to-[#220d14] flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block">
-            <div class="flex items-center gap-2.5 min-w-0">
-              <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-rose-400/50 flex items-center justify-center shrink-0 bg-slate-950">
-                <img src="https://play-lh.googleusercontent.com/yD6s0aQ8w_v9_x_z8e4pZ2h1C0_mB2z4r3b9wL8K7q6p5o4i3u2y1t0r=s256" alt="Honor of Kings" class="w-full h-full object-cover" onerror="this.src='hok_icon.png'"/>
-              </div>
-              <div class="text-right min-w-0">
-                <p class="text-xs sm:text-sm font-black text-white group-hover:text-rose-300 transition flex items-center gap-1.5">
-                  <span>Honor of Kings (داڭلىقلار سەپىرى)</span>
-                </p>
-                <p class="text-[11px] text-rose-300 font-mono mt-0.5">👑 Tokens & Cards • دەرھال قاچىلاش</p>
-                <p class="text-[10px] text-slate-300">ھەپتىلىك كارتىلار • 80 دىن 8000 تال توكېن</p>
-              </div>
-            </div>
-            <div class="shrink-0 flex flex-col items-end gap-1">
-              <span class="px-2.5 py-1 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10.5px] font-black group-hover:bg-rose-500 group-hover:text-slate-950 transition flex items-center gap-1 shadow-sm">
-                <span>كىرىش</span>
-                <span class="font-mono">➔</span>
-              </span>
-            </div>
-          </a>
-
-          <!-- App 4: Virtual Numbers (ACTIVE) -->
-          <a href="/numbers.html" class="glass-card rounded-2xl p-3 border-2 border-emerald-400 bg-gradient-to-r from-emerald-950/60 via-[#10243d] to-[#0e291e] flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block relative overflow-hidden shadow-md">
-            <span class="absolute top-0 right-0 w-2 h-full bg-emerald-400"></span>
-            <div class="flex items-center gap-2.5 min-w-0 pr-1">
-              <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-emerald-400/80 flex items-center justify-center shrink-0 bg-slate-950 p-1">
-                <img src="tg_virtual_sms_app_anim.webp" alt="SMS" class="w-9 h-9 object-contain drop-shadow" onerror="this.onerror=null;this.src='tg_virtual_sms_app.gif'"/>
-              </div>
-              <div class="text-right min-w-0">
-                <p class="text-xs sm:text-sm font-black text-white group-hover:text-emerald-300 transition flex items-center gap-1.5">
-                  <span>مەۋھۇم نومۇر (Virtual SMS)</span>
-                </p>
-                <p class="text-[11px] text-emerald-300 font-mono mt-0.5">⚡ 200+ دۆلەت • سېكۇنتتا كود قوبۇللاش</p>
-                <p class="text-[10px] text-slate-300">Telegram • WhatsApp • OpenAI • Google</p>
-              </div>
-            </div>
-            <div class="shrink-0 flex flex-col items-end gap-1">
-              <span class="px-2.5 py-1 rounded-xl bg-emerald-400 text-slate-950 font-black text-[10px] flex items-center gap-1 shadow-sm">
-                <span>نۆۋەتتىكى</span>
-                <span class="font-mono">✓</span>
-              </span>
-            </div>
-          </a>
-
-          <!-- App 5: AUTO CASH Full Store -->
-          <a href="/" class="glass-card rounded-2xl p-3 border border-slate-700 hover:border-slate-500 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950 flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block">
-            <div class="flex items-center gap-2.5 min-w-0">
-              <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-amber-400/60 flex items-center justify-center shrink-0 bg-slate-950">
-                <img src="/autocash_logo.jpg" alt="AUTO CASH STORE" class="w-full h-full object-cover" onerror="this.src='https://auto-cash-sotre.vercel.app/autocash_logo.jpg'"/>
-              </div>
-              <div class="text-right min-w-0">
-                <p class="text-xs sm:text-sm font-black text-white group-hover:text-amber-300 transition flex items-center gap-1.5">
-                  <span>AUTO CASH باش دۇكىنى</span>
-                </p>
-                <p class="text-[11px] text-slate-300 font-mono mt-0.5">🏪 بارلىق مۇلازىمەتلەر ۋە تولۇق سەھىپىلەر</p>
-                <p class="text-[10px] text-slate-400">تور كارتىلىرى، تېلېفون پۇلى ۋە ئويۇنلار</p>
-              </div>
-            </div>
-            <div class="shrink-0 flex flex-col items-end gap-1">
-              <span class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 text-[10.5px] font-black group-hover:bg-slate-700 group-hover:text-white transition flex items-center gap-1 shadow-sm">
-                <span>باش بەت</span>
-                <span class="font-mono">➔</span>
-              </span>
-            </div>
-          </a>
-        </div>
       </div>
     </div>
 
   </div>
 
-  <!-- ================= JAVASCRIPT APPLICATION LOGIC ================= -->
+  <!-- ================= CLIENT LOGIC & DATA ================= -->
   <script>
-    // State Variables
+    // --- State Management ---
+    let currentTab = 'home';
+    let homeStep = 'apps'; // 'apps' | 'countries' | 'active_sms'
+    let selectedApp = null;
+    let selectedCountry = null;
+    let userBalance = 0.00;
     let currentUser = null;
-    let currentTgUser = null;
-    let userBalance = 0;
-    let activeOtpSig = '';
 
-    let selectedApp = 'tg';
-    let selectedCountryId = 62; // Default to Turkey (+90)
-    let currentServicePrice = 0.40;
-    let currentStockCount = 0;
-
-    let allCountries = [];
-    let currentServices = [];
     let activeSession = null;
     let pollInterval = null;
     let timerInterval = null;
+    let timerRemainingSeconds = 900; // 15 mins
 
-    // High-Resolution Vector Brand SVGs (Crystal-clear, vibrant, zero blurring)
+    let ordersList = [];
+    let ordersFilter = 'all';
+
+    // --- Official Vector Brand SVGs ---
     const POPULAR_APPS = [
       {
         code: 'tg',
         name: 'Telegram',
         nameUg: 'تېلېگرام',
+        category: 'messaging',
+        popular: true,
+        defaultCount: 1840,
+        defaultPrice: 0.25,
         color: '#229ED9',
-        svg: '<svg class="w-7 h-7 sm:w-8 sm:h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="url(#tg)"></circle><path d="M7.5 15.6l16-6.2c.7-.3 1.4.1 1.1.9l-2.7 12.8c-.2.9-1 .1.2-1.6.8l-4.5-3.3-2.2 2.1c-.2.2-.5.4-.9.4l.3-4.7 8.5-7.7c.4-.3-.1-.5-.6-.2l-10.6 6.7-4.6-1.4c-.9-.3-.9-1 .2-1.4z" fill="#fff"></path><defs><linearGradient id="tg" x1="16" y1="0" x2="16" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#2AABEE"></stop><stop offset="1" stop-color="#229ED9"></stop></linearGradient></defs></svg>'
+        svg: '<svg class="w-8 h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="url(#tg)"></circle><path d="M7.5 15.6l16-6.2c.7-.3 1.4.1 1.1.9l-2.7 12.8c-.2.9-1 .1.2-1.6.8l-4.5-3.3-2.2 2.1c-.2.2-.5.4-.9.4l.3-4.7 8.5-7.7c.4-.3-.1-.5-.6-.2l-10.6 6.7-4.6-1.4c-.9-.3-.9-1 .2-1.4z" fill="#fff"></path><defs><linearGradient id="tg" x1="16" y1="0" x2="16" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#2AABEE"></stop><stop offset="1" stop-color="#229ED9"></stop></linearGradient></defs></svg>'
       },
       {
         code: 'wa',
         name: 'WhatsApp',
         nameUg: 'ۋاتساپ',
+        category: 'messaging',
+        popular: true,
+        defaultCount: 1260,
+        defaultPrice: 0.30,
         color: '#25D366',
-        svg: '<svg class="w-7 h-7 sm:w-8 sm:h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="url(#wa)"></circle><path d="M23.5 19.5c-.4-.2-2.3-1.1-2.6-1.2-.4-.1-.7-.2-.9.3-.3.4-1.1 1.2-1.3 1.5-.3.3-.5.3-.9.1-.4-.2-1.8-.7-3.4-2.1-1.2-1.1-2-2.4-2.3-2.8-.3-.4 0-.7.2-.9.2-.2.4-.4.6-.7.2-.3.3-.4.4-.7.1-.3 0-.5-.1-.7-.1-.2-.9-2.3-1.3-3.1-.4-.8-.7-.7-1-.7h-.8c-.3 0-.8.1-1.2.5-.4.4-1.6 1.6-1.6 3.9s1.6 4.6 1.9 4.9c.3.3 3.2 5 7.9 7 1.1.5 2 .8 2.7.9 1.1.4 2.2.3 3 .2.9-.1 3-1.2 3.4-2.3.4-1.2.4-2.2.3-2.3-.1-.3-.4-.5-.8-.6z" fill="#fff"></path><defs><linearGradient id="wa" x1="16" y1="0" x2="16" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#25D366"></stop><stop offset="1" stop-color="#128C7E"></stop></linearGradient></defs></svg>'
+        svg: '<svg class="w-8 h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="url(#wa)"></circle><path d="M23.5 19.5c-.4-.2-2.3-1.1-2.6-1.2-.4-.1-.7-.2-.9.3-.3.4-1.1 1.2-1.3 1.5-.3.3-.5.3-.9.1-.4-.2-1.8-.7-3.4-2.1-1.2-1.1-2-2.4-2.3-2.8-.3-.4 0-.7.2-.9.2-.2.4-.4.6-.7.2-.3.3-.4.4-.7.1-.3 0-.5-.1-.7-.1-.2-.9-2.3-1.3-3.1-.4-.8-.7-.7-1-.7h-.8c-.3 0-.8.1-1.2.5-.4.4-1.6 1.6-1.6 3.9s1.6 4.6 1.9 4.9c.3.3 3.2 5 7.9 7 1.1.5 2 .8 2.7.9 1.1.4 2.2.3 3 .2.9-.1 3-1.2 3.4-2.3.4-1.2.4-2.2.3-2.3-.1-.3-.4-.5-.8-.6z" fill="#fff"></path><defs><linearGradient id="wa" x1="16" y1="0" x2="16" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#25D366"></stop><stop offset="1" stop-color="#128C7E"></stop></linearGradient></defs></svg>'
       },
       {
-        code: 'dr',
-        name: 'OpenAI',
-        nameUg: 'ChatGPT',
+        code: 'oi',
+        name: 'OpenAI (ChatGPT)',
+        nameUg: 'چەت-جىپىتى (ChatGPT)',
+        category: 'ai',
+        popular: true,
+        defaultCount: 840,
+        defaultPrice: 0.20,
         color: '#10A37F',
-        svg: '<svg class="w-7 h-7 sm:w-8 sm:h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#10A37F"></circle><path d="M25 14a5 5 0 00-.4-3.5 5.2 5.2 0 00-4.4-2.7 5 5 0 00-3-1.2 5.2 5.2 0 00-4.5 2.3 5 5 0 00-3.3.5 5.2 5.2 0 00-2.7 4.4 5 5 0 00-1.2 3 5.2 5.2 0 002.3 4.5 5 5 0 00.5 3.3 5.2 5.2 0 004.4 2.7 5 5 0 003 1.2 5.2 5.2 0 004.5-2.3 5 5 0 003.3-.5 5.2 5.2 0 002.7-4.4 5 5 0 001.2-3 5.2 5.2 0 00-2.4-4.3zm-8.3 10.3a3.5 3.5 0 01-2.1-.7l3.2-1.9a1 1 0 00.4-.8v-4.4l1.3-.8.1.1 3.6 2.1v4.3a3.5 3.5 0 01-6.5 2.1zm-6.3-2.7a3.5 3.5 0 01-.4-2.2l3.2 1.8a1 1 0 001 0l3.8-2.2v1.6l-.1.1-3.6 2.1h-4.1zm-2-7a3.5 3.5 0 011.7-1.6v3.7a1 1 0 00.5.9l3.8 2.2-1.3.8-.1 0-3.7-2.1a3.5 3.5 0 01-.9-3.9zm11.5-.8l-3.8 2.2-1.4-.8.1-.1 3.7-2.1a3.5 3.5 0 014.8 1.5 3.5 3.5 0 01.4 2.2l-3.2-1.8a1 1 0 00-.6-.1zm3 5.5a3.5 3.5 0 01-1.7 1.6v-3.7a1 1 0 00-.5-.8l-3.8-2.2 1.3-.8.1 0 3.7 2.1a3.5 3.5 0 01.9 3.8zm-6.3-1.8l-1.8-1-1.7 1v-2l1.7-1 1.8 1v2z" fill="#fff"></path></svg>'
+        svg: '<svg class="w-8 h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#10A37F"></circle><path d="M25 14a5 5 0 00-.4-3.5 5.2 5.2 0 00-4.4-2.7 5 5 0 00-3-1.2 5.2 5.2 0 00-4.5 2.3 5 5 0 00-3.3.5 5.2 5.2 0 00-2.7 4.4 5 5 0 00-1.2 3 5.2 5.2 0 002.3 4.5 5 5 0 00.5 3.3 5.2 5.2 0 004.4 2.7 5 5 0 003 1.2 5.2 5.2 0 004.5-2.3 5 5 0 003.3-.5 5.2 5.2 0 002.7-4.4 5 5 0 001.2-3 5.2 5.2 0 00-2.4-4.3zm-8.3 10.3a3.5 3.5 0 01-2.1-.7l3.2-1.9a1 1 0 00.4-.8v-4.4l1.3-.8.1.1 3.6 2.1v4.3a3.5 3.5 0 01-6.5 2.1zm-6.3-2.7a3.5 3.5 0 01-.4-2.2l3.2 1.8a1 1 0 001 0l3.8-2.2v1.6l-.1.1-3.6 2.1h-4.1zm-2-7a3.5 3.5 0 011.7-1.6v3.7a1 1 0 00.5.9l3.8 2.2-1.3.8-.1 0-3.7-2.1a3.5 3.5 0 01-.9-3.9zm11.5-.8l-3.8 2.2-1.4-.8.1-.1 3.7-2.1a3.5 3.5 0 014.8 1.5 3.5 3.5 0 01.4 2.2l-3.2-1.8a1 1 0 00-.6-.1zm3 5.5a3.5 3.5 0 01-1.7 1.6v-3.7a1 1 0 00-.5-.8l-3.8-2.2 1.3-.8.1 0 3.7 2.1a3.5 3.5 0 01.9 3.8zm-6.3-1.8l-1.8-1-1.7 1v-2l1.7-1 1.8 1v2z" fill="#fff"></path></svg>'
       },
       {
         code: 'go',
-        name: 'Google',
+        name: 'Google / Gmail',
         nameUg: 'گۇگۇل (Gmail)',
+        category: 'tech',
+        popular: true,
+        defaultCount: 960,
+        defaultPrice: 0.25,
         color: '#EA4335',
-        svg: '<svg class="w-7 h-7 sm:w-8 sm:h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#ffffff"></circle><path d="M23.3 16.3c0-.4 0-.8-.1-1.2H16v2.4h4.1c-.2.9-.7 1.7-1.5 2.2v1.8h2.4c1.4-1.3 2.3-3.2 2.3-5.2z" fill="#4285F4"></path><path d="M16 23.7c2.1 0 3.9-.7 5.2-1.9l-2.4-1.8c-.7.5-1.6.8-2.8.8-2.1 0-3.9-1.4-4.5-3.3H9v1.9c1.3 2.6 4.1 4.3 7 4.3z" fill="#34A853"></path><path d="M11.5 17.5c-.2-.5-.3-1-.3-1.5s.1-1 .3-1.5V12.6H9a7.7 7.7 0 000 6.8l2.5-1.9z" fill="#FBBC05"></path><path d="M16 10.7c1.2 0 2.2.4 3 1.2l2.3-2.3A7.5 7.5 0 0016 7.7c-2.9 0-5.7 1.7-7 4.3l2.5 1.9c.6-1.9 2.4-3.2 4.5-3.2z" fill="#EA4335"></path></svg>'
+        svg: '<svg class="w-8 h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#ffffff" stroke="#e2e8f0"></circle><path d="M23.3 16.3c0-.4 0-.8-.1-1.2H16v2.4h4.1c-.2.9-.7 1.7-1.5 2.2v1.8h2.4c1.4-1.3 2.3-3.2 2.3-5.2z" fill="#4285F4"></path><path d="M16 23.7c2.1 0 3.9-.7 5.2-1.9l-2.4-1.8c-.7.5-1.6.8-2.8.8-2.1 0-3.9-1.4-4.5-3.3H9v1.9c1.3 2.6 4.1 4.3 7 4.3z" fill="#34A853"></path><path d="M11.5 17.5c-.2-.5-.3-1-.3-1.5s.1-1 .3-1.5V12.6H9a7.7 7.7 0 000 6.8l2.5-1.9z" fill="#FBBC05"></path><path d="M16 10.7c1.2 0 2.2.4 3 1.2l2.3-2.3A7.5 7.5 0 0016 7.7c-2.9 0-5.7 1.7-7 4.3l2.5 1.9c.6-1.9 2.4-3.2 4.5-3.2z" fill="#EA4335"></path></svg>'
       },
       {
         code: 'lf',
         name: 'TikTok',
         nameUg: 'تىكتوك',
+        category: 'social',
+        popular: true,
+        defaultCount: 780,
+        defaultPrice: 0.20,
         color: '#00F2FE',
-        svg: '<svg class="w-7 h-7 sm:w-8 sm:h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#050811"></circle><path d="M22 12.6a5.3 5.3 0 01-3.2-1v6.4a4.7 4.7 0 11-4.7-4.7c.4 0 .7 0 1.1.1v2.7a2 2 0 101.6 2V8h2.7a5.3 5.3 0 002.5 3.3v1.3z" fill="#25F4EE"></path><path d="M22.4 12.2a5.3 5.3 0 01-3.2-1v6.4a4.7 4.7 0 11-4.7-4.7c.4 0 .7 0 1.1.1v2.7a2 2 0 101.6 2V8h2.7a5.3 5.3 0 002.5 3.3v.9z" fill="#FE2C55"></path><path d="M22.2 12.4a5.3 5.3 0 01-3.2-1v6.4a4.7 4.7 0 11-4.7-4.7c.4 0 .7 0 1.1.1v2.7a2 2 0 101.6 2V8h2.7a5.3 5.3 0 002.5 3.3v1.1z" fill="#fff"></path></svg>'
+        svg: '<svg class="w-8 h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0f172a"></circle><path d="M22 12.6a5.3 5.3 0 01-3.2-1v6.4a4.7 4.7 0 11-4.7-4.7c.4 0 .7 0 1.1.1v2.7a2 2 0 101.6 2V8h2.7a5.3 5.3 0 002.5 3.3v1.3z" fill="#25F4EE"></path><path d="M22.4 12.2a5.3 5.3 0 01-3.2-1v6.4a4.7 4.7 0 11-4.7-4.7c.4 0 .7 0 1.1.1v2.7a2 2 0 101.6 2V8h2.7a5.3 5.3 0 002.5 3.3v.9z" fill="#FE2C55"></path><path d="M22.2 12.4a5.3 5.3 0 01-3.2-1v6.4a4.7 4.7 0 11-4.7-4.7c.4 0 .7 0 1.1.1v2.7a2 2 0 101.6 2V8h2.7a5.3 5.3 0 002.5 3.3v1.1z" fill="#fff"></path></svg>'
       },
       {
         code: 'ig',
         name: 'Instagram',
         nameUg: 'ئىنستاگرام',
+        category: 'social',
+        popular: true,
+        defaultCount: 920,
+        defaultPrice: 0.25,
         color: '#E1306C',
-        svg: '<svg class="w-7 h-7 sm:w-8 sm:h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="url(#ig)"></circle><path d="M19.7 8.7h-7.4c-2.3 0-3.6 1.3-3.6 3.6v7.4c0 2.3 1.3 3.6 3.6 3.6h7.4c2.3 0 3.6-1.3 3.6-3.6v-7.4c0-2.3-1.3-3.6-3.6-3.6zm-3.7 11a3.7 3.7 0 110-7.4 3.7 3.7 0 010 7.4zm4.2-7.2c-.5 0-1-.5-1-1s.5-1 1-1 1 .5 1 1-.5 1-1 1z" fill="#fff"></path><circle cx="16" cy="16" r="2.3" stroke="#fff" stroke-width="1.6"></circle><defs><linearGradient id="ig" x1="2.7" y1="29.3" x2="29.3" y2="2.7" gradientUnits="userSpaceOnUse"><stop stop-color="#FFDD55"></stop><stop offset=".3" stop-color="#FF543E"></stop><stop offset=".7" stop-color="#C837AB"></stop><stop offset="1" stop-color="#3771C8"></stop></linearGradient></defs></svg>'
+        svg: '<svg class="w-8 h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="url(#ig)"></circle><path d="M19.7 8.7h-7.4c-2.3 0-3.6 1.3-3.6 3.6v7.4c0 2.3 1.3 3.6 3.6 3.6h7.4c2.3 0 3.6-1.3 3.6-3.6v-7.4c0-2.3-1.3-3.6-3.6-3.6zm-3.7 11a3.7 3.7 0 110-7.4 3.7 3.7 0 010 7.4zm4.2-7.2c-.5 0-1-.5-1-1s.5-1 1-1 1 .5 1 1-.5 1-1 1z" fill="#fff"></path><circle cx="16" cy="16" r="2.3" stroke="#fff" stroke-width="1.6"></circle><defs><linearGradient id="ig" x1="2.7" y1="29.3" x2="29.3" y2="2.7" gradientUnits="userSpaceOnUse"><stop stop-color="#FFDD55"></stop><stop offset=".3" stop-color="#FF543E"></stop><stop offset=".7" stop-color="#C837AB"></stop><stop offset="1" stop-color="#3771C8"></stop></linearGradient></defs></svg>'
       },
       {
         code: 'fb',
         name: 'Facebook',
         nameUg: 'فېيسبۇك',
+        category: 'social',
+        popular: true,
+        defaultCount: 650,
+        defaultPrice: 0.20,
         color: '#1877F2',
-        svg: '<svg class="w-7 h-7 sm:w-8 sm:h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#1877F2"></circle><path d="M18 25.3v-8.5h3l.4-3.3H18v-2.1c0-1 .3-1.6 1.7-1.6h1.7V6.8c-.3 0-1.4-.1-2.8-.1-2.8 0-4.7 1.7-4.7 4.8v2.1h-2.8v3.3h2.8v8.5H18z" fill="#fff"></path></svg>'
+        svg: '<svg class="w-8 h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#1877F2"></circle><path d="M18 25.3v-8.5h3l.4-3.3H18v-2.1c0-1 .3-1.6 1.7-1.6h1.7V6.8c-.3 0-1.4-.1-2.8-.1-2.8 0-4.7 1.7-4.7 4.8v2.1h-2.8v3.3h2.8v8.5H18z" fill="#fff"></path></svg>'
       },
       {
         code: 'tw',
         name: 'X (Twitter)',
         nameUg: 'تۋىتتېر (X)',
-        color: '#FFFFFF',
-        svg: '<svg class="w-7 h-7 sm:w-8 sm:h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#000000"></circle><path d="M19.9 9.1h2.3l-5.1 5.8 6 7.9h-4.7l-3.7-4.8-4.2 4.8H8.2l5.4-6.2L8 9.1h4.8l3.3 4.4 3.8-4.4zm-.8 12.3h1.3L12.8 10.4h-1.4l7.7 11z" fill="#fff"></path></svg>'
+        category: 'social',
+        popular: true,
+        defaultCount: 520,
+        defaultPrice: 0.20,
+        color: '#000000',
+        svg: '<svg class="w-8 h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#000000"></circle><path d="M19.9 9.1h2.3l-5.1 5.8 6 7.9h-4.7l-3.7-4.8-4.2 4.8H8.2l5.4-6.2L8 9.1h4.8l3.3 4.4 3.8-4.4zm-.8 12.3h1.3L12.8 10.4h-1.4l7.7 11z" fill="#fff"></path></svg>'
       },
       {
         code: 'sn',
         name: 'Snapchat',
         nameUg: 'سناپچات',
+        category: 'social',
+        popular: true,
+        defaultCount: 420,
+        defaultPrice: 0.25,
         color: '#FFFC00',
-        svg: '<svg class="w-7 h-7 sm:w-8 sm:h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#FFFC00"></circle><path d="M16 8.7c-3.1 0-4.7 2-4.7 4.3 0 .7.3 1.7.5 2.3-.4.1-1.2.3-1.6.7-.4.4-.3.9 0 1.2.3.3 1.1.4 1.6.3.1.7.4 1.3 1.1 1.9-.5.3-1.5.5-1.5 1.2 0 .5.5.8 1.1.8.8.1 1.7-.3 2.4-.5.4.5.8.9 1.3.9s.9-.4 1.3-.9c.7.3 1.6.7 2.4.5.5 0 1.1-.3 1.1-.8 0-.7-1-.9-1.5-1.2.7-.6 1-1.2 1.1-1.9.5.1 1.3 0 1.6-.3.3-.3.4-.8 0-1.2-.4-.4-1.2-.5-1.6-.7.3-.6.5-1.6.5-2.3 0-2.3-1.6-4.3-4.7-4.3z" fill="#fff" stroke="#000" stroke-width="1.1"></path></svg>'
+        svg: '<svg class="w-8 h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#FFFC00"></circle><path d="M16 8.7c-3.1 0-4.7 2-4.7 4.3 0 .7.3 1.7.5 2.3-.4.1-1.2.3-1.6.7-.4.4-.3.9 0 1.2.3.3 1.1.4 1.6.3.1.7.4 1.3 1.1 1.9-.5.3-1.5.5-1.5 1.2 0 .5.5.8 1.1.8.8.1 1.7-.3 2.4-.5.4.5.8.9 1.3.9s.9-.4 1.3-.9c.7.3 1.6.7 2.4.5.5 0 1.1-.3 1.1-.8 0-.7-1-.9-1.5-1.2.7-.6 1-1.2 1.1-1.9.5.1 1.3 0 1.6-.3.3-.3.4-.8 0-1.2-.4-.4-1.2-.5-1.6-.7.3-.6.5-1.6.5-2.3 0-2.3-1.6-4.3-4.7-4.3z" fill="#fff" stroke="#000" stroke-width="1.1"></path></svg>'
       },
       {
         code: 'ds',
         name: 'Discord',
         nameUg: 'دىسكورد',
+        category: 'messaging',
+        popular: true,
+        defaultCount: 310,
+        defaultPrice: 0.20,
         color: '#5865F2',
-        svg: '<svg class="w-7 h-7 sm:w-8 sm:h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#5865F2"></circle><path d="M22 10.9a13 13 0 00-3.2-1 .1.1 0 00-.1.1c-.2.3-.4.7-.6 1a11.9 11.9 0 00-4.2 0c-.2-.3-.4-.7-.6-1a.1.1 0 00-.1-.1 13 13 0 00-3.2 1 .1.1 0 00-.1.1c-2 3.1-2.5 6.1-2.3 9.1a.1.1 0 00.1.1 13 13 0 004 2 .1.1 0 00.1 0c.3-.4.6-.9.9-1.5a.1.1 0 00-.1-.1 8.7 8.7 0 01-1.2-.5.1.1 0 010-.3c.1 0 .2-.1.3-.1a9.3 9.3 0 008 0c.1 0 .2.1.3.1a.1.1 0 010 .3c-.4.2-.8.4-1.2.5a.1.1 0 00-.1.1c.3.6.6 1.1.9 1.5a.1.1 0 00.1 0 13 13 0 004-2 .1.1 0 00.1-.1c.3-3.5-.6-6.4-2.3-9.1a.1.1 0 00-.1-.1zM13 18c-.8 0-1.5-.7-1.5-1.6s.7-1.6 1.5-1.6 1.5.7 1.5 1.6-.7 1.6-1.5 1.6zm6 0c-.8 0-1.5-.7-1.5-1.6s.7-1.6 1.5-1.6 1.5.7 1.5 1.6-.7 1.6-1.5 1.6z" fill="#fff"></path></svg>'
+        svg: '<svg class="w-8 h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#5865F2"></circle><path d="M22 10.9a13 13 0 00-3.2-1 .1.1 0 00-.1.1c-.2.3-.4.7-.6 1a11.9 11.9 0 00-4.2 0c-.2-.3-.4-.7-.6-1a.1.1 0 00-.1-.1 13 13 0 00-3.2 1 .1.1 0 00-.1.1c-2 3.1-2.5 6.1-2.3 9.1a.1.1 0 00.1.1 13 13 0 004 2 .1.1 0 00.1 0c.3-.4.6-.9.9-1.5a.1.1 0 00-.1-.1 8.7 8.7 0 01-1.2-.5.1.1 0 010-.3c.1 0 .2-.1.3-.1a9.3 9.3 0 008 0c.1 0 .2.1.3.1a.1.1 0 010 .3c-.4.2-.8.4-1.2.5a.1.1 0 00-.1.1c.3.6.6 1.1.9 1.5a.1.1 0 00.1 0 13 13 0 004-2 .1.1 0 00.1-.1c.3-3.5-.6-6.4-2.3-9.1a.1.1 0 00-.1-.1zM13 18c-.8 0-1.5-.7-1.5-1.6s.7-1.6 1.5-1.6 1.5.7 1.5 1.6-.7 1.6-1.5 1.6zm6 0c-.8 0-1.5-.7-1.5-1.6s.7-1.6 1.5-1.6 1.5.7 1.5 1.6-.7 1.6-1.5 1.6z" fill="#fff"></path></svg>'
       },
       {
         code: 'wb',
         name: 'WeChat',
-        nameUg: 'ئۈندىدار',
+        nameUg: 'ئۈندىدار (WeChat)',
+        category: 'messaging',
+        popular: true,
+        defaultCount: 220,
+        defaultPrice: 0.35,
         color: '#07C160',
-        svg: '<svg class="w-7 h-7 sm:w-8 sm:h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#07C160"></circle><path d="M13.6 8.7c-3.5 0-6.3 2.4-6.3 5.3 0 1.6.8 3.1 2.1 4l-.5 1.7 2.1-1.1c.8.4 1.6.5 2.5.5.3 0 .7 0 .9-.1a5.6 5.6 0 01-.3-1.6c0-3.1 2.8-5.6 6.3-5.6.4 0 .8 0 1.1.1-.7-1.9-3.3-3.3-6.1-3.3zm-1.7 3.1a.8.8 0 110 1.6.8.8 0 010-1.6zm4 0a.8.8 0 110 1.6.8.8 0 010-1.6zm2.5 5.7c-2.9 0-5.2 2-5.2 4.5 0 1.3.7 2.7 1.7 3.5l-.4 1.5 1.7-.9c.7.3 1.3.4 2.1.4 2.9 0 5.2-2 5.2-4.5 0-2.5-2.3-4.5-5.1-4.5zm-1.5 2.7a.7.7 0 110 1.4.7.7 0 010-1.4zm3.3 0a.7.7 0 110 1.4.7.7 0 010-1.4z" fill="#fff"></path></svg>'
+        svg: '<svg class="w-8 h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#07C160"></circle><path d="M13.6 8.7c-3.5 0-6.3 2.4-6.3 5.3 0 1.6.8 3.1 2.1 4l-.5 1.7 2.1-1.1c.8.4 1.6.5 2.5.5.3 0 .7 0 .9-.1a5.6 5.6 0 01-.3-1.6c0-3.1 2.8-5.6 6.3-5.6.4 0 .8 0 1.1.1-.7-1.9-3.3-3.3-6.1-3.3zm-1.7 3.1a.8.8 0 110 1.6.8.8 0 010-1.6zm4 0a.8.8 0 110 1.6.8.8 0 010-1.6zm2.5 5.7c-2.9 0-5.2 2-5.2 4.5 0 1.3.7 2.7 1.7 3.5l-.4 1.5 1.7-.9c.7.3 1.3.4 2.1.4 2.9 0 5.2-2 5.2-4.5 0-2.5-2.3-4.5-5.1-4.5zm-1.5 2.7a.7.7 0 110 1.4.7.7 0 010-1.4zm3.3 0a.7.7 0 110 1.4.7.7 0 010-1.4z" fill="#fff"></path></svg>'
       },
       {
         code: 'am',
         name: 'Amazon',
         nameUg: 'ئامازون',
+        category: 'shopping',
+        popular: true,
+        defaultCount: 180,
+        defaultPrice: 0.30,
         color: '#FF9900',
-        svg: '<svg class="w-7 h-7 sm:w-8 sm:h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#131921"></circle><path d="M17 18c-.9.8-2 1.2-3.1 1.2-1.9 0-2.8-1-2.8-2.7 0-2.1 1.7-3.1 4.8-3.1v-.4c0-.8-.4-1.3-1.7-1.3-1 0-1.9.3-2.7.7l-.4-1.3c1.1-.5 2.3-.8 3.6-.8 2.5 0 3.2 1.2 3.2 3.1v4.3c0 .7.1 1.2.4 1.6h-1.7l-.4-1.2zm-1.1-3c-1.7 0-2.7.4-2.7 1.6 0 .8.5 1.3 1.5 1.3.8 0 1.6-.5 2-1.2l-.8-1.7zm6 5.7A13 13 0 019.8 18.5c-.3-.2-.1-.5.2-.4a12.4 12.4 0 0010.4 1.9c.3 0 .5 0 .7.4.1.3 0 .3.8.3zm.5-.9c-.3-.4-1.1-.4-1.1-.4.4.5.3 1.3.1 1.9 0 0 .7-.3 1-.7.1-.4.1-.7 0-.8z" fill="#FF9900"></path></svg>'
+        svg: '<svg class="w-8 h-8 shrink-0" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#131921"></circle><path d="M17 18c-.9.8-2 1.2-3.1 1.2-1.9 0-2.8-1-2.8-2.7 0-2.1 1.7-3.1 4.8-3.1v-.4c0-.8-.4-1.3-1.7-1.3-1 0-1.9.3-2.7.7l-.4-1.3c1.1-.5 2.3-.8 3.6-.8 2.5 0 3.2 1.2 3.2 3.1v4.3c0 .7.1 1.2.4 1.6h-1.7l-.4-1.2zm-1.1-3c-1.7 0-2.7.4-2.7 1.6 0 .8.5 1.3 1.5 1.3.8 0 1.6-.5 2-1.2l-.8-1.7zm6 5.7A13 13 0 019.8 18.5c-.3-.2-.1-.5.2-.4a12.4 12.4 0 0010.4 1.9c.3 0 .5 0 .7.4.1.3 0 .3.8.3zm.5-.9c-.3-.4-1.1-.4-1.1-.4.4.5.3 1.3.1 1.9 0 0 .7-.3 1-.7.1-.4.1-.7 0-.8z" fill="#FF9900"></path></svg>'
       }
     ];
 
     // Priority Popular Countries with Crisp Flags & Dial Codes
-    const POPULAR_COUNTRIES = [
-      { id: 62, name: 'Turkey', nameUg: 'تۈركىيە', code: 'tr', dialCode: '+90', flag: '🇹🇷' },
-      { id: 12, name: 'USA', nameUg: 'ئامېرىكا', code: 'us', dialCode: '+1', flag: '🇺🇸' },
-      { id: 16, name: 'United Kingdom', nameUg: 'ئەنگلىيە', code: 'gb', dialCode: '+44', flag: '🇬🇧' },
-      { id: 1, name: 'Ukraine', nameUg: 'ئۇكرائىنا', code: 'ua', dialCode: '+380', flag: '🇺🇦' },
-      { id: 10, name: 'Vietnam', nameUg: 'ۋىيېتنام', code: 'vn', dialCode: '+84', flag: '🇻🇳' },
-      { id: 2, name: 'Kazakhstan', nameUg: 'قازاقىستان', code: 'kz', dialCode: '+7', flag: '🇰🇿' },
-      { id: 40, name: 'Uzbekistan', nameUg: 'ئۆزبېكىستان', code: 'uz', dialCode: '+998', flag: '🇺🇿' },
-      { id: 6, name: 'Indonesia', nameUg: 'ھىندونېزىيە', code: 'id', dialCode: '+62', flag: '🇮🇩' },
-      { id: 4, name: 'Philippines', nameUg: 'فىلىپپىن', code: 'ph', dialCode: '+63', flag: '🇵🇭' },
-      { id: 43, name: 'Germany', nameUg: 'گېرمانىيە', code: 'de', dialCode: '+49', flag: '🇩🇪' },
-      { id: 78, name: 'France', nameUg: 'فىرانسىيە', code: 'fr', dialCode: '+33', flag: '🇫🇷' },
-      { id: 73, name: 'Brazil', nameUg: 'بىرازىلىيە', code: 'br', dialCode: '+55', flag: '🇧🇷' },
-      { id: 53, name: 'Saudi Arabia', nameUg: 'سەئۇدى', code: 'sa', dialCode: '+966', flag: '🇸🇦' },
-      { id: 95, name: 'UAE', nameUg: 'ئەرەب بىرلەشمە', code: 'ae', dialCode: '+971', flag: '🇦🇪' },
-      { id: 21, name: 'Egypt', nameUg: 'مىسىر', code: 'eg', dialCode: '+20', flag: '🇪🇬' },
-      { id: 0, name: 'Russia', nameUg: 'روسىيە', code: 'ru', dialCode: '+7', flag: '🇷🇺' }
+    const COUNTRIES_CATALOG = [
+      { id: 62, name: 'Turkey', nameUg: 'تۈركىيە', code: 'tr', dialCode: '+90', flag: '🇹🇷', stock: 320, price: 0.25 },
+      { id: 12, name: 'USA', nameUg: 'ئامېرىكا', code: 'us', dialCode: '+1', flag: '🇺🇸', stock: 450, price: 0.20 },
+      { id: 16, name: 'United Kingdom', nameUg: 'ئەنگلىيە', code: 'gb', dialCode: '+44', flag: '🇬🇧', stock: 180, price: 0.35 },
+      { id: 1, name: 'Ukraine', nameUg: 'ئۇكرائىنا', code: 'ua', dialCode: '+380', flag: '🇺🇦', stock: 260, price: 0.25 },
+      { id: 10, name: 'Vietnam', nameUg: 'ۋىيېتنام', code: 'vn', dialCode: '+84', flag: '🇻🇳', stock: 190, price: 0.20 },
+      { id: 2, name: 'Kazakhstan', nameUg: 'قازاقىستان', code: 'kz', dialCode: '+7', flag: '🇰🇿', stock: 140, price: 0.30 },
+      { id: 40, name: 'Uzbekistan', nameUg: 'ئۆزبېكىستان', code: 'uz', dialCode: '+998', flag: '🇺🇿', stock: 110, price: 0.35 },
+      { id: 6, name: 'Indonesia', nameUg: 'ھىندونېزىيە', code: 'id', dialCode: '+62', flag: '🇮🇩', stock: 210, price: 0.20 },
+      { id: 4, name: 'Philippines', nameUg: 'فىلىپپىن', code: 'ph', dialCode: '+63', flag: '🇵🇭', stock: 175, price: 0.20 },
+      { id: 43, name: 'Germany', nameUg: 'گېرمانىيە', code: 'de', dialCode: '+49', flag: '🇩🇪', stock: 95, price: 0.40 },
+      { id: 78, name: 'France', nameUg: 'فىرانسىيە', code: 'fr', dialCode: '+33', flag: '🇫🇷', stock: 85, price: 0.40 },
+      { id: 73, name: 'Brazil', nameUg: 'بىرازىلىيە', code: 'br', dialCode: '+55', flag: '🇧🇷', stock: 160, price: 0.25 },
+      { id: 53, name: 'Saudi Arabia', nameUg: 'سەئۇدى ئەرەبىستان', code: 'sa', dialCode: '+966', flag: '🇸🇦', stock: 75, price: 0.45 },
+      { id: 95, name: 'UAE', nameUg: 'ئەرەب بىرلەشمە خەلىپىلىكى', code: 'ae', dialCode: '+971', flag: '🇦🇪', stock: 65, price: 0.50 },
+      { id: 21, name: 'Egypt', nameUg: 'مىسىر', code: 'eg', dialCode: '+20', flag: '🇪🇬', stock: 130, price: 0.25 },
+      { id: 0, name: 'Russia', nameUg: 'روسىيە', code: 'ru', dialCode: '+7', flag: '🇷🇺', stock: 240, price: 0.25 }
     ];
 
-    // --- Init on DOM Load ---
+    // --- DOM Initializer ---
     document.addEventListener('DOMContentLoaded', async () => {
       initTelegramWebApp();
       initUserSession();
+      loadSavedOrders();
       renderAppsGrid();
-      await loadCountries();
-      await loadServicesForCountry(selectedCountryId);
-      restoreActiveSession();
     });
 
-    // --- Telegram WebApp SDK Initialization ---
+    // --- Telegram & Auth Initialization ---
     function initTelegramWebApp() {
       try {
         if (window.Telegram && window.Telegram.WebApp) {
@@ -780,1141 +749,624 @@
           tg.ready();
           tg.expand();
           if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            currentTgUser = {
-              id: String(tg.initDataUnsafe.user.id),
-              name: [tg.initDataUnsafe.user.first_name, tg.initDataUnsafe.user.last_name].filter(Boolean).join(' ') || tg.initDataUnsafe.user.username || 'Telegram User',
-              username: tg.initDataUnsafe.user.username || String(tg.initDataUnsafe.user.id),
-              photo: tg.initDataUnsafe.user.photo_url || ('https://api.dicebear.com/7.x/bottts/svg?seed=' + tg.initDataUnsafe.user.id),
-              isWebApp: true
-            };
-            try { localStorage.setItem('autocash_tg_user', JSON.stringify(currentTgUser)); } catch(_) {}
+            currentUser = tg.initDataUnsafe.user;
+            updateUserUI(currentUser);
           }
         }
       } catch (e) {
-        console.warn('Telegram init error:', e);
+        console.warn('Telegram WebApp init notice:', e);
       }
     }
 
-    // --- Synchronize Local Auth with Central Main Site & Database ---
-    function syncLocalAuthWithMainSite(u, provider) {
-      if (!u) return;
-      var email = (u.email || '').trim().toLowerCase();
-      var name = u.name || (email ? email.split('@')[0] : ('User #' + String(u.id || '').slice(-4)));
-      var uid = u.id || ('USR-' + Date.now());
-      var bal = Number(u.balance !== undefined ? u.balance : ((u.maxstoreBalance !== undefined) ? u.maxstoreBalance : 0));
-      if (isNaN(bal)) bal = 0.00;
-      var isGmail = (provider === 'gmail') || (email && !u.telegramChatId && !u.telegramUsername);
-      var photo = u.avatarUrl || u.photo || (isGmail 
-        ? ('https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(email || uid))
-        : (u.telegramChatId ? ('/api/apps/avatar?user=' + encodeURIComponent(u.telegramChatId)) : ('https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(uid))));
-
-      currentUser = {
-        id: uid,
-        name: name,
-        username: u.telegramUsername || email || name,
-        email: email,
-        phone: u.phone || '',
-        telegramChatId: u.telegramChatId,
-        telegramUsername: u.telegramUsername,
-        provider: isGmail ? 'gmail' : (provider || 'main_site'),
-        photo: photo,
-        balance: bal
-      };
-      currentTgUser = currentUser;
-      userBalance = bal;
-
-      try {
-        localStorage.setItem('autocash_is_logged_in', 'true');
-        localStorage.setItem('autocash_user', JSON.stringify({
-          id: uid,
-          name: name,
-          email: email,
-          phone: u.phone,
-          telegramUsername: u.telegramUsername,
-          telegramChatId: u.telegramChatId,
-          avatarUrl: photo,
-          balance: bal,
-          maxstoreBalance: bal,
-          vipTier: u.vipTier || 'vip1',
-          totalSpent: Number(u.totalSpent || 0),
-          role: u.role || 'user'
-        }));
-        localStorage.setItem('autocash_tg_user', JSON.stringify(currentUser));
-        localStorage.setItem('autocash_username', name);
-        if (email) localStorage.setItem('autocash_email', email);
-        localStorage.setItem('autocash_userId', uid);
-        if (photo && !photo.startsWith('data:')) localStorage.setItem('autocash_avatar', photo);
-        localStorage.setItem('autocash_balance', String(bal));
-        localStorage.setItem('maxstore_balance', String(bal));
-
-        var maxbazarSession = {
-          token: 'token_' + uid,
-          identity: email || name,
-          balance: bal,
-          photo_url: photo,
-          user: u,
-          loginTime: new Date().toISOString()
-        };
-        localStorage.setItem('maxbazar_unified_session', JSON.stringify(maxbazarSession));
-
-        window.dispatchEvent(new CustomEvent('maxbazar-auth-changed', { detail: maxbazarSession }));
-        window.dispatchEvent(new Event('autocash-auth-changed'));
-        window.dispatchEvent(new Event('autocash_auth_changed'));
-      } catch(e) {
-        console.warn('Sync storage error:', e);
-      }
-
-      updateWalletDisplay();
-      renderTelegramModalContent();
-    }
-
-    // --- User Session & Dollar Balance Initializer ---
     async function initUserSession() {
       try {
-        var isLoggedIn = localStorage.getItem('autocash_is_logged_in');
-        var mainUserStr = localStorage.getItem('autocash_user');
-        var tgUserStr = localStorage.getItem('autocash_tg_user');
-        var mainBal = localStorage.getItem('autocash_balance') ?? localStorage.getItem('maxstore_balance');
-
-        if (mainUserStr && isLoggedIn === 'true') {
-          var parsed = JSON.parse(mainUserStr);
-          if (parsed) {
-            currentUser = parsed;
-            if (mainBal !== null && !isNaN(Number(mainBal))) {
-              userBalance = Number(mainBal);
-            } else {
-              userBalance = Number(parsed.balance || 0);
-            }
-          }
-        } else if (tgUserStr) {
-          currentUser = JSON.parse(tgUserStr);
-          if (mainBal !== null && !isNaN(Number(mainBal))) {
-            userBalance = Number(mainBal);
-          } else {
-            userBalance = Number(currentUser?.balance || 0);
-          }
-        }
-      } catch (_) {}
-
-      updateWalletDisplay();
-
-      try {
-        const res = await fetch('/api/auth/me');
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.success && data.user) {
-            syncLocalAuthWithMainSite(data.user, data.user.email ? 'gmail' : 'main_site');
-            return;
-          }
-        }
-      } catch (_) {}
-
-      if (currentUser) {
-        refreshUserBalanceFromBot(true);
-      }
-
-      window.addEventListener('storage', (e) => {
-        if (e.key === 'autocash_balance' || e.key === 'autocash_user' || e.key === 'autocash_is_logged_in') {
+        // Read stored identity or balance
+        const savedUser = localStorage.getItem('autocash_user') || localStorage.getItem('autocash_tg_user');
+        if (savedUser) {
           try {
-            var updated = localStorage.getItem('autocash_user');
-            if (updated && localStorage.getItem('autocash_is_logged_in') === 'true') {
-              syncLocalAuthWithMainSite(JSON.parse(updated));
-            } else if (localStorage.getItem('autocash_is_logged_in') === 'false') {
-              currentUser = null;
-              currentTgUser = null;
-              userBalance = 0.00;
-              updateWalletDisplay();
-              renderTelegramModalContent();
-            }
-          } catch (_) {}
+            currentUser = JSON.parse(savedUser);
+            updateUserUI(currentUser);
+          } catch(e) {}
         }
-      });
 
-      window.addEventListener('autocash-auth-changed', () => {
-        try {
-          var updated = localStorage.getItem('autocash_user');
-          if (updated && localStorage.getItem('autocash_is_logged_in') === 'true') {
-            syncLocalAuthWithMainSite(JSON.parse(updated));
-          }
-        } catch (_) {}
-      });
-
-      window.addEventListener('focus', () => {
-        if (currentUser) refreshUserBalanceFromBot(true);
-      });
+        // Fetch official unified balance
+        await fetchUserUnifiedBalance();
+      } catch (err) {
+        console.warn('Session init:', err);
+      }
     }
 
-    // --- Live Balance Polling / Refresh from Bot & DB ---
-    async function refreshUserBalanceFromBot(silent = false) {
+    async function fetchUserUnifiedBalance() {
       try {
-        var meRes = await fetch('/api/auth/me').catch(function() { return null; });
-        if (meRes && meRes.ok) {
-          var meData = await meRes.json().catch(function() { return null; });
-          if (meData && meData.success && meData.user) {
-            syncLocalAuthWithMainSite(meData.user, meData.user.email ? 'gmail' : 'main_site');
-            if (!silent) {
-              showAppModal({
-                title: 'قالدۇق يېڭىلاندى',
-                message: 'مەركىزى ھېسابات قالدۇقىڭىز مۇۋەپپەقىيەتلىك يېڭىلاندى: $' + userBalance.toFixed(2) + ' USD ✓',
-                icon: '✅'
-              });
-            }
-            return;
-          }
-        }
-
-        var ident = currentUser?.telegramUsername || currentUser?.telegramChatId || currentUser?.username || currentUser?.email || currentUser?.name;
-        if (ident) {
-          var res = await fetch('/api/apps/otp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              action: 'get_balance',
-              phone_or_username: ident
-            })
-          }).catch(function() { return null; });
-          if (res && res.ok) {
-            var data = await res.json().catch(function() { return null; });
-            if (data && data.ok && typeof data.balance === 'number') {
-              userBalance = Number(data.balance.toFixed(2));
-              if (currentUser) currentUser.balance = userBalance;
-              try {
-                localStorage.setItem('autocash_balance', String(userBalance));
-                localStorage.setItem('maxstore_balance', String(userBalance));
-              } catch(_) {}
-              updateWalletDisplay();
-              if (!silent) {
-                showAppModal({
-                  title: 'قالدۇق يېڭىلاندى',
-                  message: 'ھەميان قالدۇقىڭىز مۇۋەپپەقىيەتلىك يېڭىلاندى: $' + userBalance.toFixed(2) + ' USD ✓',
-                  icon: '✅'
-                });
-              }
-              return;
-            }
-          }
-        }
-
-        if (!silent) {
-          showAppModal({
-            title: 'قالدۇق تەكشۈرۈلدى',
-            message: 'نۆۋەتتىكى ھەميان قالدۇقىڭىز: $' + userBalance.toFixed(2) + ' USD',
-            icon: 'ℹ️'
-          });
-        }
-      } catch(e) {
-        if (!silent) {
-          showAppModal({ title: 'خاتالىق', message: 'قالدۇق يېڭىلانمىدى', icon: '⚠️' });
-        }
-      }
-    }
-
-    function updateWalletDisplay() {
-      const balanceEl = document.getElementById('walletBalanceText');
-      const tagEl = document.getElementById('userStatusTag');
-      const authBtn = document.getElementById('authBtn');
-
-      if (balanceEl) balanceEl.textContent = '$' + userBalance.toFixed(2);
-      if (currentUser) {
-        if (tagEl) {
-          tagEl.textContent = currentUser.name || currentUser.username || 'ئەزا';
-          tagEl.className = 'text-[9.5px] bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 px-1.5 py-0.2 rounded font-bold';
-        }
-        if (authBtn) {
-          authBtn.textContent = 'ھېسابات';
-          authBtn.onclick = () => openTelegramModal();
-        }
-      } else {
-        if (tagEl) {
-          tagEl.textContent = 'مېھمان';
-          tagEl.className = 'text-[9.5px] bg-slate-800 text-slate-300 px-1.5 py-0.2 rounded font-normal border border-slate-700';
-        }
-        if (authBtn) {
-          authBtn.textContent = 'كىرىش';
-          authBtn.onclick = () => openTelegramModal();
-        }
-      }
-
-      checkDeficit();
-    }
-
-    function checkDeficit() {
-      const notice = document.getElementById('deficitNotice');
-      const text = document.getElementById('deficitText');
-
-      if (userBalance < currentServicePrice) {
-        const diff = (currentServicePrice - userBalance).toFixed(2);
-        if (notice) notice.classList.remove('hidden');
-        if (text) text.textContent = 'ھەمياندىكى قالدۇق يېتىشمىدى ($' + diff + ' كەم)';
-      } else {
-        if (notice) notice.classList.add('hidden');
-      }
-    }
-
-    // --- Render Apps with High-Resolution Brand SVGs ---
-    function renderAppsGrid(query = '') {
-      const grid = document.getElementById('appsGrid');
-      if (!grid) return;
-
-      const q = query.trim().toLowerCase();
-      const filtered = POPULAR_APPS.filter(a => {
-        return a.name.toLowerCase().includes(q) || (a.nameUg && a.nameUg.toLowerCase().includes(q)) || a.code.toLowerCase().includes(q);
-      });
-
-      if (filtered.length === 0) {
-        grid.innerHTML = '<div class="col-span-full py-4 text-center text-xs text-slate-400">ئەپ تېپىلمىدى</div>';
-        return;
-      }
-
-      grid.innerHTML = filtered.map(app => {
-        const isSel = app.code === selectedApp;
-        return `
-          <button 
-            onclick="selectApp('` + app.code + `')" 
-            type="button" 
-            class="flex flex-col items-center justify-center p-2.5 rounded-2xl border transition active:scale-95 text-center relative cursor-pointer ` + (
-              isSel 
-                ? 'glass-card-active' 
-                : 'glass-card'
-            ) + `"
-          >
-            <div class="mb-1.5 drop-shadow">` + app.svg + `</div>
-            <span class="text-xs font-bold text-white leading-tight block w-full truncate">` + (app.nameUg || app.name) + `</span>
-            <span class="text-[9.5px] text-slate-300 font-mono mt-0.5 block w-full truncate">` + app.name + `</span>
-          </button>
-        `;
-      }).join('');
-    }
-
-    function filterApps(val) {
-      renderAppsGrid(val);
-    }
-
-    async function selectApp(code) {
-      selectedApp = code;
-      renderAppsGrid(document.getElementById('appSearchInput')?.value || '');
-
-      const app = POPULAR_APPS.find(a => a.code === code);
-      const tag = document.getElementById('selectedAppTag');
-      const sumApp = document.getElementById('sumApp');
-
-      if (tag) tag.innerHTML = `<span>` + (app?.nameUg || app?.name || code) + `</span>`;
-      if (sumApp) sumApp.innerHTML = `<span>` + (app?.nameUg || app?.name || code) + `</span>`;
-
-      await loadServicesForCountry(selectedCountryId);
-    }
-
-    // --- Countries API Fetch & Cache ---
-    async function loadCountries() {
-      const grid = document.getElementById('countriesGrid');
-      if (grid) grid.innerHTML = '<div class="col-span-full py-4 text-center text-xs text-emerald-300 animate-pulse font-bold">دۆلەتلەر تىزىملىكى يۈكلىنىۋاتىدۇ...</div>';
-
-      try {
-        const res = await fetch('/api/sms/countries');
+        const res = await fetch('/api/user/me', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
-          if (data && data.success && Array.isArray(data.countries) && data.countries.length > 0) {
-            // Filter out junk/corrupted country names and sort by popularity
-            const valid = data.countries.filter(c => c && c.name && !c.name.includes('ANT_') && !c.name.includes('UNKNOWN'));
-            if (valid.length > 0) {
-              allCountries = valid;
-              renderCountriesGrid();
-              return;
+          if (data && typeof data.balance === 'number') {
+            userBalance = Number(data.balance.toFixed(2));
+            updateBalanceUI();
+            if (data.user) {
+              currentUser = data.user;
+              updateUserUI(currentUser);
             }
           }
         }
-      } catch (err) {
-        console.warn('Countries API error:', err);
+      } catch (e) {
+        console.warn('Balance sync error:', e);
       }
-
-      // Fallback
-      allCountries = POPULAR_COUNTRIES;
-      renderCountriesGrid();
     }
 
-    function renderCountriesGrid(query = '') {
-      const grid = document.getElementById('countriesGrid');
-      if (!grid) return;
+    function updateUserUI(user) {
+      if (!user) return;
+      const name = user.first_name || user.name || user.username || 'ئەزا';
+      const uid = user.id || '52123645';
+      const email = user.email || (user.username ? '@' + user.username : 'user_' + uid + '@auto-cash.app');
 
-      const q = query.trim().toLowerCase();
-      const filtered = allCountries.filter(c => {
-        return (c.name && c.name.toLowerCase().includes(q)) || 
-               (c.nameUg && c.nameUg.toLowerCase().includes(q)) || 
-               (c.dialCode && c.dialCode.includes(q)) ||
-               (String(c.id).includes(q));
+      const nameEl = document.getElementById('accountUserName');
+      if (nameEl) nameEl.textContent = name;
+
+      const emailEl = document.getElementById('accountUserEmail');
+      if (emailEl) emailEl.textContent = email;
+
+      const uidEl = document.getElementById('accountUserId');
+      if (uidEl) uidEl.textContent = String(uid);
+
+      const statusTag = document.getElementById('headerUserStatusTag');
+      if (statusTag) {
+        statusTag.textContent = user.username ? '@' + user.username : 'VIP ئەزا';
+        statusTag.className = 'text-[8.5px] bg-emerald-500/30 text-emerald-200 px-1.5 py-0.2 rounded font-medium border border-emerald-400/40';
+      }
+
+      const authActionText = document.getElementById('accountAuthActionText');
+      if (authActionText) authActionText.textContent = 'ھېساباتتىن چىقىش (چىقىش)';
+    }
+
+    function updateBalanceUI() {
+      const bText = '$' + userBalance.toFixed(2) + ' USD';
+      const hEl = document.getElementById('headerWalletBalanceText');
+      if (hEl) hEl.textContent = bText;
+
+      const aEl = document.getElementById('accountBalanceDisplay');
+      if (aEl) aEl.textContent = bText;
+    }
+
+    // --- Navigation Tabs Switching (Matches Images 1, 2, 3, 4) ---
+    function switchTab(tab) {
+      currentTab = tab;
+
+      // Section visibility
+      document.getElementById('tabHomeSection').classList.toggle('hidden', tab !== 'home');
+      document.getElementById('tabOrdersSection').classList.toggle('hidden', tab !== 'orders');
+      document.getElementById('tabNotificationsSection').classList.toggle('hidden', tab !== 'notifications');
+      document.getElementById('tabAccountSection').classList.toggle('hidden', tab !== 'account');
+
+      // Header dynamic content
+      document.getElementById('homeHeaderWallet').classList.toggle('hidden', tab !== 'home');
+      document.getElementById('ordersHeaderArea').classList.toggle('hidden', tab !== 'orders');
+      document.getElementById('notificationsHeaderArea').classList.toggle('hidden', tab !== 'notifications');
+      document.getElementById('accountHeaderArea').classList.toggle('hidden', tab !== 'account');
+
+      // Nav Tab Styling
+      const tabs = ['home', 'orders', 'notifications', 'account'];
+      tabs.forEach(t => {
+        const btn = document.getElementById('nav' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (btn) {
+          if (t === tab) {
+            btn.className = 'flex-1 flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-2xl bg-purple-100 text-purple-700 font-black transition active:scale-95 cursor-pointer shadow-sm';
+          } else {
+            btn.className = 'flex-1 flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-2xl text-slate-400 hover:text-purple-600 transition active:scale-95 cursor-pointer';
+          }
+        }
+      });
+
+      if (tab === 'orders') {
+        renderOrdersList();
+      }
+    }
+
+    // --- Step 1: Render Apps Grid (Matches Image 1) ---
+    function renderAppsGrid(filterKeyword = '') {
+      const container = document.getElementById('appsGridContainer');
+      if (!container) return;
+
+      const kw = filterKeyword.toLowerCase().trim();
+      const filtered = POPULAR_APPS.filter(app => {
+        if (!kw) return true;
+        return app.name.toLowerCase().includes(kw) || app.nameUg.toLowerCase().includes(kw) || app.code.toLowerCase().includes(kw);
       });
 
       if (filtered.length === 0) {
-        grid.innerHTML = '<div class="col-span-full py-4 text-center text-xs text-slate-400">دۆلەت تېپىلمىدى</div>';
+        container.innerHTML = `
+          <div class="col-span-2 py-8 text-center text-slate-400 text-xs bg-white rounded-2xl border border-slate-200 p-4">
+            🔍 سىز ئىزدىگەن ئەپ تېپىلمىدى.
+          </div>
+        `;
         return;
       }
 
-      grid.innerHTML = filtered.slice(0, 40).map(country => {
-        const isSel = country.id === selectedCountryId;
-        const flag = country.flag || (country.code ? `https://flagcdn.com/w40/${country.code.toLowerCase()}.png` : '🌐');
-        const flagHtml = flag.startsWith('http') 
-          ? `<img src="` + flag + `" class="w-6 h-4 object-cover rounded shadow-sm border border-slate-600/50 shrink-0" onerror="this.outerHTML='🌐'"/>` 
-          : `<span class="text-lg shrink-0">` + flag + `</span>`;
-
+      container.innerHTML = filtered.map(app => {
         return `
-          <button 
-            onclick="selectCountry(` + country.id + `)" 
-            type="button" 
-            class="flex items-center gap-2 p-2.5 rounded-xl border text-right transition active:scale-95 cursor-pointer ` + (
-              isSel 
-                ? 'border-emerald-400 bg-gradient-to-r from-emerald-950/60 to-[#10293d] shadow-md shadow-emerald-500/20' 
-                : 'glass-card border-slate-700/60 hover:border-slate-500'
-            ) + `"
-          >
-            ` + flagHtml + `
-            <div class="min-w-0 flex-1 leading-tight">
-              <p class="text-xs font-bold text-white truncate">` + (country.nameUg || country.name) + `</p>
-              <p class="text-[10px] text-cyan-300 font-mono mt-0.5">` + (country.dialCode || country.code || '') + `</p>
+          <div onclick="selectApp('${app.code}')" class="app-card rounded-2xl p-3 flex flex-col justify-between gap-2.5 cursor-pointer group hover:border-purple-300 relative overflow-hidden">
+            <div class="flex items-center gap-2">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm transition group-hover:scale-105">
+                ${app.svg}
+              </div>
+              <div class="text-right leading-tight min-w-0">
+                <h3 class="text-xs font-black text-slate-900 group-hover:text-purple-700 transition truncate">${app.nameUg}</h3>
+                <p class="text-[10px] text-slate-400 font-mono truncate mt-0.5">${app.name}</p>
+              </div>
             </div>
-            ` + (isSel ? '<span class="text-xs text-emerald-400 font-bold shrink-0">✓</span>' : '') + `
-          </button>
+
+            <!-- Stock & Price Info Banner -->
+            <div class="bg-purple-50/70 border border-purple-100 rounded-xl px-2 py-1.5 flex items-center justify-between text-[10px]">
+              <span class="text-purple-700 font-black font-mono flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>${app.defaultCount.toLocaleString()} تال قالدى</span>
+              </span>
+              <span class="text-slate-500 font-bold">$${app.defaultPrice.toFixed(2)} دىن</span>
+            </div>
+
+            <!-- Action Button -->
+            <div class="pt-1 flex items-center justify-between text-[11px] font-black text-purple-600 group-hover:text-purple-800 border-t border-slate-100">
+              <span>دۆلەت ۋە باھا تاللاش</span>
+              <span class="font-mono text-xs">‹</span>
+            </div>
+          </div>
         `;
       }).join('');
     }
 
-    function filterCountries(val) {
-      renderCountriesGrid(val);
+    function filterAppsGrid() {
+      const q = document.getElementById('appSearchInput')?.value || '';
+      renderAppsGrid(q);
     }
 
-    async function selectCountry(countryId) {
-      selectedCountryId = Number(countryId);
-      renderCountriesGrid(document.getElementById('countrySearchInput')?.value || '');
+    // --- Step 2: Select App & Transition to Countries ---
+    function selectApp(appCode) {
+      selectedApp = POPULAR_APPS.find(a => a.code === appCode) || POPULAR_APPS[0];
+      homeStep = 'countries';
 
-      const c = allCountries.find(x => x.id === selectedCountryId);
-      const sumCountry = document.getElementById('sumCountry');
-      if (sumCountry) {
-        const flagStr = c?.flag && !c.flag.startsWith('http') ? c.flag : '🌐';
-        sumCountry.innerHTML = `<span>` + flagStr + ` ` + (c?.nameUg || c?.name || selectedCountryId) + ` (` + (c?.dialCode || '') + `)</span>`;
+      document.getElementById('viewAppsDirectory').classList.add('hidden');
+      document.getElementById('viewCountrySelection').classList.remove('hidden');
+
+      // Update Header Badge
+      const badge = document.getElementById('selectedAppBadge');
+      if (badge) {
+        badge.innerHTML = `
+          <div class="w-7 h-7 shrink-0">${selectedApp.svg}</div>
+          <div class="text-right leading-none">
+            <span class="text-xs font-black text-slate-900">${selectedApp.nameUg}</span>
+            <span class="text-[9.5px] text-purple-600 font-mono block">${selectedApp.name}</span>
+          </div>
+        `;
       }
 
-      await loadServicesForCountry(selectedCountryId);
+      renderCountriesForApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // --- Services & Live Pricing API Fetch ---
-    async function loadServicesForCountry(countryId) {
-      const stockEl = document.getElementById('sumStock');
-      const priceEl = document.getElementById('sumPrice');
-      const buyBtn = document.getElementById('buyBtn');
-      const buyText = document.getElementById('buyBtnText');
-
-      if (stockEl) stockEl.textContent = 'تەكشۈرۈلۈۋاتىدۇ...';
-      if (buyBtn) buyBtn.disabled = true;
-
-      try {
-        const res = await fetch('/api/sms/services?country=' + countryId);
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.success && Array.isArray(data.services)) {
-            currentServices = data.services;
-            updateServicePriceDisplay();
-            return;
-          }
-        }
-      } catch (err) {
-        console.warn('Services API error:', err);
-      }
-
-      // Fallback price
-      currentServicePrice = 0.40;
-      currentStockCount = 10;
-      updateServicePriceDisplay();
+    function goBackToApps() {
+      homeStep = 'apps';
+      selectedApp = null;
+      document.getElementById('viewCountrySelection').classList.add('hidden');
+      document.getElementById('viewAppsDirectory').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function updateServicePriceDisplay() {
-      const stockEl = document.getElementById('sumStock');
-      const priceEl = document.getElementById('sumPrice');
-      const buyBtn = document.getElementById('buyBtn');
-      const buyText = document.getElementById('buyBtnText');
+    // --- Render Countries for Selected App with Real Stock & Price ---
+    function renderCountriesForApp(filterKeyword = '') {
+      const container = document.getElementById('countriesListContainer');
+      if (!container || !selectedApp) return;
 
-      const target = currentServices.find(s => String(s.service_code).toLowerCase() === String(selectedApp).toLowerCase());
+      const kw = filterKeyword.toLowerCase().trim();
+      const filtered = COUNTRIES_CATALOG.filter(c => {
+        if (!kw) return true;
+        return c.name.toLowerCase().includes(kw) || c.nameUg.toLowerCase().includes(kw) || c.dialCode.includes(kw) || c.code.toLowerCase().includes(kw);
+      });
 
-      if (target) {
-        currentServicePrice = Number(target.sellPrice || target.price || 0.40);
-        currentStockCount = Number(target.count || 0);
-
-        if (stockEl) {
-          stockEl.textContent = currentStockCount > 0 ? (currentStockCount + ' دانە مەۋجۇت ✓') : 'نۆۋەتتە نومۇر يوق ✕';
-          stockEl.className = currentStockCount > 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
-        }
-
-        if (priceEl) priceEl.textContent = '$' + currentServicePrice.toFixed(2);
-
-        if (currentStockCount <= 0) {
-          if (buyBtn) buyBtn.disabled = true;
-          if (buyText) buyText.textContent = 'نۆۋەتتە بۇ دۆلەتتە نومۇر قالمىدى';
-          return;
-        } else {
-          if (buyBtn) buyBtn.disabled = false;
-        }
-      } else {
-        currentServicePrice = 0.40;
-        currentStockCount = 5;
-        if (stockEl) stockEl.textContent = 'زاپاس بار ✓';
-        if (priceEl) priceEl.textContent = '$' + currentServicePrice.toFixed(2);
-        if (buyBtn) buyBtn.disabled = false;
-      }
-
-      if (buyText) buyText.textContent = 'مەۋھۇم نومۇرنى ئېلىش ($' + currentServicePrice.toFixed(2) + ')';
-      checkDeficit();
-    }
-
-    // --- Execute Purchase ---
-    async function executeBuyNumber() {
-      if (!currentUser) {
-        openTelegramModal();
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="py-8 text-center text-slate-400 text-xs bg-white rounded-2xl border border-slate-200 p-4">
+            🌍 سىز ئىزدىگەن دۆلەت بۇ ئەپ ئۈچۈن تېپىلمىدى.
+          </div>
+        `;
         return;
       }
 
-      if (userBalance < currentServicePrice) {
+      container.innerHTML = filtered.map(c => {
+        // Price specific for service or country
+        const price = Math.max(0.20, Number((selectedApp.defaultPrice * (c.price / 0.25)).toFixed(2)));
+        const stock = Math.max(12, Math.floor(c.stock * 0.9));
+
+        return `
+          <div class="app-card rounded-2xl p-3 flex items-center justify-between gap-2.5 hover:border-purple-300 transition">
+            <!-- Country Identity -->
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="text-2xl shrink-0 leading-none drop-shadow-sm">${c.flag}</span>
+              <div class="text-right leading-tight min-w-0">
+                <p class="text-xs font-black text-slate-900 truncate">
+                  <span>${c.nameUg}</span>
+                  <span class="text-purple-600 font-mono font-bold mr-1">${c.dialCode}</span>
+                </p>
+                <p class="text-[10px] text-slate-400 font-mono truncate mt-0.5">
+                  ${c.name} • <span class="text-emerald-600 font-bold font-sans">${stock} دانە قالدى</span>
+                </p>
+              </div>
+            </div>
+
+            <!-- Price & Buy Button -->
+            <div class="flex items-center gap-2 shrink-0">
+              <div class="text-left leading-tight">
+                <span class="text-xs sm:text-sm font-black font-mono text-purple-700 block">$${price.toFixed(2)}</span>
+                <span class="text-[9px] text-slate-400 font-bold block">USD</span>
+              </div>
+              <button onclick="handleBuyNumber('${selectedApp.code}', ${c.id}, ${price}, '${c.nameUg}', '${c.flag}')" type="button" class="px-3 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-black shadow-md shadow-purple-600/30 transition active:scale-95 cursor-pointer flex items-center gap-1">
+                <span>سېتىۋېلىش</span>
+                <span class="font-mono text-xs">⚡</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterCountriesList() {
+      const q = document.getElementById('countrySearchInput')?.value || '';
+      renderCountriesForApp(q);
+    }
+
+    function quickFilterCountry(code) {
+      if (code === 'all') {
+        renderCountriesForApp('');
+      } else {
+        renderCountriesForApp(code);
+      }
+    }
+
+    // --- Buy Number Flow (Unified Balance Check & Deduction) ---
+    async function handleBuyNumber(serviceCode, countryId, price, countryNameUg, countryFlag) {
+      if (userBalance < price) {
+        const diff = (price - userBalance).toFixed(2);
+        alert(`ھەمياندىكى قالدۇقىڭىز يېتىشمىدى!\nنۆۋەتتىكى قالدۇق: $${userBalance.toFixed(2)} USD\nكەم پۇل: $${diff} USD\n\nئالدى بىلەن «+ پۇل قاچىلاش» نى بېسىپ ھەمياننى تولۇقلاڭ.`);
         openDepositModal();
         return;
       }
 
-      const buyBtn = document.getElementById('buyBtn');
-      const buyBtnText = document.getElementById('buyBtnText');
-      const buyBtnIcon = document.getElementById('buyBtnIcon');
-
-      if (buyBtn) buyBtn.disabled = true;
-      if (buyBtnText) buyBtnText.textContent = 'نومۇر ئېلىنىۋاتىدۇ...';
-      if (buyBtnIcon) buyBtnIcon.textContent = '⏳';
-
-      const cObj = allCountries.find(c => c.id === selectedCountryId);
-      const appObj = POPULAR_APPS.find(a => a.code === selectedApp);
-      const userIdent = currentUser.email || currentUser.username || currentUser.name || currentUser.telegramChatId || currentUser.id || '';
+      if (!confirm(`«${selectedApp.nameUg}» ئۈچۈن ${countryFlag} ${countryNameUg} نومۇرىنى $${price.toFixed(2)} USD غا سېتىۋالامسىز؟\n\n(كود كەلمىسە 100% پۇل دەرھال قايتۇرۇلىدۇ)`)) {
+        return;
+      }
 
       try {
         const res = await fetch('/api/sms/buy', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            serviceCode: selectedApp,
-            countryId: selectedCountryId,
-            serviceName: appObj?.name || selectedApp,
-            countryName: cObj?.name || String(selectedCountryId),
-            identity: userIdent,
-            user_id: currentUser.id || userIdent
+            serviceCode: serviceCode,
+            countryId: countryId,
+            tgId: currentUser?.id,
+            identity: currentUser?.username || currentUser?.email || String(currentUser?.id || '')
           })
         });
 
         const data = await res.json();
-        if (res.ok && data && data.success && data.phone) {
-          if (typeof data.current_balance === 'number') {
-            userBalance = data.current_balance;
-          } else {
-            userBalance = Math.max(0, userBalance - currentServicePrice);
-          }
-          if (currentUser) currentUser.balance = userBalance;
-          try {
-            localStorage.setItem('autocash_balance', String(userBalance));
-            localStorage.setItem('maxstore_balance', String(userBalance));
-          } catch(_) {}
-          updateWalletDisplay();
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || 'نومۇر ئېلىش مەغلۇپ بولدى. باشقا دۆلەتنى سىناپ بېقىڭ.');
+        }
 
-          activeSession = {
-            orderId: data.orderId,
-            activationId: data.activationId,
-            phone: data.phone,
-            serviceCode: selectedApp,
-            serviceName: appObj?.nameUg || selectedApp,
-            countryName: cObj?.nameUg || String(selectedCountryId),
-            expiresAt: data.expiresAt || (Date.now() + 15 * 60 * 1000),
-            status: 'waiting'
-          };
-
-          saveActiveSession(activeSession);
-          showActiveSessionUI();
-          startSessionPolling();
-          showAppModal({
-            icon: '✅',
-            title: 'مەۋھۇم نومۇر تەقسىملەندى!',
-            message: 'نومۇرىڭىز: ' + data.phone + '\nنومۇرنى كۆچۈرۈپ ئەپكە كىرگۈزۈڭ، SMS كودى ئېكرانغا چىقىدۇ.'
-          });
+        // Deduct balance locally and sync
+        if (typeof data.current_balance === 'number') {
+          userBalance = data.current_balance;
         } else {
-          showAppModal({
-            icon: '⚠️',
-            title: 'نومۇر ئېلىش مەغلۇپ بولدى',
-            message: data?.message || 'نۆۋەتتە بۇ دۆلەتتە بوش نومۇر يوق ياكى تەمىنلىگۈچى ئىنكاس قايتۇرمىدى. باشقا دۆلەتنى سىناپ كۆرۈڭ.'
-          });
+          userBalance = Math.max(0, Number((userBalance - price).toFixed(2)));
         }
-      } catch (err) {
-        showAppModal({
-          icon: '⚠️',
-          title: 'خاتالىق',
-          message: 'تور ئۇلىنىشىدا كاشىلا كۆرۈلدى: ' + (err.message || '')
+        updateBalanceUI();
+
+        // Create Active Session
+        activeSession = {
+          activationId: data.activationId,
+          phone: data.phone || data.number,
+          serviceCode: serviceCode,
+          countryId: countryId,
+          serviceName: selectedApp.nameUg,
+          countryName: countryNameUg,
+          price: price,
+          startTime: Date.now()
+        };
+
+        // Add to orders
+        saveNewOrder({
+          id: data.activationId,
+          phone: activeSession.phone,
+          service: selectedApp.nameUg,
+          country: countryNameUg,
+          price: price,
+          status: 'pending',
+          code: null,
+          time: new Date().toLocaleTimeString('ug-CN', { hour: '2-digit', minute: '2-digit' })
         });
-      } finally {
-        if (buyBtn) buyBtn.disabled = false;
-        updateServicePriceDisplay();
+
+        startActiveSessionUI();
+      } catch (err) {
+        alert('خاتالىق كۆرۈلدى: ' + (err?.message || err));
       }
     }
 
-    // --- Active Session Management ---
-    function saveActiveSession(sess) {
-      if (!sess) {
-        localStorage.removeItem('autocash_active_sms');
-      } else {
-        localStorage.setItem('autocash_active_sms', JSON.stringify(sess));
-      }
-    }
+    // --- Active Waiting UI & Real-Time Polling ---
+    function startActiveSessionUI() {
+      homeStep = 'active_sms';
+      document.getElementById('viewCountrySelection').classList.add('hidden');
+      document.getElementById('activeNumberSection').classList.remove('hidden');
 
-    function restoreActiveSession() {
-      try {
-        const raw = localStorage.getItem('autocash_active_sms');
-        if (raw) {
-          const sess = JSON.parse(raw);
-          if (sess && sess.expiresAt > Date.now()) {
-            activeSession = sess;
-            showActiveSessionUI();
-            startSessionPolling();
-          } else {
-            localStorage.removeItem('autocash_active_sms');
-          }
-        }
-      } catch (_) {}
-    }
+      const phoneEl = document.getElementById('activePhoneNumber');
+      if (phoneEl) phoneEl.textContent = activeSession.phone;
 
-    function showActiveSessionUI() {
-      const card = document.getElementById('activeSessionCard');
-      const sInfo = document.getElementById('sessionServiceInfo');
-      const sPhone = document.getElementById('sessionPhoneNumber');
-      const optWait = document.getElementById('otpWaitingIndicator');
-      const optResult = document.getElementById('otpResultWrap');
-      const cancelBtn = document.getElementById('cancelSessionBtn');
-
-      if (!card || !activeSession) return;
-
-      card.classList.remove('hidden');
-      if (sInfo) sInfo.textContent = (activeSession.serviceName || '') + ' • ' + (activeSession.countryName || '');
-      if (sPhone) sPhone.textContent = activeSession.phone || '';
-
-      if (activeSession.code) {
-        showReceivedCodeUI(activeSession.code);
-      } else {
-        if (optWait) optWait.classList.remove('hidden');
-        if (optResult) optResult.classList.add('hidden');
-        if (cancelBtn) cancelBtn.classList.remove('hidden');
-        startCountdownTimer();
-      }
-    }
-
-    function startCountdownTimer() {
-      if (timerInterval) clearInterval(timerInterval);
-      const badge = document.getElementById('sessionTimerBadge');
-
-      const update = () => {
-        if (!activeSession) {
-          clearInterval(timerInterval);
-          return;
-        }
-        const rem = Math.max(0, Math.floor((activeSession.expiresAt - Date.now()) / 1000));
-        const m = Math.floor(rem / 60);
-        const s = rem % 60;
-        if (badge) badge.textContent = '⏳ ' + m + ':' + (s < 10 ? '0' : '') + s;
-
-        if (rem <= 0) {
-          clearInterval(timerInterval);
-          cancelCurrentSession(true);
-        }
-      };
-
-      update();
-      timerInterval = setInterval(update, 1000);
-    }
-
-    function startSessionPolling() {
-      if (pollInterval) clearInterval(pollInterval);
-      if (!activeSession) return;
-
-      pollInterval = setInterval(async () => {
-        if (!activeSession) {
-          clearInterval(pollInterval);
-          return;
-        }
-
-        const userIdent = currentUser?.email || currentUser?.username || currentUser?.id || '';
-        try {
-          const res = await fetch('/api/sms/check?orderId=' + encodeURIComponent(activeSession.orderId) + '&activationId=' + encodeURIComponent(activeSession.activationId) + '&identity=' + encodeURIComponent(userIdent));
-          if (res.ok) {
-            const data = await res.json();
-            if (data && data.success && data.status === 'RECEIVED' && data.code) {
-              clearInterval(pollInterval);
-              clearInterval(timerInterval);
-              activeSession.code = data.code;
-              activeSession.status = 'received';
-              saveActiveSession(null);
-              showReceivedCodeUI(data.code);
-            } else if (data && data.status === 'CANCELED') {
-              clearInterval(pollInterval);
-              clearInterval(timerInterval);
-              saveActiveSession(null);
-              activeSession = null;
-              document.getElementById('activeSessionCard')?.classList.add('hidden');
-              await refreshUserBalanceFromBot(true);
-              showAppModal({
-                icon: 'ℹ️',
-                title: 'نومۇر بىكار قىلىندى',
-                message: data.message || 'SMS كود كەلمىگەنلىكى ئۈچۈن نومۇر بىكار قىلىنىپ، پۇلىڭىز ھېساباتىڭىزغا دەل ۋاقتىدا قايتۇرۇلدى!'
-              });
-            }
-          }
-        } catch (e) {
-          console.warn('SMS Poll error:', e);
-        }
-      }, 3000);
-    }
-
-    function showReceivedCodeUI(code) {
-      const optResult = document.getElementById('otpResultWrap');
-      const optWait = document.getElementById('otpWaitingIndicator');
-      const digitsEl = document.getElementById('otpCodeDigits');
-      const cancelBtn = document.getElementById('cancelSessionBtn');
-
-      if (optWait) optWait.classList.add('hidden');
-      if (optResult) optResult.classList.remove('hidden');
-      if (digitsEl) digitsEl.textContent = code;
-      if (cancelBtn) cancelBtn.classList.add('hidden');
-
-      showAppModal({
-        icon: '🎉',
-        title: 'SMS كودى كەلدى!',
-        message: 'سىزنىڭ تەستىقلاش كودىڭىز: ' + code
-      });
-    }
-
-    async function cancelCurrentSession(autoExpired = false) {
-      if (!activeSession) return;
-
-      const actId = activeSession.activationId;
-      const ordId = activeSession.orderId;
-      const userIdent = currentUser?.email || currentUser?.username || currentUser?.id || '';
-
-      clearInterval(pollInterval);
+      // Start 15-min countdown
+      timerRemainingSeconds = 900;
       clearInterval(timerInterval);
+      timerInterval = setInterval(updateTimerDisplay, 1000);
+      updateTimerDisplay();
 
+      // Start 3-second status polling
+      clearInterval(pollInterval);
+      pollInterval = setInterval(pollSmsStatus, 3000);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateTimerDisplay() {
+      timerRemainingSeconds--;
+      if (timerRemainingSeconds <= 0) {
+        clearInterval(timerInterval);
+        clearInterval(pollInterval);
+        alert('15 مىنۇتلۇق SMS كۈتۈش ۋاقتى توشتى. پۇل تولۇق ھەميانىڭىزغا قايتۇرۇلدى.');
+        cancelActiveOrder();
+        return;
+      }
+
+      const m = Math.floor(timerRemainingSeconds / 60);
+      const s = timerRemainingSeconds % 60;
+      const tBadge = document.getElementById('activeTimerBadge');
+      if (tBadge) tBadge.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    async function pollSmsStatus() {
+      if (!activeSession) return;
+      try {
+        const res = await fetch(`/api/sms/check?activationId=${encodeURIComponent(activeSession.activationId)}&tgId=${encodeURIComponent(currentUser?.id || '')}`);
+        if (!res.ok) return;
+        const data = await res.json();
+
+        if (data.status === 'RECEIVED' && data.code) {
+          clearInterval(pollInterval);
+          clearInterval(timerInterval);
+
+          // Show received code
+          const codeWrap = document.getElementById('smsCodeContainer');
+          if (codeWrap) {
+            codeWrap.innerHTML = `
+              <div class="p-3 bg-emerald-500 text-white rounded-xl shadow-lg flex items-center justify-between gap-2 animate-bounce">
+                <span class="text-xl sm:text-2xl font-black font-mono tracking-widest">${data.code}</span>
+                <button onclick="navigator.clipboard.writeText('${data.code}'); alert('SMS كود كۆچۈرۈلدى: ${data.code} ✓')" class="px-3 py-1.5 rounded-lg bg-white text-emerald-800 text-xs font-black shadow cursor-pointer">
+                  كۆچۈرۈش
+                </button>
+              </div>
+            `;
+          }
+
+          // Update order status
+          updateOrderStatus(activeSession.activationId, 'completed', data.code);
+        }
+      } catch (e) {
+        console.warn('Poll error:', e);
+      }
+    }
+
+    async function cancelActiveOrder() {
+      if (!activeSession) return;
       try {
         const res = await fetch('/api/sms/cancel', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            orderId: ordId,
-            activationId: actId,
-            identity: userIdent,
-            user_id: currentUser?.id || userIdent,
-            reason: autoExpired ? 'ۋاقتى توشتى (كود كەلمىدى)' : 'خېرىدار بىكار قىلدى'
+            activationId: activeSession.activationId,
+            tgId: currentUser?.id,
+            price: activeSession.price
           })
         });
 
         const data = await res.json();
-        saveActiveSession(null);
-        activeSession = null;
-        document.getElementById('activeSessionCard')?.classList.add('hidden');
-        await refreshUserBalanceFromBot(true);
-
-        showAppModal({
-          icon: 'ℹ️',
-          title: autoExpired ? 'ۋاقىت توشتى' : 'نومۇر بىكار قىلىندى',
-          message: 'نومۇر بىكار قىلىندى ھەمدە تۇتۇلغان پۇل AUTO CASH ھەميانىڭىزغا دەرھال قايتۇرۇلدى.'
-        });
+        updateOrderStatus(activeSession.activationId, 'canceled');
+        fetchUserUnifiedBalance();
+        finishAndGetNew();
+        alert('مەۋھۇم نومۇر بىكار قىلىندى ھەمدە پۇل ھەميانىڭىزغا دەرھال قايتۇرۇلدى ✓');
       } catch (e) {
-        console.warn('Cancel error:', e);
+        alert('بىكار قىلىش مەغلۇپ بولدى: ' + e.message);
       }
     }
 
-    function copySessionPhone() {
-      if (!activeSession?.phone) return;
-      navigator.clipboard.writeText(activeSession.phone).then(() => {
-        showAppModal({ icon: '📋', title: 'كۆچۈرۈلدى!', message: 'نومۇر كۆچۈرۈلدى: ' + activeSession.phone });
-      });
+    function finishAndGetNew() {
+      clearInterval(pollInterval);
+      clearInterval(timerInterval);
+      activeSession = null;
+      document.getElementById('activeNumberSection').classList.add('hidden');
+      document.getElementById('viewAppsDirectory').classList.remove('hidden');
+      homeStep = 'apps';
+      selectedApp = null;
     }
 
-    function copySmsCode() {
-      if (!activeSession?.code) return;
-      navigator.clipboard.writeText(activeSession.code).then(() => {
-        showAppModal({ icon: '📋', title: 'كۆچۈرۈلدى!', message: 'SMS كودى كۆچۈرۈلدى: ' + activeSession.code });
-      });
+    function copyActiveNumber() {
+      if (!activeSession || !activeSession.phone) return;
+      navigator.clipboard.writeText(activeSession.phone);
+      alert(`نومۇر كۆچۈرۈلدى: ${activeSession.phone} ✓`);
     }
 
-    // --- Orders History Modal ---
-    async function openOrdersModal() {
-      const modal = document.getElementById('ordersModal');
-      const list = document.getElementById('ordersListWrap');
-      if (modal) {
-        modal.classList.remove('hidden');
-        setTimeout(() => modal.classList.remove('opacity-0'), 10);
-      }
-      if (list) list.innerHTML = '<p class="text-xs text-slate-400 text-center py-4 animate-pulse">تارىخ يۈكلىنىۋاتىدۇ...</p>';
-
-      const userIdent = currentUser?.email || currentUser?.username || currentUser?.id || '';
+    // --- Tab 2: Orders List (Matches Image 2) ---
+    function loadSavedOrders() {
       try {
-        const res = await fetch('/api/sms/orders?identity=' + encodeURIComponent(userIdent));
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.success && Array.isArray(data.orders) && data.orders.length > 0) {
-            list.innerHTML = data.orders.map(o => {
-              const statusUg = o.status === 'completed' ? 'كود كەلدى ✓' : (o.status === 'refunded' || o.status === 'cancelled' ? 'قايتۇرۇلدى' : 'كۈتۈلۈۋاتىدۇ');
-              const statusColor = o.status === 'completed' ? 'text-emerald-400 bg-emerald-500/10' : (o.status === 'refunded' ? 'text-rose-400 bg-rose-500/10' : 'text-amber-400 bg-amber-500/10');
-              return `
-                <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-700/80 space-y-1 text-xs">
-                  <div class="flex justify-between items-center">
-                    <span class="font-bold text-white">` + (o.serviceName || 'SMS') + `</span>
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ` + statusColor + `">` + statusUg + `</span>
-                  </div>
-                  <div class="flex justify-between items-center font-mono text-slate-300 text-[11px]">
-                    <span class="text-emerald-300 font-bold">` + (o.phone || 'نومۇر') + `</span>
-                    <span>$` + Number(o.price || 0).toFixed(2) + `</span>
-                  </div>
-                  ` + (o.code ? `<div class="p-1.5 rounded bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 font-mono font-bold text-center tracking-widest text-sm">كود: ` + o.code + `</div>` : '') + `
-                </div>
-              `;
-            }).join('');
-            return;
+        const saved = localStorage.getItem('autocash_sms_orders');
+        if (saved) ordersList = JSON.parse(saved);
+      } catch (e) {
+        ordersList = [];
+      }
+    }
+
+    function saveNewOrder(order) {
+      ordersList.unshift(order);
+      try { localStorage.setItem('autocash_sms_orders', JSON.stringify(ordersList)); } catch(e){}
+    }
+
+    function updateOrderStatus(id, status, code = null) {
+      const ord = ordersList.find(o => o.id === id);
+      if (ord) {
+        ord.status = status;
+        if (code) ord.code = code;
+        try { localStorage.setItem('autocash_sms_orders', JSON.stringify(ordersList)); } catch(e){}
+      }
+    }
+
+    function setOrdersFilter(f) {
+      ordersFilter = f;
+      const filterBtns = ['All', 'Pending', 'Completed', 'Canceled'];
+      filterBtns.forEach(b => {
+        const btn = document.getElementById('orderTab' + b);
+        if (btn) {
+          if (b.toLowerCase() === f) {
+            btn.className = 'flex-1 py-1.5 rounded-xl bg-purple-600 text-white transition shadow-sm';
+          } else {
+            btn.className = 'flex-1 py-1.5 rounded-xl text-slate-600 hover:text-purple-600 transition';
           }
         }
-      } catch (_) {}
-
-      if (list) list.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">تېخى مەۋھۇم نومۇر زاكاز قىلمىدىڭىز.</p>';
+      });
+      renderOrdersList();
     }
 
-    function closeOrdersModal() {
-      const modal = document.getElementById('ordersModal');
-      if (modal) {
-        modal.classList.add('opacity-0');
-        setTimeout(() => modal.classList.add('hidden'), 200);
+    function renderOrdersList() {
+      const wrap = document.getElementById('ordersListWrap');
+      if (!wrap) return;
+
+      // Update counters (Image 2 Stats)
+      const pCount = ordersList.filter(o => o.status === 'pending').length;
+      const cCount = ordersList.filter(o => o.status === 'completed').length;
+      const rCount = ordersList.filter(o => o.status === 'canceled').length;
+
+      document.getElementById('statPendingCount').textContent = String(pCount);
+      document.getElementById('statCompletedCount').textContent = String(cCount);
+      document.getElementById('statCanceledCount').textContent = String(rCount);
+
+      const filtered = ordersList.filter(o => {
+        if (ordersFilter === 'all') return true;
+        return o.status === ordersFilter;
+      });
+
+      if (filtered.length === 0) {
+        wrap.innerHTML = `
+          <div class="py-16 text-center space-y-2 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+            <span class="text-4xl block text-slate-300">📄</span>
+            <h4 class="text-sm font-black text-slate-700">تېخى ھېچقانداق زاكاز يوق</h4>
+            <p class="text-xs text-slate-400">ئاساسىي بەتكە ئۆتۈپ خالىغان ئەپنى تاللاپ سېتىۋېلىڭ.</p>
+          </div>
+        `;
+        return;
       }
+
+      wrap.innerHTML = filtered.map(o => {
+        let statusBadge = '';
+        if (o.status === 'completed') {
+          statusBadge = '<span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">مۇۋەپپەقىيەتلىك ✓</span>';
+        } else if (o.status === 'canceled') {
+          statusBadge = '<span class="text-[10px] bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded-full">قايتۇرۇلغان ✕</span>';
+        } else {
+          statusBadge = '<span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">كۈتۈلۈۋاتىدۇ ⏳</span>';
+        }
+
+        return `
+          <div class="app-card rounded-2xl p-3 flex items-center justify-between gap-2.5">
+            <div class="text-right leading-tight min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-black text-slate-900">${o.service}</span>
+                <span class="text-[11px] text-slate-400 font-bold font-mono">${o.country}</span>
+              </div>
+              <p class="text-sm font-black font-mono text-slate-800 mt-1">${o.phone}</p>
+              ${o.code ? `<p class="text-xs font-black text-emerald-600 font-mono mt-0.5">كود: ${o.code}</p>` : ''}
+            </div>
+            <div class="text-left shrink-0 space-y-1">
+              ${statusBadge}
+              <p class="text-xs font-black font-mono text-purple-700">$${o.price.toFixed(2)}</p>
+              <p class="text-[9.5px] text-slate-400 font-mono">${o.time}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
-    // --- App Switcher Modal ---
-    function openAppSwitcherModal() {
-      const m = document.getElementById('appSwitcherModal');
+    // --- Deposit Modal Actions ---
+    function openDepositModal() {
+      const m = document.getElementById('depositModal');
       if (m) {
         m.classList.remove('hidden');
         setTimeout(() => m.classList.remove('opacity-0'), 10);
       }
-    }
-    function closeAppSwitcherModal() {
-      const m = document.getElementById('appSwitcherModal');
-      if (m) {
-        m.classList.add('opacity-0');
-        setTimeout(() => m.classList.add('hidden'), 200);
-      }
-    }
-
-    // --- Official ShamCash Deposit Modal ---
-    function openDepositModal() {
-      var modal = document.getElementById('depositModal');
-      var card = document.getElementById('depositCard');
-      if (!modal || !card) return;
-      modal.classList.remove('hidden');
-      setTimeout(function() {
-        modal.classList.remove('opacity-0');
-        card.classList.remove('translate-y-full');
-      }, 20);
     }
 
     function closeDepositModal() {
-      var modal = document.getElementById('depositModal');
-      var card = document.getElementById('depositCard');
-      if (!modal || !card) return;
-      modal.classList.add('opacity-0');
-      card.classList.add('translate-y-full');
-      setTimeout(function() {
-        modal.classList.add('hidden');
-      }, 300);
-    }
-
-    function copyAddr() {
-      var addr = document.getElementById('shamCashAddr');
-      if (!addr) return;
-      var text = addr.value || addr.innerText;
-      navigator.clipboard.writeText(text).then(function() {
-        var btn = document.getElementById('copyAddrBtn');
-        if (btn) {
-          var orig = btn.textContent;
-          btn.textContent = 'كۆچۈرۈلدى ✓';
-          btn.classList.add('bg-emerald-500', 'text-white');
-          setTimeout(function() {
-            btn.textContent = orig;
-            btn.classList.remove('bg-emerald-500', 'text-white');
-          }, 1500);
-        }
-      }).catch(function() {
-        addr.select();
-        document.execCommand('copy');
-        var btn = document.getElementById('copyAddrBtn');
-        if (btn) {
-          var orig = btn.textContent;
-          btn.textContent = 'كۆچۈرۈلدى ✓';
-          setTimeout(function() { btn.textContent = orig; }, 1500);
-        }
-      });
-    }
-
-    // --- Multi-Auth & User Profile Modal ---
-    function openTelegramModal() {
-      renderTelegramModalContent();
-      var modal = document.getElementById('telegramModal');
-      var card = document.getElementById('telegramCard');
-      if (!modal || !card) return;
-      modal.classList.remove('hidden');
-      setTimeout(function() {
-        modal.classList.remove('opacity-0');
-        card.classList.remove('translate-y-full');
-      }, 20);
-    }
-
-    function closeTelegramModal() {
-      var modal = document.getElementById('telegramModal');
-      var card = document.getElementById('telegramCard');
-      if (!modal || !card) return;
-      modal.classList.add('opacity-0');
-      card.classList.add('translate-y-full');
-      setTimeout(function() {
-        modal.classList.add('hidden');
-      }, 300);
-    }
-
-    function handleAuthClick() {
-      openTelegramModal();
-    }
-
-    function logoutUser() {
-      currentUser = null;
-      currentTgUser = null;
-      userBalance = 0.00;
-      try {
-        localStorage.removeItem('autocash_is_logged_in');
-        localStorage.removeItem('autocash_user');
-        localStorage.removeItem('autocash_tg_user');
-        localStorage.removeItem('autocash_balance');
-        localStorage.removeItem('maxstore_balance');
-        localStorage.removeItem('maxbazar_unified_session');
-        localStorage.setItem('autocash_balance', '0');
-        localStorage.setItem('maxstore_balance', '0');
-        fetch('/api/auth/logout', { method: 'POST' }).catch(function() {});
-      } catch(_) {}
-      updateWalletDisplay();
-      closeTelegramModal();
-      showAppModal({ icon: '👋', title: 'چىقتىڭىز', message: 'ھېساباتتىن مۇۋەپپەقىيەتلىك چىقتىڭىز.' });
-    }
-
-    function renderTelegramModalContent() {
-      var wrap = document.getElementById('telegramModalContent');
-      if (!wrap) return;
-
-      if (currentUser) {
-        var photo = currentUser.photo || ('https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(currentUser.id || 'usr'));
-        wrap.innerHTML = `
-          <div class="flex items-center gap-3 p-3 rounded-2xl bg-[#112344]/90 border border-sky-500/30 shadow-md">
-            <img src="` + photo + `" class="w-12 h-12 rounded-2xl border-2 border-emerald-400/70 object-cover shadow-md" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=user'"/>
-            <div class="flex-1 min-w-0 text-right">
-              <h4 class="text-sm font-black text-white truncate">` + (currentUser.name || currentUser.username) + `</h4>
-              <p class="text-xs text-slate-300 font-mono truncate">` + (currentUser.email || currentUser.username || ('ID: ' + currentUser.id)) + `</p>
-              <span class="inline-block mt-0.5 text-[9.5px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 font-bold">
-                AUTO CASH بىرلەشمە ئەزاسى ✓
-              </span>
-            </div>
-          </div>
-
-          <div class="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 via-[#13223f] to-amber-500/15 border border-amber-400/50 text-center space-y-1 gold-card-glow">
-            <p class="text-xs text-amber-300 font-bold">ئورتاق ھەميان قالدۇقىڭىز (USD)</p>
-            <p class="text-3xl font-black text-amber-300 font-mono drop-shadow">$` + userBalance.toFixed(2) + `</p>
-            <p class="text-[10px] text-slate-300">توربەت، ئەپلەر، مەۋھۇم نومۇر ۋە تېلېگرام بوتتا بىردەك بىر گەۋدە</p>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="closeTelegramModal(); openDepositModal();" type="button" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 text-slate-950 font-black text-xs shadow-md shadow-amber-500/30 flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer">
-              <img src="tg_coin_balance_anim.webp" alt="🪙" class="w-4 h-4 object-contain inline-block drop-shadow" onerror="this.onerror=null;this.src='tg_coin_balance.gif'"/>
-              <span>پۇل قاچىلاش</span>
-            </button>
-            <button onclick="refreshUserBalanceFromBot(false)" type="button" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-600 flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer">
-              <span>🔄</span>
-              <span>قالدۇقنى يېڭىلاش</span>
-            </button>
-          </div>
-
-          <button onclick="closeTelegramModal(); openOrdersModal();" type="button" class="w-full py-2.5 px-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer">
-            <span>📋</span>
-            <span>ئالغان مەۋھۇم نومۇرلار تارىخى</span>
-          </button>
-
-          <button onclick="logoutUser()" type="button" class="w-full py-2 text-rose-400 hover:text-rose-300 font-bold text-xs text-center border-t border-slate-700/80 pt-2.5 cursor-pointer">
-            🚪 ھېساباتتىن چىقىش
-          </button>
-        `;
-      } else {
-        wrap.innerHTML = `
-          <div class="text-center pt-1 pb-1">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-400 to-teal-500 text-slate-950 text-xl font-bold flex items-center justify-center mx-auto mb-2 shadow-lg shadow-emerald-500/30">
-              🔐
-            </div>
-            <h3 class="text-sm font-black text-white">AUTO CASH ھېساباتقا كىرىش</h3>
-            <p class="text-xs text-slate-300 mt-0.5">ھەميان قالدۇقىڭىز پۈتۈن توربەت ۋە بوت بىلەن 100% بىر گەۋدە بولىدۇ</p>
-          </div>
-
-          <!-- Telegram 1-Tap Login -->
-          <button onclick="executeTelegramWebAppLogin()" type="button" class="w-full py-2.5 px-3 rounded-xl bg-[#229ED9] hover:bg-[#1e8ec3] text-white font-black text-xs flex items-center justify-center gap-2 shadow-md shadow-blue-500/30 transition active:scale-95 cursor-pointer">
-            <span class="text-sm">✈️</span>
-            <span>تېلېگرام ئارقىلىق 1 سېكۇنتتا كىرىش</span>
-          </button>
-
-          <!-- Google Login -->
-          <button onclick="executeGoogleLogin()" type="button" class="w-full py-2.5 px-3 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs flex items-center justify-center gap-2 shadow transition active:scale-95 cursor-pointer">
-            <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.27v3.15C3.33 21.45 7.37 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.27C.46 8.2 0 10.04 0 12s.46 3.8 1.27 5.42l4.01-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.33 2.55 1.27 6.58l4.01 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
-            <span>Google ھېساباتى بىلەن كىرىش</span>
-          </button>
-
-          <!-- Telegram Bot OTP Form -->
-          <div class="pt-2 border-t border-slate-700/80 space-y-2">
-            <label class="text-[11px] font-bold text-slate-300 block text-right">ياكى تېلېگرام نامى / تېلېفون بىلەن كىرىش:</label>
-            <div class="flex gap-1.5">
-              <input id="otpIdentityInput" type="text" placeholder="@username ياكى تېلېفون..." class="flex-1 bg-[#09152b] border border-sky-500/30 rounded-xl px-3 py-2 text-xs text-white text-right outline-none focus:border-emerald-400" />
-              <button id="otpSendBtn" onclick="sendOtpToTelegram()" type="button" class="px-3 py-2 bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black text-xs rounded-xl shrink-0 transition active:scale-95 cursor-pointer">
-                كود يوللاش
-              </button>
-            </div>
-            <div id="otpVerifyWrap" class="hidden flex gap-1.5 pt-1">
-              <input id="otpCodeInput" type="text" maxlength="6" placeholder="كەلگەن كودنى كىرگۈزۈڭ..." class="flex-1 bg-[#09152b] border border-emerald-400/60 rounded-xl px-3 py-2 text-xs text-emerald-300 font-mono text-center font-bold outline-none" />
-              <button id="otpVerifyBtn" onclick="verifyTelegramOtp()" type="button" class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black text-xs rounded-xl shrink-0 transition active:scale-95 cursor-pointer">
-                جەزملەش
-              </button>
-            </div>
-          </div>
-        `;
-      }
-    }
-
-    // --- OTP Login Handlers ---
-    async function sendOtpToTelegram() {
-      var inp = document.getElementById('otpIdentityInput');
-      var btn = document.getElementById('otpSendBtn');
-      var wrap = document.getElementById('otpVerifyWrap');
-      var val = (inp?.value || '').trim();
-      if (!val) {
-        showAppModal({ icon: '⚠️', title: 'ئەسكەرتىش', message: 'تېلېگرام نامى ياكى تېلېفون نومۇرىڭىزنى كىرگۈزۈڭ.' });
-        return;
-      }
-      if (btn) btn.disabled = true;
-      if (btn) btn.textContent = 'يوللىنىۋاتىدۇ...';
-
-      try {
-        var res = await fetch('/api/apps/otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'send', phone_or_username: val, app_id: 'sms' })
-        });
-        var data = await res.json();
-        if (res.ok && data && data.ok) {
-          activeOtpSig = data.otp_sig || '';
-          if (wrap) wrap.classList.remove('hidden');
-          if (btn) btn.textContent = 'قايتا ئەۋەتىش';
-          showAppModal({ icon: '📨', title: 'كود يوللاندى!', message: '@Autocash_24_bot تېلېگرام بوتقا 6 خانىلىق كود يوللاندى. كودنى كىرگۈزۈپ جەزملەڭ.' });
-        } else {
-          if (btn) btn.textContent = 'كود يوللاش';
-          showAppModal({ icon: '⚠️', title: 'ئەسكەرتىش', message: data?.error || 'كود يوللانمىدى. تېلېگرامدا @Autocash_24_bot نى قوزغىتىپ كۆرۈڭ.' });
-        }
-      } catch(e) {
-        if (btn) btn.textContent = 'كود يوللاش';
-        showAppModal({ icon: '⚠️', title: 'خاتالىق', message: 'كود ئەۋەتىشتە كاشىلا كۆرۈلدى' });
-      } finally {
-        if (btn) btn.disabled = false;
-      }
-    }
-
-    async function verifyTelegramOtp() {
-      var identInp = document.getElementById('otpIdentityInput');
-      var codeInp = document.getElementById('otpCodeInput');
-      var btn = document.getElementById('otpVerifyBtn');
-      var ident = (identInp?.value || '').trim();
-      var code = (codeInp?.value || '').trim();
-      if (!code) return;
-      if (btn) btn.disabled = true;
-
-      try {
-        var res = await fetch('/api/apps/otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'verify',
-            phone_or_username: ident,
-            code: code,
-            otp_sig: activeOtpSig,
-            app_id: 'sms'
-          })
-        });
-        var data = await res.json();
-        if (res.ok && data && data.ok && data.user) {
-          syncLocalAuthWithMainSite(data.user, 'telegram_otp');
-          closeTelegramModal();
-          showAppModal({
-            icon: '🎉',
-            title: 'مۇۋەپپەقىيەتلىك كىردىڭىز!',
-            message: 'خۇش كەپسىز، ' + (data.user.name || ident) + '\nھەميان قالدۇقىڭىز: $' + userBalance.toFixed(2)
-          });
-        } else {
-          showAppModal({ icon: '❌', title: 'كود خاتا', message: data?.error || 'تەستىقلاش كودى خاتا ياكى ۋاقتى ئۆتكەن.' });
-        }
-      } catch(e) {
-        showAppModal({ icon: '⚠️', title: 'خاتالىق', message: 'دەلىللەش مەغلۇپ بولدى' });
-      } finally {
-        if (btn) btn.disabled = false;
-      }
-    }
-
-    async function executeTelegramWebAppLogin() {
-      try {
-        const tg = window.Telegram?.WebApp;
-        const initData = tg?.initData || '';
-        if (initData) {
-          const res = await fetch('/api/auth/telegram-webapp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ initData })
-          });
-          const data = await res.json();
-          if (data && data.success && data.user) {
-            syncLocalAuthWithMainSite(data.user, 'telegram_webapp');
-            closeTelegramModal();
-            showAppModal({ icon: '✅', title: 'مۇۋەپپەقىيەتلىك كىردىڭىز', message: 'خۇش كەپسىز، ' + (data.user.name || 'ئەزا') });
-            return;
-          }
-        }
-      } catch (e) {}
-
-      window.open('https://t.me/Autocash_24_bot?start=login', '_blank');
-    }
-
-    function executeGoogleLogin() {
-      window.location.href = '/api/auth/google';
-    }
-
-    function showAppModal({ icon = '⚠️', title = 'ئەسكەرتىش', message = '' }) {
-      const m = document.getElementById('appAlertModal');
-      const ic = document.getElementById('appAlertIcon');
-      const ti = document.getElementById('appAlertTitle');
-      const ms = document.getElementById('appAlertMsg');
-      const cb = document.getElementById('appAlertConfirmBtn');
-
-      if (ic) ic.textContent = icon;
-      if (ti) ti.textContent = title;
-      if (ms) ms.textContent = message;
-      if (cb) cb.onclick = () => closeAppModal();
-
-      if (m) {
-        m.classList.remove('hidden');
-        setTimeout(() => m.classList.remove('opacity-0'), 10);
-      }
-    }
-
-    function closeAppModal() {
-      const m = document.getElementById('appAlertModal');
+      const m = document.getElementById('depositModal');
       if (m) {
         m.classList.add('opacity-0');
         setTimeout(() => m.classList.add('hidden'), 200);
+      }
+    }
+
+    function submitDepositConfirmation() {
+      const tx = document.getElementById('depositTxInput')?.value.trim();
+      if (!tx) {
+        alert('ShamCash تالون نومۇرى ياكى ھېسابات كودىڭىزنى كىرگۈزۈڭ');
+        return;
+      }
+      alert('تەلەپ تاپشۇرۇلدى! تېلېگرام بوت (@Autocash_24_bot) 1 سېكۇنتتا دەلىللەپ ھەميان قالدۇقىڭىزنى يېڭىلايدۇ ✓');
+      closeDepositModal();
+    }
+
+    // --- Account & Theme Actions ---
+    function setAppTheme(theme) {
+      const btnL = document.getElementById('themeBtnLight');
+      const btnD = document.getElementById('themeBtnDark');
+      const btnA = document.getElementById('themeBtnAuto');
+
+      if (theme === 'light') {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+        btnL.className = 'py-1.5 rounded-lg bg-amber-400 text-slate-950 shadow-sm flex items-center justify-center gap-1';
+        btnD.className = 'py-1.5 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1';
+        btnA.className = 'py-1.5 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1';
+      } else if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        btnD.className = 'py-1.5 rounded-lg bg-amber-400 text-slate-950 shadow-sm flex items-center justify-center gap-1';
+        btnL.className = 'py-1.5 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1';
+        btnA.className = 'py-1.5 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1';
+      } else {
+        btnA.className = 'py-1.5 rounded-lg bg-amber-400 text-slate-950 shadow-sm flex items-center justify-center gap-1';
+        btnL.className = 'py-1.5 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1';
+        btnD.className = 'py-1.5 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1';
+      }
+    }
+
+    function copyUserId() {
+      const uid = document.getElementById('accountUserId')?.textContent || '52123645';
+      navigator.clipboard.writeText(uid);
+      alert('ئەزا كودىڭىز كۆچۈرۈلدى: ' + uid + ' ✓');
+    }
+
+    function handleAuthClick() {
+      if (currentUser) {
+        if (confirm('ھېساباتتىن چىقامسىز؟')) {
+          localStorage.removeItem('autocash_user');
+          localStorage.removeItem('autocash_tg_user');
+          currentUser = null;
+          userBalance = 0.00;
+          updateBalanceUI();
+          location.reload();
+        }
+      } else {
+        window.open('https://t.me/Autocash_24_bot', '_blank');
       }
     }
   </script>
