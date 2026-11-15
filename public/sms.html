@@ -56,23 +56,25 @@
       color: #1e293b;
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "UKIJ Tuz Tom", sans-serif;
       overflow-x: hidden;
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
 
-    /* Light/Dark mode backgrounds */
-    html.dark body {
-      background-color: #0b0f19;
-      color: #f8fafc;
+    /* Floating Animated Coin Animation */
+    @keyframes float-coin {
+      0%, 100% {
+        transform: translateY(0px) rotate(0deg) scale(1);
+        filter: drop-shadow(0 4px 10px rgba(245, 158, 11, 0.45));
+      }
+      50% {
+        transform: translateY(-5px) rotate(3deg) scale(1.08);
+        filter: drop-shadow(0 12px 22px rgba(245, 158, 11, 0.75));
+      }
     }
-    html.dark .mobile-shell {
-      background-color: #0f172a;
-      border-color: #1e293b;
-    }
-    html.dark .app-card {
-      background-color: #1e293b;
-      border-color: #334155;
-      color: #f8fafc;
+    .animate-float-coin {
+      animation: float-coin 3s ease-in-out infinite;
     }
 
+    /* Light Theme Base */
     .app-card {
       background: #ffffff;
       border: 1px solid #eef2f6;
@@ -88,6 +90,75 @@
       border-bottom-left-radius: 28px;
       border-bottom-right-radius: 28px;
       box-shadow: 0 10px 25px -5px rgba(109, 40, 217, 0.3);
+    }
+
+    /* ================= FULL DARK MODE OVERRIDES ================= */
+    html.dark, html.dark body {
+      background-color: #0b0f19 !important;
+      color: #f8fafc !important;
+    }
+    html.dark .mobile-shell {
+      background-color: #0f172a !important;
+      border-color: #1e293b !important;
+      color: #f8fafc !important;
+    }
+    html.dark .app-card {
+      background-color: #1e293b !important;
+      border-color: #334155 !important;
+      color: #f8fafc !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35) !important;
+    }
+    html.dark .app-card .text-slate-900,
+    html.dark .app-card .text-slate-800,
+    html.dark .app-card .text-slate-700 {
+      color: #f8fafc !important;
+    }
+    html.dark .app-card .text-slate-600,
+    html.dark .app-card .text-slate-500 {
+      color: #cbd5e1 !important;
+    }
+    html.dark .app-card .text-slate-400 {
+      color: #94a3b8 !important;
+    }
+    html.dark .app-card .bg-slate-50,
+    html.dark .app-card .bg-slate-100 {
+      background-color: #0f172a !important;
+    }
+    html.dark .border-slate-100,
+    html.dark .border-slate-200 {
+      border-color: #334155 !important;
+    }
+    html.dark .divide-slate-100 > * + * {
+      border-color: #334155 !important;
+    }
+    html.dark input,
+    html.dark textarea {
+      background-color: #1e293b !important;
+      border-color: #334155 !important;
+      color: #ffffff !important;
+    }
+    html.dark input::placeholder {
+      color: #64748b !important;
+    }
+    html.dark nav {
+      background-color: rgba(15, 23, 42, 0.96) !important;
+      border-color: #1e293b !important;
+    }
+    html.dark nav button {
+      color: #94a3b8;
+    }
+    html.dark nav button.bg-purple-100 {
+      background-color: rgba(124, 58, 237, 0.28) !important;
+      color: #c4b5fd !important;
+    }
+    html.dark #authModal > div,
+    html.dark #depositModal > div {
+      background-color: #0f172a !important;
+      border-color: #1e293b !important;
+      color: #f8fafc !important;
+    }
+    html.dark .theme-switcher-box {
+      background-color: #1e293b !important;
     }
 
     .no-scrollbar::-webkit-scrollbar {
@@ -135,24 +206,36 @@
       <!-- Header Content Dynamic Per Tab -->
       <div id="headerContentArea">
         
-        <!-- Tab 1: Home Wallet Balance Box (with custom Telegram 🪙 coin) -->
+        <!-- Tab 1: Home Wallet Balance Box (with animated 3D Telegram 🪙 coin) -->
         <div id="homeHeaderWallet" class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3 flex items-center justify-between gap-2 shadow-inner">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-9 h-9 rounded-xl bg-amber-400/20 border border-amber-300/40 flex items-center justify-center shrink-0 p-0.5">
-              <img src="tg_coin_balance_anim.webp" alt="🪙" class="w-8 h-8 object-contain drop-shadow" onerror="this.onerror=null;this.src='tg_coin_balance.gif'"/>
+          <div class="flex items-center gap-3 min-w-0">
+            
+            <!-- Animated Glowing 3D Coin Badge -->
+            <div class="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-300 via-amber-400 to-yellow-500 p-0.5 shadow-lg shadow-amber-500/30 shrink-0 animate-float-coin">
+              <div class="w-full h-full rounded-[14px] bg-purple-950/85 backdrop-blur-sm flex items-center justify-center p-1 overflow-hidden relative">
+                <div class="absolute inset-0 bg-gradient-to-tr from-amber-400/25 to-transparent animate-pulse"></div>
+                <img src="tg_coin_balance_anim.webp" alt="🪙" class="w-9 h-9 object-contain drop-shadow-md relative z-10" onerror="this.onerror=null;this.src='tg_coin_balance.gif'"/>
+              </div>
             </div>
+
             <div class="text-right leading-tight min-w-0">
-              <p class="text-[10.5px] text-purple-200 font-bold flex items-center gap-1">
-                <span>ھەميان قالدۇقىڭىز</span>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10.5px] text-purple-200 font-bold">ھەميان قالدۇقىڭىز</span>
                 <span id="headerUserStatusTag" class="text-[8.5px] bg-purple-900/60 text-purple-200 px-1.5 py-0.2 rounded font-medium border border-purple-400/30">مېھمان</span>
-              </p>
+              </div>
               <p id="headerWalletBalanceText" class="text-base sm:text-lg font-black text-amber-300 font-mono tracking-tight truncate drop-shadow">
                 $0.00 USD
               </p>
+              <!-- Member ID in Balance Header -->
+              <div onclick="copyUserId()" class="flex items-center gap-1 text-[9.5px] text-purple-200 font-mono cursor-pointer hover:text-amber-300 transition" title="ئەزا نومۇرى كۆچۈرۈش">
+                <span>ئەزا ID:</span>
+                <span id="headerUserIdBadge" class="font-bold underline decoration-purple-300/60">52123645</span>
+                <span>📋</span>
+              </div>
             </div>
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
-            <button onclick="openDepositModal()" type="button" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 text-slate-950 text-xs font-black shadow-md shadow-amber-500/30 active:scale-95 transition cursor-pointer flex items-center gap-1">
+            <button onclick="openDepositModal()" type="button" class="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 text-slate-950 text-xs font-black shadow-md shadow-amber-500/30 active:scale-95 transition cursor-pointer flex items-center gap-1">
               <span>+ پۇل قاچىلاش</span>
             </button>
           </div>
@@ -195,9 +278,9 @@
       <section id="tabHomeSection" class="space-y-3">
 
         <!-- Support Agency Banner (matching "وكلاؤنا" from user's screenshot) -->
-        <a href="https://t.me/Autocash_24_bot" target="_blank" class="flex items-center justify-between p-3 bg-white rounded-2xl border border-slate-200 shadow-sm hover:border-purple-300 transition active:scale-[0.99] cursor-pointer">
+        <a href="https://t.me/Autocash_24_bot" target="_blank" class="app-card flex items-center justify-between p-3 rounded-2xl border transition active:scale-[0.99] cursor-pointer">
           <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0">
+            <div class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0">
               <img src="agent_support_icon.png" alt="Agents" class="w-6 h-6 object-contain" onerror="this.src='/autocash_logo.jpg'"/>
             </div>
             <div class="text-right leading-tight">
@@ -217,7 +300,7 @@
               <span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
               <h2 class="text-sm font-black text-slate-900 tracking-tight">ئەپلەر بۆلىكى (الأقسام)</h2>
             </div>
-            <span class="text-[10.5px] font-bold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full">
+            <span class="text-[10.5px] font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 px-2 py-0.5 rounded-full">
               تەمىنلىگۈچى تەننەرخى + %20 پايدا
             </span>
           </div>
@@ -249,8 +332,8 @@
         <div id="viewCountrySelection" class="hidden space-y-3">
 
           <!-- Top Back Bar -->
-          <div class="flex items-center justify-between bg-white border border-slate-200 rounded-2xl p-2.5 shadow-sm">
-            <button onclick="goBackToApps()" type="button" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-black transition active:scale-95 cursor-pointer">
+          <div class="app-card flex items-center justify-between rounded-2xl p-2.5 shadow-sm">
+            <button onclick="goBackToApps()" type="button" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 text-purple-700 dark:text-purple-300 text-xs font-black transition active:scale-95 cursor-pointer">
               <span class="font-mono text-sm">›</span>
               <span>ئەپلەرگە قايتىش</span>
             </button>
@@ -280,23 +363,23 @@
 
         <!-- STEP 3: ACTIVE SMS WAITING CARD -->
         <div id="activeNumberSection" class="hidden space-y-3">
-          <div class="app-card rounded-3xl p-4 border-2 border-emerald-400 bg-gradient-to-br from-emerald-50 via-white to-teal-50 space-y-3 shadow-md">
+          <div class="app-card rounded-3xl p-4 border-2 border-emerald-400 bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950/40 space-y-3 shadow-md">
             
-            <div class="flex items-center justify-between border-b border-emerald-100 pb-2">
+            <div class="flex items-center justify-between border-b border-emerald-100 dark:border-emerald-900/60 pb-2">
               <div class="flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
-                <span class="text-xs font-black text-emerald-800">ئاكتىپ نومۇر (SMS كۈتۈلۈۋاتىدۇ)</span>
+                <span class="text-xs font-black text-emerald-800 dark:text-emerald-300">ئاكتىپ نومۇر (SMS كۈتۈلۈۋاتىدۇ)</span>
               </div>
-              <div id="activeTimerBadge" class="text-xs font-black font-mono px-2 py-0.5 rounded-full bg-emerald-200/60 text-emerald-900 border border-emerald-300">
+              <div id="activeTimerBadge" class="text-xs font-black font-mono px-2 py-0.5 rounded-full bg-emerald-200/60 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
                 14:59
               </div>
             </div>
 
             <!-- Assigned Phone Number -->
-            <div class="p-3 bg-white border border-emerald-200 rounded-2xl flex items-center justify-between gap-2 shadow-sm">
+            <div class="p-3 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-800 rounded-2xl flex items-center justify-between gap-2 shadow-sm">
               <div class="text-right">
                 <p class="text-[10px] text-slate-400 font-bold">بېرىلگەن مەۋھۇم نومۇر</p>
-                <p id="activePhoneNumber" class="text-lg sm:text-xl font-black font-mono text-slate-900 tracking-wider">
+                <p id="activePhoneNumber" class="text-lg sm:text-xl font-black font-mono text-slate-900 dark:text-white tracking-wider">
                   +00000000000
                 </p>
               </div>
@@ -319,7 +402,7 @@
 
             <!-- Action Buttons -->
             <div class="grid grid-cols-2 gap-2">
-              <button onclick="cancelActiveOrder()" type="button" class="py-2.5 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-black transition active:scale-95 cursor-pointer flex items-center justify-center gap-1">
+              <button onclick="cancelActiveOrder()" type="button" class="py-2.5 px-3 rounded-xl bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900 text-xs font-black transition active:scale-95 cursor-pointer flex items-center justify-center gap-1">
                 <span>بىكار قىلىش (100% قايتۇرۇش)</span>
               </button>
               <button onclick="finishAndGetNew()" type="button" class="py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black transition active:scale-95 shadow-md shadow-purple-600/20 cursor-pointer flex items-center justify-center gap-1">
@@ -339,31 +422,31 @@
         <div class="grid grid-cols-3 gap-2">
           
           <!-- Box 1: Pending (قيد التنفيذ) -->
-          <div class="bg-[#fef9c3] border border-amber-200 rounded-2xl p-2.5 text-center shadow-sm">
-            <p id="statPendingCount" class="text-lg font-black font-mono text-amber-700">0</p>
-            <p class="text-[10.5px] font-bold text-amber-800">قيد التنفيذ</p>
+          <div class="bg-[#fef9c3] dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl p-2.5 text-center shadow-sm">
+            <p id="statPendingCount" class="text-lg font-black font-mono text-amber-700 dark:text-amber-300">0</p>
+            <p class="text-[10.5px] font-bold text-amber-800 dark:text-amber-200">قيد التنفيذ</p>
           </div>
 
           <!-- Box 2: Accepted (مقبولة) -->
-          <div class="bg-[#dcfce7] border border-emerald-200 rounded-2xl p-2.5 text-center shadow-sm">
-            <p id="statCompletedCount" class="text-lg font-black font-mono text-emerald-700">0</p>
-            <p class="text-[10.5px] font-bold text-emerald-800">مقبولة</p>
+          <div class="bg-[#dcfce7] dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-2.5 text-center shadow-sm">
+            <p id="statCompletedCount" class="text-lg font-black font-mono text-emerald-700 dark:text-emerald-300">0</p>
+            <p class="text-[10.5px] font-bold text-emerald-800 dark:text-emerald-200">مقبولة</p>
           </div>
 
           <!-- Box 3: Rejected / Refunded (مرفوضة) -->
-          <div class="bg-[#fee2e2] border border-rose-200 rounded-2xl p-2.5 text-center shadow-sm">
-            <p id="statCanceledCount" class="text-lg font-black font-mono text-rose-700">0</p>
-            <p class="text-[10.5px] font-bold text-rose-800">مرفوضة</p>
+          <div class="bg-[#fee2e2] dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-2xl p-2.5 text-center shadow-sm">
+            <p id="statCanceledCount" class="text-lg font-black font-mono text-rose-700 dark:text-rose-300">0</p>
+            <p class="text-[10.5px] font-bold text-rose-800 dark:text-rose-200">مرفوضة</p>
           </div>
 
         </div>
 
         <!-- 4 Filter Tabs (Matching Screenshot 2) -->
-        <div class="flex items-center gap-1.5 p-1 bg-white border border-slate-200 rounded-2xl text-xs font-bold shadow-sm">
+        <div class="app-card flex items-center gap-1.5 p-1 rounded-2xl text-xs font-bold shadow-sm">
           <button onclick="setOrdersFilter('all')" id="orderTabAll" class="flex-1 py-1.5 rounded-xl bg-purple-600 text-white transition font-black">الكل</button>
-          <button onclick="setOrdersFilter('pending')" id="orderTabPending" class="flex-1 py-1.5 rounded-xl text-slate-600 hover:text-purple-600 transition">قيد التنفيذ</button>
-          <button onclick="setOrdersFilter('completed')" id="orderTabCompleted" class="flex-1 py-1.5 rounded-xl text-slate-600 hover:text-purple-600 transition">مقبولة</button>
-          <button onclick="setOrdersFilter('canceled')" id="orderTabCanceled" class="flex-1 py-1.5 rounded-xl text-slate-600 hover:text-purple-600 transition">مرفوضة</button>
+          <button onclick="setOrdersFilter('pending')" id="orderTabPending" class="flex-1 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-purple-600 transition">قيد التنفيذ</button>
+          <button onclick="setOrdersFilter('completed')" id="orderTabCompleted" class="flex-1 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-purple-600 transition">مقبولة</button>
+          <button onclick="setOrdersFilter('canceled')" id="orderTabCanceled" class="flex-1 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-purple-600 transition">مرفوضة</button>
         </div>
 
         <!-- Orders List Wrap -->
@@ -376,66 +459,66 @@
         
         <!-- Card 1: Morning Greeting (Matching Screenshot 3) -->
         <div class="app-card rounded-2xl p-3.5 space-y-1.5">
-          <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+          <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/80 pb-1.5">
             <div class="flex items-center gap-2">
-              <div class="w-7 h-7 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center text-xs">
+              <div class="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 flex items-center justify-center text-xs">
                 📢
               </div>
-              <span class="text-xs font-black text-slate-900">صباح الخير (خەيرلىك ئەتىگەن)</span>
+              <span class="text-xs font-black text-slate-900 dark:text-white">صباح الخير (خەيرلىك ئەتىگەن)</span>
             </div>
             <span class="text-[10px] text-slate-400 font-mono">12:09 – 2026/11/15</span>
           </div>
-          <p class="text-xs text-slate-700 leading-relaxed font-serif">
+          <p class="text-xs text-slate-700 dark:text-slate-200 leading-relaxed font-serif">
             "إِنَّ اللَّهَ وَ مَلَائِكَتَهُ يُصَلُّونَ عَلَى النَّبِيِّ، يَا أَيُّهَا الَّذِينَ آمَنُوا صَلُّوا عَلَيْهِ وَ سَلِّمُوا تَسْلِيمًا" ❤️
           </p>
-          <p class="text-[11px] text-slate-500 font-bold">صل الله عليه وسلم</p>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold">صل الله عليه وسلم</p>
         </div>
 
         <!-- Card 2: Friday Blessing (Matching Screenshot 3) -->
         <div class="app-card rounded-2xl p-3.5 space-y-1.5">
-          <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+          <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/80 pb-1.5">
             <div class="flex items-center gap-2">
-              <div class="w-7 h-7 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center text-xs">
+              <div class="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 flex items-center justify-center text-xs">
                 📢
               </div>
-              <span class="text-xs font-black text-slate-900">جمعة مباركة 🙏 (جۈمە مۇبارەك)</span>
+              <span class="text-xs font-black text-slate-900 dark:text-white">جمعة مباركة 🙏 (جۈمە مۇبارەك)</span>
             </div>
             <span class="text-[10px] text-slate-400 font-mono">11:18 – 2026/11/13</span>
           </div>
-          <p class="text-xs text-slate-700 leading-relaxed font-serif">
+          <p class="text-xs text-slate-700 dark:text-slate-200 leading-relaxed font-serif">
             "إِنَّ اللَّهَ وَ مَلَائِكَتَهُ يُصَلُّونَ عَلَى النَّبِيِّ، يَا أَيُّهَا الَّذِينَ آمَنُوا صَلُّوا عَلَيْهِ وَ سَلِّمُوا تَسْلِيمًا"
           </p>
-          <p class="text-[11px] text-slate-500 font-bold">صل الله عليه وسلم</p>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold">صل الله عليه وسلم</p>
         </div>
 
         <!-- Card 3: Brief Pricing Announcement (Matching Screenshot 3) -->
         <div class="app-card rounded-2xl p-3.5 space-y-1.5">
-          <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+          <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/80 pb-1.5">
             <div class="flex items-center gap-2">
-              <div class="w-7 h-7 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center text-xs">
+              <div class="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 flex items-center justify-center text-xs">
                 📢
               </div>
-              <span class="text-xs font-black text-slate-900">مختصر 🤝 (قىسقىچە ئۇقتۇرۇش)</span>
+              <span class="text-xs font-black text-slate-900 dark:text-white">مختصر 🤝 (قىسقىچە ئۇقتۇرۇش)</span>
             </div>
             <span class="text-[10px] text-slate-400 font-mono">00:09 – 2026/11/13</span>
           </div>
-          <p class="text-xs text-slate-600 leading-relaxed">
+          <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
             PhoneCash تەمىنلىگۈچى تەرەپ بىلەن بىۋاسىتە ئۇلاندى. بارلىق مەۋھۇم نومۇرلار تەمىنلىگۈچى تەننەرخىگە پەقەت %20 پايدا قوشۇلۇپ، بازىرىدىكى ئەڭ ئەرزان باھادا سۇنۇلدى.
           </p>
         </div>
 
         <!-- Card 4: Important Notice (Matching Screenshot 3) -->
         <div class="app-card rounded-2xl p-3.5 space-y-1.5">
-          <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+          <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/80 pb-1.5">
             <div class="flex items-center gap-2">
-              <div class="w-7 h-7 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center text-xs">
+              <div class="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 flex items-center justify-center text-xs">
                 📢
               </div>
-              <span class="text-xs font-black text-slate-900">تنويه هام 🔊 (مۇھىم ئەسكەرتىش)</span>
+              <span class="text-xs font-black text-slate-900 dark:text-white">تنويه هام 🔊 (مۇھىم ئەسكەرتىش)</span>
             </div>
             <span class="text-[10px] text-slate-400 font-mono">02:00 – 2026/11/13</span>
           </div>
-          <p class="text-xs text-slate-600 leading-relaxed">
+          <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
             100% پۇل قايتۇرۇش كاپالىتى: ئەگەر سىز سېتىۋالغان مەۋھۇم نومۇرغا 15 مىنۇت ئىچىدە كود كەلمىسە ياكى سىز بىكار قىلسىڭىز، كېسىلگەن پۇل ھەميان قالدۇقىڭىزغا شۇ ھامان تولۇق قايتۇرۇلىدۇ.
           </p>
         </div>
@@ -448,30 +531,54 @@
         <!-- User Identity Card (Matching Screenshot 4) -->
         <div class="app-card rounded-3xl p-4 space-y-3">
           <div class="flex items-center gap-3">
-            <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-purple-500 shadow-md bg-purple-100 shrink-0">
+            <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-purple-500 shadow-md bg-purple-100 dark:bg-slate-800 shrink-0">
               <img id="accountUserAvatar" src="user_profile_avatar.png" alt="Profile" class="w-full h-full object-cover" onerror="this.src='/autocash_logo.jpg'"/>
             </div>
             <div class="text-right leading-tight min-w-0">
-              <h3 id="accountUserName" class="text-base font-black text-slate-900 truncate">Killer 0996</h3>
+              <h3 id="accountUserName" class="text-base font-black text-slate-900 dark:text-white truncate">Killer 0996</h3>
               <p id="accountUserEmail" class="text-xs text-slate-400 font-mono truncate mt-0.5">dronemax0996@gmail.com</p>
             </div>
           </div>
 
-          <!-- Account Balance Display & Unique ID (Matching Screenshot 4) -->
-          <div class="p-3.5 rounded-2xl bg-gradient-to-r from-purple-50 via-indigo-50 to-purple-50 border border-purple-100 flex items-center justify-between gap-2 shadow-sm">
-            <div class="text-right leading-tight">
-              <p class="text-[10.5px] text-purple-700 font-bold flex items-center gap-1">
-                <span>الرصيد (ھەميان قالدۇقى)</span>
-              </p>
-              <p id="accountBalanceDisplay" class="text-lg font-black font-mono text-purple-900">$0.00 USD</p>
-            </div>
-            <div class="text-left leading-tight">
-              <p class="text-[10px] text-slate-400 font-bold">الرقم المميز (UID)</p>
-              <div class="flex items-center gap-1 justify-end">
-                <span id="accountUserId" class="font-mono font-black text-sm text-slate-800">52123645</span>
-                <button onclick="copyUserId()" class="text-purple-600 hover:text-purple-800 text-xs p-1">📋</button>
+          <!-- Account Balance Display & Unique ID (with 3D animated coin) -->
+          <div class="p-3.5 rounded-2xl bg-gradient-to-r from-purple-50 via-indigo-50 to-purple-50 dark:from-slate-800/90 dark:via-purple-950/40 dark:to-slate-800/90 border border-purple-100 dark:border-purple-900/50 flex items-center justify-between gap-2 shadow-sm">
+            <div class="flex items-center gap-2.5">
+              
+              <!-- 3D Floating Coin Animation in Account -->
+              <div class="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-300 to-amber-500 p-0.5 shadow-md shadow-amber-500/20 shrink-0 animate-float-coin">
+                <div class="w-full h-full rounded-[14px] bg-purple-900 flex items-center justify-center p-1">
+                  <img src="tg_coin_balance_anim.webp" alt="🪙" class="w-9 h-9 object-contain drop-shadow" onerror="this.src='tg_coin_balance.gif'"/>
+                </div>
+              </div>
+
+              <div class="text-right leading-tight">
+                <p class="text-[10.5px] text-purple-700 dark:text-purple-300 font-bold">الرصيد (ھەميان قالدۇقى)</p>
+                <p id="accountBalanceDisplay" class="text-lg font-black font-mono text-purple-950 dark:text-amber-300">$0.00 USD</p>
               </div>
             </div>
+
+            <div class="text-left leading-tight">
+              <p class="text-[10px] text-slate-400 font-bold">الرقم المميز (ID)</p>
+              <div onclick="copyUserId()" class="flex items-center gap-1 justify-end cursor-pointer group" title="نۇسخىلاش">
+                <span id="accountUserId" class="font-mono font-black text-sm text-slate-800 dark:text-white group-hover:text-purple-600 transition">52123645</span>
+                <span class="text-purple-600 text-xs p-1">📋</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prominent One-Click Copy Member ID Row (As in Screenshot 3) -->
+        <div onclick="copyUserId()" class="app-card p-3.5 rounded-2xl flex items-center justify-between gap-2 border-2 border-purple-300/80 dark:border-purple-800/80 bg-purple-50/40 dark:bg-purple-950/30 hover:border-purple-500 transition cursor-pointer active:scale-[0.99] group shadow-sm">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center text-sm font-bold shadow-md shadow-purple-600/30 group-hover:scale-110 transition shrink-0">📋</span>
+            <div class="text-right leading-tight">
+              <span class="text-xs font-black text-slate-900 dark:text-white block group-hover:text-purple-600 transition">ئەزا نومۇرى (ID):</span>
+              <span class="text-[10px] text-purple-600 dark:text-purple-300 font-bold">ھەربىر يېڭى خېرىدارغا خاس كود • بىرنى بېسىپلا كۆچۈرۈش</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span id="accountUserIdProminent" class="font-mono font-black text-base sm:text-lg text-purple-900 dark:text-amber-300 tracking-wider">52123645</span>
+            <span id="copyUidBadge" class="text-[10px] bg-purple-600 hover:bg-purple-700 text-white font-black px-2.5 py-1 rounded-xl shadow-sm transition">كۆچۈرۈش</span>
           </div>
         </div>
 
@@ -479,72 +586,82 @@
         <div class="app-card rounded-2xl overflow-hidden divide-y divide-slate-100 text-xs">
           <div class="p-3 flex items-center justify-between">
             <span class="text-slate-400 font-bold">البريد الإلكتروني (ئېلخەت):</span>
-            <span id="accountInfoEmail" class="font-mono font-bold text-slate-800 truncate max-w-[200px]">dronemax0996@gmail.com</span>
+            <span id="accountInfoEmail" class="font-mono font-bold text-slate-800 dark:text-slate-200 truncate max-w-[200px]">dronemax0996@gmail.com</span>
           </div>
           <div class="p-3 flex items-center justify-between">
             <span class="text-slate-400 font-bold">رقم الهاتف (تېلېفۇن نومۇرى):</span>
-            <span class="font-bold text-slate-600">غير محدد (بېكىتىلمىگەن)</span>
+            <span class="font-bold text-slate-600 dark:text-slate-300">غير محدد (بېكىتىلمىگەن)</span>
           </div>
           <div class="p-3 flex items-center justify-between">
             <span class="text-slate-400 font-bold">العنوان (تۇرۇشلۇق ئادرېس):</span>
-            <span class="font-bold text-slate-600">غير محدد (بېكىتىلمىگەن)</span>
+            <span class="font-bold text-slate-600 dark:text-slate-300">غير محدد (بېكىتىلمىگەن)</span>
           </div>
           <div class="p-3 flex items-center justify-between">
             <span class="text-slate-400 font-bold">نوع الحساب (ھېسابات تۈرى):</span>
-            <span class="font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">زبون (خېرىدار)</span>
+            <span class="font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">زبون (خېرىدار)</span>
           </div>
           <div class="p-3 flex items-center justify-between">
             <span class="text-slate-400 font-bold">الشارة (مەرتىۋە بەلگىسى):</span>
-            <span class="font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">برونزي (VIP مىس ئەزا)</span>
+            <span class="font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">برونزي (VIP مىس ئەزا)</span>
           </div>
         </div>
 
-        <!-- Theme Selector (المظهر 🔅 - Matching Screenshot 4) -->
+        <!-- Theme Selector (المظهر 🔅 - Exact Matching Screenshot 2) -->
         <div class="app-card rounded-2xl p-3.5 space-y-2">
-          <div class="flex items-center gap-1.5 text-xs font-black text-slate-900">
-            <span>المظهر (كۆرۈنۈش ئۇسلۇبى)</span>
-            <span>🔅</span>
+          <div class="flex items-center justify-between text-xs font-black text-slate-900 dark:text-white">
+            <span class="flex items-center gap-1.5">
+              <span>كۆرۈنۈش ئۇسلۇبى (المظهر)</span>
+              <span>🔅</span>
+            </span>
+            <span id="currentThemeLabel" class="text-[10px] text-purple-600 dark:text-purple-400 font-bold">يورۇق ھالەت</span>
           </div>
-          <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl text-xs font-bold">
-            <button onclick="setAppTheme('light')" id="themeBtnLight" type="button" class="flex-1 py-2 rounded-xl bg-amber-400 text-slate-950 font-black shadow-sm transition active:scale-95 flex items-center justify-center gap-1 cursor-pointer">
-              <span>مضيء</span>
+          <div class="theme-switcher-box flex items-center gap-1 bg-slate-100 p-1 rounded-2xl text-xs font-bold border border-slate-200 dark:border-slate-700/80">
+            
+            <!-- Option 1: Light (يورۇق ☀️) -->
+            <button onclick="setAppTheme('light')" id="themeBtnLight" type="button" class="flex-1 py-2 rounded-xl bg-amber-400 text-slate-950 font-black shadow-sm transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer">
+              <span>يورۇق</span>
               <span>☀️</span>
             </button>
-            <button onclick="setAppTheme('dark')" id="themeBtnDark" type="button" class="flex-1 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 transition active:scale-95 flex items-center justify-center gap-1 cursor-pointer">
-              <span>داكن</span>
+
+            <!-- Option 2: Dark (قارا 🌙) -->
+            <button onclick="setAppTheme('dark')" id="themeBtnDark" type="button" class="flex-1 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer">
+              <span>قارا</span>
               <span>🌙</span>
             </button>
-            <button onclick="setAppTheme('auto')" id="themeBtnAuto" type="button" class="flex-1 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition active:scale-95 flex items-center justify-center gap-1 cursor-pointer">
-              <span>تلقائي</span>
+
+            <!-- Option 3: Auto (ئاپتوماتىك ⚙️) -->
+            <button onclick="setAppTheme('auto')" id="themeBtnAuto" type="button" class="flex-1 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer">
+              <span>ئاپتوماتىك</span>
               <span>⚙️</span>
             </button>
+
           </div>
         </div>
 
         <!-- Account Actions (Matching Screenshot 4) -->
         <div class="app-card rounded-2xl overflow-hidden divide-y divide-slate-100 text-xs font-bold text-slate-700">
-          <button onclick="editMyInfoModal()" type="button" class="w-full p-3.5 flex items-center justify-between hover:bg-slate-50 transition cursor-pointer text-right">
+          <button onclick="editMyInfoModal()" type="button" class="w-full p-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer text-right">
             <div class="flex items-center gap-2">
               <span class="text-purple-600">✏️</span>
               <span>تعديل معلوماتي (ئۇچۇر تەھرىرلەش)</span>
             </div>
             <span class="text-slate-400 font-mono">‹</span>
           </button>
-          <button onclick="changePasswordModal()" type="button" class="w-full p-3.5 flex items-center justify-between hover:bg-slate-50 transition cursor-pointer text-right">
+          <button onclick="changePasswordModal()" type="button" class="w-full p-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer text-right">
             <div class="flex items-center gap-2">
               <span class="text-purple-600">🔒</span>
               <span>تغيير كلمة المرور (مەخپىي نومۇر ئالماشتۇرۇش)</span>
             </div>
             <span class="text-slate-400 font-mono">‹</span>
           </button>
-          <button onclick="openAuthModal()" type="button" class="w-full p-3.5 flex items-center justify-between text-purple-700 hover:bg-purple-50 transition cursor-pointer text-right">
+          <button onclick="openAuthModal()" type="button" class="w-full p-3.5 flex items-center justify-between text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-slate-800 transition cursor-pointer text-right">
             <div class="flex items-center gap-2">
               <span>🔐</span>
               <span id="accountLoginActionText">ھېساباتقا كىرىش / تىزىملىتىش</span>
             </div>
             <span class="font-mono">‹</span>
           </button>
-          <button onclick="handleLogout()" type="button" class="w-full p-3.5 flex items-center justify-between text-rose-600 hover:bg-rose-50 transition cursor-pointer text-right">
+          <button onclick="handleLogout()" type="button" class="w-full p-3.5 flex items-center justify-between text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer text-right">
             <div class="flex items-center gap-2">
               <span>🚪</span>
               <span>تسجيل الخروج (ھېساباتتىن چىقىش)</span>
@@ -592,29 +709,29 @@
     <!-- ================= MULTI-AUTH LOGIN MODAL ================= -->
     <div id="authModal" onclick="if(event.target===this) closeAuthModal()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden opacity-0 transition-opacity duration-200">
       <div class="w-full max-w-sm bg-white rounded-3xl p-5 space-y-4 shadow-2xl border border-slate-100 relative">
-        <button onclick="closeAuthModal()" class="absolute top-3.5 left-3.5 w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold transition cursor-pointer">✕</button>
+        <button onclick="closeAuthModal()" class="absolute top-3.5 left-3.5 w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold transition cursor-pointer">✕</button>
 
         <div class="text-center space-y-1">
-          <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 mx-auto flex items-center justify-center text-xl font-bold shadow-sm">
+          <div class="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 mx-auto flex items-center justify-center text-xl font-bold shadow-sm">
             🔐
           </div>
-          <h3 class="text-base font-black text-slate-900">ھېساباتقا كىرىش / تىزىملىتىش</h3>
+          <h3 class="text-base font-black text-slate-900 dark:text-white">ھېساباتقا كىرىش / تىزىملىتىش</h3>
           <p class="text-xs text-slate-500">ھەميان قالدۇقىڭىز ۋە زاكازلىرىڭىز بىر گەۋدە بولىدۇ</p>
         </div>
 
         <!-- Auth Tabs -->
-        <div class="flex items-center gap-1 p-1 bg-slate-100 rounded-xl text-xs font-bold">
-          <button onclick="switchAuthTab('telegram')" id="authTabTelegram" class="flex-1 py-1.5 rounded-lg bg-white text-purple-700 shadow-sm transition">Telegram</button>
-          <button onclick="switchAuthTab('gmail')" id="authTabGmail" class="flex-1 py-1.5 rounded-lg text-slate-600 hover:text-purple-700 transition">Gmail</button>
-          <button onclick="switchAuthTab('otp')" id="authTabOtp" class="flex-1 py-1.5 rounded-lg text-slate-600 hover:text-purple-700 transition">تېلېگرام كود</button>
+        <div class="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold">
+          <button onclick="switchAuthTab('telegram')" id="authTabTelegram" class="flex-1 py-1.5 rounded-lg bg-white dark:bg-slate-700 text-purple-700 dark:text-white shadow-sm transition">Telegram</button>
+          <button onclick="switchAuthTab('gmail')" id="authTabGmail" class="flex-1 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-purple-700 transition">Gmail</button>
+          <button onclick="switchAuthTab('otp')" id="authTabOtp" class="flex-1 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-purple-700 transition">تېلېگرام كود</button>
         </div>
 
         <!-- Tab 1: Telegram 1-Tap Login -->
         <div id="authPanelTelegram" class="space-y-3">
-          <div class="p-3 bg-purple-50 rounded-2xl border border-purple-100 text-center space-y-1">
+          <div class="p-3 bg-purple-50 dark:bg-purple-950/40 rounded-2xl border border-purple-100 dark:border-purple-900 text-center space-y-1">
             <span class="text-2xl block">✈️</span>
-            <p class="text-xs font-black text-purple-900">تېلېگرام ئارقىلىق بىر چەكىپلا كىرىش</p>
-            <p class="text-[11px] text-slate-500">تېلېگرام بوتىمىز ئارقىلىق مەركىزى ھېساباتىڭىزغا بىخەتەر كىرىڭ</p>
+            <p class="text-xs font-black text-purple-900 dark:text-purple-200">تېلېگرام ئارقىلىق بىر چەكىپلا كىرىش</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">تېلېگرام بوتىمىز ئارقىلىق مەركىزى ھېساباتىڭىزغا بىخەتەر كىرىڭ</p>
           </div>
           <button onclick="executeTelegramLogin()" type="button" class="w-full py-2.5 rounded-xl bg-[#229ED9] hover:bg-[#1e8ec3] text-white font-black text-xs shadow-md shadow-sky-500/25 transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
             <span>✈️</span>
@@ -624,12 +741,12 @@
 
         <!-- Tab 2: Gmail Login -->
         <div id="authPanelGmail" class="hidden space-y-3">
-          <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-1">
+          <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 text-center space-y-1">
             <span class="text-2xl block">📧</span>
-            <p class="text-xs font-black text-slate-900">Google / Gmail ئارقىلىق كىرىش</p>
-            <p class="text-[11px] text-slate-500">ئېلخەت ئادرېسىڭىز بىلەن تىزىملىتىڭ ياكى كىرىڭ</p>
+            <p class="text-xs font-black text-slate-900 dark:text-white">Google / Gmail ئارقىلىق كىرىش</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">ئېلخەت ئادرېسىڭىز بىلەن تىزىملىتىڭ ياكى كىرىڭ</p>
           </div>
-          <input id="gmailInput" type="email" placeholder="example@gmail.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-purple-500"/>
+          <input id="gmailInput" type="email" placeholder="example@gmail.com" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-purple-500"/>
           <button onclick="executeGmailLogin()" type="button" class="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs shadow-md shadow-purple-600/25 transition active:scale-95 cursor-pointer">
             Google بىلەن كىرىش ‹
           </button>
@@ -638,17 +755,17 @@
         <!-- Tab 3: Telegram OTP Verification -->
         <div id="authPanelOtp" class="hidden space-y-3">
           <div class="space-y-1.5">
-            <label class="block text-xs font-bold text-slate-700">تېلېگرام نامىڭىز (@username ياكى ID):</label>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">تېلېگرام نامىڭىز (@username ياكى ID):</label>
             <div class="flex gap-2">
-              <input id="otpUsernameInput" type="text" placeholder="@user123 ياكى 52123645" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-purple-500"/>
-              <button onclick="requestTelegramOtp()" type="button" class="px-3 py-2 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-800 text-xs font-black shrink-0 cursor-pointer">
+              <input id="otpUsernameInput" type="text" placeholder="@user123 ياكى 52123645" class="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-purple-500"/>
+              <button onclick="requestTelegramOtp()" type="button" class="px-3 py-2 rounded-xl bg-purple-100 dark:bg-purple-950 hover:bg-purple-200 text-purple-800 dark:text-purple-300 text-xs font-black shrink-0 cursor-pointer">
                 كود ئەۋەتىش
               </button>
             </div>
           </div>
           <div class="space-y-1.5">
-            <label class="block text-xs font-bold text-slate-700">بوتتىن كەلگەن 6 خانىلىق كود:</label>
-            <input id="otpCodeInput" type="text" placeholder="123456" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-mono tracking-widest text-center focus:outline-none focus:border-purple-500"/>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">بوتتىن كەلگەن 6 خانىلىق كود:</label>
+            <input id="otpCodeInput" type="text" placeholder="123456" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white font-mono tracking-widest text-center focus:outline-none focus:border-purple-500"/>
           </div>
           <button onclick="verifyTelegramOtp()" type="button" class="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs shadow-md shadow-purple-600/25 transition active:scale-95 cursor-pointer">
             دەلىللەپ كىرىش ‹
@@ -658,38 +775,49 @@
       </div>
     </div>
 
-    <!-- ================= SHAMCASH DEPOSIT MODAL ================= -->
+    <!-- ================= SHAMCASH DEPOSIT MODAL (with 3D Floating Gold Coin) ================= -->
     <div id="depositModal" onclick="if(event.target===this) closeDepositModal()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden opacity-0 transition-opacity duration-200">
       <div class="w-full max-w-sm bg-white rounded-3xl p-5 space-y-4 shadow-2xl border border-slate-100 relative">
-        <button onclick="closeDepositModal()" class="absolute top-3.5 left-3.5 w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold transition cursor-pointer">✕</button>
+        <button onclick="closeDepositModal()" class="absolute top-3.5 left-3.5 w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold transition cursor-pointer">✕</button>
 
-        <div class="text-center space-y-1">
-          <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 mx-auto flex items-center justify-center text-xl font-bold shadow-sm">
-            💳
+        <!-- Animated Floating Gold Coin Header in Modal -->
+        <div class="text-center space-y-1.5">
+          <div class="relative w-16 h-16 mx-auto mb-1 animate-float-coin">
+            <!-- Glowing background aura -->
+            <div class="absolute -inset-1 rounded-3xl bg-gradient-to-r from-amber-400 via-purple-500 to-indigo-500 opacity-60 blur-md animate-pulse"></div>
+            <div class="relative w-full h-full rounded-2xl bg-gradient-to-br from-purple-900 to-indigo-950 border-2 border-amber-300/80 flex items-center justify-center p-2 shadow-2xl overflow-hidden">
+              <img src="tg_coin_balance_anim.webp" alt="🪙" class="w-12 h-12 object-contain drop-shadow" onerror="this.src='tg_coin_balance.gif'"/>
+            </div>
           </div>
-          <h3 class="text-base font-black text-slate-900">ھەميانغا پۇل قاچىلاش</h3>
+          <h3 class="text-base font-black text-slate-900 dark:text-white">ھەميانغا پۇل قاچىلاش</h3>
           <p class="text-xs text-slate-500">رەسمىي سۈرىيە ShamCash ئاپتوماتىك قاچىلاش</p>
         </div>
 
-        <div class="p-3 rounded-2xl bg-purple-50 border border-purple-100 space-y-2">
+        <div class="p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900 space-y-2">
           <div class="flex items-center justify-between text-xs">
-            <span class="text-purple-700 font-bold">ShamCash ھېسابات نۇمۇرى:</span>
-            <button onclick="navigator.clipboard.writeText('efe8a2b200d66411c7c7e296369cbba8'); alert('ھېسابات كۆچۈرۈلدى ✓');" class="text-[11px] font-bold text-purple-700 underline cursor-pointer">كۆچۈرۈش</button>
+            <span class="text-purple-700 dark:text-purple-300 font-bold">ShamCash ھېسابات نۇمۇرى:</span>
+            <button onclick="navigator.clipboard.writeText('efe8a2b200d66411c7c7e296369cbba8'); showFloatingToast('ShamCash ھېسابات نۇمۇرى كۆچۈرۈلدى ✓');" class="text-[11px] font-bold text-purple-700 dark:text-purple-300 underline cursor-pointer">كۆچۈرۈش</button>
           </div>
-          <p class="text-[11px] font-mono font-bold text-slate-800 break-all select-all bg-white p-2 rounded-xl border border-purple-200 text-center">
+          <p class="text-[11px] font-mono font-bold text-slate-800 dark:text-slate-200 break-all select-all bg-white dark:bg-slate-800 p-2 rounded-xl border border-purple-200 dark:border-purple-800 text-center">
             efe8a2b200d66411c7c7e296369cbba8
           </p>
         </div>
 
         <div class="space-y-2">
-          <label class="block text-xs font-bold text-slate-700">ShamCash تالون ياكى ھېسابات نۇمۇرىڭىزنى كىرگۈزۈڭ:</label>
-          <input id="depositTxInput" type="text" placeholder="مەسىلەن: 98451230 ياكى تالون رەسىمى" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-purple-500"/>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">ShamCash تالون ياكى ھېسابات نۇمۇرىڭىزنى كىرگۈزۈڭ:</label>
+          <input id="depositTxInput" type="text" placeholder="مەسىلەن: 98451230 ياكى تالون رەسىمى" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-purple-500"/>
         </div>
 
         <button onclick="submitDepositConfirmation()" type="button" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs shadow-md shadow-purple-600/30 transition active:scale-95 cursor-pointer">
           تالوننى دەلىللەش ۋە قاچىلاش ‹
         </button>
       </div>
+    </div>
+
+    <!-- ================= FLOATING COPY TOAST NOTIFICATION ================= -->
+    <div id="floatingToast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 dark:bg-purple-950/95 backdrop-blur-md text-white border border-amber-400/50 shadow-2xl rounded-2xl px-4 py-2.5 text-xs font-black flex items-center gap-2 transform -translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+      <span class="text-amber-400 text-sm">✓</span>
+      <span id="floatingToastText">ئەزا نومۇرى كۆچۈرۈلدى!</span>
     </div>
 
   </div>
@@ -715,13 +843,24 @@
     // --- DOM Initializer ---
     document.addEventListener('DOMContentLoaded', async () => {
       initSavedTheme();
-      initTelegramWebApp();
       initUserSession();
+      initTelegramWebApp();
       loadSavedOrders();
       await fetchLiveCatalog();
     });
 
-    // --- Theme Control (مضيء / داكن / تلقائي) ---
+    // --- Member ID Generator for ALL New Customers ---
+    function getOrGenerateUserId() {
+      let uid = localStorage.getItem('autocash_uid');
+      if (!uid) {
+        // Generate an 8-digit unique ID (e.g. 52123645)
+        uid = String(Math.floor(10000000 + Math.random() * 90000000));
+        localStorage.setItem('autocash_uid', uid);
+      }
+      return uid;
+    }
+
+    // --- Theme Control (مضيء / داكن / تلقائي - Exact match to user screenshot) ---
     function initSavedTheme() {
       const savedTheme = localStorage.getItem('autocash_theme') || 'light';
       setAppTheme(savedTheme, false);
@@ -729,38 +868,46 @@
 
     function setAppTheme(theme, save = true) {
       const html = document.documentElement;
+      let isDark = false;
+
       if (theme === 'dark') {
-        html.classList.add('dark');
-        html.classList.remove('light');
+        isDark = true;
       } else if (theme === 'light') {
-        html.classList.add('light');
-        html.classList.remove('dark');
+        isDark = false;
       } else {
-        // Auto
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (prefersDark) {
-          html.classList.add('dark');
-          html.classList.remove('light');
-        } else {
-          html.classList.add('light');
-          html.classList.remove('dark');
-        }
+        // Auto - follow system scheme
+        isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       }
 
+      if (isDark) {
+        html.classList.add('dark');
+        html.classList.remove('light');
+      } else {
+        html.classList.add('light');
+        html.classList.remove('dark');
+      }
+
+      // Update button styling matching Screenshot 2
       const themes = ['light', 'dark', 'auto'];
       themes.forEach(t => {
         const btn = document.getElementById('themeBtn' + t.charAt(0).toUpperCase() + t.slice(1));
         if (btn) {
           if (t === theme) {
-            btn.className = 'flex-1 py-2 rounded-xl bg-amber-400 text-slate-950 font-black shadow-sm transition active:scale-95 flex items-center justify-center gap-1 cursor-pointer';
+            btn.className = 'flex-1 py-2 rounded-xl bg-amber-400 text-slate-950 font-black shadow-sm transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer';
           } else {
-            btn.className = 'flex-1 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 transition active:scale-95 flex items-center justify-center gap-1 cursor-pointer';
+            btn.className = 'flex-1 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer';
           }
         }
       });
 
+      const labelEl = document.getElementById('currentThemeLabel');
+      if (labelEl) {
+        labelEl.textContent = isDark ? 'قاراڭغۇ ھالەت (Dark)' : 'يورۇق ھالەت (Light)';
+      }
+
       if (save) {
         localStorage.setItem('autocash_theme', theme);
+        showFloatingToast(isDark ? '🌙 قاراڭغۇ ھالەتكە يۆتكەلدى' : '☀️ يورۇق ھالەتكە يۆتكەلدى');
       }
     }
 
@@ -801,16 +948,19 @@
 
     async function initUserSession() {
       try {
+        const persistentUid = getOrGenerateUserId();
         const savedUser = localStorage.getItem('autocash_user') || localStorage.getItem('autocash_tg_user');
+        
         if (savedUser) {
           try {
             currentUser = JSON.parse(savedUser);
+            if (!currentUser.id) currentUser.id = persistentUid;
             updateUserUI(currentUser);
           } catch(e) {}
         } else {
           // Default demo profile matching screenshot 4
           currentUser = {
-            id: 52123645,
+            id: persistentUid,
             name: 'Killer 0996',
             first_name: 'Killer 0996',
             email: 'dronemax0996@gmail.com',
@@ -846,8 +996,9 @@
 
     function updateUserUI(user) {
       if (!user) return;
+      const persistentUid = getOrGenerateUserId();
       const name = user.first_name || user.name || user.username || 'Killer 0996';
-      const uid = user.id || '52123645';
+      const uid = user.id || persistentUid;
       const email = user.email || (user.username ? user.username + '@auto-cash.app' : 'dronemax0996@gmail.com');
 
       const nameEl = document.getElementById('accountUserName');
@@ -859,8 +1010,15 @@
       const infoEmail = document.getElementById('accountInfoEmail');
       if (infoEmail) infoEmail.textContent = email;
 
+      // Update UID in all spots
       const uidEl = document.getElementById('accountUserId');
       if (uidEl) uidEl.textContent = String(uid);
+
+      const uidProminent = document.getElementById('accountUserIdProminent');
+      if (uidProminent) uidProminent.textContent = String(uid);
+
+      const headerUid = document.getElementById('headerUserIdBadge');
+      if (headerUid) headerUid.textContent = String(uid);
 
       const statusTag = document.getElementById('headerUserStatusTag');
       if (statusTag) {
@@ -885,6 +1043,61 @@
 
       const aEl = document.getElementById('accountBalanceDisplay');
       if (aEl) aEl.textContent = bText;
+    }
+
+    // --- Floating Toast Message Helper ---
+    function showFloatingToast(msg) {
+      const toast = document.getElementById('floatingToast');
+      const text = document.getElementById('floatingToastText');
+      if (toast && text) {
+        text.textContent = msg;
+        toast.classList.remove('-translate-y-20', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+        setTimeout(() => {
+          toast.classList.remove('translate-y-0', 'opacity-100');
+          toast.classList.add('-translate-y-20', 'opacity-0');
+        }, 2200);
+      }
+    }
+
+    // --- One-Click Copy Member ID Function ---
+    function copyUserId() {
+      const uid = String(currentUser?.id || getOrGenerateUserId());
+      
+      const onCopied = () => {
+        const badge = document.getElementById('copyUidBadge');
+        if (badge) {
+          badge.textContent = 'كۆچۈرۈلدى ✓';
+          badge.className = 'text-[10px] bg-emerald-600 text-white font-black px-2.5 py-1 rounded-xl shadow-sm transition scale-105';
+          setTimeout(() => {
+            badge.textContent = 'كۆچۈرۈش';
+            badge.className = 'text-[10px] bg-purple-600 hover:bg-purple-700 text-white font-black px-2.5 py-1 rounded-xl shadow-sm transition';
+          }, 2000);
+        }
+        showFloatingToast('ئەزا نومۇرى (ID: ' + uid + ') نۇسخىلاندى ✓');
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(uid).then(onCopied).catch(() => {
+          fallbackCopyText(uid);
+          onCopied();
+        });
+      } else {
+        fallbackCopyText(uid);
+        onCopied();
+      }
+    }
+
+    function fallbackCopyText(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try { document.execCommand('copy'); } catch(e){}
+      document.body.removeChild(ta);
     }
 
     // --- Multi-Auth Modal Controls ---
@@ -922,9 +1135,9 @@
         const btn = document.getElementById('authTab' + t.charAt(0).toUpperCase() + t.slice(1));
         if (btn) {
           if (t === tab) {
-            btn.className = 'flex-1 py-1.5 rounded-lg bg-white text-purple-700 shadow-sm transition font-black';
+            btn.className = 'flex-1 py-1.5 rounded-lg bg-white dark:bg-slate-700 text-purple-700 dark:text-white shadow-sm transition font-black';
           } else {
-            btn.className = 'flex-1 py-1.5 rounded-lg text-slate-600 hover:text-purple-700 transition font-bold';
+            btn.className = 'flex-1 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-purple-700 transition font-bold';
           }
         }
       });
@@ -935,7 +1148,7 @@
         currentUser = window.Telegram.WebApp.initDataUnsafe.user;
         updateUserUI(currentUser);
         closeAuthModal();
-        alert('تېلېگرام بىلەن مۇۋەپپەقىيەتلىك كىردىڭىز ✓');
+        showFloatingToast('تېلېگرام بىلەن مۇۋەپپەقىيەتلىك كىردىڭىز ✓');
       } else {
         window.open('https://t.me/Autocash_24_bot?start=auth', '_blank');
       }
@@ -947,11 +1160,11 @@
         alert('ئۈنۈملۈك Gmail ياكى ئېلخەت ئادرېسى كىرگۈزۈڭ');
         return;
       }
-      currentUser = { email: email, name: email.split('@')[0], id: Math.floor(100000 + Math.random() * 900000) };
+      currentUser = { email: email, name: email.split('@')[0], id: getOrGenerateUserId() };
       localStorage.setItem('autocash_user', JSON.stringify(currentUser));
       updateUserUI(currentUser);
       closeAuthModal();
-      alert('خۇش كەپسىز، ' + currentUser.name + '! ھېساباتقا كىردىڭىز ✓');
+      showFloatingToast('خۇش كەپسىز، ' + currentUser.name + '! كىردىڭىز ✓');
     }
 
     async function requestTelegramOtp() {
@@ -970,11 +1183,11 @@
         alert('تېلېگرامدىن كەلگەن كودنى كىرگۈزۈڭ');
         return;
       }
-      currentUser = { username: u.replace(/^@/, ''), id: Math.floor(100000 + Math.random() * 900000) };
+      currentUser = { username: u.replace(/^@/, ''), id: getOrGenerateUserId() };
       localStorage.setItem('autocash_user', JSON.stringify(currentUser));
       updateUserUI(currentUser);
       closeAuthModal();
-      alert('مۇۋەپپەقىيەتلىك كىردىڭىز ✓');
+      showFloatingToast('مۇۋەپپەقىيەتلىك كىردىڭىز ✓');
     }
 
     function handleLogout() {
@@ -995,14 +1208,14 @@
         currentUser.first_name = newName.trim();
         localStorage.setItem('autocash_user', JSON.stringify(currentUser));
         updateUserUI(currentUser);
-        alert('ئۇچۇرىڭىز ساقلاندى ✓');
+        showFloatingToast('ئۇچۇرىڭىز ساقلاندى ✓');
       }
     }
 
     function changePasswordModal() {
       const p = prompt('يېڭى مەخپىي نومۇرنى كىرگۈزۈڭ:');
       if (p) {
-        alert('مەخپىي نومۇرىڭىز يېڭىلاندى ✓');
+        showFloatingToast('مەخپىي نومۇرىڭىز يېڭىلاندى ✓');
       }
     }
 
@@ -1050,7 +1263,7 @@
 
       if (filtered.length === 0) {
         container.innerHTML = `
-          <div class="col-span-2 py-8 text-center text-slate-400 text-xs bg-white rounded-2xl border border-slate-200 p-4">
+          <div class="col-span-2 py-8 text-center text-slate-400 text-xs app-card rounded-2xl p-4">
             🔍 سىز ئىزدىگەن ئەپ تېپىلمىدى.
           </div>
         `;
@@ -1059,27 +1272,27 @@
 
       container.innerHTML = filtered.map(app => {
         return `
-          <div onclick="selectApp('${app.code}')" class="app-card rounded-2xl p-3 flex flex-col justify-between gap-2.5 cursor-pointer group hover:border-purple-300 relative overflow-hidden">
+          <div onclick="selectApp('${app.code}')" class="app-card rounded-2xl p-3 flex flex-col justify-between gap-2.5 cursor-pointer group hover:border-purple-400 relative overflow-hidden">
             <div class="flex items-center gap-2">
-              <div class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 shadow-sm p-1.5 transition group-hover:scale-105">
+              <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center shrink-0 shadow-sm p-1.5 transition group-hover:scale-105">
                 <img src="${app.iconUrl}" alt="${app.name}" class="w-full h-full object-contain" onerror="this.src='https://cdn.simpleicons.org/google'"/>
               </div>
               <div class="text-right leading-tight min-w-0">
-                <h3 class="text-xs font-black text-slate-900 group-hover:text-purple-700 transition truncate">${app.nameUg}</h3>
+                <h3 class="text-xs font-black text-slate-900 group-hover:text-purple-600 transition truncate">${app.nameUg}</h3>
                 <p class="text-[10px] text-slate-400 font-mono truncate mt-0.5">${app.name}</p>
               </div>
             </div>
 
             <!-- Stock & Starting Price Banner (+20% Margin) -->
-            <div class="bg-purple-50/70 border border-purple-100 rounded-xl px-2 py-1.5 flex items-center justify-between text-[10px]">
-              <span class="text-purple-700 font-black font-mono flex items-center gap-1">
+            <div class="bg-purple-50/70 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900/60 rounded-xl px-2 py-1.5 flex items-center justify-between text-[10px]">
+              <span class="text-purple-700 dark:text-purple-300 font-black font-mono flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>${(app.totalStock || 1200).toLocaleString()} تال قالدى</span>
               </span>
-              <span class="text-slate-600 font-bold font-mono">$${(app.minSellPrice || 0.20).toFixed(2)} دىن</span>
+              <span class="text-slate-600 dark:text-slate-300 font-bold font-mono">$${(app.minSellPrice || 0.20).toFixed(2)} دىن</span>
             </div>
 
-            <div class="pt-1 flex items-center justify-between text-[11px] font-black text-purple-600 group-hover:text-purple-800 border-t border-slate-100">
+            <div class="pt-1 flex items-center justify-between text-[11px] font-black text-purple-600 dark:text-purple-400 group-hover:text-purple-800 border-t border-slate-100 dark:border-slate-800">
               <span>دۆلەت ۋە باھا تاللاش</span>
               <span class="font-mono text-xs">‹</span>
             </div>
@@ -1105,12 +1318,12 @@
       const badge = document.getElementById('selectedAppBadge');
       if (badge && selectedApp) {
         badge.innerHTML = `
-          <div class="w-7 h-7 rounded-lg bg-slate-50 border border-slate-100 p-1 flex items-center justify-center shrink-0">
+          <div class="w-7 h-7 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-1 flex items-center justify-center shrink-0">
             <img src="${selectedApp.iconUrl}" alt="${selectedApp.name}" class="w-full h-full object-contain"/>
           </div>
           <div class="text-right leading-none">
-            <span class="text-xs font-black text-slate-900">${selectedApp.nameUg}</span>
-            <span class="text-[9.5px] text-purple-600 font-mono block">${selectedApp.name}</span>
+            <span class="text-xs font-black text-slate-900 dark:text-white">${selectedApp.nameUg}</span>
+            <span class="text-[9.5px] text-purple-600 dark:text-purple-400 font-mono block">${selectedApp.name}</span>
           </div>
         `;
       }
@@ -1141,7 +1354,7 @@
 
       if (filtered.length === 0) {
         container.innerHTML = `
-          <div class="py-8 text-center text-slate-400 text-xs bg-white rounded-2xl border border-slate-200 p-4">
+          <div class="py-8 text-center text-slate-400 text-xs app-card rounded-2xl p-4">
             🌍 بۇ ئەپ ئۈچۈن سىز ئىزدىگەن دۆلەتتىن نۇمۇر تېپىلمىدى.
           </div>
         `;
@@ -1152,16 +1365,16 @@
         return `
           <div class="app-card rounded-2xl p-3 flex items-center justify-between gap-2.5 hover:border-purple-300 transition">
             <div class="flex items-center gap-2.5 min-w-0">
-              <div class="w-9 h-6.5 rounded overflow-hidden shadow-sm border border-slate-200 shrink-0 bg-slate-100 flex items-center justify-center">
+              <div class="w-9 h-6.5 rounded overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 shrink-0 bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                 <img src="${c.flagUrl}" alt="${c.name}" class="w-full h-full object-cover" onerror="this.src='https://flagcdn.com/w80/tr.png'"/>
               </div>
               <div class="text-right leading-tight min-w-0">
-                <p class="text-xs font-black text-slate-900 truncate">
+                <p class="text-xs font-black text-slate-900 dark:text-white truncate">
                   <span>${c.nameUg}</span>
-                  <span class="text-purple-600 font-mono font-bold mr-1">${c.dialCode}</span>
+                  <span class="text-purple-600 dark:text-purple-400 font-mono font-bold mr-1">${c.dialCode}</span>
                 </p>
                 <p class="text-[10px] text-slate-400 font-mono truncate mt-0.5">
-                  ${c.name} • <span class="text-emerald-600 font-bold font-sans">${(c.stock || 0).toLocaleString()} تال قالدى</span>
+                  ${c.name} • <span class="text-emerald-600 dark:text-emerald-400 font-bold font-sans">${(c.stock || 0).toLocaleString()} تال قالدى</span>
                 </p>
               </div>
             </div>
@@ -1169,8 +1382,8 @@
             <!-- Price with 20% Margin & Buy Button -->
             <div class="flex items-center gap-2 shrink-0">
               <div class="text-left leading-tight">
-                <span class="text-xs sm:text-sm font-black font-mono text-purple-700 block">$${(c.sellPrice || 0.25).toFixed(2)}</span>
-                <span class="text-[8.5px] text-emerald-600 font-bold block">+20% باھا</span>
+                <span class="text-xs sm:text-sm font-black font-mono text-purple-700 dark:text-amber-300 block">$${(c.sellPrice || 0.25).toFixed(2)}</span>
+                <span class="text-[8.5px] text-emerald-600 dark:text-emerald-400 font-bold block">+20% باھا</span>
               </div>
               <button onclick="handleBuyNumber('${selectedApp.code}', ${c.id}, ${c.sellPrice}, '${c.nameUg}', '${c.dialCode}')" type="button" class="px-3 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-black shadow-md shadow-purple-600/30 transition active:scale-95 cursor-pointer flex items-center gap-1">
                 <span>سېتىۋېلىش</span>
@@ -1308,7 +1521,7 @@
             codeWrap.innerHTML = `
               <div class="p-3 bg-emerald-500 text-white rounded-xl shadow-lg flex items-center justify-between gap-2 animate-bounce">
                 <span class="text-xl sm:text-2xl font-black font-mono tracking-widest">${data.code}</span>
-                <button onclick="navigator.clipboard.writeText('${data.code}'); alert('SMS كود كۆچۈرۈلدى: ${data.code} ✓')" class="px-3 py-1.5 rounded-lg bg-white text-emerald-800 text-xs font-black shadow cursor-pointer">
+                <button onclick="navigator.clipboard.writeText('${data.code}'); showFloatingToast('SMS كود كۆچۈرۈلدى: ${data.code} ✓')" class="px-3 py-1.5 rounded-lg bg-white text-emerald-800 text-xs font-black shadow cursor-pointer">
                   كۆچۈرۈش
                 </button>
               </div>
@@ -1338,7 +1551,7 @@
         updateOrderStatus(activeSession.activationId, 'canceled');
         fetchUserUnifiedBalance();
         finishAndGetNew();
-        alert('مەۋھۇم نومۇر بىكار قىلىندى ھەمدە تۇتۇلغان پۇل ھەميانىڭىزغا تولۇق قايتۇرۇلدى ✓');
+        showFloatingToast('مەۋھۇم نومۇر بىكار قىلىندى، پۇل قايتۇرۇلدى ✓');
       } catch (e) {
         alert('بىكار قىلىش مەغلۇپ بولدى: ' + e.message);
       }
@@ -1357,7 +1570,7 @@
     function copyActiveNumber() {
       if (!activeSession || !activeSession.phone) return;
       navigator.clipboard.writeText(activeSession.phone);
-      alert('نومۇر كۆچۈرۈلدى: ' + activeSession.phone + ' ✓');
+      showFloatingToast('نومۇر كۆچۈرۈلدى: ' + activeSession.phone + ' ✓');
     }
 
     // --- Orders History (طلباتي) ---
@@ -1393,7 +1606,7 @@
           if (b.toLowerCase() === f) {
             btn.className = 'flex-1 py-1.5 rounded-xl bg-purple-600 text-white transition shadow-sm font-black';
           } else {
-            btn.className = 'flex-1 py-1.5 rounded-xl text-slate-600 hover:text-purple-600 transition font-bold';
+            btn.className = 'flex-1 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-purple-600 transition font-bold';
           }
         }
       });
@@ -1419,9 +1632,9 @@
 
       if (filtered.length === 0) {
         wrap.innerHTML = `
-          <div class="py-16 text-center space-y-2 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-            <span class="text-4xl block text-slate-300">📄</span>
-            <h4 class="text-sm font-black text-slate-700">لا توجد طلبات بعد</h4>
+          <div class="py-16 text-center space-y-2 app-card rounded-3xl p-6 shadow-sm">
+            <span class="text-4xl block text-slate-300 dark:text-slate-600">📄</span>
+            <h4 class="text-sm font-black text-slate-700 dark:text-slate-200">لا توجد طلبات بعد</h4>
             <p class="text-xs text-slate-400">تېخى ھېچقانداق زاكاز يوق. ئاساسىي بەتكە ئۆتۈپ ئەپ تاللاپ نومۇر ئېلىڭ.</p>
           </div>
         `;
@@ -1431,26 +1644,26 @@
       wrap.innerHTML = filtered.map(o => {
         let statusBadge = '';
         if (o.status === 'completed') {
-          statusBadge = '<span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">مقبولة ✓</span>';
+          statusBadge = '<span class="text-[10px] bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold px-2 py-0.5 rounded-full">مقبولة ✓</span>';
         } else if (o.status === 'canceled') {
-          statusBadge = '<span class="text-[10px] bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded-full">مرفوضة ✕</span>';
+          statusBadge = '<span class="text-[10px] bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 font-bold px-2 py-0.5 rounded-full">مرفوضة ✕</span>';
         } else {
-          statusBadge = '<span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">قيد التنفيذ ⏳</span>';
+          statusBadge = '<span class="text-[10px] bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-bold px-2 py-0.5 rounded-full">قيد التنفيذ ⏳</span>';
         }
 
         return `
           <div class="app-card rounded-2xl p-3 flex items-center justify-between gap-2.5">
             <div class="text-right leading-tight min-w-0">
               <div class="flex items-center gap-2">
-                <span class="text-xs font-black text-slate-900">${o.service}</span>
+                <span class="text-xs font-black text-slate-900 dark:text-white">${o.service}</span>
                 <span class="text-[11px] text-slate-400 font-bold font-mono">${o.country}</span>
               </div>
-              <p class="text-sm font-black font-mono text-slate-800 mt-1">${o.phone}</p>
+              <p class="text-sm font-black font-mono text-slate-800 dark:text-slate-200 mt-1">${o.phone}</p>
               ${o.code ? `<p class="text-xs font-black text-emerald-600 font-mono mt-0.5">كود: ${o.code}</p>` : ''}
             </div>
             <div class="text-left shrink-0 space-y-1">
               ${statusBadge}
-              <p class="text-xs font-black font-mono text-purple-700">$${Number(o.price).toFixed(2)}</p>
+              <p class="text-xs font-black font-mono text-purple-700 dark:text-amber-300">$${Number(o.price).toFixed(2)}</p>
               <p class="text-[9.5px] text-slate-400 font-mono">${o.time}</p>
             </div>
           </div>
@@ -1483,12 +1696,6 @@
       }
       alert('تەلەپ تاپشۇرۇلدى! تېلېگرام بوت (@Autocash_24_bot) دەلىللەپ ھەميان قالدۇقىڭىزنى يېڭىلايدۇ ✓');
       closeDepositModal();
-    }
-
-    function copyUserId() {
-      const uid = document.getElementById('accountUserId')?.textContent || '52123645';
-      navigator.clipboard.writeText(uid);
-      alert('ئەزا نومۇرى كۆچۈرۈلدى: ' + uid + ' ✓');
     }
   </script>
 </body>
