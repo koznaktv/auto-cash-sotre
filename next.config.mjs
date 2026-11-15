@@ -70,6 +70,26 @@ const nextConfig = {
           source: '/mobile-legends',
           destination: '/mlbb.html',
         },
+        {
+          source: '/numbers',
+          destination: '/numbers.html',
+        },
+        {
+          source: '/sms',
+          destination: '/numbers.html',
+        },
+        {
+          source: '/apps/numbers',
+          destination: '/numbers.html',
+        },
+        {
+          source: '/apps/sms',
+          destination: '/numbers.html',
+        },
+        {
+          source: '/virtual-numbers',
+          destination: '/numbers.html',
+        },
       ],
       afterFiles: [
         {
