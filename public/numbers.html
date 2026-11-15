@@ -152,7 +152,8 @@
       color: #c4b5fd !important;
     }
     html.dark #authModal > div,
-    html.dark #depositModal > div {
+    html.dark #depositModal > div,
+    html.dark #customDialogModal > div {
       background-color: #0f172a !important;
       border-color: #1e293b !important;
       color: #f8fafc !important;
@@ -245,7 +246,7 @@
         <div id="ordersHeaderArea" class="hidden text-center space-y-1">
           <div class="inline-flex items-center gap-1.5 text-base font-black text-white">
             <span>🧾</span>
-            <span>زاكازلىرىم (طلباتي)</span>
+            <span>زاكازلىرىم</span>
           </div>
           <p class="text-[11px] text-purple-200">بارلىق ئېلىنغان مەۋھۇم نومۇرلار ۋە SMS دەلىللەش كودلىرى</p>
         </div>
@@ -254,7 +255,7 @@
         <div id="notificationsHeaderArea" class="hidden text-center space-y-1">
           <div class="inline-flex items-center gap-1.5 text-base font-black text-white">
             <span>🔔</span>
-            <span>ئۇقتۇرۇشلار (الإشعارات)</span>
+            <span>ئۇقتۇرۇشلار</span>
           </div>
           <p class="text-[11px] text-purple-200">تەمىنلىگۈچى خەۋەرلىرى ۋە مۇلازىمەت ئۇقتۇرۇشلىرى</p>
         </div>
@@ -263,7 +264,7 @@
         <div id="accountHeaderArea" class="hidden text-center space-y-1">
           <div class="inline-flex items-center gap-1.5 text-base font-black text-white">
             <span>👤</span>
-            <span>ھېساباتىم (حسابي)</span>
+            <span>ھېساباتىم</span>
           </div>
           <p class="text-[11px] text-purple-200">ھېسابات ئۇچۇرلىرى، بىخەتەرلىك ۋە تەڭشەكلەر</p>
         </div>
@@ -284,7 +285,7 @@
               <img src="agent_support_icon.png" alt="Agents" class="w-6 h-6 object-contain" onerror="this.src='/autocash_logo.jpg'"/>
             </div>
             <div class="text-right leading-tight">
-              <span class="text-xs font-black text-slate-900 block">ۋاكالەتچى ۋە خېرىدارلار مۇلازىمىتى (وكلاؤنا)</span>
+              <span class="text-xs font-black text-slate-900 block">ۋاكالەتچىلەر ۋە مۇلازىمەت مەركىزى</span>
               <span class="text-[10px] text-slate-500 font-medium">تېلېگرام ۋە ۋاتساپ ئارقىلىق 24 سائەت بىۋاسىتە ئۇلىنىڭ</span>
             </div>
           </div>
@@ -298,7 +299,7 @@
           <div class="flex items-center justify-between px-1">
             <div class="flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
-              <h2 class="text-sm font-black text-slate-900 tracking-tight">ئەپلەر بۆلىكى (الأقسام)</h2>
+              <h2 class="text-sm font-black text-slate-900 tracking-tight">ئەپلەر بۆلىكى</h2>
             </div>
             <span class="text-[10.5px] font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 px-2 py-0.5 rounded-full">
               تەمىنلىگۈچى تەننەرخى + %20 پايدا
@@ -424,29 +425,29 @@
           <!-- Box 1: Pending (قيد التنفيذ) -->
           <div class="bg-[#fef9c3] dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl p-2.5 text-center shadow-sm">
             <p id="statPendingCount" class="text-lg font-black font-mono text-amber-700 dark:text-amber-300">0</p>
-            <p class="text-[10.5px] font-bold text-amber-800 dark:text-amber-200">قيد التنفيذ</p>
+            <p class="text-[10.5px] font-bold text-amber-800 dark:text-amber-200">بىر تەرەپ قىلىنماقتا</p>
           </div>
 
           <!-- Box 2: Accepted (مقبولة) -->
           <div class="bg-[#dcfce7] dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-2.5 text-center shadow-sm">
             <p id="statCompletedCount" class="text-lg font-black font-mono text-emerald-700 dark:text-emerald-300">0</p>
-            <p class="text-[10.5px] font-bold text-emerald-800 dark:text-emerald-200">مقبولة</p>
+            <p class="text-[10.5px] font-bold text-emerald-800 dark:text-emerald-200">مۇۋەپپەقىيەتلىك</p>
           </div>
 
           <!-- Box 3: Rejected / Refunded (مرفوضة) -->
           <div class="bg-[#fee2e2] dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-2xl p-2.5 text-center shadow-sm">
             <p id="statCanceledCount" class="text-lg font-black font-mono text-rose-700 dark:text-rose-300">0</p>
-            <p class="text-[10.5px] font-bold text-rose-800 dark:text-rose-200">مرفوضة</p>
+            <p class="text-[10.5px] font-bold text-rose-800 dark:text-rose-200">بىكار قىلىنغان</p>
           </div>
 
         </div>
 
         <!-- 4 Filter Tabs (Matching Screenshot 2) -->
         <div class="app-card flex items-center gap-1.5 p-1 rounded-2xl text-xs font-bold shadow-sm">
-          <button onclick="setOrdersFilter('all')" id="orderTabAll" class="flex-1 py-1.5 rounded-xl bg-purple-600 text-white transition font-black">الكل</button>
-          <button onclick="setOrdersFilter('pending')" id="orderTabPending" class="flex-1 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-purple-600 transition">قيد التنفيذ</button>
-          <button onclick="setOrdersFilter('completed')" id="orderTabCompleted" class="flex-1 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-purple-600 transition">مقبولة</button>
-          <button onclick="setOrdersFilter('canceled')" id="orderTabCanceled" class="flex-1 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-purple-600 transition">مرفوضة</button>
+          <button onclick="setOrdersFilter('all')" id="orderTabAll" class="flex-1 py-1.5 rounded-xl bg-purple-600 text-white transition font-black">ھەممىسى</button>
+          <button onclick="setOrdersFilter('pending')" id="orderTabPending" class="flex-1 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-purple-600 transition">بىر تەرەپ قىلىنماقتا</button>
+          <button onclick="setOrdersFilter('completed')" id="orderTabCompleted" class="flex-1 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-purple-600 transition">مۇۋەپپەقىيەتلىك</button>
+          <button onclick="setOrdersFilter('canceled')" id="orderTabCanceled" class="flex-1 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-purple-600 transition">بىكار قىلىنغان</button>
         </div>
 
         <!-- Orders List Wrap -->
@@ -464,7 +465,7 @@
               <div class="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 flex items-center justify-center text-xs">
                 📢
               </div>
-              <span class="text-xs font-black text-slate-900 dark:text-white">صباح الخير (خەيرلىك ئەتىگەن)</span>
+              <span class="text-xs font-black text-slate-900 dark:text-white">خەيرلىك ئەتىگەن 🌸</span>
             </div>
             <span class="text-[10px] text-slate-400 font-mono">12:09 – 2026/11/15</span>
           </div>
@@ -481,7 +482,7 @@
               <div class="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 flex items-center justify-center text-xs">
                 📢
               </div>
-              <span class="text-xs font-black text-slate-900 dark:text-white">جمعة مباركة 🙏 (جۈمە مۇبارەك)</span>
+              <span class="text-xs font-black text-slate-900 dark:text-white">جۈمە كۈنىڭىز مۇبارەك بولسۇن 🕌</span>
             </div>
             <span class="text-[10px] text-slate-400 font-mono">11:18 – 2026/11/13</span>
           </div>
@@ -498,7 +499,7 @@
               <div class="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 flex items-center justify-center text-xs">
                 📢
               </div>
-              <span class="text-xs font-black text-slate-900 dark:text-white">مختصر 🤝 (قىسقىچە ئۇقتۇرۇش)</span>
+              <span class="text-xs font-black text-slate-900 dark:text-white">قىسقىچە ئۇقتۇرۇش 🤝</span>
             </div>
             <span class="text-[10px] text-slate-400 font-mono">00:09 – 2026/11/13</span>
           </div>
@@ -514,7 +515,7 @@
               <div class="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 flex items-center justify-center text-xs">
                 📢
               </div>
-              <span class="text-xs font-black text-slate-900 dark:text-white">تنويه هام 🔊 (مۇھىم ئەسكەرتىش)</span>
+              <span class="text-xs font-black text-slate-900 dark:text-white">مۇھىم ئەسكەرتىش 🔊</span>
             </div>
             <span class="text-[10px] text-slate-400 font-mono">02:00 – 2026/11/13</span>
           </div>
@@ -552,13 +553,13 @@
               </div>
 
               <div class="text-right leading-tight">
-                <p class="text-[10.5px] text-purple-700 dark:text-purple-300 font-bold">الرصيد (ھەميان قالدۇقى)</p>
+                <p class="text-[10.5px] text-purple-700 dark:text-purple-300 font-bold">ھەميان قالدۇقى</p>
                 <p id="accountBalanceDisplay" class="text-lg font-black font-mono text-purple-950 dark:text-amber-300">$0.00 USD</p>
               </div>
             </div>
 
             <div class="text-left leading-tight">
-              <p class="text-[10px] text-slate-400 font-bold">الرقم المميز (ID)</p>
+              <p class="text-[10px] text-slate-400 font-bold">ئەزا نومۇرى (ID)</p>
               <div onclick="copyUserId()" class="flex items-center gap-1 justify-end cursor-pointer group" title="نۇسخىلاش">
                 <span id="accountUserId" class="font-mono font-black text-sm text-slate-800 dark:text-white group-hover:text-purple-600 transition">52123645</span>
                 <span class="text-purple-600 text-xs p-1">📋</span>
@@ -585,24 +586,24 @@
         <!-- Account Details List (Matching Screenshot 4) -->
         <div class="app-card rounded-2xl overflow-hidden divide-y divide-slate-100 text-xs">
           <div class="p-3 flex items-center justify-between">
-            <span class="text-slate-400 font-bold">البريد الإلكتروني (ئېلخەت):</span>
+            <span class="text-slate-400 font-bold">ئېلخەت ئادرېسى:</span>
             <span id="accountInfoEmail" class="font-mono font-bold text-slate-800 dark:text-slate-200 truncate max-w-[200px]">dronemax0996@gmail.com</span>
           </div>
           <div class="p-3 flex items-center justify-between">
-            <span class="text-slate-400 font-bold">رقم الهاتف (تېلېفۇن نومۇرى):</span>
-            <span class="font-bold text-slate-600 dark:text-slate-300">غير محدد (بېكىتىلمىگەن)</span>
+            <span class="text-slate-400 font-bold">تېلېفون نومۇرى:</span>
+            <span class="font-bold text-slate-600 dark:text-slate-300">بېكىتىلمىگەن</span>
           </div>
           <div class="p-3 flex items-center justify-between">
-            <span class="text-slate-400 font-bold">العنوان (تۇرۇشلۇق ئادرېس):</span>
-            <span class="font-bold text-slate-600 dark:text-slate-300">غير محدد (بېكىتىلمىگەن)</span>
+            <span class="text-slate-400 font-bold">تۇرۇشلۇق ئادرېس:</span>
+            <span class="font-bold text-slate-600 dark:text-slate-300">بېكىتىلمىگەن</span>
           </div>
           <div class="p-3 flex items-center justify-between">
-            <span class="text-slate-400 font-bold">نوع الحساب (ھېسابات تۈرى):</span>
-            <span class="font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">زبون (خېرىدار)</span>
+            <span class="text-slate-400 font-bold">ھېسابات تۈرى:</span>
+            <span class="font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">خېرىدار</span>
           </div>
           <div class="p-3 flex items-center justify-between">
-            <span class="text-slate-400 font-bold">الشارة (مەرتىۋە بەلگىسى):</span>
-            <span class="font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">برونزي (VIP مىس ئەزا)</span>
+            <span class="text-slate-400 font-bold">مەرتىۋە بەلگىسى:</span>
+            <span class="font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">VIP مىس ئەزا</span>
           </div>
         </div>
 
@@ -610,7 +611,7 @@
         <div class="app-card rounded-2xl p-3.5 space-y-2">
           <div class="flex items-center justify-between text-xs font-black text-slate-900 dark:text-white">
             <span class="flex items-center gap-1.5">
-              <span>كۆرۈنۈش ئۇسلۇبى (المظهر)</span>
+              <span>كۆرۈنۈش ئۇسلۇبى</span>
               <span>🔅</span>
             </span>
             <span id="currentThemeLabel" class="text-[10px] text-purple-600 dark:text-purple-400 font-bold">يورۇق ھالەت</span>
@@ -643,14 +644,14 @@
           <button onclick="editMyInfoModal()" type="button" class="w-full p-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer text-right">
             <div class="flex items-center gap-2">
               <span class="text-purple-600">✏️</span>
-              <span>تعديل معلوماتي (ئۇچۇر تەھرىرلەش)</span>
+              <span>ئۇچۇر تەھرىرلەش</span>
             </div>
             <span class="text-slate-400 font-mono">‹</span>
           </button>
           <button onclick="changePasswordModal()" type="button" class="w-full p-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer text-right">
             <div class="flex items-center gap-2">
               <span class="text-purple-600">🔒</span>
-              <span>تغيير كلمة المرور (مەخپىي نومۇر ئالماشتۇرۇش)</span>
+              <span>مەخپىي نومۇر ئالماشتۇرۇش</span>
             </div>
             <span class="text-slate-400 font-mono">‹</span>
           </button>
@@ -664,7 +665,7 @@
           <button onclick="handleLogout()" type="button" class="w-full p-3.5 flex items-center justify-between text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer text-right">
             <div class="flex items-center gap-2">
               <span>🚪</span>
-              <span>تسجيل الخروج (ھېساباتتىن چىقىش)</span>
+              <span>ھېساباتتىن چىقىش</span>
             </div>
             <span class="text-rose-400 font-mono">‹</span>
           </button>
@@ -680,13 +681,13 @@
       <!-- Tab 1: Home (الرئيسية) -->
       <button onclick="switchTab('home')" id="navHome" type="button" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-2xl bg-purple-100 text-purple-700 font-black transition active:scale-95 cursor-pointer shadow-sm">
         <span class="text-base">🏠</span>
-        <span class="text-[10px] tracking-tight">الرئيسية</span>
+        <span class="text-[10px] tracking-tight">ئاساسىي بەت</span>
       </button>
 
       <!-- Tab 2: Orders (طلباتي) -->
       <button onclick="switchTab('orders')" id="navOrders" type="button" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-2xl text-slate-400 hover:text-purple-600 transition active:scale-95 cursor-pointer">
         <span class="text-base">🧾</span>
-        <span class="text-[10px] font-bold tracking-tight">طلباتي</span>
+        <span class="text-[10px] font-bold tracking-tight">زاكازلىرىم</span>
       </button>
 
       <!-- Tab 3: Notifications (الإشعارات with Badge 20) -->
@@ -695,13 +696,13 @@
           <span class="text-base">🔔</span>
           <span class="absolute -top-1 -right-2 bg-rose-500 text-white rounded-full text-[8px] font-black px-1 leading-tight">20</span>
         </span>
-        <span class="text-[10px] font-bold tracking-tight">الإشعارات</span>
+        <span class="text-[10px] font-bold tracking-tight">ئۇقتۇرۇشلار</span>
       </button>
 
       <!-- Tab 4: Account (حسابي) -->
       <button onclick="switchTab('account')" id="navAccount" type="button" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-2xl text-slate-400 hover:text-purple-600 transition active:scale-95 cursor-pointer">
         <span class="text-base">👤</span>
-        <span class="text-[10px] font-bold tracking-tight">حسابي</span>
+        <span class="text-[10px] font-bold tracking-tight">ھېساباتىم</span>
       </button>
 
     </nav>
@@ -814,6 +815,32 @@
       </div>
     </div>
 
+    <!-- ================= CUSTOM IN-APP ALERT & CONFIRM MODAL (Matches Website Style) ================= -->
+    <div id="customDialogModal" onclick="if(event.target===this) closeCustomDialog()" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200">
+      <div id="customDialogBox" class="w-full max-w-sm bg-white dark:bg-slate-900 rounded-[32px] p-5 space-y-4 shadow-2xl border border-slate-100 dark:border-slate-800 relative text-center transform scale-95 transition-all duration-200">
+        
+        <!-- Top Close Button -->
+        <button onclick="closeCustomDialog()" class="absolute top-4 left-4 w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center text-xs font-bold transition cursor-pointer">✕</button>
+
+        <!-- Dialog Icon Area with Animated Floating 3D Coin or Custom Icon -->
+        <div id="customDialogIconArea" class="pt-1">
+          <!-- Populated dynamically -->
+        </div>
+
+        <!-- Dialog Title & Body -->
+        <div class="space-y-1.5">
+          <h3 id="customDialogTitle" class="text-base font-black text-slate-900 dark:text-white"></h3>
+          <div id="customDialogBody" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed"></div>
+        </div>
+
+        <!-- Dynamic Action Buttons Area -->
+        <div id="customDialogActions" class="space-y-2 pt-2">
+          <!-- Populated dynamically -->
+        </div>
+
+      </div>
+    </div>
+
     <!-- ================= FLOATING COPY TOAST NOTIFICATION ================= -->
     <div id="floatingToast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 dark:bg-purple-950/95 backdrop-blur-md text-white border border-amber-400/50 shadow-2xl rounded-2xl px-4 py-2.5 text-xs font-black flex items-center gap-2 transform -translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
       <span class="text-amber-400 text-sm">✓</span>
@@ -840,6 +867,9 @@
     let ordersList = [];
     let ordersFilter = 'all';
 
+    let dialogConfirmCallback = null;
+    let dialogCancelCallback = null;
+
     // --- DOM Initializer ---
     document.addEventListener('DOMContentLoaded', async () => {
       initSavedTheme();
@@ -848,6 +878,214 @@
       loadSavedOrders();
       await fetchLiveCatalog();
     });
+
+    // --- Custom In-App Modal Dialog System (Overrides Native Alert & Confirm) ---
+    function closeCustomDialog() {
+      const m = document.getElementById('customDialogModal');
+      const b = document.getElementById('customDialogBox');
+      if (m) {
+        m.classList.add('opacity-0');
+        if (b) b.classList.add('scale-95');
+        setTimeout(() => {
+          m.classList.add('hidden');
+          if (dialogCancelCallback) {
+            dialogCancelCallback();
+            dialogCancelCallback = null;
+          }
+          dialogConfirmCallback = null;
+        }, 200);
+      }
+    }
+
+    function openCustomDialog() {
+      const m = document.getElementById('customDialogModal');
+      const b = document.getElementById('customDialogBox');
+      if (m) {
+        m.classList.remove('hidden');
+        setTimeout(() => {
+          m.classList.remove('opacity-0');
+          if (b) b.classList.remove('scale-95');
+        }, 10);
+      }
+    }
+
+    // 1. Specific Insufficient Balance Dialog (matching the user's screenshot exactly!)
+    function showInsufficientBalanceModal({ currentBalance, price, diff }) {
+      const iconArea = document.getElementById('customDialogIconArea');
+      const title = document.getElementById('customDialogTitle');
+      const body = document.getElementById('customDialogBody');
+      const actions = document.getElementById('customDialogActions');
+
+      iconArea.innerHTML = `
+        <div class="relative w-16 h-16 mx-auto mb-1 animate-float-coin">
+          <div class="absolute -inset-1 rounded-3xl bg-gradient-to-r from-amber-400 via-rose-500 to-amber-500 opacity-70 blur-md animate-pulse"></div>
+          <div class="relative w-full h-full rounded-2xl bg-gradient-to-br from-purple-900 to-indigo-950 border-2 border-amber-300 flex items-center justify-center p-2 shadow-2xl overflow-hidden">
+            <img src="tg_coin_balance_anim.webp" alt="🪙" class="w-12 h-12 object-contain drop-shadow" onerror="this.src='tg_coin_balance.gif'"/>
+          </div>
+        </div>
+      `;
+
+      title.textContent = 'ھەميان قالدۇقىڭىز يېتىشمىدى!';
+      title.className = 'text-base font-black text-rose-600 dark:text-rose-400';
+
+      body.innerHTML = `
+        <div class="p-3.5 bg-rose-50/70 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/60 rounded-2xl space-y-2 text-right">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-500 dark:text-slate-400 font-bold">نۆۋەتتىكى قالدۇقىڭىز:</span>
+            <span class="font-mono font-black text-slate-800 dark:text-white">$${Number(currentBalance).toFixed(2)} USD</span>
+          </div>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-500 dark:text-slate-400 font-bold">سېتىۋېلىش باھاسى:</span>
+            <span class="font-mono font-black text-purple-700 dark:text-purple-300">$${Number(price).toFixed(2)} USD</span>
+          </div>
+          <div class="flex items-center justify-between text-xs pt-1.5 border-t border-rose-200 dark:border-rose-900/80">
+            <span class="text-rose-600 dark:text-rose-400 font-black">كەم قالغان پۇل:</span>
+            <span class="font-mono font-black text-rose-600 dark:text-rose-400 text-sm">$${Number(diff).toFixed(2)} USD</span>
+          </div>
+        </div>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400 pt-1.5">
+          نومۇر سېتىۋېلىش ئۈچۈن تۆۋەندىكى كۇنۇپكىنى بېسىپ ShamCash ئارقىلىق ھەمياننى دەرھال تولۇقلاڭ.
+        </p>
+      `;
+
+      actions.innerHTML = `
+        <button onclick="closeCustomDialog(); openDepositModal();" type="button" class="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/30 transition active:scale-95 cursor-pointer flex items-center justify-center gap-1.5">
+          <span>+ پۇل قاچىلاش (ShamCash)</span>
+          <span>💳</span>
+        </button>
+        <button onclick="closeCustomDialog()" type="button" class="w-full py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs transition active:scale-95 cursor-pointer">
+          تاقاش
+        </button>
+      `;
+
+      openCustomDialog();
+    }
+
+    // 2. Buy Confirmation Dialog
+    function showBuyConfirmModal({ serviceCode, countryId, price, countryNameUg, dialCode, onConfirm }) {
+      const iconArea = document.getElementById('customDialogIconArea');
+      const title = document.getElementById('customDialogTitle');
+      const body = document.getElementById('customDialogBody');
+      const actions = document.getElementById('customDialogActions');
+
+      dialogConfirmCallback = onConfirm;
+
+      const flagCode = selectedApp?.countries?.find(c => c.id === countryId)?.code || 'tr';
+
+      iconArea.innerHTML = `
+        <div class="flex items-center justify-center gap-2 mb-1">
+          <div class="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-950/80 border border-purple-200 dark:border-purple-800 p-2 flex items-center justify-center shadow-md">
+            <img src="${selectedApp?.iconUrl || 'https://cdn.simpleicons.org/telegram'}" alt="${selectedApp?.name}" class="w-full h-full object-contain"/>
+          </div>
+          <span class="text-xl text-purple-600 font-mono">⚡</span>
+          <div class="w-12 h-8 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shadow-md">
+            <img src="https://flagcdn.com/w80/${flagCode}.png" alt="Flag" class="w-full h-full object-cover"/>
+          </div>
+        </div>
+      `;
+
+      title.textContent = 'سېتىۋېلىشنى جەزملەشتۈرۈڭ';
+      title.className = 'text-base font-black text-slate-900 dark:text-white';
+
+      body.innerHTML = `
+        <div class="p-3 bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900/60 rounded-2xl space-y-2 text-right">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-500 dark:text-slate-400 font-bold">ئەپ مۇلازىمىتى:</span>
+            <span class="font-black text-slate-900 dark:text-white">${selectedApp?.nameUg}</span>
+          </div>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-500 dark:text-slate-400 font-bold">دۆلەت تەۋەلىكى:</span>
+            <span class="font-bold text-slate-800 dark:text-slate-200">${countryNameUg} (${dialCode})</span>
+          </div>
+          <div class="flex items-center justify-between text-xs pt-1.5 border-t border-purple-200 dark:border-purple-800">
+            <span class="text-purple-700 dark:text-purple-300 font-bold">كېسىلىدىغان باھا:</span>
+            <span class="font-mono font-black text-purple-900 dark:text-amber-300 text-sm">$${Number(price).toFixed(2)} USD</span>
+          </div>
+        </div>
+        <p class="text-[10.5px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center gap-1 pt-1">
+          <span>🛡️</span>
+          <span>15 مىنۇتتا SMS كود كەلمىسە پۇل %100 ھەميانغا قايتۇرۇلىدۇ</span>
+        </p>
+      `;
+
+      actions.innerHTML = `
+        <button onclick="if(dialogConfirmCallback){ const cb = dialogConfirmCallback; dialogConfirmCallback = null; closeCustomDialog(); cb(); }" type="button" class="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 text-white font-black text-xs shadow-lg shadow-purple-600/30 transition active:scale-95 cursor-pointer flex items-center justify-center gap-1.5">
+          <span>سېتىۋېلىشنى باشلاش ‹</span>
+          <span>⚡</span>
+        </button>
+        <button onclick="closeCustomDialog()" type="button" class="w-full py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs transition active:scale-95 cursor-pointer">
+          بىكار قىلىش
+        </button>
+      `;
+
+      openCustomDialog();
+    }
+
+    // 3. General In-App Alert Dialog
+    function showCustomAlert(msg, title = 'ئەسكەرتىش', icon = '🔔', onOk = null) {
+      const iconArea = document.getElementById('customDialogIconArea');
+      const titleEl = document.getElementById('customDialogTitle');
+      const body = document.getElementById('customDialogBody');
+      const actions = document.getElementById('customDialogActions');
+
+      iconArea.innerHTML = `
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-purple-100 dark:bg-purple-950 border border-purple-200 dark:border-purple-800 flex items-center justify-center text-2xl shadow-inner">
+          ${icon}
+        </div>
+      `;
+
+      titleEl.textContent = title;
+      titleEl.className = 'text-base font-black text-slate-900 dark:text-white';
+
+      body.innerHTML = `<p class="whitespace-pre-line text-xs text-slate-600 dark:text-slate-300 leading-relaxed">${msg}</p>`;
+
+      actions.innerHTML = `
+        <button onclick="closeCustomDialog(); ${onOk ? 'onOk();' : ''}" type="button" class="w-full py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs shadow-md shadow-purple-600/25 transition active:scale-95 cursor-pointer">
+          چۈشەندىم (ماقۇل)
+        </button>
+      `;
+
+      openCustomDialog();
+    }
+
+    // 4. General In-App Confirm Dialog
+    function showCustomConfirm(msg, title = 'جەزملەشتۈرۈش', onConfirm = null) {
+      const iconArea = document.getElementById('customDialogIconArea');
+      const titleEl = document.getElementById('customDialogTitle');
+      const body = document.getElementById('customDialogBody');
+      const actions = document.getElementById('customDialogActions');
+
+      dialogConfirmCallback = onConfirm;
+
+      iconArea.innerHTML = `
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-amber-100 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-2xl shadow-inner">
+          ❓
+        </div>
+      `;
+
+      titleEl.textContent = title;
+      titleEl.className = 'text-base font-black text-slate-900 dark:text-white';
+
+      body.innerHTML = `<p class="whitespace-pre-line text-xs text-slate-600 dark:text-slate-300 leading-relaxed">${msg}</p>`;
+
+      actions.innerHTML = `
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="if(dialogConfirmCallback){ const cb = dialogConfirmCallback; dialogConfirmCallback = null; closeCustomDialog(); cb(); }" type="button" class="py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs shadow-md shadow-purple-600/25 transition active:scale-95 cursor-pointer">
+            ماقۇل
+          </button>
+          <button onclick="closeCustomDialog()" type="button" class="py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600 dark:text-slate-300 font-bold text-xs transition active:scale-95 cursor-pointer">
+            بىكار قىلىش
+          </button>
+        </div>
+      `;
+
+      openCustomDialog();
+    }
+
+    // Override browser native alert to ALWAYS match the website design!
+    window.alert = function(msg) {
+      showCustomAlert(msg);
+    };
 
     // --- Member ID Generator for ALL New Customers ---
     function getOrGenerateUserId() {
@@ -1157,7 +1395,7 @@
     async function executeGmailLogin() {
       const email = document.getElementById('gmailInput')?.value.trim();
       if (!email || !email.includes('@')) {
-        alert('ئۈنۈملۈك Gmail ياكى ئېلخەت ئادرېسى كىرگۈزۈڭ');
+        showCustomAlert('ئۈنۈملۈك Gmail ياكى ئېلخەت ئادرېسى كىرگۈزۈڭ', 'ئېلخەت خاتا', '📧');
         return;
       }
       currentUser = { email: email, name: email.split('@')[0], id: getOrGenerateUserId() };
@@ -1170,17 +1408,17 @@
     async function requestTelegramOtp() {
       const u = document.getElementById('otpUsernameInput')?.value.trim();
       if (!u) {
-        alert('تېلېگرام نامىڭىز ياكى ئەزا ID نۇمۇرىڭىزنى كىرگۈزۈڭ');
+        showCustomAlert('تېلېگرام نامىڭىز ياكى ئەزا ID نۇمۇرىڭىزنى كىرگۈزۈڭ', 'ئەزا نامى كەم', '⚠️');
         return;
       }
-      alert('دەلىللەش كودى @Autocash_24_bot ئارقىلىق يوللاندى. بوتنى ئېچىپ 6 خانىلىق كودنى كۆرۈڭ.');
+      showCustomAlert('دەلىللەش كودى @Autocash_24_bot ئارقىلىق يوللاندى. بوتنى ئېچىپ 6 خانىلىق كودنى كۆرۈڭ.', 'كود ئەۋەتىلدى', '📩');
     }
 
     function verifyTelegramOtp() {
       const c = document.getElementById('otpCodeInput')?.value.trim();
       const u = document.getElementById('otpUsernameInput')?.value.trim();
       if (!c || c.length < 4) {
-        alert('تېلېگرامدىن كەلگەن كودنى كىرگۈزۈڭ');
+        showCustomAlert('تېلېگرامدىن كەلگەن كودنى كىرگۈزۈڭ', 'كود تولۇق ئەمەس', '⚠️');
         return;
       }
       currentUser = { username: u.replace(/^@/, ''), id: getOrGenerateUserId() };
@@ -1191,14 +1429,14 @@
     }
 
     function handleLogout() {
-      if (confirm('ھېساباتتىن چىقامسىز؟')) {
+      showCustomConfirm('ھېساباتتىن چىقسىڭىز قايتا كىرىشىڭىزگە توغرا كېلىدۇ. راستلا چىقامسىز؟', 'ھېساباتتىن چىقىش', () => {
         localStorage.removeItem('autocash_user');
         localStorage.removeItem('autocash_tg_user');
         currentUser = null;
         userBalance = 0.00;
         updateBalanceUI();
         location.reload();
-      }
+      });
     }
 
     function editMyInfoModal() {
@@ -1400,26 +1638,41 @@
       renderCountriesForApp(q);
     }
 
-    // --- Buy Number Flow ---
+    // --- Buy Number Flow (Uses Custom In-App Modal Dialogs!) ---
     async function handleBuyNumber(serviceCode, countryId, price, countryNameUg, dialCode) {
       if (!currentUser) {
-        alert('نومۇر سېتىۋېلىش ئۈچۈن ئالدى بىلەن ھېساباتىڭىزغا كىرىڭ ياكى تىزىملىتىڭ.');
-        openAuthModal();
+        showCustomAlert('نومۇر سېتىۋېلىش ئۈچۈن ئالدى بىلەن ھېساباتىڭىزغا كىرىڭ ياكى تىزىملىتىڭ.', 'كىرىش تەلەپ قىلىنىدۇ', '🔐', () => {
+          openAuthModal();
+        });
         return;
       }
 
       if (userBalance < price) {
         const diff = (price - userBalance).toFixed(2);
-        alert('ھەميان قالدۇقىڭىز يېتىشمىدى!\nنۆۋەتتىكى قالدۇق: $' + userBalance.toFixed(2) + ' USD\nكەم پۇل: $' + diff + ' USD\n\nئالدى بىلەن «+ پۇل قاچىلاش» كۇنۇپكىسى ئارقىلىق ھەمياننى تولۇقلاڭ.');
-        openDepositModal();
+        // Show stylish custom Insufficient Balance Modal matching user's screenshot!
+        showInsufficientBalanceModal({
+          currentBalance: userBalance,
+          price: price,
+          diff: diff
+        });
         return;
       }
 
-      if (!confirm('«' + selectedApp.nameUg + '» ئۈچۈن ' + countryNameUg + ' (' + dialCode + ') مەۋھۇم نومۇرىنى $' + price.toFixed(2) + ' USD غا ئالامسىز؟\n\n(كود كەلمىسە پۇل 100% دەرھال ھەميانغا قايتۇرۇلىدۇ)')) {
-        return;
-      }
+      // Show stylish custom Buy Confirmation Modal!
+      showBuyConfirmModal({
+        serviceCode,
+        countryId,
+        price,
+        countryNameUg,
+        dialCode,
+        onConfirm: () => executeBuyNumber(serviceCode, countryId, price, countryNameUg, dialCode)
+      });
+    }
 
+    async function executeBuyNumber(serviceCode, countryId, price, countryNameUg, dialCode) {
       try {
+        showFloatingToast('نومۇر ئېلىنماقتا، تەييارلىنىۋاتىدۇ...');
+
         const res = await fetch('/api/sms/buy', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1466,8 +1719,9 @@
         });
 
         startActiveSessionUI();
+        showFloatingToast('مەۋھۇم نومۇر تەقسىملەندى! كود كۈتۈلمەكتە ⚡');
       } catch (err) {
-        alert('خاتالىق كۆرۈلدى: ' + (err?.message || err));
+        showCustomAlert(err?.message || String(err), 'خاتالىق كۆرۈلدى', '❌');
       }
     }
 
@@ -1495,8 +1749,9 @@
       if (timerRemainingSeconds <= 0) {
         clearInterval(timerInterval);
         clearInterval(pollInterval);
-        alert('15 مىنۇتلۇق SMS كۈتۈش ۋاقتى توشتى. پۇل تولۇق ھەميانىڭىزغا قايتۇرۇلدى.');
-        cancelActiveOrder();
+        showCustomAlert('15 مىنۇتلۇق SMS كۈتۈش ۋاقتى توشتى. تۇتۇلغان پۇل تولۇق ھەميانىڭىزغا قايتۇرۇلدى.', 'ۋاقىت توشتى', '⏳', () => {
+          cancelActiveOrder();
+        });
         return;
       }
       const m = Math.floor(timerRemainingSeconds / 60);
@@ -1528,6 +1783,7 @@
             `;
           }
           updateOrderStatus(activeSession.activationId, 'completed', data.code);
+          showFloatingToast('🎉 SMS كود تاپشۇرۇۋېلىندى: ' + data.code);
         }
       } catch (e) {
         console.warn('Poll error:', e);
@@ -1553,7 +1809,7 @@
         finishAndGetNew();
         showFloatingToast('مەۋھۇم نومۇر بىكار قىلىندى، پۇل قايتۇرۇلدى ✓');
       } catch (e) {
-        alert('بىكار قىلىش مەغلۇپ بولدى: ' + e.message);
+        showCustomAlert('بىكار قىلىش مەغلۇپ بولدى: ' + e.message, 'خاتالىق', '⚠️');
       }
     }
 
@@ -1634,7 +1890,7 @@
         wrap.innerHTML = `
           <div class="py-16 text-center space-y-2 app-card rounded-3xl p-6 shadow-sm">
             <span class="text-4xl block text-slate-300 dark:text-slate-600">📄</span>
-            <h4 class="text-sm font-black text-slate-700 dark:text-slate-200">لا توجد طلبات بعد</h4>
+            <h4 class="text-sm font-black text-slate-700 dark:text-slate-200">تېخى ھېچقانداق زاكاز يوق</h4>
             <p class="text-xs text-slate-400">تېخى ھېچقانداق زاكاز يوق. ئاساسىي بەتكە ئۆتۈپ ئەپ تاللاپ نومۇر ئېلىڭ.</p>
           </div>
         `;
@@ -1691,11 +1947,12 @@
     function submitDepositConfirmation() {
       const tx = document.getElementById('depositTxInput')?.value.trim();
       if (!tx) {
-        alert('ShamCash تالون نومۇرى ياكى ھېسابات كودىڭىزنى كىرگۈزۈڭ');
+        showCustomAlert('ShamCash تالون نومۇرى ياكى ھېسابات كودىڭىزنى كىرگۈزۈڭ', 'ئۇچۇر كەم', '⚠️');
         return;
       }
-      alert('تەلەپ تاپشۇرۇلدى! تېلېگرام بوت (@Autocash_24_bot) دەلىللەپ ھەميان قالدۇقىڭىزنى يېڭىلايدۇ ✓');
-      closeDepositModal();
+      showCustomAlert('تەلەپ تاپشۇرۇلدى! تېلېگرام بوت (@Autocash_24_bot) دەلىللەپ ھەميان قالدۇقىڭىزنى يېڭىلايدۇ ✓', 'مۇۋەپپەقىيەتلىك', '✓', () => {
+        closeDepositModal();
+      });
     }
   </script>
 </body>
