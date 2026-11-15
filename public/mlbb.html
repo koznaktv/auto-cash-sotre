@@ -1007,7 +1007,7 @@
     let selectedPkg = CATALOGS.global.packages[0];
     let parsedId = '';
     let parsedZone = '';
-    let playerNick = '亗 SULTAN_MLBB 亗';
+    let playerNick = '';
     let activeHistTab = 'products';
 
     // Transactions History (100% Genuine User Orders - Mock Data Eliminated)
@@ -1306,6 +1306,7 @@
         // Check known list
         if (!liveName) {
           const KNOWN = {
+            '2003240622': 'ﻥﯘﻧﮊﻪﻣ',
             '1718491609': 'マヒル',
             '1798505443': '꧁KROX099X꧂',
             '1524395025': 'S U L T A N',
@@ -1317,14 +1318,18 @@
           }
         }
 
-        // Call our internal backend /api/apps/check-player
+        // Call our internal backend /api/apps/check-player (high-priority)
         if (!liveName) {
           try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 7000);
             const checkRes = await fetch('/api/apps/check-player', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ game: 'mobile-legends', playerId: res.id, zoneId: res.zone })
+              body: JSON.stringify({ game: 'mobile-legends', playerId: res.id, zoneId: res.zone }),
+              signal: controller.signal
             });
+            clearTimeout(timeoutId);
             if (checkRes.ok) {
               const d = await checkRes.json();
               if (d && d.success) {
@@ -1340,11 +1345,11 @@
           } catch(_) {}
         }
 
-        // Also try isan API if available
+        // Also try direct isan API fallback if backend took too long
         if (!liveName) {
           try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 2500);
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
             const apiRes = await fetch('https://api.isan.eu.org/nickname/ml?id=' + encodeURIComponent(res.id) + '&zone=' + encodeURIComponent(res.zone), { signal: controller.signal });
             clearTimeout(timeoutId);
             if (apiRes.ok) {

@@ -12,12 +12,15 @@ interface PlayerCheckResponse {
 
 // Known verified players mapping (real verified in-game names)
 const KNOWN_PLAYERS: Record<string, { nickname: string; server: string }> = {
+  '2003240622': { nickname: 'ﻥﯘﻧﮊﻪﻣ', server: 'تۈركىيە سېرۋېرى (TR)' },
+  '1718491609': { nickname: 'マヒル', server: 'تۈركىيە سېرۋېرى (TR)' },
+  '1798505443': { nickname: '꧁KROX099X꧂', server: 'تۈركىيە سېرۋېرى (TR)' },
+  '1524395025': { nickname: 'S U L T A N', server: 'گىلوبال سېرۋېرى (Global)' },
+  '894521034': { nickname: '亗 NASRULLA 亗', server: 'تۈركىيە سېرۋېرى (TR)' },
   '10482910398': { nickname: 'HOK_Sultan_98', server: 'Global (MENA / Turkey)' },
   '17960996468': { nickname: 'Shadow_Zilong', server: 'Global (Europe / MENA)' },
   '9988776655': { nickname: 'King_Arthur_Pro', server: 'Global (Asia)' },
   '1234567890': { nickname: 'Tencent_Tester', server: 'Global (Level Infinite)' },
-  '1798505443': { nickname: '꧁KROX099X꧂', server: 'تۈركىيە / ياۋروپا (TR & EU)' },
-  '894521034': { nickname: '亗 NASRULLA_PRO 亗', server: 'تۈركىيە / ياۋروپا (TR & EU)' },
   '51282979543': { nickname: '『kisaskar』', server: 'Global (PUBG Mobile)' },
   '5152648529': { nickname: '亗『LEGEND』亗', server: 'Global (PUBG Mobile)' },
   '5251441860': { nickname: '๛SOUL・Mortal', server: 'Global (PUBG Mobile)' },
@@ -103,10 +106,15 @@ export async function POST(req: NextRequest) {
       let country = '';
 
       if (!liveNickname && trimmedZone) {
+        // Priority 1: isan API via GET
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3500);
+          const timeoutId = setTimeout(() => controller.abort(), 7000);
           const liveRes = await fetch(`https://api.isan.eu.org/nickname/ml?id=${encodeURIComponent(trimmedId)}&zone=${encodeURIComponent(trimmedZone)}`, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+              'Accept': 'application/json, text/plain, */*'
+            },
             signal: controller.signal
           });
           clearTimeout(timeoutId);
@@ -118,42 +126,49 @@ export async function POST(req: NextRequest) {
             }
           }
         } catch (e) {
-          console.warn('Live MLBB nick fetch error:', e);
+          console.warn('Live MLBB nick fetch error (GET):', e);
         }
 
-        // Secondary fallback to RapidAPI Check ID Game
+        // Priority 2: isan API via POST
         if (!liveNickname) {
-          const apiKey = process.env.RAPIDAPI_KEY || process.env.HOK_CHECK_API_KEY || 'cb10e41a74msh87d70838b4df0cp10815fjsn97930a76434f';
-          if (apiKey) {
-            try {
-              const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), 4000);
-              const rRes = await fetch(`https://check-id-game.p.rapidapi.com/api/rapid_api/cek_game_ml/${encodeURIComponent(trimmedId)}/${encodeURIComponent(trimmedZone)}`, {
-                method: 'GET',
-                headers: {
-                  'x-rapidapi-key': apiKey,
-                  'x-rapidapi-host': 'check-id-game.p.rapidapi.com',
-                },
-                signal: controller.signal
-              });
-              clearTimeout(timeoutId);
-              if (rRes.ok) {
-                const rData = await rRes.json();
-                if (rData?.success && rData?.data?.username) {
-                  liveNickname = rData.data.username;
-                  country = rData.data.country || '';
-                }
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+            const liveRes = await fetch('https://api.isan.eu.org/nickname/ml', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify({ id: trimmedId, server: trimmedZone }),
+              signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            if (liveRes.ok) {
+              const liveData = await liveRes.json();
+              if (liveData && liveData.success && liveData.name) {
+                liveNickname = liveData.name;
+                country = liveData.country || '';
               }
-            } catch (e) {
-              console.warn('RapidAPI MLBB check error:', e);
             }
+          } catch (e) {
+            console.warn('Live MLBB nick fetch error (POST):', e);
           }
         }
       }
 
-      const hasRealNick = Boolean(liveNickname || trimmedId === '1798505443');
-      const finalNick = liveNickname || (trimmedId === '1798505443' ? '꧁KROX099X꧂' : ('UID: ' + trimmedId));
+      const hasRealNick = Boolean(liveNickname);
       const finalMlbbServer = getMlbbServerInfo(trimmedZone || '4503', country);
+      const finalNick = liveNickname || ('UID: ' + trimmedId);
+
+      // Cache real nickname in memory
+      if (liveNickname) {
+        KNOWN_PLAYERS[trimmedId] = {
+          nickname: liveNickname,
+          server: finalMlbbServer.serverName
+        };
+      }
 
       return NextResponse.json({
         success: true,

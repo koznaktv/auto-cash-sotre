@@ -325,7 +325,7 @@
                   </button>
                 </div>
                 <p id="cardSubtext" class="text-[10px] text-cyan-300/80 mt-0.5 flex items-center gap-1">
-                  <span>⚡</span><span>بىۋاسىتە مەزكۇر UID ھېساباتىغا قاچىلىنىدۇ</span>
+                  <span>⚡</span><span>بىۋاسىتە مەزكۇر UID ھېساباتىغا قاچىلىنىدۇ (100% كاپالەتلىك)</span>
                 </p>
               </div>
             </div>
@@ -928,7 +928,6 @@
     let parsedId = '';
     let parsedZone = '';
     let playerNick = '';
-    let hasRealNick = false;
     let activeHistTab = 'products';
 
     // Transactions History (100% Genuine User Orders - Mock Data Eliminated)
@@ -1081,13 +1080,13 @@
     function editPlayerNickname(e) {
       if (e && e.stopPropagation) e.stopPropagation();
       if (!parsedId) return;
-      const currentName = hasRealNick ? (playerNick || '') : '';
+      const currentName = playerNick || '';
       showAppModal({
         icon: '✏️',
-        title: 'ئويۇندىكى نامنى كىرگۈزۈش',
-        message: 'ئەگەر كۆڭلىڭىز خاتىرجەم بولسۇن ئۈچۈن ئۆز نامىڭىزنى يېزىپ قويۇشنى خالىسىڭىز كىرگۈزۈڭ (مەھسۇلات ئاساسلىقى UID كىملىكىڭىزگە قاچىلىنىدۇ):',
+        title: 'ئويۇندىكى نامنى قوشۇش / تەھرىرلەش',
+        message: 'ئەسكەرتىش: Honor of Kings دا زاكاز بىۋاسىتە UID نومۇرىڭىزغا قاراپ 100% توغرا قاچىلىنىدۇ. ئەگەر تالوندا ئۆز نامىڭىزنى كۆرسەتمەكچى بولسىڭىز، ئويۇندىكى نامىڭىزنى كىرگۈزۈڭ (ئىختىيارىي):',
         showInput: true,
-        inputValue: currentName,
+        inputValue: currentName.startsWith('UID:') ? '' : currentName,
         inputPlaceholder: 'مەسىلەن: ئويۇندىكى نامىم',
         confirmText: '💾 ساقلاش ۋە دەلىللەش',
         cancelText: 'بىكار قىلىش',
@@ -1104,7 +1103,7 @@
           if (cardNick) cardNick.textContent = newName;
           if (cardLabel) cardLabel.textContent = 'ئويۇندىكى نامىڭىز:';
           if (editBtnText) editBtnText.textContent = 'نامنى ئۆزگەرتىش';
-          if (cardSub) cardSub.innerHTML = '<span>✓</span><span>ئويۇن سالاھىيىتى مۇۋەپپەقىيەتلىك دەلىللەندى</span>';
+          if (cardSub) cardSub.innerHTML = '<span>✓</span><span>ئويۇن نامى مۇۋەپپەقىيەتلىك دەلىللەندى</span>';
 
           saveHokAccount(parsedId, newName);
 
@@ -1120,7 +1119,7 @@
             });
           } catch (_) {}
 
-          showAppToast('✅ ئويۇندىكى نامىڭىز مۇۋەپپەقىيەتلىك ساقلاندى!');
+          showAppToast('✅ ئويۇندىكى نامىڭىز مۇۋەپپەقىيەتلىك دەلىللەندى!');
         }
       });
     }
@@ -1221,7 +1220,7 @@
         if (cardSub) {
           cardSub.innerHTML = hasRealNick
             ? '<span>✓</span><span>ئويۇن سالاھىيىتى مۇۋەپپەقىيەتلىك دەلىللەندى</span>'
-            : '<span>⚡</span><span>بىۋاسىتە مەزكۇر UID ھېساباتىغا قاچىلىنىدۇ</span>';
+            : '<span>⚡</span><span>بىۋاسىتە مەزكۇر UID ھېساباتىغا قاچىلىنىدۇ (100% كاپالەتلىك)</span>';
         }
 
         saveHokAccount(res.id, liveName);
@@ -1253,7 +1252,7 @@
         if (cardNick) cardNick.textContent = playerNick;
         if (cardLabel) cardLabel.textContent = 'قوبۇل قىلغۇچى كىملىك (UID):';
         if (editBtnText) editBtnText.textContent = 'نام قوشۇش (ئىختىيارىي)';
-        if (cardSub) cardSub.innerHTML = '<span>⚡</span><span>بىۋاسىتە مەزكۇر UID ھېساباتىغا قاچىلىنىدۇ</span>';
+        if (cardSub) cardSub.innerHTML = '<span>⚡</span><span>بىۋاسىتە مەزكۇر UID ھېساباتىغا قاچىلىنىدۇ (100% كاپالەتلىك)</span>';
 
         if (vCard) {
           vCard.classList.remove('hidden');

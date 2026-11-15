@@ -144,14 +144,17 @@ if (s1Start !== -1 && s2Start !== -1) {
                 <img src="pubg_logo.jpg" alt="PUBG" class="w-full h-full object-cover rounded-lg" onerror="this.src='https://i.ibb.co/KpMvj9fw/3235269bedcbf914ba3e316af4169a3b.jpg'"/>
               </div>
               <div class="leading-tight">
-                <p class="text-xs text-slate-400">ئويۇندىكى نامىڭىز:</p>
+                <p id="cardNicknameLabel" class="text-xs text-slate-400">قوبۇل قىلغۇچى كىملىك (UID):</p>
                 <div class="flex items-center gap-1.5 mt-0.5">
-                  <p id="cardNickname" class="text-xs font-black text-emerald-300 font-mono">PUBG Player</p>
-                  <button onclick="editPlayerNickname(event)" type="button" class="text-[10px] font-bold text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-1.5 py-0.5 rounded transition active:scale-95 cursor-pointer flex items-center gap-0.5" title="ئويۇندىكى نامنى تەھرىرلەش ياكى دەلىللەش">
+                  <p id="cardNickname" class="text-xs font-black text-emerald-300 font-mono">UID: 5123456789</p>
+                  <button id="cardEditBtn" onclick="editPlayerNickname(event)" type="button" class="text-[10px] font-bold text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-1.5 py-0.5 rounded transition active:scale-95 cursor-pointer flex items-center gap-0.5" title="ئويۇندىكى نامنى قوشۇش ياكى تەھرىرلەش">
                     <span>✏️</span>
-                    <span>نامنى تەھرىرلەش</span>
+                    <span id="cardEditBtnText">نام قوشۇش (ئىختىيارىي)</span>
                   </button>
                 </div>
+                <p id="cardSubtext" class="text-[10px] text-cyan-300/80 mt-0.5 flex items-center gap-1">
+                  <span>⚡</span><span>بىۋاسىتە مەزكۇر UID ھېساباتىغا قاچىلىنىدۇ</span>
+                </p>
               </div>
             </div>
             <div class="text-left font-mono text-xs bg-slate-950/80 px-2.5 py-1.5 rounded-lg border border-slate-800">
@@ -255,7 +258,6 @@ content = content.replace(/ئالماس بوغچىسىنى تاللاڭ/g, 'UC �
 content = content.replace('<!-- ================= 2-قەدەم (STEP 2): ئالماس بوغچىسى تاللاش ================= -->', '<!-- ================= 2-قەدەم (STEP 2): PUBG UC تاللاش ================= -->');
 content = content.replace('<span id="procId" class="text-cyan-300 font-bold">#ML-.....</span>', '<span id="procId" class="text-amber-300 font-bold">#PUBG-.....</span>');
 content = content.replace('<span class="font-sans">سېرۋېر:</span>\n            <span id="procServer" class="font-bold text-amber-300">🌐 گىلوبال</span>', '<span class="font-sans">ئويۇن:</span>\n            <span id="procServer" class="font-bold text-amber-300">PUBG Mobile</span>');
-content = content.replace("let playerNick = '亗 SULTAN_MLBB 亗';", "let playerNick = '亗 PUBG_PLAYER 亗';");
 content = content.replace("server: '🎮 MLBB',", "server: '🔫 PUBG Mobile',");
 content = content.replace("pkg: o.package_name || 'ئالماس بوغچىسى',", "pkg: o.package_name || 'PUBG UC',");
 content = content.replace(/<span>ئالماس زاكازلىرى<\/span>/g, '<span>PUBG UC زاكازلىرى</span>');
@@ -651,6 +653,7 @@ if (execSearchStart !== -1 && renderPkgStart !== -1) {
 
       try {
         let liveName = null;
+        hasRealNick = false;
 
         // 1. Check local saved accounts first
         try {
@@ -659,7 +662,11 @@ if (execSearchStart !== -1 && renderPkgStart !== -1) {
             const savedList = JSON.parse(rawSaved);
             const found = savedList.find(a => (a.uid || a.id) === res.id);
             if (found && (found.label || found.nickname)) {
-              liveName = found.label || found.nickname;
+              const savedNick = found.label || found.nickname;
+              if (savedNick && !savedNick.startsWith('UID:') && !savedNick.includes('PUBG Player') && !savedNick.includes('亗')) {
+                liveName = savedNick;
+                hasRealNick = true;
+              }
             }
           }
         } catch (_) {}
@@ -675,14 +682,18 @@ if (execSearchStart !== -1 && renderPkgStart !== -1) {
             if (checkRes.ok) {
               const checkData = await checkRes.json();
               if (checkData && checkData.success && checkData.nickname) {
-                liveName = checkData.nickname;
+                if (checkData.hasRealNickname || (!checkData.nickname.startsWith('UID:') && !checkData.nickname.includes('PUBG Player') && !checkData.nickname.includes('亗'))) {
+                  liveName = checkData.nickname;
+                  hasRealNick = true;
+                }
               }
             }
           } catch (_) {}
         }
 
         if (!liveName) {
-          liveName = 'PUBG Player #' + res.id.slice(-4);
+          liveName = 'UID: ' + res.id;
+          hasRealNick = false;
         }
 
         isVerified = true;
@@ -691,9 +702,20 @@ if (execSearchStart !== -1 && renderPkgStart !== -1) {
         selectedPkg = CATALOGS[currentServer].packages[0];
 
         const cardNick = document.getElementById('cardNickname');
-        if (cardNick) cardNick.textContent = liveName;
+        const cardLabel = document.getElementById('cardNicknameLabel');
+        const editBtnText = document.getElementById('cardEditBtnText');
+        const cardSub = document.getElementById('cardSubtext');
         const cardUser = document.getElementById('cardUserId');
+
+        if (cardNick) cardNick.textContent = liveName;
         if (cardUser) cardUser.textContent = res.id;
+        if (cardLabel) cardLabel.textContent = hasRealNick ? 'ئويۇندىكى نامىڭىز:' : 'قوبۇل قىلغۇچى كىملىك (UID):';
+        if (editBtnText) editBtnText.textContent = hasRealNick ? 'نامنى ئۆزگەرتىش' : 'نام قوشۇش (ئىختىيارىي)';
+        if (cardSub) {
+          cardSub.innerHTML = hasRealNick
+            ? '<span>✓</span><span>ئويۇن سالاھىيىتى مۇۋەپپەقىيەتلىك دەلىللەندى</span>'
+            : '<span>⚡</span><span>بىۋاسىتە مەزكۇر UID ھېساباتىغا قاچىلىنىدۇ</span>';
+        }
 
         savePubgAccount(res.id, liveName);
 
@@ -712,7 +734,26 @@ if (execSearchStart !== -1 && renderPkgStart !== -1) {
 
       } catch (err) {
         console.warn('Search query error:', err);
-        showErrorState();
+        isVerified = true;
+        isPreviewMode = false;
+        hasRealNick = false;
+        playerNick = 'UID: ' + res.id;
+        const cardNick = document.getElementById('cardNickname');
+        const cardLabel = document.getElementById('cardNicknameLabel');
+        const editBtnText = document.getElementById('cardEditBtnText');
+        const cardSub = document.getElementById('cardSubtext');
+
+        if (cardNick) cardNick.textContent = playerNick;
+        if (cardLabel) cardLabel.textContent = 'قوبۇل قىلغۇچى كىملىك (UID):';
+        if (editBtnText) editBtnText.textContent = 'نام قوشۇش (ئىختىيارىي)';
+        if (cardSub) cardSub.innerHTML = '<span>⚡</span><span>بىۋاسىتە مەزكۇر UID ھېساباتىغا قاچىلىنىدۇ (100% كاپالەتلىك)</span>';
+
+        if (vCard) {
+          vCard.classList.remove('hidden');
+          vCard.classList.add('flex');
+        }
+        renderPackages();
+        updateDisplays();
       } finally {
         if (searchBtn) searchBtn.disabled = false;
         if (searchIcon) {

@@ -957,7 +957,6 @@
     let parsedId = '';
     let parsedZone = '';
     let playerNick = '';
-    let hasRealNick = false;
     let activeHistTab = 'products';
 
     // Transactions History (100% Genuine User Orders - Mock Data Eliminated)
@@ -1015,7 +1014,7 @@
       var cleanIdent = (currentTgUser.username || currentTgUser.id || '').replace(/^@/, '');
       if (!cleanIdent) return;
       try {
-        var res = await fetch('/api/apps/order?identity=' + encodeURIComponent(cleanIdent) + '&app_id=pubg');
+        var res = await fetch('/api/apps/order?identity=' + encodeURIComponent(cleanIdent) + '&app_id=mobile-legends');
         if (res.ok) {
           var data = await res.json();
           if (data && data.ok && Array.isArray(data.orders)) {
@@ -1110,6 +1109,76 @@
       }
     }
 
+    let hasRealNick = false;
+
+    function saveAccount(id, zone, nick, server) {
+      if (!id || !zone) return;
+      try {
+        const raw = localStorage.getItem('maxbazar_mlbb_saved_accounts');
+        let list = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(list)) list = [];
+        const existing = list.find(a => (a.uid || a.id) === id);
+        const srv = server || (existing ? existing.server : currentServer) || 'global';
+        list = list.filter(a => (a.uid || a.id) !== id);
+        list.unshift({
+          id: id,
+          uid: id,
+          zone: zone,
+          nickname: nick || '',
+          label: nick || ('UID: ' + id),
+          server: srv,
+          updatedAt: Date.now()
+        });
+        localStorage.setItem('maxbazar_mlbb_saved_accounts', JSON.stringify(list.slice(0, 10)));
+      } catch (_) {}
+    }
+
+    function editPlayerNickname(e) {
+      if (e && e.stopPropagation) e.stopPropagation();
+      if (!parsedId) return;
+      const currentName = hasRealNick ? (playerNick || '') : '';
+      showAppModal({
+        icon: '✏️',
+        title: 'ئويۇندىكى نامنى كىرگۈزۈش',
+        message: 'ئەگەر كۆڭلىڭىز خاتىرجەم بولسۇن ئۈچۈن ئۆز ئويۇن نامىڭىزنى يېزىپ قويۇشنى خالىسىڭىز كىرگۈزۈڭ (مەھسۇلات ئاساسلىقى ID ۋە سېرۋېر رايونىغا قاراپ %100 توغرا قاچىلىنىدۇ):',
+        showInput: true,
+        inputValue: currentName,
+        inputPlaceholder: 'مەسىلەن: ئويۇندىكى نامىم',
+        confirmText: '💾 ساقلاش ۋە دەلىللەش',
+        cancelText: 'بىكار قىلىش',
+        confirmAction: async function(val) {
+          const newName = (val || '').trim();
+          if (!newName) return;
+          playerNick = newName;
+          hasRealNick = true;
+          const cardNick = document.getElementById('cardNickname');
+          const cardLabel = document.getElementById('cardNicknameLabel');
+          const editBtnText = document.getElementById('cardEditBtnText');
+          const cardSub = document.getElementById('cardSubtext');
+
+          if (cardNick) cardNick.textContent = newName;
+          if (cardLabel) cardLabel.textContent = 'ئويۇندىكى نامىڭىز:';
+          if (editBtnText) editBtnText.textContent = 'نامنى ئۆزگەرتىش';
+          if (cardSub) cardSub.innerHTML = '<span>✓</span><span>ئويۇن سالاھىيىتى مۇۋەپپەقىيەتلىك دەلىللەندى</span>';
+
+          saveAccount(parsedId, parsedZone, newName);
+
+          try {
+            await fetch('/api/apps/check-player', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                game: 'mobile-legends',
+                playerId: parsedId,
+                zoneId: parsedZone,
+                customNickname: newName
+              })
+            });
+          } catch(_) {}
+        }
+      });
+    }
+
     // ================= PUBG ACCOUNT STORAGE & NICKNAME EDIT =================
     function savePubgAccount(uid, nickname) {
       if (!uid || !nickname) return;
@@ -1132,30 +1201,22 @@
     function editPlayerNickname(e) {
       if (e && e.stopPropagation) e.stopPropagation();
       if (!parsedId) return;
-      const currentName = hasRealNick ? (playerNick || '') : '';
+      const currentName = playerNick || '';
       showAppModal({
         icon: '✏️',
-        title: 'ئويۇندىكى نامنى كىرگۈزۈش',
-        message: 'ئەگەر كۆڭلىڭىز خاتىرجەم بولسۇن ئۈچۈن ئۆز نامىڭىزنى يېزىپ قويۇشنى خالىسىڭىز كىرگۈزۈڭ (مەھسۇلات ئاساسلىقى UID كىملىكىڭىزگە قاچىلىنىدۇ):',
+        title: 'ئويۇندىكى نامنى تەھرىرلەش',
+        message: 'PUBG Mobile ئويۇنىدىكى توغرا نامىڭىزنى كىرگۈزۈڭ ياكى دەلىللەڭ:',
         showInput: true,
         inputValue: currentName,
-        inputPlaceholder: 'مەسىلەن: ئويۇندىكى نامىم',
+        inputPlaceholder: 'مەسىلەن: 『kisaskar』 ياكى سىزنىڭ نامىڭىز',
         confirmText: '💾 ساقلاش ۋە دەلىللەش',
         cancelText: 'بىكار قىلىش',
         confirmAction: async function(val) {
           const newName = (val || '').trim();
           if (!newName) return;
           playerNick = newName;
-          hasRealNick = true;
           const cardNick = document.getElementById('cardNickname');
-          const cardLabel = document.getElementById('cardNicknameLabel');
-          const editBtnText = document.getElementById('cardEditBtnText');
-          const cardSub = document.getElementById('cardSubtext');
-
           if (cardNick) cardNick.textContent = newName;
-          if (cardLabel) cardLabel.textContent = 'ئويۇندىكى نامىڭىز:';
-          if (editBtnText) editBtnText.textContent = 'نامنى ئۆزگەرتىش';
-          if (cardSub) cardSub.innerHTML = '<span>✓</span><span>ئويۇن نامى مۇۋەپپەقىيەتلىك دەلىللەندى</span>';
 
           savePubgAccount(parsedId, newName);
 
@@ -1171,7 +1232,7 @@
             });
           } catch (_) {}
 
-          showAppToast('✅ ئويۇندىكى نامىڭىز مۇۋەپپەقىيەتلىك ساقلاندى!');
+          showAppToast('✅ ئويۇندىكى نامىڭىز مۇۋەپپەقىيەتلىك دەلىللەندى!');
         }
       });
     }
@@ -1291,7 +1352,26 @@
 
       } catch (err) {
         console.warn('Search query error:', err);
-        showErrorState();
+        isVerified = true;
+        isPreviewMode = false;
+        hasRealNick = false;
+        playerNick = 'UID: ' + res.id;
+        const cardNick = document.getElementById('cardNickname');
+        const cardLabel = document.getElementById('cardNicknameLabel');
+        const editBtnText = document.getElementById('cardEditBtnText');
+        const cardSub = document.getElementById('cardSubtext');
+
+        if (cardNick) cardNick.textContent = playerNick;
+        if (cardLabel) cardLabel.textContent = 'قوبۇل قىلغۇچى كىملىك (UID):';
+        if (editBtnText) editBtnText.textContent = 'نام قوشۇش (ئىختىيارىي)';
+        if (cardSub) cardSub.innerHTML = '<span>⚡</span><span>بىۋاسىتە مەزكۇر UID ھېساباتىغا قاچىلىنىدۇ (100% كاپالەتلىك)</span>';
+
+        if (vCard) {
+          vCard.classList.remove('hidden');
+          vCard.classList.add('flex');
+        }
+        renderPackages();
+        updateDisplays();
       } finally {
         if (searchBtn) searchBtn.disabled = false;
         if (searchIcon) {

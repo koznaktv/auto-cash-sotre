@@ -147,14 +147,17 @@ if (s1Start !== -1 && s2Start !== -1) {
                 <img src="/hok_logo.webp" alt="HOK" class="w-full h-full object-cover rounded-lg" onerror="this.src='/hok_logo.png'"/>
               </div>
               <div class="leading-tight">
-                <p class="text-xs text-slate-400">ئويۇندىكى نامىڭىز:</p>
+                <p id="cardNicknameLabel" class="text-xs text-slate-400">قوبۇل قىلغۇچى كىملىك (UID):</p>
                 <div class="flex items-center gap-1.5 mt-0.5">
-                  <p id="cardNickname" class="text-xs font-black text-emerald-300 font-mono">HOK Player</p>
-                  <button onclick="editPlayerNickname(event)" type="button" class="text-[10px] font-bold text-purple-400 hover:text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 px-1.5 py-0.5 rounded transition active:scale-95 cursor-pointer flex items-center gap-0.5" title="ئويۇندىكى نامنى تەھرىرلەش ياكى دەلىللەش">
+                  <p id="cardNickname" class="text-xs font-black text-emerald-300 font-mono">UID: 5113048677740798346</p>
+                  <button id="cardEditBtn" onclick="editPlayerNickname(event)" type="button" class="text-[10px] font-bold text-purple-400 hover:text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 px-1.5 py-0.5 rounded transition active:scale-95 cursor-pointer flex items-center gap-0.5" title="ئويۇندىكى نامنى قوشۇش ياكى تەھرىرلەش">
                     <span>✏️</span>
-                    <span>نامنى ئۆزگەرتىش</span>
+                    <span id="cardEditBtnText">نام قوشۇش (ئىختىيارىي)</span>
                   </button>
                 </div>
+                <p id="cardSubtext" class="text-[10px] text-cyan-300/80 mt-0.5 flex items-center gap-1">
+                  <span>⚡</span><span>بىۋاسىتە مەزكۇر UID ھېساباتىغا قاچىلىنىدۇ (100% كاپالەتلىك)</span>
+                </p>
               </div>
             </div>
             <span class="text-emerald-400 text-base font-bold">✓</span>
@@ -243,7 +246,6 @@ content = content.replace(/ئالماس بوغچىسىنى تاللاڭ/g, 'تو
 content = content.replace('<!-- ================= 2-قەدەم (STEP 2): ئالماس بوغچىسى تاللاش ================= -->', '<!-- ================= 2-قەدەم (STEP 2): Honor of Kings تاللاش ================= -->');
 content = content.replace('<span id="procId" class="text-cyan-300 font-bold">#ML-.....</span>', '<span id="procId" class="text-purple-300 font-bold">#HOK-.....</span>');
 content = content.replace('<span class="font-sans">سېرۋېر:</span>\n            <span id="procServer" class="font-bold text-amber-300">🌐 گىلوبال</span>', '<span class="font-sans">ئويۇن:</span>\n            <span id="procServer" class="font-bold text-purple-300">Honor of Kings</span>');
-content = content.replace("let playerNick = '亗 SULTAN_MLBB 亗';", "let playerNick = '亗 HOK_PLAYER 亗';");
 content = content.replace("server: '🎮 MLBB',", "server: '👑 Honor of Kings',");
 content = content.replace("pkg: o.package_name || 'ئالماس بوغچىسى',", "pkg: o.package_name || 'HOK Token',");
 content = content.replace(/<span>ئالماس زاكازلىرى<\/span>/g, '<span>توكېن زاكازلىرى</span>');
@@ -425,7 +427,6 @@ if (actualDynStart !== -1 && loadDynEnd !== -1) {
 // 10. Update state variables
 content = content.replace("let currentServer = 'global';", "let currentServer = 'tokens';");
 content = content.replace("let selectedPkg = CATALOGS.global.packages[0];", "let selectedPkg = CATALOGS.tokens.packages[0];");
-content = content.replace("let playerNick = '亗 SULTAN_MLBB 亗';", "let playerNick = '亗 HOK_PLAYER 亗';");
 content = content.replace(/&app_id=mobile-legends/g, '&app_id=honor-of-kings');
 content = content.replace(/app_id: 'mobile-legends'/g, "app_id: 'honor-of-kings'");
 
@@ -494,19 +495,27 @@ if (execSearchStart !== -1 && renderPkgStart !== -1) {
       const currentName = playerNick || '';
       showAppModal({
         icon: '✏️',
-        title: 'ئويۇندىكى نامنى تەھرىرلەش',
-        message: 'Honor of Kings ئويۇنىدىكى توغرا نامىڭىزنى كىرگۈزۈڭ ياكى دەلىللەڭ:',
+        title: 'ئويۇندىكى نامنى قوشۇش / تەھرىرلەش',
+        message: 'ئەسكەرتىش: Honor of Kings دا زاكاز بىۋاسىتە UID نومۇرىڭىزغا قاراپ 100% توغرا قاچىلىنىدۇ. ئەگەر تالوندا ئۆز نامىڭىزنى كۆرسەتمەكچى بولسىڭىز، ئويۇندىكى نامىڭىزنى كىرگۈزۈڭ (ئىختىيارىي):',
         showInput: true,
-        inputValue: currentName,
-        inputPlaceholder: 'مەسىلەن: HOK Player',
+        inputValue: currentName.startsWith('UID:') ? '' : currentName,
+        inputPlaceholder: 'مەسىلەن: ئويۇندىكى نامىم',
         confirmText: '💾 ساقلاش ۋە دەلىللەش',
         cancelText: 'بىكار قىلىش',
         confirmAction: async function(val) {
           const newName = (val || '').trim();
           if (!newName) return;
           playerNick = newName;
+          hasRealNick = true;
           const cardNick = document.getElementById('cardNickname');
+          const cardLabel = document.getElementById('cardNicknameLabel');
+          const editBtnText = document.getElementById('cardEditBtnText');
+          const cardSub = document.getElementById('cardSubtext');
+
           if (cardNick) cardNick.textContent = newName;
+          if (cardLabel) cardLabel.textContent = 'ئويۇندىكى نامىڭىز:';
+          if (editBtnText) editBtnText.textContent = 'نامنى ئۆزگەرتىش';
+          if (cardSub) cardSub.innerHTML = '<span>✓</span><span>ئويۇن نامى مۇۋەپپەقىيەتلىك دەلىللەندى</span>';
 
           saveHokAccount(parsedId, newName);
 
@@ -562,6 +571,7 @@ if (execSearchStart !== -1 && renderPkgStart !== -1) {
 
       try {
         let liveName = null;
+        hasRealNick = false;
 
         // 1. Check local saved accounts first
         try {
@@ -570,7 +580,11 @@ if (execSearchStart !== -1 && renderPkgStart !== -1) {
             const savedList = JSON.parse(rawSaved);
             const found = savedList.find(a => (a.uid || a.id) === res.id);
             if (found && (found.label || found.nickname)) {
-              liveName = found.label || found.nickname;
+              const savedNick = found.label || found.nickname;
+              if (savedNick && !savedNick.startsWith('UID:') && !savedNick.includes('HOK Player') && !savedNick.includes('亗')) {
+                liveName = savedNick;
+                hasRealNick = true;
+              }
             }
           }
         } catch (_) {}
@@ -586,14 +600,18 @@ if (execSearchStart !== -1 && renderPkgStart !== -1) {
             if (checkRes.ok) {
               const checkData = await checkRes.json();
               if (checkData && checkData.success && checkData.nickname) {
-                liveName = checkData.nickname;
+                if (checkData.hasRealNickname || (!checkData.nickname.startsWith('UID:') && !checkData.nickname.includes('HOK Player') && !checkData.nickname.includes('亗'))) {
+                  liveName = checkData.nickname;
+                  hasRealNick = true;
+                }
               }
             }
           } catch (_) {}
         }
 
         if (!liveName) {
-          liveName = res.isNumeric ? ('HOK Player #' + res.id.slice(-4)) : res.id;
+          liveName = 'UID: ' + res.id;
+          hasRealNick = false;
         }
 
         isVerified = true;
@@ -604,7 +622,18 @@ if (execSearchStart !== -1 && renderPkgStart !== -1) {
         }
 
         const cardNick = document.getElementById('cardNickname');
+        const cardLabel = document.getElementById('cardNicknameLabel');
+        const editBtnText = document.getElementById('cardEditBtnText');
+        const cardSub = document.getElementById('cardSubtext');
+
         if (cardNick) cardNick.textContent = liveName;
+        if (cardLabel) cardLabel.textContent = hasRealNick ? 'ئويۇندىكى نامىڭىز:' : 'قوبۇل قىلغۇچى كىملىك (UID):';
+        if (editBtnText) editBtnText.textContent = hasRealNick ? 'نامنى ئۆزگەرتىش' : 'نام قوشۇش (ئىختىيارىي)';
+        if (cardSub) {
+          cardSub.innerHTML = hasRealNick
+            ? '<span>✓</span><span>ئويۇن سالاھىيىتى مۇۋەپپەقىيەتلىك دەلىللەندى</span>'
+            : '<span>⚡</span><span>بىۋاسىتە مەزكۇر UID ھېساباتىغا قاچىلىنىدۇ (100% كاپالەتلىك)</span>';
+        }
 
         saveHokAccount(res.id, liveName);
 
@@ -625,9 +654,18 @@ if (execSearchStart !== -1 && renderPkgStart !== -1) {
         console.warn('Search query error:', err);
         isVerified = true;
         isPreviewMode = false;
-        playerNick = res.isNumeric ? ('HOK Player #' + res.id.slice(-4)) : res.id;
+        hasRealNick = false;
+        playerNick = 'UID: ' + res.id;
         const cardNick = document.getElementById('cardNickname');
+        const cardLabel = document.getElementById('cardNicknameLabel');
+        const editBtnText = document.getElementById('cardEditBtnText');
+        const cardSub = document.getElementById('cardSubtext');
+
         if (cardNick) cardNick.textContent = playerNick;
+        if (cardLabel) cardLabel.textContent = 'قوبۇل قىلغۇچى كىملىك (UID):';
+        if (editBtnText) editBtnText.textContent = 'نام قوشۇش (ئىختىيارىي)';
+        if (cardSub) cardSub.innerHTML = '<span>⚡</span><span>بىۋاسىتە مەزكۇر UID ھېساباتىغا قاچىلىنىدۇ (100% كاپالەتلىك)</span>';
+
         if (vCard) {
           vCard.classList.remove('hidden');
           vCard.classList.add('flex');
