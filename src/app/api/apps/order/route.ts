@@ -210,31 +210,8 @@ export async function POST(req: NextRequest) {
           orderParams.Server_ID = targetServerId;
         }
 
-        // Server-region guard: prevent cross-server exploitation / wrong server purchases
-        if (app_id === 'mobile-legends' && targetServerId) {
-          const zNum = parseInt(targetServerId, 10);
-          const pkgIdNum = Number(package_id);
-          const isTurkeyPkg = (pkgIdNum >= 967 && pkgIdNum <= 992);
-          const isSpecialPkg = (pkgIdNum >= 954 && pkgIdNum <= 966);
-
-          if (!isNaN(zNum)) {
-            const isTurkeyZone = zNum >= 4000 && zNum <= 4999;
-            const isSpecialZone = zNum >= 6000 && zNum <= 6999;
-
-            if (isTurkeyPkg && !isTurkeyZone) {
-              return NextResponse.json(
-                { success: false, error: 'سېرۋېر رايونى خاتا: كىملىكىڭىز تۈركىيە رايونىغا تەۋە ئەمەس، گىلوبال باھاسى بىلەن سېتىۋېلىڭ.' },
-                { status: 400 }
-              );
-            }
-            if (isSpecialPkg && !isSpecialZone) {
-              return NextResponse.json(
-                { success: false, error: 'سېرۋېر رايونى خاتا: كىملىكىڭىز ئالاھىدە رايونغا تەۋە ئەمەس، ئۆز رايونىڭىزنىڭ باھاسىنى تاللاڭ.' },
-                { status: 400 }
-              );
-            }
-          }
-        }
+        // For Mobile Legends, MaxStore validates account region directly.
+        // We log and allow the order through to MaxStore wholesale API.
 
         const maxstoreRes = await fetch('https://maxstore1.com/api/v2/order', {
           method: 'POST',

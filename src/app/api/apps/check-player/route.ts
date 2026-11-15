@@ -23,14 +23,24 @@ const KNOWN_PLAYERS: Record<string, { nickname: string; server: string }> = {
   '5251441860': { nickname: '๛SOUL・Mortal', server: 'Global (PUBG Mobile)' },
 };
 
-function getMlbbServerInfo(zoneId: string) {
+function getMlbbServerInfo(zoneId: string, country?: string) {
   const z = parseInt(zoneId, 10);
-  if (z >= 4000 && z <= 4999) {
+  const c = (country || '').toUpperCase().trim();
+
+  // If country is explicitly Turkey or Zone ID is in Turkey range
+  if (c === 'TR' || c === 'TURKEY' || c === 'TUR' || (z >= 4000 && z <= 4999)) {
     return {
       serverKey: 'turkey',
-      serverName: 'تۈركىيە / ياۋروپا (TR & EU)',
+      serverName: 'تۈركىيە سېرۋېرى (TR)',
       flag: '🇹🇷',
       category: 'Mobile Legends Turkey'
+    };
+  } else if (c === 'PH' || c === 'PHILIPPINES' || (z >= 6000 && z <= 6999)) {
+    return {
+      serverKey: 'special',
+      serverName: 'ئاسىيا / فىلىپپىن (PH)',
+      flag: '🇵🇭',
+      category: 'Mobile Legends Special'
     };
   } else if (z >= 2000 && z <= 2999) {
     return {
@@ -39,17 +49,10 @@ function getMlbbServerInfo(zoneId: string) {
       flag: '🇮🇩',
       category: '🫆 Mobile Legends'
     };
-  } else if (z >= 3000 && z <= 3999) {
-    return {
-      serverKey: 'global',
-      serverName: 'شەرقىي جەنۇبىي ئاسىيا (SEA / Philippines)',
-      flag: '🇵🇭',
-      category: '🫆 Mobile Legends'
-    };
   } else {
     return {
       serverKey: 'global',
-      serverName: 'خەلقئارالىق گىلوبال (Global Server)',
+      serverName: 'گىلوبال سېرۋېرى (Global)',
       flag: '🌐',
       category: '🫆 Mobile Legends'
     };
@@ -150,6 +153,7 @@ export async function POST(req: NextRequest) {
 
       const hasRealNick = Boolean(liveNickname || trimmedId === '1798505443');
       const finalNick = liveNickname || (trimmedId === '1798505443' ? '꧁KROX099X꧂' : ('UID: ' + trimmedId));
+      const finalMlbbServer = getMlbbServerInfo(trimmedZone || '4503', country);
 
       return NextResponse.json({
         success: true,
@@ -159,10 +163,10 @@ export async function POST(req: NextRequest) {
         nickname: finalNick,
         hasRealNickname: hasRealNick,
         country,
-        server: mlbbServer.serverName,
-        serverKey: mlbbServer.serverKey,
-        flag: mlbbServer.flag,
-        category: mlbbServer.category,
+        server: finalMlbbServer.serverName,
+        serverKey: finalMlbbServer.serverKey,
+        flag: finalMlbbServer.flag,
+        category: finalMlbbServer.category,
         verified: true,
       });
     }

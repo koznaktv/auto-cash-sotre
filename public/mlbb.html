@@ -323,7 +323,12 @@
             <div class="flex items-center gap-2">
               <span id="cardFlag" class="text-xl">🇹🇷</span>
               <div>
-                <p class="text-xs text-slate-400">ئېنىقلانغان سېرۋېرى:</p>
+                <div class="flex items-center gap-1.5">
+                  <p class="text-xs text-slate-400">سېرۋېرى:</p>
+                  <button onclick="cycleServer()" type="button" class="text-[10px] text-cyan-400 hover:text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 px-1.5 py-0.5 rounded transition flex items-center gap-0.5 cursor-pointer active:scale-95" title="سېرۋېرنى تۈركىيە، گىلوبال ياكى فىلىپپىنغا ئالماشتۇرۇش">
+                    <span>🔄</span><span>ئالماشتۇرۇش</span>
+                  </button>
+                </div>
                 <p id="cardServerName" class="text-xs font-black text-amber-300">تۈركىيە سېرۋېرى</p>
               </div>
             </div>
@@ -1164,14 +1169,24 @@
 
     let hasRealNick = false;
 
-    function saveAccount(id, zone, nick) {
+    function saveAccount(id, zone, nick, server) {
       if (!id || !zone) return;
       try {
         const raw = localStorage.getItem('maxbazar_mlbb_saved_accounts');
         let list = raw ? JSON.parse(raw) : [];
         if (!Array.isArray(list)) list = [];
+        const existing = list.find(a => (a.uid || a.id) === id);
+        const srv = server || (existing ? existing.server : currentServer) || 'global';
         list = list.filter(a => (a.uid || a.id) !== id);
-        list.unshift({ id: id, uid: id, zone: zone, nickname: nick || '', label: nick || ('UID: ' + id), updatedAt: Date.now() });
+        list.unshift({
+          id: id,
+          uid: id,
+          zone: zone,
+          nickname: nick || '',
+          label: nick || ('UID: ' + id),
+          server: srv,
+          updatedAt: Date.now()
+        });
         localStorage.setItem('maxbazar_mlbb_saved_accounts', JSON.stringify(list.slice(0, 10)));
       } catch (_) {}
     }
@@ -1248,27 +1263,19 @@
       parsedId = res.id;
       parsedZone = res.zone;
 
-      // 1. Server Detection by Zone ID ALWAYS runs first and accurately!
-      const z = parseInt(res.zone, 10);
-      if (z >= 4000 && z <= 4999) {
-        currentServer = 'turkey';
-      } else if (z >= 6000 && z <= 6999) {
-        currentServer = 'special';
-      } else {
-        currentServer = 'global';
-      }
+      let rememberedServer = null;
+      hasRealNick = false;
+      let liveName = null;
 
+      // Check local saved accounts for remembered server and nickname
       try {
-        hasRealNick = false;
-        let liveName = null;
-
-        // Check local saved accounts
-        try {
-          const raw = localStorage.getItem('maxbazar_mlbb_saved_accounts');
-          if (raw) {
-            const list = JSON.parse(raw);
-            const f = list.find(a => (a.uid || a.id) === res.id);
-            if (f && (f.nickname || f.label)) {
+        const raw = localStorage.getItem('maxbazar_mlbb_saved_accounts');
+        if (raw) {
+          const list = JSON.parse(raw);
+          const f = list.find(a => (a.uid || a.id) === res.id);
+          if (f) {
+            if (f.server && CATALOGS[f.server]) rememberedServer = f.server;
+            if (f.nickname || f.label) {
               const sn = f.nickname || f.label;
               if (sn && !sn.startsWith('UID:')) {
                 liveName = sn;
@@ -1276,8 +1283,26 @@
               }
             }
           }
-        } catch(_) {}
+        }
+      } catch(_) {}
 
+      // Server Detection:
+      // A. If user previously used a specific server for this account, restore it!
+      // B. Otherwise detect by Zone ID (4000-4999 = Turkey, 6000-6999 = Special, others = Global)
+      if (rememberedServer && CATALOGS[rememberedServer]) {
+        currentServer = rememberedServer;
+      } else {
+        const z = parseInt(res.zone, 10);
+        if (z >= 4000 && z <= 4999) {
+          currentServer = 'turkey';
+        } else if (z >= 6000 && z <= 6999) {
+          currentServer = 'special';
+        } else {
+          currentServer = 'global';
+        }
+      }
+
+      try {
         // Check known list
         if (!liveName) {
           const KNOWN = {
@@ -1307,7 +1332,9 @@
                   liveName = d.nickname;
                   hasRealNick = true;
                 }
-                if (d.serverKey) currentServer = d.serverKey;
+                if (!rememberedServer && d.serverKey && CATALOGS[d.serverKey]) {
+                  currentServer = d.serverKey;
+                }
               }
             }
           } catch(_) {}
@@ -1363,7 +1390,7 @@
         document.getElementById('verifiedCard').classList.remove('hidden');
         document.getElementById('verifiedCard').classList.add('flex');
 
-        saveAccount(res.id, res.zone, hasRealNick ? liveName : '');
+        saveAccount(res.id, res.zone, hasRealNick ? liveName : '', currentServer);
         renderPackages();
         updateDisplays();
 
@@ -1376,7 +1403,7 @@
       } catch (err) {
         console.warn('Search query error:', err);
         const z = parseInt(res.zone, 10);
-        currentServer = (z >= 4000 && z <= 4999) ? 'turkey' : (z >= 6000 && z <= 6999 ? 'special' : 'global');
+        currentServer = rememberedServer || ((z >= 4000 && z <= 4999) ? 'turkey' : (z >= 6000 && z <= 6999 ? 'special' : 'global'));
         isVerified = true;
         isPreviewMode = false;
         hasRealNick = false;
@@ -1436,20 +1463,30 @@
     }
 
     function switchServer(srv) {
-      if (isVerified && detectedServer && srv !== detectedServer) {
-        showAppModal({
-          title: 'سېرۋېر مۇقىملاندى',
-          message: 'سىز كىرگۈزگەن ئويۇن كىملىكى «' + (CATALOGS[detectedServer]?.flag || '') + ' ' + (CATALOGS[detectedServer]?.serverTitle || '') + '» سېرۋېرىغا تەۋە. خاتا سېتىۋېلىپ زىيان تارتىپ قېلىشنىڭ ئالدىنى ئېلىش ئۈچۈن، پەقەت مۇشۇ سېرۋېرنىڭ باھاسى بىلەن سېتىۋالالايسىز.',
-          icon: '🛡️',
-          confirmText: 'چۈشەندىم'
-        });
-        return;
-      }
       currentServer = srv;
       if (!CATALOGS[currentServer]) currentServer = 'global';
+      detectedServer = currentServer;
       selectedPkg = CATALOGS[currentServer].packages[0];
+
+      // Update Card Flag and Server Name immediately!
+      const cardFlag = document.getElementById('cardFlag');
+      const cardServerName = document.getElementById('cardServerName');
+      if (cardFlag && CATALOGS[currentServer]) cardFlag.textContent = CATALOGS[currentServer].flag;
+      if (cardServerName && CATALOGS[currentServer]) cardServerName.textContent = CATALOGS[currentServer].serverTitle + ' سېرۋېرى';
+
+      // Save user choice so their preferred server is remembered next time
+      if (parsedId && parsedZone) {
+        saveAccount(parsedId, parsedZone, playerNick, currentServer);
+      }
+
       renderPackages();
       updateDisplays();
+    }
+
+    function cycleServer() {
+      const order = ['turkey', 'global', 'special'];
+      const nextIdx = (order.indexOf(currentServer) + 1) % order.length;
+      switchServer(order[nextIdx]);
     }
 
     function renderPackages() {
@@ -1476,7 +1513,7 @@
         previewBanner.classList.add('hidden');
       }
 
-      // Tabs active and locked class
+      // Tabs active styling: all tabs are freely selectable at any time!
       ['global', 'turkey', 'special'].forEach(s => {
         const btn = document.getElementById('tab' + s.charAt(0).toUpperCase() + s.slice(1));
         if (!btn) return;
@@ -1485,18 +1522,12 @@
 
         if (s === currentServer) {
           btn.className = 'py-2 px-1 rounded-xl font-black transition-all text-center bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-500/30 border border-cyan-300 flex items-center justify-center gap-1.5 scale-[1.02] cursor-pointer';
-          btn.innerHTML = '<span>' + sFlag + '</span><span>' + sTitle + '</span>' + (isVerified ? '<span class="text-[8.5px] bg-emerald-400 text-slate-950 px-1 py-0.5 rounded font-black font-mono">تەستىقلاندى</span>' : '<span class="w-1.5 h-1.5 rounded-full bg-cyan-300 animate-ping"></span>');
+          btn.innerHTML = '<span>' + sFlag + '</span><span>' + sTitle + '</span>' + (isVerified ? '<span class="text-[8.5px] bg-emerald-400 text-slate-950 px-1 py-0.5 rounded font-black font-mono">تاللاندى</span>' : '<span class="w-1.5 h-1.5 rounded-full bg-cyan-300 animate-ping"></span>');
           btn.title = '';
         } else {
-          if (isVerified && detectedServer && s !== detectedServer) {
-            btn.className = 'py-2 px-1 rounded-xl font-bold transition text-center text-slate-500 bg-slate-950/70 border border-slate-800/80 cursor-not-allowed opacity-40 flex items-center justify-center gap-1.5';
-            btn.innerHTML = '<span>🔒</span><span class="line-through opacity-70">' + sTitle + '</span>';
-            btn.title = 'خاتا سېتىۋېلىشتىن مۇداپىئەلىنىش ئۈچۈن قۇلۇپلاندى';
-          } else {
-            btn.className = 'py-2 px-1 rounded-xl font-bold transition text-center text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent cursor-pointer flex items-center justify-center gap-1.5';
-            btn.innerHTML = '<span>' + sFlag + '</span><span>' + sTitle + '</span>';
-            btn.title = '';
-          }
+          btn.className = 'py-2 px-1 rounded-xl font-bold transition text-center text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent cursor-pointer flex items-center justify-center gap-1.5';
+          btn.innerHTML = '<span>' + sFlag + '</span><span>' + sTitle + '</span>';
+          btn.title = 'مۇشۇ سېرۋېر باھاسىغا ئالماشتۇرۇش';
         }
       });
 
