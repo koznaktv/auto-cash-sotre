@@ -30,22 +30,26 @@ function getMlbbServerInfo(zoneId: string, country?: string) {
   const z = parseInt(zoneId, 10);
   const c = (country || '').toUpperCase().trim();
 
-  // If country is explicitly Turkey or Zone ID is in Turkey range
-  if (c === 'TR' || c === 'TURKEY' || c === 'TUR' || (z >= 4000 && z <= 4999)) {
+  // If country is explicitly Turkey or Zone ID is in Turkey range (4000-4999)
+  const isTurkey = c.includes('TR') || c.includes('TURK') || c.includes('TÜRK') || (z >= 4000 && z <= 4999);
+  const isPh = c.includes('PH') || c.includes('PHIL') || (z >= 6000 && z <= 6999);
+  const isId = c.includes('ID') || c.includes('INDO') || (z >= 2000 && z <= 2999);
+
+  if (isTurkey) {
     return {
       serverKey: 'turkey',
       serverName: 'تۈركىيە سېرۋېرى (TR)',
       flag: '🇹🇷',
       category: 'Mobile Legends Turkey'
     };
-  } else if (c === 'PH' || c === 'PHILIPPINES' || (z >= 6000 && z <= 6999)) {
+  } else if (isPh) {
     return {
       serverKey: 'special',
       serverName: 'ئاسىيا / فىلىپپىن (PH)',
       flag: '🇵🇭',
       category: 'Mobile Legends Special'
     };
-  } else if (z >= 2000 && z <= 2999) {
+  } else if (isId) {
     return {
       serverKey: 'global',
       serverName: 'ھىندونېزىيە (Indonesia)',

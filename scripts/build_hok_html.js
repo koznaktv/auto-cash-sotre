@@ -261,9 +261,13 @@ content = content.replace(/src="brand_/g, 'src="/brand_');
 content = content.replace(/src='brand_/g, "src='/brand_");
 content = content.replace(/src="shamcash\.png"/g, 'src="/shamcash.png"');
 
-// 7. Update App Switcher Modal (HOK active, MLBB & PUBG switchable)
+// 7. Update App Switcher Modal (HOK active, MLBB & PUBG & Virtual Numbers switchable)
 const modalAppGridStart = content.indexOf('<!-- App List Grid -->');
-const modalAppGridEnd = content.indexOf('<!-- App 4: AUTO CASH Full Store -->');
+const modalAppGridEnd = content.indexOf('<!-- App 4: Virtual Numbers') !== -1 
+  ? content.indexOf('<!-- App 4: Virtual Numbers') 
+  : (content.indexOf('<!-- App 5: AUTO CASH Full Store -->') !== -1 
+      ? content.indexOf('<!-- App 5: AUTO CASH Full Store -->') 
+      : content.indexOf('<!-- App 4: AUTO CASH Full Store -->'));
 
 if (modalAppGridStart !== -1 && modalAppGridEnd !== -1) {
   const newAppSection = `<!-- App List Grid -->
@@ -332,6 +336,29 @@ if (modalAppGridStart !== -1 && modalAppGridEnd !== -1) {
               <span class="px-2.5 py-1 rounded-xl bg-purple-400 text-slate-950 font-black text-[10px] flex items-center gap-1 shadow-sm">
                 <span>نۆۋەتتىكى</span>
                 <span class="font-mono">✓</span>
+              </span>
+            </div>
+          </a>
+
+          <!-- App 4: Virtual Numbers (مەۋھۇم نومۇرلار) -->
+          <a href="/numbers.html" class="glass-box rounded-2xl p-3 border border-emerald-500/30 hover:border-emerald-400 bg-gradient-to-r from-emerald-950/30 via-slate-900/80 to-[#0b241b]/60 flex items-center justify-between gap-2.5 transition active:scale-[0.98] group cursor-pointer block">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-emerald-400/60 flex items-center justify-center shrink-0 bg-slate-950 p-1 text-2xl">
+                <span>📱</span>
+              </div>
+              <div class="text-right min-w-0">
+                <p class="text-xs sm:text-sm font-black text-white group-hover:text-emerald-300 transition flex items-center gap-1.5">
+                  <span>مەۋھۇم نومۇر (Virtual SMS)</span>
+                  <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono font-bold">200+ دۆلەت</span>
+                </p>
+                <p class="text-[11px] text-emerald-300/90 font-mono mt-0.5">⚡ Telegram • WhatsApp • ChatGPT • Google</p>
+                <p class="text-[10px] text-slate-400">سېكۇنتتا SMS كود تاپشۇرۇۋېلىش • كەلمىسە 100% پۇل قايتىدۇ</p>
+              </div>
+            </div>
+            <div class="shrink-0 flex flex-col items-end gap-1">
+              <span class="px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-[10.5px] font-black group-hover:bg-emerald-500 group-hover:text-slate-950 transition flex items-center gap-1 shadow-sm">
+                <span>كىرىش</span>
+                <span class="font-mono">➔</span>
               </span>
             </div>
           </a>
