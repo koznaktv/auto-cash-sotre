@@ -1,45 +1,84 @@
 import { NextResponse } from 'next/server';
-import { getSessionUser, unauthorizedResponse } from '@/lib/session';
+import path from 'path';
+import fs from 'fs';
+import { getSessionUser } from '@/lib/session';
 import {
-  deductBalanceAndCreateOrderAtomicAsync,
-  refundOrderBalanceAtomicAsync,
-  updateOrderAsync,
+  createOrderDirectAsync,
+  adjustUserBalanceAsync,
   randomId,
 } from '@/lib/db';
+import {
+  getUnifiedWalletBalance,
+  deductUnifiedWalletBalance,
+  findOrCreateDbUserForIdentity,
+} from '@/lib/appWallets';
 import { phonecashProvider } from '@/lib/providers/phonecashProvider';
 import { notifyNewOrder } from '@/lib/telegram';
 
 export const dynamic = 'force-dynamic';
 
+const IS_SERVERLESS = Boolean(
+  process.env.VERCEL ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  (typeof process.cwd === 'function' && process.cwd().startsWith('/var/task'))
+);
+const SESSIONS_DIR = IS_SERVERLESS ? path.join('/tmp', 'micro_apps') : path.join(process.cwd(), 'data', 'micro_apps');
+
+function saveMicroAppOrder(order: any) {
+  try {
+    if (!fs.existsSync(SESSIONS_DIR)) {
+      fs.mkdirSync(SESSIONS_DIR, { recursive: true });
+    }
+    const filePath = path.join(SESSIONS_DIR, 'orders.json');
+    let orders: any[] = [];
+    if (fs.existsSync(filePath)) {
+      orders = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    }
+    orders.unshift(order);
+    fs.writeFileSync(filePath, JSON.stringify(orders.slice(0, 500), null, 2), 'utf-8');
+  } catch {}
+}
+
 // In-memory user buy lock to strictly prevent duplicate rapid order clicks
 const activeBuyLocks = new Map<string, number>();
 
 export async function POST(req: Request) {
-  let userId = '';
   try {
-    const user = await getSessionUser(req);
-    if (!user) {
-      return unauthorizedResponse();
-    }
-    userId = user.id;
-
-    // Reject rapid repeated clicks within 3 seconds
-    const lastBuy = activeBuyLocks.get(user.id);
-    const now = Date.now();
-    if (lastBuy && now - lastBuy < 3000) {
-      return NextResponse.json(
-        { success: false, message: 'زاكازىڭىز بىر تەرەپ قىلىنىۋاتىدۇ، تەكرار باسماڭ' },
-        { status: 429 }
-      );
-    }
-    activeBuyLocks.set(user.id, now);
-
     const body = await req.json().catch(() => null);
     if (!body) {
       return NextResponse.json({ success: false, message: 'مەلۇمات خاتا يوللاندى' }, { status: 400 });
     }
 
-    const { serviceCode, countryId, serviceName, countryName } = body;
+    let verifiedUser: any = null;
+    try {
+      verifiedUser = await getSessionUser(req);
+    } catch {}
+
+    const { serviceCode, countryId, serviceName, countryName, identity, user_id } = body;
+    let cleanIdentity = (identity || user_id || '').trim().replace(/^@/, '');
+    if (verifiedUser) {
+      cleanIdentity = verifiedUser.telegramUsername || verifiedUser.telegramChatId || verifiedUser.email || verifiedUser.phone || verifiedUser.name || cleanIdentity;
+    }
+
+    if (!cleanIdentity || cleanIdentity.toLowerCase() === 'user') {
+      if (verifiedUser) {
+        cleanIdentity = verifiedUser.email || verifiedUser.id;
+      } else {
+        return NextResponse.json({ success: false, message: 'ئالدى بىلەن ھېساباتىڭىزغا كىرىڭ ياكى تېلېگرام بىلەن كىرىڭ' }, { status: 401 });
+      }
+    }
+
+    // Rate-limit rapid clicks per identity
+    const lastBuy = activeBuyLocks.get(cleanIdentity);
+    const now = Date.now();
+    if (lastBuy && now - lastBuy < 2500) {
+      return NextResponse.json(
+        { success: false, message: 'زاكازىڭىز بىر تەرەپ قىلىنىۋاتىدۇ، تەكرار باسماڭ' },
+        { status: 429 }
+      );
+    }
+    activeBuyLocks.set(cleanIdentity, now);
+
     if (!serviceCode || countryId === undefined) {
       return NextResponse.json(
         { success: false, message: 'مۇلازىمەت ياكى دۆلەت كودى تەمىنلەنمىدى' },
@@ -70,98 +109,130 @@ export async function POST(req: Request) {
     const sellPrice = targetService.sellPrice;
     const costPrice = targetService.costPrice;
 
-    // Check user balance
-    const userBalance = Number(user.balance || 0);
-    if (userBalance < sellPrice) {
+    // Check unified balance
+    let currentBalance = await getUnifiedWalletBalance(cleanIdentity);
+    if (user_id && String(user_id).trim() !== cleanIdentity) {
+      const altBalance = await getUnifiedWalletBalance(String(user_id).trim());
+      if (altBalance > currentBalance) {
+        currentBalance = altBalance;
+        cleanIdentity = String(user_id).trim();
+      }
+    }
+    if (verifiedUser && typeof verifiedUser.balance === 'number' && verifiedUser.balance > currentBalance) {
+      currentBalance = Number(verifiedUser.balance.toFixed(2));
+    }
+
+    if (currentBalance < sellPrice) {
       return NextResponse.json(
         {
           success: false,
-          message: `ھېساباتىڭىزدىكى قالدۇق پۇل يېتىشمىدى. باھاسى: $${sellPrice}، قالدۇقىڭىز: $${userBalance.toFixed(2)}`,
+          message: `ھېساباتىڭىزدىكى قالدۇق پۇل يېتىشمىدى. باھاسى: $${sellPrice}، قالدۇقىڭىز: $${currentBalance.toFixed(2)}`,
+          current_balance: currentBalance,
         },
         { status: 400 }
       );
     }
 
-    // 2. Atomically deduct wallet balance and create order
-    const orderId = randomId('SMS');
-    const atomicRes = await deductBalanceAndCreateOrderAtomicAsync({
-      userId: user.id,
-      userEmail: user.email,
-      orderId,
-      serviceId: `sms_${serviceCode}_${countryId}`,
-      serviceName: `مەۋھۇم نومۇر - ${serviceName || targetService.nameUg || serviceCode} (${countryName || countryId})`,
-      packageTitle: `${targetService.name || serviceCode} SMS Verification`,
-      amount: sellPrice,
-      targetAccount: 'نومۇر ئېلىنىۋاتىدۇ...',
-      initialStatus: 'processing',
-      details: {
-        isSmsActivation: true,
-        serviceCode,
-        countryId,
-        serviceName: serviceName || targetService.name,
-        countryName: countryName || String(countryId),
-        costPrice,
-        sellPrice,
-        createdAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
-      },
-    });
-
-    if (!atomicRes.success || !atomicRes.order) {
-      return NextResponse.json(
-        { success: false, message: atomicRes.message || 'زاكاز قۇرۇش مەغلۇپ بولدى' },
-        { status: 400 }
-      );
-    }
-
-    // 3. Request virtual number from PhoneCash API
+    // 2. Request virtual number from PhoneCash API FIRST!
+    // Protect customer funds: If provider has no number or fails, DO NOT deduct funds!
     const buyRes = await phonecashProvider.buyNumber(serviceCode, Number(countryId));
 
     if (!buyRes.success || !buyRes.activationId || !buyRes.phone) {
-      // Auto-refund atomically since provider did not deliver
-      console.warn('[PhoneCash] buyNumber failed, refunding user:', buyRes.error);
-      await refundOrderBalanceAtomicAsync(
-        orderId,
-        buyRes.error || 'تەمىنلىگۈچىدىن نومۇر چىقمىدى (پۇل قايتۇرۇلدى)',
-        true
-      ).catch((refErr) => console.error('[PhoneCash] Refund Error:', refErr));
-
       return NextResponse.json(
         {
           success: false,
           code: buyRes.errorCode || (buyRes.error?.includes('NO_NUMBERS') ? 'NO_NUMBERS' : undefined),
-          message: buyRes.error || 'نومۇر ئېلىش مەغلۇپ بولدى، پۇلىڭىز ھېساباتىڭىزغا قايتۇرۇلدى',
+          message: buyRes.error || 'نومۇر ئېلىش مەغلۇپ بولدى، باھايىڭىز كېسىلمىدى. باشقا دۆلەتنى سىناپ كۆرۈڭ.',
+          current_balance: currentBalance,
         },
         { status: 502 }
       );
     }
 
-    // 4. Update order with allocated phone and activation ID
-    const updatedDetails = {
-      ...(atomicRes.order.details || {}),
+    // 3. Provider succeeded! Now deduct the balance from user's unified wallet
+    let newBalance = currentBalance - sellPrice;
+    if (verifiedUser && verifiedUser.id) {
+      try {
+        const updated = await adjustUserBalanceAsync(verifiedUser.id, -sellPrice);
+        if (updated && typeof updated.balance === 'number') {
+          newBalance = updated.balance;
+        }
+      } catch {}
+      try {
+        await deductUnifiedWalletBalance(cleanIdentity, sellPrice);
+      } catch {}
+    } else {
+      const deductRes = await deductUnifiedWalletBalance(cleanIdentity, sellPrice);
+      if (!deductRes.success) {
+        // In rare race condition if balance wasn't enough, cancel on provider
+        await phonecashProvider.cancelActivation(buyRes.activationId, {
+          service: serviceCode,
+          country: Number(countryId),
+        }).catch(() => null);
+        return NextResponse.json(
+          { success: false, message: deductRes.error || 'قالدۇق پۇل يېتىشمىدى' },
+          { status: 400 }
+        );
+      }
+      newBalance = deductRes.newBalance;
+    }
+
+    // 4. Create central order in database
+    const dbUser = verifiedUser || await findOrCreateDbUserForIdentity(cleanIdentity);
+    const orderId = randomId('SMS');
+
+    const details = {
+      isSmsActivation: true,
+      serviceCode,
+      countryId,
+      serviceName: serviceName || targetService.name,
+      countryName: countryName || String(countryId),
+      costPrice,
+      sellPrice,
       activationId: buyRes.activationId,
       phone: buyRes.phone,
       virtualNumber: buyRes.phone,
-      isSmsActivation: true,
       allocatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+      identity: cleanIdentity,
     };
 
-    await updateOrderAsync(orderId, {
+    await createOrderDirectAsync({
+      id: orderId,
+      userId: dbUser?.id,
+      userEmail: dbUser?.email || (cleanIdentity.includes('@') ? cleanIdentity : `${cleanIdentity}@maxbazar.user`),
+      serviceId: `sms_${serviceCode}_${countryId}`,
+      serviceName: `مەۋھۇم نومۇر - ${serviceName || targetService.nameUg || serviceCode} (${countryName || countryId})`,
+      packageTitle: `${targetService.name || serviceCode} SMS Verification`,
+      amount: sellPrice,
+      targetAccount: buyRes.phone,
       status: 'processing',
-      detailsPatch: {
-        targetAccount: buyRes.phone,
-        ...updatedDetails,
-      },
+      createdAt: new Date().toISOString(),
+      details,
+    });
+
+    saveMicroAppOrder({
+      order_id: orderId,
+      app_id: 'sms',
+      identity: cleanIdentity,
+      phone: buyRes.phone,
+      service_code: serviceCode,
+      country_id: countryId,
+      price: sellPrice,
+      status: 'processing',
+      activation_id: buyRes.activationId,
+      created_at: new Date().toISOString(),
     });
 
     // Notify Telegram Admin
     notifyNewOrder({
       id: orderId,
-      serviceName: atomicRes.order.serviceName,
-      packageTitle: atomicRes.order.packageTitle,
+      serviceName: `مەۋھۇم نومۇر - ${serviceName || targetService.nameUg || serviceCode}`,
+      packageTitle: `${targetService.name || serviceCode} (${countryName || countryId})`,
       amount: sellPrice,
-      userEmail: user.email,
-      userName: user.name,
+      userEmail: dbUser?.email || cleanIdentity,
+      userName: dbUser?.name || cleanIdentity,
       targetAccount: buyRes.phone,
       status: 'processing',
     }).catch(() => null);
@@ -172,6 +243,8 @@ export async function POST(req: Request) {
       activationId: buyRes.activationId,
       phone: buyRes.phone,
       sellPrice,
+      newBalance,
+      current_balance: newBalance,
       expiresAt: Date.now() + 15 * 60 * 1000,
       message: 'مەۋھۇم نومۇر مۇۋەپپەقىيەتلىك تەقسىملەندى',
     });

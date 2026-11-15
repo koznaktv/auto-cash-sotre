@@ -1,15 +1,38 @@
 import { NextResponse } from 'next/server';
-import { getSessionUser, unauthorizedResponse } from '@/lib/session';
+import { getSessionUser } from '@/lib/session';
 import { getOrdersByUserIdAsync } from '@/lib/db';
+import { findOrCreateDbUserForIdentity } from '@/lib/appWallets';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   try {
-    const user = await getSessionUser(req);
-    if (!user) return unauthorizedResponse();
+    let user: any = null;
+    try {
+      user = await getSessionUser(req);
+    } catch {}
 
-    const orders = await getOrdersByUserIdAsync(user.id, user.email);
+    const { searchParams } = new URL(req.url);
+    const identity = (searchParams.get('identity') || searchParams.get('userId') || '').trim().replace(/^@/, '');
+
+    let targetUserId = user?.id;
+    let targetUserEmail = user?.email;
+
+    if (!targetUserId && identity) {
+      const dbUser = await findOrCreateDbUserForIdentity(identity);
+      if (dbUser) {
+        targetUserId = dbUser.id;
+        targetUserEmail = dbUser.email;
+      } else {
+        targetUserEmail = identity;
+      }
+    }
+
+    if (!targetUserId && !targetUserEmail) {
+      return NextResponse.json({ success: true, count: 0, orders: [] });
+    }
+
+    const orders = await getOrdersByUserIdAsync(targetUserId || '', targetUserEmail || '');
     const smsOrders = orders
       .filter((o) => o.details?.isSmsActivation || o.serviceId.startsWith('sms_'))
       .map((o) => ({

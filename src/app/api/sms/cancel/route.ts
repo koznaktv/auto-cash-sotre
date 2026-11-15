@@ -1,17 +1,19 @@
 import { NextResponse } from 'next/server';
 import { getSessionUser, unauthorizedResponse } from '@/lib/session';
 import { getOrderByIdAsync, refundOrderBalanceAtomicAsync } from '@/lib/db';
+import {
+  creditUnifiedWalletBalance,
+  getUnifiedWalletBalance,
+  updateMicroAppOrderSync,
+} from '@/lib/appWallets';
 import { phonecashProvider } from '@/lib/providers/phonecashProvider';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
-    const user = await getSessionUser(req);
-    if (!user) return unauthorizedResponse();
-
     const body = await req.json().catch(() => null);
-    const { orderId, activationId, reason } = body || {};
+    const { orderId, activationId, reason, identity, user_id } = body || {};
 
     if (!orderId || !activationId) {
       return NextResponse.json(
@@ -20,12 +22,29 @@ export async function POST(req: Request) {
       );
     }
 
+    let verifiedUser: any = null;
+    try {
+      verifiedUser = await getSessionUser(req);
+    } catch {}
+
+    let cleanIdentity = (identity || user_id || '').trim().replace(/^@/, '');
+    if (verifiedUser) {
+      cleanIdentity = verifiedUser.telegramUsername || verifiedUser.telegramChatId || verifiedUser.email || verifiedUser.phone || verifiedUser.name || cleanIdentity;
+    }
+
     const order = await getOrderByIdAsync(orderId);
     if (!order) {
       return NextResponse.json({ success: false, message: 'زاكاز تېپىلمىدى' }, { status: 404 });
     }
 
-    if (order.userId !== user.id && user.role !== 'admin') {
+    // Verify ownership
+    const isOwner =
+      (verifiedUser && (order.userId === verifiedUser.id || verifiedUser.role === 'admin')) ||
+      (cleanIdentity && order.details?.identity && order.details.identity.toLowerCase() === cleanIdentity.toLowerCase()) ||
+      (cleanIdentity && order.userEmail && order.userEmail.toLowerCase().includes(cleanIdentity.toLowerCase())) ||
+      (cleanIdentity && order.userId === cleanIdentity);
+
+    if (!isOwner) {
       return unauthorizedResponse();
     }
 
@@ -37,7 +56,13 @@ export async function POST(req: Request) {
     }
 
     if (order.status === 'refunded' || order.status === 'cancelled') {
-      return NextResponse.json({ success: true, message: 'بۇ نومۇر ئاللىقاچان بىكار قىلىنغان' });
+      const currentBal = await getUnifiedWalletBalance(cleanIdentity || order.details?.identity || order.userEmail || '');
+      return NextResponse.json({
+        success: true,
+        message: 'بۇ نومۇر ئاللىقاچان بىكار قىلىنغان',
+        newBalance: currentBal,
+        current_balance: currentBal,
+      });
     }
 
     // 1. Cancel on PhoneCash provider
@@ -57,17 +82,20 @@ export async function POST(req: Request) {
       true
     );
 
-    if (!refundRes.success) {
-      return NextResponse.json(
-        { success: false, message: refundRes.message || 'پۇل قايتۇرۇشتا خاتالىق كۆرۈلدى' },
-        { status: 500 }
-      );
+    const targetIdentity = cleanIdentity || order.details?.identity || order.userEmail || '';
+    if (targetIdentity) {
+      await creditUnifiedWalletBalance(targetIdentity, order.amount);
     }
+
+    updateMicroAppOrderSync(orderId, 'cancelled');
+
+    const finalBalance = await getUnifiedWalletBalance(targetIdentity);
 
     return NextResponse.json({
       success: true,
       message: 'نومۇر مۇۋەپپەقىيەتلىك بىكار قىلىندى، پۇلىڭىز ھېساباتىڭىزغا قايتۇرۇلدى',
-      newBalance: refundRes.newBalance,
+      newBalance: finalBalance,
+      current_balance: finalBalance,
     });
   } catch (err: any) {
     return NextResponse.json(

@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getSessionUser, unauthorizedResponse } from '@/lib/session';
 import { getOrderByIdAsync, updateOrderAsync, refundOrderBalanceAtomicAsync } from '@/lib/db';
+import {
+  creditUnifiedWalletBalance,
+  updateMicroAppOrderSync,
+} from '@/lib/appWallets';
 import { phonecashProvider } from '@/lib/providers/phonecashProvider';
 import { postOrderCompletedToChannel } from '@/lib/telegram';
 
@@ -8,12 +12,15 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   try {
-    const user = await getSessionUser(req);
-    if (!user) return unauthorizedResponse();
+    let user: any = null;
+    try {
+      user = await getSessionUser(req);
+    } catch {}
 
     const { searchParams } = new URL(req.url);
     const orderId = searchParams.get('orderId') || '';
     const activationId = searchParams.get('activationId') || '';
+    const identity = (searchParams.get('identity') || searchParams.get('userId') || '').trim().replace(/^@/, '');
 
     if (!orderId || !activationId) {
       return NextResponse.json(
@@ -28,7 +35,13 @@ export async function GET(req: Request) {
     }
 
     // Verify ownership
-    if (order.userId !== user.id && user.role !== 'admin') {
+    const isOwner =
+      (user && (order.userId === user.id || user.role === 'admin')) ||
+      (identity && order.details?.identity && order.details.identity.toLowerCase() === identity.toLowerCase()) ||
+      (identity && order.userEmail && order.userEmail.toLowerCase().includes(identity.toLowerCase())) ||
+      (identity && order.userId === identity);
+
+    if (!isOwner) {
       return unauthorizedResponse();
     }
 
@@ -63,6 +76,8 @@ export async function GET(req: Request) {
         detailsPatch: updatedDetails,
       });
 
+      updateMicroAppOrderSync(orderId, 'completed', new Date().toISOString());
+
       // Confirm to provider that code was received (status_action=3)
       phonecashProvider
         .finishActivation(activationId, {
@@ -79,7 +94,7 @@ export async function GET(req: Request) {
         amount: order.amount,
         targetAccount: order.targetAccount,
         userEmail: order.userEmail,
-        userName: user.name || order.userEmail,
+        userName: user?.name || order.userEmail,
       }).catch(() => null);
 
       return NextResponse.json({
@@ -101,6 +116,12 @@ export async function GET(req: Request) {
             : 'تەمىنلىگۈچى تەرەپتىن نومۇر بىكار قىلىندى (پۇل قايتۇرۇلدى)',
           true
         ).catch(() => ({ success: false, newBalance: undefined }));
+
+        const targetIdent = identity || order.details?.identity || order.userEmail;
+        if (targetIdent) {
+          await creditUnifiedWalletBalance(targetIdent, order.amount);
+        }
+        updateMicroAppOrderSync(orderId, 'cancelled');
 
         return NextResponse.json({
           success: true,
