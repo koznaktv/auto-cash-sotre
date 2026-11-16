@@ -169,6 +169,22 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+
+    @keyframes nav-pop {
+      0% { transform: scale(0.8); opacity: 0.7; }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-nav-pop {
+      animation: nav-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes star-glint {
+      0%, 100% { opacity: 0.3; transform: scale(0.8) rotate(0deg); }
+      50% { opacity: 1; transform: scale(1.2) rotate(45deg); }
+    }
+    .animate-star-glint {
+      animation: star-glint 1.8s ease-in-out infinite;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-[#f3f4f8] text-slate-800 flex justify-center selection:bg-purple-200">
@@ -678,37 +694,144 @@
 
     </main>
 
-    <!-- ================= FIXED BOTTOM NAVIGATION BAR ================= -->
-    <nav class="fixed sm:absolute bottom-0 left-0 right-0 max-w-[440px] sm:max-w-[460px] mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-3 py-2 z-40 flex items-center justify-between shadow-lg">
-      
-      <!-- Tab 1: Home -->
-      <button onclick="switchTab('home')" id="navHome" type="button" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-2xl bg-purple-100 text-purple-700 font-black transition active:scale-95 cursor-pointer shadow-sm">
-        <span class="text-base">🏠</span>
-        <span class="text-[10px] tracking-tight">ئاساسىي بەت</span>
-      </button>
+    <!-- ================= 3D SLIDING NOTCH BOTTOM NAVIGATION BAR (MATCHING MAIN WEBSITE) ================= -->
+    <div class="fixed sm:absolute bottom-0 left-0 right-0 z-40 pointer-events-auto pb-[env(safe-area-inset-bottom,0px)]">
+      <div class="relative max-w-[440px] sm:max-w-[460px] mx-auto select-none">
+        
+        <!-- 1. FROSTED GLASS TRANSLUCENT BASE BAR -->
+        <div class="relative h-[66px] bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-2xl border-t border-slate-200/80 dark:border-white/10 rounded-t-[24px] shadow-[0_-8px_25px_rgba(0,0,0,0.06)] dark:shadow-[0_-10px_35px_rgba(0,0,0,0.5)] overflow-hidden">
+          <!-- Top shimmer line -->
+          <div class="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
+        </div>
 
-      <!-- Tab 2: Orders -->
-      <button onclick="switchTab('orders')" id="navOrders" type="button" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-2xl text-slate-400 hover:text-purple-600 transition active:scale-95 cursor-pointer">
-        <span class="text-base">🧾</span>
-        <span class="text-[10px] font-bold tracking-tight">زاكازلىرىم</span>
-      </button>
+        <!-- 2. GPU-ACCELERATED SLIDING NOTCH & 3D JEWEL BUBBLE -->
+        <div
+          id="slidingNotchIndicator"
+          class="absolute top-0 right-0 w-1/4 h-[66px] pointer-events-none z-20 transition-transform duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)]"
+          style="transform: translate3d(0%, 0, 0); will-change: transform;"
+        >
+          <!-- Authentic Curved Notch Cradle -->
+          <svg
+            viewBox="0 0 76 26"
+            class="absolute -top-[1px] left-1/2 -translate-x-1/2 w-[76px] h-[26px] overflow-visible"
+          >
+            <defs>
+              <linearGradient id="notchLipGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="rgba(147, 51, 234, 0.2)" />
+                <stop offset="35%" stop-color="rgba(168, 85, 247, 0.85)" />
+                <stop offset="50%" stop-color="rgba(245, 158, 11, 0.95)" />
+                <stop offset="65%" stop-color="rgba(168, 85, 247, 0.85)" />
+                <stop offset="100%" stop-color="rgba(147, 51, 234, 0.2)" />
+              </linearGradient>
+            </defs>
 
-      <!-- Tab 3: Notifications -->
-      <button onclick="switchTab('notifications')" id="navNotifications" type="button" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-2xl text-slate-400 hover:text-purple-600 transition active:scale-95 cursor-pointer relative">
-        <span class="relative">
-          <span class="text-base">🔔</span>
-          <span class="absolute -top-1 -right-2 bg-rose-500 text-white rounded-full text-[8px] font-black px-1 leading-tight">20</span>
-        </span>
-        <span class="text-[10px] font-bold tracking-tight">ئۇقتۇرۇشلار</span>
-      </button>
+            <!-- Notch Background Fill (matches page background) -->
+            <path
+              d="M 0 0 C 16 0, 20 24, 38 24 C 56 24, 60 0, 76 0 Z"
+              class="fill-[#f8fafc] dark:fill-[#0b1329]"
+            />
 
-      <!-- Tab 4: Account -->
-      <button onclick="switchTab('account')" id="navAccount" type="button" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-2xl text-slate-400 hover:text-purple-600 transition active:scale-95 cursor-pointer">
-        <span class="text-base">👤</span>
-        <span class="text-[10px] font-bold tracking-tight">ھېساباتىم</span>
-      </button>
+            <!-- Glowing Neon Contour Lip -->
+            <path
+              d="M 0 0 C 16 0, 20 24, 38 24 C 56 24, 60 0, 76 0"
+              fill="none"
+              stroke="url(#notchLipGlow)"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
 
-    </nav>
+          <!-- Elevated 3D Jewel Floating Bubble -->
+          <div class="absolute -top-[16px] left-1/2 -translate-x-1/2 w-[50px] h-[50px] rounded-full p-[2px] shadow-[0_8px_24px_rgba(124,58,237,0.55),0_0_15px_rgba(245,158,11,0.35)]">
+            <!-- Outer Ambient Glow -->
+            <span class="absolute -inset-1 rounded-full blur-sm animate-pulse bg-purple-500/35"></span>
+
+            <!-- Gem Shell -->
+            <div class="relative w-full h-full rounded-full p-[2px] border-2 border-purple-200/90 dark:border-purple-300/90 bg-gradient-to-tr from-[#6b21a8] via-[#7e22ce] to-[#9333ea] flex items-center justify-center overflow-hidden">
+              <!-- Glossy Top Reflection -->
+              <div class="absolute top-0 inset-x-0 h-1/2 bg-gradient-to-b from-white/50 via-white/15 to-transparent rounded-t-full pointer-events-none"></div>
+
+              <!-- Active Icon & Sparkle -->
+              <div id="activeBubbleIcon" class="relative flex items-center justify-center text-white z-10">
+                <svg class="w-5 h-5 fill-current animate-nav-pop drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span class="absolute -bottom-1 -right-1 text-[8px] text-amber-300 animate-star-glint drop-shadow">✦</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. INTERACTIVE 4-TAB NAVIGATION LINKS -->
+        <nav class="absolute inset-0 top-0 h-[66px] flex items-center justify-around z-30" dir="rtl">
+          
+          <!-- Tab 1: Home (Index 0) -->
+          <button onclick="switchTab('home')" id="navHome" type="button" class="flex-1 h-full flex flex-col items-center justify-center py-1 transition-all group cursor-pointer active:scale-95">
+            <div class="nav-active-content flex flex-col items-center justify-end h-full pb-1.5">
+              <span class="text-[10px] font-black text-purple-700 dark:text-purple-300 leading-none flex items-center gap-0.5">
+                <span>ئاساسىي بەت</span>
+                <span class="text-[8px] text-amber-500 animate-pulse">✦</span>
+              </span>
+            </div>
+            <div class="nav-inactive-content hidden flex flex-col items-center justify-center transition-all group-active:scale-90">
+              <div class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-purple-600 transition-colors">
+                <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </div>
+              <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 leading-none mt-0.5 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">ئاساسىي بەت</span>
+            </div>
+          </button>
+
+          <!-- Tab 2: Orders (Index 1) -->
+          <button onclick="switchTab('orders')" id="navOrders" type="button" class="flex-1 h-full flex flex-col items-center justify-center py-1 transition-all group cursor-pointer active:scale-95">
+            <div class="nav-active-content hidden flex flex-col items-center justify-end h-full pb-1.5">
+              <span class="text-[10px] font-black text-purple-700 dark:text-purple-300 leading-none flex items-center gap-0.5">
+                <span>زاكازلىرىم</span>
+                <span class="text-[8px] text-amber-500 animate-pulse">✦</span>
+              </span>
+            </div>
+            <div class="nav-inactive-content flex flex-col items-center justify-center transition-all group-active:scale-90">
+              <div class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-purple-600 transition-colors">
+                <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              </div>
+              <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 leading-none mt-0.5 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">زاكازلىرىم</span>
+            </div>
+          </button>
+
+          <!-- Tab 3: Notifications (Index 2) -->
+          <button onclick="switchTab('notifications')" id="navNotifications" type="button" class="flex-1 h-full flex flex-col items-center justify-center py-1 transition-all group cursor-pointer active:scale-95">
+            <div class="nav-active-content hidden flex flex-col items-center justify-end h-full pb-1.5">
+              <span class="text-[10px] font-black text-purple-700 dark:text-purple-300 leading-none flex items-center gap-0.5">
+                <span>ئۇقتۇرۇشلار</span>
+                <span class="text-[8px] text-amber-500 animate-pulse">✦</span>
+              </span>
+            </div>
+            <div class="nav-inactive-content flex flex-col items-center justify-center transition-all group-active:scale-90">
+              <div class="relative w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-purple-600 transition-colors">
+                <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                <span class="absolute -top-1 -right-1.5 px-1 py-0.2 min-w-[14px] h-[14px] bg-rose-500 text-white text-[8px] font-black rounded-full flex items-center justify-center shadow-sm">20</span>
+              </div>
+              <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 leading-none mt-0.5 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">ئۇقتۇرۇشلار</span>
+            </div>
+          </button>
+
+          <!-- Tab 4: Account (Index 3) -->
+          <button onclick="switchTab('account')" id="navAccount" type="button" class="flex-1 h-full flex flex-col items-center justify-center py-1 transition-all group cursor-pointer active:scale-95">
+            <div class="nav-active-content hidden flex flex-col items-center justify-end h-full pb-1.5">
+              <span class="text-[10px] font-black text-purple-700 dark:text-purple-300 leading-none flex items-center gap-0.5">
+                <span>ھېساباتىم</span>
+                <span class="text-[8px] text-amber-500 animate-pulse">✦</span>
+              </span>
+            </div>
+            <div class="nav-inactive-content flex flex-col items-center justify-center transition-all group-active:scale-90">
+              <div class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-purple-600 transition-colors">
+                <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 leading-none mt-0.5 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">ھېساباتىم</span>
+            </div>
+          </button>
+
+        </nav>
+
+      </div>
+    </div>
 
     <!-- ================= MULTI-AUTH LOGIN MODAL ================= -->
     <div id="authModal" onclick="if(event.target===this) closeAuthModal()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden opacity-0 transition-opacity duration-200">
@@ -1619,6 +1742,14 @@
     }
 
     // --- Tab Switching ---
+    const tabIndices = { home: 0, orders: 1, notifications: 2, account: 3 };
+    const tabBubbleSvgs = {
+      home: '<svg class="w-5 h-5 fill-current animate-nav-pop drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="absolute -bottom-1 -right-1 text-[8px] text-amber-300 animate-star-glint drop-shadow">✦</span>',
+      orders: '<svg class="w-5 h-5 fill-current animate-nav-pop drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg><span class="absolute -bottom-1 -right-1 text-[8px] text-amber-300 animate-star-glint drop-shadow">✦</span>',
+      notifications: '<svg class="w-5 h-5 fill-current animate-nav-pop drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="absolute -bottom-1 -right-1 text-[8px] text-amber-300 animate-star-glint drop-shadow">✦</span>',
+      account: '<svg class="w-5 h-5 fill-current animate-nav-pop drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="absolute -bottom-1 -right-1 text-[8px] text-amber-300 animate-star-glint drop-shadow">✦</span>'
+    };
+
     function switchTab(tab) {
       currentTab = tab;
 
@@ -1632,14 +1763,32 @@
       document.getElementById('notificationsHeaderArea').classList.toggle('hidden', tab !== 'notifications');
       document.getElementById('accountHeaderArea').classList.toggle('hidden', tab !== 'account');
 
-      const tabs = ['home', 'orders', 'notifications', 'account'];
-      tabs.forEach(t => {
+      // Update 3D Sliding Notch position
+      const notch = document.getElementById('slidingNotchIndicator');
+      const idx = tabIndices[tab] ?? 0;
+      if (notch) {
+        notch.style.transform = 'translate3d(-' + (idx * 100) + '%, 0, 0)';
+      }
+
+      // Update Active Bubble Icon
+      const bubbleIcon = document.getElementById('activeBubbleIcon');
+      if (bubbleIcon && tabBubbleSvgs[tab]) {
+        bubbleIcon.innerHTML = tabBubbleSvgs[tab];
+      }
+
+      // Toggle active / inactive UI on tab buttons
+      const tabKeys = ['home', 'orders', 'notifications', 'account'];
+      tabKeys.forEach(t => {
         const btn = document.getElementById('nav' + t.charAt(0).toUpperCase() + t.slice(1));
         if (btn) {
+          const activeEl = btn.querySelector('.nav-active-content');
+          const inactiveEl = btn.querySelector('.nav-inactive-content');
           if (t === tab) {
-            btn.className = 'flex-1 flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-2xl bg-purple-100 text-purple-700 font-black transition active:scale-95 cursor-pointer shadow-sm';
+            if (activeEl) activeEl.classList.remove('hidden');
+            if (inactiveEl) inactiveEl.classList.add('hidden');
           } else {
-            btn.className = 'flex-1 flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-2xl text-slate-400 hover:text-purple-600 transition active:scale-95 cursor-pointer';
+            if (activeEl) activeEl.classList.add('hidden');
+            if (inactiveEl) inactiveEl.classList.remove('hidden');
           }
         }
       });
