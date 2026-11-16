@@ -342,10 +342,11 @@
           <div class="flex items-center justify-between px-1">
             <div class="flex items-center gap-1.5">
               <span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
-              <h2 class="text-sm font-black text-slate-900 tracking-tight">ئەپلەر بۆلىكى</h2>
+              <h2 class="text-sm font-black text-slate-900 dark:text-white tracking-tight">ئەپلەر بۆلىكى</h2>
             </div>
-            <span class="text-[10.5px] font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 px-2 py-0.5 rounded-full">
-              بارلىق مۇلازىمەتلەر
+            <span id="allCatalogStatsBadge" class="text-[10px] font-black text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>2,374 تۈرلۈك ئەپ • 206 دۆلەت</span>
             </span>
           </div>
 
@@ -356,9 +357,22 @@
               id="appSearchInput" 
               type="text" 
               oninput="filterAppsGrid()" 
-              placeholder="ئەپ نامىنى ئىزدەڭ (Telegram, WhatsApp, ChatGPT, Google...)" 
-              class="w-full bg-white border border-slate-200 rounded-2xl pr-10 pl-4 py-2.5 text-xs text-slate-800 placeholder-slate-400 shadow-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition"
+              placeholder="ئەپ نامى ياكى كودىنى ئىزدەڭ (Telegram, WhatsApp, ChatGPT, Google... 2,374 ئەپ ئىچىدىن)" 
+              class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl pr-10 pl-4 py-2.5 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 shadow-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition"
             />
+          </div>
+
+          <!-- App Categories Quick Filter Pills -->
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-[11px] font-bold">
+            <button type="button" onclick="filterAppCategory('all')" id="appCat_all" class="px-3 py-1.5 rounded-xl bg-purple-600 text-white font-black shadow-sm shrink-0 transition">ھەممىسى (2,374)</button>
+            <button type="button" onclick="filterAppCategory('popular')" id="appCat_popular" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">🔥 ئالقىشلانغانلار</button>
+            <button type="button" onclick="filterAppCategory('messaging')" id="appCat_messaging" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">💬 ئالاقە / ئۇچۇر</button>
+            <button type="button" onclick="filterAppCategory('social')" id="appCat_social" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">🌐 ئىجتىمائىي</button>
+            <button type="button" onclick="filterAppCategory('ai')" id="appCat_ai" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">🤖 سۈنئىي ئەقىل (AI)</button>
+            <button type="button" onclick="filterAppCategory('tech')" id="appCat_tech" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">💻 تېخنىكا</button>
+            <button type="button" onclick="filterAppCategory('gaming')" id="appCat_gaming" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">🎮 ئويۇن</button>
+            <button type="button" onclick="filterAppCategory('shopping')" id="appCat_shopping" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">🛒 سودا-سېتىق</button>
+            <button type="button" onclick="filterAppCategory('other')" id="appCat_other" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">📦 باشقىلار</button>
           </div>
 
           <!-- 2-Column App Grid -->
@@ -2563,6 +2577,34 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    // --- App Category & Pagination State (2,374 Apps & 206 Countries) ---
+    let currentAppCategory = 'all';
+    let visibleAppsCount = 60;
+
+    function filterAppCategory(cat) {
+      currentAppCategory = cat;
+      visibleAppsCount = 60;
+      const cats = ['all', 'popular', 'messaging', 'social', 'ai', 'tech', 'gaming', 'shopping', 'other'];
+      cats.forEach(c => {
+        const btn = document.getElementById('appCat_' + c);
+        if (btn) {
+          if (c === cat) {
+            btn.className = 'px-3 py-1.5 rounded-xl bg-purple-600 text-white font-black shadow-sm shrink-0 transition';
+          } else {
+            btn.className = 'px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold';
+          }
+        }
+      });
+      const q = document.getElementById('appSearchInput')?.value || '';
+      renderAppsGrid(q);
+    }
+
+    function loadMoreApps() {
+      visibleAppsCount += 60;
+      const q = document.getElementById('appSearchInput')?.value || '';
+      renderAppsGrid(q);
+    }
+
     // --- Render Apps Grid (Step 1) ---
     function renderAppsGrid(filterKeyword = '') {
       const container = document.getElementById('appsGridContainer');
@@ -2570,30 +2612,42 @@
 
       const apps = catalogData?.apps || [];
       const kw = filterKeyword.toLowerCase().trim();
+
       const filtered = apps.filter(app => {
+        if (currentAppCategory !== 'all') {
+          if (currentAppCategory === 'popular' && !app.popular) return false;
+          if (currentAppCategory !== 'popular' && app.category !== currentAppCategory) return false;
+        }
         if (!kw) return true;
-        return app.name.toLowerCase().includes(kw) || app.nameUg.toLowerCase().includes(kw) || app.code.toLowerCase().includes(kw);
+        return (app.name && app.name.toLowerCase().includes(kw)) ||
+               (app.nameUg && app.nameUg.toLowerCase().includes(kw)) ||
+               (app.code && app.code.toLowerCase().includes(kw));
       });
 
       if (filtered.length === 0) {
         container.innerHTML = `
           <div class="col-span-2 py-8 text-center text-slate-400 text-xs app-card rounded-2xl p-4">
-            🔍 سىز ئىزدىگەن ئەپ تېپىلمىدى.
+            🔍 سىز ئىزدىگەن ئەپ تېپىلمىدى (${apps.length} خىل ئەپ ئىچىدىن).
           </div>
         `;
         return;
       }
 
-      container.innerHTML = filtered.map(app => {
+      const limit = kw ? 120 : visibleAppsCount;
+      const slice = filtered.slice(0, limit);
+
+      let html = slice.map(app => {
+        const countryBadge = app.countriesCount ? `${app.countriesCount} دۆلەتتە بار` : 'كۆپ دۆلەتتە بار';
+        const iconSrc = app.iconUrl || ('https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(app.code));
         return `
-          <div onclick="selectApp('${app.code}')" class="app-card rounded-2xl p-3 flex flex-col justify-between gap-2.5 cursor-pointer group hover:border-purple-400 relative overflow-hidden">
+          <div onclick="selectApp('${app.code}')" class="app-card rounded-2xl p-3 flex flex-col justify-between gap-2.5 cursor-pointer group hover:border-purple-400 relative overflow-hidden transition active:scale-[0.98]">
             <div class="flex items-center gap-2">
               <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center shrink-0 shadow-sm p-1.5 transition group-hover:scale-105">
-                <img src="${app.iconUrl}" alt="${app.name}" class="w-full h-full object-contain" onerror="this.src='https://cdn.simpleicons.org/google'"/>
+                <img src="${iconSrc}" alt="${app.name}" class="w-full h-full object-contain" onerror="this.src='https://api.dicebear.com/7.x/identicon/svg?seed=${app.code}'"/>
               </div>
               <div class="text-right leading-tight min-w-0">
-                <h3 class="text-xs font-black text-slate-900 group-hover:text-purple-600 transition truncate">${app.nameUg}</h3>
-                <p class="text-[10px] text-slate-400 font-mono truncate mt-0.5">${app.name}</p>
+                <h3 class="text-xs font-black text-slate-900 dark:text-white group-hover:text-purple-600 transition truncate">${app.nameUg}</h3>
+                <p class="text-[10px] text-slate-400 font-mono truncate mt-0.5">${app.name || app.code.toUpperCase()}</p>
               </div>
             </div>
 
@@ -2606,13 +2660,26 @@
               <span class="text-slate-600 dark:text-slate-300 font-bold font-mono">$${(app.minSellPrice || 0.20).toFixed(2)} دىن</span>
             </div>
 
-            <div class="pt-1 flex items-center justify-between text-[11px] font-black text-purple-600 dark:text-purple-400 group-hover:text-purple-800 border-t border-slate-100 dark:border-slate-800">
-              <span>دۆلەت ۋە باھا تاللاش</span>
-              <span class="font-mono text-xs">‹</span>
+            <div class="pt-1 flex items-center justify-between text-[10px] font-black text-purple-600 dark:text-purple-400 group-hover:text-purple-800 border-t border-slate-100 dark:border-slate-800">
+              <span class="text-slate-400 font-normal">${countryBadge}</span>
+              <span class="font-mono text-xs flex items-center gap-0.5">تاللاش ‹</span>
             </div>
           </div>
         `;
       }).join('');
+
+      if (filtered.length > limit) {
+        html += `
+          <div class="col-span-2 pt-2 text-center">
+            <button type="button" onclick="loadMoreApps()" class="w-full py-3 px-4 rounded-2xl bg-white dark:bg-slate-900 border-2 border-purple-200 dark:border-purple-900/50 hover:border-purple-500 text-purple-700 dark:text-purple-300 font-black text-xs shadow-sm hover:shadow transition active:scale-95 cursor-pointer flex items-center justify-center gap-2">
+              <span>تېخىمۇ كۆپ ئەپلەرنى چىقىرىش (${filtered.length - limit} ئەپ قالدى)</span>
+              <span>⬇️</span>
+            </button>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
     }
 
     function filterAppsGrid() {
@@ -2620,10 +2687,15 @@
       renderAppsGrid(q);
     }
 
-    // --- Step 2: Select App & View Countries ---
-    function selectApp(appCode) {
+    // --- Step 2: Select App & View Countries (Up to 206 Countries) ---
+    async function selectApp(appCode) {
       const apps = catalogData?.apps || [];
-      selectedApp = apps.find(a => a.code === appCode) || apps[0];
+      selectedApp = apps.find(a => a.code === appCode) || {
+        code: appCode,
+        name: appCode.toUpperCase(),
+        nameUg: appCode.toUpperCase(),
+        countries: []
+      };
       homeStep = 'countries';
 
       document.getElementById('viewAppsDirectory').classList.add('hidden');
@@ -2631,18 +2703,47 @@
 
       const badge = document.getElementById('selectedAppBadge');
       if (badge && selectedApp) {
+        const iconSrc = selectedApp.iconUrl || ('https://api.dicebear.com/7.x/identicon/svg?seed=' + encodeURIComponent(selectedApp.code));
         badge.innerHTML = `
           <div class="w-7 h-7 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-1 flex items-center justify-center shrink-0">
-            <img src="${selectedApp.iconUrl}" alt="${selectedApp.name}" class="w-full h-full object-contain"/>
+            <img src="${iconSrc}" alt="${selectedApp.name}" class="w-full h-full object-contain" onerror="this.src='https://api.dicebear.com/7.x/identicon/svg?seed=${selectedApp.code}'"/>
           </div>
           <div class="text-right leading-none">
             <span class="text-xs font-black text-slate-900 dark:text-white">${selectedApp.nameUg}</span>
-            <span class="text-[9.5px] text-purple-600 dark:text-purple-400 font-mono block">${selectedApp.name}</span>
+            <span class="text-[9.5px] text-purple-600 dark:text-purple-400 font-mono block">${selectedApp.name || selectedApp.code.toUpperCase()}</span>
           </div>
         `;
       }
 
-      renderCountriesForApp();
+      if (selectedApp.countries && selectedApp.countries.length > 0) {
+        renderCountriesForApp();
+      } else {
+        const container = document.getElementById('countriesListContainer');
+        if (container) {
+          container.innerHTML = `
+            <div class="py-16 text-center space-y-3 app-card rounded-3xl p-6">
+              <span class="inline-block w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></span>
+              <h4 class="text-xs font-black text-slate-700 dark:text-slate-200">تەمىنلىگۈچىدىن دۆلەتلەر يۈكلىنىۋاتىدۇ...</h4>
+              <p class="text-[10px] text-slate-400">بۇ ئەپ تەمىنلەنگەن دۆلەتلەر زاپىسى ۋە باھاسى تەكشۈرۈلمەكتە</p>
+            </div>
+          `;
+        }
+
+        try {
+          const res = await fetch('/api/sms/countries?service=' + encodeURIComponent(selectedApp.code));
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.success && Array.isArray(data.countries)) {
+              selectedApp.countries = data.countries;
+            }
+          }
+        } catch (err) {
+          console.warn('Error fetching app countries:', err);
+        }
+
+        renderCountriesForApp();
+      }
+
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -2663,7 +2764,10 @@
       const kw = filterKeyword.toLowerCase().trim();
       const filtered = countries.filter(c => {
         if (!kw) return true;
-        return c.name.toLowerCase().includes(kw) || c.nameUg.toLowerCase().includes(kw) || c.dialCode.includes(kw) || c.code.toLowerCase().includes(kw);
+        return (c.name && c.name.toLowerCase().includes(kw)) ||
+               (c.nameUg && c.nameUg.toLowerCase().includes(kw)) ||
+               (c.dialCode && c.dialCode.includes(kw)) ||
+               (c.code && c.code.toLowerCase().includes(kw));
       });
 
       if (filtered.length === 0) {
