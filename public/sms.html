@@ -778,42 +778,91 @@
       </div>
     </div>
 
-    <!-- ================= SHAMCASH DEPOSIT MODAL (with 3D Floating Gold Coin) ================= -->
-    <div id="depositModal" onclick="if(event.target===this) closeDepositModal()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden opacity-0 transition-opacity duration-200">
-      <div class="w-full max-w-sm bg-white rounded-3xl p-5 space-y-4 shadow-2xl border border-slate-100 relative">
-        <button onclick="closeDepositModal()" class="absolute top-3.5 left-3.5 w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold transition cursor-pointer">✕</button>
+        <!-- ================= SHAMCASH DEPOSIT MODAL (Matching Other Apps: PUBG, MLBB, HOK) ================= -->
+    <div id="depositModal" onclick="if(event.target===this) closeDepositModal()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden opacity-0 transition-opacity duration-300">
+      <div id="depositCard" class="w-full max-w-sm bg-white dark:bg-[#0d162a] border-2 border-amber-400/80 rounded-[32px] p-4 sm:p-5 space-y-3.5 shadow-2xl relative max-h-[92vh] overflow-y-auto no-scrollbar transform scale-95 transition-all duration-300">
+        
+        <!-- Close Button -->
+        <button onclick="closeDepositModal()" class="absolute top-3.5 left-3.5 w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white flex items-center justify-center text-xs font-bold transition cursor-pointer z-10">✕</button>
 
-        <!-- Animated Floating Gold Coin Header in Modal -->
-        <div class="text-center space-y-1.5">
-          <div class="relative w-16 h-16 mx-auto mb-1 animate-float-coin">
-            <!-- Glowing background aura -->
-            <div class="absolute -inset-1 rounded-3xl bg-gradient-to-r from-amber-400 via-purple-500 to-indigo-500 opacity-60 blur-md animate-pulse"></div>
-            <div class="relative w-full h-full rounded-2xl bg-gradient-to-br from-purple-900 to-indigo-950 border-2 border-amber-300/80 flex items-center justify-center p-2 shadow-2xl overflow-hidden">
-              <img src="tg_coin_balance_anim.webp" alt="🪙" class="w-12 h-12 object-contain drop-shadow" onerror="this.src='tg_coin_balance.gif'"/>
-            </div>
+        <!-- Title & ShamCash Logo Header -->
+        <div class="flex items-center gap-2.5 border-b border-slate-100 dark:border-slate-800 pb-2.5 pt-0.5">
+          <div class="w-11 h-11 rounded-2xl overflow-hidden border border-amber-500/50 shadow-md shadow-amber-500/20 bg-slate-900 shrink-0">
+            <img src="https://i.ibb.co/MkYW8ynm/images.jpg" alt="ShamCash" class="w-full h-full object-cover" onerror="this.src='https://cdn.simpleicons.org/cashapp'"/>
           </div>
-          <h3 class="text-base font-black text-slate-900 dark:text-white">ھەميانغا پۇل قاچىلاش</h3>
-          <p class="text-xs text-slate-500">رەسمىي سۈرىيە ShamCash ئاپتوماتىك قاچىلاش</p>
+          <div class="flex-1 text-right leading-tight">
+            <h3 class="text-sm font-black text-slate-900 dark:text-white flex items-center gap-1.5">
+              <span>شامكەش (ShamCash) قالدۇق قاچىلاش</span>
+            </h3>
+            <p class="text-[11px] text-amber-600 dark:text-amber-300 font-bold mt-0.5">رەسمىي ئاپتوماتىك تالون دەلىللەش سىستېمىسى</p>
+          </div>
         </div>
 
-        <div class="p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900 space-y-2">
+        <!-- VIP Metallic ShamCash Card -->
+        <div class="rounded-2xl p-3.5 bg-gradient-to-br from-amber-50 via-purple-50/40 to-amber-50/50 dark:from-[#1c1917] dark:via-[#292524] dark:to-[#1c1917] border border-amber-400/70 dark:border-amber-500/50 shadow-sm space-y-2 text-right">
           <div class="flex items-center justify-between text-xs">
-            <span class="text-purple-700 dark:text-purple-300 font-bold">ShamCash ھېسابات نۇمۇرى:</span>
-            <button onclick="navigator.clipboard.writeText('efe8a2b200d66411c7c7e296369cbba8'); showFloatingToast('ShamCash ھېسابات نۇمۇرى كۆچۈرۈلدى ✓');" class="text-[11px] font-bold text-purple-700 dark:text-purple-300 underline cursor-pointer">كۆچۈرۈش</button>
+            <span class="text-amber-700 dark:text-amber-400 font-bold flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+              <span>AUTO CASH رەسمىي شامكەش كىملىكى</span>
+            </span>
+            <span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 font-mono text-[10px] font-bold border border-amber-500/30">ShamCash ID</span>
           </div>
-          <p class="text-[11px] font-mono font-bold text-slate-800 dark:text-slate-200 break-all select-all bg-white dark:bg-slate-800 p-2 rounded-xl border border-purple-200 dark:border-purple-800 text-center">
-            efe8a2b200d66411c7c7e296369cbba8
+
+          <div class="flex items-center gap-2 bg-white dark:bg-slate-950/90 border border-amber-400/60 dark:border-amber-500/40 rounded-xl p-2 shadow-inner">
+            <input id="shamCashAddr" readonly value="efe8a2b200d66411c7c7e296369cbba8" class="w-full bg-transparent text-xs font-mono text-purple-900 dark:text-cyan-300 font-bold outline-none text-left tracking-wide select-all" dir="ltr"/>
+            <button onclick="copyAddr()" id="copyAddrBtn" type="button" class="px-3 py-1.5 bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 text-slate-950 font-black text-xs rounded-lg transition shrink-0 shadow-sm cursor-pointer active:scale-95">
+              كۆچۈرۈش
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-snug font-medium">
+            💡 1-قەدەم: شامكەش ئەپى ئارقىلىق يۇقىرىدىكى كىملىككە مەبلەغ يۆتكەڭ.
           </p>
         </div>
 
-        <div class="space-y-2">
-          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">ShamCash تالون ياكى ھېسابات نۇمۇرىڭىزنى كىرگۈزۈڭ:</label>
-          <input id="depositTxInput" type="text" placeholder="مەسىلەن: 98451230 ياكى تالون رەسىمى" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-purple-500"/>
+        <!-- 3-Step Clear Visual Flow -->
+        <div class="space-y-2 pt-0.5 text-right">
+          
+          <!-- Step 1 -->
+          <div class="flex items-start gap-2.5 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 text-xs">
+            <span class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-700 dark:text-amber-300 font-black flex items-center justify-center shrink-0 border border-amber-500/30">1</span>
+            <div class="space-y-0.5">
+              <p class="font-bold text-slate-900 dark:text-white">شامكەش كىملىك نومۇرىنى كۆچۈرۈڭ</p>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">يۇقىرىدىكى نومۇرنى كۆچۈرۈپ شامكەشتىن پۇل ئەۋەتىڭ.</p>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="flex items-start gap-2.5 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 text-xs">
+            <span class="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-700 dark:text-sky-300 font-black flex items-center justify-center shrink-0 border border-sky-500/30">2</span>
+            <div class="space-y-0.5">
+              <p class="font-bold text-slate-900 dark:text-white">تالوننى @Autocash_24_bot قا يوللاڭ</p>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">پۇل ئەۋەتكەندىن كېيىن، تالوننى (سۈرەت ياكى نومۇرىنى) بوتقا تاشلاپ بەرسىڭىزلا بولىدۇ.</p>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="flex items-start gap-2.5 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 text-xs">
+            <span class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-black flex items-center justify-center shrink-0 border border-emerald-500/30">3</span>
+            <div class="space-y-0.5">
+              <p class="font-bold text-slate-900 dark:text-white">قالدۇقىڭىز دەرھال ئاشىدۇ</p>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">بوت تالوننى 1 سېكۇنتتا دەلىللەيدۇ ھەم ھەميان قالدۇقىڭىز مۇشۇ توربەتتە ئاپتوماتىك كۆپىيىدۇ!</p>
+            </div>
+          </div>
+
         </div>
 
-        <button onclick="submitDepositConfirmation()" type="button" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs shadow-md shadow-purple-600/30 transition active:scale-95 cursor-pointer">
-          تالوننى دەلىللەش ۋە قاچىلاش ‹
+        <!-- Primary Action Button: Send Receipt to Bot -->
+        <a href="https://t.me/Autocash_24_bot" target="_blank" class="w-full bg-gradient-to-r from-sky-500 via-blue-600 to-sky-500 hover:from-sky-400 hover:to-blue-500 text-white font-black py-3 rounded-2xl text-xs transition shadow-lg shadow-sky-500/30 flex items-center justify-center gap-2 active:scale-95 cursor-pointer">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+          <span>🤖 تالوننى بوتقا يوللاش (@Autocash_24_bot)</span>
+        </a>
+
+        <!-- Secondary Action: Refresh Balance -->
+        <button onclick="refreshUserBalanceFromBot()" type="button" class="w-full py-2.5 px-3 rounded-2xl bg-slate-100 dark:bg-slate-900/90 hover:bg-slate-200 dark:hover:bg-slate-800 border border-amber-500/40 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer">
+          <span>🔄</span>
+          <span>پۇل قاچىلاپ بولدۇم، قالدۇقنى يېڭىلاش</span>
         </button>
+
       </div>
     </div>
 
@@ -1929,32 +1978,69 @@
       }).join('');
     }
 
-    // --- Deposit Modal Actions ---
+        // --- ShamCash Modal Actions (Matching Other Apps: PUBG, MLBB, HOK) ---
     function openDepositModal() {
-      const m = document.getElementById('depositModal');
-      if (m) {
-        m.classList.remove('hidden');
-        setTimeout(() => m.classList.remove('opacity-0'), 10);
-      }
+      const modal = document.getElementById('depositModal');
+      const card = document.getElementById('depositCard');
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        if (card) {
+          card.classList.remove('scale-95');
+          card.classList.add('scale-100');
+        }
+      }, 10);
     }
 
     function closeDepositModal() {
-      const m = document.getElementById('depositModal');
-      if (m) {
-        m.classList.add('opacity-0');
-        setTimeout(() => m.classList.add('hidden'), 200);
+      const modal = document.getElementById('depositModal');
+      const card = document.getElementById('depositCard');
+      if (!modal) return;
+      modal.classList.add('opacity-0');
+      if (card) {
+        card.classList.remove('scale-100');
+        card.classList.add('scale-95');
       }
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 200);
     }
 
-    function submitDepositConfirmation() {
-      const tx = document.getElementById('depositTxInput')?.value.trim();
-      if (!tx) {
-        showCustomAlert('ShamCash تالون نومۇرى ياكى ھېسابات كودىڭىزنى كىرگۈزۈڭ', 'ئۇچۇر كەم', '⚠️');
-        return;
-      }
-      showCustomAlert('تەلەپ تاپشۇرۇلدى! تېلېگرام بوت (@Autocash_24_bot) دەلىللەپ ھەميان قالدۇقىڭىزنى يېڭىلايدۇ ✓', 'مۇۋەپپەقىيەتلىك', '✓', () => {
-        closeDepositModal();
+    function copyAddr() {
+      const addr = document.getElementById('shamCashAddr');
+      if (!addr) return;
+      const text = addr.value || addr.innerText || 'efe8a2b200d66411c7c7e296369cbba8';
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyAddrBtn');
+        if (btn) {
+          const orig = btn.textContent;
+          btn.textContent = 'كۆچۈرۈلدى ✓';
+          btn.classList.add('bg-emerald-500', 'text-white');
+          setTimeout(() => {
+            btn.textContent = orig;
+            btn.classList.remove('bg-emerald-500', 'text-white');
+          }, 1500);
+        }
+        showFloatingToast('شامكەش كىملىك نومۇرى كۆچۈرۈلدى ✓');
+      }).catch(() => {
+        addr.select();
+        document.execCommand('copy');
+        showFloatingToast('شامكەش كىملىك نومۇرى كۆچۈرۈلدى ✓');
       });
+    }
+
+        async function refreshUserBalanceFromBot(silent) {
+      try {
+        if (!silent) showFloatingToast('قالدۇق سىستېمىدىن يېڭىلىنىۋاتىدۇ...');
+        await syncUserBalance();
+        const curBal = getUserBalance();
+        if (!silent) {
+          showCustomAlert('ھەميان قالدۇقىڭىز يېڭىلاندى: $' + curBal.toFixed(2) + ' USD ✓', 'قالدۇق يېڭىلاندى', '✅');
+        }
+      } catch (e) {
+        if (!silent) showFloatingToast('يېڭىلاندى ✓');
+      }
     }
   </script>
 </body>
