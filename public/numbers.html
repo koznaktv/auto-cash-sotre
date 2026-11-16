@@ -8,6 +8,8 @@
   
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Lottie Animation SDK for Telegram Custom Animated Emoji -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
   <!-- Google Official Identity Services SDK -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
@@ -378,9 +380,14 @@
           <!-- 2-Column App Grid -->
           <div id="appsGridContainer" class="grid grid-cols-2 gap-2.5">
             <!-- Dynamically populated via renderAppsGrid() -->
-            <div class="col-span-2 py-8 text-center text-slate-400 text-xs">
-              <span class="inline-block w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin ml-2"></span>
-              رەسمىي ئەپلەر يۈكلىنىۋاتىدۇ...
+            <div class="col-span-2 py-10 text-center app-card rounded-3xl p-6 flex flex-col items-center justify-center gap-2.5">
+              <div id="appsLoadingEmoji" class="w-16 h-16 flex items-center justify-center">
+                <span class="text-5xl animate-bounce inline-block drop-shadow select-none">🤩</span>
+              </div>
+              <div class="space-y-1">
+                <h3 class="text-sm font-black text-slate-800 dark:text-slate-100">رەسمىي ئەپلەر يۈكلىنىۋاتىدۇ...</h3>
+                <p class="text-[10.5px] text-slate-400 font-medium">تەمىنلىگۈچىدىن 2,374 خىل ئەپ ۋە 206 دۆلەت تەييارلانماقتا</p>
+              </div>
             </div>
           </div>
 
@@ -2593,6 +2600,28 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    // --- Telegram Custom Animated Emoji Loader (5350719881408966477) ---
+    function renderLoadingEmoji(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      if (window.lottie) {
+        try {
+          container.innerHTML = '';
+          window.lottie.loadAnimation({
+            container: container,
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: '/loading_emoji.json'
+          });
+          return;
+        } catch (e) {
+          console.warn('Lottie load notice:', e);
+        }
+      }
+      container.innerHTML = '<span class="text-5xl animate-bounce inline-block drop-shadow select-none">🤩</span>';
+    }
+
     // --- App Category & Pagination State (2,374 Apps & 206 Countries) ---
     let currentAppCategory = 'all';
     let visibleAppsCount = 60;
@@ -2737,12 +2766,17 @@
         const container = document.getElementById('countriesListContainer');
         if (container) {
           container.innerHTML = `
-            <div class="py-16 text-center space-y-3 app-card rounded-3xl p-6">
-              <span class="inline-block w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></span>
-              <h4 class="text-xs font-black text-slate-700 dark:text-slate-200">تەمىنلىگۈچىدىن دۆلەتلەر يۈكلىنىۋاتىدۇ...</h4>
-              <p class="text-[10px] text-slate-400">بۇ ئەپ تەمىنلەنگەن دۆلەتلەر زاپىسى ۋە باھاسى تەكشۈرۈلمەكتە</p>
+            <div class="py-12 text-center app-card rounded-3xl p-6 flex flex-col items-center justify-center gap-2.5">
+              <div id="countryLoadingEmoji" class="w-16 h-16 flex items-center justify-center">
+                <span class="text-5xl animate-bounce inline-block drop-shadow select-none">🤩</span>
+              </div>
+              <div class="space-y-1">
+                <h4 class="text-xs font-black text-slate-700 dark:text-slate-200">تەمىنلىگۈچىدىن دۆلەتلەر يۈكلىنىۋاتىدۇ...</h4>
+                <p class="text-[10px] text-slate-400">بۇ ئەپ تەمىنلەنگەن دۆلەتلەر زاپىسى ۋە باھاسى تەكشۈرۈلمەكتە</p>
+              </div>
             </div>
           `;
+          renderLoadingEmoji('countryLoadingEmoji');
         }
 
         try {
