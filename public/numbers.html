@@ -303,27 +303,27 @@
           <div class="grid grid-cols-3 gap-1.5 p-1.5 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-md rounded-2xl border border-purple-200/80 dark:border-purple-900/40 shadow-sm">
             
             <!-- 1-كاتىگورىيە: مەۋھۇم نومۇرلار (Virtual Numbers / SMS) -->
-            <button type="button" onclick="switchMainServiceCategory('numbers')" id="mainCatBtnNumbers" class="py-2.5 px-1 rounded-xl transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white font-black shadow-md border border-purple-400/60 scale-[1.02]">
-              <div class="w-8 h-8 rounded-xl bg-white/20 dark:bg-white/10 flex items-center justify-center text-base drop-shadow">
-                📱
+            <button type="button" onclick="switchMainServiceCategory('numbers')" id="mainCatBtnNumbers" class="py-2 px-1 rounded-2xl transition-all text-center flex flex-col items-center justify-center gap-1.5 cursor-pointer bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white font-black shadow-lg shadow-purple-600/25 border border-purple-400/60 scale-[1.02]">
+              <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl overflow-hidden shadow-md bg-white/20 p-0.5 shrink-0 flex items-center justify-center border border-white/30 transition group-hover:scale-105">
+                <img src="https://i.ibb.co/bjN6Jvj4/66b3332de4dc944565fa6db8770c7a7d.jpg" alt="مەۋھۇم نومۇر" class="w-full h-full object-cover rounded-[13px]" onerror="this.src='/category_icon_numbers.jpg'"/>
               </div>
               <span class="text-[11px] sm:text-xs font-black leading-tight text-center">مەۋھۇم نومۇر</span>
-              <span class="text-[9px] opacity-80 font-medium">SMS دەلىللەش</span>
+              <span class="text-[9px] opacity-85 font-medium">SMS دەلىللەش</span>
             </button>
 
             <!-- 2-كاتىگورىيە: Wi-Fi كارتىلىرى (Wi-Fi Cards) -->
-            <button type="button" onclick="switchMainServiceCategory('wifi')" id="mainCatBtnWifi" class="py-2.5 px-1 rounded-xl transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-slate-50 dark:hover:bg-slate-800/60">
-              <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-base drop-shadow">
-                📶
+            <button type="button" onclick="switchMainServiceCategory('wifi')" id="mainCatBtnWifi" class="py-2 px-1 rounded-2xl transition-all text-center flex flex-col items-center justify-center gap-1.5 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 border border-transparent">
+              <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl overflow-hidden shadow-sm bg-slate-100 dark:bg-slate-800 p-0.5 shrink-0 flex items-center justify-center border border-slate-200/60 dark:border-slate-700/60 transition group-hover:scale-105">
+                <img src="https://i.ibb.co/5hTvgswd/45d4996b000fceb25ca23c6d65cca72d.jpg" alt="Wi-Fi كارتىلىرى" class="w-full h-full object-cover rounded-[13px]" onerror="this.src='/category_icon_wifi.jpg'"/>
               </div>
               <span class="text-[11px] sm:text-xs font-bold leading-tight text-center">Wi-Fi كارتىلىرى</span>
               <span class="text-[9px] text-slate-400 font-medium">سۈرىيە تور كارتىلىرى</span>
             </button>
 
             <!-- 3-كاتىگورىيە: كارتىلارغا پۇل قاچىلاش (Syriatel & MTN Top-up) -->
-            <button type="button" onclick="switchMainServiceCategory('telecom')" id="mainCatBtnTelecom" class="py-2.5 px-1 rounded-xl transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-slate-50 dark:hover:bg-slate-800/60">
-              <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-base drop-shadow">
-                ⚡
+            <button type="button" onclick="switchMainServiceCategory('telecom')" id="mainCatBtnTelecom" class="py-2 px-1 rounded-2xl transition-all text-center flex flex-col items-center justify-center gap-1.5 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 border border-transparent">
+              <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl overflow-hidden shadow-sm bg-slate-100 dark:bg-slate-800 p-0.5 shrink-0 flex items-center justify-center border border-slate-200/60 dark:border-slate-700/60 transition group-hover:scale-105">
+                <img src="https://i.ibb.co/Nds8YchR/1746e3c54d665b05bd2773d42c0f41f6.jpg" alt="كارتىغا پۇل قاچىلاش" class="w-full h-full object-cover rounded-[13px]" onerror="this.src='/category_icon_telecom.jpg'"/>
               </div>
               <span class="text-[11px] sm:text-xs font-bold leading-tight text-center">كارتىغا پۇل قاچىلاش</span>
               <span class="text-[9px] text-slate-400 font-medium">سۈريەتىل • ئىمتىئىن</span>
@@ -2976,8 +2976,8 @@
       const btnWifi = document.getElementById('mainCatBtnWifi');
       const btnTelecom = document.getElementById('mainCatBtnTelecom');
 
-      const activeClass = 'py-2.5 px-1 rounded-xl transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white font-black shadow-md border border-purple-400/60 scale-[1.02]';
-      const inactiveClass = 'py-2.5 px-1 rounded-xl transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-slate-50 dark:hover:bg-slate-800/60';
+      const activeClass = 'py-2 px-1 rounded-2xl transition-all text-center flex flex-col items-center justify-center gap-1.5 cursor-pointer bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white font-black shadow-lg shadow-purple-600/25 border border-purple-400/60 scale-[1.02]';
+      const inactiveClass = 'py-2 px-1 rounded-2xl transition-all text-center flex flex-col items-center justify-center gap-1.5 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 border border-transparent';
 
       if (btnNumbers) btnNumbers.className = cat === 'numbers' ? activeClass : inactiveClass;
       if (btnWifi) btnWifi.className = cat === 'wifi' ? activeClass : inactiveClass;
