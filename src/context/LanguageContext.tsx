@@ -336,7 +336,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     appFeature1Title: 'چاقماق تېزلىك',
     appFeature1Desc: 'تور كۆرگۈچكە كىرمەيلا، بىر بېسىش بىلەنلا سۇپىغا كىرىپ زاكاز تاپشۇرۇڭ.',
     appFeature2Title: 'تالوننى ئاسان يۈكلەش',
-    appFeature2Desc: 'پۇل تۆلەش ئىسپات تالونى ياكى رەسىملەرنى ئەپ ئارقىلىق كامېرا ياكى رەسىمخانىدىن بىۋاسىتە يوللاڭ.',
+    appFeature2Desc: 'پۇل ئەۋەتكەن تالوننى بوتقا تاشلاپ بەرسىڭىزلا بولىدۇ، قالدۇقىڭىز سېكۇنتتا يېڭىلىنىدۇ.',
     appFeature3Title: 'دەرھال ئالاقە ۋە ئۇقتۇرۇش',
     appFeature3Desc: 'WhatsApp ۋە Telegram خېرىدارلار مۇلازىمىتىگە بىۋاسىتە ئۇلىنىپ ياردەم ئېلىڭ.',
     installStepsTitle: 'ئەپنى قانداق قاچىلايمىز؟',
