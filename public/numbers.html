@@ -538,8 +538,8 @@
               <img id="accountUserAvatar" src="user_profile_avatar.png" alt="Profile" class="w-full h-full object-cover" onerror="this.src='/autocash_logo.jpg'"/>
             </div>
             <div class="text-right leading-tight min-w-0">
-              <h3 id="accountUserName" class="text-base font-black text-slate-900 dark:text-white truncate">Killer 0996</h3>
-              <p id="accountUserEmail" class="text-xs text-slate-400 font-mono truncate mt-0.5">dronemax0996@gmail.com</p>
+              <h3 id="accountUserName" class="text-base font-black text-slate-900 dark:text-white truncate">مېھمان (كىرمىگەن)</h3>
+              <p id="accountUserEmail" class="text-xs text-slate-400 font-mono truncate mt-0.5">ھېساباتقا كىرىش ئۈچۈن كىرىش كۇنۇپكىسىنى بېسىڭ</p>
             </div>
           </div>
 
@@ -589,7 +589,7 @@
         <div class="app-card rounded-2xl overflow-hidden divide-y divide-slate-100 text-xs">
           <div class="p-3 flex items-center justify-between">
             <span class="text-slate-400 font-bold">ئېلخەت ئادرېسى:</span>
-            <span id="accountInfoEmail" class="font-mono font-bold text-slate-800 dark:text-slate-200 truncate max-w-[200px]">dronemax0996@gmail.com</span>
+            <span id="accountInfoEmail" class="font-mono font-bold text-slate-800 dark:text-slate-200 truncate max-w-[200px]">بېكىتىلمىگەن</span>
           </div>
           <div class="p-3 flex items-center justify-between">
             <span class="text-slate-400 font-bold">تېلېفون نومۇرى:</span>
@@ -601,11 +601,11 @@
           </div>
           <div class="p-3 flex items-center justify-between">
             <span class="text-slate-400 font-bold">ھېسابات تۈرى:</span>
-            <span class="font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">خېرىدار</span>
+            <span id="accountUserType" class="font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">مېھمان</span>
           </div>
           <div class="p-3 flex items-center justify-between">
             <span class="text-slate-400 font-bold">مەرتىۋە دەرىجىسى:</span>
-            <span class="font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">مىس ئەزا (VIP)</span>
+            <span id="accountUserBadge" class="font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">ئادەتتىكى زىيارەتچى</span>
           </div>
         </div>
 
@@ -664,7 +664,7 @@
             </div>
             <span class="font-mono">‹</span>
           </button>
-          <button onclick="handleLogout()" type="button" class="w-full p-3.5 flex items-center justify-between text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer text-right">
+          <button id="accountLogoutBtnRow" onclick="handleLogout()" type="button" class="w-full p-3.5 flex items-center justify-between text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer text-right">
             <div class="flex items-center gap-2">
               <span>🚪</span>
               <span>ھېساباتتىن چىقىش</span>
@@ -1238,26 +1238,26 @@
     async function initUserSession() {
       try {
         const persistentUid = getOrGenerateUserId();
-        const savedUser = localStorage.getItem('autocash_user') || localStorage.getItem('autocash_tg_user');
+        const isLoggedIn = localStorage.getItem('autocash_is_logged_in') === 'true';
+        const savedUserStr = localStorage.getItem('autocash_user') || localStorage.getItem('autocash_tg_user');
         
-        if (savedUser) {
+        if (isLoggedIn && savedUserStr) {
           try {
-            currentUser = JSON.parse(savedUser);
+            currentUser = JSON.parse(savedUserStr);
             if (!currentUser.id) currentUser.id = persistentUid;
             updateUserUI(currentUser);
-          } catch(e) {}
+            await fetchUserUnifiedBalance();
+          } catch(e) {
+            currentUser = null;
+            updateUserUI(null);
+          }
         } else {
-          // Default demo profile matching screenshot 4
-          currentUser = {
-            id: persistentUid,
-            name: 'Killer 0996',
-            first_name: 'Killer 0996',
-            email: 'dronemax0996@gmail.com',
-            username: 'drone0996'
-          };
-          updateUserUI(currentUser);
+          // GUEST / NOT LOGGED IN
+          currentUser = null;
+          userBalance = 0.00;
+          updateUserUI(null);
+          updateBalanceUI();
         }
-        await fetchUserUnifiedBalance();
       } catch (err) {
         console.warn('Session init:', err);
       }
@@ -1273,6 +1273,7 @@
             updateBalanceUI();
             if (data.user) {
               currentUser = data.user;
+              localStorage.setItem('autocash_is_logged_in', 'true');
               localStorage.setItem('autocash_user', JSON.stringify(currentUser));
               updateUserUI(currentUser);
             }
@@ -1284,17 +1285,19 @@
     }
 
     function updateUserUI(user) {
-      if (!user) return;
       const persistentUid = getOrGenerateUserId();
-      const name = user.first_name || user.name || user.username || 'Killer 0996';
-      const uid = user.id || persistentUid;
-      const email = user.email || (user.username ? user.username + '@auto-cash.app' : 'dronemax0996@gmail.com');
+      const uid = user?.id || persistentUid;
+      const isAuth = !!user;
+
+      // Name & Email
+      const name = isAuth ? (user.first_name || user.name || user.username || 'ئەزا') : 'مېھمان (كىرمىگەن)';
+      const email = isAuth ? (user.email || (user.username ? '@' + user.username : 'بېكىتىلمىگەن')) : 'بېكىتىلمىگەن';
 
       const nameEl = document.getElementById('accountUserName');
       if (nameEl) nameEl.textContent = name;
 
       const emailEl = document.getElementById('accountUserEmail');
-      if (emailEl) emailEl.textContent = email;
+      if (emailEl) emailEl.textContent = isAuth ? email : 'ھېساباتقا كىرىش ئۈچۈن كىرىش كۇنۇپكىسىنى بېسىڭ';
 
       const infoEmail = document.getElementById('accountInfoEmail');
       if (infoEmail) infoEmail.textContent = email;
@@ -1309,20 +1312,49 @@
       const headerUid = document.getElementById('headerUserIdBadge');
       if (headerUid) headerUid.textContent = String(uid);
 
+      // Header User Status Tag & Dot
       const statusTag = document.getElementById('headerUserStatusTag');
       if (statusTag) {
-        statusTag.textContent = user.username ? '@' + user.username : 'VIP ئەزا';
-        statusTag.className = 'text-[8.5px] bg-emerald-500/30 text-emerald-200 px-1.5 py-0.2 rounded font-medium border border-emerald-400/40';
+        if (isAuth) {
+          statusTag.textContent = user.username ? '@' + user.username : 'VIP ئەزا';
+          statusTag.className = 'text-[8.5px] bg-emerald-500/30 text-emerald-200 px-1.5 py-0.2 rounded font-medium border border-emerald-400/40';
+        } else {
+          statusTag.textContent = 'مېھمان';
+          statusTag.className = 'text-[8.5px] bg-purple-900/60 text-purple-200 px-1.5 py-0.2 rounded font-medium border border-purple-400/30';
+        }
       }
 
       const headerAuthBtn = document.getElementById('headerAuthLabel');
-      if (headerAuthBtn) headerAuthBtn.textContent = name;
+      if (headerAuthBtn) {
+        headerAuthBtn.textContent = isAuth ? name : 'كىرىش / تىزىملىتىش';
+      }
 
       const headerAuthDot = document.getElementById('headerAuthDot');
-      if (headerAuthDot) headerAuthDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+      if (headerAuthDot) {
+        headerAuthDot.className = isAuth ? 'w-2 h-2 rounded-full bg-emerald-400' : 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+      }
 
-      const accountLoginAction = document.getElementById('accountLoginActionText');
-      if (accountLoginAction) accountLoginAction.textContent = 'ھېسابات ئۇلانغان: ' + name;
+      // Account Card Badges
+      const userTypeBadge = document.getElementById('accountUserType');
+      if (userTypeBadge) {
+        userTypeBadge.textContent = isAuth ? 'خېرىدار' : 'مېھمان';
+      }
+
+      const userBadgeEl = document.getElementById('accountUserBadge');
+      if (userBadgeEl) {
+        userBadgeEl.textContent = isAuth ? 'مىس ئەزا (VIP)' : 'ئادەتتىكى زىيارەتچى';
+      }
+
+      // Logout button display
+      const logoutBtn = document.getElementById('accountLogoutBtnRow');
+      if (logoutBtn) {
+        logoutBtn.style.display = isAuth ? 'flex' : 'none';
+      }
+
+      const loginActionBtn = document.getElementById('accountLoginActionText');
+      if (loginActionBtn) {
+        loginActionBtn.textContent = isAuth ? 'ھېسابات ئۇچۇرىنى يېڭىلاش / باشقا ھېسابات' : 'ھېساباتقا كىرىش / تىزىملىتىش';
+      }
     }
 
     function updateBalanceUI() {
@@ -1435,6 +1467,8 @@
     function executeTelegramLogin() {
       if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user) {
         currentUser = window.Telegram.WebApp.initDataUnsafe.user;
+        localStorage.setItem('autocash_is_logged_in', 'true');
+        localStorage.setItem('autocash_user', JSON.stringify(currentUser));
         updateUserUI(currentUser);
         closeAuthModal();
         showFloatingToast('تېلېگرام بىلەن مۇۋەپپەقىيەتلىك كىردىڭىز ✓');
@@ -1450,7 +1484,9 @@
         return;
       }
       currentUser = { email: email, name: email.split('@')[0], id: getOrGenerateUserId() };
+      localStorage.setItem('autocash_is_logged_in', 'true');
       localStorage.setItem('autocash_user', JSON.stringify(currentUser));
+      localStorage.setItem('autocash_email', currentUser.email);
       updateUserUI(currentUser);
       closeAuthModal();
       showFloatingToast('خۇش كەپسىز، ' + currentUser.name + '! كىردىڭىز ✓');
@@ -1473,20 +1509,44 @@
         return;
       }
       currentUser = { username: u.replace(/^@/, ''), id: getOrGenerateUserId() };
+      localStorage.setItem('autocash_is_logged_in', 'true');
       localStorage.setItem('autocash_user', JSON.stringify(currentUser));
+      localStorage.setItem('autocash_username', currentUser.username);
       updateUserUI(currentUser);
       closeAuthModal();
       showFloatingToast('مۇۋەپپەقىيەتلىك كىردىڭىز ✓');
     }
 
     function handleLogout() {
+      const isAuth = !!currentUser || localStorage.getItem('autocash_is_logged_in') === 'true';
+      if (!isAuth) {
+        showFloatingToast('سىز تېخى ھېساباتقا كىرمىدىڭىز');
+        return;
+      }
       showCustomConfirm('ھېساباتتىن چىقسىڭىز قايتا كىرىشىڭىزگە توغرا كېلىدۇ. راستلا چىقامسىز؟', 'ھېساباتتىن چىقىش', () => {
+        // 1. Clear all local auth keys completely
+        localStorage.setItem('autocash_is_logged_in', 'false');
         localStorage.removeItem('autocash_user');
         localStorage.removeItem('autocash_tg_user');
+        localStorage.removeItem('autocash_username');
+        localStorage.removeItem('autocash_email');
+        localStorage.removeItem('autocash_userId');
+        localStorage.removeItem('autocash_avatar');
+        localStorage.removeItem('autocash_balance');
+
+        // 2. Invalidate server cookie / session
+        fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+
+        // 3. Reset in-memory state
         currentUser = null;
         userBalance = 0.00;
         updateBalanceUI();
-        location.reload();
+        updateUserUI(null);
+
+        showFloatingToast('ھېساباتتىن مۇۋەپپەقىيەتلىك چىقتىڭىز ✓');
+        setTimeout(() => {
+          switchTab('home');
+        }, 300);
       });
     }
 
