@@ -534,9 +534,10 @@
         <!-- User Identity Card (Matching Screenshot 4) -->
         <div class="app-card rounded-3xl p-4 space-y-3">
           <div class="flex items-center gap-3">
-            <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-purple-500 shadow-md bg-purple-100 dark:bg-slate-800 shrink-0">
-              <img id="accountUserAvatar" src="user_profile_avatar.png" alt="Profile" class="w-full h-full object-cover" onerror="this.src='/autocash_logo.jpg'"/>
+            <div onclick="handleAvatarClick()" class="w-14 h-14 rounded-full overflow-hidden border-2 border-purple-500 shadow-md bg-purple-100 dark:bg-slate-800 shrink-0 cursor-pointer hover:opacity-90 transition active:scale-95" title="باش رەسىم">
+              <img id="accountUserAvatar" src="/brand_logo.png" alt="Profile" class="w-full h-full object-cover" onerror="this.src='/autocash_logo.jpg'"/>
             </div>
+            <input type="file" id="userAvatarFileInput" accept="image/*" class="hidden" onchange="handleUserAvatarChange(event)"/>
             <div class="text-right leading-tight min-w-0">
               <h3 id="accountUserName" class="text-base font-black text-slate-900 dark:text-white truncate">مېھمان (كىرمىگەن)</h3>
               <p id="accountUserEmail" class="text-xs text-slate-400 font-mono truncate mt-0.5">ھېساباتقا كىرىش ئۈچۈن كىرىش كۇنۇپكىسىنى بېسىڭ</p>
@@ -1355,6 +1356,55 @@
       if (loginActionBtn) {
         loginActionBtn.textContent = isAuth ? 'ھېسابات ئۇچۇرىنى يېڭىلاش / باشقا ھېسابات' : 'ھېساباتقا كىرىش / تىزىملىتىش';
       }
+
+      // Avatar: When not logged in -> website logo (/brand_logo.png). When logged in -> customer's avatar/picture.
+      const avatarEl = document.getElementById('accountUserAvatar');
+      if (avatarEl) {
+        if (isAuth) {
+          const userPhoto = user?.photo_url || user?.picture || user?.avatarUrl || user?.avatar || localStorage.getItem('autocash_avatar') || 'user_profile_avatar.png';
+          avatarEl.src = userPhoto;
+          avatarEl.title = 'باش رەسىمنى ئالماشتۇرۇش ئۈچۈن چېكىڭ';
+        } else {
+          avatarEl.src = '/brand_logo.png';
+          avatarEl.title = 'ھېساباتقا كىرىش ئۈچۈن چېكىڭ';
+        }
+      }
+    }
+
+    function handleAvatarClick() {
+      const isAuth = !!currentUser || localStorage.getItem('autocash_is_logged_in') === 'true';
+      if (!isAuth) {
+        openAuthModal();
+      } else {
+        const fileInput = document.getElementById('userAvatarFileInput');
+        if (fileInput) fileInput.click();
+      }
+    }
+
+    function handleUserAvatarChange(e) {
+      const file = e.target?.files?.[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        showCustomAlert('پەقەت رەسىم ھۆججىتى تاللاشقا بولىدۇ!', 'خاتالىق', '⚠️');
+        return;
+      }
+      if (file.size > 3 * 1024 * 1024) {
+        showCustomAlert('رەسىم سىغىمى 3MB دىن كىچىك بولسۇن!', 'چوڭلۇقى يۇقىرى', '⚠️');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const base64 = evt.target.result;
+        localStorage.setItem('autocash_avatar', base64);
+        if (currentUser) {
+          currentUser.avatar = base64;
+          localStorage.setItem('autocash_user', JSON.stringify(currentUser));
+        }
+        const avatarEl = document.getElementById('accountUserAvatar');
+        if (avatarEl) avatarEl.src = base64;
+        showFloatingToast('باش رەسىمىڭىز مۇۋەپپەقىيەتلىك يېڭىلاندى ✓');
+      };
+      reader.readAsDataURL(file);
     }
 
     function updateBalanceUI() {
