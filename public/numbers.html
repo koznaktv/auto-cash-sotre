@@ -315,8 +315,10 @@
 
             <!-- 2-كاتىگورىيە: Wi-Fi كارتىلىرى (Wi-Fi Cards) -->
             <button type="button" onclick="switchMainServiceCategory('wifi')" id="mainCatBtnWifi" class="py-2 px-1 rounded-2xl transition-all text-center flex flex-col items-center justify-center gap-1.5 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 border border-transparent">
-              <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl overflow-hidden shadow-sm bg-slate-100 dark:bg-slate-800 p-0.5 shrink-0 flex items-center justify-center border border-slate-200/60 dark:border-slate-700/60 transition group-hover:scale-105">
-                <img src="https://i.ibb.co/5hTvgswd/45d4996b000fceb25ca23c6d65cca72d.jpg" alt="Wi-Fi كارتىلىرى" class="w-full h-full object-cover rounded-[13px]" onerror="this.src='/category_icon_wifi.jpg'"/>
+              <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl overflow-hidden shadow-sm bg-gradient-to-br from-blue-500/10 to-indigo-500/15 dark:bg-slate-800 p-0.5 shrink-0 flex items-center justify-center border border-blue-200/60 dark:border-blue-800/60 transition group-hover:scale-105">
+                <video id="wifiEmojiVideo" src="/wifi_emoji.webm" autoplay loop muted playsinline webkit-playsinline class="w-full h-full object-contain scale-125 pointer-events-none drop-shadow">
+                  <span class="text-2xl animate-pulse">📶</span>
+                </video>
               </div>
               <span class="text-[11px] sm:text-xs font-bold leading-tight text-center">Wi-Fi كارتىلىرى</span>
               <span class="text-[9px] text-slate-400 font-medium">سۈرىيە تور كارتىلىرى</span>
@@ -3016,6 +3018,22 @@
       if (btnNumbers) btnNumbers.className = cat === 'numbers' ? activeClass : inactiveClass;
       if (btnWifi) btnWifi.className = cat === 'wifi' ? activeClass : inactiveClass;
       if (btnTelecom) btnTelecom.className = cat === 'telecom' ? activeClass : inactiveClass;
+
+      // Icon box visual harmony
+      const boxNumbers = btnNumbers?.querySelector('div');
+      const boxWifi = btnWifi?.querySelector('div');
+      const boxTelecom = btnTelecom?.querySelector('div');
+
+      const activeBoxClass = 'w-11 h-11 sm:w-12 sm:h-12 rounded-2xl overflow-hidden shadow-md bg-white/20 p-0.5 shrink-0 flex items-center justify-center border border-white/30 transition scale-105';
+      const inactiveBoxClass = 'w-11 h-11 sm:w-12 sm:h-12 rounded-2xl overflow-hidden shadow-sm bg-slate-100 dark:bg-slate-800 p-0.5 shrink-0 flex items-center justify-center border border-slate-200/60 dark:border-slate-700/60 transition';
+
+      if (boxNumbers) boxNumbers.className = cat === 'numbers' ? activeBoxClass : inactiveBoxClass;
+      if (boxWifi) boxWifi.className = cat === 'wifi' ? activeBoxClass : inactiveBoxClass;
+      if (boxTelecom) boxTelecom.className = cat === 'telecom' ? activeBoxClass : inactiveBoxClass;
+
+      // Ensure animated video emoji keeps playing
+      const v = document.getElementById('wifiEmojiVideo');
+      if (v && v.paused) v.play().catch(() => {});
 
       const secNumbers = document.getElementById('categorySectionNumbers');
       const secWifi = document.getElementById('categorySectionWifi');
