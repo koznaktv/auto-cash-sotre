@@ -250,7 +250,7 @@
               <!-- Member ID in Balance Header -->
               <div onclick="copyUserId()" class="flex items-center gap-1 text-[9.5px] text-purple-200 font-mono cursor-pointer hover:text-amber-300 transition" title="ئەزا نومۇرى كۆچۈرۈش">
                 <span>ئەزا ID:</span>
-                <span id="headerUserIdBadge" class="font-bold underline decoration-purple-300/60">52123645</span>
+                <span id="headerUserIdBadge" class="font-bold underline decoration-purple-300/60">--</span>
                 <span>📋</span>
               </div>
             </div>
@@ -619,7 +619,7 @@
             <div class="text-left leading-tight">
               <p class="text-[10px] text-slate-400 font-bold">ئەزا نومۇرى</p>
               <div onclick="copyUserId()" class="flex items-center gap-1 justify-end cursor-pointer group" title="نۇسخىلاش">
-                <span id="accountUserId" class="font-mono font-black text-sm text-slate-800 dark:text-white group-hover:text-purple-600 transition">52123645</span>
+                <span id="accountUserId" class="font-mono font-black text-sm text-slate-800 dark:text-white group-hover:text-purple-600 transition">--</span>
                 <span class="text-purple-600 text-xs p-1">📋</span>
               </div>
             </div>
@@ -632,12 +632,12 @@
             <span class="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center text-sm font-bold shadow-md shadow-purple-600/30 group-hover:scale-110 transition shrink-0">📋</span>
             <div class="text-right leading-tight">
               <span class="text-xs font-black text-slate-900 dark:text-white block group-hover:text-purple-600 transition">ئەزا نومۇرى:</span>
-              <span class="text-[10px] text-purple-600 dark:text-purple-300 font-bold">ھەربىر يېڭى خېرىدارغا خاس كود • بىرنى بېسىپلا كۆچۈرۈش</span>
+              <span id="accountUidSubtitle" class="text-[10px] text-purple-600 dark:text-purple-300 font-bold">ھېساباتقا كىرگەندە سىزگە خاس ئەزا نومۇرى بېرىلىدۇ</span>
             </div>
           </div>
           <div class="flex items-center gap-2 shrink-0">
-            <span id="accountUserIdProminent" class="font-mono font-black text-base sm:text-lg text-purple-900 dark:text-amber-300 tracking-wider">52123645</span>
-            <span id="copyUidBadge" class="text-[10px] bg-purple-600 hover:bg-purple-700 text-white font-black px-2.5 py-1 rounded-xl shadow-sm transition">كۆچۈرۈش</span>
+            <span id="accountUserIdProminent" class="font-mono font-black text-base sm:text-lg text-purple-900 dark:text-amber-300 tracking-wider">--</span>
+            <span id="copyUidBadge" class="text-[10px] bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black px-2.5 py-1 rounded-xl shadow-sm transition">كىرىش</span>
           </div>
         </div>
 
@@ -1239,15 +1239,12 @@
       showCustomAlert(msg);
     };
 
-    // --- Member ID Generator for ALL New Customers ---
+    // --- Member ID Resolution (Only for Authenticated Users) ---
     function getOrGenerateUserId() {
-      let uid = localStorage.getItem('autocash_uid');
-      if (!uid) {
-        // Generate an 8-digit unique ID (e.g. 52123645)
-        uid = String(Math.floor(10000000 + Math.random() * 90000000));
-        localStorage.setItem('autocash_uid', uid);
-      }
-      return uid;
+      const isAuth = !!currentUser && localStorage.getItem('autocash_is_logged_in') === 'true';
+      if (!isAuth) return '';
+      let uid = currentUser?.id || currentUser?.userId || localStorage.getItem('autocash_userId') || localStorage.getItem('autocash_uid');
+      return uid ? String(uid) : '';
     }
 
     // --- Theme Control (Light / Dark / Auto) ---
@@ -1367,9 +1364,11 @@
             }
           } catch(_) {}
 
-          // GUEST / NOT LOGGED IN
+          // GUEST / NOT LOGGED IN - Strictly do NOT assign or show Member ID
           currentUser = null;
           userBalance = 0.00;
+          localStorage.removeItem('autocash_uid');
+          localStorage.removeItem('autocash_userId');
           updateUserUI(null);
           updateBalanceUI();
         }
@@ -1383,9 +1382,8 @@
     }
 
     function updateUserUI(user) {
-      const persistentUid = getOrGenerateUserId();
-      const uid = user?.id || persistentUid;
-      const isAuth = !!user;
+      const isAuth = !!user && localStorage.getItem('autocash_is_logged_in') === 'true';
+      const uid = isAuth ? (user?.id || user?.userId || user?.telegramId || localStorage.getItem('autocash_userId') || '') : '';
 
       // Name & Email
       const name = isAuth ? (user.first_name || user.name || user.username || 'ئەزا') : 'مېھمان (كىرمىگەن)';
@@ -1400,15 +1398,33 @@
       const infoEmail = document.getElementById('accountInfoEmail');
       if (infoEmail) infoEmail.textContent = email;
 
-      // Update UID in all spots
+      // Update UID in all spots: When not logged in, STRICTLY display '--' (no ID given)
       const uidEl = document.getElementById('accountUserId');
-      if (uidEl) uidEl.textContent = String(uid);
+      if (uidEl) uidEl.textContent = isAuth && uid ? String(uid) : '--';
 
       const uidProminent = document.getElementById('accountUserIdProminent');
-      if (uidProminent) uidProminent.textContent = String(uid);
+      if (uidProminent) uidProminent.textContent = isAuth && uid ? String(uid) : '--';
 
       const headerUid = document.getElementById('headerUserIdBadge');
-      if (headerUid) headerUid.textContent = String(uid);
+      if (headerUid) headerUid.textContent = isAuth && uid ? String(uid) : '--';
+
+      const uidSubtitle = document.getElementById('accountUidSubtitle');
+      if (uidSubtitle) {
+        uidSubtitle.textContent = isAuth
+          ? 'ھەربىر يېڭى خېرىدارغا خاس كود • بىرنى بېسىپلا كۆچۈرۈش'
+          : 'ھېساباتقا كىرگەندە سىزگە خاس ئەزا نومۇرى بېرىلىدۇ';
+      }
+
+      const copyBadge = document.getElementById('copyUidBadge');
+      if (copyBadge) {
+        if (isAuth) {
+          copyBadge.textContent = 'كۆچۈرۈش';
+          copyBadge.className = 'text-[10px] bg-purple-600 hover:bg-purple-700 text-white font-black px-2.5 py-1 rounded-xl shadow-sm transition';
+        } else {
+          copyBadge.textContent = 'كىرىش';
+          copyBadge.className = 'text-[10px] bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black px-2.5 py-1 rounded-xl shadow-sm transition';
+        }
+      }
 
       // Header User Status Tag & Dot
       const statusTag = document.getElementById('headerUserStatusTag');
