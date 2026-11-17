@@ -959,8 +959,64 @@ export function buildTelegramReportCaption(data: FinancialReportData): string {
 #مالىيە_دوكلاتى #${isWeekly ? 'ھەپتىلىك' : 'كۈنلۈك'}`;
 }
 
+const REPORTS_LOG_FILE = path.join(MICRO_APPS_DIR, 'financial_reports_log.json');
+const BUNDLED_REPORTS_LOG_FILE = path.join(BUNDLED_MICRO_APPS_DIR, 'financial_reports_log.json');
+
+export interface ReportLogItem {
+  id: string; // e.g. "daily_2026-11-17"
+  period: 'daily' | 'weekly';
+  dateStr: string;
+  filename: string;
+  sentAt: string;
+  messageId?: number;
+  channel: string;
+  status: 'sent' | 'failed' | 'skipped';
+  error?: string;
+}
+
+export function getReportsLog(): Record<string, ReportLogItem> {
+  const paths = [REPORTS_LOG_FILE, BUNDLED_REPORTS_LOG_FILE];
+  for (const p of paths) {
+    try {
+      if (fs.existsSync(p)) {
+        return JSON.parse(fs.readFileSync(p, 'utf-8'));
+      }
+    } catch {}
+  }
+  return {};
+}
+
+export function recordReportLog(item: ReportLogItem) {
+  try {
+    const log = getReportsLog();
+    log[item.id] = item;
+    if (!fs.existsSync(MICRO_APPS_DIR)) {
+      try {
+        fs.mkdirSync(MICRO_APPS_DIR, { recursive: true });
+      } catch {}
+    }
+    fs.writeFileSync(REPORTS_LOG_FILE, JSON.stringify(log, null, 2), 'utf-8');
+  } catch (e) {
+    console.warn('[financialReport] recordReportLog error:', e);
+  }
+}
+
 /**
- * Sends the generated PDF report to the specified Telegram channel (@autocashkirim).
+ * Formats standardized report filename strictly matching:
+ * AUTO_CASH_DAILY_REPORT_YYYY-MM-DD.pdf
+ * AUTO_CASH_WEEKLY_REPORT_YYYY-MM-DD.pdf
+ */
+export function getStandardReportFilename(period: 'daily' | 'weekly', dateStr: string): string {
+  // Normalize date string to YYYY-MM-DD (or YYYY-MM-DD_YYYY-MM-DD for range)
+  const clean = (dateStr || '').trim().replace(/[^0-9A-Za-z_-]+/g, '_').replace(/^_+|_+$/g, '');
+  return period === 'weekly'
+    ? `AUTO_CASH_WEEKLY_REPORT_${clean}.pdf`
+    : `AUTO_CASH_DAILY_REPORT_${clean}.pdf`;
+}
+
+/**
+ * Sends the generated PDF report to the specified Telegram channel (@autocashkirim)
+ * with automatic exponential-backoff retry (up to 3 attempts).
  */
 export async function sendFinancialReportToTelegram(
   pdfBuffer: Buffer,
@@ -968,52 +1024,79 @@ export async function sendFinancialReportToTelegram(
   targetChatId = '@autocashkirim'
 ): Promise<{ success: boolean; messageId?: number; error?: string }> {
   const token = process.env.TELEGRAM_BOT_TOKEN || '8886426395:AAHTtOA5ilIoNUfmcfVf44mCK6gJo7gjhd0';
-  const filename = `${reportData.period === 'weekly' ? 'Weekly' : 'Daily'}_Financial_Report_${reportData.dateRangeStr.replace(/\s+/g, '_')}.pdf`;
+  const filename = getStandardReportFilename(reportData.period, reportData.dateRangeStr);
   const caption = buildTelegramReportCaption(reportData);
 
-  try {
-    const formData = new FormData();
-    formData.append('chat_id', targetChatId);
-    formData.append('caption', caption);
-    formData.append('parse_mode', 'HTML');
-    formData.append('document', new Blob([new Uint8Array(pdfBuffer)], { type: 'application/pdf' }), filename);
+  let lastError: string = '';
 
-    const res = await fetch(`https://api.telegram.org/bot${token}/sendDocument`, {
-      method: 'POST',
-      body: formData,
-    });
+  // Retry up to 3 attempts with progressive delay (0s, 2s, 4s)
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const formData = new FormData();
+      formData.append('chat_id', targetChatId);
+      formData.append('caption', caption);
+      formData.append('parse_mode', 'HTML');
+      formData.append('document', new Blob([new Uint8Array(pdfBuffer)], { type: 'application/pdf' }), filename);
 
-    const result = await res.json();
-    if (!result.ok) {
-      console.error('[sendFinancialReportToTelegram] Telegram error:', result);
-      return { success: false, error: result.description || 'Failed to send to Telegram' };
+      const res = await fetch(`https://api.telegram.org/bot${token}/sendDocument`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await res.json();
+      if (result.ok && result.result?.message_id) {
+        return { success: true, messageId: result.result.message_id };
+      }
+
+      lastError = result.description || 'Unknown Telegram Error';
+      console.warn(`[sendFinancialReportToTelegram] Attempt ${attempt} failed: ${lastError}`);
+    } catch (err: any) {
+      lastError = err?.message || 'Network exception';
+      console.warn(`[sendFinancialReportToTelegram] Attempt ${attempt} exception: ${lastError}`);
     }
 
-    return { success: true, messageId: result.result?.message_id };
-  } catch (err: any) {
-    console.error('[sendFinancialReportToTelegram] Exception:', err);
-    return { success: false, error: err?.message || 'Network exception' };
+    if (attempt < 3) {
+      await new Promise((resolve) => setTimeout(resolve, attempt * 2000));
+    }
   }
+
+  // If all 3 attempts fail, send alert to Admin Telegram
+  try {
+    const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID || 'autocash_UYGHUR';
+    const alertMsg = `⚠️ <b>مالىيە دوكلاتى يوللاش مەغلۇپ بولدى!</b>\n\nھۆججەت: <code>${filename}</code>\nقانال: <code>${targetChatId}</code>\nخاتالىق: <i>${lastError}</i>\n\nتەكشۈرۈپ بېقىڭ!`;
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: adminChatId, text: alertMsg, parse_mode: 'HTML' }),
+    });
+  } catch {}
+
+  return { success: false, error: lastError };
 }
 
 /**
  * High-level orchestration function to generate and dispatch the financial report.
  * Automatically handles Friday weekly trigger if requested.
+ * Strictly prevents duplicate sends for the same period unless forceSend: true.
  */
 export async function runFinancialReportCron(options?: {
   period?: 'daily' | 'weekly';
   forceWeekly?: boolean;
+  forceSend?: boolean;
   targetChatId?: string;
   referenceDate?: Date;
 }): Promise<{
   dailySent?: boolean;
   weeklySent?: boolean;
+  dailySkipped?: boolean;
+  weeklySkipped?: boolean;
   dailyMessageId?: number;
   weeklyMessageId?: number;
   errors: string[];
 }> {
   const targetChat = options?.targetChatId || '@autocashkirim';
   const refDate = options?.referenceDate || new Date();
+  const forceSend = Boolean(options?.forceSend);
   const errors: string[] = [];
 
   // Determine local day of week in UTC+3 (0=Sun, 1=Mon, ..., 5=Fri, 6=Sat)
@@ -1023,40 +1106,100 @@ export async function runFinancialReportCron(options?: {
 
   let dailySent = false;
   let weeklySent = false;
+  let dailySkipped = false;
+  let weeklySkipped = false;
   let dailyMessageId: number | undefined;
   let weeklyMessageId: number | undefined;
 
   const shouldRunDaily = options?.period !== 'weekly';
   const shouldRunWeekly = options?.period === 'weekly' || options?.forceWeekly || isFriday;
 
+  const existingLogs = getReportsLog();
+
   // 1. Generate & Send Daily Report
   if (shouldRunDaily) {
     try {
       const dailyData = await fetchFinancialData('daily', refDate);
-      const dailyPdf = await generateFinancialPdf(dailyData);
-      const sendRes = await sendFinancialReportToTelegram(dailyPdf, dailyData, targetChat);
-      if (sendRes.success) {
-        dailySent = true;
-        dailyMessageId = sendRes.messageId;
+      const dailyKey = `daily_${dailyData.dateRangeStr}`;
+      const filename = getStandardReportFilename('daily', dailyData.dateRangeStr);
+
+      if (!forceSend && existingLogs[dailyKey] && existingLogs[dailyKey].status === 'sent') {
+        dailySkipped = true;
+        dailyMessageId = existingLogs[dailyKey].messageId;
       } else {
-        errors.push(`Daily report failed: ${sendRes.error}`);
+        const dailyPdf = await generateFinancialPdf(dailyData);
+        const sendRes = await sendFinancialReportToTelegram(dailyPdf, dailyData, targetChat);
+        if (sendRes.success) {
+          dailySent = true;
+          dailyMessageId = sendRes.messageId;
+          recordReportLog({
+            id: dailyKey,
+            period: 'daily',
+            dateStr: dailyData.dateRangeStr,
+            filename,
+            sentAt: new Date().toISOString(),
+            messageId: sendRes.messageId,
+            channel: targetChat,
+            status: 'sent',
+          });
+        } else {
+          errors.push(`Daily report failed: ${sendRes.error}`);
+          recordReportLog({
+            id: dailyKey,
+            period: 'daily',
+            dateStr: dailyData.dateRangeStr,
+            filename,
+            sentAt: new Date().toISOString(),
+            channel: targetChat,
+            status: 'failed',
+            error: sendRes.error,
+          });
+        }
       }
     } catch (e: any) {
       errors.push(`Daily report exception: ${e?.message}`);
     }
   }
 
-  // 2. Generate & Send Weekly Report (Every Friday, or when forced)
+  // 2. Generate & Send Weekly Report (Every Friday at 12:00, or when forced)
   if (shouldRunWeekly) {
     try {
       const weeklyData = await fetchFinancialData('weekly', refDate);
-      const weeklyPdf = await generateFinancialPdf(weeklyData);
-      const sendRes = await sendFinancialReportToTelegram(weeklyPdf, weeklyData, targetChat);
-      if (sendRes.success) {
-        weeklySent = true;
-        weeklyMessageId = sendRes.messageId;
+      const weeklyKey = `weekly_${weeklyData.dateRangeStr}`;
+      const filename = getStandardReportFilename('weekly', weeklyData.dateRangeStr);
+
+      if (!forceSend && existingLogs[weeklyKey] && existingLogs[weeklyKey].status === 'sent') {
+        weeklySkipped = true;
+        weeklyMessageId = existingLogs[weeklyKey].messageId;
       } else {
-        errors.push(`Weekly report failed: ${sendRes.error}`);
+        const weeklyPdf = await generateFinancialPdf(weeklyData);
+        const sendRes = await sendFinancialReportToTelegram(weeklyPdf, weeklyData, targetChat);
+        if (sendRes.success) {
+          weeklySent = true;
+          weeklyMessageId = sendRes.messageId;
+          recordReportLog({
+            id: weeklyKey,
+            period: 'weekly',
+            dateStr: weeklyData.dateRangeStr,
+            filename,
+            sentAt: new Date().toISOString(),
+            messageId: sendRes.messageId,
+            channel: targetChat,
+            status: 'sent',
+          });
+        } else {
+          errors.push(`Weekly report failed: ${sendRes.error}`);
+          recordReportLog({
+            id: weeklyKey,
+            period: 'weekly',
+            dateStr: weeklyData.dateRangeStr,
+            filename,
+            sentAt: new Date().toISOString(),
+            channel: targetChat,
+            status: 'failed',
+            error: sendRes.error,
+          });
+        }
       }
     } catch (e: any) {
       errors.push(`Weekly report exception: ${e?.message}`);
@@ -1066,6 +1209,8 @@ export async function runFinancialReportCron(options?: {
   return {
     dailySent,
     weeklySent,
+    dailySkipped,
+    weeklySkipped,
     dailyMessageId,
     weeklyMessageId,
     errors,

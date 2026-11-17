@@ -1,5 +1,6 @@
 {
   "crons": [
+    { "path": "/api/cron/financial-report", "schedule": "0 9 * * *" },
     { "path": "/api/cron/sync-catalog", "schedule": "0 3 * * *" }
   ]
 }

@@ -13,7 +13,9 @@ import AdminWifiInventory from '@/components/admin/AdminWifiInventory';
 import AdminPromotionsManager from '@/components/admin/AdminPromotionsManager';
 import AdminPricingManager from '@/components/admin/AdminPricingManager';
 import AdminMaxbazarManager from '@/components/admin/AdminMaxbazarManager';
+import { CentralCommerceManager } from '@/components/admin/CentralCommerceManager';
 import {
+  Building2,
   LayoutDashboard,
   Flame,
   ShoppingBag,
@@ -271,7 +273,7 @@ export default function AdminPage() {
 
   // Navigation tab
   const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'orders' | 'pricing' | 'maxbazar' | 'provider' | 'sms' | 'promotions' | 'banners' | 'deposits' | 'users' | 'finance' | 'settings' | 'wifi'
+    'dashboard' | 'central_commerce' | 'orders' | 'pricing' | 'maxbazar' | 'provider' | 'sms' | 'promotions' | 'banners' | 'deposits' | 'users' | 'finance' | 'settings' | 'wifi'
   >('dashboard');
 
   // Main Data States
@@ -3440,6 +3442,18 @@ export default function AdminPage() {
           <nav className="p-3 space-y-3 text-xs overflow-y-auto max-h-[calc(100vh-190px)] scrollbar-none">
             {[
               {
+                group: '🏛️ مەركىزى سودا & مالىيە سىستېمىسى',
+                items: [
+                  {
+                    id: 'central_commerce',
+                    label: '🏛️ AUTO CASH & MAX BAZAR مەركىزى',
+                    icon: Building2,
+                    badge: '13 بۆلەك',
+                    badgeColor: 'bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black',
+                  },
+                ],
+              },
+              {
                 group: 'ئاساسىي مەركەز',
                 items: [
                   { id: 'dashboard', label: 'باش تاختا (Dashboard)', icon: LayoutDashboard },
@@ -3500,7 +3514,7 @@ export default function AdminPage() {
                         <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400 dark:text-slate-400'}`} />
                         <span>{item.label}</span>
                       </div>
-                      {item.badge !== undefined && item.badge > 0 && (
+                      {item.badge !== undefined && (typeof item.badge === 'number' ? item.badge > 0 : Boolean(item.badge)) && (
                         <span
                           className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
                             item.badgeColor || (isActive ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200')
@@ -3556,6 +3570,7 @@ export default function AdminPage() {
               <Menu className="w-5 h-5" />
             </button>
             <h2 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+              {activeTab === 'central_commerce' && '🏛️ AUTO CASH ۋە MAX BAZAR مەركىزى سودا ۋە مالىيە باشقۇرۇش سىستېمىسى'}
               {activeTab === 'dashboard' && '📊 باش تاختا كۆرسەتكۈچلىرى'}
               {activeTab === 'maxbazar' && '📱 MAX-BAZAR ئەپلەر ۋە زاكازلارنى باشقۇرۇش مەركىزى'}
               {activeTab === 'pricing' && '💰 باھا ۋە ساپ پايدا باشقۇرۇش مەركىزى'}
@@ -3636,9 +3651,43 @@ export default function AdminPage() {
 
         {/* Dynamic Tab Content */}
         <main className="p-4 sm:p-6 space-y-6 flex-1 max-w-7xl w-full mx-auto">
+          {/* ================= TAB 0: CENTRAL COMMERCE & FINANCIAL MANAGEMENT ================= */}
+          {activeTab === 'central_commerce' && (
+            <CentralCommerceManager />
+          )}
+
           {/* ================= TAB 1: DASHBOARD OVERVIEW ================= */}
           {activeTab === 'dashboard' && (
             <div className="space-y-6 animate-in fade-in duration-300">
+              {/* Quick Central Commerce Jump Banner */}
+              <div
+                onClick={() => setActiveTab('central_commerce')}
+                className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-emerald-500/15 border border-amber-500/40 hover:border-amber-400 shadow-md flex items-center justify-between gap-3 cursor-pointer transition active:scale-[0.99] select-none"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center text-slate-950 font-black shrink-0 shadow-md shadow-amber-500/20">
+                    <Building2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-black text-sm text-white font-alkatip">
+                        🏛️ AUTO CASH ۋە MAX BAZAR مەركىزى سودا ۋە مالىيە باشقۇرۇش مەركىزى
+                      </h4>
+                      <span className="px-2 py-0.2 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black">
+                        يېڭى 13 بۆلەك
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-300 mt-0.5 font-alkatip">
+                      ھەقىقىي شامكەش كىرىمى، تەمىنلىگۈچى تەننەرخى، ساپ پايدا، خېرىدارلار ۋە زاكازلارنىڭ بىرلىككە كەلگەن مەركىزى
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 text-xs font-black text-amber-400 shrink-0">
+                  <span>بىۋاسىتە كىرىش</span>
+                  <ChevronLeft className="w-4 h-4" />
+                </div>
+              </div>
+
               {/* Header with refresh and reset buttons */}
               <div className="flex items-center justify-between gap-3 pb-1">
                 <div className="flex items-center gap-2">
