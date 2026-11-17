@@ -525,24 +525,24 @@
         <!-- ================= END CATEGORY 1: VIRTUAL NUMBERS WRAPPER ================= -->
 
         <!-- ================= CATEGORY 2: WI-FI CARDS WRAPPER ================= -->
-        <div id="categorySectionWifi" class="space-y-3 hidden">
+        <div id="categorySectionWifi" class="space-y-3.5 hidden">
           <!-- Section Title & Network Badge -->
           <div class="flex items-center justify-between px-1">
-            <div class="flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
               <h2 class="text-sm font-black text-slate-900 dark:text-white tracking-tight">سۈرىيە Wi-Fi تور كارتىلىرى</h2>
             </div>
-            <span class="text-[10px] font-black text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+            <span class="text-[10px] font-black text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
               <span id="selectedNetworkBadge">ئەزىز نىت (Azez Net)</span>
             </span>
           </div>
 
           <!-- Network Selector Heading -->
-          <div class="bg-white/90 dark:bg-slate-900/90 p-3 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-2">
+          <div class="bg-white/95 dark:bg-slate-900/95 p-3 sm:p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-2.5">
             <div class="flex items-center justify-between text-xs">
-              <span class="font-bold text-slate-700 dark:text-slate-300">تور لىنىيىسىنى تاللاڭ (اختر الشبكة):</span>
-              <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">كارتىلار ئاپتوماتىك تارقىتىلىدۇ ⚡</span>
+              <span class="font-bold text-slate-800 dark:text-slate-200">تور لىنىيىسىنى تاللاڭ:</span>
+              <span class="text-[10.5px] text-emerald-600 dark:text-emerald-400 font-bold">كارتىلار سىستېمىدىن ئاپتوماتىك تەمىنلىنىدۇ ⚡</span>
             </div>
             <!-- Wi-Fi Network Tabs Grid -->
             <div id="wifiNetworkTabsContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -553,57 +553,57 @@
           <!-- Packages Grid Title -->
           <div class="flex items-center justify-between px-1 pt-1">
             <h3 class="text-xs font-black text-slate-800 dark:text-slate-200">سېتىلىۋاتقان كارتىلار (الباقات المتوفرة)</h3>
-            <span class="text-[10px] text-slate-400 font-medium">سېتىۋالسىڭىزلا نومۇرى ۋە مەخپىي نۇمۇرى دەرھال چىقىدۇ</span>
+            <span class="text-[10.5px] text-slate-500 dark:text-slate-400 font-medium">سېتىۋالسىڭىزلا نومۇرى ۋە مەخپىي نومۇرى دەرھال چىقىدۇ</span>
           </div>
 
           <!-- Wi-Fi Packages Grid -->
-          <div id="wifiPackagesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div id="wifiPackagesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <!-- Rendered via renderWifiCardsUI() -->
           </div>
 
           <!-- Wi-Fi Guarantee Info Banner -->
-          <div class="rounded-2xl p-3 bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-500/20 flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 text-lg">
+          <div class="rounded-2xl p-3.5 bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-500/20 flex items-center gap-3 shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 text-xl">
               🛡️
             </div>
-            <div class="text-right leading-tight">
-              <h4 class="text-xs font-black text-slate-900 dark:text-white">100% كاپالەتلىك ۋە رەسمىي Wi-Fi تەمىناتى</h4>
-              <p class="text-[10.5px] text-slate-500 dark:text-slate-400 mt-0.5">كارتا سېتىۋالغاندىن كېيىن نومۇر ۋە مەخپىي نۇمۇرى دەرھال رەسىم شەكلىدە ئېكراندا چىقىدۇ ھەم زاكاز تىزىملىكىڭىزگە ساقلىنىدۇ.</p>
+            <div class="text-right leading-relaxed">
+              <h4 class="text-xs font-black text-slate-900 dark:text-white">100% كاپالەتلىك رەسمىي Wi-Fi تەمىناتى</h4>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">كارتا سېتىۋالغاندىن كېيىن نومۇر ۋە مەخپىي نۇمۇرى دەرھال رەسىم شەكلىدە ئېكراندا چىقىدۇ ھەم زاكاز تىزىملىكىڭىزگە ساقلىنىدۇ.</p>
             </div>
           </div>
         </div>
 
         <!-- ================= CATEGORY 3: TELECOM RECHARGE WRAPPER (SYRIATEL & MTN) ================= -->
-        <div id="categorySectionTelecom" class="space-y-3 hidden">
+        <div id="categorySectionTelecom" class="space-y-3.5 hidden">
           <!-- Section Title -->
           <div class="flex items-center justify-between px-1">
-            <div class="flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-rose-500 animate-pulse"></span>
               <h2 class="text-sm font-black text-slate-900 dark:text-white tracking-tight">كارتىلارغا پۇل ۋە تور قاچىلاش</h2>
             </div>
-            <span class="text-[10px] font-black text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+            <span class="text-[10px] font-black text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
               <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
               <span>سۈريەتىل • ئىمتىئىن (Syria)</span>
             </span>
           </div>
 
           <!-- Operator Selector Buttons (Syriatel vs MTN) -->
-          <div class="grid grid-cols-2 gap-2">
-            <button id="telecomOpBtnSyriatel" onclick="selectTelecomOperator('syriatel')" type="button" class="py-2.5 px-3 rounded-2xl border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 font-black text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95 cursor-pointer">
-              <span class="w-3 h-3 rounded-full bg-rose-600"></span>
+          <div class="grid grid-cols-2 gap-2.5">
+            <button id="telecomOpBtnSyriatel" onclick="selectTelecomOperator('syriatel')" type="button" class="py-3 px-3 rounded-2xl border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 font-black text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95 cursor-pointer">
+              <span class="w-3.5 h-3.5 rounded-full bg-rose-600"></span>
               <span>سۈريەتىل (Syriatel)</span>
             </button>
-            <button id="telecomOpBtnMtn" onclick="selectTelecomOperator('mtn')" type="button" class="py-2.5 px-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-amber-400 font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95 cursor-pointer">
-              <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+            <button id="telecomOpBtnMtn" onclick="selectTelecomOperator('mtn')" type="button" class="py-3 px-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-amber-400 font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95 cursor-pointer">
+              <span class="w-3.5 h-3.5 rounded-full bg-amber-500"></span>
               <span>ئىمتىئىن (MTN Syria)</span>
             </button>
           </div>
 
           <!-- Phone Number Input Section -->
-          <div class="bg-white/90 dark:bg-slate-900/90 p-3 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-2">
+          <div class="bg-white/95 dark:bg-slate-900/95 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-2">
             <div class="flex items-center justify-between text-xs">
-              <label for="telecomPhoneInput" class="font-bold text-slate-700 dark:text-slate-300">سۈرىيە تېلېفون نومۇرى (رقم الهاتف):</label>
-              <span class="text-[10px] text-slate-400 font-mono">09xxxxxxxx (10 خانىلىق)</span>
+              <label for="telecomPhoneInput" class="font-bold text-slate-800 dark:text-slate-200">سۈرىيە تېلېفون نومۇرى (رقم الهاتف):</label>
+              <span class="text-[10.5px] text-slate-400 font-mono">09xxxxxxxx (10 خانىلىق)</span>
             </div>
             <div class="relative">
               <input 
@@ -612,19 +612,19 @@
                 dir="ltr" 
                 maxlength="10" 
                 placeholder="0933123456" 
-                class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm font-mono text-slate-800 dark:text-slate-100 placeholder-slate-400 shadow-inner focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-900/40 transition text-center tracking-widest font-black"
+                class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-mono text-slate-800 dark:text-slate-100 placeholder-slate-400 shadow-inner focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-900/40 transition text-center tracking-widest font-black"
               />
-              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-400 font-bold">SYR</span>
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-400 font-bold">SYR</span>
             </div>
-            <p class="text-[10px] text-slate-400 text-right">⚠️ نومۇرنى توغرا كىرگۈزۈڭ، پۇل سېلىنغاندىن كېيىن سۈرىيە تەمىنات مەركىزى ئارقىلىق ئاپتوماتىك قاچىلىنىدۇ.</p>
+            <p class="text-[10.5px] text-slate-400 text-right">⚠️ نومۇرنى توغرا كىرگۈزۈڭ، سېستىما تەمىنات مەركىزى ئارقىلىق بىۋاسىتە قاچىلايدۇ.</p>
           </div>
 
           <!-- Service Type Selector (Credit vs Monthly Bundle) -->
           <div class="p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl flex items-center gap-1 text-xs">
-            <button id="telecomTypeBtnCredit" onclick="switchTelecomType('credit')" type="button" class="flex-1 py-2 rounded-xl bg-white dark:bg-slate-800 text-purple-700 dark:text-white shadow font-black transition cursor-pointer">
+            <button id="telecomTypeBtnCredit" onclick="switchTelecomType('credit')" type="button" class="flex-1 py-2.5 rounded-xl bg-white dark:bg-slate-800 text-purple-700 dark:text-white shadow font-black transition cursor-pointer">
               💰 قالدۇق قاچىلاش (رصيد كاشباك)
             </button>
-            <button id="telecomTypeBtnBundle" onclick="switchTelecomType('bundle')" type="button" class="flex-1 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-white transition font-bold cursor-pointer">
+            <button id="telecomTypeBtnBundle" onclick="switchTelecomType('bundle')" type="button" class="flex-1 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-white transition font-bold cursor-pointer">
               🌐 ئايلىق تور بوغچىسى (باقات إنترنت)
             </button>
           </div>
@@ -632,11 +632,11 @@
           <!-- Packages Grid Title -->
           <div class="flex items-center justify-between px-1 pt-1">
             <h3 class="text-xs font-black text-slate-800 dark:text-slate-200">تاللاشقا بولىدىغان بولاقلار</h3>
-            <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">⚡ دەرھال ھېساباتقا ئۆتىدۇ</span>
+            <span class="text-[10.5px] text-emerald-600 dark:text-emerald-400 font-bold">⚡ دەرھال ھېساباتقا ئۆتىدۇ</span>
           </div>
 
           <!-- Telecom Packages Grid -->
-          <div id="telecomPackagesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div id="telecomPackagesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <!-- Rendered via renderTelecomUI() -->
           </div>
         </div>
@@ -1201,6 +1201,7 @@
       preloadTelegramAuthSession();
       loadSavedOrders();
       await fetchLiveCatalog();
+      fetchWifiAndTelecomCatalog(false);
     });
 
     // --- Custom In-App Modal Dialog System (Overrides Native Alert & Confirm) ---
@@ -3043,6 +3044,13 @@
     let activeTelecomType = 'credit'; // 'credit' | 'bundle'
     let activeVoucherCardData = null;
 
+    let LIVE_WIFI_SERVICES = [];
+    let LIVE_TELECOM = {
+      syriatel: { serviceId: 'othman_syriatel', serviceName: 'Syriatel سۈريەتىل', creditPackages: [], bundlePackages: [] },
+      mtn: { serviceId: 'othman_mtn', serviceName: 'MTN سۈرىيە', creditPackages: [], bundlePackages: [] }
+    };
+    let isFetchingWifiCatalog = false;
+
     function saveOrdersToStorage() {
       try {
         localStorage.setItem('autocash_sms_orders', JSON.stringify(ordersList));
@@ -3051,133 +3059,40 @@
       }
     }
 
-    // --- Wi-Fi Networks & Packages Data (Matching Main Website) ---
-    const WIFI_NETWORKS = [
-      {
-        id: 'azez_net',
-        name: 'ئەزىز نىت (Azez Net)',
-        nameAr: 'شبكة عزيز نت',
-        nameEn: 'AZEZ . NET',
-        badge: '⚡ تېز سۈرئەتلىك Wi-Fi',
-        desc: 'ئەزىز ۋە ئەتراپىدىكى رايونلارغا خاس سىمسىز تېز تور كارتىلىرى',
-        icon: '📶',
-        packages: [
-          { id: 'azez_6gb', title: '6 جيجا 7 كۈنلۈك (1 أجهزة)', titleEn: '6GB 7 Days', price: 0.45, originalPrice: 0.50, duration: '7 كۈن (7 Days)', gb: '6 GB', popular: false },
-          { id: 'azez_4gb', title: '4 جيجا 7 كۈنلۈك (4GB 7 Days)', titleEn: '4GB 7 Days', price: 0.34, originalPrice: 0.40, duration: '7 كۈن (7 Days)', gb: '4 GB', popular: true },
-          { id: 'azez_2gb', title: '2 جيجا 5 كۈنلۈك (2GB 5 Days)', titleEn: '2GB 5 Days', price: 0.23, originalPrice: 0.28, duration: '5 كۈن (5 Days)', gb: '2 GB', popular: false },
-          { id: 'azez_1gb', title: '1 جيجا 3 كۈنلۈك (1GB 3 Days)', titleEn: '1GB 3 Days', price: 0.12, originalPrice: 0.15, duration: '3 كۈن (3 Days)', gb: '1 GB', popular: false }
-        ]
-      },
-      {
-        id: 'fursan_kafraya',
-        name: 'فۇرسان نىت (كەفەريا) - Fursan Net',
-        nameAr: 'شبكة الفرسان (كفريا)',
-        nameEn: 'FURSAN NET KAFRAYA',
-        badge: '⚡ كفريا رايونى',
-        desc: 'كەفەريا رايونىدىكى ئەڭ مۇقىم ۋە سۈزۈك سىمسىز تور كارتىلىرى',
-        icon: '📶',
-        packages: [
-          { id: 'fursan_kf_6gb', title: '6 جيجا 7 كۈنلۈك (6GB 7 Days)', titleEn: '6GB 7 Days', price: 0.45, originalPrice: 0.50, duration: '7 كۈن (7 Days)', gb: '6 GB', popular: false },
-          { id: 'fursan_kf_4gb', title: '4 جيجا 7 كۈنلۈك (4GB 7 Days)', titleEn: '4GB 7 Days', price: 0.34, originalPrice: 0.40, duration: '7 كۈن (7 Days)', gb: '4 GB', popular: true },
-          { id: 'fursan_kf_2gb', title: '2 جيجا 5 كۈنلۈك (2GB 5 Days)', titleEn: '2GB 5 Days', price: 0.23, originalPrice: 0.28, duration: '5 كۈن (5 Days)', gb: '2 GB', popular: false },
-          { id: 'fursan_kf_1gb', title: '1 جيجا 3 كۈنلۈك (1GB 3 Days)', titleEn: '1GB 3 Days', price: 0.12, originalPrice: 0.15, duration: '3 كۈن (3 Days)', gb: '1 GB', popular: false }
-        ]
-      },
-      {
-        id: 'fursan_kafer_jalis',
-        name: 'فۇرسان نىت (كەفەر جالىس)',
-        nameAr: 'شبكة الفرسان (كفر جالس)',
-        nameEn: 'FURSAN NET KAFER JALIS',
-        badge: '⚡ كفر جالس رايونى',
-        desc: 'كەفەر جالىس ئەتراپىدىكى يۇقىرى سۈرئەتلىك Wi-Fi تەمىناتى',
-        icon: '📶',
-        packages: [
-          { id: 'fursan_kj_6gb', title: '6 جيجا 7 كۈنلۈك (6GB 7 Days)', titleEn: '6GB 7 Days', price: 0.45, originalPrice: 0.50, duration: '7 كۈن (7 Days)', gb: '6 GB', popular: false },
-          { id: 'fursan_kj_4gb', title: '4 جيجا 7 كۈنلۈك (4GB 7 Days)', titleEn: '4GB 7 Days', price: 0.34, originalPrice: 0.40, duration: '7 كۈن (7 Days)', gb: '4 GB', popular: true },
-          { id: 'fursan_kj_2gb', title: '2 جيجا 5 كۈنلۈك (2GB 5 Days)', titleEn: '2GB 5 Days', price: 0.23, originalPrice: 0.28, duration: '5 كۈن (5 Days)', gb: '2 GB', popular: false },
-          { id: 'fursan_kj_1gb', title: '1 جيجا 3 كۈنلۈك (1GB 3 Days)', titleEn: '1GB 3 Days', price: 0.12, originalPrice: 0.15, duration: '3 كۈن (3 Days)', gb: '1 GB', popular: false }
-        ]
-      },
-      {
-        id: 'almujahid_net',
-        name: 'مۇجاھىد نىت (Al Mujahid Net)',
-        nameAr: 'شبكة المجاهد نت',
-        nameEn: 'AL MUJAHID NET',
-        badge: '⚡ مۇجاھىد رايونى',
-        desc: 'مۇجاھىد سىمسىز تور مەركىزىدىن بىۋاسىتە چىقىرىلىدىغان رەسمىي كارتىلار',
-        icon: '📶',
-        packages: [
-          { id: 'mujahid_6gb', title: '6 جيجا 7 كۈنلۈك (6GB 7 Days)', titleEn: '6GB 7 Days', price: 0.45, originalPrice: 0.50, duration: '7 كۈن (7 Days)', gb: '6 GB', popular: false },
-          { id: 'mujahid_4gb', title: '4 جيجا 7 كۈنلۈك (4GB 7 Days)', titleEn: '4GB 7 Days', price: 0.34, originalPrice: 0.40, duration: '7 كۈن (7 Days)', gb: '4 GB', popular: true },
-          { id: 'mujahid_2gb', title: '2 جيجا 5 كۈنلۈك (2GB 5 Days)', titleEn: '2GB 5 Days', price: 0.23, originalPrice: 0.28, duration: '5 كۈن (5 Days)', gb: '2 GB', popular: false },
-          { id: 'mujahid_1gb', title: '1 جيجا 3 كۈنلۈك (1GB 3 Days)', titleEn: '1GB 3 Days', price: 0.12, originalPrice: 0.15, duration: '3 كۈن (3 Days)', gb: '1 GB', popular: false }
-        ]
+    async function fetchWifiAndTelecomCatalog(forceRender = false) {
+      if (isFetchingWifiCatalog) return;
+      isFetchingWifiCatalog = true;
+      try {
+        const res = await fetch('/api/wifi/catalog', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.success) {
+            if (Array.isArray(data.wifiServices) && data.wifiServices.length > 0) {
+              LIVE_WIFI_SERVICES = data.wifiServices;
+              if (!LIVE_WIFI_SERVICES.some(s => s.id === activeWifiNetworkId)) {
+                activeWifiNetworkId = LIVE_WIFI_SERVICES[0].id;
+              }
+            }
+            if (data.telecom) {
+              LIVE_TELECOM = data.telecom;
+            }
+            if (forceRender || activeMainCategory === 'wifi') {
+              renderWifiCardsUI();
+            }
+            if (forceRender || activeMainCategory === 'telecom') {
+              renderTelecomUI();
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Wifi/telecom catalog sync notice:', err);
+      } finally {
+        isFetchingWifiCatalog = false;
       }
-    ];
+    }
 
-    // --- Telecom (Syriatel & MTN) Data (Matching Main Website) ---
-    const TELECOM_OPERATORS = {
-      syriatel: {
-        id: 'syriatel',
-        name: 'سۈريەتىل (Syriatel)',
-        nameAr: 'سيريتل',
-        color: '#e11d48',
-        logo: '🔴',
-        creditPackages: [
-          { id: 14, name: '20.19 سۈرىيە لىراسى (وحدة)', sypAmount: '20.19 لىرا', price: 0.16, tag: '' },
-          { id: 22, name: '30.76 سۈرىيە لىراسى (وحدة)', sypAmount: '30.76 لىرا', price: 0.25, tag: '' },
-          { id: 26, name: '40.38 سۈرىيە لىراسى (وحدة)', sypAmount: '40.38 لىرا', price: 0.33, tag: '' },
-          { id: 31, name: '52.88 سۈرىيە لىراسى (وحدة)', sypAmount: '52.88 لىرا', price: 0.43, tag: '' },
-          { id: 35, name: '77.88 سۈرىيە لىراسى (وحدة)', sypAmount: '77.88 لىرا', price: 0.63, tag: '' },
-          { id: 2, name: '100.96 سۈرىيە لىراسى (وحدة)', sypAmount: '100.96 لىرا', price: 0.82, tag: 'ئالقىشلانغان' },
-          { id: 8, name: '160.58 سۈرىيە لىراسى (وحدة)', sypAmount: '160.58 لىرا', price: 1.31, tag: '' },
-          { id: 15, name: '211.54 سۈرىيە لىراسى (وحدة)', sypAmount: '211.54 لىرا', price: 1.72, tag: '' },
-          { id: 24, name: '370.19 سۈرىيە لىراسى (وحدة)', sypAmount: '370.19 لىرا', price: 3.02, tag: '' },
-          { id: 29, name: '480.77 سۈرىيە لىراسى (وحدة)', sypAmount: '480.77 لىرا', price: 3.92, tag: '' },
-          { id: 4, name: '1,057.69 سۈرىيە لىراسى (وحدة)', sypAmount: '1,057.69 لىرا', price: 8.54, tag: 'ئەڭ ياخشى باھا' },
-          { id: 19, name: '2,403.85 سۈرىيە لىراسى (وحدة)', sypAmount: '2,403.85 لىرا', price: 19.41, tag: 'VIP' }
-        ],
-        bundlePackages: [
-          { id: 2300, name: '6 GB تور + 400 دەقىقە سۆزلىشىش', dataSize: '6 GB', duration: '30 كۈن (1 ئاي)', price: 3.88, tag: '' },
-          { id: 2301, name: '10 GB تور + 500 دەقىقە سۆزلىشىش', dataSize: '10 GB', duration: '30 كۈن (1 ئاي)', price: 5.66, tag: 'ئالقىشلانغان' },
-          { id: 2303, name: '20 GB تور + 600 دەقىقە سۆزلىشىش', dataSize: '20 GB', duration: '30 كۈن (1 ئاي)', price: 9.69, tag: 'ئەڭ ياخشى باھا' },
-          { id: 2304, name: '35 GB تور + 700 دەقىقە سۆزلىشىش', dataSize: '35 GB', duration: '30 كۈن (1 ئاي)', price: 15.34, tag: '' },
-          { id: 2305, name: '75 GB تور + 800 دەقىقە سۆزلىشىش', dataSize: '75 GB', duration: '30 كۈن (1 ئاي)', price: 24.22, tag: 'VIP' }
-        ]
-      },
-      mtn: {
-        id: 'mtn',
-        name: 'ئىمتىئىن (MTN Syria)',
-        nameAr: 'ام تي ان سيريا',
-        color: '#eab308',
-        logo: '🟡',
-        creditPackages: [
-          { id: 204, name: '10 سۈرىيە لىراسى (وحدة)', sypAmount: '10 لىرا', price: 0.08, tag: '' },
-          { id: 211, name: '20 سۈرىيە لىراسى (وحدة)', sypAmount: '20 لىرا', price: 0.16, tag: '' },
-          { id: 217, name: '30 سۈرىيە لىراسى (وحدة)', sypAmount: '30 لىرا', price: 0.24, tag: '' },
-          { id: 223, name: '50 سۈرىيە لىراسى (وحدة)', sypAmount: '50 لىرا', price: 0.41, tag: '' },
-          { id: 228, name: '70 سۈرىيە لىراسى (وحدة)', sypAmount: '70 لىرا', price: 0.57, tag: '' },
-          { id: 205, name: '100 سۈرىيە لىراسى (وحدة)', sypAmount: '100 لىرا', price: 0.82, tag: 'ئالقىشلانغان' },
-          { id: 212, name: '200 سۈرىيە لىراسى (وحدة)', sypAmount: '200 لىرا', price: 1.63, tag: '' },
-          { id: 220, name: '360 سۈرىيە لىراسى (وحدة)', sypAmount: '360 لىرا', price: 2.94, tag: '' },
-          { id: 224, name: '500 سۈرىيە لىراسى (وحدة)', sypAmount: '500 لىرا', price: 4.08, tag: '' },
-          { id: 206, name: '1,000 سۈرىيە لىراسى (وحدة)', sypAmount: '1,000 لىرا', price: 8.15, tag: 'ئەڭ ياخشى باھا' },
-          { id: 213, name: '2,000 سۈرىيە لىراسى (وحدة)', sypAmount: '2,000 لىرا', price: 16.31, tag: '' },
-          { id: 225, name: '5,000 سۈرىيە لىراسى (وحدة)', sypAmount: '5,000 لىرا', price: 40.77, tag: 'VIP' }
-        ],
-        bundlePackages: [
-          { id: 2260, name: '6 GB ئايلىق تېز تور', dataSize: '6 GB', duration: '30 كۈن (1 ئاي)', price: 3.88, tag: '' },
-          { id: 2257, name: '10 GB ئايلىق تېز تور', dataSize: '10 GB', duration: '30 كۈن (1 ئاي)', price: 5.66, tag: 'ئالقىشلانغان' },
-          { id: 2258, name: '15 GB ئايلىق تېز تور', dataSize: '15 GB', duration: '30 كۈن (1 ئاي)', price: 8.00, tag: 'ئەڭ ياخشى باھا' },
-          { id: 2259, name: '25 GB ئايلىق تېز تور', dataSize: '25 GB', duration: '30 كۈن (1 ئاي)', price: 12.00, tag: 'VIP' }
-        ]
-      }
-    };
-
-    // --- Switch Top 3 Major Service Categories ---
     function switchMainServiceCategory(cat) {
       activeMainCategory = cat;
-
       const btnNumbers = document.getElementById('mainCatBtnNumbers');
       const btnWifi = document.getElementById('mainCatBtnWifi');
       const btnTelecom = document.getElementById('mainCatBtnTelecom');
@@ -3212,34 +3127,17 @@
       if (secNumbers) secNumbers.classList.toggle('hidden', cat !== 'numbers');
       if (secWifi) {
         secWifi.classList.toggle('hidden', cat !== 'wifi');
-        if (cat === 'wifi') renderWifiCardsUI();
+        if (cat === 'wifi') {
+          renderWifiCardsUI();
+          fetchWifiAndTelecomCatalog(true);
+        }
       }
       if (secTelecom) {
         secTelecom.classList.toggle('hidden', cat !== 'telecom');
-        if (cat === 'telecom') renderTelecomUI();
-      }
-    }
-
-    // --- Wi-Fi UI & Functions ---
-    let wifiStockCache = null;
-    let isFetchingWifiStock = false;
-
-    async function fetchWifiStock() {
-      if (isFetchingWifiStock) return;
-      isFetchingWifiStock = true;
-      try {
-        const r = await fetch('/api/catalog/wifi-stock');
-        if (r.ok) {
-          const d = await r.json();
-          if (d && d.success && d.stock) {
-            wifiStockCache = d.stock;
-            if (activeMainCategory === 'wifi') {
-              renderWifiCardsUI();
-            }
-          }
+        if (cat === 'telecom') {
+          renderTelecomUI();
+          fetchWifiAndTelecomCatalog(true);
         }
-      } catch (_) {} finally {
-        isFetchingWifiStock = false;
       }
     }
 
@@ -3254,62 +3152,65 @@
       const badge = document.getElementById('selectedNetworkBadge');
       if (!tabsContainer || !grid) return;
 
-      if (!wifiStockCache) {
-        fetchWifiStock();
+      if (!LIVE_WIFI_SERVICES || LIVE_WIFI_SERVICES.length === 0) {
+        grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-400 text-xs app-card rounded-2xl p-4 flex flex-col items-center justify-center gap-2"><span class="text-3xl animate-bounce">📶</span><span>كارتىلار سىستېمىدىن يۈكلىنىۋاتىدۇ...</span></div>';
+        fetchWifiAndTelecomCatalog(true);
+        return;
       }
 
-      const currentNet = WIFI_NETWORKS.find(n => n.id === activeWifiNetworkId) || WIFI_NETWORKS[0];
+      const currentNet = LIVE_WIFI_SERVICES.find(n => n.id === activeWifiNetworkId) || LIVE_WIFI_SERVICES[0];
       if (badge) badge.textContent = currentNet.name;
 
       // Render Network Selector Tabs
-      tabsContainer.innerHTML = WIFI_NETWORKS.map(n => {
+      tabsContainer.innerHTML = LIVE_WIFI_SERVICES.map(n => {
         const isActive = n.id === activeWifiNetworkId;
         const cls = isActive
-          ? 'p-2.5 rounded-2xl border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200 font-black shadow-sm flex items-center gap-2 cursor-pointer transition'
+          ? 'p-2.5 rounded-2xl border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200 font-bold shadow-sm flex items-center gap-2 cursor-pointer transition'
           : 'p-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:border-emerald-400 font-bold flex items-center gap-2 cursor-pointer transition';
-        return '<div onclick="selectWifiNetwork(\'' + n.id + '\')" class="' + cls + '">' +
+        return '<div onclick="selectWifiNetwork('' + n.id + '')" class="' + cls + '">' +
           '<span class="text-lg">📶</span>' +
           '<div class="text-right leading-tight min-w-0 flex-1">' +
-            '<span class="text-xs font-black block truncate">' + n.name + '</span>' +
-            '<span class="text-[9.5px] text-slate-400 block font-mono">' + n.nameEn + '</span>' +
+            '<span class="text-xs font-bold block truncate">' + n.name + '</span>' +
+            '<span class="text-[9.5px] text-slate-400 block" dir="ltr">' + (n.nameEn || '') + '</span>' +
           '</div>' +
         '</div>';
       }).join('');
 
       // Render Packages for selected network
-      grid.innerHTML = currentNet.packages.map(p => {
-        const netStock = (wifiStockCache && wifiStockCache[currentNet.id]) ? wifiStockCache[currentNet.id] : null;
-        const stockCount = (netStock && typeof netStock[p.id] === 'number') ? netStock[p.id] : 10;
-        const isSoldOut = stockCount <= 0;
+      if (!currentNet.packages || currentNet.packages.length === 0) {
+        grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-400 text-xs app-card rounded-2xl p-4">بۇ لىنىيىگە تېخى كارتا قوشۇلمىدى.</div>';
+        return;
+      }
 
-        return '<div class="app-card rounded-2xl p-3.5 border border-slate-200 dark:border-slate-800 space-y-3 hover:border-emerald-500/60 transition shadow-sm">' +
-          '<div class="flex items-start justify-between gap-2">' +
-            '<div class="text-right leading-tight">' +
-              '<div class="flex items-center gap-1.5">' +
-                (p.popular ? '<span class="px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-600 dark:text-amber-300 border border-amber-400/40 text-[9px] font-black">🔥 كۆپ سېتىلغان</span>' : '') +
-                '<h4 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white font-mono">' + p.title + '</h4>' +
+      grid.innerHTML = currentNet.packages.map(p => {
+        const stockCount = typeof p.stock === 'number' ? p.stock : 0;
+        const isSoldOut = stockCount <= 0 || !p.isAvailable;
+
+        return '<div class="app-card rounded-2xl p-3.5 border ' + (isSoldOut ? 'border-slate-200 dark:border-slate-800/60 opacity-80' : 'border-slate-200 dark:border-slate-800 hover:border-emerald-500/60') + ' space-y-3 transition shadow-sm flex flex-col justify-between">' +
+          '<div class="flex items-start justify-between gap-2.5">' +
+            '<div class="text-right leading-snug min-w-0 flex-1">' +
+              '<div class="flex items-center flex-wrap gap-1.5 mb-1">' +
+                (p.popular ? '<span class="px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-700 dark:text-amber-300 border border-amber-400/40 text-[9px] font-black">🔥 كۆپ سېتىلغان</span>' : '') +
+                '<h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">' + p.title + '</h4>' +
               '</div>' +
-              '<p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">' +
-                '<span>مۇددىتى:</span>' +
-                '<span class="font-bold text-slate-700 dark:text-slate-300 font-mono">' + p.duration + '</span>' +
-                '<span class="mx-1">•</span>' +
-                '<span>ھەجىمى:</span>' +
-                '<span class="font-bold text-emerald-600 dark:text-emerald-400 font-mono">' + p.gb + '</span>' +
-              '</p>' +
+              '<div class="flex items-center flex-wrap gap-1.5 text-[10.5px] text-slate-500 dark:text-slate-400">' +
+                (p.duration ? '<span class="px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold">⏱️ ' + p.duration + '</span>' : '') +
+                (p.gb ? '<span class="px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-bold" dir="ltr">📦 ' + p.gb + '</span>' : '') +
+              '</div>' +
             '</div>' +
             '<div class="text-left shrink-0">' +
-              '<span class="text-base sm:text-lg font-black font-mono text-emerald-600 dark:text-emerald-400">$' + p.price.toFixed(2) + '</span>' +
-              '<span class="text-[9px] text-slate-400 block font-mono">USD</span>' +
+              '<span class="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400" dir="ltr"><bdi>$' + p.price.toFixed(2) + '</bdi></span>' +
+              '<span class="text-[9px] text-slate-400 block" dir="ltr">USD</span>' +
             '</div>' +
           '</div>' +
 
-          '<div class="pt-1 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">' +
-            '<span class="text-[10px] ' + (isSoldOut ? 'text-rose-500 font-bold' : 'text-emerald-600 dark:text-emerald-400 font-bold') + ' flex items-center gap-1">' +
-              '<span>' + (isSoldOut ? '⚠️' : '⚡') + '</span><span>' + (isSoldOut ? 'ھازىرچە تۈگىدى' : 'زاپاس: ' + stockCount + ' دانا بار') + '</span>' +
+          '<div class="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800/80">' +
+            '<span class="text-[11px] ' + (isSoldOut ? 'text-rose-500 font-bold' : 'text-emerald-600 dark:text-emerald-400 font-bold') + ' flex items-center gap-1">' +
+              '<span>' + (isSoldOut ? '⚠️' : '⚡') + '</span><span>' + (isSoldOut ? 'تۈگەپ كەتتى' : 'زاپاس: ' + stockCount + ' دانا بار') + '</span>' +
             '</span>' +
             (isSoldOut
-              ? '<button disabled type="button" class="py-2 px-3 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-400 font-bold text-xs cursor-not-allowed">تۈگىدى</button>'
-              : '<button onclick="buyWifiCard(\'' + currentNet.id + '\', \'' + p.id + '\')" type="button" class="py-2 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black text-xs shadow-md shadow-emerald-500/20 active:scale-95 transition cursor-pointer flex items-center gap-1.5">' +
+              ? '<button disabled type="button" class="py-2 px-3.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 font-bold text-xs cursor-not-allowed">تۈگەپ كەتتى</button>'
+              : '<button onclick="buyWifiCard('' + currentNet.id + '', '' + p.id + '')" type="button" class="py-2 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black text-xs shadow-md shadow-emerald-500/20 active:scale-95 transition cursor-pointer flex items-center gap-1.5">' +
                   '<span>🛒</span><span>سېتىۋېلىش</span>' +
                 '</button>'
             ) +
@@ -3318,7 +3219,6 @@
       }).join('');
     }
 
-    // --- Buy Wi-Fi Card Flow ---
     async function buyWifiCard(netId, pkgId) {
       if (!currentUser) {
         showCustomAlert('Wi-Fi كارتىسى سېتىۋېلىش ئۈچۈن ئالدى بىلەن ھېساباتىڭىزغا كىرىڭ.', 'كىرىش تەلەپ قىلىنىدۇ', '🔐', () => {
@@ -3327,10 +3227,15 @@
         return;
       }
 
-      const net = WIFI_NETWORKS.find(n => n.id === netId);
+      const net = LIVE_WIFI_SERVICES.find(n => n.id === netId);
       if (!net) return;
       const pkg = net.packages.find(p => p.id === pkgId);
       if (!pkg) return;
+
+      if (pkg.stock <= 0 || !pkg.isAvailable) {
+        showCustomAlert('⚠️ كەچۈرۈڭ، بۇ كارتىنىڭ زاپىسى تۈگەپ كەتتى. باشقا بولاقنى تاللاڭ ياكى باشقۇرغۇچى تولۇقلىغاندىن كېيىن سىناڭ.', 'كارتا تۈگەپ كەتتى', '⚠️');
+        return;
+      }
 
       if (userBalance < pkg.price) {
         const diff = (pkg.price - userBalance).toFixed(2);
@@ -3342,24 +3247,12 @@
         return;
       }
 
-      showCustomConfirm('سىز راستلا ' + net.name + ' نىڭ «' + pkg.title + '» كارتىسىنى $' + pkg.price.toFixed(2) + ' USD باھادا سېتىۋالامسىز؟ پۇل ھەميان قالدۇقىڭىزدىن دەرھال كېسىلىدۇ ھەمدە كارتا نومۇرى بىلەن مەخپىي نومۇرى چىقىدۇ.', 'Wi-Fi كارتىسىنى جەزملەش', async () => {
+      showCustomConfirm('سىز راستلا ' + net.name + ' نىڭ «' + pkg.title + '» كارتىسىنى $' + pkg.price.toFixed(2) + ' USD باھادا سېتىۋالامسىز؟ پۇل ھەميان قالدۇقىڭىزدىن كېسىلىپ، كود دەرھال چىقىدۇ.', 'Wi-Fi كارتىسى سېتىۋېلىش', async () => {
         await executeBuyWifiCard(net, pkg);
       });
     }
 
     async function executeBuyWifiCard(net, pkg) {
-      // 1. Deduct balance
-      userBalance = Number((userBalance - pkg.price).toFixed(2));
-      if (currentUser) currentUser.balance = userBalance;
-      try {
-        localStorage.setItem('autocash_balance', String(userBalance));
-        localStorage.setItem('maxstore_balance', String(userBalance));
-        if (currentUser) localStorage.setItem('autocash_user', JSON.stringify(currentUser));
-      } catch (_) {}
-      updateBalanceUI();
-      if (currentUser) updateUserUI(currentUser);
-
-      // 2. Claim card from server API or create high-security instant voucher
       let card = null;
       try {
         const res = await fetch('/api/orders', {
@@ -3371,54 +3264,63 @@
             targetAccount: (currentUser && (currentUser.username || currentUser.id)) ? (currentUser.username || currentUser.id) : 'wifi_user'
           })
         });
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.success) {
-            card = data.wifiCard || data.card;
-          }
+        const data = await res.json();
+        if (res.ok && data && data.success) {
+          card = data.wifiCard || data.order?.details?.wifiCard;
+          userBalance = Number((userBalance - pkg.price).toFixed(2));
+          if (currentUser) currentUser.balance = userBalance;
+          try {
+            localStorage.setItem('autocash_balance', String(userBalance));
+            localStorage.setItem('maxstore_balance', String(userBalance));
+            if (currentUser) localStorage.setItem('autocash_user', JSON.stringify(currentUser));
+          } catch (_) {}
+          updateBalanceUI();
+          if (currentUser) updateUserUI(currentUser);
+        } else {
+          showCustomAlert(data?.message || 'كارتا سېتىۋېلىش مەغلۇپ بولدى ياكى زاپاس تۈگەپ كەتتى.', 'مەغلۇپ بولدى', '⚠️');
+          await fetchWifiAndTelecomCatalog(true);
+          return;
         }
-      } catch (_) {}
-      fetchWifiStock();
-
-      if (!card) {
-        // Instant simulated high-grade unique voucher
-        const randomNum = Math.floor(100000 + Math.random() * 900000);
-        const randomPass = Math.floor(100000 + Math.random() * 900000);
-        const randomCardNo = '#' + Math.floor(1000 + Math.random() * 9000);
-        card = {
-          network: net.id,
-          networkName: net.nameAr,
-          networkEn: net.nameEn,
-          username: String(randomNum),
-          password: String(randomPass),
-          cardNumber: randomCardNo,
-          packageTitle: pkg.title,
-          price: pkg.price,
-          validity: pkg.duration,
-          purchaseDate: new Date().toISOString().replace('T', ' ').slice(0, 19)
-        };
+      } catch (err) {
+        showCustomAlert('تور ئۇلىنىشى مەغلۇپ بولدى، قايتا سىناڭ.', 'خاتالىق', '⚠️');
+        return;
       }
 
-      activeVoucherCardData = card;
+      await fetchWifiAndTelecomCatalog(true);
 
-      // 3. Save to ordersList
+      if (!card) {
+        showCustomAlert('كارتا مەزمۇنى ئېلىنمىدى، زاكازلىرىم بەتكە ئۆتۈپ كۆرۈڭ.', 'ئەسكەرتىش', 'ℹ️');
+        return;
+      }
+
+      activeVoucherCardData = {
+        network: net.id,
+        networkName: net.nameAr || net.name,
+        networkEn: net.nameEn || net.id,
+        username: card.username,
+        password: card.password,
+        cardNumber: card.cardNumber || '#1001',
+        packageTitle: pkg.title,
+        price: pkg.price,
+        validity: pkg.duration,
+        purchaseDate: new Date().toISOString().replace('T', ' ').slice(0, 19)
+      };
+
       ordersList.unshift({
         id: 'WIFI_' + Date.now().toString(36).toUpperCase(),
         service: net.name,
         country: 'سۈرىيە (Wi-Fi)',
         phone: 'نومۇرى: ' + card.username + ' | پارولى: ' + card.password,
-        code: card.cardNumber,
+        code: card.cardNumber || card.username,
         price: pkg.price,
         status: 'completed',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        type: 'wifi',
-        cardData: card
+        type: 'wifi'
       });
       saveOrdersToStorage();
       renderOrdersList();
 
-      // 4. Open Voucher Card Modal
-      openWifiVoucherModal(card);
+      openWifiVoucherModal(activeVoucherCardData);
       showFloatingToast('🎉 Wi-Fi كارتىڭىز مۇۋەپپەقىيەتلىك تارقىتىلدى!');
     }
 
@@ -3433,28 +3335,28 @@
         '<div class="rounded-2xl overflow-hidden border-2 border-emerald-500/50 shadow-xl bg-gradient-to-br from-slate-900 via-[#07131b] to-slate-950 text-white p-4 space-y-3.5 text-right">' +
           '<div class="flex items-center justify-between border-b border-slate-800 pb-2.5">' +
             '<div class="text-left">' +
-              '<span class="text-xs font-black text-amber-400 font-mono tracking-wider block">AUTO CASH</span>' +
+              '<span class="text-xs font-black text-amber-400 block" dir="ltr">AUTO CASH</span>' +
               '<span class="text-[9px] text-slate-400">سريع • آمن • موثوق ⚡</span>' +
             '</div>' +
             '<div class="text-right">' +
-              '<h4 class="text-sm font-black text-white font-mono">' + (card.networkEn || 'WI-FI NET') + '</h4>' +
-              '<p class="text-[10px] text-emerald-400">' + (card.networkName || 'شبكة واي فاي') + '</p>' +
+              '<h4 class="text-sm font-bold text-white">' + (card.networkName || 'شبكة واي فاي') + '</h4>' +
+              '<p class="text-[10px] text-emerald-400" dir="ltr">' + (card.networkEn || 'WI-FI NET') + '</p>' +
             '</div>' +
           '</div>' +
 
           '<div class="space-y-2 bg-slate-950/80 p-3 rounded-xl border border-slate-800">' +
             '<div class="flex items-center justify-between">' +
-              '<button onclick="copyWifiField(\'' + card.username + '\', \'نومۇرى\')" type="button" class="px-2 py-1 rounded-lg bg-emerald-600/30 text-emerald-300 hover:bg-emerald-600/50 text-[10px] font-bold border border-emerald-500/40 cursor-pointer">كۆچۈرۈش</button>' +
+              '<button onclick="copyWifiField('' + card.username + '', 'نومۇرى')" type="button" class="px-2 py-1 rounded-lg bg-emerald-600/30 text-emerald-300 hover:bg-emerald-600/50 text-[10px] font-bold border border-emerald-500/40 cursor-pointer">كۆچۈرۈش</button>' +
               '<div class="text-right">' +
                 '<span class="text-[10px] text-slate-400 block">اسم المستخدم (نومۇرى):</span>' +
-                '<span class="text-base font-black font-mono text-sky-300 tracking-wider" dir="ltr">' + card.username + '</span>' +
+                '<span class="text-base font-black text-sky-300" dir="ltr"><bdi class="num-ltr">' + card.username + '</bdi></span>' +
               '</div>' +
             '</div>' +
             '<div class="flex items-center justify-between border-t border-slate-900 pt-2">' +
-              '<button onclick="copyWifiField(\'' + card.password + '\', \'پارولى\')" type="button" class="px-2 py-1 rounded-lg bg-teal-600/30 text-teal-300 hover:bg-teal-600/50 text-[10px] font-bold border border-teal-500/40 cursor-pointer">كۆچۈرۈش</button>' +
+              '<button onclick="copyWifiField('' + card.password + '', 'پارولى')" type="button" class="px-2 py-1 rounded-lg bg-teal-600/30 text-teal-300 hover:bg-teal-600/50 text-[10px] font-bold border border-teal-500/40 cursor-pointer">كۆچۈرۈش</button>' +
               '<div class="text-right">' +
                 '<span class="text-[10px] text-slate-400 block">كلمة المرور (پارولى):</span>' +
-                '<span class="text-base font-black font-mono text-emerald-300 tracking-wider" dir="ltr">' + card.password + '</span>' +
+                '<span class="text-base font-black text-emerald-300" dir="ltr"><bdi class="num-ltr">' + card.password + '</bdi></span>' +
               '</div>' +
             '</div>' +
           '</div>' +
@@ -3462,17 +3364,17 @@
           '<div class="grid grid-cols-2 gap-2 text-[11px]">' +
             '<div class="p-2 rounded-xl bg-slate-950/60 border border-slate-800">' +
               '<span class="text-slate-400 block text-[9.5px]">بولاق تۈرى:</span>' +
-              '<span class="font-bold text-white font-mono">' + (card.packageTitle || '') + '</span>' +
+              '<span class="font-bold text-white">' + (card.packageTitle || '') + '</span>' +
             '</div>' +
             '<div class="p-2 rounded-xl bg-slate-950/60 border border-slate-800">' +
               '<span class="text-slate-400 block text-[9.5px]">مۇددىتى:</span>' +
-              '<span class="font-bold text-amber-300 font-mono">' + (card.validity || '7 كۈن') + '</span>' +
+              '<span class="font-bold text-amber-300">' + (card.validity || '7 كۈن') + '</span>' +
             '</div>' +
           '</div>' +
 
-          '<div class="flex items-center justify-between pt-1 border-t border-slate-800 text-[10px] text-slate-400 font-mono">' +
-            '<span>رقم البطاقة: ' + (card.cardNumber || '#1001') + '</span>' +
-            '<span class="text-amber-400 font-bold">$' + Number(card.price || 0).toFixed(2) + ' USD</span>' +
+          '<div class="flex items-center justify-between pt-1 border-t border-slate-800 text-[10px] text-slate-400">' +
+            '<span dir="ltr"><bdi class="num-ltr">رقم البطاقة: ' + (card.cardNumber || '#1001') + '</bdi></span>' +
+            '<span class="text-amber-400 font-bold" dir="ltr"><bdi class="num-ltr">$' + Number(card.price || 0).toFixed(2) + ' USD</bdi></span>' +
           '</div>' +
         '</div>' +
 
@@ -3552,125 +3454,136 @@
       }
       ctx.clip();
 
-      // Card Gradient background
       const grad = ctx.createLinearGradient(pad, pad, pad + cardW, pad + cardH);
-      grad.addColorStop(0, '#1e293b');
-      grad.addColorStop(0.5, '#0f172a');
+      grad.addColorStop(0, '#020617');
+      grad.addColorStop(0.5, '#061c24');
       grad.addColorStop(1, '#020617');
       ctx.fillStyle = grad;
       ctx.fillRect(pad, pad, cardW, cardH);
 
-      // Top green accent bar
+      // Card Header
       ctx.fillStyle = '#10b981';
-      ctx.fillRect(pad, pad, cardW, 8);
-
-      // Header Network Info
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 26px sans-serif';
+      ctx.font = 'bold 24px sans-serif';
       ctx.textAlign = 'right';
-      ctx.fillText(card.networkName || 'شبكة واي فاي', w - pad - 30, pad + 55);
+      ctx.fillText(card.networkName || 'Wi-Fi Network', w - pad - 30, pad + 55);
 
       ctx.fillStyle = '#94a3b8';
-      ctx.font = '16px sans-serif';
-      ctx.fillText(card.networkEn || 'WI-FI NETWORK', w - pad - 30, pad + 85);
+      ctx.font = '16px monospace';
+      ctx.fillText(card.networkEn || 'WI-FI SERVICE', w - pad - 30, pad + 85);
 
-      // AUTO CASH Brand
-      ctx.fillStyle = '#fbbf24';
-      ctx.font = 'bold 24px sans-serif';
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = 'bold 26px sans-serif';
       ctx.textAlign = 'left';
       ctx.fillText('AUTO CASH', pad + 30, pad + 55);
+
       ctx.fillStyle = '#64748b';
       ctx.font = '14px sans-serif';
-      ctx.fillText('سريع • آمن • موثوق ⚡', pad + 30, pad + 80);
+      ctx.fillText('سريع • آمن • موثوق ⚡', pad + 30, pad + 85);
 
-      // Middle Voucher Box
-      const boxY = pad + 110;
-      const boxH = 170;
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-      ctx.strokeStyle = '#334155';
-      ctx.lineWidth = 1;
+      // Divider line
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      if (ctx.roundRect) {
-        ctx.roundRect(pad + 25, boxY, cardW - 50, boxH, 16);
-      } else {
-        ctx.rect(pad + 25, boxY, cardW - 50, boxH);
-      }
-      ctx.fill();
+      ctx.moveTo(pad + 30, pad + 110);
+      ctx.lineTo(w - pad - 30, pad + 110);
       ctx.stroke();
 
-      // Username
+      // Card Body Box
+      const boxX = pad + 30;
+      const boxY = pad + 130;
+      const boxW = cardW - 60;
+      const boxH = 160;
+
+      ctx.fillStyle = '#020617';
+      if (ctx.roundRect) {
+        ctx.beginPath();
+        ctx.roundRect(boxX, boxY, boxW, boxH, 16);
+        ctx.fill();
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      } else {
+        ctx.fillRect(boxX, boxY, boxW, boxH);
+      }
+
+      // Username row
       ctx.fillStyle = '#94a3b8';
-      ctx.font = '14px sans-serif';
+      ctx.font = '16px sans-serif';
       ctx.textAlign = 'right';
-      ctx.fillText('اسم المستخدم (نومۇرى):', w - pad - 50, boxY + 45);
+      ctx.fillText('اسم المستخدم (نومۇرى):', boxX + boxW - 25, boxY + 45);
 
       ctx.fillStyle = '#38bdf8';
-      ctx.font = 'bold 28px monospace';
-      ctx.fillText(card.username, w - pad - 50, boxY + 85);
-
-      // Password
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = '14px sans-serif';
+      ctx.font = 'bold 30px monospace';
       ctx.textAlign = 'left';
-      ctx.fillText('كلمة المرور (پارولى):', pad + 50, boxY + 45);
+      ctx.fillText(card.username || '---', boxX + 25, boxY + 48);
+
+      // Line inside box
+      ctx.strokeStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.moveTo(boxX + 20, boxY + 80);
+      ctx.lineTo(boxX + boxW - 20, boxY + 80);
+      ctx.stroke();
+
+      // Password row
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '16px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText('كلمة المرور (پارولى):', boxX + boxW - 25, boxY + 125);
 
       ctx.fillStyle = '#34d399';
-      ctx.font = 'bold 28px monospace';
-      ctx.fillText(card.password, pad + 50, boxY + 85);
-
-      // Package & Validity
-      ctx.fillStyle = '#cbd5e1';
-      ctx.font = 'bold 16px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('تۈرى: ' + (card.packageTitle || '') + '   •   مۇددىتى: ' + (card.validity || ''), w / 2, boxY + 140);
-
-      // Footer
-      ctx.fillStyle = '#64748b';
-      ctx.font = '14px sans-serif';
-      ctx.textAlign = 'right';
-      ctx.fillText('رقم البطاقة: ' + (card.cardNumber || '#1001'), w - pad - 30, h - pad - 25);
-
+      ctx.font = 'bold 30px monospace';
       ctx.textAlign = 'left';
+      ctx.fillText(card.password || '---', boxX + 25, boxY + 128);
+
+      // Package title and duration
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 18px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText('الباقة: ' + (card.packageTitle || ''), w - pad - 30, pad + 330);
+
       ctx.fillStyle = '#fbbf24';
-      ctx.fillText('باھاسى: $' + Number(card.price || 0).toFixed(2) + ' USD', pad + 30, h - pad - 25);
+      ctx.font = 'bold 16px sans-serif';
+      ctx.fillText('الصلاحية: ' + (card.validity || '7 كۈن'), w - pad - 30, pad + 365);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '14px monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(card.purchaseDate || '', pad + 30, pad + 330);
+
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = 'bold 20px monospace';
+      ctx.fillText('$' + Number(card.price || 0).toFixed(2) + ' USD', pad + 30, pad + 365);
+
+      // Bottom border glow
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(pad, pad, cardW, cardH);
 
       ctx.restore();
 
-      // Download
-      try {
-        const dataUrl = canvas.toDataURL('image/png');
-        const a = document.createElement('a');
-        a.href = dataUrl;
-        a.download = 'wifi_voucher_' + (card.username || 'card') + '.png';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        showFloatingToast('📸 Wi-Fi كارتا رەسىمى چۈشۈرۈلدى ✓');
-      } catch (e) {
-        showFloatingToast('رەسىمنى چۈشۈرۈش مەغلۇپ بولدى');
-      }
+      // Trigger download
+      const link = document.createElement('a');
+      link.download = 'WIFI_CARD_' + (card.username || 'VOUCHER') + '.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showFloatingToast('كارتا رەسىمى چۈشۈرۈلدى 📥');
     }
 
-    // --- Telecom (Syriatel & MTN) UI & Functions ---
-    function selectTelecomOperator(opId) {
-      activeTelecomOperator = opId;
-      const btnSyr = document.getElementById('telecomOpBtnSyriatel');
+    function selectTelecomOperator(op) {
+      activeTelecomOperator = op;
+      const btnSyriatel = document.getElementById('telecomOpBtnSyriatel');
       const btnMtn = document.getElementById('telecomOpBtnMtn');
 
-      if (btnSyr) {
-        if (opId === 'syriatel') {
-          btnSyr.className = 'py-2.5 px-3 rounded-2xl border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 font-black text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95 cursor-pointer';
-        } else {
-          btnSyr.className = 'py-2.5 px-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-rose-400 font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95 cursor-pointer';
-        }
+      if (btnSyriatel) {
+        btnSyriatel.className = op === 'syriatel'
+          ? 'py-2.5 px-3 rounded-2xl border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95 cursor-pointer'
+          : 'py-2.5 px-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-rose-400 font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95 cursor-pointer';
       }
 
       if (btnMtn) {
-        if (opId === 'mtn') {
-          btnMtn.className = 'py-2.5 px-3 rounded-2xl border-2 border-amber-500 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 font-black text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95 cursor-pointer';
-        } else {
-          btnMtn.className = 'py-2.5 px-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-amber-400 font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95 cursor-pointer';
-        }
+        btnMtn.className = op === 'mtn'
+          ? 'py-2.5 px-3 rounded-2xl border-2 border-amber-500 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95 cursor-pointer'
+          : 'py-2.5 px-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-amber-400 font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95 cursor-pointer';
       }
 
       renderTelecomUI();
@@ -3682,19 +3595,15 @@
       const btnBundle = document.getElementById('telecomTypeBtnBundle');
 
       if (btnCredit) {
-        if (type === 'credit') {
-          btnCredit.className = 'flex-1 py-2 rounded-xl bg-white dark:bg-slate-800 text-purple-700 dark:text-white shadow font-black transition';
-        } else {
-          btnCredit.className = 'flex-1 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-white transition font-bold';
-        }
+        btnCredit.className = type === 'credit'
+          ? 'flex-1 py-2.5 rounded-xl bg-white dark:bg-slate-800 text-purple-700 dark:text-white shadow font-bold transition cursor-pointer'
+          : 'flex-1 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-white transition font-bold cursor-pointer';
       }
 
       if (btnBundle) {
-        if (type === 'bundle') {
-          btnBundle.className = 'flex-1 py-2 rounded-xl bg-white dark:bg-slate-800 text-purple-700 dark:text-white shadow font-black transition';
-        } else {
-          btnBundle.className = 'flex-1 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-white transition font-bold';
-        }
+        btnBundle.className = type === 'bundle'
+          ? 'flex-1 py-2.5 rounded-xl bg-white dark:bg-slate-800 text-purple-700 dark:text-white shadow font-bold transition cursor-pointer'
+          : 'flex-1 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-white transition font-bold cursor-pointer';
       }
 
       renderTelecomUI();
@@ -3704,43 +3613,45 @@
       const grid = document.getElementById('telecomPackagesGrid');
       if (!grid) return;
 
-      const op = TELECOM_OPERATORS[activeTelecomOperator] || TELECOM_OPERATORS.syriatel;
-      const packages = activeTelecomType === 'credit' ? op.creditPackages : op.bundlePackages;
+      const opData = LIVE_TELECOM[activeTelecomOperator] || { creditPackages: [], bundlePackages: [] };
+      const packages = activeTelecomType === 'credit' ? (opData.creditPackages || []) : (opData.bundlePackages || []);
+
+      if (packages.length === 0) {
+        grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-400 text-xs app-card rounded-2xl p-4">بۇ تۈرگە تېخى بولاق قوشۇلمىدى.</div>';
+        return;
+      }
 
       grid.innerHTML = packages.map(p => {
         const isCredit = activeTelecomType === 'credit';
-        const subtitle = isCredit 
-          ? ('سۈرىيە ياشباك پۇلى: ' + p.sypAmount)
-          : ('ھەجىمى: ' + p.dataSize + ' • مۇددىتى: ' + p.duration);
+        const isSoldOut = p.isAvailable === false;
 
-        return '<div class="app-card rounded-2xl p-3.5 border border-slate-200 dark:border-slate-800 space-y-3 hover:border-purple-500/60 transition shadow-sm">' +
-          '<div class="flex items-start justify-between gap-2">' +
-            '<div class="text-right leading-tight">' +
-              '<div class="flex items-center gap-1.5">' +
-                (p.tag ? '<span class="px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-800 text-[9px] font-black">' + p.tag + '</span>' : '') +
-                '<h4 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white font-mono">' + p.name + '</h4>' +
-              '</div>' +
-              '<p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-mono">' + subtitle + '</p>' +
+        return '<div class="app-card rounded-2xl p-3.5 border ' + (isSoldOut ? 'border-slate-200 dark:border-slate-800/60 opacity-80' : 'border-slate-200 dark:border-slate-800 hover:border-purple-500/60') + ' space-y-3 transition shadow-sm flex flex-col justify-between">' +
+          '<div class="flex items-start justify-between gap-2.5">' +
+            '<div class="text-right leading-snug min-w-0 flex-1">' +
+              '<h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mb-1">' + p.name + '</h4>' +
+              '<p class="text-[10.5px] text-slate-500 dark:text-slate-400">' + (isCredit ? '⚡ بىۋاسىتە ھېساباتقا ئۆتىدۇ' : '🌐 يۇقىرى سۈرئەتلىك تور') + '</p>' +
             '</div>' +
             '<div class="text-left shrink-0">' +
-              '<span class="text-base sm:text-lg font-black font-mono text-purple-700 dark:text-amber-300">$' + p.price.toFixed(2) + '</span>' +
-              '<span class="text-[9px] text-slate-400 block font-mono">USD</span>' +
+              '<span class="text-base sm:text-lg font-black text-purple-700 dark:text-amber-300" dir="ltr"><bdi>$' + p.price.toFixed(2) + '</bdi></span>' +
+              '<span class="text-[9px] text-slate-400 block" dir="ltr">USD</span>' +
             '</div>' +
           '</div>' +
 
-          '<div class="pt-1 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">' +
-            '<span class="text-[10px] text-purple-600 dark:text-purple-400 font-bold flex items-center gap-1">' +
-              '<span>⚡</span><span>24 سائەت ئاپتوماتىك قاچىلىنىدۇ</span>' +
+          '<div class="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800/80">' +
+            '<span class="text-[11px] ' + (isSoldOut ? 'text-rose-500 font-bold' : 'text-purple-600 dark:text-purple-400 font-bold') + ' flex items-center gap-1">' +
+              '<span>' + (isSoldOut ? '⚠️' : '⚡') + '</span><span>' + (isSoldOut ? 'تۈگەپ كەتتى' : '24 سائەت ئاپتوماتىك قاچىلىنىدۇ') + '</span>' +
             '</span>' +
-            '<button onclick="buyTelecomPackage(\'' + p.id + '\')" type="button" class="py-2 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs shadow-md shadow-purple-600/20 active:scale-95 transition cursor-pointer flex items-center gap-1.5">' +
-              '<span>⚡</span><span>قاچىلاش</span>' +
-            '</button>' +
+            (isSoldOut
+              ? '<button disabled type="button" class="py-2 px-3.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 font-bold text-xs cursor-not-allowed">تۈگەپ كەتتى</button>'
+              : '<button onclick="buyTelecomPackage('' + p.id + '')" type="button" class="py-2 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs shadow-md shadow-purple-600/20 active:scale-95 transition cursor-pointer flex items-center gap-1.5">' +
+                  '<span>⚡</span><span>قاچىلاش</span>' +
+                '</button>'
+            ) +
           '</div>' +
         '</div>';
       }).join('');
     }
 
-    // --- Buy Telecom Flow ---
     async function buyTelecomPackage(pkgId) {
       const phoneInput = document.getElementById('telecomPhoneInput');
       const phone = (phoneInput ? phoneInput.value : '').trim();
@@ -3758,10 +3669,15 @@
         return;
       }
 
-      const op = TELECOM_OPERATORS[activeTelecomOperator];
-      const packages = activeTelecomType === 'credit' ? op.creditPackages : op.bundlePackages;
+      const opData = LIVE_TELECOM[activeTelecomOperator] || { creditPackages: [], bundlePackages: [] };
+      const packages = activeTelecomType === 'credit' ? (opData.creditPackages || []) : (opData.bundlePackages || []);
       const pkg = packages.find(p => p.id === pkgId);
       if (!pkg) return;
+
+      if (pkg.isAvailable === false) {
+        showCustomAlert('⚠️ كەچۈرۈڭ، بۇ بولاق ھازىرچە تۈگەپ كەتتى ياكى تەمىنلىگۈچىدە ۋاقتىنچە توختىتىلغان.', 'بولاق تۈگىگەن', '⚠️');
+        return;
+      }
 
       if (userBalance < pkg.price) {
         const diff = (pkg.price - userBalance).toFixed(2);
@@ -3773,61 +3689,60 @@
         return;
       }
 
-      showCustomConfirm('قوبۇل قىلغۇچى نومۇر: ' + phone + '\nتۈرى: ' + op.name + ' - ' + pkg.name + '\nباھاسى: $' + pkg.price.toFixed(2) + ' USD\n\nراستلا قاچىلامسىز؟ پۇل ھەميان قالدۇقىڭىزدىن دەرھال كېسىلىدۇ.', 'قاچىلاشنى جەزملەش', async () => {
-        await executeBuyTelecom(op, pkg, phone);
+      const opName = activeTelecomOperator === 'syriatel' ? 'سۈريەتىل (Syriatel)' : 'ئىمتىئىن (MTN Syria)';
+      showCustomConfirm('قوبۇل قىلغۇچى نومۇر: ' + phone + '\nتۈرى: ' + opName + ' - ' + pkg.name + '\nباھاسى: $' + pkg.price.toFixed(2) + ' USD\n\nراستلا قاچىلامسىز؟ پۇل ھەميان قالدۇقىڭىزدىن دەرھال كېسىلىدۇ.', 'قاچىلاشنى جەزملەش', async () => {
+        await executeBuyTelecom(pkg, phone, opName);
       });
     }
 
-    async function executeBuyTelecom(op, pkg, phone) {
-      // 1. Deduct balance
-      userBalance = Number((userBalance - pkg.price).toFixed(2));
-      if (currentUser) currentUser.balance = userBalance;
+    async function executeBuyTelecom(pkg, phone, opName) {
+      const serviceId = activeTelecomOperator === 'syriatel' ? 'othman_syriatel' : 'othman_mtn';
       try {
-        localStorage.setItem('autocash_balance', String(userBalance));
-        localStorage.setItem('maxstore_balance', String(userBalance));
-        if (currentUser) localStorage.setItem('autocash_user', JSON.stringify(currentUser));
-      } catch (_) {}
-      updateBalanceUI();
-      if (currentUser) updateUserUI(currentUser);
-
-      // 2. Submit order to central API & MaxStore provider
-      try {
-        await fetch('/api/apps/order', {
+        const res = await fetch('/api/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            appId: op.id === 'syriatel' ? 'syriatel' : 'mtn-syria',
-            productId: pkg.id,
-            productName: pkg.name,
-            price: pkg.price,
-            packageTitle: pkg.name,
-            fields: {
-              'رقم المشترك': phone,
-              'رقم الهاتف': phone,
-              'ادخل رقم الهاتف بدون النداء': phone,
-              phone: phone
-            }
+            serviceId: serviceId,
+            packageId: pkg.id,
+            targetAccount: phone,
+            fields: { 'رقم الهاتف': phone }
           })
         });
-      } catch (_) {}
+        const data = await res.json();
+        if (res.ok && data && data.success) {
+          userBalance = Number((userBalance - pkg.price).toFixed(2));
+          if (currentUser) currentUser.balance = userBalance;
+          try {
+            localStorage.setItem('autocash_balance', String(userBalance));
+            localStorage.setItem('maxstore_balance', String(userBalance));
+            if (currentUser) localStorage.setItem('autocash_user', JSON.stringify(currentUser));
+          } catch (_) {}
+          updateBalanceUI();
+          if (currentUser) updateUserUI(currentUser);
 
-      // 3. Add to orders
-      ordersList.unshift({
-        id: 'TEL_' + Date.now().toString(36).toUpperCase(),
-        service: op.name,
-        country: 'سۈرىيە (Syria)',
-        phone: phone,
-        code: pkg.name,
-        price: pkg.price,
-        status: 'completed',
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        type: 'telecom'
-      });
-      saveOrdersToStorage();
-      renderOrdersList();
+          ordersList.unshift({
+            id: 'TEL_' + Date.now().toString(36).toUpperCase(),
+            service: opName,
+            country: 'سۈرىيە (09)',
+            phone: phone + ' (' + pkg.name + ')',
+            code: 'مۇۋەپپەقىيەتلىك تاپشۇرۇلدى',
+            price: pkg.price,
+            status: 'completed',
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            type: 'telecom'
+          });
+          saveOrdersToStorage();
+          renderOrdersList();
 
-      showCustomAlert('🎉 زاكاز مۇۋەپپەقىيەتلىك تاپشۇرۇلدى!\nقوبۇل قىلغۇچى: ' + phone + '\nبولاق: ' + pkg.name + '\nمەركىزى سىستېما سۈرىيە تەمىناتى ئارقىلىق ئاپتوماتىك قاچىلىماقتا.', 'قاچىلاش مۇۋەپپەقىيەتلىك', '✅');
+          showCustomAlert('🎉 قاچىلاش تەلىپى تاپشۇرۇلدى!\nقوبۇل قىلغۇچى نومۇر: ' + phone + '\nبولاق: ' + pkg.name + '\nسىستېما ئاپتوماتىك قاچىلىماقتا.', 'قاچىلاش مۇۋەپپەقىيەتلىك', '✅');
+        } else {
+          showCustomAlert(data?.message || 'قاچىلاش مەغلۇپ بولدى.', 'مەغلۇپ بولدى', '⚠️');
+        }
+      } catch (err) {
+        showCustomAlert('تور ئۇلىنىشى مەغلۇپ بولدى، قايتا سىناڭ.', 'خاتالىق', '⚠️');
+      }
     }
+
 
     // --- Buy Number Flow (Uses Custom In-App Modal Dialogs!) ---
     async function handleBuyNumber(serviceCode, countryId, price, countryNameUg, dialCode) {
