@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getSessionUser, unauthorizedResponse } from '@/lib/session';
-import { getOrderByIdAsync, refundOrderBalanceAtomicAsync } from '@/lib/db';
+import {
+  getOrderByIdAsync,
+  getOrderByActivationIdAsync,
+  refundOrderBalanceAtomicAsync,
+} from '@/lib/db';
 import {
   creditUnifiedWalletBalance,
   getUnifiedWalletBalance,
@@ -13,9 +17,12 @@ export const dynamic = 'force-dynamic';
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => null);
-    const { orderId, activationId, reason, identity, user_id } = body || {};
+    const { orderId: rawOrderId, activationId: rawActivationId, reason, identity, user_id, tgId, service, country } = body || {};
 
-    if (!orderId || !activationId) {
+    const activationId = String(rawActivationId || '').trim();
+    let orderId = String(rawOrderId || '').trim();
+
+    if (!orderId && !activationId) {
       return NextResponse.json(
         { success: false, message: 'زاكاز ياكى ئاكتىپلاش كودى كەم' },
         { status: 400 }
@@ -27,22 +34,43 @@ export async function POST(req: Request) {
       verifiedUser = await getSessionUser(req);
     } catch {}
 
-    let cleanIdentity = (identity || user_id || '').trim().replace(/^@/, '');
+    let cleanIdentity = String(identity || user_id || tgId || '').trim().replace(/^@/, '');
     if (verifiedUser) {
       cleanIdentity = verifiedUser.telegramUsername || verifiedUser.telegramChatId || verifiedUser.email || verifiedUser.phone || verifiedUser.name || cleanIdentity;
     }
 
-    const order = await getOrderByIdAsync(orderId);
-    if (!order) {
-      return NextResponse.json({ success: false, message: 'زاكاز تېپىلمىدى' }, { status: 404 });
+    let order: any = null;
+    if (orderId) {
+      order = await getOrderByIdAsync(orderId);
+    }
+    if (!order && activationId) {
+      order = await getOrderByActivationIdAsync(activationId);
+      if (order) orderId = order.id;
     }
 
-    // Verify ownership
+    if (!order) {
+      // If order is not found, but we have activationId, cancel on provider anyway
+      if (activationId) {
+        await phonecashProvider
+          .cancelActivation(activationId, {
+            service,
+            country,
+          })
+          .catch(() => null);
+      }
+      return NextResponse.json({
+        success: true,
+        message: 'مەۋھۇم نومۇر بىكار قىلىندى',
+      });
+    }
+
+    // Verify ownership (allow if holder has matching activationId)
     const isOwner =
       (verifiedUser && (order.userId === verifiedUser.id || verifiedUser.role === 'admin')) ||
       (cleanIdentity && order.details?.identity && order.details.identity.toLowerCase() === cleanIdentity.toLowerCase()) ||
       (cleanIdentity && order.userEmail && order.userEmail.toLowerCase().includes(cleanIdentity.toLowerCase())) ||
-      (cleanIdentity && order.userId === cleanIdentity);
+      (cleanIdentity && order.userId === cleanIdentity) ||
+      (activationId && (order.details?.activationId === activationId || order.id === activationId));
 
     if (!isOwner) {
       return unauthorizedResponse();
@@ -67,9 +95,9 @@ export async function POST(req: Request) {
 
     // 1. Cancel on PhoneCash provider
     await phonecashProvider
-      .cancelActivation(activationId, {
-        service: order.details?.serviceCode,
-        country: order.details?.countryId,
+      .cancelActivation(activationId || order.details?.activationId, {
+        service: service || order.details?.serviceCode,
+        country: country || order.details?.countryId,
       })
       .catch((err) => {
         console.warn('[PhoneCash Cancel Notice]:', err?.message);
@@ -77,17 +105,17 @@ export async function POST(req: Request) {
 
     // 2. Atomically refund the order balance back to user's wallet
     const refundRes = await refundOrderBalanceAtomicAsync(
-      orderId,
+      order.id,
       reason || 'خېرىدار SMS كەلمىگەنلىكى ئۈچۈن بىكار قىلدى',
       true
     );
 
     const targetIdentity = cleanIdentity || order.details?.identity || order.userEmail || '';
-    if (targetIdentity) {
+    if (targetIdentity && typeof order.amount === 'number' && order.amount > 0) {
       await creditUnifiedWalletBalance(targetIdentity, order.amount);
     }
 
-    updateMicroAppOrderSync(orderId, 'cancelled');
+    updateMicroAppOrderSync(order.id, 'cancelled');
 
     const finalBalance = await getUnifiedWalletBalance(targetIdentity);
 
@@ -98,8 +126,9 @@ export async function POST(req: Request) {
       current_balance: finalBalance,
     });
   } catch (err: any) {
+    console.error('[SMS Cancel Error]:', err);
     return NextResponse.json(
-      { success: false, message: err?.message || 'بىكار قىلىش مەغلۇپ بولدى' },
+      { success: false, message: err?.message || 'نومۇرنى بىكار قىلىش مەغلۇپ بولدى' },
       { status: 500 }
     );
   }

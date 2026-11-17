@@ -888,6 +888,29 @@ export async function getOrderByIdAsync(orderId: string): Promise<OrderRecord | 
   return ensureDbFile().orders.find((o) => o.id === orderId) || null;
 }
 
+export async function getOrderByActivationIdAsync(activationId: string): Promise<OrderRecord | null> {
+  if (!activationId) return null;
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { data, error } = await sb
+        .from('orders')
+        .select('*')
+        .filter('details->>activationId', 'eq', activationId)
+        .maybeSingle();
+      if (!error && data) return mapSupabaseOrder(data);
+    } catch {}
+  }
+  const db = ensureDbFile();
+  const found = db.orders.find(
+    (o) =>
+      o.details?.activationId === activationId ||
+      o.id === activationId ||
+      (o.details as any)?.id === activationId
+  );
+  return found || null;
+}
+
 export async function updateOrderStatusAsync(
   orderId: string,
   newStatus: OrderRecord['status']

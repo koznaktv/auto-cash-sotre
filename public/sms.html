@@ -3803,6 +3803,7 @@
         updateBalanceUI();
 
         activeSession = {
+          orderId: data.orderId || ('SMS-' + data.activationId),
           activationId: data.activationId,
           phone: data.phone || data.number,
           serviceCode: serviceCode,
@@ -3869,11 +3870,22 @@
     async function pollSmsStatus() {
       if (!activeSession) return;
       try {
-        const res = await fetch('/api/sms/check?activationId=' + encodeURIComponent(activeSession.activationId) + '&tgId=' + encodeURIComponent(currentUser?.id || ''));
+        const ident = currentUser?.username || currentUser?.email || String(currentUser?.id || '');
+        const query = new URLSearchParams({
+          activationId: String(activeSession.activationId || ''),
+          orderId: String(activeSession.orderId || ''),
+          service: String(activeSession.serviceCode || ''),
+          country: String(activeSession.countryId ?? ''),
+          identity: ident,
+          userId: String(currentUser?.id || ''),
+          tgId: String(currentUser?.id || '')
+        });
+        const res = await fetch('/api/sms/check?' + query.toString());
         if (!res.ok) return;
         const data = await res.json();
 
-        if (data.status === 'RECEIVED' && data.code) {
+        const finalCode = data.code || data.smsCode;
+        if (data.status === 'RECEIVED' && finalCode) {
           clearInterval(pollInterval);
           clearInterval(timerInterval);
 
@@ -3881,15 +3893,28 @@
           if (codeWrap) {
             codeWrap.innerHTML = `
               <div class="p-3 bg-emerald-500 text-white rounded-xl shadow-lg flex items-center justify-between gap-2 animate-bounce">
-                <span class="text-xl sm:text-2xl font-black font-mono tracking-widest">${data.code}</span>
-                <button onclick="navigator.clipboard.writeText('${data.code}'); showFloatingToast('SMS كود كۆچۈرۈلدى: ${data.code} ✓')" class="px-3 py-1.5 rounded-lg bg-white text-emerald-800 text-xs font-black shadow cursor-pointer">
+                <span class="text-xl sm:text-2xl font-black font-mono tracking-widest">${finalCode}</span>
+                <button onclick="navigator.clipboard.writeText('${finalCode}'); showFloatingToast('SMS كود كۆچۈرۈلدى: ${finalCode} ✓')" class="px-3 py-1.5 rounded-lg bg-white text-emerald-800 text-xs font-black shadow cursor-pointer">
                   كۆچۈرۈش
                 </button>
               </div>
             `;
           }
-          updateOrderStatus(activeSession.activationId, 'completed', data.code);
-          showFloatingToast('🎉 SMS كود تاپشۇرۇۋېلىندى: ' + data.code);
+          try {
+            if (navigator && navigator.clipboard) {
+              navigator.clipboard.writeText(finalCode);
+            }
+          } catch(e) {}
+          updateOrderStatus(activeSession.activationId, 'completed', finalCode);
+          showFloatingToast('🎉 SMS كود تاپشۇرۇۋېلىندى: ' + finalCode);
+        } else if (data.status === 'CANCELED') {
+          clearInterval(pollInterval);
+          clearInterval(timerInterval);
+          updateOrderStatus(activeSession.activationId, 'canceled');
+          fetchUserUnifiedBalance();
+          showCustomAlert(data.message || 'نومۇر بىكار قىلىندى، پۇل قايتۇرۇلدى', 'بىكار قىلىندى', 'ℹ️', () => {
+            finishAndGetNew();
+          });
         }
       } catch (e) {
         console.warn('Poll error:', e);
@@ -3899,11 +3924,17 @@
     async function cancelActiveOrder() {
       if (!activeSession) return;
       try {
+        const ident = currentUser?.username || currentUser?.email || String(currentUser?.id || '');
         const res = await fetch('/api/sms/cancel', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            orderId: activeSession.orderId,
             activationId: activeSession.activationId,
+            service: activeSession.serviceCode,
+            country: activeSession.countryId,
+            identity: ident,
+            userId: currentUser?.id,
             tgId: currentUser?.id,
             price: activeSession.price
           })

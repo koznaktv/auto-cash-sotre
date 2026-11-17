@@ -248,86 +248,128 @@ class PhonecashProvider {
       const res = await fetch(url, { cache: 'no-store' });
       const json = await res.json().catch(() => null);
 
-      if (!res.ok || !json || !json.success) {
+      if (!res.ok && !json) {
         return {
           success: false,
           status: 'UNKNOWN',
-          error: json?.message || 'ھالەتنى تەكشۈرۈش مەغلۇپ بولدى',
+          error: 'ھالەتنى تەكشۈرۈش مەغلۇپ بولدى (تور خاتالىقى)',
           raw: json,
         };
       }
 
-      let data = json.data;
-      if (Array.isArray(data) && data.length > 0) {
-        data = data[0];
-      }
+      // Check if message or data is a waiting indicator even if success: false
+      const rawMsg = String(json?.message || json?.error || '').trim();
+      const rawData = json?.data;
+      const combinedText = `${rawMsg} ${typeof rawData === 'string' ? rawData : ''} ${JSON.stringify(rawData || {})}`;
 
-      const statusText = String(data?.status_text || '');
-      const rawResponse = String(data?.raw_response || '');
-      const rawCode = data?.code;
-
-      // 1. Comprehensive code extraction from all possible schema variants
+      // 1. Comprehensive code extraction from ALL possible locations
       let finalCode = '';
-      if (rawCode && String(rawCode).trim().length > 0) {
-        finalCode = String(rawCode).trim();
-      }
 
-      // If code was not populated directly, extract from rawResponse (e.g. STATUS_OK:123456 or STATUS_WAIT_RETRY:123456)
-      if (!finalCode && rawResponse) {
-        const okMatch = rawResponse.match(/(?:STATUS_OK|STATUS_WAIT_RETRY|ACCESS_NUMBER|CODE)[:\s]*([A-Za-z0-9_-]+)/i);
-        if (okMatch && okMatch[1]) {
-          finalCode = okMatch[1].trim();
-        } else if (/^\d{4,8}$/.test(rawResponse.trim())) {
-          finalCode = rawResponse.trim();
+      // Direct properties
+      const directCandidates = [
+        json?.code,
+        json?.smsCode,
+        json?.sms_code,
+        json?.sms,
+        rawData?.code,
+        rawData?.smsCode,
+        rawData?.sms_code,
+        rawData?.sms,
+        Array.isArray(rawData) && rawData[0]?.code,
+        Array.isArray(rawData) && rawData[0]?.smsCode,
+        Array.isArray(rawData) && rawData[0]?.sms,
+      ];
+
+      for (const val of directCandidates) {
+        if (val !== undefined && val !== null && String(val).trim().length > 0 && String(val).trim() !== 'null' && String(val).trim() !== 'undefined') {
+          finalCode = String(val).trim();
+          break;
         }
       }
 
-      // If code is inside statusText
-      if (!finalCode && statusText) {
-        if (/^\d{4,8}$/.test(statusText.trim())) {
-          finalCode = statusText.trim();
-        } else {
-          const textMatch = statusText.match(/(?:code|رمز|كود|کد)[:\s]*([A-Za-z0-9]+)/i);
-          if (textMatch && textMatch[1]) {
-            finalCode = textMatch[1].trim();
+      // If not yet found, search text patterns in status_text, raw_response, message, and combined text
+      if (!finalCode) {
+        const textSources = [
+          rawData?.raw_response,
+          rawData?.status_text,
+          rawData?.text,
+          rawData?.full_sms,
+          rawData?.message,
+          typeof rawData === 'string' ? rawData : null,
+          Array.isArray(rawData) && rawData[0]?.raw_response,
+          Array.isArray(rawData) && rawData[0]?.status_text,
+          rawMsg,
+        ];
+
+        for (const src of textSources) {
+          if (!src) continue;
+          const s = String(src).trim();
+          if (!s) continue;
+
+          // Pattern: STATUS_OK:123456 or STATUS_WAIT_RETRY:123456
+          const okMatch = s.match(/(?:STATUS_OK|STATUS_WAIT_RETRY|ACCESS_NUMBER|CODE)[:\s]*([A-Za-z0-9_-]+)/i);
+          if (okMatch && okMatch[1] && okMatch[1].trim().length >= 3) {
+            finalCode = okMatch[1].trim();
+            break;
+          }
+
+          // Pattern: Pure 4-8 digit number
+          if (/^\d{4,8}$/.test(s)) {
+            finalCode = s;
+            break;
+          }
+
+          // Pattern: code/رمز/كود/pin followed by digits
+          const keywordMatch = s.match(/(?:code|رمز|كود|کد|pin|otp|passcode|is|:)\s*[:=-]?\s*([0-9]{4,8})/i);
+          if (keywordMatch && keywordMatch[1]) {
+            finalCode = keywordMatch[1].trim();
+            break;
           }
         }
       }
 
-      // If code is detected, return RECEIVED immediately!
+      // Fallback: If any 4-8 digit number exists in raw text and is not a status code or year
+      if (!finalCode && combinedText) {
+        const numMatch = combinedText.match(/(?:STATUS_OK:?\s*)(\d{4,8})/i) || combinedText.match(/\b\d{4,8}\b/);
+        if (numMatch && numMatch[1]) {
+          finalCode = numMatch[1].trim();
+        }
+      }
+
+      // If code was found anywhere -> RECEIVED!
       if (finalCode && finalCode.length > 0) {
         return {
           success: true,
           status: 'RECEIVED',
           code: finalCode,
           statusText: 'SMS كودى كەلدى',
-          rawResponse,
+          rawResponse: String(rawData?.raw_response || rawMsg),
           raw: json,
         };
       }
 
       // 2. Cancellation: ONLY if explicitly cancelled by provider
       if (
-        rawResponse.includes('STATUS_CANCEL') ||
-        statusText.toLowerCase() === 'canceled' ||
-        statusText.toLowerCase() === 'cancelled'
+        combinedText.toUpperCase().includes('STATUS_CANCEL') ||
+        combinedText.toLowerCase().includes('canceled') ||
+        combinedText.toLowerCase().includes('cancelled')
       ) {
         return {
           success: true,
           status: 'CANCELED',
           statusText: 'نومۇر بىكار قىلىندى',
-          rawResponse,
+          rawResponse: String(rawData?.raw_response || rawMsg),
           raw: json,
         };
       }
 
-      // 3. Otherwise, the number is still active and waiting for SMS
-      // Note: NO_ACTIVATION, ACCESS_READY, STATUS_WAIT_CODE all mean "waiting for incoming SMS"
+      // 3. Waiting for incoming SMS
+      // (STATUS_WAIT_CODE, ACCESS_READY, NO_ACTIVATION, or any waiting message)
       return {
         success: true,
         status: 'WAIT_CODE',
         statusText: 'SMS كودى كۈتۈلمەكتە...',
-        rawResponse,
+        rawResponse: String(rawData?.raw_response || rawMsg),
         raw: json,
       };
     } catch (err: any) {

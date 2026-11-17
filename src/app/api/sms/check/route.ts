@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getSessionUser, unauthorizedResponse } from '@/lib/session';
-import { getOrderByIdAsync, updateOrderAsync, refundOrderBalanceAtomicAsync } from '@/lib/db';
+import { getSessionUser } from '@/lib/session';
+import {
+  getOrderByIdAsync,
+  getOrderByActivationIdAsync,
+  updateOrderAsync,
+  refundOrderBalanceAtomicAsync,
+} from '@/lib/db';
 import {
   creditUnifiedWalletBalance,
   updateMicroAppOrderSync,
@@ -18,97 +23,116 @@ export async function GET(req: Request) {
     } catch {}
 
     const { searchParams } = new URL(req.url);
-    const orderId = searchParams.get('orderId') || '';
-    const activationId = searchParams.get('activationId') || '';
-    const identity = (searchParams.get('identity') || searchParams.get('userId') || '').trim().replace(/^@/, '');
+    const orderIdParam = (searchParams.get('orderId') || searchParams.get('order_id') || '').trim();
+    const activationIdParam = (
+      searchParams.get('activationId') ||
+      searchParams.get('activation_id') ||
+      searchParams.get('id') ||
+      ''
+    ).trim();
+    const identityParam = (
+      searchParams.get('identity') ||
+      searchParams.get('userId') ||
+      searchParams.get('user_id') ||
+      searchParams.get('tgId') ||
+      ''
+    ).trim().replace(/^@/, '');
+    const serviceParam = (searchParams.get('service') || searchParams.get('serviceCode') || '').trim();
+    const countryParam = (searchParams.get('country') || searchParams.get('countryId') || '').trim();
 
-    if (!orderId || !activationId) {
+    if (!activationIdParam && !orderIdParam) {
       return NextResponse.json(
-        { success: false, message: 'زاكاز ياكى ئاكتىپلاش كودى كەم' },
+        { success: false, message: 'ئاكتىپلاش كودى ياكى زاكاز نومۇرى كەم' },
         { status: 400 }
       );
     }
 
-    const order = await getOrderByIdAsync(orderId);
-    if (!order) {
-      return NextResponse.json({ success: false, message: 'زاكاز تېپىلمىدى' }, { status: 404 });
+    // 1. Locate Order (support lookup by orderId or activationId)
+    let order: any = null;
+    if (orderIdParam) {
+      order = await getOrderByIdAsync(orderIdParam);
+    }
+    if (!order && activationIdParam) {
+      order = await getOrderByActivationIdAsync(activationIdParam);
     }
 
-    // Verify ownership
-    const isOwner =
-      (user && (order.userId === user.id || user.role === 'admin')) ||
-      (identity && order.details?.identity && order.details.identity.toLowerCase() === identity.toLowerCase()) ||
-      (identity && order.userEmail && order.userEmail.toLowerCase().includes(identity.toLowerCase())) ||
-      (identity && order.userId === identity);
+    const orderId = order?.id || orderIdParam;
+    const activationId = activationIdParam || order?.details?.activationId || order?.id;
+    const targetService = serviceParam || order?.details?.serviceCode;
+    const targetCountry = countryParam || order?.details?.countryId;
 
-    if (!isOwner) {
-      return unauthorizedResponse();
-    }
-
-    // If order was already completed, return existing code immediately
-    if (order.status === 'completed' && order.details?.code) {
+    // 2. If order is already completed and has stored code, return it instantly
+    if (order && order.status === 'completed' && (order.details?.code || order.details?.smsCode)) {
+      const existingCode = String(order.details.code || order.details.smsCode).trim();
       return NextResponse.json({
         success: true,
         status: 'RECEIVED',
-        code: order.details.code,
+        code: existingCode,
+        smsCode: existingCode,
         message: 'SMS كودى تەييار',
       });
     }
 
-    // Check with PhoneCash
+    // 3. Query PhoneCash upstream API
     const statusRes = await phonecashProvider.checkStatus(activationId, 1, {
-      service: order.details?.serviceCode,
-      country: order.details?.countryId,
+      service: targetService,
+      country: targetCountry,
     });
 
+    // 4. Code Received from upstream provider!
     if (statusRes.status === 'RECEIVED' && statusRes.code) {
-      // Save code to order and mark completed!
-      const updatedDetails = {
-        ...(order.details || {}),
-        code: statusRes.code,
-        smsCode: statusRes.code,
-        statusText: statusRes.statusText,
-        completedAt: new Date().toISOString(),
-      };
+      const finalCode = statusRes.code;
 
-      await updateOrderAsync(orderId, {
-        status: 'completed',
-        detailsPatch: updatedDetails,
-      });
+      if (order && orderId) {
+        const updatedDetails = {
+          ...(order.details || {}),
+          code: finalCode,
+          smsCode: finalCode,
+          statusText: statusRes.statusText,
+          completedAt: new Date().toISOString(),
+        };
 
-      updateMicroAppOrderSync(orderId, 'completed', new Date().toISOString());
+        await updateOrderAsync(orderId, {
+          status: 'completed',
+          detailsPatch: updatedDetails,
+        });
 
-      // Confirm to provider that code was received (status_action=3)
-      phonecashProvider
-        .finishActivation(activationId, {
-          service: order.details?.serviceCode,
-          country: order.details?.countryId,
-        })
-        .catch(() => null);
+        updateMicroAppOrderSync(orderId, 'completed', new Date().toISOString());
 
-      // Post to channel
-      postOrderCompletedToChannel({
-        id: order.id,
-        serviceName: order.serviceName,
-        packageTitle: order.packageTitle,
-        amount: order.amount,
-        targetAccount: order.targetAccount,
-        userEmail: order.userEmail,
-        userName: user?.name || order.userEmail,
-      }).catch(() => null);
+        // Notify PhoneCash that activation is complete (status_action=3)
+        phonecashProvider
+          .finishActivation(activationId, {
+            service: targetService,
+            country: targetCountry,
+          })
+          .catch(() => null);
+
+        // Telegram Channel broadcast
+        postOrderCompletedToChannel({
+          id: order.id,
+          serviceName: order.serviceName,
+          packageTitle: order.packageTitle,
+          amount: order.amount,
+          targetAccount: order.targetAccount,
+          userEmail: order.userEmail,
+          userName: user?.name || order.userEmail,
+        }).catch(() => null);
+      }
 
       return NextResponse.json({
         success: true,
         status: 'RECEIVED',
-        code: statusRes.code,
+        code: finalCode,
+        smsCode: finalCode,
+        statusText: statusRes.statusText || 'SMS كودى كەلدى!',
         message: 'SMS كودى كەلدى!',
       });
     }
 
-    // Auto-detect cancellation or expiration from PhoneCash provider
-    const isExpired = order.details?.expiresAt && Date.now() > new Date(order.details.expiresAt).getTime();
+    // 5. Provider Cancellation or Timeout Auto-Refund
+    const isExpired = order?.details?.expiresAt && Date.now() > new Date(order.details.expiresAt).getTime();
     if (statusRes.status === 'CANCELED' || isExpired) {
-      if (order.status !== 'refunded' && order.status !== 'cancelled') {
+      if (order && order.status !== 'refunded' && order.status !== 'cancelled') {
         const refundRes = await refundOrderBalanceAtomicAsync(
           orderId,
           isExpired
@@ -117,7 +141,7 @@ export async function GET(req: Request) {
           true
         ).catch(() => ({ success: false, newBalance: undefined }));
 
-        const targetIdent = identity || order.details?.identity || order.userEmail;
+        const targetIdent = identityParam || order.details?.identity || order.userEmail;
         if (targetIdent) {
           await creditUnifiedWalletBalance(targetIdent, order.amount);
         }
@@ -128,17 +152,20 @@ export async function GET(req: Request) {
           status: 'CANCELED',
           refunded: true,
           newBalance: refundRes?.newBalance,
-          message: 'تەمىنلىگۈچى تەرەپتىن كود كەلمىدى، نومۇر بىكار قىلىنىپ پۇلىڭىز ھېساباتىڭىزغا دەل ۋاقتىدا قايتۇرۇلدى!',
+          message: 'تەمىنلىگۈچى تەرەپتىن نومۇر بىكار قىلىندى، پۇلىڭىز ھېساباتىڭىزغا دەل ۋاقتىدا قايتۇرۇلدى!',
         });
       }
     }
 
+    // 6. Active and waiting for incoming SMS
     return NextResponse.json({
       success: true,
-      status: statusRes.status,
-      statusText: statusRes.statusText,
+      status: 'WAIT_CODE',
+      statusText: statusRes.statusText || 'SMS كودى كۈتۈلمەكتە...',
+      code: null,
     });
   } catch (err: any) {
+    console.error('[SMS Check Error]:', err);
     return NextResponse.json(
       { success: false, message: err?.message || 'كود تەكشۈرۈش مەغلۇپ بولدى' },
       { status: 500 }

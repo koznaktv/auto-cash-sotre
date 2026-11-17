@@ -216,15 +216,17 @@ export default function NumbersPage() {
     setIsCheckingNow(true);
     try {
       const res = await fetch(
-        `/api/sms/check?orderId=${activeSession.orderId}&activationId=${activeSession.activationId}`
+        `/api/sms/check?orderId=${encodeURIComponent(activeSession.orderId || '')}&activationId=${encodeURIComponent(activeSession.activationId)}&service=${encodeURIComponent(activeSession.serviceCode || '')}&country=${encodeURIComponent(String(activeSession.country?.id ?? ''))}&identity=${encodeURIComponent(user?.email || user?.id || '')}&userId=${encodeURIComponent(user?.id || '')}`
       );
       const data = await res.json();
 
       setLastCheckedText('ھازىرلا');
 
-      if (data.success && data.status === 'RECEIVED' && data.code) {
+      const finalCode = data.code || data.smsCode;
+      if (data.success && data.status === 'RECEIVED' && finalCode) {
+        try { if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(finalCode); setCopiedCode(true); } } catch {}
         setActiveSession((prev) => {
-          const updated = prev ? { ...prev, code: data.code, status: 'received' as const } : null;
+          const updated = prev ? { ...prev, code: finalCode, status: 'received' as const } : null;
           if (typeof window !== 'undefined' && updated) {
             try { localStorage.setItem('autocash_active_sms_session', JSON.stringify(updated)); } catch {}
           }
@@ -472,6 +474,10 @@ export default function NumbersPage() {
         body: JSON.stringify({
           orderId: activeSession.orderId,
           activationId: activeSession.activationId,
+          service: activeSession.serviceCode,
+          country: activeSession.country?.id,
+          identity: user?.email || user?.id || '',
+          user_id: user?.id || '',
           reason: 'خېرىدار كود كۈتمەي بىكار قىلدى',
         }),
       });
