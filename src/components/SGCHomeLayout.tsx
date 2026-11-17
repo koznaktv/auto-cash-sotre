@@ -237,9 +237,11 @@ const ProductCard = React.memo(function ProductCard({
             </span>
           ) : (
             <span className="text-[#059669] font-black font-mono">
-              {service.packages && service.packages.length > 0 && typeof service.packages[0].price === 'number' && service.packages[0].price > 0
-                ? `$${service.packages[0].price.toFixed(2)}`
-                : (translateBadge('ئاپتوماتىك') || t('autoBadge') || 'ئاپتوماتىك')}
+              {service.packages && service.packages.length > 0 && typeof service.packages[0].price === 'number' && service.packages[0].price > 0 ? (
+                <bdi className="num-ltr">${service.packages[0].price.toFixed(2)}</bdi>
+              ) : (
+                translateBadge('ئاپتوماتىك') || t('autoBadge') || 'ئاپتوماتىك'
+              )}
             </span>
           )}
         </div>
@@ -934,7 +936,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                     title={t('deposit') || 'پۇل قاچىلاش'}
                   >
                     <Animated3DEmoji type="coin" size={15} />
-                    <span>${(typeof autocashBalance === 'number' ? autocashBalance : 0).toFixed(2)}</span>
+                    <bdi className="num-ltr">${(typeof autocashBalance === 'number' ? autocashBalance : 0).toFixed(2)}</bdi>
                     <Plus className="w-3 h-3 text-emerald-600 dark:text-emerald-400 stroke-[3]" />
                   </Link>
                 </div>
@@ -1432,7 +1434,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                     </span>
                   </span>
                   <span className="block text-sm sm:text-base font-black font-mono leading-tight mt-0.5 text-emerald-600 dark:text-emerald-400">
-                    ${(typeof autocashBalance === 'number' ? autocashBalance : 0).toFixed(2)}
+                    <bdi className="num-ltr">${(typeof autocashBalance === 'number' ? autocashBalance : 0).toFixed(2)}</bdi>
                   </span>
                 </div>
               </div>

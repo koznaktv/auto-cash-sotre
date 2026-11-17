@@ -101,6 +101,38 @@ body {
   overflow-x: hidden;
 }
 
+/* Form Controls & Inputs Typography Inheritance */
+input,
+button,
+select,
+textarea,
+optgroup {
+  font-family: inherit;
+}
+
+/* Bi-directional Isolation for Currencies, Numbers & Codes */
+bdi,
+.bdi-isolated,
+.price-tag,
+.currency-amount,
+.num-ltr {
+  direction: ltr !important;
+  unicode-bidi: isolate !important;
+  display: inline-block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace, system-ui;
+  text-align: left;
+}
+
+/* Ensure Phone & Numerical Inputs are strictly LTR while labels are RTL */
+input[type="tel"],
+input[type="number"],
+.phone-input {
+  direction: ltr !important;
+  text-align: left;
+  unicode-bidi: isolate !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
 /* Titles and Headers with ultra-crisp authentic Uyghur calligraphy typography */
 .font-ukij {
   font-family: 'UKIJ Esline', 'UKIJEsline', 'ukijesn', 'ALKATIP Basma Tom', 'ALKATIP Basma', 'Microsoft Uighur', 'Noto Sans Arabic', system-ui, sans-serif;
