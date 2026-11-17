@@ -61,16 +61,18 @@ export async function GET(req: Request) {
     const targetService = serviceParam || order?.details?.serviceCode;
     const targetCountry = countryParam || order?.details?.countryId;
 
-    // 2. If order is already completed and has stored code, return it instantly
+    // 2. If order is already completed and has stored legitimate code, return it instantly
     if (order && order.status === 'completed' && (order.details?.code || order.details?.smsCode)) {
       const existingCode = String(order.details.code || order.details.smsCode).trim();
-      return NextResponse.json({
-        success: true,
-        status: 'RECEIVED',
-        code: existingCode,
-        smsCode: existingCode,
-        message: 'SMS كودى تەييار',
-      });
+      if (existingCode && existingCode !== 'false' && existingCode !== 'null' && /\d/.test(existingCode)) {
+        return NextResponse.json({
+          success: true,
+          status: 'RECEIVED',
+          code: existingCode,
+          smsCode: existingCode,
+          message: 'SMS كودى تەييار',
+        });
+      }
     }
 
     // 3. Query PhoneCash upstream API
@@ -80,7 +82,7 @@ export async function GET(req: Request) {
     });
 
     // 4. Code Received from upstream provider!
-    if (statusRes.status === 'RECEIVED' && statusRes.code) {
+    if (statusRes.status === 'RECEIVED' && statusRes.code && statusRes.code !== 'false' && /\d/.test(statusRes.code)) {
       const finalCode = statusRes.code;
 
       if (order && orderId) {

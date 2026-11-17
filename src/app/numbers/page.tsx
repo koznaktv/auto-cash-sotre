@@ -222,7 +222,8 @@ export default function NumbersPage() {
 
       setLastCheckedText('ھازىرلا');
 
-      const finalCode = data.code || data.smsCode;
+      const rawCode = data.code || data.smsCode;
+      const finalCode = (rawCode && String(rawCode).trim() !== 'false' && String(rawCode).trim() !== 'null' && /\d/.test(String(rawCode))) ? String(rawCode).trim() : null;
       if (data.success && data.status === 'RECEIVED' && finalCode) {
         try { if (typeof navigator !== 'undefined' && navigator.clipboard) { navigator.clipboard.writeText(finalCode); setCopiedCode(true); } } catch {}
         setActiveSession((prev) => {

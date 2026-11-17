@@ -3843,6 +3843,16 @@
       const phoneEl = document.getElementById('activePhoneNumber');
       if (phoneEl) phoneEl.textContent = activeSession.phone;
 
+      const codeWrap = document.getElementById('smsCodeContainer');
+      if (codeWrap) {
+        codeWrap.innerHTML = `
+          <div class="inline-flex items-center gap-2 text-slate-400 text-xs animate-pulse">
+            <span class="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></span>
+            <span>SMS كود كۈتۈلمەكتە (تەمىنلىگۈچى بىلەن ئۇلاندى)...</span>
+          </div>
+        `;
+      }
+
       timerRemainingSeconds = 900;
       clearInterval(timerInterval);
       timerInterval = setInterval(updateTimerDisplay, 1000);
@@ -3886,7 +3896,8 @@
         if (!res.ok) return;
         const data = await res.json();
 
-        const finalCode = data.code || data.smsCode;
+        const rawCode = data.code || data.smsCode;
+        const finalCode = (rawCode && String(rawCode).trim() !== 'false' && String(rawCode).trim() !== 'null' && /\d/.test(String(rawCode))) ? String(rawCode).trim() : null;
         if (data.status === 'RECEIVED' && finalCode) {
           clearInterval(pollInterval);
           clearInterval(timerInterval);
@@ -4001,7 +4012,15 @@
     function loadSavedOrders() {
       try {
         const saved = localStorage.getItem('autocash_sms_orders');
-        if (saved) ordersList = JSON.parse(saved);
+        if (saved) {
+          ordersList = JSON.parse(saved);
+          ordersList.forEach(o => {
+            if (o.code === 'false' || o.code === false) {
+              o.code = null;
+              if (o.status === 'completed') o.status = 'pending';
+            }
+          });
+        }
       } catch (e) {
         ordersList = [];
       }

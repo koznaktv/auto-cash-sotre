@@ -5,6 +5,37 @@
 
 import { getEnrichedCountry, getEnrichedService, CountryMeta } from '../sms/smsMetadata';
 
+function cleanSmsCode(val: any): string {
+  if (val === undefined || val === null || typeof val === 'boolean') return '';
+  const str = String(val).trim();
+  if (!str) return '';
+  const lower = str.toLowerCase();
+  const invalidLiterals = [
+    'false',
+    'true',
+    'null',
+    'undefined',
+    'none',
+    'nan',
+    'wait_code',
+    'status_wait_code',
+    'no_activation',
+    'access_ready',
+    'access_cancel',
+    'status_cancel',
+    'bad_action',
+    'bad_service',
+    'bad_key',
+    'error',
+    'success',
+  ];
+  if (invalidLiterals.includes(lower)) return '';
+  // SMS code must contain at least one digit
+  if (!/\d/.test(str)) return '';
+  if (str.length < 3 || str.length > 16) return '';
+  return str;
+}
+
 export interface PhonecashBuyResult {
   success: boolean;
   activationId?: string;
@@ -281,8 +312,9 @@ class PhonecashProvider {
       ];
 
       for (const val of directCandidates) {
-        if (val !== undefined && val !== null && String(val).trim().length > 0 && String(val).trim() !== 'null' && String(val).trim() !== 'undefined') {
-          finalCode = String(val).trim();
+        const cleaned = cleanSmsCode(val);
+        if (cleaned) {
+          finalCode = cleaned;
           break;
         }
       }
@@ -302,27 +334,33 @@ class PhonecashProvider {
         ];
 
         for (const src of textSources) {
-          if (!src) continue;
+          if (!src || typeof src === 'boolean') continue;
           const s = String(src).trim();
           if (!s) continue;
 
           // Pattern: STATUS_OK:123456 or STATUS_WAIT_RETRY:123456
           const okMatch = s.match(/(?:STATUS_OK|STATUS_WAIT_RETRY|ACCESS_NUMBER|CODE)[:\s]*([A-Za-z0-9_-]+)/i);
-          if (okMatch && okMatch[1] && okMatch[1].trim().length >= 3) {
-            finalCode = okMatch[1].trim();
-            break;
-          }
-
-          // Pattern: Pure 4-8 digit number
-          if (/^\d{4,8}$/.test(s)) {
-            finalCode = s;
-            break;
+          if (okMatch && okMatch[1]) {
+            const cleaned = cleanSmsCode(okMatch[1]);
+            if (cleaned) {
+              finalCode = cleaned;
+              break;
+            }
           }
 
           // Pattern: code/رمز/كود/pin followed by digits
           const keywordMatch = s.match(/(?:code|رمز|كود|کد|pin|otp|passcode|is|:)\s*[:=-]?\s*([0-9]{4,8})/i);
           if (keywordMatch && keywordMatch[1]) {
-            finalCode = keywordMatch[1].trim();
+            const cleaned = cleanSmsCode(keywordMatch[1]);
+            if (cleaned) {
+              finalCode = cleaned;
+              break;
+            }
+          }
+
+          // Pattern: Pure 4-8 digit number (must not be year 2024-2027)
+          if (/^\d{4,8}$/.test(s) && !/^(2024|2025|2026|2027)$/.test(s)) {
+            finalCode = s;
             break;
           }
         }
@@ -330,9 +368,10 @@ class PhonecashProvider {
 
       // Fallback: If any 4-8 digit number exists in raw text and is not a status code or year
       if (!finalCode && combinedText) {
-        const numMatch = combinedText.match(/(?:STATUS_OK:?\s*)(\d{4,8})/i) || combinedText.match(/\b\d{4,8}\b/);
+        const numMatch = combinedText.match(/STATUS_OK:?\s*([0-9A-Za-z_-]+)/i);
         if (numMatch && numMatch[1]) {
-          finalCode = numMatch[1].trim();
+          const cleaned = cleanSmsCode(numMatch[1]);
+          if (cleaned) finalCode = cleaned;
         }
       }
 
