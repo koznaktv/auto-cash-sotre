@@ -1200,6 +1200,7 @@
       initGoogleIdentityServices();
       preloadTelegramAuthSession();
       loadSavedOrders();
+      restoreActiveSession();
       await fetchLiveCatalog();
       fetchWifiAndTelecomCatalog(false);
     });
@@ -3813,6 +3814,7 @@
           price: price,
           startTime: Date.now()
         };
+        try { localStorage.setItem('autocash_active_sms_session', JSON.stringify(activeSession)); } catch(e){}
 
         saveNewOrder({
           id: data.activationId,
@@ -3941,6 +3943,15 @@
         });
 
         const data = await res.json();
+        if (data.codeArrived && data.code) {
+          updateOrderStatus(activeSession.activationId, 'completed', data.code);
+          showCustomAlert(data.message || 'بۇ نومۇرغا كود كېلىپ بولدى، زاكازلىرىڭىزدىن كۆرەلەيسىز.', 'كود كەلدى!', '🎉');
+          return;
+        }
+        if (!data.success) {
+          showCustomAlert(data.message || 'بىكار قىلىش مەغلۇپ بولدى', 'خاتالىق', '⚠️');
+          return;
+        }
         updateOrderStatus(activeSession.activationId, 'canceled');
         fetchUserUnifiedBalance();
         finishAndGetNew();
@@ -3953,11 +3964,31 @@
     function finishAndGetNew() {
       clearInterval(pollInterval);
       clearInterval(timerInterval);
+      try { localStorage.removeItem('autocash_active_sms_session'); } catch(e){}
       activeSession = null;
       document.getElementById('activeNumberSection').classList.add('hidden');
       document.getElementById('viewAppsDirectory').classList.remove('hidden');
       homeStep = 'apps';
       selectedApp = null;
+    }
+
+    function restoreActiveSession() {
+      try {
+        const savedStr = localStorage.getItem('autocash_active_sms_session');
+        if (!savedStr) return;
+        const saved = JSON.parse(savedStr);
+        if (!saved || !saved.activationId || !saved.startTime) return;
+        const elapsed = Math.floor((Date.now() - saved.startTime) / 1000);
+        if (elapsed >= 900) {
+          localStorage.removeItem('autocash_active_sms_session');
+          return;
+        }
+        activeSession = saved;
+        timerRemainingSeconds = Math.max(10, 900 - elapsed);
+        startActiveSessionUI();
+      } catch (e) {
+        console.warn('Restore session notice:', e);
+      }
     }
 
     function copyActiveNumber() {

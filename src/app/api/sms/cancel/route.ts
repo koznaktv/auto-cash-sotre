@@ -3,6 +3,7 @@ import { getSessionUser, unauthorizedResponse } from '@/lib/session';
 import {
   getOrderByIdAsync,
   getOrderByActivationIdAsync,
+  updateOrderAsync,
   refundOrderBalanceAtomicAsync,
 } from '@/lib/db';
 import {
@@ -93,11 +94,47 @@ export async function POST(req: Request) {
       });
     }
 
-    // 1. Cancel on PhoneCash provider
+    // CRITICAL ADMIN ASSET PROTECTION:
+    // Check with PhoneCash first. If the code already arrived, DO NOT cancel or refund!
+    const targetActId = activationId || order.details?.activationId;
+    const targetSvc = service || order.details?.serviceCode;
+    const targetCtry = country || order.details?.countryId;
+
+    if (targetActId) {
+      const liveCheck = await phonecashProvider.checkStatus(targetActId, 1, {
+        service: targetSvc,
+        country: targetCtry,
+      });
+
+      if (liveCheck.status === 'RECEIVED' && liveCheck.code) {
+        // The code has already arrived! Provider charges wholesale cost.
+        // Complete the order so customer receives code and admin keeps customer payment!
+        await updateOrderAsync(order.id, {
+          status: 'completed',
+          detailsPatch: {
+            code: liveCheck.code,
+            smsCode: liveCheck.code,
+            statusText: liveCheck.statusText,
+            completedAt: new Date().toISOString(),
+          },
+        });
+        updateMicroAppOrderSync(order.id, 'completed', new Date().toISOString());
+        phonecashProvider.finishActivation(targetActId, { service: targetSvc, country: targetCtry }).catch(() => null);
+
+        return NextResponse.json({
+          success: false,
+          codeArrived: true,
+          code: liveCheck.code,
+          message: 'بۇ نومۇرغا دەلىللەش كودى كېلىپ بولدى، شۇڭا بىكار قىلغىلى بولمايدۇ. تەستىقلاش كودى زاكازلىرىڭىزغا چىقىرىلدى!',
+        });
+      }
+    }
+
+    // 1. Cancel on PhoneCash provider (since no SMS code arrived, provider charges $0.00)
     await phonecashProvider
-      .cancelActivation(activationId || order.details?.activationId, {
-        service: service || order.details?.serviceCode,
-        country: country || order.details?.countryId,
+      .cancelActivation(targetActId, {
+        service: targetSvc,
+        country: targetCtry,
       })
       .catch((err) => {
         console.warn('[PhoneCash Cancel Notice]:', err?.message);
