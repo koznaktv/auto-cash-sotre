@@ -95,7 +95,7 @@ export async function GET() {
       (s) => s.id === 'othman_mtn' || (s.id || '').includes('mtn')
     );
 
-    function formatTelecomPackages(serv: any, defaultName: string) {
+    const formatTelecomPackages = (serv: any, defaultName: string) => {
       if (!serv || !serv.packages) return { serviceId: '', serviceName: defaultName, creditPackages: [], bundlePackages: [] };
 
       const allPkgs = serv.packages.map((p: any) => {
