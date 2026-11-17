@@ -499,6 +499,35 @@ export async function fetchFinancialData(
   };
 }
 
+function getUyghurFontPaths() {
+  const candidates = [
+    path.join(process.cwd(), 'public', 'fonts'),
+    path.join(process.cwd(), 'AUTO_CASH', 'public', 'fonts'),
+    path.join(__dirname, '..', '..', '..', 'public', 'fonts'),
+    path.join(__dirname, '..', '..', 'public', 'fonts'),
+  ];
+  for (const dir of candidates) {
+    const regular = path.join(dir, 'ALKATIPBasmaTom.ttf');
+    const bold = path.join(dir, 'ALKATIPBasmaTom-Bold.ttf');
+    if (fs.existsSync(regular)) {
+      return { regular, bold: fs.existsSync(bold) ? bold : regular };
+    }
+  }
+  return null;
+}
+
+function isUyghurText(str: string): boolean {
+  return /[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]/.test(str);
+}
+
+function prepareUyghurRtl(str: string): string {
+  if (!str) return '';
+  // Reverse digits and percentages so fontkit rtla renders numbers LTR
+  return str.replace(/([0-9]+(\.[0-9]+)?%?)/g, (match) => {
+    return match.split('').reverse().join('');
+  });
+}
+
 /**
  * Generates an executive 2-page PDF document:
  * Page 1: Auto Cash Platform Report
@@ -509,7 +538,7 @@ export async function generateFinancialPdf(data: FinancialReportData): Promise<B
     try {
       const doc = new PDFDocument({
         size: 'A4',
-        margin: 36,
+        margins: { top: 36, bottom: 20, left: 36, right: 36 },
         info: {
           Title: `${data.periodLabel} - Auto Cash & Max Bazar`,
           Author: 'Auto Cash & Max Bazar Financial System',
@@ -517,6 +546,18 @@ export async function generateFinancialPdf(data: FinancialReportData): Promise<B
           CreationDate: new Date(),
         },
       });
+
+      const fontPaths = getUyghurFontPaths();
+      let hasAlkatip = false;
+      if (fontPaths) {
+        try {
+          doc.registerFont('Alkatip', fontPaths.regular);
+          doc.registerFont('Alkatip-Bold', fontPaths.bold);
+          hasAlkatip = true;
+        } catch (fontErr) {
+          console.warn('Failed to register Alkatip font:', fontErr);
+        }
+      }
 
       const buffers: Buffer[] = [];
       doc.on('data', (chunk) => buffers.push(chunk));
@@ -527,6 +568,47 @@ export async function generateFinancialPdf(data: FinancialReportData): Promise<B
       const pageHeight = 841.89;
       const margin = 36;
       const contentWidth = pageWidth - margin * 2;
+
+      // -----------------------------------------------------------------------
+      // HELPER: RENDER TEXT (AUTO DETECT UYGHUR / LATIN)
+      // -----------------------------------------------------------------------
+      const renderPdfText = (
+        text: string,
+        x: number,
+        y: number,
+        options: {
+          bold?: boolean;
+          size?: number;
+          color?: string;
+          align?: 'left' | 'right' | 'center';
+          width?: number;
+          forceLatin?: boolean;
+          lineBreak?: boolean;
+        } = {}
+      ) => {
+        const { bold = false, size = 8, color = '#1e293b', align, width, forceLatin = false, lineBreak = false } = options;
+        doc.save();
+        doc.fontSize(size).fillColor(color);
+
+        const isUy = !forceLatin && isUyghurText(text);
+        if (isUy && hasAlkatip) {
+          doc.font(bold ? 'Alkatip-Bold' : 'Alkatip');
+          doc.text(prepareUyghurRtl(text), x, y, {
+            width,
+            align: align || 'right',
+            features: ['rtla'],
+            lineBreak,
+          });
+        } else {
+          doc.font(bold ? 'Helvetica-Bold' : 'Helvetica');
+          doc.text(text, x, y, {
+            width,
+            align: align || 'left',
+            lineBreak,
+          });
+        }
+        doc.restore();
+      };
 
       // -----------------------------------------------------------------------
       // HELPER: DRAW METRIC CARD
@@ -545,18 +627,30 @@ export async function generateFinancialPdf(data: FinancialReportData): Promise<B
         doc.roundedRect(x, y, w, h, 6).fillAndStroke('#f8fafc', '#e2e8f0');
         doc.rect(x, y, 4, h).fill(colorHex);
 
-        doc.fillColor('#64748b').fontSize(7.5).font('Helvetica-Bold').text(title.toUpperCase(), x + 10, y + 8, {
+        renderPdfText(title, x + 8, y + 8, {
+          bold: true,
+          size: 8,
+          color: '#475569',
+          width: w - 16,
+          align: 'right',
+        });
+
+        renderPdfText(val, x + 8, y + 20, {
+          bold: true,
+          size: 13,
+          color: '#0f172a',
           width: w - 16,
           align: 'left',
+          forceLatin: true,
         });
-        doc.fillColor('#0f172a').fontSize(14).font('Helvetica-Bold').text(val, x + 10, y + 20, {
+
+        renderPdfText(sub, x + 8, y + 36, {
+          size: 7,
+          color: colorHex,
           width: w - 16,
-          align: 'left',
+          align: 'right',
         });
-        doc.fillColor(colorHex).fontSize(7).font('Helvetica').text(sub, x + 10, y + 38, {
-          width: w - 16,
-          align: 'left',
-        });
+
         doc.restore();
       };
 
@@ -565,7 +659,7 @@ export async function generateFinancialPdf(data: FinancialReportData): Promise<B
       // -----------------------------------------------------------------------
       const drawTableRow = (
         y: number,
-        cols: { text: string; w: number; align?: 'left' | 'right' | 'center'; bold?: boolean; color?: string }[],
+        cols: { text: string; w: number; align?: 'left' | 'right' | 'center'; bold?: boolean; color?: string; forceLatin?: boolean }[],
         isHeader = false,
         bgColor?: string
       ) => {
@@ -579,12 +673,16 @@ export async function generateFinancialPdf(data: FinancialReportData): Promise<B
 
         let curX = margin + 6;
         for (const col of cols) {
-          doc.font(col.bold || isHeader ? 'Helvetica-Bold' : 'Helvetica');
-          doc.fontSize(isHeader ? 7.5 : 7.5);
-          doc.fillColor(col.color || (isHeader ? '#334155' : '#1e293b'));
-          doc.text(col.text, curX, y + (isHeader ? 4.5 : 4), {
+          const isUy = !col.forceLatin && isUyghurText(col.text);
+          const defaultAlign = isUy ? 'right' : 'left';
+
+          renderPdfText(col.text, curX, y + (isHeader ? 4.5 : 4), {
+            bold: col.bold || isHeader,
+            size: 7.5,
+            color: col.color || (isHeader ? '#334155' : '#1e293b'),
+            align: col.align || defaultAlign,
             width: col.w - 12,
-            align: col.align || 'left',
+            forceLatin: col.forceLatin,
           });
           curX += col.w;
         }
@@ -602,48 +700,49 @@ export async function generateFinancialPdf(data: FinancialReportData): Promise<B
       doc.rect(0, 0, pageWidth, 75).fill('#0a192f');
       doc.rect(0, 75, pageWidth, 3).fill('#f59e0b');
 
-      doc.fillColor('#ffffff').fontSize(18).font('Helvetica-Bold').text('AUTO CASH', margin, 18);
-      doc.fillColor('#fbbf24').fontSize(8.5).font('Helvetica-Bold').text('GLOBAL DIGITAL ASSET & WHOLESALE HUB', margin, 38);
-      doc.fillColor('#94a3b8').fontSize(7.5).font('Helvetica').text('Automated Multi-Channel Financial Reconciliation Ledger', margin, 50);
+      renderPdfText('AUTO CASH', margin, 18, { bold: true, size: 18, color: '#ffffff', forceLatin: true });
+      renderPdfText('مەركىزى رەقەملىك سودا ۋە توپ تارقىتىش سۇپىسى', margin, 40, { bold: true, size: 9, color: '#fbbf24' });
+      renderPdfText('سودا سۇپىسىنىڭ كۈندىلىك مالىيە ۋە زاكاز ھېسابات دوكلاتى', margin, 54, { size: 7.5, color: '#94a3b8' });
 
       // Top Right Period Badge
       doc.roundedRect(pageWidth - margin - 170, 16, 170, 44, 4).fillAndStroke('#0f2442', '#1e3a5f');
-      doc.fillColor('#38bdf8').fontSize(8.5).font('Helvetica-Bold').text(data.period.toUpperCase() + ' LEDGER', pageWidth - margin - 162, 22, { align: 'right', width: 154 });
-      doc.fillColor('#ffffff').fontSize(8).font('Helvetica').text(data.dateRangeStr, pageWidth - margin - 162, 34, { align: 'right', width: 154 });
-      doc.fillColor('#94a3b8').fontSize(6.5).font('Helvetica').text(`Run: ${data.generatedAt} (UTC+3)`, pageWidth - margin - 162, 46, { align: 'right', width: 154 });
+      renderPdfText(data.periodLabel, pageWidth - margin - 162, 22, { bold: true, size: 8.5, color: '#38bdf8', align: 'right', width: 154 });
+      renderPdfText(data.dateRangeStr, pageWidth - margin - 162, 35, { size: 8, color: '#ffffff', align: 'right', width: 154, forceLatin: true });
+      renderPdfText(`Run: ${data.generatedAt} (UTC+3)`, pageWidth - margin - 162, 47, { size: 6.5, color: '#94a3b8', align: 'right', width: 154, forceLatin: true });
 
       // KPI CARDS ROW (5 Cards)
       let curY = 92;
       const cardW = (contentWidth - 4 * 8) / 5;
       const cardH = 50;
 
-      drawMetricCard(margin + 0 * (cardW + 8), curY, cardW, cardH, 'Net Profit (ساپ پايدا)', formatUSD(data.autoCash.netProfit), `Margin: ${(data.autoCash.orders.completedAmount > 0 ? (data.autoCash.netProfit / data.autoCash.orders.completedAmount * 100).toFixed(1) : 0)}%`, '#059669');
-      drawMetricCard(margin + 1 * (cardW + 8), curY, cardW, cardH, 'Inflow (پۇل كىرىمى)', formatUSD(data.autoCash.inflow.total), `${data.autoCash.inflow.completedCount} Deposits`, '#2563eb');
-      drawMetricCard(margin + 2 * (cardW + 8), curY, cardW, cardH, 'Orders (پۈتكەن زاكاز)', formatUSD(data.autoCash.orders.completedAmount), `${data.autoCash.orders.completedCount} / ${data.autoCash.orders.totalCount} Orders`, '#7c3aed');
-      drawMetricCard(margin + 3 * (cardW + 8), curY, cardW, cardH, 'Supplier (تەمىنلىگۈچى)', formatUSD(data.autoCash.supplier.totalCost), `Refunds: ${formatUSD(data.autoCash.supplier.refundAmount)}`, '#d97706');
-      drawMetricCard(margin + 4 * (cardW + 8), curY, cardW, cardH, 'User Balances (قالدۇق)', formatUSD(data.autoCash.totalUserBalances), `${allUsersCountText(data.autoCash.newCustomersCount)}`, '#0f766e');
+      const acMarginPct = (data.autoCash.orders.completedAmount > 0 ? (data.autoCash.netProfit / data.autoCash.orders.completedAmount * 100).toFixed(1) : '0.0');
+      drawMetricCard(margin + 0 * (cardW + 8), curY, cardW, cardH, 'ساپ پايدا', formatUSD(data.autoCash.netProfit), `پايدا نىسبىتى: ${acMarginPct}%`, '#059669');
+      drawMetricCard(margin + 1 * (cardW + 8), curY, cardW, cardH, 'پۇل كىرىمى', formatUSD(data.autoCash.inflow.total), `${data.autoCash.inflow.completedCount} قېتىم تولۇقلاندى`, '#2563eb');
+      drawMetricCard(margin + 2 * (cardW + 8), curY, cardW, cardH, 'پۈتكەن زاكاز', formatUSD(data.autoCash.orders.completedAmount), `${data.autoCash.orders.completedCount} / ${data.autoCash.orders.totalCount} زاكاز`, '#7c3aed');
+      drawMetricCard(margin + 3 * (cardW + 8), curY, cardW, cardH, 'تەمىنلىگۈچى چىقىمى', formatUSD(data.autoCash.supplier.totalCost), `قايتۇرۇلغىنى: ${formatUSD(data.autoCash.supplier.refundAmount)}`, '#d97706');
+      drawMetricCard(margin + 4 * (cardW + 8), curY, cardW, cardH, 'خېرىدارلار قالدۇقى', formatUSD(data.autoCash.totalUserBalances), `${data.autoCash.newCustomersCount > 0 ? `+${data.autoCash.newCustomersCount} يېڭى خېرىدار` : 'پائال ھېساباتلار'}`, '#0f766e');
 
       curY += cardH + 16;
 
       // SECTION 1: INFLOW & SETTLEMENT
-      doc.fillColor('#0f172a').fontSize(10).font('Helvetica-Bold').text('1. CAPITAL INFLOW & DEPOSIT METHODS (پۇل كىرىمى)', margin, curY);
-      curY += 15;
+      renderPdfText('1. شامكەش ۋە ھېساباتقا كىرگەن ئامانەت پۇللار', margin, curY, { bold: true, size: 10, color: '#0f172a' });
+      curY += 16;
 
       const colWInflow = [170, 110, 120, 123.28];
       drawTableRow(curY, [
-        { text: 'Deposit Channel (تۆلەش ئۇسۇلى)', w: colWInflow[0] },
-        { text: 'Completed Tx Count', w: colWInflow[1], align: 'center' },
-        { text: 'Settled Amount (سوممىسى)', w: colWInflow[2], align: 'right' },
-        { text: 'Channel Share (%)', w: colWInflow[3], align: 'right' },
+        { text: 'پۇل كىرىش يولى', w: colWInflow[0] },
+        { text: 'تاماملانغان قېتىم سانى', w: colWInflow[1], align: 'center' },
+        { text: 'دەلىللەنگەن سومما', w: colWInflow[2], align: 'right' },
+        { text: 'ئىگىلىگەن نىسبىتى', w: colWInflow[3], align: 'right' },
       ], true);
       curY += 18;
 
       if (data.autoCash.inflow.breakdown.length === 0) {
         drawTableRow(curY, [
-          { text: 'ShamCash Automated Talon Protocol (TSA)', w: colWInflow[0] },
-          { text: '0', w: colWInflow[1], align: 'center' },
-          { text: '$0.00', w: colWInflow[2], align: 'right' },
-          { text: '0.0%', w: colWInflow[3], align: 'right' },
+          { text: 'شامكەش ئاپتوماتىك پۇل كىرىمى', w: colWInflow[0] },
+          { text: '0', w: colWInflow[1], align: 'center', forceLatin: true },
+          { text: '$0.00', w: colWInflow[2], align: 'right', forceLatin: true },
+          { text: '0.0%', w: colWInflow[3], align: 'right', forceLatin: true },
         ]);
         curY += 16;
       } else {
@@ -651,9 +750,9 @@ export async function generateFinancialPdf(data: FinancialReportData): Promise<B
           const share = data.autoCash.inflow.total > 0 ? ((item.amount / data.autoCash.inflow.total) * 100).toFixed(1) + '%' : '0.0%';
           drawTableRow(curY, [
             { text: item.method, w: colWInflow[0], bold: true },
-            { text: String(item.count), w: colWInflow[1], align: 'center' },
-            { text: formatUSD(item.amount), w: colWInflow[2], align: 'right', bold: true },
-            { text: share, w: colWInflow[3], align: 'right' },
+            { text: String(item.count), w: colWInflow[1], align: 'center', forceLatin: true },
+            { text: formatUSD(item.amount), w: colWInflow[2], align: 'right', bold: true, forceLatin: true },
+            { text: share, w: colWInflow[3], align: 'right', forceLatin: true },
           ]);
           curY += 16;
         }
@@ -662,77 +761,77 @@ export async function generateFinancialPdf(data: FinancialReportData): Promise<B
       curY += 12;
 
       // SECTION 2: ORDERS FULFILLMENT & COST ANALYSIS
-      doc.fillColor('#0f172a').fontSize(10).font('Helvetica-Bold').text('2. ORDERS RECONCILIATION & SUPPLIER EXPENSES (زاكاز ۋە تەننەرخ)', margin, curY);
-      curY += 15;
+      renderPdfText('2. زاكازلار ۋە تەمىنلىگۈچى تەرەپ تەننەرخى', margin, curY, { bold: true, size: 10, color: '#0f172a' });
+      curY += 16;
 
       const colWOrders = [150, 80, 95, 100, 98.28];
       drawTableRow(curY, [
-        { text: 'Fulfillment Status (ھالىتى)', w: colWOrders[0] },
-        { text: 'Orders', w: colWOrders[1], align: 'center' },
-        { text: 'Gross Turnover', w: colWOrders[2], align: 'right' },
-        { text: 'Wholesale Cost', w: colWOrders[3], align: 'right' },
-        { text: 'Net Realized', w: colWOrders[4], align: 'right' },
+        { text: 'زاكاز ھالىتى', w: colWOrders[0] },
+        { text: 'زاكاز سانى', w: colWOrders[1], align: 'center' },
+        { text: 'خېرىدار چىقىمى', w: colWOrders[2], align: 'right' },
+        { text: 'تەمىنلىگۈچى تەننەرخى', w: colWOrders[3], align: 'right' },
+        { text: 'ساپ پايدا', w: colWOrders[4], align: 'right' },
       ], true);
       curY += 18;
 
       drawTableRow(curY, [
-        { text: 'Completed / Delivered (مۇۋەپپەقىيەتلىك)', w: colWOrders[0], bold: true, color: '#059669' },
-        { text: String(data.autoCash.orders.completedCount), w: colWOrders[1], align: 'center', bold: true },
-        { text: formatUSD(data.autoCash.orders.completedAmount), w: colWOrders[2], align: 'right', bold: true },
-        { text: formatUSD(data.autoCash.supplier.totalCost), w: colWOrders[3], align: 'right', color: '#d97706' },
-        { text: formatUSD(data.autoCash.netProfit), w: colWOrders[4], align: 'right', bold: true, color: '#059669' },
+        { text: 'مۇۋەپپەقىيەتلىك تاماملانغان', w: colWOrders[0], bold: true, color: '#059669' },
+        { text: String(data.autoCash.orders.completedCount), w: colWOrders[1], align: 'center', bold: true, forceLatin: true },
+        { text: formatUSD(data.autoCash.orders.completedAmount), w: colWOrders[2], align: 'right', bold: true, forceLatin: true },
+        { text: formatUSD(data.autoCash.supplier.totalCost), w: colWOrders[3], align: 'right', color: '#d97706', forceLatin: true },
+        { text: formatUSD(data.autoCash.netProfit), w: colWOrders[4], align: 'right', bold: true, color: '#059669', forceLatin: true },
       ]);
       curY += 16;
 
       drawTableRow(curY, [
-        { text: 'Refunded / Rejected (پۇلى قايتۇرۇلغان)', w: colWOrders[0], color: '#e11d48' },
-        { text: String(data.autoCash.orders.refundedCount), w: colWOrders[1], align: 'center' },
-        { text: formatUSD(data.autoCash.orders.refundedAmount), w: colWOrders[2], align: 'right', color: '#e11d48' },
-        { text: formatUSD(data.autoCash.supplier.refundAmount), w: colWOrders[3], align: 'right' },
-        { text: '$0.00 (Customer Refunded)', w: colWOrders[4], align: 'right', color: '#64748b' },
+        { text: 'پۇلى قايتۇرۇلغان / رەت قىلىنغان', w: colWOrders[0], color: '#e11d48' },
+        { text: String(data.autoCash.orders.refundedCount), w: colWOrders[1], align: 'center', forceLatin: true },
+        { text: formatUSD(data.autoCash.orders.refundedAmount), w: colWOrders[2], align: 'right', color: '#e11d48', forceLatin: true },
+        { text: formatUSD(data.autoCash.supplier.refundAmount), w: colWOrders[3], align: 'right', forceLatin: true },
+        { text: '$0.00 • قايتۇرۇلدى', w: colWOrders[4], align: 'right', color: '#64748b' },
       ]);
       curY += 16;
 
       drawTableRow(curY, [
-        { text: 'Pending / Processing (بېجىرىلىۋاتقان)', w: colWOrders[0], color: '#f59e0b' },
-        { text: String(data.autoCash.orders.pendingCount), w: colWOrders[1], align: 'center' },
-        { text: formatUSD(data.autoCash.orders.pendingAmount), w: colWOrders[2], align: 'right' },
-        { text: '-', w: colWOrders[3], align: 'right' },
-        { text: 'In Escrow', w: colWOrders[4], align: 'right', color: '#f59e0b' },
+        { text: 'تەمىنلىگۈچىدە ساقلىنىۋاتقان', w: colWOrders[0], color: '#f59e0b' },
+        { text: String(data.autoCash.orders.pendingCount), w: colWOrders[1], align: 'center', forceLatin: true },
+        { text: formatUSD(data.autoCash.orders.pendingAmount), w: colWOrders[2], align: 'right', forceLatin: true },
+        { text: '-', w: colWOrders[3], align: 'right', forceLatin: true },
+        { text: 'ساقلىنىۋاتىدۇ', w: colWOrders[4], align: 'right', color: '#f59e0b' },
       ]);
       curY += 16;
 
       curY += 12;
 
       // SECTION 3: NEW CUSTOMERS ACQUIRED
-      doc.fillColor('#0f172a').fontSize(10).font('Helvetica-Bold').text(`3. RECENT CUSTOMER ONBOARDING (يېڭى خېرىدارلار: ${data.autoCash.newCustomersCount} نەپەر)`, margin, curY);
-      curY += 15;
+      renderPdfText(`3. يېڭىدىن قوشۇلغان خېرىدارلار تىزىملىكى: ${data.autoCash.newCustomersCount} نەپەر`, margin, curY, { bold: true, size: 10, color: '#0f172a' });
+      curY += 16;
 
       const colWUsers = [40, 160, 180, 143.28];
       drawTableRow(curY, [
         { text: '#', w: colWUsers[0], align: 'center' },
-        { text: 'Customer Name / Handle', w: colWUsers[1] },
-        { text: 'Contact / Telegram / Phone', w: colWUsers[2] },
-        { text: 'Registration Timestamp', w: colWUsers[3], align: 'right' },
+        { text: 'خېرىدار ئىسمى', w: colWUsers[1] },
+        { text: 'ئالاقە / تېلېگرامما / تېلېفون', w: colWUsers[2] },
+        { text: 'تىزىملاتقان ۋاقتى', w: colWUsers[3], align: 'right' },
       ], true);
       curY += 18;
 
       const displayUsers = data.autoCash.newCustomers.slice(0, 8);
       if (displayUsers.length === 0) {
         drawTableRow(curY, [
-          { text: '-', w: colWUsers[0], align: 'center' },
-          { text: 'No new registrations in this exact reporting window', w: colWUsers[1] },
-          { text: 'Active users continue to transact', w: colWUsers[2] },
-          { text: '-', w: colWUsers[3], align: 'right' },
+          { text: '-', w: colWUsers[0], align: 'center', forceLatin: true },
+          { text: 'بۇ دوكلات مەزگىلىدە يېڭى تىزىملاتقانلار يوق', w: colWUsers[1] },
+          { text: 'پائال خېرىدارلار داۋاملىق سودا قىلماقتا', w: colWUsers[2] },
+          { text: '-', w: colWUsers[3], align: 'right', forceLatin: true },
         ]);
         curY += 16;
       } else {
         displayUsers.forEach((u, i) => {
           drawTableRow(curY, [
-            { text: String(i + 1), w: colWUsers[0], align: 'center' },
+            { text: String(i + 1), w: colWUsers[0], align: 'center', forceLatin: true },
             { text: u.name, w: colWUsers[1], bold: true },
             { text: u.contact, w: colWUsers[2] },
-            { text: u.registeredAt, w: colWUsers[3], align: 'right' },
+            { text: u.registeredAt, w: colWUsers[3], align: 'right', forceLatin: true },
           ]);
           curY += 16;
         });
@@ -741,8 +840,8 @@ export async function generateFinancialPdf(data: FinancialReportData): Promise<B
       // Page 1 Footer
       doc.save();
       doc.strokeColor('#cbd5e1').lineWidth(0.5).moveTo(margin, pageHeight - 45).lineTo(margin + contentWidth, pageHeight - 45).stroke();
-      doc.fillColor('#64748b').fontSize(7.5).font('Helvetica').text('AUTO CASH FINANCIAL OPERATING SYSTEM • STRICTLY CONFIDENTIAL', margin, pageHeight - 36);
-      doc.fillColor('#0f172a').fontSize(8).font('Helvetica-Bold').text('PAGE 1 OF 2  [ AUTO CASH ]', margin, pageHeight - 36, { align: 'right', width: contentWidth });
+      renderPdfText('مەركىزى مالىيە باشقۇرۇش سىستېمىسى • مەخپىي ھۆججەت', margin, pageHeight - 32, { size: 7.5, color: '#64748b', lineBreak: false });
+      renderPdfText('1-بەت • ئاپتو كەشنىڭ كۈندىلىك دوكلاتى', margin, pageHeight - 32, { bold: true, size: 8, color: '#0f172a', align: 'right', width: contentWidth, lineBreak: false });
       doc.restore();
 
       // =======================================================================
@@ -754,53 +853,54 @@ export async function generateFinancialPdf(data: FinancialReportData): Promise<B
       doc.rect(0, 0, pageWidth, 75).fill('#064e3b');
       doc.rect(0, 75, pageWidth, 3).fill('#10b981');
 
-      doc.fillColor('#ffffff').fontSize(18).font('Helvetica-Bold').text('MAX BAZAR', margin, 18);
-      doc.fillColor('#a7f3d0').fontSize(8.5).font('Helvetica-Bold').text('MICRO-APPS & HIGH-SPEED GAMING EXCHANGE', margin, 38);
-      doc.fillColor('#6ee7b7').fontSize(7.5).font('Helvetica').text('MaxStore Wholesale Integration & Telegram Mini-App Ledger', margin, 50);
+      renderPdfText('MAX BAZAR', margin, 18, { bold: true, size: 18, color: '#ffffff', forceLatin: true });
+      renderPdfText('مىكرو ئەپلەر ۋە ئويۇن مۇلازىمەت سۇپىسى', margin, 40, { bold: true, size: 9, color: '#a7f3d0' });
+      renderPdfText('تەمىنلىگۈچى ۋە تېلېگرامما كىچىك ئەپلىرىنىڭ كۈندىلىك دوكلاتى', margin, 54, { size: 7.5, color: '#6ee7b7' });
 
       // Top Right Period Badge
       doc.roundedRect(pageWidth - margin - 170, 16, 170, 44, 4).fillAndStroke('#022c22', '#047857');
-      doc.fillColor('#34d399').fontSize(8.5).font('Helvetica-Bold').text(data.period.toUpperCase() + ' LEDGER', pageWidth - margin - 162, 22, { align: 'right', width: 154 });
-      doc.fillColor('#ffffff').fontSize(8).font('Helvetica').text(data.dateRangeStr, pageWidth - margin - 162, 34, { align: 'right', width: 154 });
-      doc.fillColor('#a7f3d0').fontSize(6.5).font('Helvetica').text(`Run: ${data.generatedAt} (UTC+3)`, pageWidth - margin - 162, 46, { align: 'right', width: 154 });
+      renderPdfText(data.periodLabel, pageWidth - margin - 162, 22, { bold: true, size: 8.5, color: '#34d399', align: 'right', width: 154 });
+      renderPdfText(data.dateRangeStr, pageWidth - margin - 162, 35, { size: 8, color: '#ffffff', align: 'right', width: 154, forceLatin: true });
+      renderPdfText(`Run: ${data.generatedAt} (UTC+3)`, pageWidth - margin - 162, 47, { size: 6.5, color: '#a7f3d0', align: 'right', width: 154, forceLatin: true });
 
       curY = 92;
 
       // KPI CARDS ROW (5 Cards)
-      drawMetricCard(margin + 0 * (cardW + 8), curY, cardW, cardH, 'Net Profit (ساپ پايدا)', formatUSD(data.maxBazar.netProfit), `Margin: ${(data.maxBazar.orders.completedAmount > 0 ? (data.maxBazar.netProfit / data.maxBazar.orders.completedAmount * 100).toFixed(1) : 0)}%`, '#059669');
-      drawMetricCard(margin + 1 * (cardW + 8), curY, cardW, cardH, 'Gross Turnover (ئايلانما)', formatUSD(data.maxBazar.orders.completedAmount), `${data.maxBazar.orders.completedCount} Deliveries`, '#0891b2');
-      drawMetricCard(margin + 2 * (cardW + 8), curY, cardW, cardH, 'Wholesale Cost (تەننەرخ)', formatUSD(data.maxBazar.supplier.totalCost), 'MaxStore V2 API', '#d97706');
-      drawMetricCard(margin + 3 * (cardW + 8), curY, cardW, cardH, 'Refunded Orders (قايتقان)', formatUSD(data.maxBazar.orders.refundedAmount), `${data.maxBazar.orders.refundedCount} Auto-Refunds`, '#e11d48');
-      drawMetricCard(margin + 4 * (cardW + 8), curY, cardW, cardH, 'Wallet Reserve (ئومۇمىي)', formatUSD(data.maxBazar.totalUserBalances), 'Unified App Wallets', '#047857');
+      const mbMarginPct = (data.maxBazar.orders.completedAmount > 0 ? (data.maxBazar.netProfit / data.maxBazar.orders.completedAmount * 100).toFixed(1) : '0.0');
+      drawMetricCard(margin + 0 * (cardW + 8), curY, cardW, cardH, 'ساپ پايدا', formatUSD(data.maxBazar.netProfit), `پايدا نىسبىتى: ${mbMarginPct}%`, '#059669');
+      drawMetricCard(margin + 1 * (cardW + 8), curY, cardW, cardH, 'ئومۇمىي ئايلانما', formatUSD(data.maxBazar.orders.completedAmount), `${data.maxBazar.orders.completedCount} پۈتكەن زاكاز`, '#0891b2');
+      drawMetricCard(margin + 2 * (cardW + 8), curY, cardW, cardH, 'تەمىنلىگۈچى تەننەرخى', formatUSD(data.maxBazar.supplier.totalCost), 'تەمىنلىگۈچى زاكاز تەستىقى', '#d97706');
+      drawMetricCard(margin + 3 * (cardW + 8), curY, cardW, cardH, 'قايتۇرۇلغان زاكازلار', formatUSD(data.maxBazar.orders.refundedAmount), `${data.maxBazar.orders.refundedCount} قايتۇرۇلدى`, '#e11d48');
+      drawMetricCard(margin + 4 * (cardW + 8), curY, cardW, cardH, 'ھەمبەھىر قالدۇق', formatUSD(data.maxBazar.totalUserBalances), 'ئومۇمىي خېرىدار قالدۇقى', '#047857');
 
       curY += cardH + 16;
 
       // SECTION 1: GAMING & APP TOP-UP SERVICES BREAKDOWN
-      doc.fillColor('#0f172a').fontSize(10).font('Helvetica-Bold').text('1. MICRO-APP SALES & SERVICE DISTRIBUTION (ئويۇن ۋە ئەپ تەقسىماتى)', margin, curY);
-      curY += 15;
+      renderPdfText('1. مىكرو ئەپ ۋە ئويۇن مۇلازىمەتلىرى تەقسىماتى', margin, curY, { bold: true, size: 10, color: '#0f172a' });
+      curY += 16;
 
       const colWAppSales = [180, 100, 120, 123.28];
       drawTableRow(curY, [
-        { text: 'Micro-App / Category (مۇلازىمەت تۈرى)', w: colWAppSales[0] },
-        { text: 'Orders Count', w: colWAppSales[1], align: 'center' },
-        { text: 'Gross Retail (سېتىلىش باھاسى)', w: colWAppSales[2], align: 'right' },
-        { text: 'Est. Wholesale Cost', w: colWAppSales[3], align: 'right' },
+        { text: 'ئەپ ياكى ئويۇن تۈرى', w: colWAppSales[0] },
+        { text: 'زاكاز سانى', w: colWAppSales[1], align: 'center' },
+        { text: 'سېتىلىش باھاسى', w: colWAppSales[2], align: 'right' },
+        { text: 'تەمىنلىگۈچى تەننەرخى', w: colWAppSales[3], align: 'right' },
       ], true);
       curY += 18;
 
       if (!data.maxBazar.serviceBreakdown || data.maxBazar.serviceBreakdown.length === 0) {
         drawTableRow(curY, [
           { text: 'PUBG Mobile UC Topup (Global / Turkey)', w: colWAppSales[0] },
-          { text: '0', w: colWAppSales[1], align: 'center' },
-          { text: '$0.00', w: colWAppSales[2], align: 'right' },
-          { text: '$0.00', w: colWAppSales[3], align: 'right' },
+          { text: '0', w: colWAppSales[1], align: 'center', forceLatin: true },
+          { text: '$0.00', w: colWAppSales[2], align: 'right', forceLatin: true },
+          { text: '$0.00', w: colWAppSales[3], align: 'right', forceLatin: true },
         ]);
         curY += 16;
         drawTableRow(curY, [
           { text: 'Honor of Kings Tokens (Global)', w: colWAppSales[0] },
-          { text: '0', w: colWAppSales[1], align: 'center' },
-          { text: '$0.00', w: colWAppSales[2], align: 'right' },
-          { text: '$0.00', w: colWAppSales[3], align: 'right' },
+          { text: '0', w: colWAppSales[1], align: 'center', forceLatin: true },
+          { text: '$0.00', w: colWAppSales[2], align: 'right', forceLatin: true },
+          { text: '$0.00', w: colWAppSales[3], align: 'right', forceLatin: true },
         ]);
         curY += 16;
       } else {
@@ -808,9 +908,9 @@ export async function generateFinancialPdf(data: FinancialReportData): Promise<B
           const sCost = Math.round(s.amount * 0.88 * 100) / 100;
           drawTableRow(curY, [
             { text: s.serviceName, w: colWAppSales[0], bold: true },
-            { text: String(s.count), w: colWAppSales[1], align: 'center' },
-            { text: formatUSD(s.amount), w: colWAppSales[2], align: 'right', bold: true },
-            { text: formatUSD(sCost), w: colWAppSales[3], align: 'right' },
+            { text: String(s.count), w: colWAppSales[1], align: 'center', forceLatin: true },
+            { text: formatUSD(s.amount), w: colWAppSales[2], align: 'right', bold: true, forceLatin: true },
+            { text: formatUSD(sCost), w: colWAppSales[3], align: 'right', forceLatin: true },
           ]);
           curY += 16;
         }
@@ -819,75 +919,75 @@ export async function generateFinancialPdf(data: FinancialReportData): Promise<B
       curY += 12;
 
       // SECTION 2: ORDERS FULFILLMENT & MAXSTORE RECONCILIATION
-      doc.fillColor('#0f172a').fontSize(10).font('Helvetica-Bold').text('2. MAXSTORE WHOLESALE RECONCILIATION (تەمىنلىگۈچى ھېساباتى)', margin, curY);
-      curY += 15;
+      renderPdfText('2. تەمىنلىگۈچى تەرەپ ھېساباتى ۋە زاكاز ھالىتى', margin, curY, { bold: true, size: 10, color: '#0f172a' });
+      curY += 16;
 
       drawTableRow(curY, [
-        { text: 'Fulfillment Status (ھالىتى)', w: colWOrders[0] },
-        { text: 'Orders', w: colWOrders[1], align: 'center' },
-        { text: 'Gross Turnover', w: colWOrders[2], align: 'right' },
-        { text: 'Wholesale Cost', w: colWOrders[3], align: 'right' },
-        { text: 'Net Realized', w: colWOrders[4], align: 'right' },
+        { text: 'زاكاز ھالىتى', w: colWOrders[0] },
+        { text: 'زاكاز سانى', w: colWOrders[1], align: 'center' },
+        { text: 'خېرىدار چىقىمى', w: colWOrders[2], align: 'right' },
+        { text: 'تەمىنلىگۈچى تەننەرخى', w: colWOrders[3], align: 'right' },
+        { text: 'ساپ پايدا', w: colWOrders[4], align: 'right' },
       ], true);
       curY += 18;
 
       drawTableRow(curY, [
-        { text: 'Completed / Recharged (ماقۇللانغان)', w: colWOrders[0], bold: true, color: '#059669' },
-        { text: String(data.maxBazar.orders.completedCount), w: colWOrders[1], align: 'center', bold: true },
-        { text: formatUSD(data.maxBazar.orders.completedAmount), w: colWOrders[2], align: 'right', bold: true },
-        { text: formatUSD(data.maxBazar.supplier.totalCost), w: colWOrders[3], align: 'right', color: '#d97706' },
-        { text: formatUSD(data.maxBazar.netProfit), w: colWOrders[4], align: 'right', bold: true, color: '#059669' },
+        { text: 'مۇۋەپپەقىيەتلىك تاماملانغان', w: colWOrders[0], bold: true, color: '#059669' },
+        { text: String(data.maxBazar.orders.completedCount), w: colWOrders[1], align: 'center', bold: true, forceLatin: true },
+        { text: formatUSD(data.maxBazar.orders.completedAmount), w: colWOrders[2], align: 'right', bold: true, forceLatin: true },
+        { text: formatUSD(data.maxBazar.supplier.totalCost), w: colWOrders[3], align: 'right', color: '#d97706', forceLatin: true },
+        { text: formatUSD(data.maxBazar.netProfit), w: colWOrders[4], align: 'right', bold: true, color: '#059669', forceLatin: true },
       ]);
       curY += 16;
 
       drawTableRow(curY, [
-        { text: 'Provider Rejected / Auto-Refund (قايتۇرۇلغان)', w: colWOrders[0], color: '#e11d48' },
-        { text: String(data.maxBazar.orders.refundedCount), w: colWOrders[1], align: 'center' },
-        { text: formatUSD(data.maxBazar.orders.refundedAmount), w: colWOrders[2], align: 'right', color: '#e11d48' },
-        { text: formatUSD(data.maxBazar.supplier.refundAmount), w: colWOrders[3], align: 'right' },
-        { text: '$0.00 (Protected)', w: colWOrders[4], align: 'right', color: '#64748b' },
+        { text: 'تەمىنلىگۈچى رەت قىلغان / قايتۇرۇلغان', w: colWOrders[0], color: '#e11d48' },
+        { text: String(data.maxBazar.orders.refundedCount), w: colWOrders[1], align: 'center', forceLatin: true },
+        { text: formatUSD(data.maxBazar.orders.refundedAmount), w: colWOrders[2], align: 'right', color: '#e11d48', forceLatin: true },
+        { text: formatUSD(data.maxBazar.supplier.refundAmount), w: colWOrders[3], align: 'right', forceLatin: true },
+        { text: '$0.00 • قوغدالغان', w: colWOrders[4], align: 'right', color: '#64748b' },
       ]);
       curY += 16;
 
       drawTableRow(curY, [
-        { text: 'In Queue / API Polling (تەمىنلىگۈچىدە)', w: colWOrders[0], color: '#f59e0b' },
-        { text: String(data.maxBazar.orders.pendingCount), w: colWOrders[1], align: 'center' },
-        { text: formatUSD(data.maxBazar.orders.pendingAmount), w: colWOrders[2], align: 'right' },
-        { text: '-', w: colWOrders[3], align: 'right' },
-        { text: 'Pending Provider', w: colWOrders[4], align: 'right', color: '#f59e0b' },
+        { text: 'تەمىنلىگۈچىدە ساقلىنىۋاتقان', w: colWOrders[0], color: '#f59e0b' },
+        { text: String(data.maxBazar.orders.pendingCount), w: colWOrders[1], align: 'center', forceLatin: true },
+        { text: formatUSD(data.maxBazar.orders.pendingAmount), w: colWOrders[2], align: 'right', forceLatin: true },
+        { text: '-', w: colWOrders[3], align: 'right', forceLatin: true },
+        { text: 'تەمىنلىگۈچىدە ساقلىنىۋاتىدۇ', w: colWOrders[4], align: 'right', color: '#f59e0b' },
       ]);
       curY += 16;
 
       curY += 12;
 
       // SECTION 3: NEW ACTIVE TELEGRAM & MICRO-APP CUSTOMERS
-      doc.fillColor('#0f172a').fontSize(10).font('Helvetica-Bold').text(`3. RECENT MICRO-APP PARTICIPANTS (يېڭى كىرگەنلەر: ${data.maxBazar.newCustomersCount} نەپەر)`, margin, curY);
-      curY += 15;
+      renderPdfText(`3. يېڭىدىن كىرگەن مىكرو ئەپ ئىشلەتكۈچىلىرى: ${data.maxBazar.newCustomersCount} نەپەر`, margin, curY, { bold: true, size: 10, color: '#0f172a' });
+      curY += 16;
 
       drawTableRow(curY, [
         { text: '#', w: colWUsers[0], align: 'center' },
-        { text: 'Customer Identifier', w: colWUsers[1] },
-        { text: 'Telegram Handle / Channel', w: colWUsers[2] },
-        { text: 'Joined / Active At', w: colWUsers[3], align: 'right' },
+        { text: 'خېرىدار ئۇچۇرى', w: colWUsers[1] },
+        { text: 'تېلېگرامما ئىسمى / تېلېفونى', w: colWUsers[2] },
+        { text: 'قوشۇلغان ۋاقتى', w: colWUsers[3], align: 'right' },
       ], true);
       curY += 18;
 
       const mbDisplay = data.maxBazar.newCustomers.slice(0, 8);
       if (mbDisplay.length === 0) {
         drawTableRow(curY, [
-          { text: '-', w: colWUsers[0], align: 'center' },
-          { text: 'No standalone registrations in this exact reporting window', w: colWUsers[1] },
-          { text: 'Active users transact through Telegram bot', w: colWUsers[2] },
-          { text: '-', w: colWUsers[3], align: 'right' },
+          { text: '-', w: colWUsers[0], align: 'center', forceLatin: true },
+          { text: 'بۇ دوكلات مەزگىلىدە ئايرىم تىزىملاتقانلار يوق', w: colWUsers[1] },
+          { text: 'تېلېگرامما بوت ئارقىلىق سودا قىلىنماقتا', w: colWUsers[2] },
+          { text: '-', w: colWUsers[3], align: 'right', forceLatin: true },
         ]);
         curY += 16;
       } else {
         mbDisplay.forEach((u, i) => {
           drawTableRow(curY, [
-            { text: String(i + 1), w: colWUsers[0], align: 'center' },
+            { text: String(i + 1), w: colWUsers[0], align: 'center', forceLatin: true },
             { text: u.name, w: colWUsers[1], bold: true },
             { text: u.contact, w: colWUsers[2] },
-            { text: u.registeredAt, w: colWUsers[3], align: 'right' },
+            { text: u.registeredAt, w: colWUsers[3], align: 'right', forceLatin: true },
           ]);
           curY += 16;
         });
@@ -896,8 +996,8 @@ export async function generateFinancialPdf(data: FinancialReportData): Promise<B
       // Page 2 Footer
       doc.save();
       doc.strokeColor('#cbd5e1').lineWidth(0.5).moveTo(margin, pageHeight - 45).lineTo(margin + contentWidth, pageHeight - 45).stroke();
-      doc.fillColor('#64748b').fontSize(7.5).font('Helvetica').text('MAX BAZAR FINANCIAL OPERATING SYSTEM • STRICTLY CONFIDENTIAL', margin, pageHeight - 36);
-      doc.fillColor('#064e3b').fontSize(8).font('Helvetica-Bold').text('PAGE 2 OF 2  [ MAX BAZAR ]', margin, pageHeight - 36, { align: 'right', width: contentWidth });
+      renderPdfText('تەمىنلەش ۋە كىچىك ئەپلەر سىستېمىسى • مەخپىي ھۆججەت', margin, pageHeight - 32, { size: 7.5, color: '#64748b', lineBreak: false });
+      renderPdfText('2-بەت • ماكس بازارنىڭ كۈندىلىك دوكلاتى', margin, pageHeight - 32, { bold: true, size: 8, color: '#064e3b', align: 'right', width: contentWidth, lineBreak: false });
       doc.restore();
 
       doc.end();

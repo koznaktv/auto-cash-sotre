@@ -1,0 +1,12 @@
+{
+  "daily_2026-11-17": {
+    "id": "daily_2026-11-17",
+    "period": "daily",
+    "dateStr": "2026-11-17",
+    "filename": "AUTO_CASH_DAILY_REPORT_2026-11-17.pdf",
+    "sentAt": "2026-11-17T19:22:53.090Z",
+    "messageId": 14,
+    "channel": "@autocashkirim",
+    "status": "sent"
+  }
+}
