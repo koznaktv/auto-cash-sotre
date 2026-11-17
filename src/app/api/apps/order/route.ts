@@ -112,9 +112,6 @@ export async function POST(req: NextRequest) {
     const { identity, player_id, package_id, package_name, price, app_id = 'honor-of-kings' } = body;
 
     const cleanAppId = String(app_id || '').toLowerCase();
-    if (cleanAppId === 'mtn' || cleanAppId === 'mtn-syria' || cleanAppId === 'syriatel') {
-      return NextResponse.json({ ok: false, error: '⚠️ بۇ مۇلازىمەت ھازىرچە ۋاقتىنچە توختىتىلدى (تېخنىكىلىق رېمونت قىلىنىۋاتىدۇ).' }, { status: 400 });
-    }
 
     // 1. Authenticate user from session cookie if present
     let verifiedUser: any = null;
@@ -166,7 +163,7 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    const prefix = (cleanAppId === 'mobile-legends' || cleanAppId === 'mlbb') ? 'ML_' : (cleanAppId === 'pubg' ? 'PUBG_' : 'HOK_');
+    const prefix = (cleanAppId === 'mobile-legends' || cleanAppId === 'mlbb') ? 'ML_' : (cleanAppId === 'pubg' ? 'PUBG_' : (cleanAppId === 'syriatel' ? 'SYR_' : (cleanAppId === 'mtn' || cleanAppId === 'mtn-syria' ? 'MTN_' : 'HOK_')));
     const orderId = prefix + Date.now().toString(36).toUpperCase() + Math.floor(100 + Math.random() * 900);
     let providerOrderId: string | null = null;
     let providerStatus = 'in_progress';
@@ -199,15 +196,31 @@ export async function POST(req: NextRequest) {
         // For MLBB: { player_id, server_id }
         // For PUBG Mobile: { Player_ID } or { player_id }
         // For Honor of Kings: { 'ايدي اللاعب' } or { player_id }
+        // Normalize phone for Syrian telecom cards
+        if (cleanAppId === 'syriatel' || cleanAppId === 'mtn' || cleanAppId === 'mtn-syria') {
+          let digits = targetPlayerId.replace(/\D/g, '');
+          if (digits.startsWith('00963')) digits = '0' + digits.slice(5);
+          else if (digits.startsWith('963')) digits = '0' + digits.slice(3);
+          else if (!digits.startsWith('0') && digits.length === 9) digits = '0' + digits;
+          targetPlayerId = digits || targetPlayerId;
+        }
+
         const orderParams: Record<string, any> = {
           player_id: targetPlayerId,
           Player_ID: targetPlayerId,
+          ID: targetPlayerId,
           'ايدي اللاعب': targetPlayerId,
           'ID Player': targetPlayerId,
+          'رقم المشترك': targetPlayerId,
+          'رقم الهاتف': targetPlayerId,
+          'ادخل رقم الهاتف بدون النداء': targetPlayerId,
+          phone: targetPlayerId,
+          Phone_Number: targetPlayerId,
         };
         if (targetServerId) {
           orderParams.server_id = targetServerId;
           orderParams.Server_ID = targetServerId;
+          orderParams['رقم السيرفر'] = targetServerId;
         }
 
         // For Mobile Legends, MaxStore validates account region directly.

@@ -36,21 +36,26 @@ export interface SyriatelProduct {
 }
 
 const SYRIATEL_CREDIT_PACKAGES: SyriatelProduct[] = [
-  { id: 401, name: '10,000 لىرا ياشباك قالدۇق', type: 'credit', sypAmount: 10000, price: 0.63 },
-  { id: 402, name: '25,000 لىرا ياشباك قالدۇق', type: 'credit', sypAmount: 25000, price: 1.57, tag: 'POPULAR' },
-  { id: 403, name: '50,000 لىرا ياشباك قالدۇق', type: 'credit', sypAmount: 50000, price: 3.10, isPopular: true },
-  { id: 404, name: '100,000 لىرا ياشباك قالدۇق', type: 'credit', sypAmount: 100000, price: 6.12, tag: 'BEST VALUE' },
-  { id: 405, name: '250,000 لىرا ياشباك قالدۇق', type: 'credit', sypAmount: 250000, price: 15.21 },
-  { id: 406, name: '500,000 لىرا ياشباك قالدۇق', type: 'credit', sypAmount: 500000, price: 30.15, tag: 'VIP' },
+  { id: 14, name: '20.19 سۈرىيە لىراسى (وحدة)', type: 'credit', sypAmount: 20.19, price: 0.16 },
+  { id: 22, name: '30.76 سۈرىيە لىراسى (وحدة)', type: 'credit', sypAmount: 30.76, price: 0.25 },
+  { id: 26, name: '40.38 سۈرىيە لىراسى (وحدة)', type: 'credit', sypAmount: 40.38, price: 0.33 },
+  { id: 31, name: '52.88 سۈرىيە لىراسى (وحدة)', type: 'credit', sypAmount: 52.88, price: 0.43 },
+  { id: 35, name: '77.88 سۈرىيە لىراسى (وحدة)', type: 'credit', sypAmount: 77.88, price: 0.63 },
+  { id: 2, name: '100.96 سۈرىيە لىراسى (وحدة)', type: 'credit', sypAmount: 100.96, price: 0.82, isPopular: true, tag: 'POPULAR' },
+  { id: 8, name: '160.58 سۈرىيە لىراسى (وحدة)', type: 'credit', sypAmount: 160.58, price: 1.31 },
+  { id: 15, name: '211.54 سۈرىيە لىراسى (وحدة)', type: 'credit', sypAmount: 211.54, price: 1.72 },
+  { id: 24, name: '370.19 سۈرىيە لىراسى (وحدة)', type: 'credit', sypAmount: 370.19, price: 3.02 },
+  { id: 29, name: '480.77 سۈرىيە لىراسى (وحدة)', type: 'credit', sypAmount: 480.77, price: 3.92 },
+  { id: 4, name: '1,057.69 سۈرىيە لىراسى (وحدة)', type: 'credit', sypAmount: 1057.69, price: 8.54, tag: 'BEST VALUE' },
+  { id: 19, name: '2,403.85 سۈرىيە لىراسى (وحدة)', type: 'credit', sypAmount: 2403.85, price: 19.41, tag: 'VIP' },
 ];
 
 const SYRIATEL_BUNDLE_PACKAGES: SyriatelProduct[] = [
-  { id: 410, name: '1.5GB تېز كۈنلۈك تور', type: 'bundle', dataSize: '1.5GB', duration: '1 كۈن', price: 0.49 },
-  { id: 411, name: '4GB ھەپتىلىك تور', type: 'bundle', dataSize: '4GB', duration: '7 كۈن', price: 1.26 },
-  { id: 412, name: '8GB ئايلىق سوپېر تېزلىك', type: 'bundle', dataSize: '8GB', duration: '30 كۈن', price: 2.52, isPopular: true, tag: 'HOT' },
-  { id: 413, name: '16GB ئايلىق كۈچەيتىلگەن سۈرئەت', type: 'bundle', dataSize: '16GB', duration: '30 كۈن', price: 4.68, tag: 'SUPER' },
-  { id: 414, name: '35GB ئايلىق چەكسىز بەھرىمەن بولۇش', type: 'bundle', dataSize: '35GB', duration: '30 كۈن', price: 9.81 },
-  { id: 415, name: '70GB سوپېر VIP چەكسىز تور', type: 'bundle', dataSize: '70GB', duration: '30 كۈن', price: 17.91, tag: 'PRO MAX' },
+  { id: 2300, name: '6 GB تور + 400 دەقىقە سۆزلىشىش', type: 'bundle', dataSize: '6GB', duration: '30 كۈن', price: 3.88 },
+  { id: 2301, name: '10 GB تور + 500 دەقىقە سۆزلىشىش', type: 'bundle', dataSize: '10GB', duration: '30 كۈن', price: 5.66, isPopular: true, tag: 'POPULAR' },
+  { id: 2303, name: '20 GB تور + 600 دەقىقە سۆزلىشىش', type: 'bundle', dataSize: '20GB', duration: '30 كۈن', price: 9.69, tag: 'BEST VALUE' },
+  { id: 2304, name: '35 GB تور + 700 دەقىقە سۆزلىشىش', type: 'bundle', dataSize: '35GB', duration: '30 كۈن', price: 15.34 },
+  { id: 2305, name: '75 GB تور + 800 دەقىقە سۆزلىشىش', type: 'bundle', dataSize: '75GB', duration: '30 كۈن', price: 24.22, tag: 'VIP' },
 ];
 
 export default function SyriatelAppPage() {
@@ -134,11 +139,7 @@ export default function SyriatelAppPage() {
 
   // Submit Syriatel Order
   const handlePlaceOrder = async () => {
-    const isPaused = true;
-    if (isPaused) {
-      setOrderError('⚠️ بۇ مۇلازىمەت ھازىرچە ۋاقتىنچە توختىتىلدى (رېمونت قىلىنىۋاتىدۇ).');
-      return;
-    }
+    
     if (!session) {
       setShowLoginModal(true);
       return;

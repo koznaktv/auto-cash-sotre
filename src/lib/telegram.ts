@@ -3536,7 +3536,15 @@ export async function handleTelegramWebhook(update: any): Promise<void> {
         chatId,
         messageId,
         getSmsGuideText(),
-        getGuideBackKeyboard({ text: '🛒 مەۋھۇم نومۇر سېتىۋېلىش 📱', callback_data: 'tg_shop_categories' })
+        {
+          inline_keyboard: [
+            [{ text: '🌐 دەرھال مەۋھۇم نومۇر ئېلىش (Telegram, WhatsApp) 📱', web_app: { url: `${TELEGRAM_CONFIG.storeUrl}/numbers` } }],
+            [
+              { text: '🛒 مەھسۇلاتلار دۇكىنى', callback_data: 'tg_shop_categories' },
+              { text: '🔙 كەينىگە', callback_data: 'quick_guide' },
+            ],
+          ],
+        }
       );
       return;
     }
