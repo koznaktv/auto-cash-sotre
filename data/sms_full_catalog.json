@@ -13960,6 +13960,32 @@
       "countriesCount": 123
     },
     {
+      "code": "atv",
+      "name": "Kuaishou (快手)",
+      "nameUg": "Kuaishou (جۇڭگو خۇەيشوۋ 快手)",
+      "category": "social",
+      "color": "#FF5000",
+      "iconUrl": "https://api.dicebear.com/7.x/identicon/svg?seed=atv&backgroundColor=f8fafc",
+      "popular": true,
+      "totalStock": 1205549,
+      "minWholesalePrice": 0.12,
+      "minSellPrice": 0.14,
+      "countriesCount": 4
+    },
+    {
+      "code": "vp",
+      "name": "Kwai (Kuaishou)",
+      "nameUg": "Kwai (خەلقئارالىق خۇەيشوۋ)",
+      "category": "social",
+      "color": "#FF7700",
+      "iconUrl": "https://api.dicebear.com/7.x/identicon/svg?seed=vp&backgroundColor=f8fafc",
+      "popular": true,
+      "totalStock": 81133083720,
+      "minWholesalePrice": 0.01,
+      "minSellPrice": 0.05,
+      "countriesCount": 197
+    },
+    {
       "code": "tw",
       "name": "X (Twitter)",
       "nameUg": "X (تۋىتتېر)",
@@ -48329,19 +48355,6 @@
       "countriesCount": 197
     },
     {
-      "code": "vp",
-      "name": "VP",
-      "nameUg": "VP",
-      "category": "other",
-      "color": "#6366F1",
-      "iconUrl": "https://api.dicebear.com/7.x/identicon/svg?seed=vp&backgroundColor=f8fafc",
-      "popular": false,
-      "totalStock": 81133083720,
-      "minWholesalePrice": 0.01,
-      "minSellPrice": 0.05,
-      "countriesCount": 197
-    },
-    {
       "code": "im",
       "name": "IM",
       "nameUg": "IM",
@@ -60039,19 +60052,6 @@
       "totalStock": 1237646,
       "minWholesalePrice": 0.09,
       "minSellPrice": 0.11,
-      "countriesCount": 4
-    },
-    {
-      "code": "atv",
-      "name": "ATV",
-      "nameUg": "ATV",
-      "category": "other",
-      "color": "#6366F1",
-      "iconUrl": "https://api.dicebear.com/7.x/identicon/svg?seed=atv&backgroundColor=f8fafc",
-      "popular": false,
-      "totalStock": 1205549,
-      "minWholesalePrice": 0.12,
-      "minSellPrice": 0.14,
       "countriesCount": 4
     },
     {

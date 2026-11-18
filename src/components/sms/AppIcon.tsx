@@ -149,6 +149,21 @@ export default function AppIcon({
     );
   }
 
+    // 7.2 Kuaishou / Kwai (快手)
+  if (c === 'atv' || c === 'vp') {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+        <rect width="24" height="24" rx="6" fill="#FF5000" />
+        <path
+          d="M7 8.5C7 7.67 7.67 7 8.5 7h7c.83 0 1.5.67 1.5 1.5v7c0 .83-.67 1.5-1.5 1.5h-7C7.67 17 7 16.33 7 15.5v-7z"
+          fill="#ffffff"
+        />
+        <circle cx="12" cy="12" r="2.5" fill="#FF5000" />
+        <circle cx="15" cy="9" r="0.8" fill="#FF5000" />
+      </svg>
+    );
+  }
+
   // 8. Snapchat
   if (c === 'sn') {
     return (

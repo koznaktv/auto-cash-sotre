@@ -263,6 +263,22 @@ export const ALL_COUNTRIES_MAP: Record<string, { code: string; dialCode: string;
 
 // 2. Comprehensive Service/App Metadata with verified brand colors and names
 export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
+  atv: {
+    code: 'atv',
+    name: 'Kuaishou (快手)',
+    nameUg: 'Kuaishou (جۇڭگو خۇەيشوۋ 快手)',
+    category: 'social',
+    color: '#FF5000',
+    popular: true,
+  },
+  vp: {
+    code: 'vp',
+    name: 'Kwai (Kuaishou)',
+    nameUg: 'Kwai (خەلقئارالىق خۇەيشوۋ)',
+    category: 'social',
+    color: '#FF7700',
+    popular: true,
+  },
   tg: {
     code: 'tg',
     name: 'Telegram',
@@ -575,6 +591,7 @@ export const FEATURED_APPS: ServiceMeta[] = [
   SERVICE_META_MAP.go,
   SERVICE_META_MAP.lf,
   SERVICE_META_MAP.gr_tk,
+  SERVICE_META_MAP.atv,
   SERVICE_META_MAP.ig,
   SERVICE_META_MAP.fb,
   SERVICE_META_MAP.sn,
