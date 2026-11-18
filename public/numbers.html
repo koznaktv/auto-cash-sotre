@@ -411,13 +411,13 @@
           <!-- App Categories Quick Filter Pills -->
           <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-[11px] font-bold">
             <button type="button" onclick="filterAppCategory('all')" id="appCat_all" class="px-3 py-1.5 rounded-xl bg-purple-600 text-white font-black shadow-sm shrink-0 transition">ھەممىسى (2,374)</button>
-            <button type="button" onclick="filterAppCategory('popular')" id="appCat_popular" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">🔥 ئالقىشلانغانلار</button>
-            <button type="button" onclick="filterAppCategory('messaging')" id="appCat_messaging" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">💬 ئالاقە / ئۇچۇر</button>
-            <button type="button" onclick="filterAppCategory('social')" id="appCat_social" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">🌐 ئىجتىمائىي</button>
+            <button type="button" onclick="filterAppCategory('popular')" id="appCat_popular" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">🔥 ئەڭ داڭلىق ئەپلەر</button>
+            <button type="button" onclick="filterAppCategory('messaging')" id="appCat_messaging" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">💬 خەلقئارالىق ئالاقە ئەپلىرى</button>
+            <button type="button" onclick="filterAppCategory('chinese')" id="appCat_chinese" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">🇨🇳 جۇڭگو ئەپلىرى ۋە نومۇرلىرى</button>
+            <button type="button" onclick="filterAppCategory('social')" id="appCat_social" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">🌐 ئىجتىمائىي تاراتقۇ</button>
             <button type="button" onclick="filterAppCategory('ai')" id="appCat_ai" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">🤖 سۈنئىي ئەقىل (AI)</button>
-            <button type="button" onclick="filterAppCategory('tech')" id="appCat_tech" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">💻 تېخنىكا</button>
-            <button type="button" onclick="filterAppCategory('gaming')" id="appCat_gaming" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">🎮 ئويۇن</button>
-            <button type="button" onclick="filterAppCategory('shopping')" id="appCat_shopping" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">🛒 سودا-سېتىق</button>
+            <button type="button" onclick="filterAppCategory('gaming')" id="appCat_gaming" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">🎮 ئويۇن ۋە كۆڭۈل ئېچىش</button>
+            <button type="button" onclick="filterAppCategory('shopping')" id="appCat_shopping" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">🛒 سودا ۋە مۇلازىمەت</button>
             <button type="button" onclick="filterAppCategory('other')" id="appCat_other" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-purple-600 shrink-0 transition font-bold">📦 باشقىلار</button>
           </div>
 
@@ -2822,10 +2822,10 @@
     let currentAppCategory = 'all';
     let visibleAppsCount = 60;
 
-    function filterAppCategory(cat) {
+        function filterAppCategory(cat) {
       currentAppCategory = cat;
       visibleAppsCount = 60;
-      const cats = ['all', 'popular', 'messaging', 'social', 'ai', 'tech', 'gaming', 'shopping', 'other'];
+      const cats = ['all', 'popular', 'messaging', 'chinese', 'social', 'ai', 'gaming', 'shopping', 'other'];
       cats.forEach(c => {
         const btn = document.getElementById('appCat_' + c);
         if (btn) {
@@ -2854,10 +2854,19 @@
       const apps = catalogData?.apps || [];
       const kw = filterKeyword.toLowerCase().trim();
 
-      const filtered = apps.filter(app => {
+            const filtered = apps.filter(app => {
         if (currentAppCategory !== 'all') {
           if (currentAppCategory === 'popular' && !app.popular) return false;
-          if (currentAppCategory !== 'popular' && app.category !== currentAppCategory) return false;
+          if (currentAppCategory === 'chinese') {
+            const isChinese = app.category === 'chinese' || 
+              ['wb', 'qq', 'bqq', 'aqq', 'gr_tk', 'ctkt', 'atv', 'vp', 'jddt', 'bd', 'tb', 'al'].includes(app.code) ||
+              /wechat|weixin|qq|douyin|kuaishou|kwai|baidu|taobao|alipay|weibo|jd|bilibili|xiaohongshu|جۇڭگو|ئۈندىدار|دوۋيىن|خۇەيشوۋ/i.test((app.name || '') + ' ' + (app.nameUg || ''));
+            if (!isChinese) return false;
+          } else if (currentAppCategory === 'messaging') {
+            if (['wb', 'qq', 'bqq', 'aqq'].includes(app.code) || app.category !== 'messaging') return false;
+          } else if (currentAppCategory !== 'popular' && app.category !== currentAppCategory) {
+            return false;
+          }
         }
         if (!kw) return true;
         return (app.name && app.name.toLowerCase().includes(kw)) ||

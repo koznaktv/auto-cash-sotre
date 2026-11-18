@@ -94,7 +94,7 @@ export default function NumbersPage() {
   // App-First Flow State
   const [selectedApp, setSelectedApp] = useState<ServiceMeta | null>(null);
   const [appSearch, setAppSearch] = useState('');
-  const [appCategoryTab, setAppCategoryTab] = useState<'all' | 'messaging' | 'social' | 'ai' | 'entertainment' | 'other'>('all');
+  const [appCategoryTab, setAppCategoryTab] = useState<'all' | 'popular' | 'messaging' | 'chinese' | 'social' | 'ai' | 'entertainment' | 'other'>('all');
 
   // Filters
   const [countrySearch, setCountrySearch] = useState('');

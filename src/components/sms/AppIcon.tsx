@@ -30,6 +30,22 @@ export default function AppIcon({
     );
   }
 
+    // 1.5 QQ (چ چ)
+  if (c === 'qq' || c === 'bqq' || c === 'aqq') {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+        <circle cx="12" cy="12" r="12" fill="#12B7F5" />
+        <path
+          d="M12 4.5c-3.1 0-5.6 2.3-5.6 5.2 0 1.6.8 3 2 4-.3 1.1-.9 2.2-1.9 2.8 1.4 0 2.8-.6 3.7-1.4.6.2 1.2.3 1.8.3 3.1 0 5.6-2.3 5.6-5.2s-2.5-5.7-5.6-5.7z"
+          fill="#ffffff"
+        />
+        <circle cx="9.8" cy="9.2" r="1" fill="#12B7F5" />
+        <circle cx="14.2" cy="9.2" r="1" fill="#12B7F5" />
+        <path d="M10.8 11.2c.4.3.8.4 1.2.4s.8-.1 1.2-.4" stroke="#12B7F5" strokeWidth="0.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
   // 2. WhatsApp
   if (c === 'wa') {
     return (

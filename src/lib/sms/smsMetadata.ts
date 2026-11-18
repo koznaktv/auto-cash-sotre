@@ -18,7 +18,7 @@ export interface ServiceMeta {
   code: string;
   name: string;
   nameUg: string;
-  category: 'social' | 'messaging' | 'ai' | 'entertainment' | 'gaming' | 'shopping' | 'tech' | 'other';
+  category: 'social' | 'messaging' | 'chinese' | 'ai' | 'entertainment' | 'gaming' | 'shopping' | 'tech' | 'other';
   color: string;
   iconSvg?: string;
   popular?: boolean;
@@ -263,11 +263,19 @@ export const ALL_COUNTRIES_MAP: Record<string, { code: string; dialCode: string;
 
 // 2. Comprehensive Service/App Metadata with verified brand colors and names
 export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
+  qq: {
+    code: 'qq',
+    name: 'QQ',
+    nameUg: 'QQ (جۇڭگو چ چ)',
+    category: 'chinese',
+    color: '#12B7F5',
+    popular: true,
+  },
   atv: {
     code: 'atv',
     name: 'Kuaishou (快手)',
-    nameUg: 'Kuaishou (جۇڭگو خۇەيشوۋ 快手)',
-    category: 'social',
+    nameUg: 'خۇەيشوۋ (جۇڭگو 快手)',
+    category: 'chinese',
     color: '#FF5000',
     popular: true,
   },
@@ -354,8 +362,8 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
   gr_tk: {
     code: 'gr_tk',
     name: 'Douyin',
-    nameUg: 'دوۋيىن (جۇڭگو)',
-    category: 'social',
+    nameUg: 'دوۋيىن (جۇڭگو Douyin 抖音)',
+    category: 'chinese',
     color: '#161823',
     popular: true,
   },
@@ -394,8 +402,8 @@ export const SERVICE_META_MAP: Record<string, ServiceMeta> = {
   wb: {
     code: 'wb',
     name: 'WeChat',
-    nameUg: 'ئۈندىدار (ۋېيشىن)',
-    category: 'messaging',
+    nameUg: 'ئۈندىدار (جۇڭگو WeChat 微信)',
+    category: 'chinese',
     color: '#07C160',
     popular: true,
   },
@@ -585,25 +593,26 @@ export function getEnrichedService(rawService: { service_code: string; name: str
  * Curated list of popular world apps for the App-First browsing experience
  */
 export const FEATURED_APPS: ServiceMeta[] = [
-  SERVICE_META_MAP.tg,
-  SERVICE_META_MAP.wa,
-  SERVICE_META_MAP.oi,
-  SERVICE_META_MAP.go,
-  SERVICE_META_MAP.lf,
-  SERVICE_META_MAP.gr_tk,
-  SERVICE_META_MAP.atv,
-  SERVICE_META_MAP.ig,
-  SERVICE_META_MAP.fb,
-  SERVICE_META_MAP.sn,
-  SERVICE_META_MAP.ds,
-  SERVICE_META_MAP.wb,
-  SERVICE_META_MAP.vi,
-  SERVICE_META_MAP.tw,
+  SERVICE_META_MAP.tg,    // 1. تېلېگرام
+  SERVICE_META_MAP.wa,    // 2. ۋاتساپ
+  SERVICE_META_MAP.wb,    // 3. ئۈندىدار (جۇڭگو)
+  SERVICE_META_MAP.qq,    // 4. QQ چ چ (جۇڭگو)
+  SERVICE_META_MAP.lf,    // 5. تىكتوك (خەلقئارالىق)
+  SERVICE_META_MAP.gr_tk, // 6. دوۋيىن (جۇڭگو)
+  SERVICE_META_MAP.fb,    // 7. فەيىسبۇك
+  SERVICE_META_MAP.ig,    // 8. ئىنىستاگرام
+  SERVICE_META_MAP.tw,    // 9. تىۋىتتېر
+  SERVICE_META_MAP.oi,    // 10. OpenAI / ChatGPT
+  SERVICE_META_MAP.atv,   // 11. خۇەيشوۋ 快手 (جۇڭگو)
+  SERVICE_META_MAP.vp,    // 12. Kwai (خەلقئارالىق)
+  SERVICE_META_MAP.go,    // 13. گۇگۇل
+  SERVICE_META_MAP.sn,    // 14. سىنەپچات
+  SERVICE_META_MAP.ds,    // 15. دىسكورد
+  SERVICE_META_MAP.vi,    // 16. ۋايىبېر
   SERVICE_META_MAP.nf,
   SERVICE_META_MAP.sp,
   SERVICE_META_MAP.st,
   SERVICE_META_MAP.mb,
-  SERVICE_META_MAP.am,
   SERVICE_META_MAP.ap,
   SERVICE_META_MAP.ub,
   SERVICE_META_MAP.ka,
