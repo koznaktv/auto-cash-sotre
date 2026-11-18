@@ -1501,7 +1501,7 @@
       }
     }
 
-    // --- Fetch Live Catalog from Official Provider API (+20% Margin) ---
+    // --- Fetch Live Catalog from Official Provider API (+30% Margin) ---
     async function fetchLiveCatalog() {
       try {
         const res = await fetch('/api/sms/catalog', { cache: 'no-store' });
@@ -2901,7 +2901,7 @@
               </div>
             </div>
 
-            <!-- Stock & Starting Price Banner (+20% Margin) -->
+            <!-- Stock & Starting Price Banner (+30% Margin) -->
             <div class="bg-purple-50/70 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900/60 rounded-xl px-2 py-1.5 flex items-center justify-between text-[10px]">
               <span class="text-purple-700 dark:text-purple-300 font-black font-mono flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -3010,7 +3010,7 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // --- Render Countries for Selected App with Exact Provider Stock & 20% Margin ---
+    // --- Render Countries for Selected App with Exact Provider Stock & 30% Margin ---
     function renderCountriesForApp(filterKeyword = '') {
       const container = document.getElementById('countriesListContainer');
       if (!container || !selectedApp) return;
@@ -3052,11 +3052,11 @@
               </div>
             </div>
 
-            <!-- Price with 20% Margin & Buy Button -->
+            <!-- Price with 30% Margin & Buy Button -->
             <div class="flex items-center gap-2 shrink-0">
               <div class="text-left leading-tight">
                 <span class="text-xs sm:text-sm font-black font-mono text-purple-700 dark:text-amber-300 block">$${(c.sellPrice || 0.25).toFixed(2)}</span>
-                <span class="text-[8.5px] text-emerald-600 dark:text-emerald-400 font-bold block">+20% باھا</span>
+                <span class="text-[8.5px] text-emerald-600 dark:text-emerald-400 font-bold block">+30% باھا</span>
               </div>
               <button onclick="handleBuyNumber('${selectedApp.code}', ${c.id}, ${c.sellPrice}, '${c.nameUg}', '${c.dialCode}')" type="button" class="px-3 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-black shadow-md shadow-purple-600/30 transition active:scale-95 cursor-pointer flex items-center gap-1">
                 <span>سېتىۋېلىش</span>

@@ -149,7 +149,7 @@ class PhonecashProvider {
   }
 
   /**
-   * Fetch all services & live stock for a country with 20% profit margin
+   * Fetch all services & live stock for a country with 30% profit margin
    */
   async getServices(countryId: number, forceRefresh = false): Promise<any[]> {
     const now = Date.now();

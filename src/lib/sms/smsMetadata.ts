@@ -556,7 +556,7 @@ export function getEnrichedCountry(rawCountry: { id: number | string; name: stri
 }
 
 /**
- * Returns enriched service/app information with calculated 20% profit margin
+ * Returns enriched service/app information with calculated 30% profit margin
  */
 export function getEnrichedService(rawService: { service_code: string; name: string; price: number; count: number }): {
   service_code: string;
@@ -573,8 +573,8 @@ export function getEnrichedService(rawService: { service_code: string; name: str
   const meta = SERVICE_META_MAP[code];
 
   const wholesaleCost = Number(rawService.price || 0);
-  // Apply exactly 20% profit margin as requested by user, round to 2 decimals, minimum $0.05
-  const sellPrice = Math.max(0.05, Number((wholesaleCost * 1.20).toFixed(2)));
+  // Apply exactly 30% profit margin as requested by user, round to 2 decimals, minimum $0.05
+  const sellPrice = Math.max(0.05, Number((wholesaleCost * 1.30).toFixed(2)));
 
   return {
     service_code: rawService.service_code,
