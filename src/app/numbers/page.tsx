@@ -89,6 +89,7 @@ export default function NumbersPage() {
   const [loadingCountries, setLoadingCountries] = useState(true);
   const [loadingServices, setLoadingServices] = useState(false);
   const [buying, setBuying] = useState(false);
+  const [confirmService, setConfirmService] = useState<ServiceItem | null>(null);
 
   // App-First Flow State
   const [selectedApp, setSelectedApp] = useState<ServiceMeta | null>(null);
@@ -372,6 +373,31 @@ export default function NumbersPage() {
     if (serviceSearch.trim()) return filteredServices;
     return filteredServices.slice(0, displayLimit);
   }, [filteredServices, serviceSearch, displayLimit]);
+
+  // Purchase confirmation handler
+  const requestBuyConfirmation = (service: ServiceItem) => {
+    if (isBuyingRef.current || buying) {
+      console.warn('Purchase already in flight, ignoring repeated tap.');
+      return;
+    }
+    if (!user) {
+      setAuthModalOpen(true);
+      return;
+    }
+    if (!selectedCountry) return;
+    if ((user.balance || 0) < service.sellPrice) {
+      setActionError('ھېساباتىڭىزدا قالدۇق پۇل يېتىشمىدى. پۇل قاچىلاپ قايتا سىناڭ.');
+      return;
+    }
+    setConfirmService(service);
+  };
+
+  const confirmAndExecuteBuy = async () => {
+    if (!confirmService) return;
+    const target = confirmService;
+    setConfirmService(null);
+    await handleBuyNumber(target);
+  };
 
   // Buy Number Handler with Anti-Double-Click Lock & Instant Jump to /orders
   const handleBuyNumber = async (service: ServiceItem) => {
@@ -1185,7 +1211,7 @@ export default function NumbersPage() {
                     <div className="md:col-span-4 flex flex-col gap-2">
                       <button
                         type="button"
-                        onClick={() => currentService && handleBuyNumber(currentService)}
+                        onClick={() => currentService && requestBuyConfirmation(currentService)}
                         disabled={buying || isBuyingRef.current || loadingServices || !currentService || currentService.count <= 0}
                         className={`w-full py-4 px-6 rounded-2xl font-black text-base transition-all duration-200 flex items-center justify-center gap-2.5 shadow-md cursor-pointer ${
                           !currentService || currentService.count <= 0 || loadingServices || buying
@@ -1403,6 +1429,118 @@ export default function NumbersPage() {
           </div>
         )}
       </div>
+
+            {/* Buy Confirmation Modal with Customer Protection & VPN Tips */}
+      {confirmService && selectedCountry && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" dir="rtl">
+          <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-2xl border border-slate-200 dark:border-slate-800 text-center space-y-4">
+            {/* Header Icon / Flags */}
+            <div className="flex items-center justify-center gap-3 mb-1">
+              <div
+                className="w-12 h-12 rounded-2xl p-2 flex items-center justify-center shadow-md border"
+                style={{
+                  backgroundColor: `${selectedApp?.color || '#8b5cf6'}15`,
+                  borderColor: `${selectedApp?.color || '#8b5cf6'}40`,
+                }}
+              >
+                <AppIcon
+                  code={selectedApp?.code || confirmService.service_code}
+                  name={selectedApp?.name || confirmService.name}
+                  color={selectedApp?.color || '#8b5cf6'}
+                  size={24}
+                />
+              </div>
+              <span className="text-xl text-purple-600 font-mono">⚡</span>
+              <div className="w-12 h-8 rounded-xl overflow-hidden border-2 border-white dark:border-slate-700 shadow-md">
+                <img
+                  src={`https://flagcdn.com/w80/${selectedCountry.code.toLowerCase()}.png`}
+                  alt={selectedCountry.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+
+            {/* Title */}
+            <div>
+              <h3 className="text-base font-black text-slate-900 dark:text-white">نومۇر سېتىۋېلىشنى جەزملەشتۈرۈش</h3>
+            </div>
+
+            {/* Body */}
+            <div className="space-y-2.5 text-right">
+              {/* Summary Card */}
+              <div className="p-3.5 bg-gradient-to-br from-purple-50/80 via-white to-indigo-50/80 dark:from-purple-950/40 dark:via-slate-900 dark:to-indigo-950/40 border border-purple-200/80 dark:border-purple-900/60 rounded-2xl space-y-2 text-xs shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500 dark:text-slate-400 font-bold">ئەپ تۈرى:</span>
+                  <span className="font-black text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <span>{selectedApp?.nameUg || selectedApp?.name}</span>
+                    <span className="text-[10px] text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/50 px-1.5 py-0.5 rounded font-mono">
+                      {confirmService.service_code}
+                    </span>
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500 dark:text-slate-400 font-bold">دۆلەت تەۋەلىكى:</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200 font-mono" dir="ltr">
+                    {selectedCountry.dialCode} {selectedCountry.nameUg || selectedCountry.name}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t border-purple-100 dark:border-purple-900/60">
+                  <span className="text-purple-700 dark:text-purple-300 font-black">كېسىلىدىغان باھا:</span>
+                  <span className="font-mono font-black text-purple-900 dark:text-emerald-400 text-sm">
+                    ${confirmService.sellPrice.toFixed(2)} USD
+                  </span>
+                </div>
+              </div>
+
+              {/* Essential 3 Customer Reminders */}
+              <div className="space-y-1.5 pt-0.5 text-[11px] leading-relaxed">
+                <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 text-emerald-900 dark:text-emerald-300 flex items-start gap-2 text-right">
+                  <span className="text-sm shrink-0">🛡️</span>
+                  <div>
+                    <strong className="font-bold block">100% پۇل قايتۇرۇش كاپالىتى:</strong>
+                    <span>15 مىنۇتتا SMS كود كەلمىسە ياكى بىكار قىلسىڭىز، پۇلىڭىز ھەميانغا دەرھال %100 تولۇق قايتۇرۇلىدۇ (0 زىيان).</span>
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-amber-900 dark:text-amber-300 flex items-start gap-2 text-right">
+                  <span className="text-sm shrink-0">💡</span>
+                  <div>
+                    <strong className="font-bold block">VPN تەۋسىيەسى:</strong>
+                    <span>كودنىڭ تېز ۋە راۋان كېلىشى ئۈچۈن، تېلېفونىڭىزدا شۇ دۆلەتنىڭ VPN سىنى ئۇلاپ ئاندىن كىرگۈزۈڭ.</span>
+                  </div>
+                </div>
+
+                <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 flex items-center justify-between px-3 text-[10.5px]">
+                  <span className="flex items-center gap-1.5">
+                    <span>⏱️</span>
+                    <span>كود كۈتۈش چېكى: <strong>15 مىنۇت</strong></span>
+                  </span>
+                  <span className="text-slate-400 dark:text-slate-500 font-bold">بىر قېتىملىق دەلىللەش</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="space-y-2 pt-1">
+              <button
+                onClick={confirmAndExecuteBuy}
+                type="button"
+                className="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 text-white font-black text-xs shadow-lg shadow-purple-600/30 transition active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <span>جەزملەپ سېتىۋېلىش ‹</span>
+                <span>⚡</span>
+              </button>
+              <button
+                onClick={() => setConfirmService(null)}
+                type="button"
+                className="w-full py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs transition active:scale-95 cursor-pointer"
+              >
+                ۋاز كېچىش
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Auth Modal if guest clicks buy */}
       {authModalOpen && (

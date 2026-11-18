@@ -1299,48 +1299,77 @@
       const flagCode = selectedApp?.countries?.find(c => c.id === countryId)?.code || 'tr';
 
       iconArea.innerHTML = `
-        <div class="flex items-center justify-center gap-2 mb-1">
+        <div class="flex items-center justify-center gap-3 mb-1">
           <div class="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-950/80 border border-purple-200 dark:border-purple-800 p-2 flex items-center justify-center shadow-md">
             <img src="${selectedApp?.iconUrl || 'https://cdn.simpleicons.org/telegram'}" alt="${selectedApp?.name}" class="w-full h-full object-contain"/>
           </div>
           <span class="text-xl text-purple-600 font-mono">⚡</span>
-          <div class="w-12 h-8 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shadow-md">
+          <div class="w-12 h-8 rounded-xl overflow-hidden border-2 border-white dark:border-slate-700 shadow-md">
             <img src="https://flagcdn.com/w80/${flagCode}.png" alt="Flag" class="w-full h-full object-cover"/>
           </div>
         </div>
       `;
 
-      title.textContent = 'سېتىۋېلىشنى جەزملەشتۈرۈڭ';
+      title.textContent = 'نومۇر سېتىۋېلىشنى جەزملەشتۈرۈش';
       title.className = 'text-base font-black text-slate-900 dark:text-white';
 
       body.innerHTML = `
-        <div class="p-3 bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900/60 rounded-2xl space-y-2 text-right">
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-slate-500 dark:text-slate-400 font-bold">ئەپ مۇلازىمىتى:</span>
-            <span class="font-black text-slate-900 dark:text-white">${selectedApp?.nameUg}</span>
+        <div class="space-y-2.5 text-right">
+          <!-- Summary Card -->
+          <div class="p-3.5 bg-gradient-to-br from-purple-50/80 via-white to-indigo-50/80 dark:from-purple-950/40 dark:via-slate-900 dark:to-indigo-950/40 border border-purple-200/80 dark:border-purple-900/60 rounded-2xl space-y-2 text-xs shadow-xs">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500 dark:text-slate-400 font-bold">ئەپ تۈرى:</span>
+              <span class="font-black text-slate-900 dark:text-white flex items-center gap-1.5">
+                <span>${selectedApp?.nameUg || selectedApp?.name}</span>
+                <span class="text-[10px] text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/50 px-1.5 py-0.5 rounded font-mono">${serviceCode}</span>
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500 dark:text-slate-400 font-bold">دۆلەت تەۋەلىكى:</span>
+              <span class="font-bold text-slate-800 dark:text-slate-200 font-mono" dir="ltr">${dialCode} ${countryNameUg}</span>
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-purple-100 dark:border-purple-900/60">
+              <span class="text-purple-700 dark:text-purple-300 font-black">كېسىلىدىغان باھا:</span>
+              <span class="font-mono font-black text-purple-900 dark:text-emerald-400 text-sm">$${Number(price).toFixed(2)} USD</span>
+            </div>
           </div>
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-slate-500 dark:text-slate-400 font-bold">دۆلەت تەۋەلىكى:</span>
-            <span class="font-bold text-slate-800 dark:text-slate-200">${countryNameUg} (${dialCode})</span>
-          </div>
-          <div class="flex items-center justify-between text-xs pt-1.5 border-t border-purple-200 dark:border-purple-800">
-            <span class="text-purple-700 dark:text-purple-300 font-bold">كېسىلىدىغان باھا:</span>
-            <span class="font-mono font-black text-purple-900 dark:text-amber-300 text-sm">$${Number(price).toFixed(2)} USD</span>
+
+          <!-- Essential 3 Customer Reminders -->
+          <div class="space-y-1.5 pt-0.5 text-[11px] leading-relaxed">
+            <div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 text-emerald-900 dark:text-emerald-300 flex items-start gap-2 text-right">
+              <span class="text-sm shrink-0">🛡️</span>
+              <div>
+                <strong class="font-bold block">100% پۇل قايتۇرۇش كاپالىتى:</strong>
+                <span>15 مىنۇتتا SMS كود كەلمىسە ياكى بىكار قىلسىڭىز، پۇلىڭىز ھەميانغا دەرھال %100 تولۇق قايتۇرۇلىدۇ (0 زىيان).</span>
+              </div>
+            </div>
+
+            <div class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-amber-900 dark:text-amber-300 flex items-start gap-2 text-right">
+              <span class="text-sm shrink-0">💡</span>
+              <div>
+                <strong class="font-bold block">VPN تەۋسىيەسى:</strong>
+                <span>كودنىڭ تېز ۋە راۋان كېلىشى ئۈچۈن، تېلېفونىڭىزدا شۇ دۆلەتنىڭ VPN سىنى ئۇلاپ ئاندىن كىرگۈزۈڭ.</span>
+              </div>
+            </div>
+
+            <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 flex items-center justify-between px-3 text-[10.5px]">
+              <span class="flex items-center gap-1.5">
+                <span>⏱️</span>
+                <span>كود كۈتۈش چېكى: <strong>15 مىنۇت</strong></span>
+              </span>
+              <span class="text-slate-400 dark:text-slate-500 font-bold">بىر قېتىملىق دەلىللەش</span>
+            </div>
           </div>
         </div>
-        <p class="text-[10.5px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center gap-1 pt-1">
-          <span>🛡️</span>
-          <span>15 مىنۇتتا SMS كود كەلمىسە پۇل %100 ھەميانغا قايتۇرۇلىدۇ</span>
-        </p>
       `;
 
       actions.innerHTML = `
         <button onclick="if(dialogConfirmCallback){ const cb = dialogConfirmCallback; dialogConfirmCallback = null; closeCustomDialog(); cb(); }" type="button" class="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 text-white font-black text-xs shadow-lg shadow-purple-600/30 transition active:scale-95 cursor-pointer flex items-center justify-center gap-1.5">
-          <span>سېتىۋېلىشنى باشلاش ‹</span>
+          <span>جەزملەپ سېتىۋېلىش ‹</span>
           <span>⚡</span>
         </button>
         <button onclick="closeCustomDialog()" type="button" class="w-full py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs transition active:scale-95 cursor-pointer">
-          بىكار قىلىش
+          ۋاز كېچىش
         </button>
       `;
 
