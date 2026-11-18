@@ -127,6 +127,108 @@ export async function POST(req: Request) {
       return NextResponse.json(result.body, { status: result.status });
     }
 
+    // MaxStore Direct Fulfillment (Telecom & Games)
+    if (body.provider === 'maxstore' || (serviceId && serviceId.startsWith('maxstore_'))) {
+      const rawProdId = body.productId || body.product_id || (packageId ? String(packageId).replace('maxstore_', '') : 0);
+      const productId = Number(rawProdId);
+      if (!productId) {
+        return NextResponse.json({ success: false, message: 'MaxStore product_id تېپىلمىدى' }, { status: 400 });
+      }
+
+      const { getMaxStoreProducts, createMaxStoreOrder } = await import('@/lib/providers/maxstoreProvider');
+      const prodRes = await getMaxStoreProducts().catch(() => ({ ok: false, products: [] }));
+      const maxProduct = (prodRes.products || []).find((p: any) => p.id === productId);
+      if (!maxProduct) {
+        return NextResponse.json({ success: false, message: 'MaxStore مەھسۇلاتى تېپىلمىدى ياكى تەمىنلىگۈچىدە تۈگىگەن' }, { status: 404 });
+      }
+
+      const costPrice = Number(maxProduct.price) || 0;
+      // Selling price with 30% margin
+      const sellPrice = Number(Math.max(0.02, costPrice * 1.30).toFixed(2));
+      const targetPhone = (typeof targetAccount === 'string' ? targetAccount.trim() : (fields?.['رقم الهاتف'] || fields?.phone || '')).trim();
+      const maxStoreOrderId = randomId('ORD');
+
+      // Deduct balance and create atomic order
+      const atomicRes = await deductBalanceAndCreateOrderAtomicAsync({
+        idempotencyKey,
+        userId: user.id,
+        userEmail: user.email,
+        serviceId: serviceId || 'maxstore_telecom',
+        serviceName: (maxProduct as any).category_name || 'MaxStore Telecom',
+        packageTitle: maxProduct.name,
+        amount: sellPrice,
+        targetAccount: targetPhone || 'MaxStore Order',
+        orderId: maxStoreOrderId,
+        initialStatus: 'processing',
+        details: {
+          provider: 'maxstore',
+          productId,
+          costPrice,
+          phone: targetPhone,
+        },
+      });
+
+      if (!atomicRes.success) {
+        return NextResponse.json({ success: false, message: atomicRes.message || 'زاكاز مەغلۇپ بولدى' }, { status: 400 });
+      }
+
+      const order = atomicRes.order || ({ id: maxStoreOrderId, amount: sellPrice, status: 'processing' } as OrderRecord);
+
+      // Execute order upstream with MaxStore
+      const orderUuid = generateUUIDv4();
+      const maxStoreRes = await createMaxStoreOrder({
+        product_id: productId,
+        qty: 1,
+        order_uuid: orderUuid,
+        params: {
+          Player_ID: targetPhone,
+          'رقم المشترك': targetPhone,
+          phone: targetPhone,
+          'ادخل رقم الهاتف': targetPhone,
+          ...(fields || {}),
+        },
+      });
+
+      if (maxStoreRes.status === 'ERROR' || !maxStoreRes.data) {
+        const { refundOrderBalanceAtomicAsync } = await import('@/lib/db');
+        await refundOrderBalanceAtomicAsync(order.id, 'MaxStore زاكازنى رەت قىلدى: ' + (maxStoreRes.error || 'تەمىنلىگۈچى خاتالىقى')).catch(() => null);
+        return NextResponse.json({
+          success: false,
+          message: 'MaxStore تەمىنلىگۈچىدە زاكاز ئەۋەتىش مەغلۇپ بولدى: ' + (maxStoreRes.error || 'نومۇرنى قايتا تەكشۈرۈڭ'),
+        }, { status: 400 });
+      }
+
+      const providerStatus = (maxStoreRes.data?.status || '').toLowerCase();
+      const isCompleted = ['completed', 'success', 'done', 'delivered', 'accept'].includes(providerStatus);
+
+      await transitionOrderAsync(order.id, ['processing'], isCompleted ? 'completed' : 'pending_provider', {
+        providerOrderId: maxStoreRes.data?.order_id,
+        providerOrderUuid: orderUuid,
+        providerOutcome: maxStoreRes.data?.status,
+        providerStatus: maxStoreRes.data?.status,
+      });
+
+      postOrderCompletedToChannel({
+        id: order.id,
+        serviceName: (maxProduct as any).category_name || 'MaxStore كارتىغا پۇل قاچىلاش',
+        packageTitle: maxProduct.name,
+        amount: sellPrice,
+        targetAccount: targetPhone,
+        userName: user.name || user.email,
+        details: {
+          store: 'MaxStore',
+          productId,
+          phone: targetPhone,
+        },
+      }).catch(() => null);
+
+      return NextResponse.json({
+        success: true,
+        order: toBuyerOrder(order),
+        message: 'زاكاز مۇۋەپپەقىيەتلىك تاپشۇرۇلدى! سىستېما MaxStore ئارقىلىق دەرھال قاچىلاۋاتىدۇ.',
+      });
+    }
+
     // Storefront catalog service fulfillment
     if (false) {
       return NextResponse.json(

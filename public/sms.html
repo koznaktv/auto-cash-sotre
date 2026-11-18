@@ -3735,7 +3735,11 @@
     }
 
     async function executeBuyTelecom(pkg, phone, opName) {
-      const serviceId = activeTelecomOperator === 'syriatel' ? 'othman_syriatel' : 'othman_mtn';
+      const isMaxStore = pkg.provider === 'maxstore' || (pkg.id && String(pkg.id).startsWith('maxstore_')) || Boolean(pkg.productId);
+      const serviceId = isMaxStore
+        ? (activeTelecomOperator === 'syriatel' ? 'maxstore_syriatel' : 'maxstore_mtn')
+        : (activeTelecomOperator === 'syriatel' ? 'othman_syriatel' : 'othman_mtn');
+
       try {
         const res = await fetch('/api/orders', {
           method: 'POST',
@@ -3743,8 +3747,10 @@
           body: JSON.stringify({
             serviceId: serviceId,
             packageId: pkg.id,
+            productId: pkg.productId || (pkg.id ? String(pkg.id).replace('maxstore_', '') : undefined),
+            provider: isMaxStore ? 'maxstore' : undefined,
             targetAccount: phone,
-            fields: { 'رقم الهاتف': phone }
+            fields: { 'رقم الهاتف': phone, 'phone': phone, 'Player_ID': phone, 'رقم المشترك': phone, 'ادخل رقم الهاتف': phone }
           })
         });
         const data = await res.json();
@@ -3873,6 +3879,16 @@
     }
 
     // --- Active Waiting UI & Polling ---
+    function sanitizeSmsCode(val) {
+      if (!val || typeof val === 'boolean') return null;
+      const str = String(val).trim();
+      if (!str) return null;
+      const lower = str.toLowerCase();
+      if (['false', 'true', 'null', 'undefined', 'wait_code', 'none', 'nan', 'status_wait_code'].includes(lower)) return null;
+      if (!/\d/.test(str)) return null;
+      return str;
+    }
+
     function startActiveSessionUI() {
       homeStep = 'active_sms';
       document.getElementById('viewCountrySelection').classList.add('hidden');
@@ -3881,14 +3897,26 @@
       const phoneEl = document.getElementById('activePhoneNumber');
       if (phoneEl) phoneEl.textContent = activeSession.phone;
 
+      const validCode = sanitizeSmsCode(activeSession.code);
       const codeWrap = document.getElementById('smsCodeContainer');
       if (codeWrap) {
-        codeWrap.innerHTML = `
-          <div class="inline-flex items-center gap-2 text-slate-400 text-xs animate-pulse">
-            <span class="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></span>
-            <span>SMS كود كۈتۈلمەكتە (تەمىنلىگۈچى بىلەن ئۇلاندى)...</span>
-          </div>
-        `;
+        if (validCode) {
+          codeWrap.innerHTML = `
+            <div class="p-3 bg-emerald-500 text-white rounded-xl shadow-lg flex items-center justify-between gap-2 animate-bounce">
+              <span class="text-xl sm:text-2xl font-black font-mono tracking-widest">${validCode}</span>
+              <button onclick="navigator.clipboard.writeText('${validCode}'); showFloatingToast('SMS كود كۆچۈرۈلدى: ${validCode} ✓')" class="px-3 py-1.5 rounded-lg bg-white text-emerald-800 text-xs font-black shadow cursor-pointer">
+                كۆچۈرۈش
+              </button>
+            </div>
+          `;
+        } else {
+          codeWrap.innerHTML = `
+            <div class="inline-flex items-center gap-2 text-slate-400 text-xs animate-pulse">
+              <span class="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></span>
+              <span>SMS كود كۈتۈلمەكتە (تەمىنلىگۈچى بىلەن ئۇلاندى)...</span>
+            </div>
+          `;
+        }
       }
 
       timerRemainingSeconds = 900;
@@ -3934,8 +3962,7 @@
         if (!res.ok) return;
         const data = await res.json();
 
-        const rawCode = data.code || data.smsCode;
-        const finalCode = (rawCode && String(rawCode).trim() !== 'false' && String(rawCode).trim() !== 'null' && /\d/.test(String(rawCode))) ? String(rawCode).trim() : null;
+        const finalCode = sanitizeSmsCode(data.code) || sanitizeSmsCode(data.smsCode);
         if (data.status === 'RECEIVED' && finalCode) {
           clearInterval(pollInterval);
           clearInterval(timerInterval);
@@ -4031,6 +4058,10 @@
         if (elapsed >= 900) {
           localStorage.removeItem('autocash_active_sms_session');
           return;
+        }
+        if (saved.code && !sanitizeSmsCode(saved.code)) {
+          saved.code = null;
+          try { localStorage.setItem('autocash_active_sms_session', JSON.stringify(saved)); } catch(e){}
         }
         activeSession = saved;
         timerRemainingSeconds = Math.max(10, 900 - elapsed);

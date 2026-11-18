@@ -87,49 +87,148 @@ export async function GET() {
         };
       });
 
-    // 2. Telecom Services (Syriatel & MTN) - 100% matched with Store & Bot
-    const syriatelService = allServices.find(
-      (s) => s.id === 'othman_syriatel' || (s.id || '').includes('syriatel')
-    );
-    const mtnService = allServices.find(
-      (s) => s.id === 'othman_mtn' || (s.id || '').includes('mtn')
-    );
-
-    const formatTelecomPackages = (serv: any, defaultName: string) => {
-      if (!serv || !serv.packages) return { serviceId: '', serviceName: defaultName, creditPackages: [], bundlePackages: [] };
-
-      const allPkgs = serv.packages.map((p: any) => {
-        let cleanName = p.title || '';
-        const isBundle = /GB|جيجا|باقة|ئايلىق|تور/i.test(cleanName) && !/وحدة|بىرلىك|رصيد/i.test(cleanName);
-
-        return {
-          id: p.id,
-          name: cleanName,
-          price: Number(p.price) || 0,
-          originalPrice: p.originalPrice ? Number(p.originalPrice) : null,
-          isAvailable: p.available !== false,
-          isBundle: isBundle,
-          providerProductId: p.providerProductId,
-          providerQty: p.providerQty,
-          instructions: p.instructions || '',
-        };
-      });
-
-      const creditPackages = allPkgs.filter((p: any) => !p.isBundle);
-      const bundlePackages = allPkgs.filter((p: any) => p.isBundle);
-
-      return {
-        serviceId: serv.id,
-        serviceName: serv.name || defaultName,
-        creditPackages,
-        bundlePackages,
-      };
+    // 2. Telecom Services (Syriatel & MTN) - Powered directly by MaxStore Provider API (+30% Margin)
+    let maxStoreProducts: any[] = [];
+    try {
+      const { getMaxStoreProducts, getMaxStoreCatalogCached } = await import('@/lib/providers/maxstoreProvider');
+      const res = await getMaxStoreProducts().catch(() => ({ ok: false, products: [] }));
+      if (res.ok && Array.isArray(res.products) && res.products.length > 0) {
+        maxStoreProducts = res.products;
+      } else {
+        maxStoreProducts = getMaxStoreCatalogCached() || [];
+      }
+    } catch (e: any) {
+      console.warn('[Telecom MaxStore fetch error]:', e?.message);
     }
 
-    const telecom = {
-      syriatel: formatTelecomPackages(syriatelService, 'Syriatel سۈريەتىل'),
-      mtn: formatTelecomPackages(mtnService, 'MTN سۈرىيە'),
+    const calcSellPrice = (cost: number): number => {
+      const raw = cost * 1.30;
+      return Number(Math.max(0.02, raw).toFixed(2));
     };
+
+    let telecom: any = null;
+
+    if (maxStoreProducts.length > 0) {
+      // Syriatel Products from MaxStore
+      const syrCredit = maxStoreProducts
+        .filter((p: any) => (p.category_name || '').includes('SyriaTel') && !(p.category_name || '').includes('شهرية'))
+        .sort((a: any, b: any) => a.price - b.price)
+        .map((p: any) => ({
+          id: 'maxstore_' + p.id,
+          productId: p.id,
+          provider: 'maxstore',
+          name: p.name.replace(/\s*-\s*SyriaTel\s*1️⃣/i, '').trim(),
+          rawName: p.name,
+          cost: Number(p.price.toFixed(4)),
+          price: calcSellPrice(p.price),
+          isAvailable: p.available !== false,
+          isBundle: false,
+        }));
+
+      const syrBundle = maxStoreProducts
+        .filter((p: any) => (p.category_name || '').includes('باقات شهرية SyriaTel'))
+        .sort((a: any, b: any) => a.price - b.price)
+        .map((p: any) => ({
+          id: 'maxstore_' + p.id,
+          productId: p.id,
+          provider: 'maxstore',
+          name: p.name.replace(/\s*-\s*باقات شهرية SyriaTel/i, '').trim(),
+          rawName: p.name,
+          cost: Number(p.price.toFixed(4)),
+          price: calcSellPrice(p.price),
+          isAvailable: p.available !== false,
+          isBundle: true,
+        }));
+
+      // MTN Products from MaxStore
+      const mtnCredit = maxStoreProducts
+        .filter((p: any) => (p.category_name || '').includes('رصيد MTN') && !p.name.includes('فواتير'))
+        .sort((a: any, b: any) => a.price - b.price)
+        .map((p: any) => ({
+          id: 'maxstore_' + p.id,
+          productId: p.id,
+          provider: 'maxstore',
+          name: p.name.replace(/\s*-\s*1️⃣\s*رصيد\s*MTN/i, '').trim(),
+          rawName: p.name,
+          cost: Number(p.price.toFixed(4)),
+          price: calcSellPrice(p.price),
+          isAvailable: p.available !== false,
+          isBundle: false,
+        }));
+
+      const mtnBundle = maxStoreProducts
+        .filter((p: any) => (p.category_name || '').includes('باقات شهرية MTN'))
+        .sort((a: any, b: any) => a.price - b.price)
+        .map((p: any) => ({
+          id: 'maxstore_' + p.id,
+          productId: p.id,
+          provider: 'maxstore',
+          name: p.name.replace(/\s*-\s*باقات شهرية MTN/i, '').trim(),
+          rawName: p.name,
+          cost: Number(p.price.toFixed(4)),
+          price: calcSellPrice(p.price),
+          isAvailable: p.available !== false,
+          isBundle: true,
+        }));
+
+      telecom = {
+        syriatel: {
+          serviceId: 'maxstore_syriatel',
+          serviceName: 'Syriatel سۈريەتىل (MaxStore)',
+          provider: 'maxstore',
+          creditPackages: syrCredit,
+          bundlePackages: syrBundle,
+        },
+        mtn: {
+          serviceId: 'maxstore_mtn',
+          serviceName: 'MTN سۈرىيە (MaxStore)',
+          provider: 'maxstore',
+          creditPackages: mtnCredit,
+          bundlePackages: mtnBundle,
+        },
+      };
+    } else {
+      // Fallback to local DB if MaxStore is unreachable
+      const syriatelService = allServices.find(
+        (s) => s.id === 'othman_syriatel' || (s.id || '').includes('syriatel')
+      );
+      const mtnService = allServices.find(
+        (s) => s.id === 'othman_mtn' || (s.id || '').includes('mtn')
+      );
+
+      const formatTelecomPackages = (serv: any, defaultName: string) => {
+        if (!serv || !serv.packages) return { serviceId: '', serviceName: defaultName, creditPackages: [], bundlePackages: [] };
+
+        const allPkgs = serv.packages.map((p: any) => {
+          let cleanName = p.title || '';
+          const isBundle = /GB|جيجا|باقة|ئايلىق|تور/i.test(cleanName) && !/وحدة|بىرلىك|رصيد/i.test(cleanName);
+
+          return {
+            id: p.id,
+            name: cleanName,
+            price: Number(p.price) || 0,
+            originalPrice: p.originalPrice ? Number(p.originalPrice) : null,
+            isAvailable: p.available !== false,
+            isBundle: isBundle,
+            providerProductId: p.providerProductId,
+            providerQty: p.providerQty,
+            instructions: p.instructions || '',
+          };
+        });
+
+        return {
+          serviceId: serv.id,
+          serviceName: serv.name || defaultName,
+          creditPackages: allPkgs.filter((p: any) => !p.isBundle),
+          bundlePackages: allPkgs.filter((p: any) => p.isBundle),
+        };
+      };
+
+      telecom = {
+        syriatel: formatTelecomPackages(syriatelService, 'Syriatel سۈريەتىل'),
+        mtn: formatTelecomPackages(mtnService, 'MTN سۈرىيە'),
+      };
+    }
 
     return NextResponse.json(
       {
