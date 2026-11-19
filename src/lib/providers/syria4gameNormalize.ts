@@ -602,12 +602,13 @@ export function extractDelivery(obj: unknown): Delivery | undefined {
   }
 
   if (unique.length || foundUrl || replyText) {
-    return {
-      codes: unique,
-      activationUrl: foundUrl,
-      reply: replyText,
-      text: replyText || (unique.length === 1 ? unique[0] : undefined),
-    };
+    const res: Delivery = { codes: unique };
+    if (foundUrl) res.activationUrl = foundUrl;
+    if (replyText) {
+      res.reply = replyText;
+      res.text = replyText;
+    }
+    return res;
   }
 
   return undefined;

@@ -614,19 +614,23 @@ export default function AdminPage() {
 
   const isRefreshingLiveRef = useRef(false);
 
-  // High-speed silent live polling: fetches orders, deposits, and users without blocking the UI
+  // High-speed silent live polling: fetches orders and deposits; fetches users only when activeTab === 'users' or manual
   const refreshLiveOrdersAndDeposits = async (isManual = false) => {
     if (isRefreshingLiveRef.current) return;
+    if (!isManual && typeof document !== 'undefined' && document.hidden) return;
     const token = sessionStorage.getItem('autocash_admin_token');
     if (!token) return;
     const headers = { Authorization: `Bearer ${token}` };
 
     isRefreshingLiveRef.current = true;
     try {
+      const shouldFetchUsers = isManual || activeTab === 'users';
       const [resOrders, resDeposits, resUsers] = await Promise.all([
         fetch('/api/orders', { headers }).then((r) => r.json()).catch(() => null),
         fetch('/api/deposits', { headers }).then((r) => r.json()).catch(() => null),
-        fetch('/api/admin/users', { headers }).then((r) => r.json()).catch(() => null),
+        shouldFetchUsers
+          ? fetch('/api/admin/users', { headers }).then((r) => r.json()).catch(() => null)
+          : Promise.resolve(null),
       ]);
 
       if (resOrders && resOrders.success && Array.isArray(resOrders.orders)) {
@@ -692,10 +696,12 @@ export default function AdminPage() {
     // Initial comprehensive data load
     loadAllAdminData();
 
-    // Smooth background poller (15s interval ensures 60 FPS smooth UI without freezing)
+    // Adaptive smart background poller: only fires when tab is active and visible
+    // Automatically sleeps when tab is hidden to eliminate redundant Vercel CPU usage
     const poller = setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
       refreshLiveOrdersAndDeposits();
-    }, 15000);
+    }, 25000);
 
     // Instant refresh on window focus / tab visibility change
     const onFocus = () => refreshLiveOrdersAndDeposits(true);

@@ -43,7 +43,17 @@ export default function FlashSaleSection({
     };
 
     fetchPromos();
-    const interval = setInterval(fetchPromos, 15_000); // Polling every 15s
+
+    // Re-check when window regains focus without constant CPU drain
+    const onFocus = () => {
+      if (typeof document !== 'undefined' && !document.hidden) fetchPromos();
+    };
+    window.addEventListener('focus', onFocus);
+
+    // Conservative 5-minute background refresh (only if tab is actively visible)
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && !document.hidden) fetchPromos();
+    }, 300_000);
 
     try {
       bc = new BroadcastChannel('autocash_promotions_channel');
@@ -55,6 +65,7 @@ export default function FlashSaleSection({
     return () => {
       mounted = false;
       clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
       try {
         bc?.close();
       } catch {}

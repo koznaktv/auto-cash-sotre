@@ -33,26 +33,24 @@ let lastGlobalOrdersPollTime = 0;
 export async function GET(req: Request) {
   try {
     // Opportunistic status refresh for ALL in-flight provider orders across the platform
-    // Runs asynchronously so buyer & visitor requests respond in milliseconds without lag
+    // Awaited with a strict 3.5s deadline so Vercel serverless doesn't freeze background Telegram delivery
     const now = Date.now();
-    if (now - lastGlobalOrdersPollTime > 6000) {
+    if (now - lastGlobalOrdersPollTime > 8000) {
       lastGlobalOrdersPollTime = now;
-      (async () => {
-        try {
-          const { getInFlightProviderOrdersAsync } = await import('@/lib/db');
-          const inFlightOrders = await getInFlightProviderOrdersAsync(25).catch(() => []);
-          if (inFlightOrders.length > 0) {
-            await pollProviderOrders({
-              deadlineMs: now + 5000,
-              limit: 25,
-              orderIds: inFlightOrders.map((o) => o.id),
-              force: true,
-            }).catch(() => null);
-          }
-        } catch (pollErr: any) {
-          console.warn('[Global Order Poll Notice]:', pollErr?.message);
+      try {
+        const { getInFlightProviderOrdersAsync } = await import('@/lib/db');
+        const inFlightOrders = await getInFlightProviderOrdersAsync(25).catch(() => []);
+        if (inFlightOrders.length > 0) {
+          await pollProviderOrders({
+            deadlineMs: now + 3500,
+            limit: 25,
+            orderIds: inFlightOrders.map((o) => o.id),
+            force: true,
+          }).catch(() => null);
         }
-      })();
+      } catch (pollErr: any) {
+        console.warn('[Global Order Poll Notice]:', pollErr?.message);
+      }
     }
 
     if (hasAdminBearer(req)) {

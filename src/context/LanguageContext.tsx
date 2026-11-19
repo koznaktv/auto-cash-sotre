@@ -60,6 +60,8 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     // Navigation & Header
     home: 'باش بەت',
+    orders: 'مېنىڭ تەلەپلىرىم',
+    myOrders: 'مېنىڭ تەلەپلىرىم',
     store: 'دۇكان',
     menu: 'مېنيۇ',
     menuTitle: 'قوشۇمچە تىزىملىك',
@@ -385,6 +387,8 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     // Navigation & Header
     home: 'Home',
+    orders: 'My Orders',
+    myOrders: 'My Orders',
     store: 'Store',
     menu: 'Menu',
     menuTitle: 'Main Menu',
@@ -710,6 +714,8 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     // Navigation & Header
     home: 'الرئيسية',
+    orders: 'طلباتي',
+    myOrders: 'طلباتي',
     store: 'المتجر',
     menu: 'القائمة',
     menuTitle: 'القائمة الجانبية',
@@ -1035,6 +1041,8 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     // Navigation & Header
     home: 'Ana Sayfa',
+    orders: 'Siparişlerim',
+    myOrders: 'Siparişlerim',
     store: 'Mağaza',
     menu: 'Menü',
     menuTitle: 'Ana Menü',
@@ -1685,6 +1693,8 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     // Navigation & Header
     home: 'Главная',
+    orders: 'Мои заказы',
+    myOrders: 'Мои заказы',
     store: 'Магазин',
     menu: 'Меню',
     menuTitle: 'Главное меню',

@@ -87,7 +87,10 @@ export default function OrdersPage() {
     );
     const intervalMs = hasFreshOrder ? 4000 : 10000;
 
-    const timer = setInterval(fetchOrders, intervalMs);
+    const timer = setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
+      fetchOrders();
+    }, intervalMs);
     return () => clearInterval(timer);
   }, [orders]); // eslint-disable-line react-hooks/exhaustive-deps
 
