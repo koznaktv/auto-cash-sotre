@@ -2026,12 +2026,12 @@ const CATEGORY_NAMES: Record<string, Record<Language, string>> = {
     ru: 'Виртуальные номера',
   },
   cards: {
-    ug: 'كارتىلار ۋە VCC',
-    en: 'Cards & VCC',
-    ar: 'بطاقات و VCC',
-    tr: 'Kartlar ve VCC',
-    uz: 'Kartalar va VCC',
-    ru: 'Карты и VCC',
+    ug: 'كارتىلارغا پۇل قاچىلاش',
+    en: 'Cards & Top-up',
+    ar: 'شحن البطاقات',
+    tr: 'Kart Dolumu',
+    uz: 'Kartalarni to\'ldirish',
+    ru: 'Пополнение карт',
   },
   accounts: {
     ug: 'تەييار ھېساباتلار',

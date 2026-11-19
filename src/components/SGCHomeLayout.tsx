@@ -404,7 +404,9 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
   const [serverServices, setServerServices] = useState<ServiceItem[]>(() => {
     if (typeof window !== 'undefined') {
       try {
-        const cached = localStorage.getItem('autocash_cached_catalog_v22');
+        localStorage.removeItem('autocash_cached_catalog_v22');
+        localStorage.removeItem('autocash_cached_catalog_v23');
+        const cached = localStorage.getItem('autocash_cached_catalog_v24');
         if (cached) {
           const parsed = JSON.parse(cached);
           if (Array.isArray(parsed) && parsed.length > 0) {
@@ -457,16 +459,25 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
             name: s.name || s.title || s.id,
             image: s.image || '/brand_logo.png',
             category: s.category || 'other',
-            packages: s.packages || [],
+            packages: (s.packages || []).map((p: any) => {
+              const match = (p.title || '').match(/(\d+(?:\.\d+)?)/);
+              const qty = p.providerQty || (match ? parseFloat(match[1]) : 0);
+              let safePrice = Number(p.price) || 0;
+              // Guard: If package has micro-price (<$0.05) but has high unit quantity (>=10), compute true total
+              if (safePrice < 0.05 && qty && qty >= 10) {
+                if (p.costPrice && p.costPrice > 0.05) {
+                  safePrice = Number((p.costPrice * 1.15).toFixed(2));
+                } else {
+                  const unitCost = 0.0078;
+                  safePrice = Number((qty * unitCost * 1.15).toFixed(2));
+                }
+              }
+              return { ...p, price: safePrice };
+            }),
           }));
-          setServerServices((prev) => {
-            if (prev && prev.length === normalized.length && prev[0]?.id === normalized[0]?.id) {
-              return prev;
-            }
-            return normalized;
-          });
+          setServerServices(normalized);
           try {
-            localStorage.setItem('autocash_cached_catalog_v22', JSON.stringify(normalized));
+            localStorage.setItem('autocash_cached_catalog_v24', JSON.stringify(normalized));
           } catch {}
         }
       } catch (err) {
@@ -2127,7 +2138,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                 <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 animate-icon-sparkle anim-delay-5" />
               </div>
               <span className={`font-bold text-[10.5px] sm:text-xs leading-tight ${activeCategory === 'cards' ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
-                {getCategoryName('cards', 'كارتىغا پۇل قاچىلاش')}
+                {getCategoryName('cards', 'كارتىلارغا پۇل قاچىلاش')}
               </span>
               <span className={`text-[9px] leading-none ${activeCategory === 'cards' ? 'text-blue-100' : 'text-slate-500 dark:text-slate-400'}`}>
                 ({cardsList.length}) {t('itemsCount') || 'تۈر'}
@@ -2254,7 +2265,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
                    activeCategory === 'ai' ? `🤖 ${getCategoryName('ai', 'سۈنئىي ئەقىل')}` :
                    activeCategory === 'numbers' ? `💬 ${getCategoryName('numbers', 'مەۋھۇم نومۇر (SMS)')}` :
                    activeCategory === 'wifi' ? `📶 ${getCategoryName('wifi', 'Wi-Fi كارتىلىرى')}` :
-                   activeCategory === 'cards' ? `💳 ${getCategoryName('cards', 'كارتىغا پۇل قاچىلاش')}` :
+                   activeCategory === 'cards' ? `💳 ${getCategoryName('cards', 'كارتىلارغا پۇل قاچىلاش')}` :
                    activeCategory === 'social' ? `🌐 ${getCategoryName('social', 'ئىجتىمائىي تاراتقۇ')}` :
                    `🎮 ${getCategoryName('games', 'ئويۇنلار')}`}
                 </h2>
@@ -2425,7 +2436,7 @@ export default function SGCHomeLayout({ onSelectService, onOpenAuth }: SGCHomeLa
             <div className="flex items-center justify-between mb-2.5 sm:mb-3">
               <h2 className="text-sm sm:text-base md:text-lg font-black flex items-center gap-1.5 text-slate-900 dark:text-white">
                 <span className="text-blue-600">💳</span>
-                <span>{getCategoryName('cards', 'كارتىغا پۇل قاچىلاش')}</span>
+                <span>{getCategoryName('cards', 'كارتىلارغا پۇل قاچىلاش')}</span>
                 <span className="text-xs font-normal text-slate-400">({cardsList.length} {t('productsCount') || 'مەھسۇلات'})</span>
               </h2>
               <button

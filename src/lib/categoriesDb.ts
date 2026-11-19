@@ -160,11 +160,11 @@ export async function getCategoriesListAsync(): Promise<CategoryItem[]> {
                   image: '/images/services/whatsapp.jpg',
                 };
               }
-              if (c.id === 'cards' && (c.name === 'كارتىلار ۋە VCC' || c.name === 'كارتىلار' || !c.name.includes('تىلفۇن') || c.count?.includes('Telecom'))) {
+              if (c.id === 'cards') {
                 updated = true;
                 return {
                   ...c,
-                  name: 'تىلفۇن كارتىلىرىغا پۇل قاچىلاش',
+                  name: 'كارتىلارغا پۇل قاچىلاش',
                   count: 'Turkcell',
                   image: '/images/services/turkcell.jpg',
                 };

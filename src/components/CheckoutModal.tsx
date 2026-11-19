@@ -321,11 +321,28 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
     return q ? packages.filter((p) => p.title.toLowerCase().includes(q)) : packages;
   }, [packages, packageQuery]);
 
+  const resolvePackagePrice = (pkgItem?: ServicePackage | null): number => {
+    if (!pkgItem) return 0;
+    const basePrice = Number(pkgItem.price) || 0;
+    const match = (pkgItem.title || '').match(/(\d+(?:\.\d+)?)/);
+    const qtyCount = (pkgItem as any).providerQty || (match ? parseFloat(match[1]) : 0);
+    // Guard against single-unit micro-cost ($0.008) appearing on telecom unit packages
+    if (basePrice < 0.05 && qtyCount && qtyCount >= 10) {
+      if (pkgItem.costPrice && pkgItem.costPrice > 0.05) {
+        return Number((pkgItem.costPrice * 1.15).toFixed(2));
+      }
+      const unitCost = 0.0078;
+      return Number((qtyCount * unitCost * 1.15).toFixed(2));
+    }
+    return basePrice;
+  };
+
   const qty = selectedPkg?.qty && selectedPkg.qty.kind !== 'fixed' ? Number(qtyInput) || 0 : 1;
   const estimatedTotal = useMemo(() => {
     if (!selectedPkg) return 0;
-    if (selectedPkg.productType !== 'amount' || !selectedPkg.unitPrice) return selectedPkg.price;
-    if (qty === minQty(selectedPkg.qty)) return selectedPkg.price;
+    const effectivePrice = resolvePackagePrice(selectedPkg);
+    if (selectedPkg.productType !== 'amount' || !selectedPkg.unitPrice) return effectivePrice;
+    if (qty === minQty(selectedPkg.qty)) return effectivePrice;
     return estimateTotal(selectedPkg.unitPrice, qty);
   }, [selectedPkg, qty]);
 
@@ -590,7 +607,7 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
         return;
       }
     }
-    await submitOrder(selectedPkg.price, isNoInputService ? undefined : combinedAccount);
+    await submitOrder(resolvePackagePrice(selectedPkg), isNoInputService ? undefined : combinedAccount);
   };
 
   const displayTotal = confirmTotal ?? estimatedTotal;
@@ -1159,13 +1176,13 @@ export default function CheckoutModal({ service, user, onClose, onSuccess, onOpe
                       <div className="font-black font-mono shrink-0 flex items-center gap-1.5 ms-2" dir="ltr">
                         {Boolean((pkg as any).isPromoActive || (pkg as any).promoPrice !== undefined) &&
                           pkg.originalPrice &&
-                          pkg.originalPrice > pkg.price && (
+                          pkg.originalPrice > resolvePackagePrice(pkg) && (
                             <span className="text-[11px] text-slate-400 line-through font-normal">
                               ${formatSmartPrice(pkg.originalPrice)}
                             </span>
                           )}
                         <span className="text-emerald-600 dark:text-emerald-400 text-sm sm:text-base">
-                          {pkg.productType === 'amount' ? `${t('fromPrice')} ` : ''}${formatSmartPrice(pkg.price)}
+                          {pkg.productType === 'amount' ? `${t('fromPrice')} ` : ''}${formatSmartPrice(resolvePackagePrice(pkg))}
                         </span>
                         {Boolean((pkg as any).isPromoActive || (pkg as any).promoPrice !== undefined) && (
                           <span className="text-[9px] bg-gradient-to-r from-red-600 to-rose-600 text-white px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider shadow-xs">

@@ -475,8 +475,8 @@ export default function HomePage() {
               if (c.id === 'numbers') {
                 return { ...c, name: 'مەۋھۇم نومۇر (SMS)', count: 'Telegram, WhatsApp, etc.', image: '/images/services/whatsapp.jpg' };
               }
-              if (c.id === 'cards' && (c.name === 'كارتىلار ۋە VCC' || c.name === 'كارتىلار' || !c.name.includes('تىلفۇن'))) {
-                return { ...c, name: 'تىلفۇن كارتىلىرىغا پۇل قاچىلاش', count: 'Turkcell', image: '/images/services/turkcell.jpg' };
+              if (c.id === 'cards') {
+                return { ...c, name: 'كارتىلارغا پۇل قاچىلاش', count: 'Turkcell', image: '/images/services/turkcell.jpg' };
               }
               if (c.id === 'wifi') {
                 return {
@@ -548,8 +548,8 @@ export default function HomePage() {
             if (c.id === 'numbers') {
               return { ...c, name: 'مەۋھۇم نومۇر (SMS)', count: 'Telegram, WhatsApp, etc.', image: '/images/services/whatsapp.jpg' };
             }
-            if (c.id === 'cards' && (c.name === 'كارتىلار ۋە VCC' || c.name === 'كارتىلار' || !c.name.includes('تىلفۇن'))) {
-              return { ...c, name: 'تىلفۇن كارتىلىرىغا پۇل قاچىلاش', count: 'Turkcell', image: '/images/services/turkcell.jpg' };
+            if (c.id === 'cards') {
+              return { ...c, name: 'كارتىلارغا پۇل قاچىلاش', count: 'Turkcell', image: '/images/services/turkcell.jpg' };
             }
             if (c.id === 'wifi') {
               return {
@@ -608,8 +608,8 @@ export default function HomePage() {
             if (c.id === 'numbers') {
               return { ...c, name: 'مەۋھۇم نومۇر (SMS)', count: 'Telegram, WhatsApp, etc.', image: '/images/services/whatsapp.jpg' };
             }
-            if (c.id === 'cards' && (c.name === 'كارتىلار ۋە VCC' || c.name === 'كارتىلار' || !c.name.includes('تىلفۇن'))) {
-              return { ...c, name: 'تىلفۇن كارتىلىرىغا پۇل قاچىلاش', count: 'Turkcell', image: '/images/services/turkcell.jpg' };
+            if (c.id === 'cards') {
+              return { ...c, name: 'كارتىلارغا پۇل قاچىلاش', count: 'Turkcell', image: '/images/services/turkcell.jpg' };
             }
             if (c.id === 'wifi') {
               return {
@@ -786,7 +786,7 @@ export default function HomePage() {
   // 5 Signature Categories matching user mockup
   const MAIN_5_CATEGORIES = [
     { id: 'apps', name: 'ئەپلەر', icon: '📱', color: '#6366f1' },
-    { id: 'cards', name: 'كارتىلار', icon: '💳', color: '#0284c7' },
+    { id: 'cards', name: 'كارتىلارغا پۇل قاچىلاش', icon: '💳', color: '#0284c7' },
     { id: 'accounts', name: 'ئەزالىقلار', icon: '👑', color: '#e11d48' },
     { id: 'numbers', name: 'مەۋھۇم نومۇر', icon: '💬', color: '#059669' },
     { id: 'games', name: 'ئويۇنلار', icon: '🎮', color: '#ea580c' },

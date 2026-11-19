@@ -220,7 +220,13 @@ export async function runProviderAutoMonitor(options?: {
         // A. Calculate live wholesale cost price
         const baseCost = Number(live.price);
         const pkgQty = (pkg as any).providerQty;
-        const liveCost = (pkgQty && (live.product_type === 'amount' || !live.product_type))
+        // If pkgQty is provided and baseCost is unit micro-cost (< 0.1), liveCost MUST be baseCost * pkgQty regardless of product_type
+        const isPerUnit = Boolean(
+          pkgQty &&
+          pkgQty > 1 &&
+          (live.product_type === 'amount' || live.product_type === 'specificPackage' || !live.product_type || baseCost < 0.05)
+        );
+        const liveCost = isPerUnit
           ? Number((baseCost * pkgQty).toFixed(4))
           : Number(baseCost.toFixed(4));
 
