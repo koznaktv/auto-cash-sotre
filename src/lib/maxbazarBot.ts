@@ -12,6 +12,7 @@ import {
   createDepositAsync,
   updateDepositStatusAsync,
   getDepositByIdAsync,
+  updateDepositAmountAsync,
 } from './db';
 import { verifyShamcashTransaction, normalizeTxId, getTsaConfig } from './providers/tsaShamcash';
 import { extractImageBufferFromPdf } from './pdfImageExtractor';
@@ -3164,6 +3165,7 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
 
         if (customAmount && customAmount > 0) {
           deposit.amount = customAmount;
+          await updateDepositAmountAsync(depositId, customAmount);
         }
 
         const updated = await updateDepositStatusAsync(depositId, 'completed');

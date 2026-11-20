@@ -1238,6 +1238,23 @@ export async function getDepositByTxIdAsync(txId: string): Promise<DepositRecord
   return db.deposits.find((d) => d.txId === normalized) || null;
 }
 
+export async function updateDepositAmountAsync(depositId: string, amount: number): Promise<void> {
+  const sb = getSupabase();
+  if (sb) {
+    const { error } = await sb.from('deposits').update({ amount }).eq('id', depositId);
+    if (error) {
+      console.warn('updateDepositAmountAsync warning:', error.message);
+    }
+    return;
+  }
+  const db = ensureDbFile();
+  const dep = db.deposits.find((d) => d.id === depositId);
+  if (dep) {
+    dep.amount = amount;
+    saveDb(db);
+  }
+}
+
 export async function isTxIdAlreadyCompletedAsync(txId: string): Promise<boolean> {
   const normalized = (txId || '').trim();
   if (!normalized) return false;
