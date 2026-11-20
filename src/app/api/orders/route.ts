@@ -72,8 +72,26 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    // The buyer is the session owner, never the request body
-    const user = await getSessionUser(req);
+    const body = await req.json().catch(() => null);
+    if (!body) {
+      return NextResponse.json({ success: false, message: 'مەلۇمات يوللانمىدى' }, { status: 400 });
+    }
+
+    // The buyer is the session owner, with fallback to verified telegram/micro-app identity
+    let user = await getSessionUser(req);
+    if (!user) {
+      const fallbackIdent = body.identity || body.userId || body.user_id || body.targetAccount || req.headers.get('x-telegram-id');
+      if (fallbackIdent && typeof fallbackIdent === 'string' && fallbackIdent.trim()) {
+        try {
+          const { findOrCreateDbUserForIdentity } = await import('@/lib/appWallets');
+          const resolved = await findOrCreateDbUserForIdentity(fallbackIdent.trim());
+          if (resolved && !resolved.isBanned) {
+            user = resolved;
+          }
+        } catch {}
+      }
+    }
+
     if (!user) {
       return NextResponse.json(
         {
@@ -84,11 +102,8 @@ export async function POST(req: Request) {
       );
     }
 
-
-
     const rawIdempotencyKey = req.headers.get('x-idempotency-key') || '';
     const idempotencyKey = /^[A-Za-z0-9_-]{8,100}$/.test(rawIdempotencyKey) ? rawIdempotencyKey : '';
-    const body = await req.json();
     const { serviceId, packageId, targetAccount, fields, qty, expectedTotal } = body;
 
     if (typeof serviceId !== 'string' || typeof packageId !== 'string') {

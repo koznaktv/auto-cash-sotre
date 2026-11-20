@@ -1201,6 +1201,8 @@
       preloadTelegramAuthSession();
       loadSavedOrders();
       restoreActiveSession();
+      renderWifiCardsUI();
+      renderTelecomUI();
       await fetchLiveCatalog();
       fetchWifiAndTelecomCatalog(false);
     });
@@ -1519,25 +1521,156 @@
     }
 
     // --- Telegram WebApp & Auth Initialization ---
-    function initTelegramWebApp() {
+    async function initTelegramWebApp() {
       try {
-        if (window.Telegram && window.Telegram.WebApp) {
-          const tg = window.Telegram.WebApp;
-          tg.ready();
-          tg.expand();
-          if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            currentUser = tg.initDataUnsafe.user;
+        const tg = window.Telegram && window.Telegram.WebApp;
+        if (tg) {
+          try {
+            tg.ready();
+            tg.expand();
+          } catch (_) {}
+
+          // 1. Try secure cryptographic Telegram WebApp auto-login
+          if (tg.initData) {
+            try {
+              const res = await fetch('/api/auth/telegram-webapp-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ initData: tg.initData })
+              });
+              if (res.ok) {
+                const data = await res.json();
+                if (data && data.success && data.user) {
+                  syncLocalAuthWithMainSite(data.user, 'telegram');
+                  return true;
+                }
+              }
+            } catch (_) {}
+          }
+
+          // 2. Direct instant login fallback with tg.initDataUnsafe.user
+          const u = tg.initDataUnsafe && tg.initDataUnsafe.user;
+          if (u && u.id) {
+            const ident = u.username ? ('@' + u.username) : String(u.id);
+            try {
+              const res = await fetch('/api/apps/otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  action: 'direct_login',
+                  phone_or_username: ident,
+                  telegram_id: u.id,
+                  photo_url: u.photo_url || null,
+                  app_id: 'numbers'
+                })
+              });
+              if (res.ok) {
+                const data = await res.json();
+                if (data && data.ok) {
+                  const safeUser = {
+                    id: String(u.id),
+                    name: [u.first_name, u.last_name].filter(Boolean).join(' ') || u.username || 'Telegram User',
+                    username: u.username || String(u.id),
+                    telegramChatId: String(u.id),
+                    telegramUsername: u.username,
+                    balance: typeof data.balance === 'number' ? data.balance : 0,
+                    avatarUrl: u.photo_url || `/api/apps/avatar?user=${u.id}`
+                  };
+                  syncLocalAuthWithMainSite(safeUser, 'telegram');
+                  return true;
+                }
+              }
+            } catch (_) {}
+
+            // Minimal fallback if network temporarily slow
+            currentUser = {
+              id: String(u.id),
+              name: [u.first_name, u.last_name].filter(Boolean).join(' ') || u.username || 'Telegram User',
+              username: u.username || String(u.id),
+              telegramChatId: String(u.id),
+              telegramUsername: u.username,
+              balance: Number(localStorage.getItem('autocash_balance') || 0)
+            };
+            userBalance = currentUser.balance;
+            localStorage.setItem('autocash_is_logged_in', 'true');
             localStorage.setItem('autocash_user', JSON.stringify(currentUser));
             updateUserUI(currentUser);
+            updateBalanceUI();
+            return true;
           }
         }
       } catch (e) {
         console.warn('Telegram WebApp notice:', e);
       }
+      return false;
     }
 
     async function initUserSession() {
       try {
+        // 1. First check if Telegram WebApp is active
+        const tgOk = await initTelegramWebApp();
+        if (tgOk && currentUser && localStorage.getItem('autocash_is_logged_in') === 'true') {
+          await fetchUserUnifiedBalance();
+          return;
+        }
+
+        // 2. Check URL search params (?user=..., ?tg_id=..., ?chat_id=...)
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryIdent = urlParams.get('user') || urlParams.get('tg_id') || urlParams.get('chat_id');
+        if (queryIdent) {
+          try {
+            const res = await fetch('/api/apps/otp', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'direct_login',
+                phone_or_username: queryIdent,
+                telegram_id: /^\d+$/.test(queryIdent) ? Number(queryIdent) : undefined,
+                app_id: 'numbers'
+              })
+            });
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.ok) {
+                const safeUser = {
+                  id: String(queryIdent),
+                  name: String(queryIdent),
+                  username: String(queryIdent),
+                  telegramChatId: /^\d+$/.test(queryIdent) ? String(queryIdent) : undefined,
+                  balance: typeof data.balance === 'number' ? data.balance : 0,
+                  avatarUrl: data.session && data.session.photo_url ? data.session.photo_url : `/api/apps/avatar?user=${queryIdent}`
+                };
+                syncLocalAuthWithMainSite(safeUser, 'telegram_query');
+                return;
+              }
+            }
+          } catch (_) {}
+        }
+
+        // 3. Check MAX-BAZAR unified session from localStorage
+        const unifiedSessStr = localStorage.getItem('maxbazar_unified_session') || localStorage.getItem('maxbazar_pubg_session') || localStorage.getItem('maxbazar_hok_session');
+        if (unifiedSessStr) {
+          try {
+            const sess = JSON.parse(unifiedSessStr);
+            if (sess && sess.identity) {
+              const cleanIdent = String(sess.identity).replace(/^@/, '');
+              const sessBal = typeof sess.balance === 'number' ? sess.balance : 0;
+              const safeUser = {
+                id: String(sess.telegram_id || cleanIdent),
+                name: cleanIdent,
+                username: cleanIdent,
+                telegramChatId: sess.telegram_id ? String(sess.telegram_id) : undefined,
+                balance: sessBal,
+                avatarUrl: sess.photo_url || `/api/apps/avatar?user=${cleanIdent}`
+              };
+              syncLocalAuthWithMainSite(safeUser, 'unified_session');
+              await fetchUserUnifiedBalance();
+              return;
+            }
+          } catch (_) {}
+        }
+
+        // 4. Check existing saved user
         const persistentUid = getOrGenerateUserId();
         const isLoggedIn = localStorage.getItem('autocash_is_logged_in') === 'true';
         const savedUserStr = localStorage.getItem('autocash_user') || localStorage.getItem('autocash_tg_user');
@@ -1550,38 +1683,92 @@
             updateUserUI(currentUser);
             updateBalanceUI();
             await fetchUserUnifiedBalance();
+            return;
           } catch(e) {
             currentUser = null;
-            updateUserUI(null);
           }
-        } else {
-          // Check server cookie session first
-          try {
-            const meRes = await fetch('/api/auth/me');
-            if (meRes.ok) {
-              const meData = await meRes.json();
-              if (meData && meData.success && meData.user) {
-                syncLocalAuthWithMainSite(meData.user, meData.user.email ? 'gmail' : 'server_session');
-                return;
-              }
-            }
-          } catch(_) {}
-
-          // GUEST / NOT LOGGED IN - Strictly do NOT assign or show Member ID
-          currentUser = null;
-          userBalance = 0.00;
-          localStorage.removeItem('autocash_uid');
-          localStorage.removeItem('autocash_userId');
-          updateUserUI(null);
-          updateBalanceUI();
         }
+
+        // 5. Check server cookie session (/api/auth/me)
+        try {
+          const meRes = await fetch('/api/auth/me');
+          if (meRes.ok) {
+            const meData = await meRes.json();
+            if (meData && meData.success && meData.user) {
+              syncLocalAuthWithMainSite(meData.user, meData.user.email ? 'gmail' : 'server_session');
+              return;
+            }
+          }
+        } catch(_) {}
+
+        // GUEST / NOT LOGGED IN - Strictly do NOT assign or show Member ID
+        currentUser = null;
+        userBalance = 0.00;
+        localStorage.removeItem('autocash_uid');
+        localStorage.removeItem('autocash_userId');
+        updateUserUI(null);
+        updateBalanceUI();
       } catch (err) {
         console.warn('Session init:', err);
       }
     }
 
+    function getUserBalance() {
+      return Number(userBalance || 0);
+    }
+
+    async function syncUserBalance() {
+      if (!currentUser) return userBalance;
+      const cleanIdent = (currentUser.username || currentUser.id || currentUser.email || '').replace(/^@/, '');
+      
+      // 1. Check /api/auth/me first
+      try {
+        const meRes = await fetch('/api/auth/me');
+        if (meRes.ok) {
+          const meData = await meRes.json();
+          if (meData && meData.success && meData.user) {
+            const bal = Number(meData.user.balance !== undefined ? meData.user.balance : 0);
+            userBalance = bal;
+            currentUser.balance = bal;
+            localStorage.setItem('autocash_balance', String(bal));
+            localStorage.setItem('maxstore_balance', String(bal));
+            updateBalanceUI();
+            updateUserUI(currentUser);
+            return bal;
+          }
+        }
+      } catch (_) {}
+
+      // 2. Query /api/apps/otp with action 'get_balance'
+      if (cleanIdent) {
+        try {
+          const res = await fetch('/api/apps/otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'get_balance',
+              phone_or_username: cleanIdent
+            })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.ok && typeof data.balance === 'number') {
+              userBalance = data.balance;
+              currentUser.balance = data.balance;
+              localStorage.setItem('autocash_balance', String(data.balance));
+              localStorage.setItem('maxstore_balance', String(data.balance));
+              updateBalanceUI();
+              updateUserUI(currentUser);
+              return data.balance;
+            }
+          }
+        } catch (_) {}
+      }
+      return userBalance;
+    }
+
     async function fetchUserUnifiedBalance() {
-      await refreshUserBalanceFromBot(true);
+      await syncUserBalance();
     }
 
     function updateUserUI(user) {
@@ -3082,11 +3269,8 @@
     let activeTelecomType = 'credit'; // 'credit' | 'bundle'
     let activeVoucherCardData = null;
 
-    let LIVE_WIFI_SERVICES = [];
-    let LIVE_TELECOM = {
-      syriatel: { serviceId: 'othman_syriatel', serviceName: 'Syriatel سۈريەتىل', creditPackages: [], bundlePackages: [] },
-      mtn: { serviceId: 'othman_mtn', serviceName: 'MTN سۈرىيە', creditPackages: [], bundlePackages: [] }
-    };
+    let LIVE_WIFI_SERVICES = [{"id": "azez_net", "name": "ئەزىز نىت (Azez Net)", "nameAr": "شبكة عزيز نت", "nameEn": "AZEZ . NET", "packages": [{"id": "azez_6gb", "title": "6 جيجا 7 كۈنلۈك", "rawTitle": "6 جيجا 7 كۈنلۈك (1 أجهزة)", "price": 0.45, "originalPrice": 0.5, "duration": "7 كۈن", "gb": "6 GB", "stock": 10, "isAvailable": true, "popular": false}, {"id": "azez_4gb", "title": "4 جيجا 7 كۈنلۈك", "rawTitle": "4 جيجا 7 كۈنلۈك (4GB 7 Days)", "price": 0.34, "originalPrice": 0.4, "duration": "7 كۈن", "gb": "4 GB", "stock": 10, "isAvailable": true, "popular": false}, {"id": "azez_2gb", "title": "2 جيجا 5 كۈنلۈك", "rawTitle": "2 جيجا 5 كۈنلۈك (2GB 5 Days)", "price": 0.23, "originalPrice": 0.28, "duration": "5 كۈن", "gb": "2 GB", "stock": 10, "isAvailable": true, "popular": false}, {"id": "azez_1gb", "title": "1 جيجا 3 كۈنلۈك", "rawTitle": "1 جيجا 3 كۈنلۈك (1GB 3 Days)", "price": 0.12, "originalPrice": 0.15, "duration": "3 كۈن", "gb": "1 GB", "stock": 10, "isAvailable": true, "popular": false}], "totalStock": 40}, {"id": "fursan_kafraya", "name": "فۇرسان نىت (كەفەريا) - Fursan Net Kafraya", "nameAr": "شبكة الفرسان (كفريا)", "nameEn": "FURSAN NET KAFRAYA", "packages": [{"id": "fursan_kf_6gb", "title": "6 جيجا 7 كۈنلۈك", "rawTitle": "6 جيجا 7 كۈنلۈك (6GB 7 Days)", "price": 0.45, "originalPrice": 0.5, "duration": "7 كۈن", "gb": "6 GB", "stock": 10, "isAvailable": true, "popular": false}, {"id": "fursan_kf_4gb", "title": "4 جيجا 7 كۈنلۈك", "rawTitle": "4 جيجا 7 كۈنلۈك (4GB 7 Days)", "price": 0.34, "originalPrice": 0.4, "duration": "7 كۈن", "gb": "4 GB", "stock": 10, "isAvailable": true, "popular": false}, {"id": "fursan_kf_2gb", "title": "2 جيجا 5 كۈنلۈك", "rawTitle": "2 جيجا 5 كۈنلۈك (2GB 5 Days)", "price": 0.23, "originalPrice": 0.28, "duration": "5 كۈن", "gb": "2 GB", "stock": 10, "isAvailable": true, "popular": false}, {"id": "fursan_kf_1gb", "title": "1 جيجا 3 كۈنلۈك", "rawTitle": "1 جيجا 3 كۈنلۈك (1GB 3 Days)", "price": 0.12, "originalPrice": 0.15, "duration": "3 كۈن", "gb": "1 GB", "stock": 10, "isAvailable": true, "popular": false}], "totalStock": 40}, {"id": "fursan_kafer_jalis", "name": "فۇرسان نىت (كەفەر جالىس) - Fursan Net Kafer Jalis", "nameAr": "شبكة الفرسان (كفر جالس)", "nameEn": "FURSAN NET KAFER JALIS", "packages": [{"id": "fursan_kj_6gb", "title": "6 جيجا 7 كۈنلۈك", "rawTitle": "6 جيجا 7 كۈنلۈك (6GB 7 Days)", "price": 0.45, "originalPrice": 0.5, "duration": "7 كۈن", "gb": "6 GB", "stock": 10, "isAvailable": true, "popular": false}, {"id": "fursan_kj_4gb", "title": "4 جيجا 7 كۈنلۈك", "rawTitle": "4 جيجا 7 كۈنلۈك (4GB 7 Days)", "price": 0.34, "originalPrice": 0.4, "duration": "7 كۈن", "gb": "4 GB", "stock": 10, "isAvailable": true, "popular": false}, {"id": "fursan_kj_2gb", "title": "2 جيجا 5 كۈنلۈك", "rawTitle": "2 جيجا 5 كۈنلۈك (2GB 5 Days)", "price": 0.23, "originalPrice": 0.28, "duration": "5 كۈن", "gb": "2 GB", "stock": 10, "isAvailable": true, "popular": false}, {"id": "fursan_kj_1gb", "title": "1 جيجا 3 كۈنلۈك", "rawTitle": "1 جيجا 3 كۈنلۈك (1GB 3 Days)", "price": 0.12, "originalPrice": 0.15, "duration": "3 كۈن", "gb": "1 GB", "stock": 10, "isAvailable": true, "popular": false}], "totalStock": 40}, {"id": "almujahid_net", "name": "مۇجاھىد نىت (Al Mujahid Net)", "nameAr": "شبكة المجاهد نت", "nameEn": "AL MUJAHID NET", "packages": [{"id": "mujahid_6gb", "title": "6 جيجا 7 كۈنلۈك", "rawTitle": "6 جيجا 7 كۈنلۈك (6GB 7 Days)", "price": 0.45, "originalPrice": 0.5, "duration": "7 كۈن", "gb": "6 GB", "stock": 10, "isAvailable": true, "popular": false}, {"id": "mujahid_4gb", "title": "4 جيجا 7 كۈنلۈك", "rawTitle": "4 جيجا 7 كۈنلۈك (4GB 7 Days)", "price": 0.34, "originalPrice": 0.4, "duration": "7 كۈن", "gb": "4 GB", "stock": 10, "isAvailable": true, "popular": false}, {"id": "mujahid_2gb", "title": "2 جيجا 5 كۈنلۈك", "rawTitle": "2 جيجا 5 كۈنلۈك (2GB 5 Days)", "price": 0.23, "originalPrice": 0.28, "duration": "5 كۈن", "gb": "2 GB", "stock": 10, "isAvailable": true, "popular": false}, {"id": "mujahid_1gb", "title": "1 جيجا 3 كۈنلۈك", "rawTitle": "1 جيجا 3 كۈنلۈك (1GB 3 Days)", "price": 0.12, "originalPrice": 0.15, "duration": "3 كۈن", "gb": "1 GB", "stock": 10, "isAvailable": true, "popular": false}], "totalStock": 40}];
+    let LIVE_TELECOM = {"syriatel": {"serviceId": "maxstore_syriatel", "serviceName": "Syriatel سۈريەتىل (MaxStore)", "provider": "maxstore", "creditPackages": [{"id": "maxstore_1", "productId": 1, "provider": "maxstore", "name": "1.92 ليرة SYR", "rawName": "1.92 ليرة SYR - SyriaTel 1️⃣", "cost": 0.0141, "price": 0.02, "isAvailable": true, "isBundle": false}, {"id": "maxstore_13", "productId": 13, "provider": "maxstore", "name": "2.88 ليرة SYR", "rawName": "2.88 ليرة SYR - SyriaTel 1️⃣", "cost": 0.0212, "price": 0.03, "isAvailable": true, "isBundle": false}, {"id": "maxstore_21", "productId": 21, "provider": "maxstore", "name": "3.85 ليرة SYR", "rawName": "3.85 ليرة SYR - SyriaTel 1️⃣", "cost": 0.0283, "price": 0.04, "isAvailable": true, "isBundle": false}, {"id": "maxstore_25", "productId": 25, "provider": "maxstore", "name": "4.81 ليرة SYR", "rawName": "4.81 ليرة SYR - SyriaTel 1️⃣", "cost": 0.0354, "price": 0.05, "isAvailable": true, "isBundle": false}, {"id": "maxstore_30", "productId": 30, "provider": "maxstore", "name": "5.77 ليرة SYR", "rawName": "5.77 ليرة SYR - SyriaTel 1️⃣", "cost": 0.0425, "price": 0.06, "isAvailable": true, "isBundle": false}, {"id": "maxstore_38", "productId": 38, "provider": "maxstore", "name": "9.62 ليرة SYR", "rawName": "9.62 ليرة SYR - SyriaTel 1️⃣", "cost": 0.0707, "price": 0.09, "isAvailable": true, "isBundle": false}, {"id": "maxstore_14", "productId": 14, "provider": "maxstore", "name": "20.19  ليرة SYR", "rawName": "20.19  ليرة SYR - SyriaTel 1️⃣", "cost": 0.1485, "price": 0.19, "isAvailable": true, "isBundle": false}, {"id": "maxstore_16", "productId": 16, "provider": "maxstore", "name": "23.08 ليرة SYR", "rawName": "23.08 ليرة SYR - SyriaTel 1️⃣", "cost": 0.1698, "price": 0.22, "isAvailable": true, "isBundle": false}, {"id": "maxstore_17", "productId": 17, "provider": "maxstore", "name": "24.04 ليرة SYR", "rawName": "24.04 ليرة SYR - SyriaTel 1️⃣", "cost": 0.1768, "price": 0.23, "isAvailable": true, "isBundle": false}, {"id": "maxstore_22", "productId": 22, "provider": "maxstore", "name": "30.76 ليرة SYR", "rawName": "30.76 ليرة SYR - SyriaTel 1️⃣", "cost": 0.2267, "price": 0.29, "isAvailable": true, "isBundle": false}, {"id": "maxstore_26", "productId": 26, "provider": "maxstore", "name": "40.38 ليرة SYR", "rawName": "40.38 ليرة SYR - SyriaTel 1️⃣", "cost": 0.297, "price": 0.39, "isAvailable": true, "isBundle": false}, {"id": "maxstore_28", "productId": 28, "provider": "maxstore", "name": "45.19 ليرة SYR", "rawName": "45.19 ليرة SYR - SyriaTel 1️⃣", "cost": 0.3323, "price": 0.43, "isAvailable": true, "isBundle": false}, {"id": "maxstore_31", "productId": 31, "provider": "maxstore", "name": "52.88 ليرة SYR", "rawName": "52.88 ليرة SYR - SyriaTel 1️⃣", "cost": 0.3889, "price": 0.51, "isAvailable": true, "isBundle": false}, {"id": "maxstore_32", "productId": 32, "provider": "maxstore", "name": "62.50 ليرة SYR", "rawName": "62.50 ليرة SYR - SyriaTel 1️⃣", "cost": 0.4552, "price": 0.59, "isAvailable": true, "isBundle": false}, {"id": "maxstore_33", "productId": 33, "provider": "maxstore", "name": "68.27 ليرةSYR", "rawName": "68.27 ليرةSYR - SyriaTel 1️⃣", "cost": 0.5021, "price": 0.65, "isAvailable": true, "isBundle": false}, {"id": "maxstore_34", "productId": 34, "provider": "maxstore", "name": "72.12 ليرة SYR", "rawName": "72.12 ليرة SYR - SyriaTel 1️⃣", "cost": 0.5304, "price": 0.69, "isAvailable": true, "isBundle": false}, {"id": "maxstore_35", "productId": 35, "provider": "maxstore", "name": "77.88 ليرة SYR", "rawName": "77.88 ليرة SYR - SyriaTel 1️⃣", "cost": 0.5728, "price": 0.74, "isAvailable": true, "isBundle": false}, {"id": "maxstore_36", "productId": 36, "provider": "maxstore", "name": "81.73 ليرة SYR", "rawName": "81.73 ليرة SYR - SyriaTel 1️⃣", "cost": 0.601, "price": 0.78, "isAvailable": true, "isBundle": false}, {"id": "maxstore_37", "productId": 37, "provider": "maxstore", "name": "86.54 ليرة SYR", "rawName": "86.54 ليرة SYR - SyriaTel 1️⃣", "cost": 0.6364, "price": 0.83, "isAvailable": true, "isBundle": false}, {"id": "maxstore_40", "productId": 40, "provider": "maxstore", "name": "96.15 ليرة SYR", "rawName": "96.15 ليرة SYR - SyriaTel 1️⃣", "cost": 0.7071, "price": 0.92, "isAvailable": true, "isBundle": false}, {"id": "maxstore_2", "productId": 2, "provider": "maxstore", "name": "100.96 ليرة SYR", "rawName": "100.96 ليرة SYR - SyriaTel 1️⃣", "cost": 0.7425, "price": 0.97, "isAvailable": true, "isBundle": false}, {"id": "maxstore_3", "productId": 3, "provider": "maxstore", "name": "105.77 ليرة SYR", "rawName": "105.77 ليرة SYR - SyriaTel 1️⃣", "cost": 0.7779, "price": 1.01, "isAvailable": true, "isBundle": false}, {"id": "maxstore_5", "productId": 5, "provider": "maxstore", "name": "115.38 ليرة SYR", "rawName": "115.38 ليرة SYR - SyriaTel 1️⃣", "cost": 0.8485, "price": 1.1, "isAvailable": true, "isBundle": false}, {"id": "maxstore_6", "productId": 6, "provider": "maxstore", "name": "130.77 ليرة SYR", "rawName": "130.77 ليرة SYR - SyriaTel 1️⃣", "cost": 0.9617, "price": 1.25, "isAvailable": true, "isBundle": false}, {"id": "maxstore_7", "productId": 7, "provider": "maxstore", "name": "144.23 ليرة SYR", "rawName": "144.23 ليرة SYR - SyriaTel 1️⃣", "cost": 1.0607, "price": 1.38, "isAvailable": true, "isBundle": false}, {"id": "maxstore_8", "productId": 8, "provider": "maxstore", "name": "160.58 ليرة SYR", "rawName": "160.58 ليرة SYR - SyriaTel 1️⃣", "cost": 1.181, "price": 1.54, "isAvailable": true, "isBundle": false}, {"id": "maxstore_9", "productId": 9, "provider": "maxstore", "name": "163.46 ليرة SYR", "rawName": "163.46 ليرة SYR - SyriaTel 1️⃣", "cost": 1.2021, "price": 1.56, "isAvailable": true, "isBundle": false}, {"id": "maxstore_10", "productId": 10, "provider": "maxstore", "name": "173.08 ليرة SYR", "rawName": "173.08 ليرة SYR - SyriaTel 1️⃣", "cost": 1.2729, "price": 1.65, "isAvailable": true, "isBundle": false}, {"id": "maxstore_11", "productId": 11, "provider": "maxstore", "name": "183.65 ليرة SYR", "rawName": "183.65 ليرة SYR - SyriaTel 1️⃣", "cost": 1.3506, "price": 1.76, "isAvailable": true, "isBundle": false}, {"id": "maxstore_12", "productId": 12, "provider": "maxstore", "name": "192.31 ليرة SYR", "rawName": "192.31 ليرة SYR - SyriaTel 1️⃣", "cost": 1.4143, "price": 1.84, "isAvailable": true, "isBundle": false}, {"id": "maxstore_15", "productId": 15, "provider": "maxstore", "name": "211.54 ليرة SYR", "rawName": "211.54 ليرة SYR - SyriaTel 1️⃣", "cost": 1.5557, "price": 2.02, "isAvailable": true, "isBundle": false}, {"id": "maxstore_18", "productId": 18, "provider": "maxstore", "name": "240.38 ليرة SYR", "rawName": "240.38 ليرة SYR - SyriaTel 1️⃣", "cost": 1.7678, "price": 2.3, "isAvailable": true, "isBundle": false}, {"id": "maxstore_20", "productId": 20, "provider": "maxstore", "name": "288.46 ليرة SYR", "rawName": "288.46 ليرة SYR - SyriaTel 1️⃣", "cost": 2.1214, "price": 2.76, "isAvailable": true, "isBundle": false}, {"id": "maxstore_23", "productId": 23, "provider": "maxstore", "name": "317.31 ليرة SYR", "rawName": "317.31 ليرة SYR - SyriaTel 1️⃣", "cost": 2.3336, "price": 3.03, "isAvailable": true, "isBundle": false}, {"id": "maxstore_24", "productId": 24, "provider": "maxstore", "name": "370.19 ليرة SYR", "rawName": "370.19 ليرة SYR - SyriaTel 1️⃣", "cost": 2.7225, "price": 3.54, "isAvailable": true, "isBundle": false}, {"id": "maxstore_27", "productId": 27, "provider": "maxstore", "name": "432.69 ليرة SYR", "rawName": "432.69 ليرة SYR - SyriaTel 1️⃣", "cost": 3.1821, "price": 4.14, "isAvailable": true, "isBundle": false}, {"id": "maxstore_29", "productId": 29, "provider": "maxstore", "name": "480.77 ليرة SYR", "rawName": "480.77 ليرة SYR - SyriaTel 1️⃣", "cost": 3.5357, "price": 4.6, "isAvailable": true, "isBundle": false}, {"id": "maxstore_39", "productId": 39, "provider": "maxstore", "name": "951.92 ليرة SYR", "rawName": "951.92 ليرة SYR - SyriaTel 1️⃣", "cost": 7.0006, "price": 9.1, "isAvailable": true, "isBundle": false}, {"id": "maxstore_4", "productId": 4, "provider": "maxstore", "name": "1057.69 ليرة SYR", "rawName": "1057.69 ليرة SYR - SyriaTel 1️⃣", "cost": 7.7037, "price": 10.01, "isAvailable": true, "isBundle": false}, {"id": "maxstore_19", "productId": 19, "provider": "maxstore", "name": "2403.85 ليرة SYR", "rawName": "2403.85 ليرة SYR - SyriaTel 1️⃣", "cost": 17.5084, "price": 22.76, "isAvailable": true, "isBundle": false}], "bundlePackages": [{"id": "maxstore_2300", "productId": 2300, "provider": "maxstore", "name": "6 غيغا سيرتيل + 400 دقيقة + 400 رسالة", "rawName": "6 غيغا سيرتيل + 400 دقيقة + 400 رسالة - باقات شهرية SyriaTel", "cost": 3.5011, "price": 4.55, "isAvailable": true, "isBundle": true}, {"id": "maxstore_2301", "productId": 2301, "provider": "maxstore", "name": "10 غيغا سيرتيل + 500 دقيقة + 500 رسالة", "rawName": "10 غيغا سيرتيل + 500 دقيقة + 500 رسالة - باقات شهرية SyriaTel", "cost": 5.1083, "price": 6.64, "isAvailable": true, "isBundle": true}, {"id": "maxstore_2303", "productId": 2303, "provider": "maxstore", "name": "20 غيغا سيرتيل + 600 دقيقة + 600 رسالة", "rawName": "20 غيغا سيرتيل + 600 دقيقة + 600 رسالة - باقات شهرية SyriaTel", "cost": 8.7402, "price": 11.36, "isAvailable": true, "isBundle": true}, {"id": "maxstore_2304", "productId": 2304, "provider": "maxstore", "name": "35 غيغا سيرتيل + 700 دقيقة + 700 رسالة", "rawName": "35 غيغا سيرتيل + 700 دقيقة + 700 رسالة - باقات شهرية SyriaTel", "cost": 13.8387, "price": 17.99, "isAvailable": true, "isBundle": true}, {"id": "maxstore_2305", "productId": 2305, "provider": "maxstore", "name": "75 غيغا سيرتيل + 800 دقيقة + 800 رسالة", "rawName": "75 غيغا سيرتيل + 800 دقيقة + 800 رسالة - باقات شهرية SyriaTel", "cost": 21.8505, "price": 28.41, "isAvailable": true, "isBundle": true}]}, "mtn": {"serviceId": "maxstore_mtn", "serviceName": "MTN سۈرىيە (MaxStore)", "provider": "maxstore", "creditPackages": [{"id": "maxstore_204", "productId": 204, "provider": "maxstore", "name": "10 ليرة MTN", "rawName": "10 ليرة MTN - 1️⃣ رصيد MTN", "cost": 0.0735, "price": 0.1, "isAvailable": true, "isBundle": false}, {"id": "maxstore_207", "productId": 207, "provider": "maxstore", "name": "12 ليرة MTN", "rawName": "12 ليرة MTN - 1️⃣ رصيد MTN", "cost": 0.0883, "price": 0.11, "isAvailable": true, "isBundle": false}, {"id": "maxstore_208", "productId": 208, "provider": "maxstore", "name": "15 ليرة MTN", "rawName": "15 ليرة MTN - 1️⃣ رصيد MTN", "cost": 0.1103, "price": 0.14, "isAvailable": true, "isBundle": false}, {"id": "maxstore_211", "productId": 211, "provider": "maxstore", "name": "20 ليرة MTN", "rawName": "20 ليرة MTN - 1️⃣ رصيد MTN", "cost": 0.1471, "price": 0.19, "isAvailable": true, "isBundle": false}, {"id": "maxstore_214", "productId": 214, "provider": "maxstore", "name": "25 ليرة MTN", "rawName": "25 ليرة MTN - 1️⃣ رصيد MTN", "cost": 0.1839, "price": 0.24, "isAvailable": true, "isBundle": false}, {"id": "maxstore_217", "productId": 217, "provider": "maxstore", "name": "30 ليرة MTN", "rawName": "30 ليرة MTN - 1️⃣ رصيد MTN", "cost": 0.2206, "price": 0.29, "isAvailable": true, "isBundle": false}, {"id": "maxstore_219", "productId": 219, "provider": "maxstore", "name": "35 ليرة MTN", "rawName": "35 ليرة MTN - 1️⃣ رصيد MTN", "cost": 0.2574, "price": 0.33, "isAvailable": true, "isBundle": false}, {"id": "maxstore_221", "productId": 221, "provider": "maxstore", "name": "40 ليرة MTN", "rawName": "40 ليرة MTN - 1️⃣ رصيد MTN", "cost": 0.2947, "price": 0.38, "isAvailable": true, "isBundle": false}, {"id": "maxstore_223", "productId": 223, "provider": "maxstore", "name": "50 ليرة MTN", "rawName": "50 ليرة MTN - 1️⃣ رصيد MTN", "cost": 0.3684, "price": 0.48, "isAvailable": true, "isBundle": false}, {"id": "maxstore_226", "productId": 226, "provider": "maxstore", "name": "60 ليرة MTN", "rawName": "60 ليرة MTN - 1️⃣ رصيد MTN", "cost": 0.4421, "price": 0.57, "isAvailable": true, "isBundle": false}, {"id": "maxstore_228", "productId": 228, "provider": "maxstore", "name": "70 ليرة MTN", "rawName": "70 ليرة MTN - 1️⃣ رصيد MTN", "cost": 0.5158, "price": 0.67, "isAvailable": true, "isBundle": false}, {"id": "maxstore_230", "productId": 230, "provider": "maxstore", "name": "85 ليرة MTN", "rawName": "85 ليرة MTN - 1️⃣ رصيد MTN", "cost": 0.6251, "price": 0.81, "isAvailable": true, "isBundle": false}, {"id": "maxstore_205", "productId": 205, "provider": "maxstore", "name": "100 ليرة MTN", "rawName": "100 ليرة MTN - 1️⃣ رصيد MTN", "cost": 0.7354, "price": 0.96, "isAvailable": true, "isBundle": false}, {"id": "maxstore_210", "productId": 210, "provider": "maxstore", "name": "170 ليرة MTN", "rawName": "170 ليرة MTN - 1️⃣ رصيد MTN", "cost": 1.2502, "price": 1.63, "isAvailable": true, "isBundle": false}, {"id": "maxstore_212", "productId": 212, "provider": "maxstore", "name": "200 ليرة MTN", "rawName": "200 ليرة MTN - 1️⃣ رصيد MTN", "cost": 1.4708, "price": 1.91, "isAvailable": true, "isBundle": false}, {"id": "maxstore_216", "productId": 216, "provider": "maxstore", "name": "280 ليرة MTN", "rawName": "280 ليرة MTN - 1️⃣ رصيد MTN", "cost": 2.0592, "price": 2.68, "isAvailable": true, "isBundle": false}, {"id": "maxstore_220", "productId": 220, "provider": "maxstore", "name": "360 ليرة MTN", "rawName": "360 ليرة MTN - 1️⃣ رصيد MTN", "cost": 2.6475, "price": 3.44, "isAvailable": true, "isBundle": false}, {"id": "maxstore_222", "productId": 222, "provider": "maxstore", "name": "400 ليرة MTN", "rawName": "400 ليرة MTN - 1️⃣ رصيد MTN", "cost": 2.9417, "price": 3.82, "isAvailable": true, "isBundle": false}, {"id": "maxstore_224", "productId": 224, "provider": "maxstore", "name": "500 ليرة MTN", "rawName": "500 ليرة MTN - 1️⃣ رصيد MTN", "cost": 3.6771, "price": 4.78, "isAvailable": true, "isBundle": false}, {"id": "maxstore_227", "productId": 227, "provider": "maxstore", "name": "600 ليرة MTN", "rawName": "600 ليرة MTN - 1️⃣ رصيد MTN", "cost": 4.4125, "price": 5.74, "isAvailable": true, "isBundle": false}, {"id": "maxstore_229", "productId": 229, "provider": "maxstore", "name": "750 ليرة MTN", "rawName": "750 ليرة MTN - 1️⃣ رصيد MTN", "cost": 5.5157, "price": 7.17, "isAvailable": true, "isBundle": false}, {"id": "maxstore_206", "productId": 206, "provider": "maxstore", "name": "1000 ليرة MTN", "rawName": "1000 ليرة MTN - 1️⃣ رصيد MTN", "cost": 7.3542, "price": 9.56, "isAvailable": true, "isBundle": false}, {"id": "maxstore_209", "productId": 209, "provider": "maxstore", "name": "1500 ليرة MTN", "rawName": "1500 ليرة MTN - 1️⃣ رصيد MTN", "cost": 11.0313, "price": 14.34, "isAvailable": true, "isBundle": false}, {"id": "maxstore_213", "productId": 213, "provider": "maxstore", "name": "2000 ليرة MTN", "rawName": "2000 ليرة MTN - 1️⃣ رصيد MTN", "cost": 14.7084, "price": 19.12, "isAvailable": true, "isBundle": false}, {"id": "maxstore_215", "productId": 215, "provider": "maxstore", "name": "2500 ليرة MTN", "rawName": "2500 ليرة MTN - 1️⃣ رصيد MTN", "cost": 18.3855, "price": 23.9, "isAvailable": true, "isBundle": false}, {"id": "maxstore_218", "productId": 218, "provider": "maxstore", "name": "3000 ليرة MTN", "rawName": "3000 ليرة MTN - 1️⃣ رصيد MTN", "cost": 22.0626, "price": 28.68, "isAvailable": true, "isBundle": false}, {"id": "maxstore_225", "productId": 225, "provider": "maxstore", "name": "5000 ليرة MTN", "rawName": "5000 ليرة MTN - 1️⃣ رصيد MTN", "cost": 36.771, "price": 47.8, "isAvailable": true, "isBundle": false}], "bundlePackages": [{"id": "maxstore_2260", "productId": 2260, "provider": "maxstore", "name": "6 غيغا + 400 دقيقة + 400 رسالة", "rawName": "6 غيغا + 400 دقيقة + 400 رسالة - باقات شهرية MTN", "cost": 3.5931, "price": 4.67, "isAvailable": true, "isBundle": true}, {"id": "maxstore_2257", "productId": 2257, "provider": "maxstore", "name": "10 غيغا + 500 دقيقة + 500 رسالة", "rawName": "10 غيغا + 500 دقيقة + 500 رسالة - باقات شهرية MTN", "cost": 5.246, "price": 6.82, "isAvailable": true, "isBundle": true}, {"id": "maxstore_2258", "productId": 2258, "provider": "maxstore", "name": "15 غيغا + 600 دقيقة + 600 رسالة", "rawName": "15 غيغا + 600 دقيقة + 600 رسالة - باقات شهرية MTN", "cost": 6.7551, "price": 8.78, "isAvailable": true, "isBundle": true}, {"id": "maxstore_2259", "productId": 2259, "provider": "maxstore", "name": "25 غيغا + 700 دقيقة + 700 رسالة", "rawName": "25 غيغا + 700 دقيقة + 700 رسالة - باقات شهرية MTN", "cost": 9.3422, "price": 12.14, "isAvailable": true, "isBundle": true}]}};
     let isFetchingWifiCatalog = false;
 
     function saveOrdersToStorage() {
@@ -3293,12 +3477,16 @@
     async function executeBuyWifiCard(net, pkg) {
       let card = null;
       try {
+        const clientIdentity = currentUser ? (currentUser.username || currentUser.id || currentUser.email) : undefined;
         const res = await fetch('/api/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             serviceId: net.id,
             packageId: pkg.id,
+            identity: clientIdentity,
+            userId: currentUser?.id,
+            userEmail: currentUser?.email,
             targetAccount: (currentUser && (currentUser.username || currentUser.id)) ? (currentUser.username || currentUser.id) : 'wifi_user'
           })
         });
@@ -3740,6 +3928,7 @@
         : (activeTelecomOperator === 'syriatel' ? 'othman_syriatel' : 'othman_mtn');
 
       try {
+        const clientIdentity = currentUser ? (currentUser.username || currentUser.id || currentUser.email) : undefined;
         const res = await fetch('/api/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -3748,6 +3937,9 @@
             packageId: pkg.id,
             productId: pkg.productId || (pkg.id ? String(pkg.id).replace('maxstore_', '') : undefined),
             provider: isMaxStore ? 'maxstore' : undefined,
+            identity: clientIdentity,
+            userId: currentUser?.id,
+            userEmail: currentUser?.email,
             targetAccount: phone,
             fields: { 'رقم الهاتف': phone, 'phone': phone, 'Player_ID': phone, 'رقم المشترك': phone, 'ادخل رقم الهاتف': phone }
           })
@@ -3829,7 +4021,10 @@
           body: JSON.stringify({
             serviceCode: serviceCode,
             countryId: countryId,
+            serviceName: selectedApp?.name || serviceCode,
+            countryName: selectedCountry?.name || String(countryId),
             tgId: currentUser?.id,
+            user_id: currentUser?.telegramChatId || currentUser?.id,
             identity: currentUser?.username || currentUser?.email || String(currentUser?.id || '')
           })
         });

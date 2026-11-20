@@ -3769,9 +3769,19 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
         if (isWifi) {
           try {
             const { claimAvailableWifiCardAsync } = await import('./wifiInventoryDb');
+            const rawService = pkgCode.split(':')[1] || (session.pendingOrder?.catKey || '').split(':')[1] || 'fursan_net';
+            const mappedService = WIFI_CODE_TO_SERVICE_ID[rawService] || rawService;
+            const gbMatch = pkgCode.match(/(\d+gb)/i);
+            const gb = gbMatch ? gbMatch[1].toLowerCase() : '';
+            const normalizedPkg = rawService === 'fursan_kf' ? `fursan_kf_${gb}`
+              : rawService === 'fursan_kj' ? `fursan_kj_${gb}`
+              : rawService === 'azez' ? `azez_${gb}`
+              : rawService === 'mujahid' ? `mujahid_${gb}`
+              : (gb ? `${mappedService}_${gb}` : pkgCode);
+
             claimedWifiCard = await claimAvailableWifiCardAsync({
-              serviceId: pkgCode.split(':')[1] || 'fursan_net',
-              packageId: pkgCode,
+              serviceId: mappedService,
+              packageId: normalizedPkg,
               orderId: 'ORD-' + Date.now().toString(36).toUpperCase(),
               userId: user.id,
               userEmail: user.email,
@@ -4223,21 +4233,6 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
 
       // A.6 Navigation & Dynamic Menus
       let nextMenuId = data;
-      if (
-        (data === 'topup:syriatel' ||
-          data === 'topup:syriatel_monthly' ||
-          data === 'topup:mtn' ||
-          data === 'topup:mtn_monthly') &&
-        session.selectedProvider === 'autocash'
-      ) {
-        session.selectedProvider = 'maxbazar';
-      }
-      if (
-        (data === 'topup:turkey' || data === 'topup:turkey_monthly') &&
-        session.selectedProvider === 'maxbazar'
-      ) {
-        session.selectedProvider = 'autocash';
-      }
       if (data === '@back') {
         nextMenuId = session.history.pop() || 'menu:main';
       } else if (data === 'menu:main') {

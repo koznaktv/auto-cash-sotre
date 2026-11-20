@@ -257,6 +257,54 @@ export async function getWifiStockSummaryAsync(): Promise<
   return summary;
 }
 
+export function normalizeWifiFamily(serviceId: string): {
+  family: 'fursan_kafraya' | 'fursan_kafer_jalis' | 'fursan_net' | 'azez_net' | 'almujahid_net' | string;
+  isFursan: boolean;
+  allowedServiceIds: string[];
+} {
+  const clean = (serviceId || '').trim().toLowerCase();
+  if (clean.includes('kafraya') || clean === 'fursan_kf') {
+    return {
+      family: 'fursan_kafraya',
+      isFursan: true,
+      allowedServiceIds: ['fursan_kafraya', 'fursan_net', 'fursan_kf'],
+    };
+  }
+  if (clean.includes('kafer_jalis') || clean.includes('kaferjalis') || clean === 'fursan_kj') {
+    return {
+      family: 'fursan_kafer_jalis',
+      isFursan: true,
+      allowedServiceIds: ['fursan_kafer_jalis', 'fursan_net', 'fursan_kj'],
+    };
+  }
+  if (clean.startsWith('fursan')) {
+    return {
+      family: 'fursan_net',
+      isFursan: true,
+      allowedServiceIds: ['fursan_net', 'fursan_kafraya', 'fursan_kafer_jalis', 'fursan_kf', 'fursan_kj', 'fursan'],
+    };
+  }
+  if (clean.includes('azez')) {
+    return {
+      family: 'azez_net',
+      isFursan: false,
+      allowedServiceIds: ['azez_net', 'azez'],
+    };
+  }
+  if (clean.includes('mujahid')) {
+    return {
+      family: 'almujahid_net',
+      isFursan: false,
+      allowedServiceIds: ['almujahid_net', 'mujahid_net', 'mujahid'],
+    };
+  }
+  return {
+    family: clean,
+    isFursan: false,
+    allowedServiceIds: [clean],
+  };
+}
+
 /**
  * Atomically claim 1 available card for purchase
  */
@@ -272,12 +320,12 @@ export async function claimAvailableWifiCardAsync(params: {
 
   // Helper to extract GB size like "6gb", "4gb", "2gb", "1gb"
   const getGbSize = (pkg: string) => {
-    const m = pkg.match(/(\d+gb)/i);
-    return m ? m[1].toLowerCase() : pkg.toLowerCase();
+    const m = (pkg || '').match(/(\d+gb)/i);
+    return m ? m[1].toLowerCase() : (pkg || '').toLowerCase();
   };
 
   const targetGb = getGbSize(params.packageId);
-  const isTargetFursan = params.serviceId.startsWith('fursan');
+  const targetFamily = normalizeWifiFamily(params.serviceId);
 
   const idx = allCards.findIndex((c) => {
     if (c.status !== 'available') return false;
@@ -287,15 +335,32 @@ export async function claimAvailableWifiCardAsync(params: {
       return true;
     }
 
-    // 2. Cross-compatible matching across Fursan networks
-    if (isTargetFursan && c.serviceId.startsWith('fursan')) {
-      const cardGb = getGbSize(c.packageId);
-      if (cardGb !== targetGb) return false;
+    // 2. Normalized family & GB size match
+    const cardFamily = normalizeWifiFamily(c.serviceId);
+    const cardGb = getGbSize(c.packageId);
 
-      // Allow same specific network, or fallback to generic fursan_net
-      if (c.serviceId === params.serviceId || c.serviceId === 'fursan_net') {
+    if (cardGb !== targetGb) return false;
+
+    // Fursan cross-compatibility:
+    if (targetFamily.isFursan && cardFamily.isFursan) {
+      // Direct same specific network (e.g. kafraya == kafraya) or fallback to generic fursan_net
+      if (
+        cardFamily.family === targetFamily.family ||
+        cardFamily.family === 'fursan_net' ||
+        targetFamily.family === 'fursan_net'
+      ) {
         return true;
       }
+    }
+
+    // Azez & Mujahid family match:
+    if (cardFamily.family === targetFamily.family) {
+      return true;
+    }
+
+    // Fallback: Check if allowedServiceIds overlaps
+    if (targetFamily.allowedServiceIds.includes(c.serviceId) || cardFamily.allowedServiceIds.includes(params.serviceId)) {
+      return true;
     }
 
     return false;

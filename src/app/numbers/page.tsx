@@ -7,6 +7,7 @@ import AuthModal from '@/components/AuthModal';
 import { useLanguage } from '@/context/LanguageContext';
 import { getCachedUser, clearLocalAuth, formatCurrencyAmount } from '@/lib/clientAuth';
 import { CountryMeta, FEATURED_APPS, ServiceMeta } from '@/lib/sms/smsMetadata';
+import { autoLoginTelegramMiniApp, getTelegramWebAppUser } from '@/lib/telegramMiniApp';
 import WavingFlag from '@/components/sms/WavingFlag';
 import AppIcon from '@/components/sms/AppIcon';
 import {
@@ -127,7 +128,7 @@ export default function NumbersPage() {
   const [historyOrders, setHistoryOrders] = useState<any[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
 
-  // Fetch current user
+  // Fetch current user & sync Telegram Mini App
   useEffect(() => {
     const cached = getCachedUser();
     if (cached) setUser(cached);
@@ -138,6 +139,43 @@ export default function NumbersPage() {
         if (d.success && d.user) setUser(d.user);
       })
       .catch(() => null);
+
+    // Auto-sync Telegram Mini App
+    autoLoginTelegramMiniApp('numbers', (session) => {
+      if (session) {
+        setUser((prev) => ({
+          ...prev,
+          id: String(session.telegram_id || session.identity),
+          name: session.identity || 'Telegram User',
+          email: `${session.identity}@maxbazar.user`,
+          balance: typeof session.balance === 'number' ? session.balance : (prev?.balance || 0),
+        }));
+      }
+    });
+
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const qIdent = urlParams.get('user') || urlParams.get('tg_id') || urlParams.get('chat_id');
+      if (qIdent) {
+        fetch('/api/apps/otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_balance', phone_or_username: qIdent }),
+        })
+          .then((r) => r.json())
+          .then((d) => {
+            if (d && d.ok && typeof d.balance === 'number') {
+              setUser((prev) => ({
+                id: qIdent,
+                name: qIdent,
+                email: `${qIdent}@maxbazar.user`,
+                balance: d.balance,
+              }));
+            }
+          })
+          .catch(() => null);
+      }
+    } catch {}
   }, []);
 
   // Fetch countries on load
@@ -433,6 +471,8 @@ export default function NumbersPage() {
           countryId: selectedCountry.id,
           serviceName: service.name,
           countryName: selectedCountry.nameUg || selectedCountry.name,
+          identity: (user as any)?.telegramUsername || (user as any)?.username || (user as any)?.email || user?.id,
+          user_id: (user as any)?.telegramChatId || user?.id,
         }),
       });
 
