@@ -9,8 +9,12 @@
     "password": "pass_6665",
     "cardNumber": "AZEZ-1GB-136665",
     "validityDays": 3,
-    "status": "available",
-    "createdAt": "2026-11-17T20:52:43.422516Z"
+    "status": "sold",
+    "createdAt": "2026-11-17T20:52:43.422516Z",
+    "soldToUserId": "usr_wifi_test",
+    "soldToUserEmail": "tester@autocash.app",
+    "soldOrderId": "TEST-ORD-1795164349448",
+    "soldAt": "2026-11-20T08:45:49.448Z"
   },
   {
     "id": "AZEZ_1GB_2_7474",
@@ -529,8 +533,12 @@
     "password": "pass_2201",
     "cardNumber": "FURS-1GB-402201",
     "validityDays": 3,
-    "status": "available",
-    "createdAt": "2026-11-17T20:52:43.422516Z"
+    "status": "sold",
+    "createdAt": "2026-11-17T20:52:43.422516Z",
+    "soldToUserId": "usr_wifi_test",
+    "soldToUserEmail": "tester@autocash.app",
+    "soldOrderId": "TEST-ORD-1795164349350",
+    "soldAt": "2026-11-20T08:45:49.353Z"
   },
   {
     "id": "FURS_1GB_2_6029",
@@ -1049,8 +1057,12 @@
     "password": "pass_7746",
     "cardNumber": "FURS-1GB-557746",
     "validityDays": 3,
-    "status": "available",
-    "createdAt": "2026-11-17T20:52:43.422516Z"
+    "status": "sold",
+    "createdAt": "2026-11-17T20:52:43.422516Z",
+    "soldToUserId": "usr_wifi_test",
+    "soldToUserEmail": "tester@autocash.app",
+    "soldOrderId": "TEST-ORD-1795164349402",
+    "soldAt": "2026-11-20T08:45:49.402Z"
   },
   {
     "id": "FURS_1GB_2_2776",
@@ -1569,8 +1581,12 @@
     "password": "pass_3673",
     "cardNumber": "ALMU-1GB-573673",
     "validityDays": 3,
-    "status": "available",
-    "createdAt": "2026-11-17T20:52:43.422516Z"
+    "status": "sold",
+    "createdAt": "2026-11-17T20:52:43.422516Z",
+    "soldToUserId": "usr_wifi_test",
+    "soldToUserEmail": "tester@autocash.app",
+    "soldOrderId": "TEST-ORD-1795164349496",
+    "soldAt": "2026-11-20T08:45:49.496Z"
   },
   {
     "id": "ALMU_1GB_2_2993",

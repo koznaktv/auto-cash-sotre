@@ -1350,7 +1350,7 @@ export const PROVIDER_DATA: Record<string, CategoryData> = {
 };
 
 // Wi-Fi service ID mapping for AUTO CASH
-const WIFI_CODE_TO_SERVICE_ID: Record<string, string> = {
+export const WIFI_CODE_TO_SERVICE_ID: Record<string, string> = {
   fursan_kf: 'fursan_kafraya',
   fursan_kj: 'fursan_kafer_jalis',
   azez: 'azez_net',
@@ -4080,7 +4080,9 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
           `💳 <b>قالغان قالدۇقىڭىز:</b> <b>${newBalance.toFixed(2)} USD</b>\n` +
           statusDisplay + '\n' +
           wifiCardExtra +
-          `\nمەھسۇلات ئاپتوماتىك قاچىلىنىدۇ. رەھمەت!`;
+          (isWifi
+            ? '\n💡 <b>ئىشلىتىش ئۇسۇلى:</b> Wi-Fi تورىغا ئۇلىنىپ، يۇقىرىدىكى ئىشلەتكۈچى نامى ۋە پارولنى كىرگۈزۈڭ. رەھمەت!'
+            : '\nمەھسۇلات ئاپتوماتىك قاچىلىنىدۇ. رەھمەت!');
 
         // Clear active pending order
         session.pendingOrder = null;
