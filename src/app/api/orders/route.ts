@@ -365,7 +365,8 @@ export async function POST(req: Request) {
     // Wi-Fi Card Local Stock Check & Pre-Claim
     const isWifiService =
       service.category === 'wifi' ||
-      service.id === 'fursan_net' ||
+      service.id === 'fursan_kafraya' ||
+      service.id === 'fursan_kafer_jalis' ||
       service.id === 'azez_net' ||
       service.id === 'almujahid_net' ||
       (service.id || '').toLowerCase().includes('wifi') ||
@@ -439,9 +440,9 @@ export async function POST(req: Request) {
       initialStatus: (isWifiService && claimedWifiCard) ? 'completed' : 'processing',
       details: isWifiService && claimedWifiCard ? {
         wifiCard: {
-          network: (service.id || '').includes('fursan') ? 'fursan' : (service.id === 'azez_net' ? 'azez' : 'mujahid'),
-          networkName: service.id === 'fursan_kafer_jalis' ? 'شبكة الفرسان (كفر جالس)' : (service.id === 'fursan_kafraya' ? 'شبكة الفرسان (كفريا)' : (service.id === 'fursan_net' ? 'شبكة الفرسان' : (service.id === 'azez_net' ? 'شبكة عزيز نت' : 'شبكة المجاهد نت'))),
-          networkEn: service.id === 'fursan_kafer_jalis' ? 'FURSAN NET (KAFER JALIS)' : (service.id === 'fursan_kafraya' ? 'FURSAN NET (KAFRAYA)' : (service.id === 'fursan_net' ? 'FURSAN NET' : (service.id === 'azez_net' ? 'AZEZ . NET' : 'AL MUJAHID NET'))),
+          network: (service.id || '').includes('kafraya') ? 'fursan_kafraya' : (service.id || '').includes('kafer_jalis') ? 'fursan_kafer_jalis' : (service.id === 'azez_net' ? 'azez' : 'mujahid'),
+          networkName: service.id === 'fursan_kafer_jalis' ? 'شبكة الفرسان (كفر جالس)' : (service.id === 'fursan_kafraya' ? 'شبكة الفرسان (كفريا)' : (service.id === 'azez_net' ? 'شبكة عزيز نت' : 'شبكة المجاهد نت')),
+          networkEn: service.id === 'fursan_kafer_jalis' ? 'FURSAN NET (KAFER JALIS)' : (service.id === 'fursan_kafraya' ? 'FURSAN NET (KAFRAYA)' : (service.id === 'azez_net' ? 'AZEZ . NET' : 'AL MUJAHID NET')),
           username: claimedWifiCard.username,
           password: claimedWifiCard.password,
           cardNumber: claimedWifiCard.cardNumber,

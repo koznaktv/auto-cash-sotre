@@ -57,8 +57,6 @@ export async function POST(req: Request) {
           ? 'شبكة الفرسان (كفر جالس)'
           : serviceId === 'fursan_kafraya'
           ? 'شبكة الفرسان (كفريا)'
-          : serviceId === 'fursan_net'
-          ? 'شبكة الفرسان'
           : serviceId === 'azez_net'
           ? 'شبكة عزيز نت'
           : 'شبكة المجاهد نت'),

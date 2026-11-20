@@ -179,7 +179,8 @@ export async function POST(req: Request) {
     // Wi-Fi Card Local Stock Check & Pre-Claim
     const isWifiService =
       service.category === 'wifi' ||
-      service.id === 'fursan_net' ||
+      service.id === 'fursan_kafraya' ||
+      service.id === 'fursan_kafer_jalis' ||
       service.id === 'azez_net' ||
       service.id === 'almujahid_net' ||
       (service.id || '').toLowerCase().includes('wifi') ||
@@ -232,8 +233,6 @@ export async function POST(req: Request) {
                     ? 'شبكة الفرسان (كفر جالس)'
                     : service.id === 'fursan_kafraya'
                     ? 'شبكة الفرسان (كفريا)'
-                    : service.id === 'fursan_net'
-                    ? 'شبكة الفرسان'
                     : service.id === 'azez_net'
                     ? 'شبكة عزيز نت'
                     : 'شبكة المجاهد نت',
@@ -242,8 +241,6 @@ export async function POST(req: Request) {
                     ? 'FURSAN NET (KAFER JALIS)'
                     : service.id === 'fursan_kafraya'
                     ? 'FURSAN NET (KAFRAYA)'
-                    : service.id === 'fursan_net'
-                    ? 'FURSAN NET'
                     : service.id === 'azez_net'
                     ? 'AZEZ . NET'
                     : 'AL MUJAHID NET',

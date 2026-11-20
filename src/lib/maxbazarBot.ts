@@ -3769,7 +3769,7 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
         if (isWifi) {
           try {
             const { claimAvailableWifiCardAsync } = await import('./wifiInventoryDb');
-            const rawService = pkgCode.split(':')[1] || (session.pendingOrder?.catKey || '').split(':')[1] || 'fursan_net';
+            const rawService = pkgCode.split(':')[1] || (session.pendingOrder?.catKey || '').split(':')[1] || '';
             const mappedService = WIFI_CODE_TO_SERVICE_ID[rawService] || rawService;
             const gbMatch = pkgCode.match(/(\d+gb)/i);
             const gb = gbMatch ? gbMatch[1].toLowerCase() : '';

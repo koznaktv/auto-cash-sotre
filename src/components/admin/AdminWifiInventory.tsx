@@ -60,16 +60,6 @@ const NETWORKS = [
       { id: 'mujahid_1gb', title: '1 جيجا 3 كۈنلۈك (1GB 3 Days)', price: '$0.12' },
     ],
   },
-  {
-    id: 'fursan_net',
-    name: 'شبكة الفرسان (ئومۇمىي / Generic Fursan Net)',
-    packages: [
-      { id: 'fursan_6gb', title: '6 جيجا 7 كۈنلۈك (6GB 7 Days)', price: '$0.45' },
-      { id: 'fursan_4gb', title: '4 جيجا 7 كۈنلۈك (4GB 7 Days)', price: '$0.34' },
-      { id: 'fursan_2gb', title: '2 جيجا 5 كۈنلۈك (2GB 5 Days)', price: '$0.23' },
-      { id: 'fursan_1gb', title: '1 جيجا 3 كۈنلۈك (1GB 3 Days)', price: '$0.12' },
-    ],
-  },
 ];
 
 export default function AdminWifiInventory() {
@@ -223,13 +213,7 @@ export default function AdminWifiInventory() {
 
   // Filtered Cards
   const filteredCards = cards.filter((c) => {
-    if (filterNet !== 'all') {
-      if (filterNet === 'fursan_net') {
-        if (!c.serviceId.includes('fursan')) return false;
-      } else if (c.serviceId !== filterNet) {
-        return false;
-      }
-    }
+    if (filterNet !== 'all' && c.serviceId !== filterNet) return false;
     if (filterStatus !== 'all' && c.status !== filterStatus) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
@@ -496,7 +480,6 @@ export default function AdminWifiInventory() {
               <option value="fursan_kafraya">شبكة الفرسان (كفريا)</option>
               <option value="azez_net">شبكة عزيز نت</option>
               <option value="almujahid_net">شبكة المجاهد نت</option>
-              <option value="fursan_net">شبكة الفرسان (ئومۇمىي)</option>
             </select>
 
             {/* Filter Status */}

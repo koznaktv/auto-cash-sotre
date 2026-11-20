@@ -15,19 +15,16 @@ export async function GET() {
       .filter((s) => {
         if (s.id.includes('netflix') || s.id.includes('nord') || s.id.includes('vpn')) return false;
         return (
-          s.category === 'wifi' ||
+          s.id === 'fursan_kafraya' ||
+          s.id === 'fursan_kafer_jalis' ||
           s.id === 'azez_net' ||
-          s.id.startsWith('fursan_') ||
-          s.id === 'almujahid_net' ||
-          (s.name || '').includes('Wi-Fi') ||
-          (s.name || '').includes('واي فاي')
+          s.id === 'almujahid_net'
         );
       })
       .map((s) => {
         const pkgs = (s.packages || []).map((p) => {
           const key = `${s.id}:${p.id}`;
-          const fallbackKey = `fursan_net:${p.id}`;
-          const stock = Number(stockSummary[key]?.available ?? stockSummary[fallbackKey]?.available ?? 0);
+          const stock = Number(stockSummary[key]?.available ?? 0);
 
           // Extract clean duration and GB for pristine Uyghur typography
           let duration = p.duration || '7 كۈن';

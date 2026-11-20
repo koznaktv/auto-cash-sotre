@@ -4,7 +4,7 @@ import { getSupabase } from './supabase';
 
 export interface WifiCardItem {
   id: string;
-  serviceId: 'fursan_net' | 'azez_net' | string;
+  serviceId: 'fursan_kafraya' | 'fursan_kafer_jalis' | 'azez_net' | 'almujahid_net' | string;
   serviceName: string;
   packageId: string;
   packageTitle: string;
@@ -230,7 +230,7 @@ export async function getWifiStockSummaryAsync(): Promise<
   for (const card of cards) {
     addCount(card.serviceId, card.packageId, card.status);
 
-    // If card was uploaded to fursan_kafer_jalis as fursan_kj_* or fursan_*
+    // If card was uploaded to fursan_kafer_jalis as fursan_kj_*
     if (card.serviceId === 'fursan_kafer_jalis') {
       const genericPkg = card.packageId.replace(/^fursan_kj_/, 'fursan_');
       if (genericPkg !== card.packageId) {
@@ -241,16 +241,6 @@ export async function getWifiStockSummaryAsync(): Promise<
       if (genericPkg !== card.packageId) {
         addCount('fursan_kafraya', genericPkg, card.status);
       }
-    } else if (card.serviceId === 'fursan_net') {
-      // Generic fursan cards count towards both kafer_jalis and kafraya
-      const sizeMatch = card.packageId.match(/fursan_(\d+gb)/);
-      const size = sizeMatch ? sizeMatch[1] : '';
-      if (size) {
-        addCount('fursan_kafer_jalis', `fursan_kj_${size}`, card.status);
-        addCount('fursan_kafraya', `fursan_kf_${size}`, card.status);
-      }
-      addCount('fursan_kafer_jalis', card.packageId, card.status);
-      addCount('fursan_kafraya', card.packageId, card.status);
     }
   }
 
@@ -258,7 +248,7 @@ export async function getWifiStockSummaryAsync(): Promise<
 }
 
 export function normalizeWifiFamily(serviceId: string): {
-  family: 'fursan_kafraya' | 'fursan_kafer_jalis' | 'fursan_net' | 'azez_net' | 'almujahid_net' | string;
+  family: 'fursan_kafraya' | 'fursan_kafer_jalis' | 'azez_net' | 'almujahid_net' | string;
   isFursan: boolean;
   allowedServiceIds: string[];
 } {
@@ -267,21 +257,14 @@ export function normalizeWifiFamily(serviceId: string): {
     return {
       family: 'fursan_kafraya',
       isFursan: true,
-      allowedServiceIds: ['fursan_kafraya', 'fursan_net', 'fursan_kf'],
+      allowedServiceIds: ['fursan_kafraya', 'fursan_kf'],
     };
   }
   if (clean.includes('kafer_jalis') || clean.includes('kaferjalis') || clean === 'fursan_kj') {
     return {
       family: 'fursan_kafer_jalis',
       isFursan: true,
-      allowedServiceIds: ['fursan_kafer_jalis', 'fursan_net', 'fursan_kj'],
-    };
-  }
-  if (clean.startsWith('fursan')) {
-    return {
-      family: 'fursan_net',
-      isFursan: true,
-      allowedServiceIds: ['fursan_net', 'fursan_kafraya', 'fursan_kafer_jalis', 'fursan_kf', 'fursan_kj', 'fursan'],
+      allowedServiceIds: ['fursan_kafer_jalis', 'fursan_kj'],
     };
   }
   if (clean.includes('azez')) {
@@ -341,29 +324,12 @@ export async function claimAvailableWifiCardAsync(params: {
 
     if (cardGb !== targetGb) return false;
 
-    // Fursan cross-compatibility:
-    if (targetFamily.isFursan && cardFamily.isFursan) {
-      // Direct same specific network (e.g. kafraya == kafraya) or fallback to generic fursan_net
-      if (
-        cardFamily.family === targetFamily.family ||
-        cardFamily.family === 'fursan_net' ||
-        targetFamily.family === 'fursan_net'
-      ) {
-        return true;
-      }
+    // Strict network isolation: Kafraya only sells Kafraya, Kafer Jalis only sells Kafer Jalis, Azez only sells Azez, Mujahid only sells Mujahid
+    if (cardFamily.family !== targetFamily.family) {
+      return false;
     }
 
-    // Azez & Mujahid family match:
-    if (cardFamily.family === targetFamily.family) {
-      return true;
-    }
-
-    // Fallback: Check if allowedServiceIds overlaps
-    if (targetFamily.allowedServiceIds.includes(c.serviceId) || cardFamily.allowedServiceIds.includes(params.serviceId)) {
-      return true;
-    }
-
-    return false;
+    return true;
   });
 
   if (idx === -1) return null;

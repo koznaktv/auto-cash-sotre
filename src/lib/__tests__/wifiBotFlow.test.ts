@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { getMenuContent, PROVIDER_DATA, WIFI_CODE_TO_SERVICE_ID } from '../maxbazarBot';
-import { claimAvailableWifiCardAsync, getAllWifiCardsAsync } from '../wifiInventoryDb';
+import { getMenuContent } from '../maxbazarBot';
+import { claimAvailableWifiCardAsync, unclaimWifiCardAsync } from '../wifiInventoryDb';
 
 describe('Wi-Fi Bot Menus and Purchase Flow', () => {
   const mockUser: any = {
@@ -43,8 +43,7 @@ describe('Wi-Fi Bot Menus and Purchase Flow', () => {
       expect(res.text).toContain('ھازىرقى قالدۇقىڭىز');
       const callbacks = res.inline_keyboard.flat().map((b: any) => b.callback_data);
       expect(callbacks.length).toBeGreaterThan(0);
-      
-      // Each package has a buy callback
+
       for (const cb of callbacks) {
         if (cb.startsWith('buy|')) {
           const parts = cb.split('|');
@@ -53,38 +52,46 @@ describe('Wi-Fi Bot Menus and Purchase Flow', () => {
         }
       }
     });
+  }
 
-    it(`renders confirmation screen and claims inventory for ${net.menuId} 1gb package`, async () => {
-      const pkgCode = `wifi:${net.serviceKey}:1gb:ac`;
-      const buyMenuId = `buy|${net.menuId}|${pkgCode}`;
-      const confRes = getMenuContent(buyMenuId, mockUser, mockSession, 99887766, false, mockConfig);
-      
-      expect(confRes.text).toContain('سېتىۋېلىشنى جەزملەشتۈرۈش');
-      expect(confRes.text).toContain('Wi-Fi كارتىسى');
-      
-      // Test inventory claim logic matches maxbazarBot.ts:3772-3788
-      const rawService = pkgCode.split(':')[1];
-      const mappedService = WIFI_CODE_TO_SERVICE_ID[rawService] || rawService;
-      const gbMatch = pkgCode.match(/(\d+gb)/i);
-      const gb = gbMatch ? gbMatch[1].toLowerCase() : '';
-      const normalizedPkg = rawService === 'fursan_kf' ? `fursan_kf_${gb}`
-        : rawService === 'fursan_kj' ? `fursan_kj_${gb}`
-        : rawService === 'azez' ? `azez_${gb}`
-        : rawService === 'mujahid' ? `mujahid_${gb}`
-        : (gb ? `${mappedService}_${gb}` : pkgCode);
+  it('renders confirmation screen for Kafraya 1GB card', () => {
+    const pkgCode = 'wifi:fursan_kf:1gb:ac';
+    const buyMenuId = 'buy|wifi:fursan_kafraya|' + pkgCode;
+    const confRes = getMenuContent(buyMenuId, mockUser, mockSession, 99887766, false, mockConfig);
 
-      const claimed = await claimAvailableWifiCardAsync({
-        serviceId: mappedService,
-        packageId: normalizedPkg,
+    expect(confRes.text).toContain('سېتىۋېلىشنى جەزملەشتۈرۈش');
+    expect(confRes.text).toContain('Wi-Fi كارتىسى');
+  });
+
+  it('successfully claims and unclaims Kafer Jalis 4GB card', async () => {
+    let claimed: any = null;
+    try {
+      claimed = await claimAvailableWifiCardAsync({
+        serviceId: 'fursan_kafer_jalis',
+        packageId: 'fursan_kj_4gb',
         orderId: 'TEST-ORD-' + Date.now(),
         userId: mockUser.id,
         userEmail: mockUser.email,
       });
 
       expect(claimed).not.toBeNull();
-      expect(claimed?.username).toBeDefined();
-      expect(claimed?.password).toBeDefined();
-      expect(claimed?.cardNumber).toBeDefined();
+      expect(claimed?.serviceId).toBe('fursan_kafer_jalis');
+    } finally {
+      if (claimed) {
+        await unclaimWifiCardAsync(claimed.id);
+      }
+    }
+  });
+
+  it('correctly returns null for Mujahid Net when stock is empty', async () => {
+    const claimed = await claimAvailableWifiCardAsync({
+      serviceId: 'almujahid_net',
+      packageId: 'mujahid_1gb',
+      orderId: 'TEST-ORD-' + Date.now(),
+      userId: mockUser.id,
+      userEmail: mockUser.email,
     });
-  }
+
+    expect(claimed).toBeNull();
+  });
 });

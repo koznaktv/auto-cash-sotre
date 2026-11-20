@@ -163,7 +163,6 @@ export function isWifiServiceItem(serviceId?: string, category?: string, name?: 
   if (!serviceId) return false;
   if (category === 'wifi') return true;
   if (
-    serviceId === 'fursan_net' ||
     serviceId === 'fursan_kafraya' ||
     serviceId === 'fursan_kafer_jalis' ||
     serviceId === 'azez_net' ||
@@ -580,9 +579,7 @@ export async function getServicePackagesKeyboard(
       wifiStockMap = {};
       for (const [key, val] of Object.entries(summary)) {
         const [servId, pkgId] = key.split(':');
-        const matchesServ =
-          servId === service.id ||
-          (servId === 'fursan_net' && (service.id === 'fursan_kafraya' || service.id === 'fursan_kafer_jalis'));
+        const matchesServ = servId === service.id;
         if (matchesServ && pkgId) {
           wifiStockMap[pkgId] = Number(val.available || 0);
         }
@@ -1293,7 +1290,7 @@ ${BOT_I18N.order.insufficientBalanceAlert[lang]}
         telegramChatId: fromId,
         telegramUsername: fromUser,
         wifiCard: {
-          network: (session.serviceId === 'fursan_kafraya' || session.serviceId === 'fursan_kafer_jalis' || session.serviceId === 'fursan_net') ? 'fursan' : (session.serviceId === 'azez_net' ? 'azez' : 'mujahid'),
+          network: (session.serviceId === 'fursan_kafraya' || session.serviceId === 'fursan_kafer_jalis') ? 'fursan' : (session.serviceId === 'azez_net' ? 'azez' : 'mujahid'),
           networkName: session.serviceId === 'fursan_kafraya' ? 'شبكة الفرسان (كفريا)' : session.serviceId === 'fursan_kafer_jalis' ? 'شبكة الفرسان (كفر جالس)' : session.serviceId === 'azez_net' ? 'شبكة عزيز نت' : 'شبكة المجاهد نت',
           networkEn: session.serviceId === 'fursan_kafraya' ? 'FURSAN NET (KAFRAYA)' : session.serviceId === 'fursan_kafer_jalis' ? 'FURSAN NET (KAFER JALIS)' : session.serviceId === 'azez_net' ? 'AZEZ . NET' : 'AL MUJAHID NET',
           username: claimedWifiCard.username,
