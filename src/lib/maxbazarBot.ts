@@ -138,6 +138,8 @@ interface MaxBazarSession {
   history: string[];
   lang: string;
   pendingOrder?: PendingOrderState | null;
+  currentFlow?: 'deposit' | 'order' | 'idle';
+  lastMenuId?: string;
   localOrders: Array<{
     orderId: string;
     title: string;
@@ -2228,6 +2230,7 @@ function formatDualButtonLabel(
 
     // A. If this product requires input AND customer has not entered target account yet: Show Input Prompt!
     if (reqInfo.requiresInput && !hasTargetAccount) {
+      session.currentFlow = 'order';
       session.pendingOrder = {
         catKey,
         pkgCode,
@@ -2341,6 +2344,9 @@ function formatDualButtonLabel(
 
   // 10. ShamCash Deposit Topup (balance:topup)
   if (menuId === 'balance:topup') {
+    session.pendingOrder = null;
+    session.currentFlow = 'deposit';
+    session.lastMenuId = 'balance:topup';
     const text =
       `<tg-emoji emoji-id="5204470768896864316">🏦</tg-emoji> <b>شامكەش ئارقىلىق قالدۇق قاچىلاش</b>\n\n` +
       `شامكەش نۇمۇرىمىزنى كۆچۈرۈڭ (چەكسىڭىز كۆچۈرۈلىدۇ):\n` +
@@ -2362,6 +2368,9 @@ function formatDualButtonLabel(
 
   // 11. FAQ for ShamCash Tx
   if (menuId === 'balance:faq_tx' || menuId === 'balance:check_tx') {
+    session.pendingOrder = null;
+    session.currentFlow = 'deposit';
+    session.lastMenuId = menuId;
     const text =
       `❓ <b>رقم العملية دېگەن قايسى نومۇر؟</b>\n\n` +
       `شامكەشتىن پۇل ئەۋەتكەندىن كېيىن، تالوندىكى رقم العملية نومۇرىدۇر (مەسىلەن: <code>571734143</code>).\n\n` +
@@ -2419,6 +2428,11 @@ async function handleShamCashTxVerify(
   config: BotConfig,
   attachedFile?: { fileId: string; isPhoto?: boolean; isDocument?: boolean; fileName?: string }
 ) {
+  const session = getSession(chatId);
+  session.pendingOrder = null;
+  session.currentFlow = 'deposit';
+  session.lastMenuId = 'balance:topup';
+
   const cleanTxId = normalizeTxId(txId);
   const ADMIN_CHAT_ID = String(process.env.TELEGRAM_ADMIN_CHAT_ID || '7575664493').trim();
 
@@ -3737,6 +3751,8 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
 
         // Insufficient funds
         if (currentBalance < price) {
+          session.pendingOrder = null;
+          session.currentFlow = 'idle';
           const failText =
             `⚠️ <b>زاكاز مەغلۇپ بولدى!</b>\n\n` +
             `سەۋەبى: ھەميان قالدۇقىڭىز يەتمىدى!\n` +
@@ -4088,6 +4104,7 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
 
         // Clear active pending order
         session.pendingOrder = null;
+        session.currentFlow = 'idle';
 
         // If completed immediately (e.g. Wi-Fi card or instant provider completion), broadcast now!
         if (isCompletedNow) {
@@ -4245,6 +4262,23 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
       } else {
         session.history.push(data);
       }
+
+      // Session hygiene: Clear pendingOrder and sync flow when navigating
+      if (nextMenuId.startsWith('balance:')) {
+        session.pendingOrder = null;
+        session.currentFlow = 'deposit';
+      } else if (
+        nextMenuId === 'menu:main' ||
+        nextMenuId === 'menu:enter' ||
+        nextMenuId.startsWith('shop:') ||
+        nextMenuId.startsWith('orders:')
+      ) {
+        session.pendingOrder = null;
+        session.currentFlow = 'idle';
+      } else if (nextMenuId.startsWith('buy|') || nextMenuId.startsWith('buy:')) {
+        session.currentFlow = 'order';
+      }
+      session.lastMenuId = nextMenuId;
 
       const targetCategoryData = PROVIDER_DATA[nextMenuId];
       if (targetCategoryData && !nextMenuId.startsWith('topup:') && !nextMenuId.startsWith('wifi:')) {
@@ -4742,7 +4776,36 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
       return;
     }
 
-    // B.4.1 Cancel Pending Order
+    // B.4.0 Expire Stale Pending Orders (> 10 minutes)
+    if (session.pendingOrder && Date.now() - (session.pendingOrder.timestamp || 0) > 10 * 60 * 1000) {
+      session.pendingOrder = null;
+      if (session.currentFlow === 'order') session.currentFlow = 'idle';
+    }
+
+    // B.4.1 Direct Deposit / Topup Keywords Routing
+    const isTopupKeyword =
+      text === 'قالدۇق قاچىلاش' ||
+      text === 'شامكەش' ||
+      text === 'پۇل كىرگۈزۈش' ||
+      text === 'پۇل قاچىلاش' ||
+      text.toLowerCase() === 'topup' ||
+      text.toLowerCase() === 'deposit';
+
+    if (isTopupKeyword) {
+      session.pendingOrder = null;
+      session.currentFlow = 'deposit';
+      session.lastMenuId = 'balance:topup';
+      const menu = getMenuContent('balance:topup', user, session, chatId, isAdmin, config);
+      await api('sendMessage', {
+        chat_id: chatId,
+        text: menu.text,
+        parse_mode: 'HTML',
+        reply_markup: { inline_keyboard: menu.inline_keyboard },
+      });
+      return;
+    }
+
+    // B.4.2 Cancel Pending Order
     if (
       session.pendingOrder &&
       (text === '/cancel' ||
@@ -4751,6 +4814,7 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
         text.toLowerCase() === 'cancel')
     ) {
       session.pendingOrder = null;
+      session.currentFlow = 'idle';
       const menu = getMenuContent('menu:main', user, session, chatId, isAdmin, config);
       await api('sendMessage', {
         chat_id: chatId,
@@ -4761,9 +4825,23 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
       return;
     }
 
-    // B.4.2 Handle Active Order Input (Player ID / Phone Number / Email / Zone ID)
+    // B.4.3 Deposit Flow Protection: If user is in deposit mode or sends TxID while in balance menu
+    const normalizedInputTx = normalizeTxId(text);
+    const looksLikeTxId =
+      /^\d{5,25}$/.test(normalizedInputTx) ||
+      (text.length >= 5 && text.length <= 32 && /^[a-zA-Z0-9_-]{5,32}$/.test(text) && !text.startsWith('/'));
+
+    if (looksLikeTxId && (session.currentFlow === 'deposit' || session.lastMenuId?.startsWith('balance:'))) {
+      session.pendingOrder = null;
+      await handleShamCashTxVerify(chatId, text, user, config);
+      return;
+    }
+
+    // B.4.4 Handle Active Order Input (Player ID / Phone Number / Email / Zone ID)
     if (
       session.pendingOrder &&
+      session.currentFlow !== 'deposit' &&
+      !session.lastMenuId?.startsWith('balance:') &&
       (session.pendingOrder.step === 'awaiting_target' || session.pendingOrder.step === 'awaiting_zone') &&
       !text.startsWith('/') &&
       text !== 'باش بەت' &&
@@ -4776,8 +4854,9 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
 
       if (pending.step === 'awaiting_target') {
         if (pending.kind === 'mlbb') {
-          // Check if user provided both UID and Zone ID in one string, e.g. "12345678 (2045)" or "12345678 2045"
-          const mlbbMatch = cleanInput.match(/^(\d{5,12})\s*[\(\[\{]?\s*(\d{3,6})\s*[\)\]\}]?$/);
+          // Check if user provided both UID and Zone ID with explicit separator (space or brackets)
+          // e.g. "12345678 (2045)" or "12345678 2045"
+          const mlbbMatch = cleanInput.match(/^(\d{5,12})(?:\s+|\s*[\(\[\{]\s*)(\d{3,6})[\)\]\}]?$/);
           if (mlbbMatch) {
             pending.targetAccount = mlbbMatch[1];
             pending.zoneId = mlbbMatch[2];
@@ -4823,6 +4902,9 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
 
     // B.4.9 Photo or PDF Document Receipt Handling (ShamCash Vision OCR)
     if (message.photo || message.document) {
+      session.pendingOrder = null;
+      session.currentFlow = 'deposit';
+      session.lastMenuId = 'balance:check_tx';
       try {
         let fileId = '';
         if (Array.isArray(message.photo) && message.photo.length > 0) {
@@ -5006,11 +5088,12 @@ export async function handleStoreBotWebhook(update: any, configOverride?: Partia
     }
 
     // B.5 ShamCash Transaction Verification (Customer sends transaction ID or receipt text)
-    const normalizedInputTx = normalizeTxId(text);
     if (
       /^\d{5,25}$/.test(normalizedInputTx) ||
       (text.length >= 5 && text.length <= 32 && /^[a-zA-Z0-9_-]{5,32}$/.test(text) && !text.startsWith('/'))
     ) {
+      session.pendingOrder = null;
+      session.currentFlow = 'deposit';
       await handleShamCashTxVerify(chatId, text, user, config);
       return;
     }
